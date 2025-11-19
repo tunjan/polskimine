@@ -1,9 +1,10 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { X, Sparkles } from 'lucide-react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
+import { X, Sparkles, Loader2 } from 'lucide-react';
 import { Button } from './ui/Button';
 import { Card } from '../types';
 import { v4 as uuidv4 } from 'uuid';
 import { toast } from 'sonner';
+import { aiService } from '../services/ai';
 
 interface AddCardModalProps {
   isOpen: boolean;
@@ -11,6 +12,8 @@ interface AddCardModalProps {
   onAdd: (card: Card) => void;
   initialCard?: Card;
 }
+
+const escapeRegExp = (value: string) => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
 export const AddCardModal: React.FC<AddCardModalProps> = ({ isOpen, onClose, onAdd, initialCard }) => {
   const [form, setForm] = useState({
@@ -20,7 +23,37 @@ export const AddCardModal: React.FC<AddCardModalProps> = ({ isOpen, onClose, onA
     notes: ''
   });
   const [error, setError] = useState('');
+  const [isGenerating, setIsGenerating] = useState(false);
   const modalRef = useRef<HTMLDivElement>(null);
+  const targetMismatch = Boolean(
+    form.targetWord && form.sentence &&
+    !form.sentence.toLowerCase().includes(form.targetWord.toLowerCase())
+  );
+
+  const previewSentence = useMemo(() => {
+    if (!form.sentence) return null;
+    if (!form.targetWord) return <span>{form.sentence}</span>;
+
+    const regex = new RegExp(`(${escapeRegExp(form.targetWord)})`, 'gi');
+    const parts = form.sentence.split(regex);
+
+    return (
+      <>
+        {parts.map((part, idx) =>
+          part.toLowerCase() === form.targetWord.toLowerCase() ? (
+            <mark
+              key={`${part}-${idx}`}
+              className="bg-amber-100 text-amber-900 px-0.5 rounded-sm"
+            >
+              {part}
+            </mark>
+          ) : (
+            <span key={`${part}-${idx}`}>{part}</span>
+          )
+        )}
+      </>
+    );
+  }, [form.sentence, form.targetWord]);
 
   useEffect(() => {
     if (isOpen && initialCard) {
@@ -85,6 +118,28 @@ export const AddCardModal: React.FC<AddCardModalProps> = ({ isOpen, onClose, onA
 
   if (!isOpen) return null;
 
+  const handleAutoFill = async () => {
+    if (!form.sentence) {
+        setError('Please enter a sentence first to generate details.');
+        return;
+    }
+    setIsGenerating(true);
+    try {
+        const result = await aiService.generateCardContent(form.sentence);
+        setForm(prev => ({
+            ...prev,
+            translation: result.translation,
+            notes: result.notes
+        }));
+        toast.success("Auto-filled successfully!");
+    } catch (e) {
+        console.error(e);
+        toast.error("Failed to auto-fill. Check API key.");
+    } finally {
+        setIsGenerating(false);
+    }
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
@@ -112,7 +167,7 @@ export const AddCardModal: React.FC<AddCardModalProps> = ({ isOpen, onClose, onA
       targetWord: form.targetWord || undefined, // Store as undefined if empty string
       nativeTranslation: form.translation,
       notes: form.notes,
-      status: initialCard ? initialCard.status : 'learning',
+      status: initialCard ? initialCard.status : 'new',
       interval: initialCard ? initialCard.interval : 0,
       easeFactor: initialCard ? initialCard.easeFactor : 2.5,
       dueDate: initialCard ? initialCard.dueDate : new Date().toISOString(),
@@ -145,6 +200,16 @@ export const AddCardModal: React.FC<AddCardModalProps> = ({ isOpen, onClose, onA
           <div>
             <div className="flex justify-between items-center mb-1.5">
                 <label className="block text-xs font-mono text-gray-500 uppercase">Polish Sentence <span className="text-red-500">*</span></label>
+                <button 
+                    type="button"
+                    onClick={handleAutoFill}
+                    disabled={isGenerating}
+                  className="text-[10px] flex items-center gap-1 text-purple-600 hover:text-purple-700 font-medium transition-colors disabled:opacity-50"
+                  aria-live="polite"
+                >
+                  {isGenerating ? <Loader2 size={10} className="animate-spin" /> : <Sparkles size={10} />}
+                  {isGenerating ? 'Mining...' : 'Auto-Fill'}
+                </button>
             </div>
             <input
               type="text"
@@ -154,6 +219,16 @@ export const AddCardModal: React.FC<AddCardModalProps> = ({ isOpen, onClose, onA
               onChange={e => setForm({...form, sentence: e.target.value})}
               autoFocus
             />
+            {form.sentence && (
+              <div className="mt-2 rounded-md border border-dashed border-gray-200 bg-gray-50 p-3 text-sm text-gray-700">
+                <p className="font-mono leading-snug">
+                  {previewSentence}
+                </p>
+                {form.targetWord && (
+                  <p className="mt-1 text-[10px] uppercase tracking-wide text-gray-400">Highlight preview</p>
+                )}
+              </div>
+            )}
           </div>
 
           <div className="grid grid-cols-2 gap-4">
@@ -166,6 +241,9 @@ export const AddCardModal: React.FC<AddCardModalProps> = ({ isOpen, onClose, onA
                 value={form.targetWord}
                 onChange={e => setForm({...form, targetWord: e.target.value})}
               />
+              {targetMismatch && (
+                <p className="mt-1 text-[11px] text-amber-600">Highlight word not found in sentence yet.</p>
+              )}
             </div>
             <div>
               <label className="block text-xs font-mono text-gray-500 uppercase mb-1.5">Translation <span className="text-red-500">*</span></label>

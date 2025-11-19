@@ -43,7 +43,7 @@ export const Flashcard: React.FC<FlashcardProps> = ({ card, isFlipped, autoPlayA
   
   const HighlightedSentence = useMemo(() => {
     // Common styling for the sentence text
-    const sentenceClass = "text-2xl md:text-3xl font-medium text-center leading-tight text-gray-900 max-w-3xl";
+    const sentenceClass = "text-2xl md:text-3xl font-medium text-center leading-tight text-gray-900 dark:text-gray-100 max-w-3xl transition-colors";
 
     if (!card.targetWord) {
       return (
@@ -72,79 +72,69 @@ export const Flashcard: React.FC<FlashcardProps> = ({ card, isFlipped, autoPlayA
     );
   }, [card.targetSentence, card.targetWord]);
 
+  const statusColors = {
+    learning: 'bg-blue-400',
+    review: 'bg-amber-400',
+    graduated: 'bg-emerald-400',
+    known: 'bg-gray-300 dark:bg-gray-600'
+  };
+
   return (
-    <div className="w-full max-w-4xl mx-auto bg-white border border-gray-200 rounded-lg shadow-sm flex flex-col overflow-hidden min-h-[350px] transition-all">
+    <div className="w-full max-w-3xl mx-auto flex flex-col min-h-[400px] justify-center relative">
       
-      {/* Card Header (Subtle meta info) */}
-      <div className="h-10 border-b border-gray-100 flex items-center justify-between px-4 bg-gray-50/50">
-         <div className="flex items-center gap-2">
-            <span className={`w-2 h-2 rounded-full ${
-                card.status === 'learning' ? 'bg-blue-400' :
-                card.status === 'review' ? 'bg-amber-400' :
-                'bg-emerald-400'
-            }`}></span>
-            <span className="text-[10px] font-mono uppercase tracking-widest text-gray-500">{card.status} MODE</span>
+      {/* Status Indicator */}
+      <div className="absolute top-0 w-full flex justify-center pointer-events-none">
+         <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-gray-50/50 dark:bg-gray-900/50 backdrop-blur-sm border border-gray-100 dark:border-gray-800 transition-colors">
+            <div className={`w-1.5 h-1.5 rounded-full ${statusColors[card.status]}`} />
+            <span className="text-[10px] font-mono uppercase tracking-widest text-gray-400 dark:text-gray-500">
+                {card.status}
+            </span>
          </div>
-         <span className="text-[10px] font-mono text-gray-400">ID: {card.id.slice(0, 6)}</span>
       </div>
 
-      {/* Card Content Area */}
-      <div className="flex-1 flex flex-col">
-        
-        {/* Top Half: The Question */}
-        {/* Reduced padding significantly to fit on screen */}
-        <div className={`flex-1 flex flex-col items-center justify-center p-6 md:p-8 transition-all duration-500 ${isFlipped ? 'flex-[0.6] border-b border-gray-100' : 'flex-1'}`}>
-          <div className="w-full flex flex-col items-center space-y-6">
-            {HighlightedSentence}
+      {/* Question Area */}
+      <div className="flex-1 flex flex-col items-center justify-center p-8 transition-all duration-500">
+        <div className="w-full flex flex-col items-center space-y-8">
+          {HighlightedSentence}
+          
+          {hasVoice && (
+            <button 
+              onClick={speak}
+              className="text-gray-400 hover:text-gray-900 dark:text-gray-500 dark:hover:text-gray-200 transition-colors p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800"
+              title="Listen"
+            >
+              <Volume2 size={20} />
+            </button>
+          )}
+        </div>
+      </div>
+
+      {/* Answer Area */}
+      {isFlipped && (
+        <div className="animate-in slide-in-from-bottom-2 fade-in duration-300 pb-8">
+          <div className="w-full max-w-2xl mx-auto border-t border-gray-100 dark:border-gray-800 pt-8 grid grid-cols-1 gap-8 text-center transition-colors">
             
-            {hasVoice && (
-              <button 
-                onClick={speak}
-                className="flex items-center gap-2 text-xs font-mono text-gray-500 hover:text-gray-900 hover:bg-gray-100 px-3 py-1.5 rounded-full transition-all"
-                title="Listen"
-                aria-label="Listen to sentence"
-              >
-                <Volume2 size={14} />
-                <span>PLAY AUDIO</span>
-              </button>
+            {/* Translation */}
+            <div className="space-y-2">
+              <span className="text-xs font-mono text-gray-400 dark:text-gray-500 uppercase tracking-wider">Meaning</span>
+              <h3 className="text-xl text-gray-800 dark:text-gray-200 font-serif italic transition-colors">
+                {showTranslation ? card.nativeTranslation : <span className="blur-sm select-none text-gray-300 dark:text-gray-700">Hidden</span>}
+              </h3>
+            </div>
+
+            {/* Notes */}
+            {card.notes && (
+              <div className="space-y-2">
+                 <span className="text-xs font-mono text-gray-400 dark:text-gray-500 uppercase tracking-wider">Notes</span>
+                 <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed max-w-lg mx-auto transition-colors">
+                    {card.notes}
+                 </p>
+              </div>
             )}
+
           </div>
         </div>
-
-        {/* Bottom Half: The Answer (Revealed) */}
-        {isFlipped && (
-          <div className="flex-[0.8] bg-gray-50/30 animate-in slide-in-from-bottom-4 fade-in duration-300 p-6 md:p-8 flex flex-col items-center justify-center">
-            <div className="w-full max-w-2xl grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-10">
-              
-              {/* Translation Column */}
-              <div className="flex flex-col gap-2 text-center md:text-left items-center md:items-start">
-                <div className="flex items-center gap-2 text-gray-500 mb-1">
-                    <BookOpen size={14} />
-                    <span className="text-xs font-mono uppercase tracking-widest">Meaning</span>
-                </div>
-                <h3 className="text-lg md:text-xl text-gray-800 leading-relaxed font-serif italic">
-                  {showTranslation ? `"${card.nativeTranslation}"` : <span className="text-gray-300 italic select-none blur-sm">Hidden Translation</span>}
-                </h3>
-              </div>
-
-              {/* Notes Column */}
-              <div className="flex flex-col gap-2 text-center md:text-left items-center md:items-start">
-                 <div className="flex items-center gap-2 text-gray-500 mb-1">
-                    <FileText size={14} />
-                    <span className="text-xs font-mono uppercase tracking-widest">Grammar Notes</span>
-                 </div>
-                 <div className="text-sm text-gray-600 font-mono leading-relaxed border-l-2 border-gray-200 pl-3 py-1">
-                    {card.notes || "No notes available."}
-                 </div>
-                 <div className="mt-2 text-xs text-gray-500 font-mono">
-                    Target: <span className="text-gray-900">{card.targetWord || "Sentence"}</span>
-                 </div>
-              </div>
-
-            </div>
-          </div>
-        )}
-      </div>
+      )}
     </div>
   );
 };

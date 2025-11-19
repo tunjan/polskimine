@@ -4,9 +4,12 @@ import { StudySession } from '../components/StudySession';
 import { useDeck } from '../contexts/DeckContext';
 import { db } from '../services/db';
 import { Card } from '../types';
+import { useSettings } from '../contexts/SettingsContext';
+import { applyStudyLimits } from '../services/studyLimits';
 
 export const StudyRoute: React.FC = () => {
   const { updateCard, recordReview, undoReview, canUndo } = useDeck();
+  const { settings } = useSettings();
   const navigate = useNavigate();
   const [sessionCards, setSessionCards] = useState<Card[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -15,7 +18,11 @@ export const StudyRoute: React.FC = () => {
     const loadDueCards = async () => {
       try {
         const due = await db.getDueCards();
-        setSessionCards(due);
+        const limited = applyStudyLimits(due, {
+          dailyNewLimit: settings.dailyNewLimit,
+          dailyReviewLimit: settings.dailyReviewLimit,
+        });
+        setSessionCards(limited);
       } catch (error) {
         console.error("Failed to load due cards", error);
       } finally {
@@ -23,7 +30,7 @@ export const StudyRoute: React.FC = () => {
       }
     };
     loadDueCards();
-  }, []);
+  }, [settings.dailyNewLimit, settings.dailyReviewLimit]);
 
   const handleMarkKnown = (card: Card) => {
     const updatedCard = { ...card, status: 'known' as const };

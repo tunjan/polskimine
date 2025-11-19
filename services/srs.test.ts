@@ -1,8 +1,12 @@
 import { describe, it, expect } from 'vitest';
 import { calculateNextReview, isCardDue } from './srs';
 import { Card } from '../types';
+import { State } from 'ts-fsrs';
+import { FSRS_DEFAULTS } from '../constants';
 
-const mockCard: Card = {
+const deterministicFsrs = { ...FSRS_DEFAULTS, enable_fuzzing: false };
+
+const createMockCard = (): Card => ({
   id: '1',
   targetSentence: 'Test',
   nativeTranslation: 'Test',
@@ -11,40 +15,49 @@ const mockCard: Card = {
   interval: 0,
   easeFactor: 2.5,
   dueDate: new Date().toISOString(),
-};
+  state: State.New,
+});
 
-describe('SRS Algorithm', () => {
-  it('should schedule "Again" reviews for tomorrow (or same day learning step)', () => {
-    const result = calculateNextReview(mockCard, 'Again');
-    expect(result.interval).toBe(1);
+describe('calculateNextReview (FSRS)', () => {
+  it('keeps cards in the learning state for Again grades', () => {
+    const result = calculateNextReview(createMockCard(), 'Again', deterministicFsrs);
     expect(result.status).toBe('learning');
-    // Ease factor should decrease
-    expect(result.easeFactor).toBeLessThan(2.5);
+    expect(result.state).not.toBe(State.Review);
+    expect(result.interval).toBeGreaterThanOrEqual(0);
+    expect(() => new Date(result.dueDate).toISOString()).not.toThrow();
   });
 
-  it('should increase interval for "Good" reviews', () => {
-    const reviewCard = { ...mockCard, status: 'review' as const, interval: 1 };
-    const result = calculateNextReview(reviewCard, 'Good');
-    expect(result.interval).toBeGreaterThan(1);
-    expect(result.status).toBe('review');
-  });
+  it('promotes mature cards to graduated after successful reviews', () => {
+    const matureCard: Card = {
+      ...createMockCard(),
+      status: 'graduated',
+      dueDate: new Date(Date.now() - 86400000).toISOString(),
+      state: State.Review,
+      stability: 25,
+      difficulty: 1.2,
+      elapsed_days: 120,
+      scheduled_days: 120,
+      interval: 120,
+      reps: 50,
+    };
 
-  it('should graduate card when interval is high enough', () => {
-    const reviewCard = { ...mockCard, status: 'review' as const, interval: 10, easeFactor: 2.5 };
-    // 10 * 2.5 = 25, which is > 21
-    const result = calculateNextReview(reviewCard, 'Good');
+    const result = calculateNextReview(matureCard, 'Good', deterministicFsrs);
     expect(result.status).toBe('graduated');
+    expect(result.state).toBe(State.Review);
+    expect(result.stability ?? 0).toBeGreaterThan(0);
+    expect(result.reps ?? 0).toBeGreaterThan(matureCard.reps ?? 0);
+    expect(new Date(result.dueDate).getTime()).toBeGreaterThan(Date.now());
   });
 });
 
 describe('isCardDue', () => {
-  it('should return true for past due dates', () => {
-    const pastCard = { ...mockCard, dueDate: new Date(Date.now() - 86400000).toISOString() };
+  it('returns true for past due dates', () => {
+    const pastCard = { ...createMockCard(), dueDate: new Date(Date.now() - 86400000).toISOString() };
     expect(isCardDue(pastCard)).toBe(true);
   });
 
-  it('should return false for future due dates', () => {
-    const futureCard = { ...mockCard, dueDate: new Date(Date.now() + 86400000).toISOString() };
+  it('returns false for future due dates', () => {
+    const futureCard = { ...createMockCard(), dueDate: new Date(Date.now() + 86400000).toISOString() };
     expect(isCardDue(futureCard)).toBe(false);
   });
 });

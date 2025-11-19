@@ -21,6 +21,20 @@ export default defineConfig(({ mode }) => {
         alias: {
           '@': path.resolve(__dirname, '.'),
         }
+      },
+      test: {
+        globals: true,
+        environment: 'jsdom',
+        setupFiles: './vitest.setup.ts',
+        coverage: {
+          reporter: ['text', 'lcov'],
+          include: [
+            'services/**/*.ts',
+            'components/**/*.tsx',
+            'contexts/**/*.tsx',
+            'routes/**/*.tsx'
+          ]
+        }
       }
     };
 });

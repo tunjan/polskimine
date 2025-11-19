@@ -1,4 +1,4 @@
-import { addDays, startOfDay, subHours, isBefore, isSameDay } from 'date-fns';
+import { addDays, startOfDay, subHours, isBefore, isSameDay, addMinutes } from 'date-fns';
 import { Card, Grade, UserSettings, CardStatus } from '../types';
 import { SRS_CONFIG, FSRS_DEFAULTS } from '../constants';
 import { FSRS, Card as FSRSCard, Rating, State, generatorParameters } from 'ts-fsrs';
@@ -17,14 +17,10 @@ const mapGradeToRating = (grade: Grade): Rating => {
   }
 };
 
-const mapStateToStatus = (state: State): CardStatus => {
-  switch (state) {
-    case State.New: return 'learning';
-    case State.Learning: return 'learning';
-    case State.Relearning: return 'learning';
-    case State.Review: return 'review';
-    default: return 'learning';
-  }
+const mapStateToStatus = (state: State, interval: number): CardStatus => {
+  if (state === State.New) return 'new';
+  if (interval > 90) return 'graduated';
+  return 'learning';
 };
 
 /**
@@ -70,10 +66,67 @@ export const calculateNextReview = (card: Card, grade: Grade, settings?: UserSet
   // Fix: If we pass a "New" card with a past due date, FSRS handles it.
   
   const rating = mapGradeToRating(grade);
+
+  // Custom Learning Steps Logic: New -> 10m -> Graduate
+  const isNew = card.state === State.New || (!card.state && (card.reps || 0) === 0);
+  const isLearningStep1 = card.learningStep === 1;
+
+  // Case 1: New Card + Good -> Enter Learning Step 1 (10m)
+  if (isNew && grade === 'Good') {
+    // Run FSRS to initialize Stability/Difficulty as if it was graduating
+    const schedulingCards = f.repeat(fsrsCard, now);
+    const log = schedulingCards[rating].card;
+
+    return {
+      ...card,
+      ...log,
+      state: State.Learning,
+      status: 'learning',
+      dueDate: addMinutes(now, 10).toISOString(),
+      learningStep: 1, // Mark as waiting for 2nd review
+      scheduled_days: 0,
+      elapsed_days: 0
+    };
+  }
+
+  // Case 2: Learning Step 1 + Good -> Graduate
+  if (isLearningStep1 && grade === 'Good') {
+    // We want to graduate using the Stability we initialized in Step 1.
+    // We pass the card (which is in State.Learning) to FSRS.
+    // FSRS should calculate the next interval based on S.
+    const schedulingCards = f.repeat(fsrsCard, now);
+    const log = schedulingCards[rating].card;
+
+    return {
+      ...card,
+      ...log,
+      status: mapStateToStatus(log.state, log.scheduled_days),
+      learningStep: undefined // Clear step
+    };
+  }
+
+  // Case 3: Learning Step 1 + Again -> Reset to 1m
+  if (isLearningStep1 && grade === 'Again') {
+     const schedulingCards = f.repeat(fsrsCard, now);
+     const log = schedulingCards[rating].card;
+     return {
+        ...card,
+        ...log,
+        state: State.Learning,
+        status: 'learning',
+        dueDate: addMinutes(now, 1).toISOString(),
+        learningStep: 1 // Stay in step 1
+     };
+  }
+  
   const schedulingCards = f.repeat(fsrsCard, now);
   
   // schedulingCards[rating] gives us the Log object which contains the new card state
   const log = schedulingCards[rating].card;
+  const tentativeStatus = mapStateToStatus(log.state, log.scheduled_days);
+  const status = card.status === 'graduated' && tentativeStatus === 'learning' && grade !== 'Again'
+    ? 'graduated'
+    : tentativeStatus;
 
   return {
     ...card,
@@ -86,9 +139,10 @@ export const calculateNextReview = (card: Card, grade: Grade, settings?: UserSet
     lapses: log.lapses,
     state: log.state,
     last_review: log.last_review ? log.last_review.toISOString() : now.toISOString(),
-    status: mapStateToStatus(log.state),
+    status,
     // Update legacy fields for backward compatibility if needed, or just sync them
     interval: log.scheduled_days,
+    learningStep: undefined // Ensure cleared for normal reviews
   };
 };
 
@@ -97,6 +151,12 @@ export const calculateNextReview = (card: Card, grade: Grade, settings?: UserSet
  */
 export const isCardDue = (card: Card, now: Date = new Date()): boolean => {
   const due = new Date(card.dueDate);
+  
+  // Strict timing for learning steps (intraday)
+  if (card.status === 'learning' || card.state === State.Learning || card.learningStep) {
+      return due <= now;
+  }
+
   const srsToday = getSRSDate(now);
   // FSRS uses exact timestamps, but for UI "Due Today" logic, we usually stick to the cutoff.
   // However, FSRS 'due' is a specific point in time.

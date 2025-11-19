@@ -1,11 +1,13 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { Card, DeckStats, ReviewHistory } from '../types';
+import clsx from 'clsx';
+import { Card, DeckStats, ReviewHistory, CardStatus } from '../types';
 import { Button } from './ui/Button';
-import { Play, Plus, Trash2, Search, Flame, Layers, CheckCircle2, Pencil, Settings, EyeOff } from 'lucide-react';
+import { Play, Plus, Trash2, Search, CheckCircle2, Pencil, Settings, Sun, Moon, Monitor } from 'lucide-react';
 import { isCardDue } from '../services/srs';
 import { Heatmap } from './Heatmap';
-import { FixedSizeList as List } from 'react-window';
+import { List } from 'react-window';
 import { toast } from 'sonner';
+import { useTheme } from '../contexts/ThemeContext';
 
 interface DashboardProps {
   cards: Card[];
@@ -20,78 +22,83 @@ interface DashboardProps {
   onMarkKnown: (card: Card) => void;
 }
 
-interface RowProps {
-  index: number;
-  style: React.CSSProperties;
-  data: {
-    cards: Card[];
-    onDeleteCard: (id: string) => void;
-    onEditCard: (card: Card) => void;
-    onMarkKnown: (card: Card) => void;
-  };
+interface RowData {
+  cards: Card[];
+  onDeleteCard: (id: string) => void;
+  onEditCard: (card: Card) => void;
+  onMarkKnown: (card: Card) => void;
 }
 
-const Row = ({ index, style, data }: RowProps) => {
-  const { cards, onDeleteCard, onEditCard, onMarkKnown } = data;
+interface RowProps extends RowData {
+  index: number;
+  style: React.CSSProperties;
+}
+
+const Row = ({ index, style, cards, onDeleteCard, onEditCard, onMarkKnown }: RowProps) => {
   const card = cards[index];
   const isDue = isCardDue(card);
   const isKnown = card.status === 'known';
   
+  const statusColor = {
+    new: 'bg-blue-400',
+    learning: 'bg-amber-400',
+    graduated: 'bg-emerald-400',
+    known: 'bg-gray-300 dark:bg-gray-600',
+  };
+
   return (
-    <div style={style} className={`flex items-center border-b border-gray-100 hover:bg-gray-50/80 transition-colors px-6 ${isKnown ? 'bg-gray-50/50' : ''}`}>
-      <div className="flex-1 py-4 pr-4">
-          <div className="flex flex-col gap-1">
-              <span className={`font-medium text-base truncate ${isKnown ? 'text-gray-600' : 'text-gray-900'}`}>
+    <div
+      style={style}
+      className="group flex items-center border-b border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors px-4"
+    >
+      <div className="w-3 mr-3 flex justify-center">
+        <div className={clsx("w-1.5 h-1.5 rounded-full", statusColor[card.status])} />
+      </div>
+      
+      <div className="flex-1 py-3 min-w-0">
+          <div className="flex items-baseline gap-3">
+              <span className={clsx("font-medium truncate transition-colors", isKnown ? 'text-gray-500 dark:text-gray-500' : 'text-gray-900 dark:text-gray-100')}>
               {card.targetWord ? (
                   card.targetSentence.split(' ').map((word, i) => 
                   word.toLowerCase().includes(card.targetWord!.toLowerCase()) 
-                  ? <span key={i} className={`${isKnown ? 'text-gray-800' : 'text-gray-900'} font-bold border-b border-gray-300`}>{word} </span>
-                  : <span key={i} className={isKnown ? 'text-gray-500' : 'text-gray-600'}>{word} </span>
+                  ? <span key={i} className="font-bold">{word} </span>
+                  : <span key={i}>{word} </span>
                   )
               ) : (
-                  <span className={isKnown ? 'text-gray-700' : 'text-gray-900'}>{card.targetSentence}</span>
+                  card.targetSentence
               )}
               </span>
-              <span className="text-gray-500 text-xs truncate">{card.nativeTranslation}</span>
+              <span className="text-gray-400 dark:text-gray-500 text-sm truncate hidden sm:inline">{card.nativeTranslation}</span>
           </div>
       </div>
-      <div className="w-32 px-4">
-          <div className={`inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-mono font-medium uppercase border ${
-          isKnown
-              ? 'bg-gray-100 text-gray-600 border-gray-200'
-              : isDue 
-                  ? 'bg-red-50 text-red-700 border-red-100' 
-                  : 'bg-emerald-50 text-emerald-700 border-emerald-100'
-          }`}>
-          {isKnown ? 'Known' : isDue ? 'Ready' : new Date(card.dueDate).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
-          </div>
+
+      <div className="w-24 text-right text-xs font-mono text-gray-400 dark:text-gray-500">
+        {isDue ? <span className="text-rose-600 dark:text-rose-400 font-medium">Due</span> : new Date(card.dueDate).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
       </div>
-      <div className="w-24 pl-4 text-right flex items-center justify-end gap-1">
+
+      <div className="w-24 flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
           {!isKnown && (
             <button 
-                onClick={() => onMarkKnown(card)}
-                className="text-gray-400 hover:text-emerald-600 transition-colors p-3 hover:bg-emerald-50 rounded-md min-w-[44px] min-h-[44px] flex items-center justify-center"
+                onClick={(e) => { e.stopPropagation(); onMarkKnown(card); }}
+                className="text-gray-400 hover:text-emerald-600 dark:hover:text-emerald-400 p-1.5 rounded hover:bg-emerald-50 dark:hover:bg-emerald-900/20"
                 title="Mark as Known"
-                aria-label={`Mark as known: ${card.targetSentence}`}
             >
-                <CheckCircle2 size={20} />
+                <CheckCircle2 size={16} />
             </button>
           )}
           <button 
-              onClick={() => onEditCard(card)}
-              className="text-gray-400 hover:text-blue-600 transition-colors p-3 hover:bg-blue-50 rounded-md min-w-[44px] min-h-[44px] flex items-center justify-center"
-              title="Edit Card"
-              aria-label={`Edit card: ${card.targetSentence}`}
+              onClick={(e) => { e.stopPropagation(); onEditCard(card); }}
+              className="text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 p-1.5 rounded hover:bg-blue-50 dark:hover:bg-blue-900/20"
+              title="Edit"
           >
-              <Pencil size={20} />
+              <Pencil size={16} />
           </button>
           <button 
-              onClick={() => onDeleteCard(card.id)}
-              className="text-gray-400 hover:text-red-600 transition-colors p-3 hover:bg-red-50 rounded-md min-w-[44px] min-h-[44px] flex items-center justify-center"
-              title="Delete Card"
-              aria-label={`Delete card: ${card.targetSentence}`}
+              onClick={(e) => { e.stopPropagation(); onDeleteCard(card.id); }}
+              className="text-gray-400 hover:text-red-600 dark:hover:text-red-400 p-1.5 rounded hover:bg-red-50 dark:hover:bg-red-900/20"
+              title="Delete"
           >
-              <Trash2 size={20} />
+              <Trash2 size={16} />
           </button>
       </div>
     </div>
@@ -111,7 +118,14 @@ export const Dashboard: React.FC<DashboardProps> = ({
   onMarkKnown
 }) => {
   const [searchTerm, setSearchTerm] = useState('');
-  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState('');
+  const [statusFilter, setStatusFilter] = useState<'all' | CardStatus>('all');
+  const { theme, setTheme } = useTheme();
+
+  const toggleTheme = () => {
+    if (theme === 'light') setTheme('dark');
+    else if (theme === 'dark') setTheme('system');
+    else setTheme('light');
+  };
 
   const handleDeleteWithUndo = (id: string) => {
     const cardToDelete = cards.find(c => c.id === id);
@@ -128,18 +142,13 @@ export const Dashboard: React.FC<DashboardProps> = ({
     });
   };
 
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setDebouncedSearchTerm(searchTerm);
-    }, 300);
-
-    return () => clearTimeout(timer);
-  }, [searchTerm]);
-
-  const filteredCards = useMemo(() => cards.filter(c => 
-    c.targetSentence.toLowerCase().includes(debouncedSearchTerm.toLowerCase()) ||
-    c.nativeTranslation.toLowerCase().includes(debouncedSearchTerm.toLowerCase())
-  ), [cards, debouncedSearchTerm]);
+  const filteredCards = useMemo(() => cards
+    .filter(c =>
+      c.targetSentence.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      c.nativeTranslation.toLowerCase().includes(searchTerm.toLowerCase())
+    )
+    .filter(c => (statusFilter === 'all' ? true : c.status === statusFilter))
+  , [cards, searchTerm, statusFilter]);
 
   const itemData = useMemo(() => ({
     cards: filteredCards,
@@ -148,141 +157,108 @@ export const Dashboard: React.FC<DashboardProps> = ({
     onMarkKnown
   }), [filteredCards, onDeleteCard, onAddCard, onEditCard, onMarkKnown]);
 
-
-
   return (
-    <div className="max-w-5xl mx-auto space-y-10 animate-in fade-in duration-300">
+    <div className="max-w-5xl mx-auto p-6 space-y-8">
       
-      {/* 1. Header Section */}
+      {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div>
-          <h1 className="text-3xl font-semibold text-gray-900 tracking-tight">
-            Miner's Log
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white tracking-tight transition-colors">
+            Dashboard
           </h1>
-          <p className="text-gray-500 mt-1 font-mono text-sm">
-            Track your progress and manage your sentence deck.
-          </p>
+          <div className="flex items-center gap-4 mt-2 text-sm text-gray-500 dark:text-gray-400 font-mono transition-colors">
+            <span><strong className="text-gray-900 dark:text-gray-200">{stats.due}</strong> due</span>
+            <span><strong className="text-gray-900 dark:text-gray-200">{stats.streak}d</strong> streak</span>
+            <span><strong className="text-gray-900 dark:text-gray-200">{stats.learned}</strong> known</span>
+            <span><strong className="text-gray-900 dark:text-gray-200">{stats.total}</strong> total</span>
+          </div>
         </div>
         <div className="flex items-center gap-3">
              <Button 
               variant="ghost" 
-              onClick={onOpenSettings}
-              className="text-gray-500 hover:text-gray-900"
-              title="Settings"
+              onClick={toggleTheme}
+              className="text-gray-400 hover:text-gray-900 dark:text-gray-500 dark:hover:text-gray-200"
+              title={`Theme: ${theme}`}
             >
-              <Settings size={20} />
+              {theme === 'light' ? <Sun size={18} /> : theme === 'dark' ? <Moon size={18} /> : <Monitor size={18} />}
+            </Button>
+             <Button 
+              variant="ghost" 
+              onClick={onOpenSettings}
+              className="text-gray-400 hover:text-gray-900 dark:text-gray-500 dark:hover:text-gray-200"
+            >
+              <Settings size={18} />
             </Button>
              <Button 
               variant="secondary" 
               onClick={onOpenAddModal}
-              className="shadow-sm"
+              className="dark:bg-gray-800 dark:text-gray-200 dark:border-gray-700 dark:hover:bg-gray-700"
             >
-              <Plus size={16} className="mr-2"/> New Entry
+              <Plus size={16} className="mr-2"/> Add Card
             </Button>
-            <Button 
-              disabled={stats.due === 0} 
+            <Button
+              variant={stats.due > 0 ? 'primary' : 'secondary'}
+              disabled={stats.due === 0}
               onClick={onStartSession}
-              variant={stats.due > 0 ? "primary" : "secondary"}
-              className="shadow-sm"
+              className={stats.due === 0 ? "dark:bg-gray-800 dark:text-gray-500 dark:border-gray-700" : ""}
             >
-              <Play size={16} fill="currentColor" className="mr-2" /> 
-              Start Mining {stats.due > 0 && <span className="ml-1 opacity-80">({stats.due})</span>}
+              <Play size={16} className="mr-2" />
+              Review ({stats.due})
             </Button>
         </div>
       </div>
 
-      {/* 2. Analytics Panel (Stats + Heatmap) */}
-      <div className="space-y-6">
-        
-        {/* Top: High-Density Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          
-          <div className="bg-gray-50 border border-gray-200 rounded-lg p-5 flex items-center justify-between">
-            <div className="flex flex-col">
-              <span className="text-[10px] font-mono font-semibold text-gray-500 uppercase mb-1 flex items-center gap-1.5">
-                <Flame size={12} className={stats.streak > 0 ? "text-orange-600" : "text-gray-400"} fill="currentColor"/> Current Streak
-              </span>
-              <span className="text-2xl font-semibold text-gray-900 tracking-tight">{stats.streak} <span className="text-sm text-gray-500 font-normal">days</span></span>
-            </div>
-          </div>
-
-          <div className="bg-gray-50 border border-gray-200 rounded-lg p-5 flex items-center justify-between">
-            <div className="flex flex-col">
-              <span className="text-[10px] font-mono font-semibold text-gray-500 uppercase mb-1 flex items-center gap-1.5">
-                <Layers size={12} className="text-gray-400"/> Total Deck
-              </span>
-              <span className="text-2xl font-semibold text-gray-900 tracking-tight">{stats.total} <span className="text-sm text-gray-500 font-normal">cards</span></span>
-            </div>
-          </div>
-
-          <div className="bg-gray-50 border border-gray-200 rounded-lg p-5 flex items-center justify-between">
-            <div className="flex flex-col">
-              <span className="text-[10px] font-mono font-semibold text-gray-500 uppercase mb-1 flex items-center gap-1.5">
-                <CheckCircle2 size={12} className="text-emerald-600"/> Graduated
-              </span>
-              <span className="text-2xl font-semibold text-gray-900 tracking-tight">{stats.learned} <span className="text-sm text-gray-500 font-normal">words</span></span>
-            </div>
-          </div>
-
-        </div>
-
-        {/* Bottom: Heatmap */}
-        <div className="bg-white border border-gray-200 rounded-lg p-5 shadow-[0_1px_2px_rgba(0,0,0,0.05)]">
-          <div className="flex items-center justify-between mb-6">
-              <h3 className="text-xs font-mono font-semibold text-gray-500 uppercase tracking-wider">Consistency Graph</h3>
-              <span className="text-xs font-mono text-gray-400">{new Date().getFullYear()}</span>
-          </div>
-          <Heatmap history={history} />
-        </div>
-
+      {/* Heatmap (Collapsed/Minimal) */}
+      <div className="border-b border-gray-100 dark:border-gray-800 pb-8 transition-colors">
+         <Heatmap history={history} />
       </div>
 
-      {/* 3. Deck Management Section */}
+      {/* Deck List */}
       <div className="space-y-4">
-        <div className="flex items-center justify-between border-b border-gray-200 pb-4">
-          <h2 className="text-lg font-medium text-gray-900">Deck Registry</h2>
-          
-          <div className="relative group">
-            <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-gray-600 transition-colors" />
+        <div className="flex items-center justify-between gap-4">
+          <div className="relative flex-1 max-w-md">
+            <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500" />
             <input 
               type="text"
-              placeholder="Search deck..."
-              className="pl-9 pr-4 py-2 bg-gray-50 border border-gray-200 rounded-md focus:bg-white focus:border-gray-400 focus:ring-0 outline-none text-sm w-64 transition-all"
+              placeholder="Search cards..."
+              className="pl-9 pr-4 py-2 bg-gray-50 dark:bg-gray-900 border-none rounded-md focus:bg-white dark:focus:bg-gray-800 focus:ring-1 focus:ring-gray-200 dark:focus:ring-gray-700 outline-none text-sm w-full transition-all placeholder:text-gray-400 dark:placeholder:text-gray-600 text-gray-900 dark:text-gray-100"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
+          
+          <div className="flex items-center gap-1 bg-gray-50 dark:bg-gray-900 p-1 rounded-lg transition-colors">
+            {(['all', 'new', 'learning', 'graduated', 'known'] as const).map(option => (
+              <button
+                key={option}
+                onClick={() => setStatusFilter(option)}
+                className={clsx(
+                  'px-3 py-1 rounded-md text-xs font-medium transition-all',
+                  statusFilter === option
+                    ? 'bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 shadow-sm'
+                    : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
+                )}
+              >
+                {option === 'all' ? 'All' : option.charAt(0).toUpperCase() + option.slice(1)}
+              </button>
+            ))}
+          </div>
         </div>
         
-        <div className="h-[600px] border border-gray-200 rounded-lg overflow-hidden shadow-sm bg-white flex flex-col">
+        <div className="border border-gray-100 dark:border-gray-800 rounded-lg overflow-hidden bg-white dark:bg-gray-900 min-h-[400px] transition-colors">
           {filteredCards.length === 0 ? (
-            <div className="flex-1 flex flex-col items-center justify-center text-center bg-gray-50/50">
-              <p className="text-sm font-mono text-gray-500">No cards match your query.</p>
-              {cards.length === 0 && (
-                 <Button variant="outline" size="sm" onClick={onOpenAddModal} className="mt-4">
-                    Create First Card
-                 </Button>
-              )}
+            <div className="flex flex-col items-center justify-center py-20 text-gray-400 dark:text-gray-600">
+              <Search size={24} className="mb-2 opacity-20" />
+              <p className="text-sm">No cards found</p>
             </div>
           ) : (
-            <>
-               <div className="bg-gray-50 text-gray-500 font-mono text-[10px] uppercase tracking-wider border-b border-gray-200 flex px-6 py-3">
-                  <div className="flex-1 font-semibold">Target Sentence</div>
-                  <div className="w-32 px-4 font-semibold">Next Review</div>
-                  <div className="w-20 pl-4 font-semibold text-right">Actions</div>
-               </div>
-               <div className="flex-1">
-                 <List
-                    height={550} // Approximate height minus header
-                    itemCount={filteredCards.length}
-                    itemSize={88} // Estimated row height
-                    width="100%"
-                    itemData={itemData}
-                 >
-                    {Row}
-                 </List>
-               </div>
-            </>
+             <List<RowData>
+                style={{ width: '100%', height: 600 }}
+                rowCount={filteredCards.length}
+                rowHeight={52}
+                rowProps={itemData}
+                rowComponent={Row}
+             />
           )}
         </div>
       </div>

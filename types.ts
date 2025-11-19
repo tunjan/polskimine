@@ -1,6 +1,6 @@
 import { Card as FSRSCard, State as FSRSState } from 'ts-fsrs';
 
-export type CardStatus = 'learning' | 'review' | 'graduated' | 'known';
+export type CardStatus = 'new' | 'learning' | 'graduated' | 'known';
 
 export interface Card extends Partial<FSRSCard> {
   id: string;
@@ -24,6 +24,7 @@ export interface Card extends Partial<FSRSCard> {
   lapses?: number;
   state?: FSRSState;
   last_review?: string; // ISO Date string
+  learningStep?: number; // 1 = waiting for 10m review
 }
 
 export type Grade = 'Again' | 'Hard' | 'Good' | 'Easy';

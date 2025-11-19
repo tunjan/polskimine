@@ -2,6 +2,7 @@ import React from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { DeckProvider } from './contexts/DeckContext';
 import { SettingsProvider } from './contexts/SettingsContext';
+import { ThemeProvider } from './contexts/ThemeContext';
 import { Toaster } from 'sonner';
 import { Layout } from './components/Layout';
 import { DashboardRoute } from './routes/DashboardRoute';
@@ -22,12 +23,14 @@ const PolskiMineApp: React.FC = () => {
 
 const App: React.FC = () => {
   return (
-    <SettingsProvider>
-      <DeckProvider>
-        <PolskiMineApp />
-        <Toaster position="bottom-right" />
-      </DeckProvider>
-    </SettingsProvider>
+    <ThemeProvider defaultTheme="system" storageKey="polskimine-theme">
+      <SettingsProvider>
+        <DeckProvider>
+          <PolskiMineApp />
+          <Toaster position="bottom-right" />
+        </DeckProvider>
+      </SettingsProvider>
+    </ThemeProvider>
   );
 };
 

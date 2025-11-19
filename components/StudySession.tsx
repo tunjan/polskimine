@@ -6,6 +6,12 @@ import { calculateNextReview } from '../services/srs';
 import { ArrowLeft, RotateCcw, Undo2, CheckCircle2 } from 'lucide-react';
 import { useSettings } from '../contexts/SettingsContext';
 
+const ShortcutBadge: React.FC<{ keys: string }> = ({ keys }) => (
+  <span className="border border-gray-200 rounded px-1 py-0.5 text-[9px] font-mono uppercase tracking-tight text-gray-500">
+    {keys}
+  </span>
+);
+
 interface StudySessionProps {
   dueCards: Card[];
   onUpdateCard: (card: Card) => void;
@@ -66,10 +72,8 @@ export const StudySession: React.FC<StudySessionProps> = ({ dueCards, onUpdateCa
       } else {
         switch (e.key) {
           case '1': handleGrade('Again'); break;
-          case '2': handleGrade('Hard'); break;
-          case '3': handleGrade('Good'); break;
-          case '4': handleGrade('Easy'); break;
-          case ' ': // Space to default to Good or just ignore? Anki uses Space for Good usually.
+          case '2': handleGrade('Good'); break;
+          case ' ': // Space to default to Good
             e.preventDefault();
             handleGrade('Good'); 
             break;
@@ -94,7 +98,7 @@ export const StudySession: React.FC<StudySessionProps> = ({ dueCards, onUpdateCa
   };
 
   const handleGrade = (grade: Grade) => {
-    const updatedCard = calculateNextReview(currentCard, grade, settings.srs);
+    const updatedCard = calculateNextReview(currentCard, grade, settings.fsrs);
     onUpdateCard(updatedCard);
     onRecordReview(currentCard);
 
@@ -129,44 +133,44 @@ export const StudySession: React.FC<StudySessionProps> = ({ dueCards, onUpdateCa
   if (!currentCard) return <div className="p-10 text-center font-mono text-sm">Loading...</div>;
 
   return (
-    <div className="w-full max-w-3xl mx-auto flex flex-col flex-1 h-full">
-      {/* Top Bar */}
-      <div className="flex justify-between items-center mb-4 border-b border-gray-100 pb-3">
-        <div className="flex items-center gap-2">
-            <button 
-            onClick={onExit}
-            className="flex items-center text-gray-500 hover:text-gray-900 transition-colors text-xs font-mono uppercase tracking-wide p-2 -ml-2 rounded-md hover:bg-gray-100"
-            aria-label="Quit session"
-            >
-            <ArrowLeft size={14} className="mr-2" /> Quit
-            </button>
+    <div className="w-full max-w-4xl mx-auto flex flex-col flex-1 h-full px-4">
+      {/* Minimal Header */}
+      <div className="flex justify-between items-center py-6">
+        <button 
+          onClick={onExit}
+          className="text-gray-400 hover:text-gray-900 transition-colors"
+          aria-label="Quit session"
+        >
+          <ArrowLeft size={20} />
+        </button>
+        
+        <div className="flex items-center gap-4">
+            <div className="text-xs font-mono text-gray-400">
+            {currentIndex + 1} / {dueCards.length}
+            </div>
             {canUndo && (
                 <button 
                     onClick={handleUndo}
-                    className="flex items-center text-gray-500 hover:text-gray-900 transition-colors text-xs font-mono uppercase tracking-wide p-2 rounded-md hover:bg-gray-100"
-                    title="Undo last review (Cmd/Ctrl + Z)"
-                    aria-label="Undo last review"
+                    className="text-gray-400 hover:text-gray-900 transition-colors"
+                    title="Undo"
                 >
-                    <Undo2 size={14} className="mr-2" /> Undo
+                    <Undo2 size={18} />
                 </button>
             )}
             <button 
                 onClick={handleMarkKnown}
-                className="flex items-center text-gray-500 hover:text-emerald-600 transition-colors text-xs font-mono uppercase tracking-wide p-2 rounded-md hover:bg-emerald-50"
-                title="Mark as known (never see again)"
+                className="text-gray-400 hover:text-emerald-600 transition-colors"
+                title="Mark Known"
             >
-                <CheckCircle2 size={14} className="mr-2" /> Mark Known
+                <CheckCircle2 size={18} />
             </button>
-        </div>
-        <div className="text-xs font-mono text-gray-500">
-          {currentIndex + 1} / {dueCards.length}
         </div>
       </div>
 
-      {/* Main Content Area - Centered vertically with controls close to card */}
+      {/* Main Content */}
       <div className="flex-1 flex flex-col items-center justify-center min-h-0 pb-12">
         
-        <div className="w-full flex justify-center mb-8">
+        <div className="w-full flex justify-center mb-12">
           <Flashcard 
             card={currentCard} 
             isFlipped={isFlipped} 
@@ -175,52 +179,35 @@ export const StudySession: React.FC<StudySessionProps> = ({ dueCards, onUpdateCa
           />
         </div>
 
-        {/* Controls Area */}
-        <div className="w-full flex justify-center h-12">
-          {!isFlipped ? (
+        {/* Controls */}
+        <div className="w-full max-w-xl">
+          <div className={`transition-all duration-300 ${isFlipped ? 'opacity-0 pointer-events-none h-0 overflow-hidden' : 'opacity-100 h-auto'}`}>
             <Button 
               onClick={handleFlip} 
               size="lg" 
-              variant="primary"
-              className="w-full max-w-sm shadow-lg min-h-[50px]"
+              className="w-full h-14 text-base shadow-sm"
             >
-              Reveal Answer <span className="hidden md:inline-block ml-2 text-xs opacity-60 font-mono border border-white/30 px-1 rounded">SPACE</span>
+              Show Answer
             </Button>
-          ) : (
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 w-full max-w-2xl animate-in slide-in-from-bottom-2 duration-200">
-              <button 
-                onClick={() => handleGrade('Again')}
-                className="flex flex-col items-center justify-center p-3 min-h-[64px] border border-gray-200 rounded-lg hover:border-red-500 hover:bg-red-50 transition-all shadow-sm hover:shadow-md group bg-white"
-              >
-                <span className="text-sm font-bold text-gray-700 group-hover:text-red-700">Again</span>
-                <span className="text-[10px] font-mono text-gray-500 mt-0.5">1</span>
-              </button>
-              
-              <button 
-                onClick={() => handleGrade('Hard')}
-                className="flex flex-col items-center justify-center p-3 min-h-[64px] border border-gray-200 rounded-lg hover:border-orange-400 hover:bg-orange-50 transition-all shadow-sm hover:shadow-md group bg-white"
-              >
-                <span className="text-sm font-bold text-gray-700 group-hover:text-orange-700">Hard</span>
-                <span className="text-[10px] font-mono text-gray-500 mt-0.5">2</span>
-              </button>
+          </div>
+          
+          <div className={`grid grid-cols-2 gap-3 transition-all duration-300 ${isFlipped ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4 pointer-events-none h-0 overflow-hidden'}`}>
+            <button 
+              onClick={() => handleGrade('Again')}
+              className="flex flex-col items-center justify-center h-20 rounded-lg border border-gray-200 hover:border-red-500 hover:bg-red-50 transition-all group bg-white"
+            >
+              <span className="text-sm font-medium text-gray-700 mb-1 group-hover:text-red-700">Again</span>
+              <span className="text-[10px] font-mono text-gray-400 group-hover:text-red-500">1</span>
+            </button>
 
-              <button 
-                onClick={() => handleGrade('Good')}
-                className="flex flex-col items-center justify-center p-3 min-h-[64px] border border-gray-200 rounded-lg hover:border-emerald-500 hover:bg-emerald-50 transition-all shadow-sm hover:shadow-md group bg-white"
-              >
-                <span className="text-sm font-bold text-gray-700 group-hover:text-emerald-700">Good</span>
-                <span className="text-[10px] font-mono text-gray-500 mt-0.5">3 / SPC</span>
-              </button>
-
-              <button 
-                onClick={() => handleGrade('Easy')}
-                className="flex flex-col items-center justify-center p-3 min-h-[64px] border border-gray-200 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition-all shadow-sm hover:shadow-md group bg-white"
-              >
-                <span className="text-sm font-bold text-gray-700 group-hover:text-blue-700">Easy</span>
-                <span className="text-[10px] font-mono text-gray-500 mt-0.5">4</span>
-              </button>
-            </div>
-          )}
+            <button 
+              onClick={() => handleGrade('Good')}
+              className="flex flex-col items-center justify-center h-20 rounded-lg border border-gray-200 hover:border-emerald-500 hover:bg-emerald-50 transition-all group bg-white"
+            >
+              <span className="text-sm font-medium text-gray-700 mb-1 group-hover:text-emerald-700">Good</span>
+              <span className="text-[10px] font-mono text-gray-400 group-hover:text-emerald-500">Space</span>
+            </button>
+          </div>
         </div>
       </div>
     </div>
