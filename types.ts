@@ -3,7 +3,7 @@ export type CardStatus = 'learning' | 'review' | 'graduated';
 export interface Card {
   id: string;
   targetSentence: string; // "Ten samochód jest szybki"
-  targetWord: string; // "samochód"
+  targetWord?: string; // Optional: "samochód". If empty, whole sentence is the target.
   nativeTranslation: string; // "This car is fast"
   notes: string; // "Masc. sing. nominative"
   status: CardStatus;

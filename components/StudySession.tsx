@@ -44,7 +44,7 @@ export const StudySession: React.FC<StudySessionProps> = ({ dueCards, onUpdateCa
 
   if (sessionComplete) {
     return (
-      <div className="flex flex-col items-center justify-center flex-1 text-center animate-in fade-in duration-300 min-h-[400px]">
+      <div className="flex flex-col items-center justify-center flex-1 text-center animate-in fade-in duration-300 min-h-[300px]">
         <div className="w-16 h-16 bg-gray-900 text-white rounded-full flex items-center justify-center mb-6">
           <RotateCcw size={24} />
         </div>
@@ -60,9 +60,9 @@ export const StudySession: React.FC<StudySessionProps> = ({ dueCards, onUpdateCa
   if (!currentCard) return <div className="p-10 text-center font-mono text-sm">Loading...</div>;
 
   return (
-    <div className="w-full max-w-3xl mx-auto flex flex-col flex-1 min-h-[500px]">
+    <div className="w-full max-w-3xl mx-auto flex flex-col flex-1 h-full">
       {/* Top Bar */}
-      <div className="flex justify-between items-center mb-8 border-b border-gray-100 pb-4">
+      <div className="flex justify-between items-center mb-4 border-b border-gray-100 pb-3">
         <button 
           onClick={onExit}
           className="flex items-center text-gray-400 hover:text-gray-900 transition-colors text-xs font-mono uppercase tracking-wide"
@@ -74,13 +74,13 @@ export const StudySession: React.FC<StudySessionProps> = ({ dueCards, onUpdateCa
         </div>
       </div>
 
-      {/* Card Area */}
-      <div className="flex-1 flex items-start justify-center mb-8 pt-4">
+      {/* Card Area - Fill available space but don't force scroll */}
+      <div className="flex-1 flex items-start justify-center mb-4 pt-2">
         <Flashcard card={currentCard} isFlipped={isFlipped} />
       </div>
 
       {/* Controls Area */}
-      <div className="h-20 flex items-end justify-center pb-4">
+      <div className="h-auto min-h-[80px] flex items-end justify-center pb-2">
         {!isFlipped ? (
           <Button 
             onClick={handleFlip} 
@@ -91,37 +91,37 @@ export const StudySession: React.FC<StudySessionProps> = ({ dueCards, onUpdateCa
             Reveal Answer
           </Button>
         ) : (
-          <div className="grid grid-cols-4 gap-3 w-full max-w-2xl animate-in slide-in-from-bottom-2 duration-200">
+          <div className="grid grid-cols-4 gap-2 w-full max-w-2xl animate-in slide-in-from-bottom-2 duration-200">
             <button 
               onClick={() => handleGrade('Again')}
-              className="flex flex-col items-center justify-center p-3 border border-gray-200 rounded-md hover:border-red-500 hover:bg-red-50 transition-colors group"
+              className="flex flex-col items-center justify-center p-2 border border-gray-200 rounded-md hover:border-red-500 hover:bg-red-50 transition-colors group"
             >
               <span className="text-sm font-medium text-gray-900 group-hover:text-red-700">Again</span>
-              <span className="text-[10px] font-mono text-gray-400 mt-1">Retry</span>
+              <span className="text-[10px] font-mono text-gray-400 mt-0.5">Retry</span>
             </button>
             
             <button 
               onClick={() => handleGrade('Hard')}
-              className="flex flex-col items-center justify-center p-3 border border-gray-200 rounded-md hover:border-gray-400 hover:bg-gray-50 transition-colors"
+              className="flex flex-col items-center justify-center p-2 border border-gray-200 rounded-md hover:border-gray-400 hover:bg-gray-50 transition-colors"
             >
               <span className="text-sm font-medium text-gray-900">Hard</span>
-              <span className="text-[10px] font-mono text-gray-400 mt-1">1.2x</span>
+              <span className="text-[10px] font-mono text-gray-400 mt-0.5">1.2x</span>
             </button>
 
             <button 
               onClick={() => handleGrade('Good')}
-              className="flex flex-col items-center justify-center p-3 border border-gray-200 rounded-md hover:border-gray-400 hover:bg-gray-50 transition-colors"
+              className="flex flex-col items-center justify-center p-2 border border-gray-200 rounded-md hover:border-gray-400 hover:bg-gray-50 transition-colors"
             >
               <span className="text-sm font-medium text-gray-900">Good</span>
-              <span className="text-[10px] font-mono text-gray-400 mt-1">2.5x</span>
+              <span className="text-[10px] font-mono text-gray-400 mt-0.5">2.5x</span>
             </button>
 
             <button 
               onClick={() => handleGrade('Easy')}
-              className="flex flex-col items-center justify-center p-3 border border-gray-200 rounded-md hover:border-blue-500 hover:bg-blue-50 transition-colors group"
+              className="flex flex-col items-center justify-center p-2 border border-gray-200 rounded-md hover:border-blue-500 hover:bg-blue-50 transition-colors group"
             >
               <span className="text-sm font-medium text-gray-900 group-hover:text-blue-700">Easy</span>
-              <span className="text-[10px] font-mono text-gray-400 mt-1">3.5x</span>
+              <span className="text-[10px] font-mono text-gray-400 mt-0.5">3.5x</span>
             </button>
           </div>
         )}

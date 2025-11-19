@@ -47,10 +47,10 @@ export const MOCK_CARDS: Card[] = [
   },
   {
     id: '5',
-    targetSentence: "To jest bardzo dobre piwo.",
-    targetWord: "piwo",
-    nativeTranslation: "This is very good beer.",
-    notes: "Neuter gender.",
+    targetSentence: "Wszystko w porządku?",
+    // No targetWord here implies pure sentence mining
+    nativeTranslation: "Is everything okay?",
+    notes: "Common phrase used to ask if someone is fine or if a situation is resolved.",
     status: 'learning',
     interval: 0,
     easeFactor: 2.5,

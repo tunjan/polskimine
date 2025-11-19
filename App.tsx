@@ -160,7 +160,8 @@ const App: React.FC = () => {
         </div>
       </nav>
 
-      <main className="flex-1 w-full max-w-5xl mx-auto px-6 pt-12 pb-20 flex flex-col">
+      {/* Reduced padding top/bottom to fix scrolling issues on smaller screens */}
+      <main className="flex-1 w-full max-w-5xl mx-auto px-6 pt-6 pb-8 flex flex-col">
         {currentView === 'dashboard' ? (
           <Dashboard 
             cards={cards}
@@ -181,7 +182,7 @@ const App: React.FC = () => {
       </main>
 
       {/* Footer */}
-      <footer className="border-t border-gray-100 py-8 bg-gray-50 mt-auto">
+      <footer className="border-t border-gray-100 py-6 bg-gray-50 mt-auto">
         <div className="max-w-5xl mx-auto px-6 flex justify-between items-center text-xs text-gray-400 font-mono">
             <p>PolskiMining SRS System</p>
             <p>Local-First Storage</p>

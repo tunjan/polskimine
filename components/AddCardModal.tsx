@@ -25,19 +25,21 @@ export const AddCardModal: React.FC<AddCardModalProps> = ({ isOpen, onClose, onA
     e.preventDefault();
     setError('');
 
-    if (!form.sentence.toLowerCase().includes(form.targetWord.toLowerCase())) {
-      setError('Target word missing from sentence.');
+    // Only validate containment if a target word is actually provided
+    if (form.targetWord && !form.sentence.toLowerCase().includes(form.targetWord.toLowerCase())) {
+      setError('Target word provided but not found in sentence.');
       return;
     }
-    if (!form.sentence || !form.targetWord || !form.translation) {
-      setError('Missing required fields.');
+    
+    if (!form.sentence || !form.translation) {
+      setError('Sentence and Translation are required.');
       return;
     }
 
     const newCard: Card = {
       id: uuidv4(),
       targetSentence: form.sentence,
-      targetWord: form.targetWord,
+      targetWord: form.targetWord || undefined, // Store as undefined if empty string
       nativeTranslation: form.translation,
       notes: form.notes,
       status: 'learning',
@@ -71,7 +73,7 @@ export const AddCardModal: React.FC<AddCardModalProps> = ({ isOpen, onClose, onA
           )}
           
           <div>
-            <label className="block text-xs font-mono text-gray-500 uppercase mb-1.5">Polish Sentence</label>
+            <label className="block text-xs font-mono text-gray-500 uppercase mb-1.5">Polish Sentence <span className="text-red-500">*</span></label>
             <input
               type="text"
               className={inputClass}
@@ -84,17 +86,17 @@ export const AddCardModal: React.FC<AddCardModalProps> = ({ isOpen, onClose, onA
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs font-mono text-gray-500 uppercase mb-1.5">Target Word</label>
+              <label className="block text-xs font-mono text-gray-500 uppercase mb-1.5">Target Word <span className="text-gray-300 font-normal">(Opt)</span></label>
               <input
                 type="text"
                 className={inputClass}
-                placeholder="e.g., samochód"
+                placeholder="Highlight word"
                 value={form.targetWord}
                 onChange={e => setForm({...form, targetWord: e.target.value})}
               />
             </div>
             <div>
-              <label className="block text-xs font-mono text-gray-500 uppercase mb-1.5">Translation</label>
+              <label className="block text-xs font-mono text-gray-500 uppercase mb-1.5">Translation <span className="text-red-500">*</span></label>
               <input
                 type="text"
                 className={inputClass}

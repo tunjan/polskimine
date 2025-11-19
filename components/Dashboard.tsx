@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Card, DeckStats, ReviewHistory } from '../types';
 import { Button } from './ui/Button';
-import { Play, Plus, Trash2, Search, Flame, BarChart3, Layers, CheckCircle2 } from 'lucide-react';
+import { Play, Plus, Trash2, Search, Flame, Layers, CheckCircle2 } from 'lucide-react';
 import { isCardDue } from '../services/srs';
 import { Heatmap } from './Heatmap';
 
@@ -152,10 +152,14 @@ export const Dashboard: React.FC<DashboardProps> = ({
                           <td className="px-6 py-4">
                             <div className="flex flex-col gap-1">
                               <span className="font-medium text-gray-900 text-base">
-                                {card.targetSentence.split(' ').map((word, i) => 
-                                   word.toLowerCase().includes(card.targetWord.toLowerCase()) 
-                                   ? <span key={i} className="text-gray-900 font-bold border-b border-gray-300">{word} </span>
-                                   : <span key={i} className="text-gray-600">{word} </span>
+                                {card.targetWord ? (
+                                  card.targetSentence.split(' ').map((word, i) => 
+                                    word.toLowerCase().includes(card.targetWord!.toLowerCase()) 
+                                    ? <span key={i} className="text-gray-900 font-bold border-b border-gray-300">{word} </span>
+                                    : <span key={i} className="text-gray-600">{word} </span>
+                                  )
+                                ) : (
+                                  <span className="text-gray-900">{card.targetSentence}</span>
                                 )}
                               </span>
                               <span className="text-gray-400 text-xs">{card.nativeTranslation}</span>
