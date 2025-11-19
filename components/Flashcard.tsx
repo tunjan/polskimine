@@ -8,7 +8,7 @@ interface FlashcardProps {
 }
 
 function escapeRegExp(string: string) {
-  return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  return string.replace(/[.*+?^()|[\]\]/g, '\$&');
 }
 
 export const Flashcard: React.FC<FlashcardProps> = ({ card, isFlipped }) => {
@@ -74,9 +74,9 @@ export const Flashcard: React.FC<FlashcardProps> = ({ card, isFlipped }) => {
                 card.status === 'review' ? 'bg-amber-400' :
                 'bg-emerald-400'
             }`}></span>
-            <span className="text-[10px] font-mono uppercase tracking-widest text-gray-400">{card.status} MODE</span>
+            <span className="text-[10px] font-mono uppercase tracking-widest text-gray-500">{card.status} MODE</span>
          </div>
-         <span className="text-[10px] font-mono text-gray-300">ID: {card.id.slice(0, 6)}</span>
+         <span className="text-[10px] font-mono text-gray-400">ID: {card.id.slice(0, 6)}</span>
       </div>
 
       {/* Card Content Area */}
@@ -91,7 +91,7 @@ export const Flashcard: React.FC<FlashcardProps> = ({ card, isFlipped }) => {
             {hasVoice && (
               <button 
                 onClick={speak}
-                className="flex items-center gap-2 text-xs font-mono text-gray-400 hover:text-gray-900 hover:bg-gray-100 px-3 py-1.5 rounded-full transition-all"
+                className="flex items-center gap-2 text-xs font-mono text-gray-500 hover:text-gray-900 hover:bg-gray-100 px-3 py-1.5 rounded-full transition-all"
                 title="Listen"
                 aria-label="Listen to sentence"
               >
@@ -109,7 +109,7 @@ export const Flashcard: React.FC<FlashcardProps> = ({ card, isFlipped }) => {
               
               {/* Translation Column */}
               <div className="flex flex-col gap-2 text-center md:text-left items-center md:items-start">
-                <div className="flex items-center gap-2 text-gray-400 mb-1">
+                <div className="flex items-center gap-2 text-gray-500 mb-1">
                     <BookOpen size={14} />
                     <span className="text-xs font-mono uppercase tracking-widest">Meaning</span>
                 </div>
@@ -120,14 +120,14 @@ export const Flashcard: React.FC<FlashcardProps> = ({ card, isFlipped }) => {
 
               {/* Notes Column */}
               <div className="flex flex-col gap-2 text-center md:text-left items-center md:items-start">
-                 <div className="flex items-center gap-2 text-gray-400 mb-1">
+                 <div className="flex items-center gap-2 text-gray-500 mb-1">
                     <FileText size={14} />
                     <span className="text-xs font-mono uppercase tracking-widest">Grammar Notes</span>
                  </div>
                  <div className="text-sm text-gray-600 font-mono leading-relaxed border-l-2 border-gray-200 pl-3 py-1">
                     {card.notes || "No notes available."}
                  </div>
-                 <div className="mt-2 text-xs text-gray-400 font-mono">
+                 <div className="mt-2 text-xs text-gray-500 font-mono">
                     Target: <span className="text-gray-900">{card.targetWord || "Sentence"}</span>
                  </div>
               </div>

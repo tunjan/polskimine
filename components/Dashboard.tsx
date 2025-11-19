@@ -5,6 +5,7 @@ import { Play, Plus, Trash2, Search, Flame, Layers, CheckCircle2 } from 'lucide-
 import { isCardDue } from '../services/srs';
 import { Heatmap } from './Heatmap';
 import { FixedSizeList as List } from 'react-window';
+import { toast } from 'sonner';
 
 interface DashboardProps {
   cards: Card[];
@@ -13,6 +14,7 @@ interface DashboardProps {
   onStartSession: () => void;
   onOpenAddModal: () => void;
   onDeleteCard: (id: string) => void;
+  onAddCard?: (card: Card) => void;
 }
 
 interface RowProps {
@@ -44,7 +46,7 @@ const Row = ({ index, style, data }: RowProps) => {
                   <span className="text-gray-900">{card.targetSentence}</span>
               )}
               </span>
-              <span className="text-gray-400 text-xs truncate">{card.nativeTranslation}</span>
+              <span className="text-gray-500 text-xs truncate">{card.nativeTranslation}</span>
           </div>
       </div>
       <div className="w-32 px-4">
@@ -59,7 +61,7 @@ const Row = ({ index, style, data }: RowProps) => {
       <div className="w-20 pl-4 text-right">
           <button 
               onClick={() => onDeleteCard(card.id)}
-              className="text-gray-300 hover:text-red-600 transition-colors p-2 hover:bg-red-50 rounded-md"
+              className="text-gray-400 hover:text-red-600 transition-colors p-2 hover:bg-red-50 rounded-md"
               title="Delete Card"
               aria-label={`Delete card: ${card.targetSentence}`}
           >
@@ -76,10 +78,26 @@ export const Dashboard: React.FC<DashboardProps> = ({
   history,
   onStartSession, 
   onOpenAddModal,
-  onDeleteCard 
+  onDeleteCard,
+  onAddCard
 }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState('');
+
+  const handleDeleteWithUndo = (id: string) => {
+    const cardToDelete = cards.find(c => c.id === id);
+    if (!cardToDelete) return;
+
+    onDeleteCard(id);
+
+    toast.success('Card deleted', {
+        action: onAddCard ? {
+            label: 'Undo',
+            onClick: () => onAddCard(cardToDelete)
+        } : undefined,
+        duration: 4000,
+    });
+  };
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -96,8 +114,8 @@ export const Dashboard: React.FC<DashboardProps> = ({
 
   const itemData = useMemo(() => ({
     cards: filteredCards,
-    onDeleteCard
-  }), [filteredCards, onDeleteCard]);
+    onDeleteCard: handleDeleteWithUndo
+  }), [filteredCards, onDeleteCard, onAddCard]);
 
   return (
     <div className="max-w-5xl mx-auto space-y-10 animate-in fade-in duration-300">
@@ -143,7 +161,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
               <span className="text-[10px] font-mono font-semibold text-gray-500 uppercase mb-1 flex items-center gap-1.5">
                 <Flame size={12} className={stats.streak > 0 ? "text-orange-600" : "text-gray-400"} fill="currentColor"/> Current Streak
               </span>
-              <span className="text-2xl font-semibold text-gray-900 tracking-tight">{stats.streak} <span className="text-sm text-gray-400 font-normal">days</span></span>
+              <span className="text-2xl font-semibold text-gray-900 tracking-tight">{stats.streak} <span className="text-sm text-gray-500 font-normal">days</span></span>
             </div>
           </div>
 
@@ -152,7 +170,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
               <span className="text-[10px] font-mono font-semibold text-gray-500 uppercase mb-1 flex items-center gap-1.5">
                 <Layers size={12} className="text-gray-400"/> Total Deck
               </span>
-              <span className="text-2xl font-semibold text-gray-900 tracking-tight">{stats.total} <span className="text-sm text-gray-400 font-normal">cards</span></span>
+              <span className="text-2xl font-semibold text-gray-900 tracking-tight">{stats.total} <span className="text-sm text-gray-500 font-normal">cards</span></span>
             </div>
           </div>
 
@@ -161,7 +179,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
               <span className="text-[10px] font-mono font-semibold text-gray-500 uppercase mb-1 flex items-center gap-1.5">
                 <CheckCircle2 size={12} className="text-emerald-600"/> Graduated
               </span>
-              <span className="text-2xl font-semibold text-gray-900 tracking-tight">{stats.learned} <span className="text-sm text-gray-400 font-normal">words</span></span>
+              <span className="text-2xl font-semibold text-gray-900 tracking-tight">{stats.learned} <span className="text-sm text-gray-500 font-normal">words</span></span>
             </div>
           </div>
 
@@ -187,7 +205,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
             <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-gray-600 transition-colors" />
             <input 
               type="text"
-              placeholder="Filter by word..."
+              placeholder="Search deck..."
               className="pl-9 pr-4 py-2 bg-gray-50 border border-gray-200 rounded-md focus:bg-white focus:border-gray-400 focus:ring-0 outline-none text-sm w-64 transition-all"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
@@ -198,7 +216,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
         <div className="h-[600px] border border-gray-200 rounded-lg overflow-hidden shadow-sm bg-white flex flex-col">
           {filteredCards.length === 0 ? (
             <div className="flex-1 flex flex-col items-center justify-center text-center bg-gray-50/50">
-              <p className="text-sm font-mono text-gray-400">No cards match your query.</p>
+              <p className="text-sm font-mono text-gray-500">No cards match your query.</p>
               {cards.length === 0 && (
                  <Button variant="outline" size="sm" onClick={onOpenAddModal} className="mt-4">
                     Create First Card

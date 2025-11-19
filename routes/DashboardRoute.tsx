@@ -29,11 +29,12 @@ export const DashboardRoute: React.FC = () => {
         onStartSession={() => navigate('/study')}
         onOpenAddModal={() => setIsAddModalOpen(true)}
         onDeleteCard={deleteCard}
+        onAddCard={addCard}
       />
       <AddCardModal 
         isOpen={isAddModalOpen}
         onClose={() => setIsAddModalOpen(false)}
-        onAdd={addCard}
+        onAddCard={addCard}
       />
     </>
   );

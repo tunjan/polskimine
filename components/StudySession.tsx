@@ -117,12 +117,13 @@ export const StudySession: React.FC<StudySessionProps> = ({ dueCards, onUpdateCa
 
   return (
     <div className="w-full max-w-3xl mx-auto flex flex-col flex-1 h-full">
+      // ...existing code...
       {/* Top Bar */}
       <div className="flex justify-between items-center mb-4 border-b border-gray-100 pb-3">
         <div className="flex items-center gap-4">
             <button 
             onClick={onExit}
-            className="flex items-center text-gray-400 hover:text-gray-900 transition-colors text-xs font-mono uppercase tracking-wide"
+            className="flex items-center text-gray-500 hover:text-gray-900 transition-colors text-xs font-mono uppercase tracking-wide"
             aria-label="Quit session"
             >
             <ArrowLeft size={14} className="mr-2" /> Quit
@@ -130,7 +131,7 @@ export const StudySession: React.FC<StudySessionProps> = ({ dueCards, onUpdateCa
             {canUndo && (
                 <button 
                     onClick={handleUndo}
-                    className="flex items-center text-gray-400 hover:text-gray-900 transition-colors text-xs font-mono uppercase tracking-wide"
+                    className="flex items-center text-gray-500 hover:text-gray-900 transition-colors text-xs font-mono uppercase tracking-wide"
                     title="Undo last review (Cmd/Ctrl + Z)"
                     aria-label="Undo last review"
                 >
@@ -138,7 +139,9 @@ export const StudySession: React.FC<StudySessionProps> = ({ dueCards, onUpdateCa
                 </button>
             )}
         </div>
-        <div className="text-xs font-mono text-gray-400">
+// ...existing code...
+        // ...existing code...
+        <div className="text-xs font-mono text-gray-500">
           {currentIndex + 1} / {dueCards.length}
         </div>
       </div>
@@ -159,16 +162,16 @@ export const StudySession: React.FC<StudySessionProps> = ({ dueCards, onUpdateCa
               variant="primary"
               className="w-full max-w-sm shadow-lg"
             >
-              Reveal Answer <span className="ml-2 text-xs opacity-60 font-mono border border-white/30 px-1 rounded">SPACE</span>
+              Reveal Answer <span className="hidden md:inline-block ml-2 text-xs opacity-60 font-mono border border-white/30 px-1 rounded">SPACE</span>
             </Button>
           ) : (
-            <div className="grid grid-cols-4 gap-3 w-full max-w-2xl animate-in slide-in-from-bottom-2 duration-200">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 w-full max-w-2xl animate-in slide-in-from-bottom-2 duration-200">
               <button 
                 onClick={() => handleGrade('Again')}
                 className="flex flex-col items-center justify-center p-3 border border-gray-200 rounded-lg hover:border-red-500 hover:bg-red-50 transition-all shadow-sm hover:shadow-md group bg-white"
               >
                 <span className="text-sm font-bold text-gray-700 group-hover:text-red-700">Again</span>
-                <span className="text-[10px] font-mono text-gray-400 mt-0.5">1</span>
+                <span className="text-[10px] font-mono text-gray-500 mt-0.5">1</span>
               </button>
               
               <button 
@@ -176,7 +179,7 @@ export const StudySession: React.FC<StudySessionProps> = ({ dueCards, onUpdateCa
                 className="flex flex-col items-center justify-center p-3 border border-gray-200 rounded-lg hover:border-orange-400 hover:bg-orange-50 transition-all shadow-sm hover:shadow-md group bg-white"
               >
                 <span className="text-sm font-bold text-gray-700 group-hover:text-orange-700">Hard</span>
-                <span className="text-[10px] font-mono text-gray-400 mt-0.5">2</span>
+                <span className="text-[10px] font-mono text-gray-500 mt-0.5">2</span>
               </button>
 
               <button 
@@ -184,7 +187,7 @@ export const StudySession: React.FC<StudySessionProps> = ({ dueCards, onUpdateCa
                 className="flex flex-col items-center justify-center p-3 border border-gray-200 rounded-lg hover:border-emerald-500 hover:bg-emerald-50 transition-all shadow-sm hover:shadow-md group bg-white"
               >
                 <span className="text-sm font-bold text-gray-700 group-hover:text-emerald-700">Good</span>
-                <span className="text-[10px] font-mono text-gray-400 mt-0.5">3 / SPC</span>
+                <span className="text-[10px] font-mono text-gray-500 mt-0.5">3 / SPC</span>
               </button>
 
               <button 
@@ -192,12 +195,13 @@ export const StudySession: React.FC<StudySessionProps> = ({ dueCards, onUpdateCa
                 className="flex flex-col items-center justify-center p-3 border border-gray-200 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition-all shadow-sm hover:shadow-md group bg-white"
               >
                 <span className="text-sm font-bold text-gray-700 group-hover:text-blue-700">Easy</span>
-                <span className="text-[10px] font-mono text-gray-400 mt-0.5">4</span>
+                <span className="text-[10px] font-mono text-gray-500 mt-0.5">4</span>
               </button>
             </div>
           )}
         </div>
       </div>
+// ...existing code...
     </div>
   );
 };

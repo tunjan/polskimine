@@ -23,13 +23,13 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
                 <Database size={16} />
             </div>
             <div className="flex flex-col">
-                <span className="text-sm font-bold tracking-tight text-gray-900 leading-none">Polski<span className="text-gray-400">Mining</span></span>
-                <span className="text-[10px] font-mono text-gray-400 leading-none mt-1">V {typeof __APP_VERSION__ !== 'undefined' ? __APP_VERSION__ : 'DEV'} LOCAL</span>
+                <span className="text-sm font-bold tracking-tight text-gray-900 leading-none">Polski<span className="text-gray-500">Mining</span></span>
+                <span className="text-[10px] font-mono text-gray-500 leading-none mt-1">V {typeof __APP_VERSION__ !== 'undefined' ? __APP_VERSION__ : 'DEV'} LOCAL</span>
             </div>
           </Link>
           
           <div className="flex items-center gap-6">
-             <div className="hidden md:flex items-center gap-4 text-xs font-mono text-gray-500">
+             <div className="hidden md:flex items-center gap-4 text-xs font-mono text-gray-600">
                 <span>CARDS: {stats.total}</span>
                 <span className="text-gray-300">|</span>
                 <span>DUE: {stats.due}</span>
@@ -45,7 +45,7 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
 
       {/* Footer */}
       <footer className="border-t border-gray-100 py-6 bg-gray-50 mt-auto">
-        <div className="max-w-5xl mx-auto px-6 flex justify-between items-center text-xs text-gray-400 font-mono">
+        <div className="max-w-5xl mx-auto px-6 flex justify-between items-center text-xs text-gray-500 font-mono">
             <p>PolskiMining SRS System</p>
             <p>Local-First Storage</p>
         </div>
