@@ -88,6 +88,17 @@ class DatabaseService {
     );
     await tx.done;
   }
+
+  async getDueCards(now: Date = new Date()): Promise<Card[]> {
+    const db = await this.getDB();
+    const allCards = await db.getAll('cards');
+    // Note: For very large decks, we should use an index on 'dueDate'.
+    // However, since 'isCardDue' involves complex logic (cutoff hours),
+    // a simple index scan might not be enough without storing the computed 'srsDate'.
+    // For < 10k cards, filtering in JS is fine.
+    const { isCardDue } = await import('./srs'); // Dynamic import to avoid circular dependency if any
+    return allCards.filter(card => isCardDue(card, now));
+  }
 }
 
 export const db = new DatabaseService();

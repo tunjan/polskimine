@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { X, Sparkles } from 'lucide-react';
 import { Button } from './ui/Button';
 import { Card } from '../types';
@@ -20,6 +20,50 @@ export const AddCardModal: React.FC<AddCardModalProps> = ({ isOpen, onClose, onA
   });
   const [error, setError] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
+  const modalRef = useRef<HTMLDivElement>(null);
+
+  // Focus Trap
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const handleTab = (e: KeyboardEvent) => {
+      if (e.key !== 'Tab' || !modalRef.current) return;
+
+      const focusableElements = modalRef.current.querySelectorAll(
+        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+      );
+      const firstElement = focusableElements[0] as HTMLElement;
+      const lastElement = focusableElements[focusableElements.length - 1] as HTMLElement;
+
+      if (e.shiftKey) {
+        if (document.activeElement === firstElement) {
+          e.preventDefault();
+          lastElement.focus();
+        }
+      } else {
+        if (document.activeElement === lastElement) {
+          e.preventDefault();
+          firstElement.focus();
+        }
+      }
+    };
+
+    const handleEscape = (e: KeyboardEvent) => {
+        if (e.key === 'Escape') onClose();
+    };
+
+    document.addEventListener('keydown', handleTab);
+    document.addEventListener('keydown', handleEscape);
+    
+    // Initial focus
+    const firstInput = modalRef.current?.querySelector('input');
+    if (firstInput) (firstInput as HTMLElement).focus();
+
+    return () => {
+      document.removeEventListener('keydown', handleTab);
+      document.removeEventListener('keydown', handleEscape);
+    };
+  }, [isOpen, onClose]);
 
   if (!isOpen) return null;
 
@@ -83,8 +127,8 @@ export const AddCardModal: React.FC<AddCardModalProps> = ({ isOpen, onClose, onA
   const inputClass = "w-full px-3 py-2 bg-white border border-gray-300 rounded-md focus:ring-1 focus:ring-gray-900 focus:border-gray-900 outline-none text-sm transition-all";
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/20 p-4">
-      <div className="bg-white border border-gray-200 rounded-md shadow-sm w-full max-w-md overflow-hidden animate-in zoom-in-95 duration-150">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/20 p-4" role="dialog" aria-modal="true">
+      <div ref={modalRef} className="bg-white border border-gray-200 rounded-md shadow-sm w-full max-w-md overflow-hidden animate-in zoom-in-95 duration-150">
         <div className="px-6 py-4 border-b border-gray-100 flex justify-between items-center">
           <h2 className="text-base font-semibold text-gray-900">New Entry</h2>
           <button onClick={onClose} className="text-gray-400 hover:text-gray-900">

@@ -15,6 +15,61 @@ interface DashboardProps {
   onDeleteCard: (id: string) => void;
 }
 
+interface RowProps {
+  index: number;
+  style: React.CSSProperties;
+  data: {
+    cards: Card[];
+    onDeleteCard: (id: string) => void;
+  };
+}
+
+const Row = ({ index, style, data }: RowProps) => {
+  const { cards, onDeleteCard } = data;
+  const card = cards[index];
+  const isDue = isCardDue(card);
+  
+  return (
+    <div style={style} className="flex items-center border-b border-gray-100 hover:bg-gray-50/80 transition-colors px-6">
+      <div className="flex-1 py-4 pr-4">
+          <div className="flex flex-col gap-1">
+              <span className="font-medium text-gray-900 text-base truncate">
+              {card.targetWord ? (
+                  card.targetSentence.split(' ').map((word, i) => 
+                  word.toLowerCase().includes(card.targetWord!.toLowerCase()) 
+                  ? <span key={i} className="text-gray-900 font-bold border-b border-gray-300">{word} </span>
+                  : <span key={i} className="text-gray-600">{word} </span>
+                  )
+              ) : (
+                  <span className="text-gray-900">{card.targetSentence}</span>
+              )}
+              </span>
+              <span className="text-gray-400 text-xs truncate">{card.nativeTranslation}</span>
+          </div>
+      </div>
+      <div className="w-32 px-4">
+          <div className={`inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-mono font-medium uppercase border ${
+          isDue 
+              ? 'bg-red-50 text-red-700 border-red-100' 
+              : 'bg-emerald-50 text-emerald-700 border-emerald-100'
+          }`}>
+          {isDue ? 'Ready' : new Date(card.dueDate).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
+          </div>
+      </div>
+      <div className="w-20 pl-4 text-right">
+          <button 
+              onClick={() => onDeleteCard(card.id)}
+              className="text-gray-300 hover:text-red-600 transition-colors p-2 hover:bg-red-50 rounded-md"
+              title="Delete Card"
+              aria-label={`Delete card: ${card.targetSentence}`}
+          >
+              <Trash2 size={16} />
+          </button>
+      </div>
+    </div>
+  );
+};
+
 export const Dashboard: React.FC<DashboardProps> = ({ 
   cards, 
   stats, 
@@ -39,50 +94,10 @@ export const Dashboard: React.FC<DashboardProps> = ({
     c.nativeTranslation.toLowerCase().includes(debouncedSearchTerm.toLowerCase())
   ), [cards, debouncedSearchTerm]);
 
-  const Row = ({ index, style }: { index: number; style: React.CSSProperties }) => {
-    const card = filteredCards[index];
-    const isDue = isCardDue(card);
-    
-    return (
-      <div style={style} className="flex items-center border-b border-gray-100 hover:bg-gray-50/80 transition-colors px-6">
-        <div className="flex-1 py-4 pr-4">
-            <div className="flex flex-col gap-1">
-                <span className="font-medium text-gray-900 text-base truncate">
-                {card.targetWord ? (
-                    card.targetSentence.split(' ').map((word, i) => 
-                    word.toLowerCase().includes(card.targetWord!.toLowerCase()) 
-                    ? <span key={i} className="text-gray-900 font-bold border-b border-gray-300">{word} </span>
-                    : <span key={i} className="text-gray-600">{word} </span>
-                    )
-                ) : (
-                    <span className="text-gray-900">{card.targetSentence}</span>
-                )}
-                </span>
-                <span className="text-gray-400 text-xs truncate">{card.nativeTranslation}</span>
-            </div>
-        </div>
-        <div className="w-32 px-4">
-            <div className={`inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-mono font-medium uppercase border ${
-            isDue 
-                ? 'bg-red-50 text-red-700 border-red-100' 
-                : 'bg-emerald-50 text-emerald-700 border-emerald-100'
-            }`}>
-            {isDue ? 'Ready' : new Date(card.dueDate).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
-            </div>
-        </div>
-        <div className="w-20 pl-4 text-right">
-            <button 
-                onClick={() => onDeleteCard(card.id)}
-                className="text-gray-300 hover:text-red-600 transition-colors p-2 hover:bg-red-50 rounded-md"
-                title="Delete Card"
-                aria-label={`Delete card: ${card.targetSentence}`}
-            >
-                <Trash2 size={16} />
-            </button>
-        </div>
-      </div>
-    );
-  };
+  const itemData = useMemo(() => ({
+    cards: filteredCards,
+    onDeleteCard
+  }), [filteredCards, onDeleteCard]);
 
   return (
     <div className="max-w-5xl mx-auto space-y-10 animate-in fade-in duration-300">
@@ -203,6 +218,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
                     itemCount={filteredCards.length}
                     itemSize={88} // Estimated row height
                     width="100%"
+                    itemData={itemData}
                  >
                     {Row}
                  </List>

@@ -222,8 +222,8 @@ export const DeckProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     return {
         total: cards.length,
-        due: cards.filter(c => isCardDue(c)).length,
-        learned: cards.filter(c => c.status === 'graduated').length,
+        due: cards.reduce((acc, c) => acc + (isCardDue(c) ? 1 : 0), 0),
+        learned: cards.reduce((acc, c) => acc + (c.status === 'graduated' ? 1 : 0), 0),
         streak: currentStreak,
         totalReviews,
         longestStreak

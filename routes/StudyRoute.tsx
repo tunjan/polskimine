@@ -2,25 +2,30 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { StudySession } from '../components/StudySession';
 import { useDeck } from '../contexts/DeckContext';
-import { isCardDue } from '../services/srs';
+import { db } from '../services/db';
 import { Card } from '../types';
 
 export const StudyRoute: React.FC = () => {
-  const { cards, updateCard, recordReview, undoReview, canUndo, isLoading } = useDeck();
+  const { updateCard, recordReview, undoReview, canUndo } = useDeck();
   const navigate = useNavigate();
   const [sessionCards, setSessionCards] = useState<Card[]>([]);
-  const [isInitialized, setIsInitialized] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    if (!isLoading && !isInitialized) {
-      const now = new Date();
-      const due = cards.filter(c => isCardDue(c, now));
-      setSessionCards(due);
-      setIsInitialized(true);
-    }
-  }, [cards, isLoading, isInitialized]);
+    const loadDueCards = async () => {
+      try {
+        const due = await db.getDueCards();
+        setSessionCards(due);
+      } catch (error) {
+        console.error("Failed to load due cards", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    loadDueCards();
+  }, []);
 
-  if (isLoading || !isInitialized) {
+  if (isLoading) {
     return <div className="flex items-center justify-center h-screen">Loading session...</div>;
   }
 
