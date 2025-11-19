@@ -81,11 +81,16 @@ export const HISTORY_KEY = 'polski_mining_history_v1';
 
 export const SRS_CONFIG = {
   CUTOFF_HOUR: 4,
+  FUZZ_FACTOR: 0.05,
+  MIN_INTERVAL_FUZZ: 2,
+  GRADUATING_INTERVAL: 21,
 };
 
-export const FSRS_DEFAULTS = {
-  request_retention: 0.9,
-  maximum_interval: 36500,
-  enable_fuzzing: true,
-  w: [0.40255, 1.18385, 3.173, 15.69105, 7.19605, 0.5345, 1.4604, 0.0046, 1.54575, 0.1192, 1.01925, 1.9395, 0.11, 2.9605, 2.27315, 0.20375, 0.37325, 0.89045, 0.02495],
+export const SM2_CONSTANTS = {
+  MIN_EASE: 1.3,
+  PENALTY_AGAIN: 0.2,
+  // Coefficients for EF calculation: EF' = EF + (0.1 - (5-q)*(0.08+(5-q)*0.02))
+  EF_C1: 0.1,
+  EF_C2: 0.08,
+  EF_C3: 0.02,
 };

@@ -3,8 +3,7 @@ import { Card, Grade } from '../types';
 import { Flashcard } from './Flashcard';
 import { Button } from './ui/Button';
 import { calculateNextReview } from '../services/srs';
-import { ArrowLeft, RotateCcw, Undo2, CheckCircle2 } from 'lucide-react';
-import { useSettings } from '../contexts/SettingsContext';
+import { ArrowLeft, RotateCcw, Undo2 } from 'lucide-react';
 
 interface StudySessionProps {
   dueCards: Card[];
@@ -13,11 +12,9 @@ interface StudySessionProps {
   onExit: () => void;
   onUndo?: () => void;
   canUndo?: boolean;
-  onMarkKnown: (card: Card) => void;
 }
 
-export const StudySession: React.FC<StudySessionProps> = ({ dueCards, onUpdateCard, onRecordReview, onExit, onUndo, canUndo, onMarkKnown }) => {
-  const { settings } = useSettings();
+export const StudySession: React.FC<StudySessionProps> = ({ dueCards, onUpdateCard, onRecordReview, onExit, onUndo, canUndo }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isFlipped, setIsFlipped] = useState(false);
   const [sessionComplete, setSessionComplete] = useState(false);
@@ -41,16 +38,6 @@ export const StudySession: React.FC<StudySessionProps> = ({ dueCards, onUpdateCa
              setCurrentIndex(dueCards.length - 1);
              setIsFlipped(true);
         }
-    }
-  };
-
-  const handleMarkKnown = () => {
-    onMarkKnown(currentCard);
-    if (currentIndex < dueCards.length - 1) {
-      setIsFlipped(false);
-      setCurrentIndex(prev => prev + 1);
-    } else {
-      setSessionComplete(true);
     }
   };
 
@@ -94,7 +81,7 @@ export const StudySession: React.FC<StudySessionProps> = ({ dueCards, onUpdateCa
   };
 
   const handleGrade = (grade: Grade) => {
-    const updatedCard = calculateNextReview(currentCard, grade, settings.srs);
+    const updatedCard = calculateNextReview(currentCard, grade);
     onUpdateCard(updatedCard);
     onRecordReview(currentCard);
 
@@ -130,12 +117,13 @@ export const StudySession: React.FC<StudySessionProps> = ({ dueCards, onUpdateCa
 
   return (
     <div className="w-full max-w-3xl mx-auto flex flex-col flex-1 h-full">
+      // ...existing code...
       {/* Top Bar */}
       <div className="flex justify-between items-center mb-4 border-b border-gray-100 pb-3">
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-4">
             <button 
             onClick={onExit}
-            className="flex items-center text-gray-500 hover:text-gray-900 transition-colors text-xs font-mono uppercase tracking-wide p-2 -ml-2 rounded-md hover:bg-gray-100"
+            className="flex items-center text-gray-500 hover:text-gray-900 transition-colors text-xs font-mono uppercase tracking-wide"
             aria-label="Quit session"
             >
             <ArrowLeft size={14} className="mr-2" /> Quit
@@ -143,21 +131,16 @@ export const StudySession: React.FC<StudySessionProps> = ({ dueCards, onUpdateCa
             {canUndo && (
                 <button 
                     onClick={handleUndo}
-                    className="flex items-center text-gray-500 hover:text-gray-900 transition-colors text-xs font-mono uppercase tracking-wide p-2 rounded-md hover:bg-gray-100"
+                    className="flex items-center text-gray-500 hover:text-gray-900 transition-colors text-xs font-mono uppercase tracking-wide"
                     title="Undo last review (Cmd/Ctrl + Z)"
                     aria-label="Undo last review"
                 >
                     <Undo2 size={14} className="mr-2" /> Undo
                 </button>
             )}
-            <button 
-                onClick={handleMarkKnown}
-                className="flex items-center text-gray-500 hover:text-emerald-600 transition-colors text-xs font-mono uppercase tracking-wide p-2 rounded-md hover:bg-emerald-50"
-                title="Mark as known (never see again)"
-            >
-                <CheckCircle2 size={14} className="mr-2" /> Mark Known
-            </button>
         </div>
+// ...existing code...
+        // ...existing code...
         <div className="text-xs font-mono text-gray-500">
           {currentIndex + 1} / {dueCards.length}
         </div>
@@ -167,12 +150,7 @@ export const StudySession: React.FC<StudySessionProps> = ({ dueCards, onUpdateCa
       <div className="flex-1 flex flex-col items-center justify-center min-h-0 pb-12">
         
         <div className="w-full flex justify-center mb-8">
-          <Flashcard 
-            card={currentCard} 
-            isFlipped={isFlipped} 
-            autoPlayAudio={settings.autoPlayAudio}
-            showTranslation={settings.showTranslationAfterFlip}
-          />
+          <Flashcard card={currentCard} isFlipped={isFlipped} />
         </div>
 
         {/* Controls Area */}
@@ -182,7 +160,7 @@ export const StudySession: React.FC<StudySessionProps> = ({ dueCards, onUpdateCa
               onClick={handleFlip} 
               size="lg" 
               variant="primary"
-              className="w-full max-w-sm shadow-lg min-h-[50px]"
+              className="w-full max-w-sm shadow-lg"
             >
               Reveal Answer <span className="hidden md:inline-block ml-2 text-xs opacity-60 font-mono border border-white/30 px-1 rounded">SPACE</span>
             </Button>
@@ -190,7 +168,7 @@ export const StudySession: React.FC<StudySessionProps> = ({ dueCards, onUpdateCa
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3 w-full max-w-2xl animate-in slide-in-from-bottom-2 duration-200">
               <button 
                 onClick={() => handleGrade('Again')}
-                className="flex flex-col items-center justify-center p-3 min-h-[64px] border border-gray-200 rounded-lg hover:border-red-500 hover:bg-red-50 transition-all shadow-sm hover:shadow-md group bg-white"
+                className="flex flex-col items-center justify-center p-3 border border-gray-200 rounded-lg hover:border-red-500 hover:bg-red-50 transition-all shadow-sm hover:shadow-md group bg-white"
               >
                 <span className="text-sm font-bold text-gray-700 group-hover:text-red-700">Again</span>
                 <span className="text-[10px] font-mono text-gray-500 mt-0.5">1</span>
@@ -198,7 +176,7 @@ export const StudySession: React.FC<StudySessionProps> = ({ dueCards, onUpdateCa
               
               <button 
                 onClick={() => handleGrade('Hard')}
-                className="flex flex-col items-center justify-center p-3 min-h-[64px] border border-gray-200 rounded-lg hover:border-orange-400 hover:bg-orange-50 transition-all shadow-sm hover:shadow-md group bg-white"
+                className="flex flex-col items-center justify-center p-3 border border-gray-200 rounded-lg hover:border-orange-400 hover:bg-orange-50 transition-all shadow-sm hover:shadow-md group bg-white"
               >
                 <span className="text-sm font-bold text-gray-700 group-hover:text-orange-700">Hard</span>
                 <span className="text-[10px] font-mono text-gray-500 mt-0.5">2</span>
@@ -206,7 +184,7 @@ export const StudySession: React.FC<StudySessionProps> = ({ dueCards, onUpdateCa
 
               <button 
                 onClick={() => handleGrade('Good')}
-                className="flex flex-col items-center justify-center p-3 min-h-[64px] border border-gray-200 rounded-lg hover:border-emerald-500 hover:bg-emerald-50 transition-all shadow-sm hover:shadow-md group bg-white"
+                className="flex flex-col items-center justify-center p-3 border border-gray-200 rounded-lg hover:border-emerald-500 hover:bg-emerald-50 transition-all shadow-sm hover:shadow-md group bg-white"
               >
                 <span className="text-sm font-bold text-gray-700 group-hover:text-emerald-700">Good</span>
                 <span className="text-[10px] font-mono text-gray-500 mt-0.5">3 / SPC</span>
@@ -214,7 +192,7 @@ export const StudySession: React.FC<StudySessionProps> = ({ dueCards, onUpdateCa
 
               <button 
                 onClick={() => handleGrade('Easy')}
-                className="flex flex-col items-center justify-center p-3 min-h-[64px] border border-gray-200 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition-all shadow-sm hover:shadow-md group bg-white"
+                className="flex flex-col items-center justify-center p-3 border border-gray-200 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition-all shadow-sm hover:shadow-md group bg-white"
               >
                 <span className="text-sm font-bold text-gray-700 group-hover:text-blue-700">Easy</span>
                 <span className="text-[10px] font-mono text-gray-500 mt-0.5">4</span>
@@ -223,6 +201,7 @@ export const StudySession: React.FC<StudySessionProps> = ({ dueCards, onUpdateCa
           )}
         </div>
       </div>
+// ...existing code...
     </div>
   );
 };

@@ -5,7 +5,6 @@ interface PolskiMineDB extends DBSchema {
   cards: {
     key: string;
     value: Card;
-    indexes: { 'dueDate': string; 'status': string };
   };
   history: {
     key: string; // Date string 'YYYY-MM-DD'
@@ -14,7 +13,7 @@ interface PolskiMineDB extends DBSchema {
 }
 
 const DB_NAME = 'polskimine-db';
-const DB_VERSION = 2;
+const DB_VERSION = 1;
 
 class DatabaseService {
   private dbPromise: Promise<IDBPDatabase<PolskiMineDB>> | null = null;
@@ -22,21 +21,10 @@ class DatabaseService {
   private getDB() {
     if (!this.dbPromise) {
       this.dbPromise = openDB<PolskiMineDB>(DB_NAME, DB_VERSION, {
-        upgrade(db, oldVersion, newVersion, transaction) {
-          let cardStore;
+        upgrade(db) {
           if (!db.objectStoreNames.contains('cards')) {
-            cardStore = db.createObjectStore('cards', { keyPath: 'id' });
-          } else {
-            cardStore = transaction.objectStore('cards');
+            db.createObjectStore('cards', { keyPath: 'id' });
           }
-
-          if (!cardStore.indexNames.contains('dueDate')) {
-            cardStore.createIndex('dueDate', 'dueDate');
-          }
-          if (!cardStore.indexNames.contains('status')) {
-            cardStore.createIndex('status', 'status');
-          }
-
           if (!db.objectStoreNames.contains('history')) {
             db.createObjectStore('history', { keyPath: 'date' });
           }
@@ -101,52 +89,25 @@ class DatabaseService {
     await tx.done;
   }
 
-  async clearAllCards() {
-    const db = await this.getDB();
-    await db.clear('cards');
-  }
-
-  async clearHistory() {
-    const db = await this.getDB();
-    await db.clear('history');
-  }
-
   async getDueCards(now: Date = new Date()): Promise<Card[]> {
     const db = await this.getDB();
-    const { getSRSDate } = await import('./srs');
-    
-    const srsToday = getSRSDate(now);
-    // We want cards due on or before "today".
-    // Since isCardDue checks isBefore(due, srsToday) || isSameDay(due, srsToday),
-    // and srsToday is the start of the day (00:00:00),
-    // we effectively want any card with dueDate < (srsToday + 1 day).
-    const cutoffDate = new Date(srsToday);
-    cutoffDate.setDate(cutoffDate.getDate() + 1);
-    
-    const range = IDBKeyRange.upperBound(cutoffDate.toISOString());
-    const dueCandidates = await db.getAllFromIndex('cards', 'dueDate', range);
-    
-    return dueCandidates.filter(card => card.status !== 'known');
+    const allCards = await db.getAll('cards');
+    // Note: For very large decks, we should use an index on 'dueDate'.
+    // However, since 'isCardDue' involves complex logic (cutoff hours),
+    // a simple index scan might not be enough without storing the computed 'srsDate'.
+    // For < 10k cards, filtering in JS is fine.
+    const { isCardDue } = await import('./srs'); // Dynamic import to avoid circular dependency if any
+    return allCards.filter(card => isCardDue(card, now));
   }
 
   async getStats(): Promise<{ total: number; due: number; learned: number }> {
     const db = await this.getDB();
-    const { getSRSDate } = await import('./srs');
+    const allCards = await db.getAll('cards');
+    const { isCardDue } = await import('./srs');
     
-    const total = await db.count('cards');
-    
-    const srsToday = getSRSDate(new Date());
-    const cutoffDate = new Date(srsToday);
-    cutoffDate.setDate(cutoffDate.getDate() + 1);
-    const range = IDBKeyRange.upperBound(cutoffDate.toISOString());
-    
-    // We fetch candidates to filter out 'known' cards from the due count
-    const dueCandidates = await db.getAllFromIndex('cards', 'dueDate', range);
-    const due = dueCandidates.filter(c => c.status !== 'known').length;
-    
-    const graduatedCount = await db.countFromIndex('cards', 'status', 'graduated');
-    const knownCount = await db.countFromIndex('cards', 'status', 'known');
-    const learned = graduatedCount + knownCount;
+    const total = allCards.length;
+    const due = allCards.filter(c => isCardDue(c)).length;
+    const learned = allCards.filter(c => c.status === 'graduated').length;
     
     return { total, due, learned };
   }
