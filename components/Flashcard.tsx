@@ -8,7 +8,7 @@ interface FlashcardProps {
 }
 
 function escapeRegExp(string: string) {
-  return string.replace(/[.*+?^()|[\]\]/g, '\$&');
+  return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
 export const Flashcard: React.FC<FlashcardProps> = ({ card, isFlipped }) => {
