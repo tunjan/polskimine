@@ -40,8 +40,8 @@ export const Heatmap: React.FC<HeatmapProps> = ({ history }) => {
   };
 
   return (
-    <div className="w-full overflow-x-auto no-scrollbar">
-      <div className="min-w-[700px]">
+    <div className="w-full overflow-x-auto no-scrollbar pb-2">
+      <div className="w-max min-w-full">
         <div className="flex gap-[3px]">
             <div className="grid grid-rows-7 grid-flow-col gap-[3px]">
             {calendarData.map((day) => (

@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import { X } from 'lucide-react';
+import { X, Sparkles } from 'lucide-react';
 import { Button } from './ui/Button';
 import { Card } from '../types';
 import { v4 as uuidv4 } from 'uuid';
+import { toast } from 'sonner';
 
 interface AddCardModalProps {
   isOpen: boolean;
@@ -18,17 +19,43 @@ export const AddCardModal: React.FC<AddCardModalProps> = ({ isOpen, onClose, onA
     notes: ''
   });
   const [error, setError] = useState('');
+  const [isGenerating, setIsGenerating] = useState(false);
 
   if (!isOpen) return null;
+
+  const handleAutoFill = async () => {
+    if (!form.sentence) {
+        setError('Please enter a sentence first to generate details.');
+        return;
+    }
+    setIsGenerating(true);
+    // Mock AI delay
+    setTimeout(() => {
+        setIsGenerating(false);
+        toast.info("AI Auto-fill is coming soon! (Mocking for now)");
+        // Mock response
+        setForm(prev => ({
+            ...prev,
+            translation: "Translated: " + prev.sentence,
+            notes: "Generated grammar notes..."
+        }));
+    }, 1000);
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
 
     // Only validate containment if a target word is actually provided
-    if (form.targetWord && !form.sentence.toLowerCase().includes(form.targetWord.toLowerCase())) {
-      setError('Target word provided but not found in sentence.');
-      return;
+    if (form.targetWord) {
+      const sentenceLower = form.sentence.toLowerCase();
+      const targetLower = form.targetWord.toLowerCase();
+      
+      // Check if the target word exists in the sentence (case-insensitive)
+      if (!sentenceLower.includes(targetLower)) {
+         setError('Target word provided but not found in sentence.');
+         return;
+      }
     }
     
     if (!form.sentence || !form.translation) {
@@ -73,7 +100,18 @@ export const AddCardModal: React.FC<AddCardModalProps> = ({ isOpen, onClose, onA
           )}
           
           <div>
-            <label className="block text-xs font-mono text-gray-500 uppercase mb-1.5">Polish Sentence <span className="text-red-500">*</span></label>
+            <div className="flex justify-between items-center mb-1.5">
+                <label className="block text-xs font-mono text-gray-500 uppercase">Polish Sentence <span className="text-red-500">*</span></label>
+                <button 
+                    type="button"
+                    onClick={handleAutoFill}
+                    disabled={isGenerating}
+                    className="text-[10px] flex items-center gap-1 text-purple-600 hover:text-purple-700 font-medium transition-colors disabled:opacity-50"
+                >
+                    <Sparkles size={10} />
+                    {isGenerating ? 'Mining...' : 'Auto-Fill'}
+                </button>
+            </div>
             <input
               type="text"
               className={inputClass}

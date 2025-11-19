@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Card, DeckStats, ReviewHistory } from '../types';
 import { Button } from './ui/Button';
 import { Play, Plus, Trash2, Search, Flame, Layers, CheckCircle2 } from 'lucide-react';
 import { isCardDue } from '../services/srs';
 import { Heatmap } from './Heatmap';
+import { FixedSizeList as List } from 'react-window';
 
 interface DashboardProps {
   cards: Card[];
@@ -24,10 +25,54 @@ export const Dashboard: React.FC<DashboardProps> = ({
 }) => {
   const [searchTerm, setSearchTerm] = useState('');
 
-  const filteredCards = cards.filter(c => 
+  const filteredCards = useMemo(() => cards.filter(c => 
     c.targetSentence.toLowerCase().includes(searchTerm.toLowerCase()) ||
     c.nativeTranslation.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  ), [cards, searchTerm]);
+
+  const Row = ({ index, style }: { index: number; style: React.CSSProperties }) => {
+    const card = filteredCards[index];
+    const isDue = isCardDue(card);
+    
+    return (
+      <div style={style} className="flex items-center border-b border-gray-100 hover:bg-gray-50/80 transition-colors px-6">
+        <div className="flex-1 py-4 pr-4">
+            <div className="flex flex-col gap-1">
+                <span className="font-medium text-gray-900 text-base truncate">
+                {card.targetWord ? (
+                    card.targetSentence.split(' ').map((word, i) => 
+                    word.toLowerCase().includes(card.targetWord!.toLowerCase()) 
+                    ? <span key={i} className="text-gray-900 font-bold border-b border-gray-300">{word} </span>
+                    : <span key={i} className="text-gray-600">{word} </span>
+                    )
+                ) : (
+                    <span className="text-gray-900">{card.targetSentence}</span>
+                )}
+                </span>
+                <span className="text-gray-400 text-xs truncate">{card.nativeTranslation}</span>
+            </div>
+        </div>
+        <div className="w-32 px-4">
+            <div className={`inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-mono font-medium uppercase border ${
+            isDue 
+                ? 'bg-red-50 text-red-700 border-red-100' 
+                : 'bg-emerald-50 text-emerald-700 border-emerald-100'
+            }`}>
+            {isDue ? 'Ready' : new Date(card.dueDate).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
+            </div>
+        </div>
+        <div className="w-20 pl-4 text-right">
+            <button 
+                onClick={() => onDeleteCard(card.id)}
+                className="text-gray-300 hover:text-red-600 transition-colors p-2 hover:bg-red-50 rounded-md"
+                title="Delete Card"
+            >
+                <Trash2 size={16} />
+            </button>
+        </div>
+      </div>
+    );
+  };
 
   return (
     <div className="max-w-5xl mx-auto space-y-10 animate-in fade-in duration-300">
@@ -124,9 +169,9 @@ export const Dashboard: React.FC<DashboardProps> = ({
           </div>
         </div>
         
-        <div className="min-h-[300px]">
+        <div className="h-[600px] border border-gray-200 rounded-lg overflow-hidden shadow-sm bg-white flex flex-col">
           {filteredCards.length === 0 ? (
-            <div className="py-16 text-center border border-dashed border-gray-200 rounded-lg bg-gray-50/50">
+            <div className="flex-1 flex flex-col items-center justify-center text-center bg-gray-50/50">
               <p className="text-sm font-mono text-gray-400">No cards match your query.</p>
               {cards.length === 0 && (
                  <Button variant="outline" size="sm" onClick={onOpenAddModal} className="mt-4">
@@ -135,60 +180,23 @@ export const Dashboard: React.FC<DashboardProps> = ({
               )}
             </div>
           ) : (
-            <div className="border border-gray-200 rounded-lg overflow-hidden shadow-sm bg-white">
-               <table className="w-full text-left text-sm">
-                  <thead className="bg-gray-50 text-gray-500 font-mono text-[10px] uppercase tracking-wider border-b border-gray-200">
-                    <tr>
-                      <th className="px-6 py-3 font-semibold">Target Sentence</th>
-                      <th className="px-6 py-3 font-semibold w-32">Next Review</th>
-                      <th className="px-6 py-3 font-semibold w-20 text-right">Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-gray-100">
-                    {filteredCards.map(card => {
-                      const isDue = isCardDue(card);
-                      return (
-                        <tr key={card.id} className="group hover:bg-gray-50/80 transition-colors">
-                          <td className="px-6 py-4">
-                            <div className="flex flex-col gap-1">
-                              <span className="font-medium text-gray-900 text-base">
-                                {card.targetWord ? (
-                                  card.targetSentence.split(' ').map((word, i) => 
-                                    word.toLowerCase().includes(card.targetWord!.toLowerCase()) 
-                                    ? <span key={i} className="text-gray-900 font-bold border-b border-gray-300">{word} </span>
-                                    : <span key={i} className="text-gray-600">{word} </span>
-                                  )
-                                ) : (
-                                  <span className="text-gray-900">{card.targetSentence}</span>
-                                )}
-                              </span>
-                              <span className="text-gray-400 text-xs">{card.nativeTranslation}</span>
-                            </div>
-                          </td>
-                          <td className="px-6 py-4 align-middle">
-                             <div className={`inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-mono font-medium uppercase border ${
-                                isDue 
-                                  ? 'bg-red-50 text-red-700 border-red-100' 
-                                  : 'bg-emerald-50 text-emerald-700 border-emerald-100'
-                              }`}>
-                                {isDue ? 'Ready' : new Date(card.dueDate).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
-                              </div>
-                          </td>
-                          <td className="px-6 py-4 text-right align-middle">
-                            <button 
-                              onClick={() => onDeleteCard(card.id)}
-                              className="text-gray-300 hover:text-red-600 transition-colors p-2 hover:bg-red-50 rounded-md"
-                              title="Delete Card"
-                            >
-                              <Trash2 size={16} />
-                            </button>
-                          </td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-               </table>
-            </div>
+            <>
+               <div className="bg-gray-50 text-gray-500 font-mono text-[10px] uppercase tracking-wider border-b border-gray-200 flex px-6 py-3">
+                  <div className="flex-1 font-semibold">Target Sentence</div>
+                  <div className="w-32 px-4 font-semibold">Next Review</div>
+                  <div className="w-20 pl-4 font-semibold text-right">Actions</div>
+               </div>
+               <div className="flex-1">
+                 <List
+                    height={550} // Approximate height minus header
+                    itemCount={filteredCards.length}
+                    itemSize={88} // Estimated row height
+                    width="100%"
+                 >
+                    {Row}
+                 </List>
+               </div>
+            </>
           )}
         </div>
       </div>
