@@ -78,3 +78,19 @@ export const MOCK_HISTORY = generateMockHistory();
 
 export const STORAGE_KEY = 'polski_mining_deck_v1';
 export const HISTORY_KEY = 'polski_mining_history_v1';
+
+export const SRS_CONFIG = {
+  CUTOFF_HOUR: 4,
+  FUZZ_FACTOR: 0.05,
+  MIN_INTERVAL_FUZZ: 2,
+  GRADUATING_INTERVAL: 21,
+};
+
+export const SM2_CONSTANTS = {
+  MIN_EASE: 1.3,
+  PENALTY_AGAIN: 0.2,
+  // Coefficients for EF calculation: EF' = EF + (0.1 - (5-q)*(0.08+(5-q)*0.02))
+  EF_C1: 0.1,
+  EF_C2: 0.08,
+  EF_C3: 0.02,
+};

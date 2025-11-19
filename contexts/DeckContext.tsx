@@ -15,7 +15,6 @@ interface DeckContextType {
   recordReview: (card: Card) => void;
   undoReview: () => void;
   canUndo: boolean;
-  debug_makeAllDue: () => void;
 }
 
 const DeckContext = createContext<DeckContextType | undefined>(undefined);
@@ -148,25 +147,6 @@ export const DeckProvider: React.FC<{ children: React.ReactNode }> = ({ children
     toast.success("Review undone");
   }, [lastReview]);
 
-  const debug_makeAllDue = useCallback(async () => {
-    const yesterday = new Date();
-    yesterday.setDate(yesterday.getDate() - 1);
-    const pastDate = yesterday.toISOString();
-    
-    const updatedCards = cards.map(c => ({
-        ...c,
-        dueDate: pastDate
-    }));
-
-    setCards(updatedCards);
-    try {
-        await db.saveAllCards(updatedCards);
-        toast.success('DEBUG: All cards marked as due');
-    } catch (e) {
-        console.error(e);
-    }
-  }, [cards]);
-
   const stats: DeckStats = useMemo(() => {
     const sortedDates = Object.keys(history).sort();
     let currentStreak = 0;
@@ -241,7 +221,7 @@ export const DeckProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, [cards, history]);
 
   return (
-    <DeckContext.Provider value={{ cards, history, stats, addCard, deleteCard, updateCard, recordReview, undoReview, canUndo: !!lastReview, debug_makeAllDue }}>
+    <DeckContext.Provider value={{ cards, history, stats, addCard, deleteCard, updateCard, recordReview, undoReview, canUndo: !!lastReview }}>
       {children}
     </DeckContext.Provider>
   );
