@@ -1,7 +1,7 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { Card, DeckStats, ReviewHistory } from '../types';
 import { Button } from './ui/Button';
-import { Play, Plus, Trash2, Search, Flame, Layers, CheckCircle2 } from 'lucide-react';
+import { Play, Plus, Trash2, Search, Flame, Layers, CheckCircle2, Pencil } from 'lucide-react';
 import { isCardDue } from '../services/srs';
 import { Heatmap } from './Heatmap';
 import { FixedSizeList as List } from 'react-window';
@@ -15,6 +15,7 @@ interface DashboardProps {
   onOpenAddModal: () => void;
   onDeleteCard: (id: string) => void;
   onAddCard?: (card: Card) => void;
+  onEditCard: (card: Card) => void;
 }
 
 interface RowProps {
@@ -23,11 +24,12 @@ interface RowProps {
   data: {
     cards: Card[];
     onDeleteCard: (id: string) => void;
+    onEditCard: (card: Card) => void;
   };
 }
 
 const Row = ({ index, style, data }: RowProps) => {
-  const { cards, onDeleteCard } = data;
+  const { cards, onDeleteCard, onEditCard } = data;
   const card = cards[index];
   const isDue = isCardDue(card);
   
@@ -58,7 +60,15 @@ const Row = ({ index, style, data }: RowProps) => {
           {isDue ? 'Ready' : new Date(card.dueDate).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
           </div>
       </div>
-      <div className="w-20 pl-4 text-right">
+      <div className="w-20 pl-4 text-right flex items-center justify-end gap-1">
+          <button 
+              onClick={() => onEditCard(card)}
+              className="text-gray-400 hover:text-blue-600 transition-colors p-2 hover:bg-blue-50 rounded-md"
+              title="Edit Card"
+              aria-label={`Edit card: ${card.targetSentence}`}
+          >
+              <Pencil size={16} />
+          </button>
           <button 
               onClick={() => onDeleteCard(card.id)}
               className="text-gray-400 hover:text-red-600 transition-colors p-2 hover:bg-red-50 rounded-md"
@@ -79,7 +89,8 @@ export const Dashboard: React.FC<DashboardProps> = ({
   onStartSession, 
   onOpenAddModal,
   onDeleteCard,
-  onAddCard
+  onAddCard,
+  onEditCard
 }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState('');
@@ -114,8 +125,10 @@ export const Dashboard: React.FC<DashboardProps> = ({
 
   const itemData = useMemo(() => ({
     cards: filteredCards,
-    onDeleteCard: handleDeleteWithUndo
-  }), [filteredCards, onDeleteCard, onAddCard]);
+    onDeleteCard: handleDeleteWithUndo,
+    onEditCard
+  }), [filteredCards, onDeleteCard, onAddCard, onEditCard]);
+
 
   return (
     <div className="max-w-5xl mx-auto space-y-10 animate-in fade-in duration-300">

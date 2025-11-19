@@ -10,6 +10,7 @@ export const DashboardRoute: React.FC = () => {
   const { history, stats, addCard, deleteCard, dataVersion } = useDeck();
   const navigate = useNavigate();
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [editingCard, setEditingCard] = useState<Card | undefined>(undefined);
   const [cards, setCards] = useState<Card[]>([]);
 
   useEffect(() => {
@@ -19,6 +20,16 @@ export const DashboardRoute: React.FC = () => {
     };
     fetchCards();
   }, [dataVersion]);
+
+  const handleEditCard = (card: Card) => {
+    setEditingCard(card);
+    setIsAddModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsAddModalOpen(false);
+    setEditingCard(undefined);
+  };
 
   return (
     <>
@@ -30,11 +41,13 @@ export const DashboardRoute: React.FC = () => {
         onOpenAddModal={() => setIsAddModalOpen(true)}
         onDeleteCard={deleteCard}
         onAddCard={addCard}
+        onEditCard={handleEditCard}
       />
       <AddCardModal 
         isOpen={isAddModalOpen}
-        onClose={() => setIsAddModalOpen(false)}
-        onAddCard={addCard}
+        onClose={handleCloseModal}
+        onAdd={addCard}
+        initialCard={editingCard}
       />
     </>
   );

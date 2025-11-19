@@ -9,9 +9,10 @@ interface AddCardModalProps {
   isOpen: boolean;
   onClose: () => void;
   onAdd: (card: Card) => void;
+  initialCard?: Card;
 }
 
-export const AddCardModal: React.FC<AddCardModalProps> = ({ isOpen, onClose, onAdd }) => {
+export const AddCardModal: React.FC<AddCardModalProps> = ({ isOpen, onClose, onAdd, initialCard }) => {
   const [form, setForm] = useState({
     sentence: '',
     targetWord: '',
@@ -21,6 +22,24 @@ export const AddCardModal: React.FC<AddCardModalProps> = ({ isOpen, onClose, onA
   const [error, setError] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
   const modalRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (isOpen && initialCard) {
+      setForm({
+        sentence: initialCard.targetSentence,
+        targetWord: initialCard.targetWord || '',
+        translation: initialCard.nativeTranslation,
+        notes: initialCard.notes
+      });
+    } else if (isOpen && !initialCard) {
+      setForm({
+        sentence: '',
+        targetWord: '',
+        translation: '',
+        notes: ''
+      });
+    }
+  }, [isOpen, initialCard]);
 
   // Focus Trap
   useEffect(() => {
@@ -108,15 +127,15 @@ export const AddCardModal: React.FC<AddCardModalProps> = ({ isOpen, onClose, onA
     }
 
     const newCard: Card = {
-      id: uuidv4(),
+      id: initialCard ? initialCard.id : uuidv4(),
       targetSentence: form.sentence,
       targetWord: form.targetWord || undefined, // Store as undefined if empty string
       nativeTranslation: form.translation,
       notes: form.notes,
-      status: 'learning',
-      interval: 0,
-      easeFactor: 2.5,
-      dueDate: new Date().toISOString(),
+      status: initialCard ? initialCard.status : 'learning',
+      interval: initialCard ? initialCard.interval : 0,
+      easeFactor: initialCard ? initialCard.easeFactor : 2.5,
+      dueDate: initialCard ? initialCard.dueDate : new Date().toISOString(),
     };
 
     onAdd(newCard);
@@ -130,7 +149,7 @@ export const AddCardModal: React.FC<AddCardModalProps> = ({ isOpen, onClose, onA
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/20 p-4" role="dialog" aria-modal="true">
       <div ref={modalRef} className="bg-white border border-gray-200 rounded-md shadow-sm w-full max-w-md overflow-hidden animate-in zoom-in-95 duration-150">
         <div className="px-6 py-4 border-b border-gray-100 flex justify-between items-center">
-          <h2 className="text-base font-semibold text-gray-900">New Entry</h2>
+          <h2 className="text-base font-semibold text-gray-900">{initialCard ? 'Edit Entry' : 'New Entry'}</h2>
           <button onClick={onClose} className="text-gray-400 hover:text-gray-900">
             <X size={18} />
           </button>
