@@ -1,0 +1,5 @@
+{
+  "name": "PolskiMining",
+  "description": "A local-first, spaced-repetition flashcard app for learning Polish through sentence mining.",
+  "requestFramePermissions": []
+}
