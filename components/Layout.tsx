@@ -8,9 +8,8 @@ import { isCardDue } from '../services/srs';
 declare const __APP_VERSION__: string;
 
 export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const { cards } = useDeck();
-  const dueCount = useMemo(() => cards.filter(c => isCardDue(c)).length, [cards]);
-
+  const { stats } = useDeck();
+  
   return (
     <div className="min-h-screen bg-white text-gray-900 font-sans flex flex-col">
       {/* Sticky Nav */}
@@ -31,9 +30,9 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
           
           <div className="flex items-center gap-6">
              <div className="hidden md:flex items-center gap-4 text-xs font-mono text-gray-500">
-                <span>CARDS: {cards.length}</span>
+                <span>CARDS: {stats.total}</span>
                 <span className="text-gray-300">|</span>
-                <span>DUE: {dueCount}</span>
+                <span>DUE: {stats.due}</span>
              </div>
           </div>
         </div>

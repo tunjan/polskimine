@@ -47,10 +47,9 @@ export const Heatmap: React.FC<HeatmapProps> = ({ history }) => {
             {calendarData.map((day) => (
                 <div
                 key={day.dateKey}
-                className={`w-[10px] h-[10px] rounded-[1px] transition-colors duration-300 ${day.inFuture ? 'opacity-0' : getColor(day.count)} focus:outline-none focus:ring-1 focus:ring-offset-1 focus:ring-gray-400`}
+                className={`w-[10px] h-[10px] rounded-[1px] transition-colors duration-300 ${day.inFuture ? 'opacity-0' : getColor(day.count)}`}
                 title={`${day.dateKey}: ${day.count} reviews`}
                 role="gridcell"
-                tabIndex={day.inFuture ? -1 : 0}
                 aria-label={`${day.dateKey}: ${day.count} reviews`}
                 />
             ))}

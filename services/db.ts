@@ -99,6 +99,18 @@ class DatabaseService {
     const { isCardDue } = await import('./srs'); // Dynamic import to avoid circular dependency if any
     return allCards.filter(card => isCardDue(card, now));
   }
+
+  async getStats(): Promise<{ total: number; due: number; learned: number }> {
+    const db = await this.getDB();
+    const allCards = await db.getAll('cards');
+    const { isCardDue } = await import('./srs');
+    
+    const total = allCards.length;
+    const due = allCards.filter(c => isCardDue(c)).length;
+    const learned = allCards.filter(c => c.status === 'graduated').length;
+    
+    return { total, due, learned };
+  }
 }
 
 export const db = new DatabaseService();

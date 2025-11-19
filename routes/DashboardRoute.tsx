@@ -1,13 +1,24 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Dashboard } from '../components/Dashboard';
 import { AddCardModal } from '../components/AddCardModal';
 import { useDeck } from '../contexts/DeckContext';
+import { db } from '../services/db';
+import { Card } from '../types';
 
 export const DashboardRoute: React.FC = () => {
-  const { cards, history, stats, addCard, deleteCard } = useDeck();
+  const { history, stats, addCard, deleteCard, dataVersion } = useDeck();
   const navigate = useNavigate();
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [cards, setCards] = useState<Card[]>([]);
+
+  useEffect(() => {
+    const fetchCards = async () => {
+      const loadedCards = await db.getCards();
+      setCards(loadedCards);
+    };
+    fetchCards();
+  }, [dataVersion]);
 
   return (
     <>
