@@ -1,7 +1,7 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { Card, DeckStats, ReviewHistory } from '../types';
 import { Button } from './ui/Button';
-import { Play, Plus, Trash2, Search, Flame, Layers, CheckCircle2, Pencil } from 'lucide-react';
+import { Play, Plus, Trash2, Search, Flame, Layers, CheckCircle2, Pencil, Settings, EyeOff } from 'lucide-react';
 import { isCardDue } from '../services/srs';
 import { Heatmap } from './Heatmap';
 import { FixedSizeList as List } from 'react-window';
@@ -16,6 +16,8 @@ interface DashboardProps {
   onDeleteCard: (id: string) => void;
   onAddCard?: (card: Card) => void;
   onEditCard: (card: Card) => void;
+  onOpenSettings: () => void;
+  onMarkKnown: (card: Card) => void;
 }
 
 interface RowProps {
@@ -25,27 +27,29 @@ interface RowProps {
     cards: Card[];
     onDeleteCard: (id: string) => void;
     onEditCard: (card: Card) => void;
+    onMarkKnown: (card: Card) => void;
   };
 }
 
 const Row = ({ index, style, data }: RowProps) => {
-  const { cards, onDeleteCard, onEditCard } = data;
+  const { cards, onDeleteCard, onEditCard, onMarkKnown } = data;
   const card = cards[index];
   const isDue = isCardDue(card);
+  const isKnown = card.status === 'known';
   
   return (
-    <div style={style} className="flex items-center border-b border-gray-100 hover:bg-gray-50/80 transition-colors px-6">
+    <div style={style} className={`flex items-center border-b border-gray-100 hover:bg-gray-50/80 transition-colors px-6 ${isKnown ? 'bg-gray-50/50' : ''}`}>
       <div className="flex-1 py-4 pr-4">
           <div className="flex flex-col gap-1">
-              <span className="font-medium text-gray-900 text-base truncate">
+              <span className={`font-medium text-base truncate ${isKnown ? 'text-gray-600' : 'text-gray-900'}`}>
               {card.targetWord ? (
                   card.targetSentence.split(' ').map((word, i) => 
                   word.toLowerCase().includes(card.targetWord!.toLowerCase()) 
-                  ? <span key={i} className="text-gray-900 font-bold border-b border-gray-300">{word} </span>
-                  : <span key={i} className="text-gray-600">{word} </span>
+                  ? <span key={i} className={`${isKnown ? 'text-gray-800' : 'text-gray-900'} font-bold border-b border-gray-300`}>{word} </span>
+                  : <span key={i} className={isKnown ? 'text-gray-500' : 'text-gray-600'}>{word} </span>
                   )
               ) : (
-                  <span className="text-gray-900">{card.targetSentence}</span>
+                  <span className={isKnown ? 'text-gray-700' : 'text-gray-900'}>{card.targetSentence}</span>
               )}
               </span>
               <span className="text-gray-500 text-xs truncate">{card.nativeTranslation}</span>
@@ -53,29 +57,41 @@ const Row = ({ index, style, data }: RowProps) => {
       </div>
       <div className="w-32 px-4">
           <div className={`inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-mono font-medium uppercase border ${
-          isDue 
-              ? 'bg-red-50 text-red-700 border-red-100' 
-              : 'bg-emerald-50 text-emerald-700 border-emerald-100'
+          isKnown
+              ? 'bg-gray-100 text-gray-600 border-gray-200'
+              : isDue 
+                  ? 'bg-red-50 text-red-700 border-red-100' 
+                  : 'bg-emerald-50 text-emerald-700 border-emerald-100'
           }`}>
-          {isDue ? 'Ready' : new Date(card.dueDate).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
+          {isKnown ? 'Known' : isDue ? 'Ready' : new Date(card.dueDate).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
           </div>
       </div>
-      <div className="w-20 pl-4 text-right flex items-center justify-end gap-1">
+      <div className="w-24 pl-4 text-right flex items-center justify-end gap-1">
+          {!isKnown && (
+            <button 
+                onClick={() => onMarkKnown(card)}
+                className="text-gray-400 hover:text-emerald-600 transition-colors p-3 hover:bg-emerald-50 rounded-md min-w-[44px] min-h-[44px] flex items-center justify-center"
+                title="Mark as Known"
+                aria-label={`Mark as known: ${card.targetSentence}`}
+            >
+                <CheckCircle2 size={20} />
+            </button>
+          )}
           <button 
               onClick={() => onEditCard(card)}
-              className="text-gray-400 hover:text-blue-600 transition-colors p-2 hover:bg-blue-50 rounded-md"
+              className="text-gray-400 hover:text-blue-600 transition-colors p-3 hover:bg-blue-50 rounded-md min-w-[44px] min-h-[44px] flex items-center justify-center"
               title="Edit Card"
               aria-label={`Edit card: ${card.targetSentence}`}
           >
-              <Pencil size={16} />
+              <Pencil size={20} />
           </button>
           <button 
               onClick={() => onDeleteCard(card.id)}
-              className="text-gray-400 hover:text-red-600 transition-colors p-2 hover:bg-red-50 rounded-md"
+              className="text-gray-400 hover:text-red-600 transition-colors p-3 hover:bg-red-50 rounded-md min-w-[44px] min-h-[44px] flex items-center justify-center"
               title="Delete Card"
               aria-label={`Delete card: ${card.targetSentence}`}
           >
-              <Trash2 size={16} />
+              <Trash2 size={20} />
           </button>
       </div>
     </div>
@@ -90,7 +106,9 @@ export const Dashboard: React.FC<DashboardProps> = ({
   onOpenAddModal,
   onDeleteCard,
   onAddCard,
-  onEditCard
+  onEditCard,
+  onOpenSettings,
+  onMarkKnown
 }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState('');
@@ -126,8 +144,10 @@ export const Dashboard: React.FC<DashboardProps> = ({
   const itemData = useMemo(() => ({
     cards: filteredCards,
     onDeleteCard: handleDeleteWithUndo,
-    onEditCard
-  }), [filteredCards, onDeleteCard, onAddCard, onEditCard]);
+    onEditCard,
+    onMarkKnown
+  }), [filteredCards, onDeleteCard, onAddCard, onEditCard, onMarkKnown]);
+
 
 
   return (
@@ -144,6 +164,14 @@ export const Dashboard: React.FC<DashboardProps> = ({
           </p>
         </div>
         <div className="flex items-center gap-3">
+             <Button 
+              variant="ghost" 
+              onClick={onOpenSettings}
+              className="text-gray-500 hover:text-gray-900"
+              title="Settings"
+            >
+              <Settings size={20} />
+            </Button>
              <Button 
               variant="secondary" 
               onClick={onOpenAddModal}

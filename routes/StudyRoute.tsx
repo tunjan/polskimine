@@ -25,7 +25,11 @@ export const StudyRoute: React.FC = () => {
     loadDueCards();
   }, []);
 
-  // ...existing code...
+  const handleMarkKnown = (card: Card) => {
+    const updatedCard = { ...card, status: 'known' as const };
+    updateCard(updatedCard);
+  };
+
   if (isLoading) {
     return (
       <div className="w-full max-w-4xl mx-auto p-4 space-y-6 animate-pulse flex flex-col items-center justify-center min-h-[60vh]">
@@ -50,13 +54,13 @@ export const StudyRoute: React.FC = () => {
 
   return (
     <StudySession 
-// ...existing code... 
       dueCards={sessionCards}
       onUpdateCard={updateCard}
       onRecordReview={recordReview}
       onExit={() => navigate('/')}
       onUndo={undoReview}
       canUndo={canUndo}
+      onMarkKnown={handleMarkKnown}
     />
   );
 };
