@@ -5,13 +5,15 @@ import { Volume2, FileText, BookOpen } from 'lucide-react';
 interface FlashcardProps {
   card: Card;
   isFlipped: boolean;
+  autoPlayAudio?: boolean;
+  showTranslation?: boolean;
 }
 
 function escapeRegExp(string: string) {
   return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
-export const Flashcard: React.FC<FlashcardProps> = ({ card, isFlipped }) => {
+export const Flashcard: React.FC<FlashcardProps> = ({ card, isFlipped, autoPlayAudio = false, showTranslation = true }) => {
   const [hasVoice, setHasVoice] = useState(false);
 
   useEffect(() => {
@@ -24,6 +26,20 @@ export const Flashcard: React.FC<FlashcardProps> = ({ card, isFlipped }) => {
     window.speechSynthesis.onvoiceschanged = checkVoice;
     return () => { window.speechSynthesis.onvoiceschanged = null; };
   }, []);
+
+  const speak = React.useCallback((e?: React.MouseEvent) => {
+    e?.stopPropagation();
+    const utterance = new SpeechSynthesisUtterance(card.targetSentence);
+    utterance.lang = 'pl-PL';
+    window.speechSynthesis.speak(utterance);
+  }, [card.targetSentence]);
+
+  // Auto-play audio when flipped if enabled
+  useEffect(() => {
+    if (isFlipped && autoPlayAudio && hasVoice) {
+        speak();
+    }
+  }, [isFlipped, autoPlayAudio, hasVoice, speak]);
   
   const HighlightedSentence = useMemo(() => {
     // Common styling for the sentence text
@@ -55,13 +71,6 @@ export const Flashcard: React.FC<FlashcardProps> = ({ card, isFlipped }) => {
       </p>
     );
   }, [card.targetSentence, card.targetWord]);
-
-  const speak = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    const utterance = new SpeechSynthesisUtterance(card.targetSentence);
-    utterance.lang = 'pl-PL';
-    window.speechSynthesis.speak(utterance);
-  };
 
   return (
     <div className="w-full max-w-4xl mx-auto bg-white border border-gray-200 rounded-lg shadow-sm flex flex-col overflow-hidden min-h-[350px] transition-all">
@@ -114,7 +123,7 @@ export const Flashcard: React.FC<FlashcardProps> = ({ card, isFlipped }) => {
                     <span className="text-xs font-mono uppercase tracking-widest">Meaning</span>
                 </div>
                 <h3 className="text-lg md:text-xl text-gray-800 leading-relaxed font-serif italic">
-                  "{card.nativeTranslation}"
+                  {showTranslation ? `"${card.nativeTranslation}"` : <span className="text-gray-300 italic select-none blur-sm">Hidden Translation</span>}
                 </h3>
               </div>
 
