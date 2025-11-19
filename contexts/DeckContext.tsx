@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState, useEffect, useMemo, useCall
 import { Card, DeckStats, ReviewHistory } from '../types';
 import { MOCK_CARDS, MOCK_HISTORY, STORAGE_KEY, HISTORY_KEY } from '../constants';
 import { isCardDue } from '../services/srs';
+import { db } from '../services/db';
 import { toast } from 'sonner';
 
 interface DeckContextType {
@@ -11,70 +12,160 @@ interface DeckContextType {
   addCard: (card: Card) => void;
   deleteCard: (id: string) => void;
   updateCard: (card: Card) => void;
-  recordReview: () => void;
+  recordReview: (card: Card) => void;
+  undoReview: () => void;
+  canUndo: boolean;
+  debug_makeAllDue: () => void;
 }
 
 const DeckContext = createContext<DeckContextType | undefined>(undefined);
 
 export const DeckProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  // Initialize state lazily to avoid blocking main thread on initial render if data is huge
-  const [cards, setCards] = useState<Card[]>(() => {
-    try {
-      const saved = localStorage.getItem(STORAGE_KEY);
-      return saved ? JSON.parse(saved) : MOCK_CARDS;
-    } catch (e) {
-      console.error("Failed to load cards", e);
-      return MOCK_CARDS;
-    }
-  });
+  const [cards, setCards] = useState<Card[]>([]);
+  const [history, setHistory] = useState<ReviewHistory>({});
+  const [isLoading, setIsLoading] = useState(true);
+  const [lastReview, setLastReview] = useState<{ card: Card, date: string } | null>(null);
 
-  const [history, setHistory] = useState<ReviewHistory>(() => {
-    try {
-      const saved = localStorage.getItem(HISTORY_KEY);
-      return saved ? JSON.parse(saved) : MOCK_HISTORY;
-    } catch (e) {
-      console.error("Failed to load history", e);
-      return MOCK_HISTORY;
-    }
-  });
-
-  // Persist to localStorage with a simple effect for now. 
-  // In a real app with 2000+ cards, we might want to debounce this or use IndexedDB.
+  // Load data from IndexedDB on mount
   useEffect(() => {
-    const timeoutId = setTimeout(() => {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(cards));
-    }, 500); // Debounce by 500ms
-    return () => clearTimeout(timeoutId);
-  }, [cards]);
+    const loadData = async () => {
+      try {
+        let loadedCards = await db.getCards();
+        let loadedHistory = await db.getHistory();
 
-  useEffect(() => {
-    const timeoutId = setTimeout(() => {
-      localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
-    }, 500);
-    return () => clearTimeout(timeoutId);
-  }, [history]);
+        // Migration / Seeding Logic
+        if (loadedCards.length === 0) {
+           // Check localStorage for legacy data
+           const localCards = localStorage.getItem(STORAGE_KEY);
+           if (localCards) {
+             try {
+               loadedCards = JSON.parse(localCards);
+               await db.saveAllCards(loadedCards);
+               localStorage.removeItem(STORAGE_KEY); // Clear legacy
+             } catch (e) {
+               console.error("Migration failed", e);
+             }
+           } else {
+             // Seed with Mocks if absolutely nothing exists
+             loadedCards = MOCK_CARDS;
+             await db.saveAllCards(loadedCards);
+           }
+        }
 
-  const addCard = useCallback((newCard: Card) => {
+        if (Object.keys(loadedHistory).length === 0) {
+            const localHistory = localStorage.getItem(HISTORY_KEY);
+            if (localHistory) {
+                try {
+                    loadedHistory = JSON.parse(localHistory);
+                    await db.saveFullHistory(loadedHistory);
+                    localStorage.removeItem(HISTORY_KEY);
+                } catch (e) {
+                    console.error("History migration failed", e);
+                }
+            } else {
+                loadedHistory = MOCK_HISTORY;
+                await db.saveFullHistory(loadedHistory);
+            }
+        }
+
+        setCards(loadedCards);
+        setHistory(loadedHistory);
+      } catch (error) {
+        console.error("Failed to load data from DB", error);
+        toast.error("Failed to load your deck. Please refresh.");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadData();
+  }, []);
+
+  const addCard = useCallback(async (newCard: Card) => {
     setCards(prev => [newCard, ...prev]);
-    toast.success('Card added successfully');
+    try {
+        await db.saveCard(newCard);
+        toast.success('Card added successfully');
+    } catch (e) {
+        console.error(e);
+        toast.error('Failed to save card');
+    }
   }, []);
 
-  const deleteCard = useCallback((id: string) => {
+  const deleteCard = useCallback(async (id: string) => {
     setCards(prev => prev.filter(c => c.id !== id));
-    toast.success('Card deleted');
+    try {
+        await db.deleteCard(id);
+        toast.success('Card deleted');
+    } catch (e) {
+        console.error(e);
+        toast.error('Failed to delete card');
+    }
   }, []);
 
-  const updateCard = useCallback((updatedCard: Card) => {
+  const updateCard = useCallback(async (updatedCard: Card) => {
     setCards(prev => prev.map(c => c.id === updatedCard.id ? updatedCard : c));
+    try {
+        await db.saveCard(updatedCard);
+    } catch (e) {
+        console.error(e);
+        toast.error('Failed to update card');
+    }
   }, []);
 
-  const recordReview = useCallback(() => {
+  const recordReview = useCallback(async (oldCard: Card) => {
     const today = new Date().toISOString().split('T')[0];
     setHistory(prev => ({
         ...prev,
         [today]: (prev[today] || 0) + 1
     }));
+    setLastReview({ card: oldCard, date: today });
+    try {
+        await db.incrementHistory(today, 1);
+    } catch (e) {
+        console.error(e);
+    }
   }, []);
+
+  const undoReview = useCallback(async () => {
+    if (!lastReview) return;
+    const { card, date } = lastReview;
+
+    setCards(prev => prev.map(c => c.id === card.id ? card : c));
+    try {
+        await db.saveCard(card);
+    } catch (e) { console.error(e); }
+
+    setHistory(prev => ({
+        ...prev,
+        [date]: Math.max(0, (prev[date] || 0) - 1)
+    }));
+    try {
+        await db.incrementHistory(date, -1);
+    } catch (e) { console.error(e); }
+
+    setLastReview(null);
+    toast.success("Review undone");
+  }, [lastReview]);
+
+  const debug_makeAllDue = useCallback(async () => {
+    const yesterday = new Date();
+    yesterday.setDate(yesterday.getDate() - 1);
+    const pastDate = yesterday.toISOString();
+    
+    const updatedCards = cards.map(c => ({
+        ...c,
+        dueDate: pastDate
+    }));
+
+    setCards(updatedCards);
+    try {
+        await db.saveAllCards(updatedCards);
+        toast.success('DEBUG: All cards marked as due');
+    } catch (e) {
+        console.error(e);
+    }
+  }, [cards]);
 
   const stats: DeckStats = useMemo(() => {
     const sortedDates = Object.keys(history).sort();
@@ -141,7 +232,7 @@ export const DeckProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     return {
         total: cards.length,
-        due: cards.filter(isCardDue).length,
+        due: cards.filter(c => isCardDue(c)).length,
         learned: cards.filter(c => c.status === 'graduated').length,
         streak: currentStreak,
         totalReviews,
@@ -150,7 +241,7 @@ export const DeckProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, [cards, history]);
 
   return (
-    <DeckContext.Provider value={{ cards, history, stats, addCard, deleteCard, updateCard, recordReview }}>
+    <DeckContext.Provider value={{ cards, history, stats, addCard, deleteCard, updateCard, recordReview, undoReview, canUndo: !!lastReview, debug_makeAllDue }}>
       {children}
     </DeckContext.Provider>
   );

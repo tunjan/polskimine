@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { Card, DeckStats, ReviewHistory } from '../types';
 import { Button } from './ui/Button';
 import { Play, Plus, Trash2, Search, Flame, Layers, CheckCircle2 } from 'lucide-react';
@@ -24,11 +24,20 @@ export const Dashboard: React.FC<DashboardProps> = ({
   onDeleteCard 
 }) => {
   const [searchTerm, setSearchTerm] = useState('');
+  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState('');
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearchTerm(searchTerm);
+    }, 300);
+
+    return () => clearTimeout(timer);
+  }, [searchTerm]);
 
   const filteredCards = useMemo(() => cards.filter(c => 
-    c.targetSentence.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    c.nativeTranslation.toLowerCase().includes(searchTerm.toLowerCase())
-  ), [cards, searchTerm]);
+    c.targetSentence.toLowerCase().includes(debouncedSearchTerm.toLowerCase()) ||
+    c.nativeTranslation.toLowerCase().includes(debouncedSearchTerm.toLowerCase())
+  ), [cards, debouncedSearchTerm]);
 
   const Row = ({ index, style }: { index: number; style: React.CSSProperties }) => {
     const card = filteredCards[index];
@@ -107,22 +116,13 @@ export const Dashboard: React.FC<DashboardProps> = ({
         </div>
       </div>
 
-      {/* 2. Analytics Panel (Heatmap + Stats combined) */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      {/* 2. Analytics Panel (Stats + Heatmap) */}
+      <div className="space-y-6">
         
-        {/* Left: Heatmap */}
-        <div className="lg:col-span-2 bg-white border border-gray-200 rounded-lg p-5 shadow-[0_1px_2px_rgba(0,0,0,0.05)]">
-          <div className="flex items-center justify-between mb-6">
-              <h3 className="text-xs font-mono font-semibold text-gray-500 uppercase tracking-wider">Consistency Graph</h3>
-              <span className="text-xs font-mono text-gray-400">{new Date().getFullYear()}</span>
-          </div>
-          <Heatmap history={history} />
-        </div>
-
-        {/* Right: High-Density Stats */}
-        <div className="lg:col-span-1 bg-gray-50 border border-gray-200 rounded-lg flex flex-col divide-y divide-gray-200">
+        {/* Top: High-Density Stats */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           
-          <div className="flex-1 p-5 flex items-center justify-between">
+          <div className="bg-gray-50 border border-gray-200 rounded-lg p-5 flex items-center justify-between">
             <div className="flex flex-col">
               <span className="text-[10px] font-mono font-semibold text-gray-500 uppercase mb-1 flex items-center gap-1.5">
                 <Flame size={12} className={stats.streak > 0 ? "text-orange-600" : "text-gray-400"} fill="currentColor"/> Current Streak
@@ -131,7 +131,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
             </div>
           </div>
 
-          <div className="flex-1 p-5 flex items-center justify-between">
+          <div className="bg-gray-50 border border-gray-200 rounded-lg p-5 flex items-center justify-between">
             <div className="flex flex-col">
               <span className="text-[10px] font-mono font-semibold text-gray-500 uppercase mb-1 flex items-center gap-1.5">
                 <Layers size={12} className="text-gray-400"/> Total Deck
@@ -140,7 +140,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
             </div>
           </div>
 
-          <div className="flex-1 p-5 flex items-center justify-between">
+          <div className="bg-gray-50 border border-gray-200 rounded-lg p-5 flex items-center justify-between">
             <div className="flex flex-col">
               <span className="text-[10px] font-mono font-semibold text-gray-500 uppercase mb-1 flex items-center gap-1.5">
                 <CheckCircle2 size={12} className="text-emerald-600"/> Graduated
@@ -150,6 +150,16 @@ export const Dashboard: React.FC<DashboardProps> = ({
           </div>
 
         </div>
+
+        {/* Bottom: Heatmap */}
+        <div className="bg-white border border-gray-200 rounded-lg p-5 shadow-[0_1px_2px_rgba(0,0,0,0.05)]">
+          <div className="flex items-center justify-between mb-6">
+              <h3 className="text-xs font-mono font-semibold text-gray-500 uppercase tracking-wider">Consistency Graph</h3>
+              <span className="text-xs font-mono text-gray-400">{new Date().getFullYear()}</span>
+          </div>
+          <Heatmap history={history} />
+        </div>
+
       </div>
 
       {/* 3. Deck Management Section */}
