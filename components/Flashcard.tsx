@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { Card } from '../types';
 import { Volume2, FileText, BookOpen } from 'lucide-react';
 
@@ -7,7 +7,23 @@ interface FlashcardProps {
   isFlipped: boolean;
 }
 
+function escapeRegExp(string: string) {
+  return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
 export const Flashcard: React.FC<FlashcardProps> = ({ card, isFlipped }) => {
+  const [hasVoice, setHasVoice] = useState(false);
+
+  useEffect(() => {
+    const checkVoice = () => {
+      const voices = window.speechSynthesis.getVoices();
+      setHasVoice(voices.some(v => v.lang.startsWith('pl')));
+    };
+    
+    checkVoice();
+    window.speechSynthesis.onvoiceschanged = checkVoice;
+    return () => { window.speechSynthesis.onvoiceschanged = null; };
+  }, []);
   
   const HighlightedSentence = useMemo(() => {
     // Common styling for the sentence text
@@ -22,7 +38,8 @@ export const Flashcard: React.FC<FlashcardProps> = ({ card, isFlipped }) => {
     }
 
     // Regex to find the word, preserving case and punctuation
-    const parts = card.targetSentence.split(new RegExp(`(${card.targetWord})`, 'gi'));
+    const escapedWord = escapeRegExp(card.targetWord);
+    const parts = card.targetSentence.split(new RegExp(`(${escapedWord})`, 'gi'));
     
     return (
       <p className={sentenceClass}>
@@ -71,14 +88,17 @@ export const Flashcard: React.FC<FlashcardProps> = ({ card, isFlipped }) => {
           <div className="w-full flex flex-col items-center space-y-6">
             {HighlightedSentence}
             
-            <button 
-              onClick={speak}
-              className="flex items-center gap-2 text-xs font-mono text-gray-400 hover:text-gray-900 hover:bg-gray-100 px-3 py-1.5 rounded-full transition-all"
-              title="Listen"
-            >
-              <Volume2 size={14} />
-              <span>PLAY AUDIO</span>
-            </button>
+            {hasVoice && (
+              <button 
+                onClick={speak}
+                className="flex items-center gap-2 text-xs font-mono text-gray-400 hover:text-gray-900 hover:bg-gray-100 px-3 py-1.5 rounded-full transition-all"
+                title="Listen"
+                aria-label="Listen to sentence"
+              >
+                <Volume2 size={14} />
+                <span>PLAY AUDIO</span>
+              </button>
+            )}
           </div>
         </div>
 

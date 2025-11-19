@@ -9,6 +9,7 @@ interface DeckContextType {
   cards: Card[];
   history: ReviewHistory;
   stats: DeckStats;
+  isLoading: boolean;
   addCard: (card: Card) => void;
   deleteCard: (id: string) => void;
   updateCard: (card: Card) => void;
@@ -87,30 +88,39 @@ export const DeckProvider: React.FC<{ children: React.ReactNode }> = ({ children
         toast.success('Card added successfully');
     } catch (e) {
         console.error(e);
+        setCards(prev => prev.filter(c => c.id !== newCard.id));
         toast.error('Failed to save card');
     }
   }, []);
 
   const deleteCard = useCallback(async (id: string) => {
+    const cardToDelete = cards.find(c => c.id === id);
+    if (!cardToDelete) return;
+
     setCards(prev => prev.filter(c => c.id !== id));
     try {
         await db.deleteCard(id);
         toast.success('Card deleted');
     } catch (e) {
         console.error(e);
+        setCards(prev => [...prev, cardToDelete]);
         toast.error('Failed to delete card');
     }
-  }, []);
+  }, [cards]);
 
   const updateCard = useCallback(async (updatedCard: Card) => {
+    const originalCard = cards.find(c => c.id === updatedCard.id);
+    if (!originalCard) return;
+
     setCards(prev => prev.map(c => c.id === updatedCard.id ? updatedCard : c));
     try {
         await db.saveCard(updatedCard);
     } catch (e) {
         console.error(e);
+        setCards(prev => prev.map(c => c.id === updatedCard.id ? originalCard : c));
         toast.error('Failed to update card');
     }
-  }, []);
+  }, [cards]);
 
   const recordReview = useCallback(async (oldCard: Card) => {
     const today = new Date().toISOString().split('T')[0];
@@ -220,8 +230,21 @@ export const DeckProvider: React.FC<{ children: React.ReactNode }> = ({ children
     };
   }, [cards, history]);
 
+  const contextValue = useMemo(() => ({
+    cards,
+    history,
+    stats,
+    isLoading,
+    addCard,
+    deleteCard,
+    updateCard,
+    recordReview,
+    undoReview,
+    canUndo: !!lastReview
+  }), [cards, history, stats, isLoading, addCard, deleteCard, updateCard, recordReview, undoReview, lastReview]);
+
   return (
-    <DeckContext.Provider value={{ cards, history, stats, addCard, deleteCard, updateCard, recordReview, undoReview, canUndo: !!lastReview }}>
+    <DeckContext.Provider value={contextValue}>
       {children}
     </DeckContext.Provider>
   );

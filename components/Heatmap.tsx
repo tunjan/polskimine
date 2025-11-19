@@ -43,12 +43,15 @@ export const Heatmap: React.FC<HeatmapProps> = ({ history }) => {
     <div className="w-full overflow-x-auto no-scrollbar pb-2">
       <div className="w-max min-w-full">
         <div className="flex gap-[3px]">
-            <div className="grid grid-rows-7 grid-flow-col gap-[3px]">
+            <div className="grid grid-rows-7 grid-flow-col gap-[3px]" role="grid">
             {calendarData.map((day) => (
                 <div
                 key={day.dateKey}
-                className={`w-[10px] h-[10px] rounded-[1px] transition-colors duration-300 ${day.inFuture ? 'opacity-0' : getColor(day.count)}`}
+                className={`w-[10px] h-[10px] rounded-[1px] transition-colors duration-300 ${day.inFuture ? 'opacity-0' : getColor(day.count)} focus:outline-none focus:ring-1 focus:ring-offset-1 focus:ring-gray-400`}
                 title={`${day.dateKey}: ${day.count} reviews`}
+                role="gridcell"
+                tabIndex={day.inFuture ? -1 : 0}
+                aria-label={`${day.dateKey}: ${day.count} reviews`}
                 />
             ))}
             </div>

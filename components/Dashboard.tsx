@@ -75,6 +75,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
                 onClick={() => onDeleteCard(card.id)}
                 className="text-gray-300 hover:text-red-600 transition-colors p-2 hover:bg-red-50 rounded-md"
                 title="Delete Card"
+                aria-label={`Delete card: ${card.targetSentence}`}
             >
                 <Trash2 size={16} />
             </button>

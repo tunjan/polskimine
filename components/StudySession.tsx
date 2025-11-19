@@ -25,6 +25,22 @@ export const StudySession: React.FC<StudySessionProps> = ({ dueCards, onUpdateCa
     }
   }, [dueCards]);
 
+  const handleUndo = () => {
+    if (canUndo && onUndo) {
+        onUndo();
+        if (currentIndex > 0) {
+            setCurrentIndex(prev => prev - 1);
+            setIsFlipped(true); // Show answer side to re-grade
+            setSessionComplete(false);
+        } else if (sessionComplete) {
+             // If we were done, go back to last card
+             setSessionComplete(false);
+             setCurrentIndex(dueCards.length - 1);
+             setIsFlipped(true);
+        }
+    }
+  };
+
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (sessionComplete) return;
@@ -47,7 +63,7 @@ export const StudySession: React.FC<StudySessionProps> = ({ dueCards, onUpdateCa
           case 'z': // Undo shortcut
             if (e.metaKey || e.ctrlKey) {
                 e.preventDefault();
-                if (canUndo && onUndo) onUndo();
+                handleUndo();
             }
             break;
         }
@@ -87,7 +103,12 @@ export const StudySession: React.FC<StudySessionProps> = ({ dueCards, onUpdateCa
         <p className="text-gray-500 mb-8 font-mono text-sm">
           No more cards due for review.
         </p>
-        <Button onClick={onExit} size="lg" variant="outline">Back to Dashboard</Button>
+        <div className="flex gap-4">
+            <Button onClick={onExit} size="lg" variant="outline">Back to Dashboard</Button>
+            {canUndo && (
+                <Button onClick={handleUndo} size="lg" variant="secondary">Undo Last</Button>
+            )}
+        </div>
       </div>
     );
   }
@@ -102,14 +123,16 @@ export const StudySession: React.FC<StudySessionProps> = ({ dueCards, onUpdateCa
             <button 
             onClick={onExit}
             className="flex items-center text-gray-400 hover:text-gray-900 transition-colors text-xs font-mono uppercase tracking-wide"
+            aria-label="Quit session"
             >
             <ArrowLeft size={14} className="mr-2" /> Quit
             </button>
             {canUndo && (
                 <button 
-                    onClick={onUndo}
+                    onClick={handleUndo}
                     className="flex items-center text-gray-400 hover:text-gray-900 transition-colors text-xs font-mono uppercase tracking-wide"
                     title="Undo last review (Cmd/Ctrl + Z)"
+                    aria-label="Undo last review"
                 >
                     <Undo2 size={14} className="mr-2" /> Undo
                 </button>
