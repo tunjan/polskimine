@@ -5,10 +5,12 @@ import { BEGINNER_DECK } from '../data/beginnerDeck';
 import { isCardDue } from '../services/srs';
 import { db } from '../services/db';
 import { toast } from 'sonner';
+import { useSettings } from './SettingsContext';
 
 interface DeckContextType {
   history: ReviewHistory;
   stats: DeckStats;
+  reviewsToday: { newCards: number; reviewCards: number };
   isLoading: boolean;
   dataVersion: number;
   addCard: (card: Card) => void;
@@ -22,10 +24,12 @@ interface DeckContextType {
 const DeckContext = createContext<DeckContextType | undefined>(undefined);
 
 export const DeckProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const { settings } = useSettings();
   const [history, setHistory] = useState<ReviewHistory>({});
   const [stats, setStats] = useState<DeckStats>({
     total: 0, due: 0, learned: 0, streak: 0, totalReviews: 0, longestStreak: 0
   });
+  const [reviewsToday, setReviewsToday] = useState<{ newCards: number; reviewCards: number }>({ newCards: 0, reviewCards: 0 });
   const [isLoading, setIsLoading] = useState(true);
   const [dataVersion, setDataVersion] = useState(0);
   const [lastReview, setLastReview] = useState<{ card: Card, date: string } | null>(null);
@@ -33,19 +37,23 @@ export const DeckProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const refreshStats = useCallback(async () => {
     try {
         const dbStats = await db.getStats();
+        const dueCards = await db.getDueCards();
+        const currentReviewsToday = await db.getTodayReviewStats();
+        setReviewsToday(currentReviewsToday);
+        
         // We need to merge with history-based stats which are calculated in memory or need to be recalculated
         // For now, we can recalculate streak here or keep it separate.
         // Let's recalculate streak from current history state.
         setStats(prev => ({
             ...prev,
             total: dbStats.total,
-            due: dbStats.due,
+            due: dueCards.length,
             learned: dbStats.learned
         }));
     } catch (e) {
         console.error("Failed to refresh stats", e);
     }
-  }, []);
+  }, [settings]);
 
   // Load data from IndexedDB on mount
   useEffect(() => {
@@ -68,7 +76,11 @@ export const DeckProvider: React.FC<{ children: React.ReactNode }> = ({ children
         
         // Initial stats load
         const dbStats = await db.getStats();
-        setStats(prev => ({ ...prev, ...dbStats }));
+        const dueCards = await db.getDueCards();
+        const currentReviewsToday = await db.getTodayReviewStats();
+        setReviewsToday(currentReviewsToday);
+
+        setStats(prev => ({ ...prev, ...dbStats, due: dueCards.length }));
 
       } catch (error) {
         console.error("Failed to load data from DB", error);
@@ -79,7 +91,7 @@ export const DeckProvider: React.FC<{ children: React.ReactNode }> = ({ children
     };
 
     loadData();
-  }, []);
+  }, [settings]); // Re-run when settings change to update due count
 
   // Effect to update streak stats whenever history changes
   useEffect(() => {
@@ -230,6 +242,7 @@ export const DeckProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const contextValue = useMemo(() => ({
     history,
     stats,
+    reviewsToday,
     isLoading,
     dataVersion,
     addCard,
@@ -238,7 +251,7 @@ export const DeckProvider: React.FC<{ children: React.ReactNode }> = ({ children
     recordReview,
     undoReview,
     canUndo: !!lastReview
-  }), [history, stats, isLoading, dataVersion, addCard, deleteCard, updateCard, recordReview, undoReview, lastReview]);
+  }), [history, stats, reviewsToday, isLoading, dataVersion, addCard, deleteCard, updateCard, recordReview, undoReview, lastReview]);
 
   return (
     <DeckContext.Provider value={contextValue}>

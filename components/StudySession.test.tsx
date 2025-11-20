@@ -7,8 +7,11 @@ import { Card } from '../types';
 
 const mockCalculate = vi.fn();
 
+const mockIsCardDue = vi.fn(() => true);
+
 vi.mock('../services/srs', () => ({
   calculateNextReview: (...args: Parameters<typeof mockCalculate>) => mockCalculate(...args),
+  isCardDue: (...args: Parameters<typeof mockIsCardDue>) => mockIsCardDue(...args),
 }));
 
 const mockSettings = {

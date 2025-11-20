@@ -8,6 +8,7 @@ export interface Card extends Partial<FSRSCard> {
   targetWord?: string; // Optional: "samochód". If empty, whole sentence is the target.
   nativeTranslation: string; // "This car is fast"
   notes: string; // "Masc. sing. nominative"
+  tags?: string[]; // Optional tags for filtering
   status: CardStatus;
   
   // Legacy SM-2 fields (kept for migration/fallback if needed, though FSRS handles scheduling)

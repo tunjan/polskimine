@@ -56,4 +56,20 @@ describe('applyStudyLimits', () => {
     const cards = [buildCard({ id: 'a', status: 'new' }), buildCard({ id: 'b', status: 'graduated', reps: 3 })];
     expect(applyStudyLimits(cards, { dailyNewLimit: 0, dailyReviewLimit: 0 })).toEqual(cards);
   });
+
+  it('respects reviews already done today', () => {
+    const cards = [
+      buildCard({ id: 'new-1', status: 'new' }),
+      buildCard({ id: 'new-2', status: 'new' }),
+      buildCard({ id: 'new-3', status: 'new' }),
+    ];
+
+    // Limit is 2, but we already did 1 today. So we should only get 1 more.
+    const result = applyStudyLimits(cards, { 
+        dailyNewLimit: 2, 
+        dailyReviewLimit: 0,
+        reviewsToday: { newCards: 1, reviewCards: 0 }
+    });
+    expect(result.map(card => card.id)).toEqual(['new-1']);
+  });
 });

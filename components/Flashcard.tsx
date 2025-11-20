@@ -73,8 +73,8 @@ export const Flashcard: React.FC<FlashcardProps> = ({ card, isFlipped, autoPlayA
   }, [card.targetSentence, card.targetWord]);
 
   const statusColors = {
-    learning: 'bg-blue-400',
-    review: 'bg-amber-400',
+    new: 'bg-blue-400',
+    learning: 'bg-amber-400',
     graduated: 'bg-emerald-400',
     known: 'bg-gray-300 dark:bg-gray-600'
   };

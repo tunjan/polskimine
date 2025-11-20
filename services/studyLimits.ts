@@ -4,6 +4,10 @@ import { State } from 'ts-fsrs';
 interface LimitOptions {
   dailyNewLimit?: number;
   dailyReviewLimit?: number;
+  reviewsToday?: {
+    newCards: number;
+    reviewCards: number;
+  };
 }
 
 const isNewCard = (card: Card) => {
@@ -21,24 +25,38 @@ const isNewCard = (card: Card) => {
 
 const hasLimit = (value?: number) => typeof value === 'number' && value > 0;
 
-export const applyStudyLimits = (cards: Card[], settings: Pick<UserSettings, 'dailyNewLimit' | 'dailyReviewLimit'>): Card[] => {
-  const { dailyNewLimit, dailyReviewLimit } = settings;
+export const applyStudyLimits = (cards: Card[], settings: LimitOptions): Card[] => {
+  const { dailyNewLimit, dailyReviewLimit, reviewsToday } = settings;
   const limitedCards: Card[] = [];
-  let newCount = 0;
+  
+  let newCount = reviewsToday?.newCards || 0;
+  let reviewCount = reviewsToday?.reviewCards || 0;
 
   for (const card of cards) {
-    if (hasLimit(dailyReviewLimit) && limitedCards.length >= (dailyReviewLimit as number)) {
-      break;
-    }
+    const isNew = isNewCard(card);
 
-    if (isNewCard(card) && hasLimit(dailyNewLimit)) {
-      if (newCount >= (dailyNewLimit as number)) {
-        continue;
+    if (isNew) {
+      if (hasLimit(dailyNewLimit)) {
+        if (newCount >= (dailyNewLimit as number)) {
+          continue;
+        }
+        newCount++;
+        limitedCards.push(card);
+      } else {
+        limitedCards.push(card);
       }
-      newCount += 1;
+    } else {
+      // Review card
+      if (hasLimit(dailyReviewLimit)) {
+        if (reviewCount >= (dailyReviewLimit as number)) {
+          continue;
+        }
+        reviewCount++;
+        limitedCards.push(card);
+      } else {
+        limitedCards.push(card);
+      }
     }
-
-    limitedCards.push(card);
   }
 
   return limitedCards;

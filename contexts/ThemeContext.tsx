@@ -13,12 +13,7 @@ interface ThemeContextState {
   setTheme: (theme: Theme) => void;
 }
 
-const initialState: ThemeContextState = {
-  theme: 'system',
-  setTheme: () => null,
-};
-
-const ThemeContext = createContext<ThemeContextState>(initialState);
+const ThemeContext = createContext<ThemeContextState | undefined>(undefined);
 
 export function ThemeProvider({
   children,

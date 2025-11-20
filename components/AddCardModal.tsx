@@ -151,7 +151,9 @@ export const AddCardModal: React.FC<AddCardModalProps> = ({ isOpen, onClose, onA
       
       // Check if the target word exists in the sentence (case-insensitive)
       if (!sentenceLower.includes(targetLower)) {
-         setError('Target word provided but not found in sentence.');
+         const mismatchMessage = 'Target word provided but not found in sentence.';
+         setError(mismatchMessage);
+         toast.error(mismatchMessage);
          return;
       }
     }

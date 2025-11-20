@@ -17,10 +17,10 @@ const mapGradeToRating = (grade: Grade): Rating => {
   }
 };
 
-const mapStateToStatus = (state: State, interval: number): CardStatus => {
+const mapStateToStatus = (state: State): CardStatus => {
   if (state === State.New) return 'new';
-  if (interval > 90) return 'graduated';
-  return 'learning';
+  if (state === State.Learning || state === State.Relearning) return 'learning';
+  return 'graduated';
 };
 
 /**
@@ -73,19 +73,16 @@ export const calculateNextReview = (card: Card, grade: Grade, settings?: UserSet
 
   // Case 1: New Card + Good -> Enter Learning Step 1 (10m)
   if (isNew && grade === 'Good') {
-    // Run FSRS to initialize Stability/Difficulty as if it was graduating
-    const schedulingCards = f.repeat(fsrsCard, now);
-    const log = schedulingCards[rating].card;
-
+    // Manually schedule learning step without advancing FSRS state
     return {
       ...card,
-      ...log,
       state: State.Learning,
       status: 'learning',
       dueDate: addMinutes(now, 10).toISOString(),
       learningStep: 1, // Mark as waiting for 2nd review
       scheduled_days: 0,
-      elapsed_days: 0
+      elapsed_days: 0,
+      reps: (card.reps || 0) + 1
     };
   }
 
@@ -95,27 +92,27 @@ export const calculateNextReview = (card: Card, grade: Grade, settings?: UserSet
     // We pass the card (which is in State.Learning) to FSRS.
     // FSRS should calculate the next interval based on S.
     const schedulingCards = f.repeat(fsrsCard, now);
-    const log = schedulingCards[rating].card;
+    const { due, ...log } = schedulingCards[rating].card;
 
     return {
       ...card,
       ...log,
-      status: mapStateToStatus(log.state, log.scheduled_days),
+      status: mapStateToStatus(log.state),
       learningStep: undefined // Clear step
     };
   }
 
   // Case 3: Learning Step 1 + Again -> Reset to 1m
   if (isLearningStep1 && grade === 'Again') {
-     const schedulingCards = f.repeat(fsrsCard, now);
-     const log = schedulingCards[rating].card;
+     // Manually reschedule without advancing FSRS state
      return {
         ...card,
-        ...log,
         state: State.Learning,
         status: 'learning',
         dueDate: addMinutes(now, 1).toISOString(),
-        learningStep: 1 // Stay in step 1
+        learningStep: 1, // Stay in step 1
+        reps: (card.reps || 0) + 1,
+        lapses: (card.lapses || 0) + 1
      };
   }
   
@@ -123,7 +120,7 @@ export const calculateNextReview = (card: Card, grade: Grade, settings?: UserSet
   
   // schedulingCards[rating] gives us the Log object which contains the new card state
   const log = schedulingCards[rating].card;
-  const tentativeStatus = mapStateToStatus(log.state, log.scheduled_days);
+  const tentativeStatus = mapStateToStatus(log.state);
   const status = card.status === 'graduated' && tentativeStatus === 'learning' && grade !== 'Again'
     ? 'graduated'
     : tentativeStatus;
@@ -164,5 +161,5 @@ export const isCardDue = (card: Card, now: Date = new Date()): boolean => {
   // If we want "Due Today" style (Anki), we check if due < tomorrow_cutoff.
   
   // Let's stick to the "Due by cutoff" logic for consistency with the rest of the app.
-  return isBefore(due, srsToday) || isSameDay(due, srsToday) || due <= now;
+  return isBefore(due, srsToday) || due <= now;
 };

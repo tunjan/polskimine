@@ -120,8 +120,11 @@ class DatabaseService {
     // Since isCardDue checks isBefore(due, srsToday) || isSameDay(due, srsToday),
     // and srsToday is the start of the day (00:00:00),
     // we effectively want any card with dueDate < (srsToday + 1 day).
-    const cutoffDate = new Date(srsToday);
-    cutoffDate.setDate(cutoffDate.getDate() + 1);
+    // const cutoffDate = new Date(srsToday);
+    // cutoffDate.setDate(cutoffDate.getDate() + 1);
+    
+    // Fix: Use 'now' as cutoff to allow intraday scheduling
+    const cutoffDate = new Date();
     
     const range = IDBKeyRange.upperBound(cutoffDate.toISOString());
     const dueCandidates = await db.getAllFromIndex('cards', 'dueDate', range);
@@ -149,6 +152,60 @@ class DatabaseService {
     const learned = graduatedCount + knownCount;
     
     return { total, due, learned };
+  }
+
+  async getTodayReviewStats(): Promise<{ newCards: number; reviewCards: number }> {
+    const db = await this.getDB();
+    const allCards = await db.getAll('cards');
+    const { getSRSDate } = await import('./srs');
+    
+    const srsToday = getSRSDate(new Date());
+    const nextDay = new Date(srsToday);
+    nextDay.setDate(nextDay.getDate() + 1);
+    
+    let newCards = 0;
+    let reviewCards = 0;
+
+    for (const card of allCards) {
+      if (card.last_review) {
+        const reviewDate = new Date(card.last_review);
+        if (reviewDate >= srsToday && reviewDate < nextDay) {
+          if ((card.reps || 0) === 1) {
+            newCards++;
+          } else if ((card.reps || 0) > 1) {
+            reviewCards++;
+          }
+        }
+      }
+    }
+    return { newCards, reviewCards };
+  }
+
+  async getCramCards(limit: number, tag?: string): Promise<Card[]> {
+    const db = await this.getDB();
+    let cards = await db.getAll('cards');
+    
+    // Filter by tag if provided
+    if (tag) {
+      cards = cards.filter(card => card.tags && card.tags.includes(tag));
+    }
+    
+    // Exclude 'known' cards unless specifically requested? 
+    // For now, we exclude them to be consistent with study mode, 
+    // but cramming usually implies reviewing everything.
+    // Let's include everything except maybe suspended cards if we had that status.
+    // Actually, 'known' in this app seems to mean "I know this perfectly, don't show it again".
+    // But for cramming, maybe I want to review even those?
+    // Let's stick to active cards (new, learning, graduated).
+    cards = cards.filter(card => card.status !== 'known');
+
+    // Shuffle
+    for (let i = cards.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [cards[i], cards[j]] = [cards[j], cards[i]];
+    }
+    
+    return cards.slice(0, limit);
   }
 }
 

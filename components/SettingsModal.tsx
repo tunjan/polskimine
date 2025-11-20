@@ -227,7 +227,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                     General Preferences
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="flex items-center justify-between p-3 border border-gray-200 rounded-md">
+                    <label className="flex items-center justify-between p-3 border border-gray-200 rounded-md cursor-pointer">
                         <span className="text-sm text-gray-700">Auto-play Audio</span>
                         <input 
                             type="checkbox" 
@@ -235,8 +235,8 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                             checked={localSettings.autoPlayAudio}
                             onChange={e => setLocalSettings({...localSettings, autoPlayAudio: e.target.checked})}
                         />
-                    </div>
-                    <div className="flex items-center justify-between p-3 border border-gray-200 rounded-md">
+                    </label>
+                    <label className="flex items-center justify-between p-3 border border-gray-200 rounded-md cursor-pointer">
                         <span className="text-sm text-gray-700">Show Translation After Flip</span>
                         <input 
                             type="checkbox" 
@@ -244,7 +244,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                             checked={localSettings.showTranslationAfterFlip}
                             onChange={e => setLocalSettings({...localSettings, showTranslationAfterFlip: e.target.checked})}
                         />
-                    </div>
+                    </label>
                 </div>
             </section>
 
@@ -253,8 +253,9 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                 <h3 className="text-sm font-bold text-gray-900 mb-4">Daily Limits</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
-                        <label className={labelClass}>New Cards / Day</label>
+                        <label htmlFor="dailyNewLimit" className={labelClass}>New Cards / Day</label>
                         <input 
+                            id="dailyNewLimit"
                             type="number" 
                             className={inputClass}
                             value={localSettings.dailyNewLimit}
@@ -263,8 +264,9 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                         <p className="text-[10px] text-gray-400 mt-1">Maximum new cards to introduce per day.</p>
                     </div>
                     <div>
-                        <label className={labelClass}>Max Reviews / Day</label>
+                        <label htmlFor="dailyReviewLimit" className={labelClass}>Max Reviews / Day</label>
                         <input 
+                            id="dailyReviewLimit"
                             type="number" 
                             className={inputClass}
                             value={localSettings.dailyReviewLimit}
@@ -283,8 +285,9 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
-                        <label className={labelClass}>Request Retention: {localSettings.fsrs.request_retention}</label>
+                        <label htmlFor="requestRetention" className={labelClass}>Request Retention: {localSettings.fsrs.request_retention}</label>
                         <input 
+                            id="requestRetention"
                             type="range" 
                             step="0.01"
                             min="0.7"
@@ -302,19 +305,20 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                         </div>
                     </div>
                     <div>
-                        <label className={labelClass}>Maximum Interval (Days)</label>
+                        <label htmlFor="maximumInterval" className={labelClass}>Maximum Interval (Days)</label>
                         <input 
+                            id="maximumInterval"
                             type="number" 
                             className={inputClass}
                             value={localSettings.fsrs.maximum_interval}
                             onChange={e => setLocalSettings({
                                 ...localSettings, 
-                                fsrs: { ...localSettings.fsrs, maximum_interval: parseInt(e.target.value) || 36500 }
+                                fsrs: { ...localSettings.fsrs, maximum_interval: parseInt(e.target.value) || 0 }
                             })}
                         />
                         <p className="text-[10px] text-gray-400 mt-1">Cap on the review interval.</p>
                     </div>
-                    <div className="flex items-center justify-between p-3 border border-gray-200 rounded-md md:col-span-2 bg-white">
+                    <label className="flex items-center justify-between p-3 border border-gray-200 rounded-md md:col-span-2 bg-white cursor-pointer">
                         <span className="text-sm text-gray-700">Enable Fuzzing</span>
                         <input 
                             type="checkbox" 
@@ -325,7 +329,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                                 fsrs: { ...localSettings.fsrs, enable_fuzzing: e.target.checked }
                             })}
                         />
-                    </div>
+                    </label>
                 </div>
             </section>
 
