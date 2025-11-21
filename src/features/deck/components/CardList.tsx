@@ -1,9 +1,10 @@
 import React from 'react';
-import clsx from 'clsx';
 import { FixedSizeList as List, ListChildComponentProps } from 'react-window';
 import AutoSizer from 'react-virtualized-auto-sizer';
-import { Pencil, Trash2, AlertTriangle } from 'lucide-react';
-import { Card, CardStatus } from '@/types';
+import { MoreHorizontal, Pencil, Trash2 } from 'lucide-react';
+import { Card } from '@/types';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import clsx from 'clsx';
 
 interface CardListProps {
   cards: Card[];
@@ -12,84 +13,79 @@ interface CardListProps {
   onDeleteCard: (id: string) => void;
 }
 
-interface RowData {
-  cards: Card[];
-  onEditCard: (card: Card) => void;
-  onDeleteCard: (id: string) => void;
-}
-
-const statusColors: Record<CardStatus, string> = {
-  new: 'bg-blue-500',
-  learning: 'bg-amber-500',
-  graduated: 'bg-emerald-500',
-  known: 'bg-gray-300',
-};
-
-const Row = ({ index, style, data }: ListChildComponentProps<RowData>) => {
+const Row = ({ index, style, data }: ListChildComponentProps<any>) => {
   const { cards, onEditCard, onDeleteCard } = data;
   const card = cards[index];
-  
   if (!card) return null;
+
+  const statusColors = {
+      new: 'text-blue-500',
+      learning: 'text-amber-500',
+      graduated: 'text-emerald-500',
+      known: 'text-muted-foreground'
+  };
+
   return (
-    <div
-      style={style}
-      className="group flex items-center border-b border-gray-50 dark:border-gray-900 px-2 hover:bg-gray-50 dark:hover:bg-gray-900 transition-colors cursor-default"
-    >
-      <div className="w-6 md:w-8 flex justify-center items-center gap-1 shrink-0">
-        <div className={clsx('w-1.5 h-1.5 rounded-full', statusColors[card.status as CardStatus])} />
-        {card.isLeech && (
-            <div title="Leech Card">
-                <AlertTriangle size={10} className="text-amber-500" />
-            </div>
-        )}
-      </div>
+    <div style={style} className="group flex items-center gap-6 px-4 hover:bg-secondary/30 transition-colors border-b border-border/40">
+      {/* Status Indicator */}
+      <div className={clsx("w-2 h-2 rounded-full shrink-0", 
+          card.status === 'new' ? 'bg-blue-500' :
+          card.status === 'learning' ? 'bg-amber-500' :
+          card.status === 'graduated' ? 'bg-emerald-500' : 'bg-zinc-300 dark:bg-zinc-700'
+      )} />
       
-      <div className="flex-1 min-w-0 pr-2 md:pr-4">
-        <div className="flex flex-col md:flex-row md:items-baseline gap-0 md:gap-3">
-          <span className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">
-            {card.targetSentence}
+      {/* Content */}
+      <div className="flex-1 min-w-0 py-4 flex flex-col justify-center">
+          <span className="text-base font-normal text-foreground truncate">
+             {card.targetSentence}
           </span>
-          <span className="text-xs text-gray-400 dark:text-gray-600 truncate flex-1">
-            {card.nativeTranslation}
+          <span className="text-sm text-muted-foreground truncate font-light">
+             {card.nativeTranslation}
           </span>
-        </div>
       </div>
 
-      {/* Date hidden on mobile */}
-      <div className="hidden md:block w-24 text-right text-[10px] font-mono text-gray-300 dark:text-gray-700 shrink-0">
-        {new Date(card.dueDate).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
+      {/* Metadata - Only show on md+ */}
+      <div className="hidden md:flex flex-col items-end justify-center w-32 shrink-0 gap-1">
+        <span className={clsx("text-[10px] font-mono uppercase tracking-widest", statusColors[card.status as keyof typeof statusColors])}>
+            {card.status}
+        </span>
       </div>
       
-      <div className="w-14 md:w-16 flex items-center justify-end gap-2 opacity-100 md:opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
-        <button onClick={() => onEditCard(card)} className="text-gray-400 hover:text-black dark:hover:text-white p-1">
-          <Pencil size={14} />
-        </button>
-        <button onClick={() => onDeleteCard(card.id)} className="text-gray-400 hover:text-red-600 p-1">
-          <Trash2 size={14} />
-        </button>
+      {/* Actions */}
+      <div className="w-12 flex items-center justify-end">
+        <DropdownMenu>
+            <DropdownMenuTrigger className="p-2 rounded-md text-muted-foreground hover:text-foreground hover:bg-secondary opacity-0 group-hover:opacity-100 transition-all focus:opacity-100 outline-none">
+                <MoreHorizontal size={16} />
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={() => onEditCard(card)}>
+                    <Pencil size={14} className="mr-2" /> Edit
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => onDeleteCard(card.id)} className="text-destructive focus:text-destructive">
+                    <Trash2 size={14} className="mr-2" /> Delete
+                </DropdownMenuItem>
+            </DropdownMenuContent>
+        </DropdownMenu>
       </div>
     </div>
   );
 };
 
-export const CardList: React.FC<CardListProps> = ({ cards, searchTerm, onEditCard, onDeleteCard }) => {
-  const filteredCards = cards;
-
-  return (
-    <div className="flex-1 h-full min-h-[400px] flex flex-col">
+export const CardList: React.FC<CardListProps> = ({ cards, onEditCard, onDeleteCard }) => (
+    <div className="flex-1 h-full w-full border-t border-border/40">
       <AutoSizer>
         {({ height, width }) => (
           <List
             height={height}
             width={width}
-            itemCount={filteredCards.length}
-            itemSize={56}
-            itemData={{ cards: filteredCards, onEditCard, onDeleteCard }}
+            itemCount={cards.length}
+            itemSize={80}
+            itemData={{ cards, onEditCard, onDeleteCard }}
+            className="no-scrollbar"
           >
             {Row}
           </List>
         )}
       </AutoSizer>
     </div>
-  );
-};
+);

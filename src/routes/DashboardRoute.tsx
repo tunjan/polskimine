@@ -5,18 +5,24 @@ import { Dashboard } from '@/features/dashboard/components/Dashboard';
 import { useDeck } from '@/contexts/DeckContext';
 import { useSettings } from '@/contexts/SettingsContext';
 import { getDashboardStats } from '@/services/db/repositories/statsRepository';
+import { getAllCardsByLanguage } from '@/services/db/repositories/cardRepository';
 
 export const DashboardRoute: React.FC = () => {
   const { history, stats } = useDeck();
   const { settings } = useSettings();
   const navigate = useNavigate();
 
-  const { data: dashboardStats, isLoading } = useQuery({
+  const { data: dashboardStats, isLoading: isStatsLoading } = useQuery({
     queryKey: ['dashboardStats', settings.language],
     queryFn: () => getDashboardStats(settings.language),
   });
 
-  if (isLoading || !dashboardStats) {
+  const { data: cards, isLoading: isCardsLoading } = useQuery({
+    queryKey: ['allCards', settings.language],
+    queryFn: () => getAllCardsByLanguage(settings.language),
+  });
+
+  if (isStatsLoading || isCardsLoading || !dashboardStats || !cards) {
     return (
       <div className="flex-1 flex items-center justify-center min-h-[50vh]">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
@@ -31,6 +37,7 @@ export const DashboardRoute: React.FC = () => {
       stats={stats}
       history={history}
       onStartSession={() => navigate('/study')}
+      cards={cards}
     />
   );
 };

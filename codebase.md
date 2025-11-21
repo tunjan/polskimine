@@ -1,4 +1,66 @@
 
+## dist/assets/index-DjDKeKGE.css
+@layer properties{@supports ((-webkit-hyphens:none) and (not (margin-trim:inline))) or ((-moz-orient:inline) and (not (color:rgb(from red r g b)))){*,:before,:after,::backdrop{--tw-translate-x:0;--tw-translate-y:0;--tw-translate-z:0;--tw-rotate-x:initial;--tw-rotate-y:initial;--tw-rotate-z:initial;--tw-skew-x:initial;--tw-skew-y:initial;--tw-space-y-reverse:0;--tw-border-style:solid;--tw-leading:initial;--tw-font-weight:initial;--tw-tracking:initial;--tw-shadow:0 0 #0000;--tw-shadow-color:initial;--tw-shadow-alpha:100%;--tw-inset-shadow:0 0 #0000;--tw-inset-shadow-color:initial;--tw-inset-shadow-alpha:100%;--tw-ring-color:initial;--tw-ring-shadow:0 0 #0000;--tw-inset-ring-color:initial;--tw-inset-ring-shadow:0 0 #0000;--tw-ring-inset:initial;--tw-ring-offset-width:0px;--tw-ring-offset-color:#fff;--tw-ring-offset-shadow:0 0 #0000;--tw-outline-style:solid;--tw-blur:initial;--tw-brightness:initial;--tw-contrast:initial;--tw-grayscale:initial;--tw-hue-rotate:initial;--tw-invert:initial;--tw-opacity:initial;--tw-saturate:initial;--tw-sepia:initial;--tw-drop-shadow:initial;--tw-drop-shadow-color:initial;--tw-drop-shadow-alpha:100%;--tw-drop-shadow-size:initial;--tw-backdrop-blur:initial;--tw-backdrop-brightness:initial;--tw-backdrop-contrast:initial;--tw-backdrop-grayscale:initial;--tw-backdrop-hue-rotate:initial;--tw-backdrop-invert:initial;--tw-backdrop-opacity:initial;--tw-backdrop-saturate:initial;--tw-backdrop-sepia:initial;--tw-duration:initial;--tw-ease:initial;--tw-space-x-reverse:0}}}@layer theme{:root,:host{--font-sans:Inter,sans-serif;--font-serif:Merriweather,serif;--font-mono:JetBrains Mono,monospace;--color-red-50:oklch(97.1% .013 17.38);--color-red-400:oklch(70.4% .191 22.216);--color-red-500:oklch(63.7% .237 25.331);--color-red-600:oklch(57.7% .245 27.325);--color-red-900:oklch(39.6% .141 25.723);--color-red-950:oklch(25.8% .092 26.042);--color-amber-500:oklch(76.9% .188 70.08);--color-amber-600:oklch(66.6% .179 58.318);--color-yellow-100:oklch(97.3% .071 103.193);--color-yellow-500:oklch(79.5% .184 86.047);--color-yellow-600:oklch(68.1% .162 75.834);--color-yellow-900:oklch(42.1% .095 57.708);--color-emerald-500:oklch(69.6% .17 162.48);--color-blue-500:oklch(62.3% .214 259.815);--color-gray-50:oklch(98.5% .002 247.839);--color-gray-100:oklch(96.7% .003 264.542);--color-gray-200:oklch(92.8% .006 264.531);--color-gray-300:oklch(87.2% .01 258.338);--color-gray-400:oklch(70.7% .022 261.325);--color-gray-500:oklch(55.1% .027 264.364);--color-gray-600:oklch(44.6% .03 256.802);--color-gray-700:oklch(37.3% .034 259.733);--color-gray-800:oklch(27.8% .033 256.848);--color-gray-900:oklch(21% .034 264.665);--color-zinc-900:oklch(21% .006 285.885);--color-black:#000;--color-white:#fff;--spacing:.25rem;--breakpoint-2xl:96rem;--container-sm:24rem;--container-md:28rem;--container-lg:32rem;--container-2xl:42rem;--container-3xl:48rem;--container-4xl:56rem;--text-xs:.75rem;--text-xs--line-height:calc(1/.75);--text-sm:.875rem;--text-sm--line-height:calc(1.25/.875);--text-base:1rem;--text-base--line-height: 1.5 ;--text-lg:1.125rem;--text-lg--line-height:calc(1.75/1.125);--text-xl:1.25rem;--text-xl--line-height:calc(1.75/1.25);--text-2xl:1.5rem;--text-2xl--line-height:calc(2/1.5);--text-3xl:1.875rem;--text-3xl--line-height: 1.2 ;--text-4xl:2.25rem;--text-4xl--line-height:calc(2.5/2.25);--text-6xl:3.75rem;--text-6xl--line-height:1;--text-8xl:6rem;--text-8xl--line-height:1;--font-weight-light:300;--font-weight-normal:400;--font-weight-medium:500;--font-weight-semibold:600;--font-weight-bold:700;--tracking-tighter:-.05em;--tracking-tight:-.025em;--tracking-wide:.025em;--tracking-wider:.05em;--tracking-widest:.1em;--leading-tight:1.25;--leading-snug:1.375;--leading-relaxed:1.625;--radius-sm:.25rem;--radius-md:.375rem;--radius-lg:.5rem;--radius-xl:.75rem;--ease-out:cubic-bezier(0,0,.2,1);--ease-in-out:cubic-bezier(.4,0,.2,1);--animate-spin:spin 1s linear infinite;--animate-pulse:pulse 2s cubic-bezier(.4,0,.6,1)infinite;--blur-sm:8px;--blur-md:12px;--blur-lg:16px;--default-transition-duration:.15s;--default-transition-timing-function:cubic-bezier(.4,0,.2,1);--default-font-family:var(--font-sans);--default-mono-font-family:var(--font-mono)}}@layer base{*,:after,:before,::backdrop{box-sizing:border-box;border:0 solid;margin:0;padding:0}::file-selector-button{box-sizing:border-box;border:0 solid;margin:0;padding:0}html,:host{-webkit-text-size-adjust:100%;-moz-tab-size:4;-o-tab-size:4;tab-size:4;line-height:1.5;font-family:var(--default-font-family,ui-sans-serif,system-ui,sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji");font-feature-settings:var(--default-font-feature-settings,normal);font-variation-settings:var(--default-font-variation-settings,normal);-webkit-tap-highlight-color:transparent}hr{height:0;color:inherit;border-top-width:1px}abbr:where([title]){-webkit-text-decoration:underline dotted;text-decoration:underline dotted}h1,h2,h3,h4,h5,h6{font-size:inherit;font-weight:inherit}a{color:inherit;-webkit-text-decoration:inherit;text-decoration:inherit}b,strong{font-weight:bolder}code,kbd,samp,pre{font-family:var(--default-mono-font-family,ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace);font-feature-settings:var(--default-mono-font-feature-settings,normal);font-variation-settings:var(--default-mono-font-variation-settings,normal);font-size:1em}small{font-size:80%}sub,sup{vertical-align:baseline;font-size:75%;line-height:0;position:relative}sub{bottom:-.25em}sup{top:-.5em}table{text-indent:0;border-color:inherit;border-collapse:collapse}:-moz-focusring{outline:auto}progress{vertical-align:baseline}summary{display:list-item}ol,ul,menu{list-style:none}img,svg,video,canvas,audio,iframe,embed,object{vertical-align:middle;display:block}img,video{max-width:100%;height:auto}button,input,select,optgroup,textarea{font:inherit;font-feature-settings:inherit;font-variation-settings:inherit;letter-spacing:inherit;color:inherit;opacity:1;background-color:#0000;border-radius:0}::file-selector-button{font:inherit;font-feature-settings:inherit;font-variation-settings:inherit;letter-spacing:inherit;color:inherit;opacity:1;background-color:#0000;border-radius:0}:where(select:is([multiple],[size])) optgroup{font-weight:bolder}:where(select:is([multiple],[size])) optgroup option{padding-inline-start:20px}::file-selector-button{margin-inline-end:4px}::-moz-placeholder{opacity:1}::placeholder{opacity:1}@supports (not (-webkit-appearance:-apple-pay-button)) or (contain-intrinsic-size:1px){::-moz-placeholder{color:currentColor}::placeholder{color:currentColor}@supports (color:color-mix(in lab,red,red)){::-moz-placeholder{color:color-mix(in oklab,currentcolor 50%,transparent)}::placeholder{color:color-mix(in oklab,currentcolor 50%,transparent)}}}textarea{resize:vertical}::-webkit-search-decoration{-webkit-appearance:none}::-webkit-date-and-time-value{min-height:1lh;text-align:inherit}::-webkit-datetime-edit{display:inline-flex}::-webkit-datetime-edit-fields-wrapper{padding:0}::-webkit-datetime-edit{padding-block:0}::-webkit-datetime-edit-year-field{padding-block:0}::-webkit-datetime-edit-month-field{padding-block:0}::-webkit-datetime-edit-day-field{padding-block:0}::-webkit-datetime-edit-hour-field{padding-block:0}::-webkit-datetime-edit-minute-field{padding-block:0}::-webkit-datetime-edit-second-field{padding-block:0}::-webkit-datetime-edit-millisecond-field{padding-block:0}::-webkit-datetime-edit-meridiem-field{padding-block:0}::-webkit-calendar-picker-indicator{line-height:1}:-moz-ui-invalid{box-shadow:none}button,input:where([type=button],[type=reset],[type=submit]){-webkit-appearance:button;-moz-appearance:button;appearance:button}::file-selector-button{-webkit-appearance:button;-moz-appearance:button;appearance:button}::-webkit-inner-spin-button{height:auto}::-webkit-outer-spin-button{height:auto}[hidden]:where(:not([hidden=until-found])){display:none!important}:root{--background:0 0% 100%;--foreground:240 10% 3.9%;--card:0 0% 100%;--card-foreground:240 10% 3.9%;--popover:0 0% 100%;--popover-foreground:240 10% 3.9%;--primary:346 84% 45%;--primary-foreground:0 85.7% 97.3%;--secondary:240 4.8% 95.9%;--secondary-foreground:240 5.9% 10%;--muted:240 4.8% 95.9%;--muted-foreground:240 3.8% 46.1%;--accent:240 4.8% 95.9%;--accent-foreground:240 5.9% 10%;--destructive:0 84.2% 60.2%;--destructive-foreground:0 0% 98%;--border:240 5.9% 90%;--input:240 5.9% 90%;--ring:346 84% 45%;--radius:.75rem}.dark{--background:240 10% 3.9%;--foreground:0 0% 98%;--card:240 10% 3.9%;--card-foreground:0 0% 98%;--popover:240 10% 3.9%;--popover-foreground:0 0% 98%;--primary:346 84% 55%;--primary-foreground:0 85.7% 97.3%;--secondary:240 3.7% 15.9%;--secondary-foreground:0 0% 98%;--muted:240 3.7% 15.9%;--muted-foreground:240 5% 64.9%;--accent:240 3.7% 15.9%;--accent-foreground:0 0% 98%;--destructive:0 62.8% 30.6%;--destructive-foreground:0 0% 98%;--border:240 3.7% 15.9%;--input:240 3.7% 15.9%;--ring:346 84% 55%}:root[data-language=polish]{--primary:346 84% 45%;--primary-foreground:0 0% 98%;--ring:346 84% 45%}.dark:root[data-language=polish]{--primary:346 84% 60%;--primary-foreground:0 0% 98%;--ring:346 84% 60%}:root[data-language=norwegian]{--primary:200 90% 40%;--primary-foreground:0 0% 98%;--ring:200 90% 40%;--background:200 30% 98%}.dark:root[data-language=norwegian]{--primary:200 90% 60%;--primary-foreground:0 0% 98%;--ring:200 90% 60%;--background:200 30% 5%}:root[data-language=japanese]{--primary:330 85% 65%;--primary-foreground:0 0% 98%;--ring:330 85% 65%;--background:330 30% 99%}.dark:root[data-language=japanese]{--primary:330 85% 75%;--primary-foreground:330 10% 10%;--ring:330 85% 75%;--background:330 20% 5%}*{border-color:hsl(var(--border))}body{background-color:hsl(var(--background));color:hsl(var(--foreground));-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;font-feature-settings:"rlig" 1,"calt" 1}}@layer components;@layer utilities{.pointer-events-none{pointer-events:none}.sr-only{clip-path:inset(50%);white-space:nowrap;border-width:0;width:1px;height:1px;margin:-1px;padding:0;position:absolute;overflow:hidden}.absolute{position:absolute}.fixed{position:fixed}.relative{position:relative}.static{position:static}.inset-0{inset:calc(var(--spacing)*0)}.inset-x-0{inset-inline:calc(var(--spacing)*0)}.inset-y-0{inset-block:calc(var(--spacing)*0)}.top-0{top:calc(var(--spacing)*0)}.top-1\/2{top:50%}.top-3{top:calc(var(--spacing)*3)}.top-3\.5{top:calc(var(--spacing)*3.5)}.top-4{top:calc(var(--spacing)*4)}.top-\[50\%\]{top:50%}.right-0{right:calc(var(--spacing)*0)}.right-2{right:calc(var(--spacing)*2)}.right-3{right:calc(var(--spacing)*3)}.right-4{right:calc(var(--spacing)*4)}.bottom-0{bottom:calc(var(--spacing)*0)}.left-0{left:calc(var(--spacing)*0)}.left-1\/2{left:50%}.left-2{left:calc(var(--spacing)*2)}.left-\[50\%\]{left:50%}.z-10{z-index:10}.z-40{z-index:40}.z-50{z-index:50}.container{width:100%}@media(min-width:40rem){.container{max-width:40rem}}@media(min-width:48rem){.container{max-width:48rem}}@media(min-width:64rem){.container{max-width:64rem}}@media(min-width:80rem){.container{max-width:80rem}}@media(min-width:96rem){.container{max-width:96rem}}.-mx-1{margin-inline:calc(var(--spacing)*-1)}.mx-2{margin-inline:calc(var(--spacing)*2)}.mx-auto{margin-inline:auto}.my-1{margin-block:calc(var(--spacing)*1)}.my-4{margin-block:calc(var(--spacing)*4)}.mt-1{margin-top:calc(var(--spacing)*1)}.mt-2{margin-top:calc(var(--spacing)*2)}.mt-6{margin-top:calc(var(--spacing)*6)}.mt-8{margin-top:calc(var(--spacing)*8)}.mr-1{margin-right:calc(var(--spacing)*1)}.mr-2{margin-right:calc(var(--spacing)*2)}.mb-0{margin-bottom:calc(var(--spacing)*0)}.mb-1{margin-bottom:calc(var(--spacing)*1)}.mb-2{margin-bottom:calc(var(--spacing)*2)}.mb-3{margin-bottom:calc(var(--spacing)*3)}.mb-4{margin-bottom:calc(var(--spacing)*4)}.mb-6{margin-bottom:calc(var(--spacing)*6)}.mb-8{margin-bottom:calc(var(--spacing)*8)}.-ml-2{margin-left:calc(var(--spacing)*-2)}.ml-0\.5{margin-left:calc(var(--spacing)*.5)}.ml-2{margin-left:calc(var(--spacing)*2)}.ml-auto{margin-left:auto}.block{display:block}.contents{display:contents}.flex{display:flex}.grid{display:grid}.hidden{display:none}.inline-block{display:inline-block}.inline-flex{display:inline-flex}.h-1{height:calc(var(--spacing)*1)}.h-1\.5{height:calc(var(--spacing)*1.5)}.h-2{height:calc(var(--spacing)*2)}.h-3{height:calc(var(--spacing)*3)}.h-3\.5{height:calc(var(--spacing)*3.5)}.h-4{height:calc(var(--spacing)*4)}.h-5{height:calc(var(--spacing)*5)}.h-6{height:calc(var(--spacing)*6)}.h-8{height:calc(var(--spacing)*8)}.h-9{height:calc(var(--spacing)*9)}.h-10{height:calc(var(--spacing)*10)}.h-11{height:calc(var(--spacing)*11)}.h-12{height:calc(var(--spacing)*12)}.h-14{height:calc(var(--spacing)*14)}.h-16{height:calc(var(--spacing)*16)}.h-24{height:calc(var(--spacing)*24)}.h-40{height:calc(var(--spacing)*40)}.h-64{height:calc(var(--spacing)*64)}.h-\[80vh\]{height:80vh}.h-\[150\%\]{height:150%}.h-\[400px\]{height:400px}.h-\[var\(--radix-select-trigger-height\)\]{height:var(--radix-select-trigger-height)}.h-auto{height:auto}.h-full{height:100%}.h-px{height:1px}.max-h-\[--radix-select-content-available-height\]{max-height:--radix-select-content-available-height}.max-h-\[300px\]{max-height:300px}.max-h-\[400px\]{max-height:400px}.max-h-\[var\(--radix-dropdown-menu-content-available-height\)\]{max-height:var(--radix-dropdown-menu-content-available-height)}.min-h-20{min-height:calc(var(--spacing)*20)}.min-h-\[40vh\]{min-height:40vh}.min-h-\[50vh\]{min-height:50vh}.min-h-\[60px\]{min-height:60px}.min-h-\[60vh\]{min-height:60vh}.min-h-\[400px\]{min-height:400px}.min-h-screen{min-height:100vh}.w-1{width:calc(var(--spacing)*1)}.w-1\.5{width:calc(var(--spacing)*1.5)}.w-2{width:calc(var(--spacing)*2)}.w-3{width:calc(var(--spacing)*3)}.w-3\.5{width:calc(var(--spacing)*3.5)}.w-3\/4{width:75%}.w-4{width:calc(var(--spacing)*4)}.w-5{width:calc(var(--spacing)*5)}.w-6{width:calc(var(--spacing)*6)}.w-8{width:calc(var(--spacing)*8)}.w-9{width:calc(var(--spacing)*9)}.w-10{width:calc(var(--spacing)*10)}.w-12{width:calc(var(--spacing)*12)}.w-14{width:calc(var(--spacing)*14)}.w-16{width:calc(var(--spacing)*16)}.w-24{width:calc(var(--spacing)*24)}.w-48{width:calc(var(--spacing)*48)}.w-56{width:calc(var(--spacing)*56)}.w-64{width:calc(var(--spacing)*64)}.w-\[95vw\]{width:95vw}.w-\[150\%\]{width:150%}.w-full{width:100%}.w-max{width:-moz-max-content;width:max-content}.max-w-2xl{max-width:var(--container-2xl)}.max-w-3xl{max-width:var(--container-3xl)}.max-w-4xl{max-width:var(--container-4xl)}.max-w-lg{max-width:var(--container-lg)}.max-w-md{max-width:var(--container-md)}.max-w-screen-2xl{max-width:var(--breakpoint-2xl)}.max-w-sm{max-width:var(--container-sm)}.min-w-0{min-width:calc(var(--spacing)*0)}.min-w-\[8rem\]{min-width:8rem}.min-w-\[var\(--radix-select-trigger-width\)\]{min-width:var(--radix-select-trigger-width)}.flex-1{flex:1}.shrink-0{flex-shrink:0}.grow{flex-grow:1}.origin-\[--radix-dropdown-menu-content-transform-origin\]{transform-origin:--radix-dropdown-menu-content-transform-origin}.origin-\[--radix-select-content-transform-origin\]{transform-origin:--radix-select-content-transform-origin}.origin-\[--radix-tooltip-content-transform-origin\]{transform-origin:--radix-tooltip-content-transform-origin}.-translate-x-1\/2{--tw-translate-x: -50% ;translate:var(--tw-translate-x)var(--tw-translate-y)}.translate-x-\[-50\%\]{--tw-translate-x:-50%;translate:var(--tw-translate-x)var(--tw-translate-y)}.-translate-y-1\/2{--tw-translate-y: -50% ;translate:var(--tw-translate-x)var(--tw-translate-y)}.translate-y-\[-50\%\]{--tw-translate-y:-50%;translate:var(--tw-translate-x)var(--tw-translate-y)}.transform{transform:var(--tw-rotate-x,)var(--tw-rotate-y,)var(--tw-rotate-z,)var(--tw-skew-x,)var(--tw-skew-y,)}.animate-pulse{animation:var(--animate-pulse)}.animate-spin{animation:var(--animate-spin)}.cursor-default{cursor:default}.cursor-pointer{cursor:pointer}.touch-none{touch-action:none}.resize-none{resize:none}.appearance-none{-webkit-appearance:none;-moz-appearance:none;appearance:none}.grid-flow-col{grid-auto-flow:column}.grid-cols-1{grid-template-columns:repeat(1,minmax(0,1fr))}.grid-cols-2{grid-template-columns:repeat(2,minmax(0,1fr))}.grid-cols-3{grid-template-columns:repeat(3,minmax(0,1fr))}.grid-rows-7{grid-template-rows:repeat(7,minmax(0,1fr))}.flex-col{flex-direction:column}.flex-col-reverse{flex-direction:column-reverse}.flex-row{flex-direction:row}.flex-wrap{flex-wrap:wrap}.items-baseline{align-items:baseline}.items-center{align-items:center}.items-end{align-items:flex-end}.items-start{align-items:flex-start}.justify-around{justify-content:space-around}.justify-between{justify-content:space-between}.justify-center{justify-content:center}.justify-end{justify-content:flex-end}.gap-0{gap:calc(var(--spacing)*0)}.gap-1{gap:calc(var(--spacing)*1)}.gap-2{gap:calc(var(--spacing)*2)}.gap-3{gap:calc(var(--spacing)*3)}.gap-4{gap:calc(var(--spacing)*4)}.gap-6{gap:calc(var(--spacing)*6)}.gap-8{gap:calc(var(--spacing)*8)}.gap-10{gap:calc(var(--spacing)*10)}.gap-12{gap:calc(var(--spacing)*12)}:where(.space-y-1>:not(:last-child)){--tw-space-y-reverse:0;margin-block-start:calc(calc(var(--spacing)*1)*var(--tw-space-y-reverse));margin-block-end:calc(calc(var(--spacing)*1)*calc(1 - var(--tw-space-y-reverse)))}:where(.space-y-1\.5>:not(:last-child)){--tw-space-y-reverse:0;margin-block-start:calc(calc(var(--spacing)*1.5)*var(--tw-space-y-reverse));margin-block-end:calc(calc(var(--spacing)*1.5)*calc(1 - var(--tw-space-y-reverse)))}:where(.space-y-2>:not(:last-child)){--tw-space-y-reverse:0;margin-block-start:calc(calc(var(--spacing)*2)*var(--tw-space-y-reverse));margin-block-end:calc(calc(var(--spacing)*2)*calc(1 - var(--tw-space-y-reverse)))}:where(.space-y-3>:not(:last-child)){--tw-space-y-reverse:0;margin-block-start:calc(calc(var(--spacing)*3)*var(--tw-space-y-reverse));margin-block-end:calc(calc(var(--spacing)*3)*calc(1 - var(--tw-space-y-reverse)))}:where(.space-y-4>:not(:last-child)){--tw-space-y-reverse:0;margin-block-start:calc(calc(var(--spacing)*4)*var(--tw-space-y-reverse));margin-block-end:calc(calc(var(--spacing)*4)*calc(1 - var(--tw-space-y-reverse)))}:where(.space-y-6>:not(:last-child)){--tw-space-y-reverse:0;margin-block-start:calc(calc(var(--spacing)*6)*var(--tw-space-y-reverse));margin-block-end:calc(calc(var(--spacing)*6)*calc(1 - var(--tw-space-y-reverse)))}:where(.space-y-8>:not(:last-child)){--tw-space-y-reverse:0;margin-block-start:calc(calc(var(--spacing)*8)*var(--tw-space-y-reverse));margin-block-end:calc(calc(var(--spacing)*8)*calc(1 - var(--tw-space-y-reverse)))}:where(.space-y-10>:not(:last-child)){--tw-space-y-reverse:0;margin-block-start:calc(calc(var(--spacing)*10)*var(--tw-space-y-reverse));margin-block-end:calc(calc(var(--spacing)*10)*calc(1 - var(--tw-space-y-reverse)))}:where(.space-y-16>:not(:last-child)){--tw-space-y-reverse:0;margin-block-start:calc(calc(var(--spacing)*16)*var(--tw-space-y-reverse));margin-block-end:calc(calc(var(--spacing)*16)*calc(1 - var(--tw-space-y-reverse)))}.gap-x-4{-moz-column-gap:calc(var(--spacing)*4);column-gap:calc(var(--spacing)*4)}.gap-x-12{-moz-column-gap:calc(var(--spacing)*12);column-gap:calc(var(--spacing)*12)}.gap-y-8{row-gap:calc(var(--spacing)*8)}.gap-y-12{row-gap:calc(var(--spacing)*12)}.truncate{text-overflow:ellipsis;white-space:nowrap;overflow:hidden}.overflow-hidden{overflow:hidden}.overflow-x-auto{overflow-x:auto}.overflow-x-hidden{overflow-x:hidden}.overflow-y-auto{overflow-y:auto}.rounded{border-radius:.25rem}.rounded-\[2px\]{border-radius:2px}.rounded-full{border-radius:3.40282e38px}.rounded-lg{border-radius:var(--radius-lg)}.rounded-md{border-radius:var(--radius-md)}.rounded-none{border-radius:0}.rounded-sm{border-radius:var(--radius-sm)}.rounded-xl{border-radius:var(--radius-xl)}.border{border-style:var(--tw-border-style);border-width:1px}.border-0{border-style:var(--tw-border-style);border-width:0}.border-2{border-style:var(--tw-border-style);border-width:2px}.border-t{border-top-style:var(--tw-border-style);border-top-width:1px}.border-r{border-right-style:var(--tw-border-style);border-right-width:1px}.border-b{border-bottom-style:var(--tw-border-style);border-bottom-width:1px}.border-b-2{border-bottom-style:var(--tw-border-style);border-bottom-width:2px}.border-dashed{--tw-border-style:dashed;border-style:dashed}.border-none{--tw-border-style:none;border-style:none}.border-gray-50{border-color:var(--color-gray-50)}.border-gray-100{border-color:var(--color-gray-100)}.border-gray-200{border-color:var(--color-gray-200)}.border-transparent{border-color:#0000}.bg-amber-500{background-color:var(--color-amber-500)}.bg-amber-500\/10{background-color:#f99c001a}@supports (color:color-mix(in lab,red,red)){.bg-amber-500\/10{background-color:color-mix(in oklab,var(--color-amber-500)10%,transparent)}}.bg-black\/80{background-color:#000c}@supports (color:color-mix(in lab,red,red)){.bg-black\/80{background-color:color-mix(in oklab,var(--color-black)80%,transparent)}}.bg-blue-500{background-color:var(--color-blue-500)}.bg-emerald-500{background-color:var(--color-emerald-500)}.bg-gray-100{background-color:var(--color-gray-100)}.bg-gray-200{background-color:var(--color-gray-200)}.bg-gray-300{background-color:var(--color-gray-300)}.bg-red-500\/10{background-color:#fb2c361a}@supports (color:color-mix(in lab,red,red)){.bg-red-500\/10{background-color:color-mix(in oklab,var(--color-red-500)10%,transparent)}}.bg-transparent{background-color:#0000}.bg-white{background-color:var(--color-white)}.bg-white\/80{background-color:#fffc}@supports (color:color-mix(in lab,red,red)){.bg-white\/80{background-color:color-mix(in oklab,var(--color-white)80%,transparent)}}.bg-yellow-100{background-color:var(--color-yellow-100)}.fill-current{fill:currentColor}.p-0{padding:calc(var(--spacing)*0)}.p-1{padding:calc(var(--spacing)*1)}.p-1\.5{padding:calc(var(--spacing)*1.5)}.p-2{padding:calc(var(--spacing)*2)}.p-3{padding:calc(var(--spacing)*3)}.p-4{padding:calc(var(--spacing)*4)}.p-6{padding:calc(var(--spacing)*6)}.p-8{padding:calc(var(--spacing)*8)}.p-12{padding:calc(var(--spacing)*12)}.px-0{padding-inline:calc(var(--spacing)*0)}.px-1{padding-inline:calc(var(--spacing)*1)}.px-1\.5{padding-inline:calc(var(--spacing)*1.5)}.px-2{padding-inline:calc(var(--spacing)*2)}.px-2\.5{padding-inline:calc(var(--spacing)*2.5)}.px-3{padding-inline:calc(var(--spacing)*3)}.px-4{padding-inline:calc(var(--spacing)*4)}.px-6{padding-inline:calc(var(--spacing)*6)}.px-8{padding-inline:calc(var(--spacing)*8)}.py-0{padding-block:calc(var(--spacing)*0)}.py-0\.5{padding-block:calc(var(--spacing)*.5)}.py-1{padding-block:calc(var(--spacing)*1)}.py-1\.5{padding-block:calc(var(--spacing)*1.5)}.py-2{padding-block:calc(var(--spacing)*2)}.py-2\.5{padding-block:calc(var(--spacing)*2.5)}.py-3{padding-block:calc(var(--spacing)*3)}.py-4{padding-block:calc(var(--spacing)*4)}.pt-0{padding-top:calc(var(--spacing)*0)}.pt-2{padding-top:calc(var(--spacing)*2)}.pt-4{padding-top:calc(var(--spacing)*4)}.pt-6{padding-top:calc(var(--spacing)*6)}.pt-8{padding-top:calc(var(--spacing)*8)}.pt-12{padding-top:calc(var(--spacing)*12)}.pt-14{padding-top:calc(var(--spacing)*14)}.pr-2{padding-right:calc(var(--spacing)*2)}.pr-6{padding-right:calc(var(--spacing)*6)}.pr-8{padding-right:calc(var(--spacing)*8)}.pb-0{padding-bottom:calc(var(--spacing)*0)}.pb-0\.5{padding-bottom:calc(var(--spacing)*.5)}.pb-1{padding-bottom:calc(var(--spacing)*1)}.pb-2{padding-bottom:calc(var(--spacing)*2)}.pb-20{padding-bottom:calc(var(--spacing)*20)}.pl-1{padding-left:calc(var(--spacing)*1)}.pl-2{padding-left:calc(var(--spacing)*2)}.pl-6{padding-left:calc(var(--spacing)*6)}.pl-8{padding-left:calc(var(--spacing)*8)}.text-center{text-align:center}.text-left{text-align:left}.text-right{text-align:right}.font-mono{font-family:var(--font-mono)}.font-sans{font-family:var(--font-sans)}.font-serif{font-family:var(--font-serif)}.text-2xl{font-size:var(--text-2xl);line-height:var(--tw-leading,var(--text-2xl--line-height))}.text-3xl{font-size:var(--text-3xl);line-height:var(--tw-leading,var(--text-3xl--line-height))}.text-4xl{font-size:var(--text-4xl);line-height:var(--tw-leading,var(--text-4xl--line-height))}.text-6xl{font-size:var(--text-6xl);line-height:var(--tw-leading,var(--text-6xl--line-height))}.text-base{font-size:var(--text-base);line-height:var(--tw-leading,var(--text-base--line-height))}.text-lg{font-size:var(--text-lg);line-height:var(--tw-leading,var(--text-lg--line-height))}.text-sm{font-size:var(--text-sm);line-height:var(--tw-leading,var(--text-sm--line-height))}.text-xl{font-size:var(--text-xl);line-height:var(--tw-leading,var(--text-xl--line-height))}.text-xs{font-size:var(--text-xs);line-height:var(--tw-leading,var(--text-xs--line-height))}.text-\[9px\]{font-size:9px}.text-\[10px\]{font-size:10px}.text-\[11px\]{font-size:11px}.leading-\[0\.9\]{--tw-leading:.9;line-height:.9}.leading-none{--tw-leading:1;line-height:1}.leading-relaxed{--tw-leading:var(--leading-relaxed);line-height:var(--leading-relaxed)}.leading-snug{--tw-leading:var(--leading-snug);line-height:var(--leading-snug)}.leading-tight{--tw-leading:var(--leading-tight);line-height:var(--leading-tight)}.font-bold{--tw-font-weight:var(--font-weight-bold);font-weight:var(--font-weight-bold)}.font-light{--tw-font-weight:var(--font-weight-light);font-weight:var(--font-weight-light)}.font-medium{--tw-font-weight:var(--font-weight-medium);font-weight:var(--font-weight-medium)}.font-normal{--tw-font-weight:var(--font-weight-normal);font-weight:var(--font-weight-normal)}.font-semibold{--tw-font-weight:var(--font-weight-semibold);font-weight:var(--font-weight-semibold)}.tracking-\[0\.2em\]{--tw-tracking:.2em;letter-spacing:.2em}.tracking-tight{--tw-tracking:var(--tracking-tight);letter-spacing:var(--tracking-tight)}.tracking-tighter{--tw-tracking:var(--tracking-tighter);letter-spacing:var(--tracking-tighter)}.tracking-wide{--tw-tracking:var(--tracking-wide);letter-spacing:var(--tracking-wide)}.tracking-wider{--tw-tracking:var(--tracking-wider);letter-spacing:var(--tracking-wider)}.tracking-widest{--tw-tracking:var(--tracking-widest);letter-spacing:var(--tracking-widest)}.whitespace-nowrap{white-space:nowrap}.text-amber-500{color:var(--color-amber-500)}.text-amber-600{color:var(--color-amber-600)}.text-black{color:var(--color-black)}.text-gray-300{color:var(--color-gray-300)}.text-gray-400{color:var(--color-gray-400)}.text-gray-500{color:var(--color-gray-500)}.text-gray-600{color:var(--color-gray-600)}.text-gray-900{color:var(--color-gray-900)}.text-red-500{color:var(--color-red-500)}.text-red-500\/70{color:#fb2c36b3}@supports (color:color-mix(in lab,red,red)){.text-red-500\/70{color:color-mix(in oklab,var(--color-red-500)70%,transparent)}}.text-red-600{color:var(--color-red-600)}.text-yellow-500{color:var(--color-yellow-500)}.text-yellow-600{color:var(--color-yellow-600)}.uppercase{text-transform:uppercase}.italic{font-style:italic}.underline{text-decoration-line:underline}.underline-offset-4{text-underline-offset:4px}.antialiased{-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}.opacity-0{opacity:0}.opacity-50{opacity:.5}.opacity-60{opacity:.6}.opacity-70{opacity:.7}.opacity-80{opacity:.8}.opacity-100{opacity:1}.shadow{--tw-shadow:0 1px 3px 0 var(--tw-shadow-color,#0000001a),0 1px 2px -1px var(--tw-shadow-color,#0000001a);box-shadow:var(--tw-inset-shadow),var(--tw-inset-ring-shadow),var(--tw-ring-offset-shadow),var(--tw-ring-shadow),var(--tw-shadow)}.shadow-2xl{--tw-shadow:0 25px 50px -12px var(--tw-shadow-color,#00000040);box-shadow:var(--tw-inset-shadow),var(--tw-inset-ring-shadow),var(--tw-ring-offset-shadow),var(--tw-ring-shadow),var(--tw-shadow)}.shadow-lg{--tw-shadow:0 10px 15px -3px var(--tw-shadow-color,#0000001a),0 4px 6px -4px var(--tw-shadow-color,#0000001a);box-shadow:var(--tw-inset-shadow),var(--tw-inset-ring-shadow),var(--tw-ring-offset-shadow),var(--tw-ring-shadow),var(--tw-shadow)}.shadow-md{--tw-shadow:0 4px 6px -1px var(--tw-shadow-color,#0000001a),0 2px 4px -2px var(--tw-shadow-color,#0000001a);box-shadow:var(--tw-inset-shadow),var(--tw-inset-ring-shadow),var(--tw-ring-offset-shadow),var(--tw-ring-shadow),var(--tw-shadow)}.shadow-sm{--tw-shadow:0 1px 3px 0 var(--tw-shadow-color,#0000001a),0 1px 2px -1px var(--tw-shadow-color,#0000001a);box-shadow:var(--tw-inset-shadow),var(--tw-inset-ring-shadow),var(--tw-ring-offset-shadow),var(--tw-ring-shadow),var(--tw-shadow)}.shadow-xl{--tw-shadow:0 20px 25px -5px var(--tw-shadow-color,#0000001a),0 8px 10px -6px var(--tw-shadow-color,#0000001a);box-shadow:var(--tw-inset-shadow),var(--tw-inset-ring-shadow),var(--tw-ring-offset-shadow),var(--tw-ring-shadow),var(--tw-shadow)}.ring-0{--tw-ring-shadow:var(--tw-ring-inset,)0 0 0 calc(0px + var(--tw-ring-offset-width))var(--tw-ring-color,currentcolor);box-shadow:var(--tw-inset-shadow),var(--tw-inset-ring-shadow),var(--tw-ring-offset-shadow),var(--tw-ring-shadow),var(--tw-shadow)}.outline{outline-style:var(--tw-outline-style);outline-width:1px}.blur{--tw-blur:blur(8px);filter:var(--tw-blur,)var(--tw-brightness,)var(--tw-contrast,)var(--tw-grayscale,)var(--tw-hue-rotate,)var(--tw-invert,)var(--tw-saturate,)var(--tw-sepia,)var(--tw-drop-shadow,)}.blur-lg{--tw-blur:blur(var(--blur-lg));filter:var(--tw-blur,)var(--tw-brightness,)var(--tw-contrast,)var(--tw-grayscale,)var(--tw-hue-rotate,)var(--tw-invert,)var(--tw-saturate,)var(--tw-sepia,)var(--tw-drop-shadow,)}.blur-md{--tw-blur:blur(var(--blur-md));filter:var(--tw-blur,)var(--tw-brightness,)var(--tw-contrast,)var(--tw-grayscale,)var(--tw-hue-rotate,)var(--tw-invert,)var(--tw-saturate,)var(--tw-sepia,)var(--tw-drop-shadow,)}.filter{filter:var(--tw-blur,)var(--tw-brightness,)var(--tw-contrast,)var(--tw-grayscale,)var(--tw-hue-rotate,)var(--tw-invert,)var(--tw-saturate,)var(--tw-sepia,)var(--tw-drop-shadow,)}.backdrop-blur-\[2px\]{--tw-backdrop-blur:blur(2px);-webkit-backdrop-filter:var(--tw-backdrop-blur,)var(--tw-backdrop-brightness,)var(--tw-backdrop-contrast,)var(--tw-backdrop-grayscale,)var(--tw-backdrop-hue-rotate,)var(--tw-backdrop-invert,)var(--tw-backdrop-opacity,)var(--tw-backdrop-saturate,)var(--tw-backdrop-sepia,);backdrop-filter:var(--tw-backdrop-blur,)var(--tw-backdrop-brightness,)var(--tw-backdrop-contrast,)var(--tw-backdrop-grayscale,)var(--tw-backdrop-hue-rotate,)var(--tw-backdrop-invert,)var(--tw-backdrop-opacity,)var(--tw-backdrop-saturate,)var(--tw-backdrop-sepia,)}.backdrop-blur-md{--tw-backdrop-blur:blur(var(--blur-md));-webkit-backdrop-filter:var(--tw-backdrop-blur,)var(--tw-backdrop-brightness,)var(--tw-backdrop-contrast,)var(--tw-backdrop-grayscale,)var(--tw-backdrop-hue-rotate,)var(--tw-backdrop-invert,)var(--tw-backdrop-opacity,)var(--tw-backdrop-saturate,)var(--tw-backdrop-sepia,);backdrop-filter:var(--tw-backdrop-blur,)var(--tw-backdrop-brightness,)var(--tw-backdrop-contrast,)var(--tw-backdrop-grayscale,)var(--tw-backdrop-hue-rotate,)var(--tw-backdrop-invert,)var(--tw-backdrop-opacity,)var(--tw-backdrop-saturate,)var(--tw-backdrop-sepia,)}.backdrop-blur-sm{--tw-backdrop-blur:blur(var(--blur-sm));-webkit-backdrop-filter:var(--tw-backdrop-blur,)var(--tw-backdrop-brightness,)var(--tw-backdrop-contrast,)var(--tw-backdrop-grayscale,)var(--tw-backdrop-hue-rotate,)var(--tw-backdrop-invert,)var(--tw-backdrop-opacity,)var(--tw-backdrop-saturate,)var(--tw-backdrop-sepia,);backdrop-filter:var(--tw-backdrop-blur,)var(--tw-backdrop-brightness,)var(--tw-backdrop-contrast,)var(--tw-backdrop-grayscale,)var(--tw-backdrop-hue-rotate,)var(--tw-backdrop-invert,)var(--tw-backdrop-opacity,)var(--tw-backdrop-saturate,)var(--tw-backdrop-sepia,)}.transition{transition-property:color,background-color,border-color,outline-color,text-decoration-color,fill,stroke,--tw-gradient-from,--tw-gradient-via,--tw-gradient-to,opacity,box-shadow,transform,translate,scale,rotate,filter,backdrop-filter,display,content-visibility,overlay,pointer-events;transition-timing-function:var(--tw-ease,var(--default-transition-timing-function));transition-duration:var(--tw-duration,var(--default-transition-duration))}.transition-all{transition-property:all;transition-timing-function:var(--tw-ease,var(--default-transition-timing-function));transition-duration:var(--tw-duration,var(--default-transition-duration))}.transition-colors{transition-property:color,background-color,border-color,outline-color,text-decoration-color,fill,stroke,--tw-gradient-from,--tw-gradient-via,--tw-gradient-to;transition-timing-function:var(--tw-ease,var(--default-transition-timing-function));transition-duration:var(--tw-duration,var(--default-transition-duration))}.transition-opacity{transition-property:opacity;transition-timing-function:var(--tw-ease,var(--default-transition-timing-function));transition-duration:var(--tw-duration,var(--default-transition-duration))}.transition-transform{transition-property:transform,translate,scale,rotate;transition-timing-function:var(--tw-ease,var(--default-transition-timing-function));transition-duration:var(--tw-duration,var(--default-transition-duration))}.duration-200{--tw-duration:.2s;transition-duration:.2s}.duration-300{--tw-duration:.3s;transition-duration:.3s}.duration-500{--tw-duration:.5s;transition-duration:.5s}.duration-700{--tw-duration:.7s;transition-duration:.7s}.ease-in-out{--tw-ease:var(--ease-in-out);transition-timing-function:var(--ease-in-out)}.ease-out{--tw-ease:var(--ease-out);transition-timing-function:var(--ease-out)}.outline-none{--tw-outline-style:none;outline-style:none}.select-none{-webkit-user-select:none;-moz-user-select:none;user-select:none}@media(hover:hover){.group-hover\:translate-x-1:is(:where(.group):hover *){--tw-translate-x:calc(var(--spacing)*1);translate:var(--tw-translate-x)var(--tw-translate-y)}.group-hover\:opacity-70:is(:where(.group):hover *){opacity:.7}.group-hover\:opacity-100:is(:where(.group):hover *){opacity:1}.group-hover\:blur-md:is(:where(.group):hover *){--tw-blur:blur(var(--blur-md));filter:var(--tw-blur,)var(--tw-brightness,)var(--tw-contrast,)var(--tw-grayscale,)var(--tw-hue-rotate,)var(--tw-invert,)var(--tw-saturate,)var(--tw-sepia,)var(--tw-drop-shadow,)}}.peer-disabled\:cursor-not-allowed:is(:where(.peer):disabled~*){cursor:not-allowed}.peer-disabled\:opacity-70:is(:where(.peer):disabled~*){opacity:.7}.selection\:bg-gray-200 ::-moz-selection{background-color:var(--color-gray-200)}.selection\:bg-gray-200 ::selection{background-color:var(--color-gray-200)}.selection\:bg-gray-200::-moz-selection{background-color:var(--color-gray-200)}.selection\:bg-gray-200::selection{background-color:var(--color-gray-200)}.selection\:text-black ::-moz-selection{color:var(--color-black)}.selection\:text-black ::selection{color:var(--color-black)}.selection\:text-black::-moz-selection{color:var(--color-black)}.selection\:text-black::selection{color:var(--color-black)}.file\:border-0::file-selector-button{border-style:var(--tw-border-style);border-width:0}.file\:bg-transparent::file-selector-button{background-color:#0000}.file\:text-sm::file-selector-button{font-size:var(--text-sm);line-height:var(--tw-leading,var(--text-sm--line-height))}.file\:font-medium::file-selector-button{--tw-font-weight:var(--font-weight-medium);font-weight:var(--font-weight-medium)}.placeholder\:text-gray-300::-moz-placeholder{color:var(--color-gray-300)}.placeholder\:text-gray-300::placeholder{color:var(--color-gray-300)}.last\:border-0:last-child{border-style:var(--tw-border-style);border-width:0}@media(hover:hover){.hover\:bg-gray-50:hover{background-color:var(--color-gray-50)}.hover\:bg-gray-100:hover{background-color:var(--color-gray-100)}.hover\:bg-red-50:hover{background-color:var(--color-red-50)}.hover\:bg-red-500\/20:hover{background-color:#fb2c3633}@supports (color:color-mix(in lab,red,red)){.hover\:bg-red-500\/20:hover{background-color:color-mix(in oklab,var(--color-red-500)20%,transparent)}}.hover\:text-black:hover{color:var(--color-black)}.hover\:text-red-600:hover{color:var(--color-red-600)}.hover\:underline:hover{text-decoration-line:underline}.hover\:opacity-80:hover{opacity:.8}.hover\:opacity-90:hover{opacity:.9}.hover\:opacity-100:hover{opacity:1}}.focus\:border-black:focus{border-color:var(--color-black)}.focus\:ring-0:focus{--tw-ring-shadow:var(--tw-ring-inset,)0 0 0 calc(0px + var(--tw-ring-offset-width))var(--tw-ring-color,currentcolor);box-shadow:var(--tw-inset-shadow),var(--tw-inset-ring-shadow),var(--tw-ring-offset-shadow),var(--tw-ring-shadow),var(--tw-shadow)}.focus\:ring-1:focus{--tw-ring-shadow:var(--tw-ring-inset,)0 0 0 calc(1px + var(--tw-ring-offset-width))var(--tw-ring-color,currentcolor);box-shadow:var(--tw-inset-shadow),var(--tw-inset-ring-shadow),var(--tw-ring-offset-shadow),var(--tw-ring-shadow),var(--tw-shadow)}.focus\:ring-2:focus{--tw-ring-shadow:var(--tw-ring-inset,)0 0 0 calc(2px + var(--tw-ring-offset-width))var(--tw-ring-color,currentcolor);box-shadow:var(--tw-inset-shadow),var(--tw-inset-ring-shadow),var(--tw-ring-offset-shadow),var(--tw-ring-shadow),var(--tw-shadow)}.focus\:ring-offset-2:focus{--tw-ring-offset-width:2px;--tw-ring-offset-shadow:var(--tw-ring-inset,)0 0 0 var(--tw-ring-offset-width)var(--tw-ring-offset-color)}.focus\:outline-none:focus{--tw-outline-style:none;outline-style:none}.focus-visible\:ring-1:focus-visible{--tw-ring-shadow:var(--tw-ring-inset,)0 0 0 calc(1px + var(--tw-ring-offset-width))var(--tw-ring-color,currentcolor);box-shadow:var(--tw-inset-shadow),var(--tw-inset-ring-shadow),var(--tw-ring-offset-shadow),var(--tw-ring-shadow),var(--tw-shadow)}.focus-visible\:ring-2:focus-visible{--tw-ring-shadow:var(--tw-ring-inset,)0 0 0 calc(2px + var(--tw-ring-offset-width))var(--tw-ring-color,currentcolor);box-shadow:var(--tw-inset-shadow),var(--tw-inset-ring-shadow),var(--tw-ring-offset-shadow),var(--tw-ring-shadow),var(--tw-shadow)}.focus-visible\:ring-offset-2:focus-visible{--tw-ring-offset-width:2px;--tw-ring-offset-shadow:var(--tw-ring-inset,)0 0 0 var(--tw-ring-offset-width)var(--tw-ring-offset-color)}.focus-visible\:outline-none:focus-visible{--tw-outline-style:none;outline-style:none}.disabled\:pointer-events-none:disabled{pointer-events:none}.disabled\:cursor-not-allowed:disabled{cursor:not-allowed}.disabled\:opacity-30:disabled{opacity:.3}.disabled\:opacity-50:disabled{opacity:.5}.disabled\:opacity-60:disabled{opacity:.6}.data-\[disabled\]\:pointer-events-none[data-disabled]{pointer-events:none}.data-\[disabled\]\:opacity-50[data-disabled]{opacity:.5}.data-\[side\=bottom\]\:translate-y-1[data-side=bottom]{--tw-translate-y:calc(var(--spacing)*1);translate:var(--tw-translate-x)var(--tw-translate-y)}.data-\[side\=left\]\:-translate-x-1[data-side=left]{--tw-translate-x:calc(var(--spacing)*-1);translate:var(--tw-translate-x)var(--tw-translate-y)}.data-\[side\=right\]\:translate-x-1[data-side=right]{--tw-translate-x:calc(var(--spacing)*1);translate:var(--tw-translate-x)var(--tw-translate-y)}.data-\[side\=top\]\:-translate-y-1[data-side=top]{--tw-translate-y:calc(var(--spacing)*-1);translate:var(--tw-translate-x)var(--tw-translate-y)}.data-\[state\=checked\]\:translate-x-4[data-state=checked]{--tw-translate-x:calc(var(--spacing)*4);translate:var(--tw-translate-x)var(--tw-translate-y)}.data-\[state\=closed\]\:duration-300[data-state=closed]{--tw-duration:.3s;transition-duration:.3s}.data-\[state\=open\]\:duration-500[data-state=open]{--tw-duration:.5s;transition-duration:.5s}.data-\[state\=unchecked\]\:translate-x-0[data-state=unchecked]{--tw-translate-x:calc(var(--spacing)*0);translate:var(--tw-translate-x)var(--tw-translate-y)}@media(min-width:40rem){.sm\:inline{display:inline}.sm\:max-w-2xl{max-width:var(--container-2xl)}.sm\:max-w-4xl{max-width:var(--container-4xl)}.sm\:max-w-lg{max-width:var(--container-lg)}.sm\:max-w-md{max-width:var(--container-md)}.sm\:max-w-sm{max-width:var(--container-sm)}.sm\:grid-cols-2{grid-template-columns:repeat(2,minmax(0,1fr))}.sm\:flex-row{flex-direction:row}.sm\:justify-end{justify-content:flex-end}:where(.sm\:space-x-2>:not(:last-child)){--tw-space-x-reverse:0;margin-inline-start:calc(calc(var(--spacing)*2)*var(--tw-space-x-reverse));margin-inline-end:calc(calc(var(--spacing)*2)*calc(1 - var(--tw-space-x-reverse)))}.sm\:rounded-xl{border-radius:var(--radius-xl)}.sm\:text-left{text-align:left}}@media(min-width:48rem){.md\:ml-64{margin-left:calc(var(--spacing)*64)}.md\:block{display:block}.md\:flex{display:flex}.md\:hidden{display:none}.md\:h-\[600px\]{height:600px}.md\:w-3\/4{width:75%}.md\:w-8{width:calc(var(--spacing)*8)}.md\:w-16{width:calc(var(--spacing)*16)}.md\:w-64{width:calc(var(--spacing)*64)}.md\:w-auto{width:auto}.md\:grid-cols-2{grid-template-columns:repeat(2,minmax(0,1fr))}.md\:flex-col{flex-direction:column}.md\:flex-row{flex-direction:row}.md\:items-baseline{align-items:baseline}.md\:items-end{align-items:flex-end}.md\:gap-3{gap:calc(var(--spacing)*3)}.md\:gap-8{gap:calc(var(--spacing)*8)}.md\:gap-10{gap:calc(var(--spacing)*10)}.md\:gap-16{gap:calc(var(--spacing)*16)}:where(.md\:space-y-4>:not(:last-child)){--tw-space-y-reverse:0;margin-block-start:calc(calc(var(--spacing)*4)*var(--tw-space-y-reverse));margin-block-end:calc(calc(var(--spacing)*4)*calc(1 - var(--tw-space-y-reverse)))}:where(.md\:space-y-8>:not(:last-child)){--tw-space-y-reverse:0;margin-block-start:calc(calc(var(--spacing)*8)*var(--tw-space-y-reverse));margin-block-end:calc(calc(var(--spacing)*8)*calc(1 - var(--tw-space-y-reverse)))}:where(.md\:space-y-24>:not(:last-child)){--tw-space-y-reverse:0;margin-block-start:calc(calc(var(--spacing)*24)*var(--tw-space-y-reverse));margin-block-end:calc(calc(var(--spacing)*24)*calc(1 - var(--tw-space-y-reverse)))}.md\:overflow-visible{overflow:visible}.md\:border-r{border-right-style:var(--tw-border-style);border-right-width:1px}.md\:border-b-0{border-bottom-style:var(--tw-border-style);border-bottom-width:0}.md\:p-10{padding:calc(var(--spacing)*10)}.md\:p-12{padding:calc(var(--spacing)*12)}.md\:pt-0{padding-top:calc(var(--spacing)*0)}.md\:pt-12{padding-top:calc(var(--spacing)*12)}.md\:pt-16{padding-top:calc(var(--spacing)*16)}.md\:pr-4{padding-right:calc(var(--spacing)*4)}.md\:pb-0{padding-bottom:calc(var(--spacing)*0)}.md\:pl-2{padding-left:calc(var(--spacing)*2)}.md\:text-3xl{font-size:var(--text-3xl);line-height:var(--tw-leading,var(--text-3xl--line-height))}.md\:text-4xl{font-size:var(--text-4xl);line-height:var(--tw-leading,var(--text-4xl--line-height))}.md\:text-6xl{font-size:var(--text-6xl);line-height:var(--tw-leading,var(--text-6xl--line-height))}.md\:text-8xl{font-size:var(--text-8xl);line-height:var(--tw-leading,var(--text-8xl--line-height))}.md\:text-sm{font-size:var(--text-sm);line-height:var(--tw-leading,var(--text-sm--line-height))}.md\:text-xl{font-size:var(--text-xl);line-height:var(--tw-leading,var(--text-xl--line-height))}.md\:opacity-0{opacity:0}.md\:shadow-none{--tw-shadow:0 0 #0000;box-shadow:var(--tw-inset-shadow),var(--tw-inset-ring-shadow),var(--tw-ring-offset-shadow),var(--tw-ring-shadow),var(--tw-shadow)}}@media(min-width:64rem){.lg\:grid-cols-4{grid-template-columns:repeat(4,minmax(0,1fr))}.lg\:text-6xl{font-size:var(--text-6xl);line-height:var(--tw-leading,var(--text-6xl--line-height))}}.dark\:border-gray-800:where(.dark,.dark *){border-color:var(--color-gray-800)}.dark\:border-gray-900:where(.dark,.dark *){border-color:var(--color-gray-900)}.dark\:bg-black:where(.dark,.dark *){background-color:var(--color-black)}.dark\:bg-black\/60:where(.dark,.dark *){background-color:#0009}@supports (color:color-mix(in lab,red,red)){.dark\:bg-black\/60:where(.dark,.dark *){background-color:color-mix(in oklab,var(--color-black)60%,transparent)}}.dark\:bg-gray-900:where(.dark,.dark *){background-color:var(--color-gray-900)}.dark\:bg-yellow-900\/20:where(.dark,.dark *){background-color:#733e0a33}@supports (color:color-mix(in lab,red,red)){.dark\:bg-yellow-900\/20:where(.dark,.dark *){background-color:color-mix(in oklab,var(--color-yellow-900)20%,transparent)}}.dark\:bg-zinc-900:where(.dark,.dark *){background-color:var(--color-zinc-900)}.dark\:text-gray-100:where(.dark,.dark *){color:var(--color-gray-100)}.dark\:text-gray-400:where(.dark,.dark *){color:var(--color-gray-400)}.dark\:text-gray-600:where(.dark,.dark *){color:var(--color-gray-600)}.dark\:text-gray-700:where(.dark,.dark *){color:var(--color-gray-700)}.dark\:text-red-400:where(.dark,.dark *){color:var(--color-red-400)}.dark\:text-white:where(.dark,.dark *){color:var(--color-white)}.dark\:selection\:bg-gray-800:where(.dark,.dark *) ::-moz-selection{background-color:var(--color-gray-800)}.dark\:selection\:bg-gray-800:where(.dark,.dark *) ::selection{background-color:var(--color-gray-800)}.dark\:selection\:bg-gray-800:where(.dark,.dark *)::-moz-selection{background-color:var(--color-gray-800)}.dark\:selection\:bg-gray-800:where(.dark,.dark *)::selection{background-color:var(--color-gray-800)}@media(hover:hover){.dark\:hover\:bg-gray-800:where(.dark,.dark *):hover{background-color:var(--color-gray-800)}.dark\:hover\:bg-gray-900:where(.dark,.dark *):hover{background-color:var(--color-gray-900)}.dark\:hover\:bg-red-900\/10:where(.dark,.dark *):hover{background-color:#82181a1a}@supports (color:color-mix(in lab,red,red)){.dark\:hover\:bg-red-900\/10:where(.dark,.dark *):hover{background-color:color-mix(in oklab,var(--color-red-900)10%,transparent)}}.dark\:hover\:bg-red-950\/10:where(.dark,.dark *):hover{background-color:#4608091a}@supports (color:color-mix(in lab,red,red)){.dark\:hover\:bg-red-950\/10:where(.dark,.dark *):hover{background-color:color-mix(in oklab,var(--color-red-950)10%,transparent)}}.dark\:hover\:text-white:where(.dark,.dark *):hover{color:var(--color-white)}}.dark\:focus\:border-white:where(.dark,.dark *):focus{border-color:var(--color-white)}.\[\&_svg\]\:pointer-events-none svg{pointer-events:none}.\[\&_svg\]\:size-4 svg{width:calc(var(--spacing)*4);height:calc(var(--spacing)*4)}.\[\&_svg\]\:shrink-0 svg{flex-shrink:0}.\[\&\>span\]\:line-clamp-1>span{-webkit-line-clamp:1;-webkit-box-orient:vertical;display:-webkit-box;overflow:hidden}.\[\&\>svg\]\:size-4>svg{width:calc(var(--spacing)*4);height:calc(var(--spacing)*4)}.\[\&\>svg\]\:shrink-0>svg{flex-shrink:0}}.no-scrollbar::-webkit-scrollbar{display:none}.no-scrollbar{-ms-overflow-style:none;scrollbar-width:none}@keyframes drunkenBlur{0%{filter:blur();transform:translate(0)}25%{filter:blur(1px);transform:translate(1px)}50%{filter:blur(2px);transform:translate(-1px)rotate(1deg)}75%{filter:blur(1px);transform:translate(0)}to{filter:blur();transform:translate(0)}}.glitch-effect{color:red;animation:.3s cubic-bezier(.25,.46,.45,.94) infinite both glitch}@keyframes glitch{0%{transform:translate(0)}20%{transform:translate(-2px,2px)}40%{transform:translate(-2px,-2px)}60%{transform:translate(2px,2px)}80%{transform:translate(2px,-2px)}to{transform:translate(0)}}@property --tw-translate-x{syntax:"*";inherits:false;initial-value:0}@property --tw-translate-y{syntax:"*";inherits:false;initial-value:0}@property --tw-translate-z{syntax:"*";inherits:false;initial-value:0}@property --tw-rotate-x{syntax:"*";inherits:false}@property --tw-rotate-y{syntax:"*";inherits:false}@property --tw-rotate-z{syntax:"*";inherits:false}@property --tw-skew-x{syntax:"*";inherits:false}@property --tw-skew-y{syntax:"*";inherits:false}@property --tw-space-y-reverse{syntax:"*";inherits:false;initial-value:0}@property --tw-border-style{syntax:"*";inherits:false;initial-value:solid}@property --tw-leading{syntax:"*";inherits:false}@property --tw-font-weight{syntax:"*";inherits:false}@property --tw-tracking{syntax:"*";inherits:false}@property --tw-shadow{syntax:"*";inherits:false;initial-value:0 0 #0000}@property --tw-shadow-color{syntax:"*";inherits:false}@property --tw-shadow-alpha{syntax:"<percentage>";inherits:false;initial-value:100%}@property --tw-inset-shadow{syntax:"*";inherits:false;initial-value:0 0 #0000}@property --tw-inset-shadow-color{syntax:"*";inherits:false}@property --tw-inset-shadow-alpha{syntax:"<percentage>";inherits:false;initial-value:100%}@property --tw-ring-color{syntax:"*";inherits:false}@property --tw-ring-shadow{syntax:"*";inherits:false;initial-value:0 0 #0000}@property --tw-inset-ring-color{syntax:"*";inherits:false}@property --tw-inset-ring-shadow{syntax:"*";inherits:false;initial-value:0 0 #0000}@property --tw-ring-inset{syntax:"*";inherits:false}@property --tw-ring-offset-width{syntax:"<length>";inherits:false;initial-value:0}@property --tw-ring-offset-color{syntax:"*";inherits:false;initial-value:#fff}@property --tw-ring-offset-shadow{syntax:"*";inherits:false;initial-value:0 0 #0000}@property --tw-outline-style{syntax:"*";inherits:false;initial-value:solid}@property --tw-blur{syntax:"*";inherits:false}@property --tw-brightness{syntax:"*";inherits:false}@property --tw-contrast{syntax:"*";inherits:false}@property --tw-grayscale{syntax:"*";inherits:false}@property --tw-hue-rotate{syntax:"*";inherits:false}@property --tw-invert{syntax:"*";inherits:false}@property --tw-opacity{syntax:"*";inherits:false}@property --tw-saturate{syntax:"*";inherits:false}@property --tw-sepia{syntax:"*";inherits:false}@property --tw-drop-shadow{syntax:"*";inherits:false}@property --tw-drop-shadow-color{syntax:"*";inherits:false}@property --tw-drop-shadow-alpha{syntax:"<percentage>";inherits:false;initial-value:100%}@property --tw-drop-shadow-size{syntax:"*";inherits:false}@property --tw-backdrop-blur{syntax:"*";inherits:false}@property --tw-backdrop-brightness{syntax:"*";inherits:false}@property --tw-backdrop-contrast{syntax:"*";inherits:false}@property --tw-backdrop-grayscale{syntax:"*";inherits:false}@property --tw-backdrop-hue-rotate{syntax:"*";inherits:false}@property --tw-backdrop-invert{syntax:"*";inherits:false}@property --tw-backdrop-opacity{syntax:"*";inherits:false}@property --tw-backdrop-saturate{syntax:"*";inherits:false}@property --tw-backdrop-sepia{syntax:"*";inherits:false}@property --tw-duration{syntax:"*";inherits:false}@property --tw-ease{syntax:"*";inherits:false}@property --tw-space-x-reverse{syntax:"*";inherits:false;initial-value:0}@keyframes spin{to{transform:rotate(360deg)}}@keyframes pulse{50%{opacity:.5}}
+
+## metadata.json
+{
+  "name": "PolskiMining",
+  "description": "A local-first, spaced-repetition flashcard app for learning Polish through sentence mining.",
+  "requestFramePermissions": []
+}
+## package.json
+{
+  "name": "linguaflow",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "test": "vitest"
+  },
+  "dependencies": {
+    "clsx": "^2.1.1",
+    "date-fns": "^4.1.0",
+    "idb": "^8.0.3",
+    "lucide-react": "^0.554.0",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
+    "react-router-dom": "^7.9.6",
+    "react-window": "^2.2.3",
+    "recharts": "^3.4.1",
+    "sonner": "^2.0.7",
+    "tailwind-merge": "^3.4.0",
+    "ts-fsrs": "^5.2.3",
+    "uuid": "^13.0.0"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4.1.17",
+    "@testing-library/dom": "^10.4.1",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.0",
+    "@testing-library/user-event": "^14.6.1",
+    "@types/node": "^24.10.1",
+    "@types/react-window": "^1.8.8",
+    "@vitejs/plugin-react": "^5.1.1",
+    "autoprefixer": "^10.4.22",
+    "fake-indexeddb": "^6.2.5",
+    "jsdom": "^27.2.0",
+    "postcss": "^8.5.6",
+    "tailwindcss": "^4.1.17",
+    "typescript": "^5.9.3",
+    "vite": "^7.2.2",
+    "vitest": "^4.0.10"
+  },
+  "overrides": {
+    "react-window": {
+      "react": "$react",
+      "react-dom": "$react-dom"
+    }
+  }
+}
+
 ## src/App.tsx
 import React from 'react';
 import { BrowserRouter } from 'react-router-dom';
@@ -16,7 +78,7 @@ import { AuthPage } from '@/features/auth/AuthPage';
 
 const queryClient = new QueryClient();
 
-const PolskiMineApp: React.FC = () => {
+const LinguaFlowApp: React.FC = () => {
   const { user, loading } = useAuth();
 
   if (loading) {
@@ -49,7 +111,7 @@ const App: React.FC = () => {
           <AuthProvider>
             <SettingsProvider>
               <DeckProvider>
-                <PolskiMineApp />
+                <LinguaFlowApp />
                 <Toaster position="bottom-right" />
               </DeckProvider>
             </SettingsProvider>
@@ -106,7 +168,6 @@ export class ErrorBoundary extends Component<Props, State> {
     return this.props.children;
   }
 }
-
 ## src/components/common/LanguageThemeManager.tsx
 import React, { useLayoutEffect } from 'react';
 import { useSettings } from '@/contexts/SettingsContext';
@@ -149,10 +210,6 @@ export const LanguageThemeManager: React.FC = () => {
           --primary: ${customColor};
           --ring: ${customColor};
         }
-        .dark:root[data-language="${settings.language}"] {
-          --primary: ${darkColor};
-          --ring: ${darkColor};
-        }
       `;
     } else {
       styleTag.innerHTML = '';
@@ -161,22 +218,24 @@ export const LanguageThemeManager: React.FC = () => {
 
   return null;
 };
-
 ## src/components/form/EditorialInput.tsx
 import React from 'react';
+import { Input } from '@/components/ui/input';
 
 interface EditorialInputProps extends React.InputHTMLAttributes<HTMLInputElement> {}
 
 export const EditorialInput: React.FC<EditorialInputProps> = (props) => (
-  <input
-    className="w-full bg-transparent border-b border-border py-3 text-base outline-none focus:border-foreground transition-colors placeholder:text-muted-foreground/50"
-    {...props}
-  />
+  <Input {...props} />
 );
-
 ## src/components/form/EditorialSelect.tsx
 import React from 'react';
-import { ChevronDown } from 'lucide-react';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 import clsx from 'clsx';
 
 export interface EditorialSelectOption {
@@ -184,39 +243,43 @@ export interface EditorialSelectOption {
   label: string;
 }
 
-interface EditorialSelectProps extends React.SelectHTMLAttributes<HTMLSelectElement> {
+interface EditorialSelectProps {
+  value: string;
+  onChange: (value: string) => void;
   options: EditorialSelectOption[];
-  containerClassName?: string;
+  placeholder?: string;
+  className?: string;
 }
 
-export const EditorialSelect: React.FC<EditorialSelectProps> = ({ options, containerClassName, ...props }) => (
-  <div className={clsx('relative w-full', containerClassName)}>
-    <select
-      className="w-full appearance-none bg-transparent border-b border-border py-2 pr-8 text-sm text-foreground outline-none focus:border-foreground transition-colors cursor-pointer font-medium"
-      {...props}
-    >
+export const EditorialSelect: React.FC<EditorialSelectProps> = ({ 
+  value, 
+  onChange, 
+  options, 
+  placeholder,
+  className 
+}) => (
+  <Select value={value} onValueChange={onChange}>
+    <SelectTrigger className={clsx("w-full", className)}>
+      <SelectValue placeholder={placeholder} />
+    </SelectTrigger>
+    <SelectContent>
       {options.map((option) => (
-        <option key={option.value} value={option.value} className="bg-background text-foreground">
+        <SelectItem key={option.value} value={option.value}>
           {option.label}
-        </option>
+        </SelectItem>
       ))}
-    </select>
-    <ChevronDown className="absolute right-0 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none" size={14} />
-  </div>
+    </SelectContent>
+  </Select>
 );
-
 ## src/components/form/EditorialTextarea.tsx
 import React from 'react';
+import { Textarea } from '@/components/ui/textarea';
 
 interface EditorialTextareaProps extends React.TextareaHTMLAttributes<HTMLTextAreaElement> {}
 
 export const EditorialTextarea: React.FC<EditorialTextareaProps> = (props) => (
-  <textarea
-    className="w-full bg-transparent border-b border-border py-3 text-sm outline-none focus:border-foreground transition-colors placeholder:text-muted-foreground/50 min-h-20 resize-none"
-    {...props}
-  />
+  <Textarea {...props} />
 );
-
 ## src/components/form/MetaLabel.tsx
 import React from 'react';
 import clsx from 'clsx';
@@ -231,9 +294,8 @@ export const MetaLabel: React.FC<MetaLabelProps> = ({ className, children }) => 
     {children}
   </label>
 );
-
 ## src/components/layout/Layout.tsx
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import {
   LayoutDashboard,
@@ -244,21 +306,18 @@ import {
   Settings,
   ChevronUp,
   Check,
-  Command,
   Trophy,
   Skull,
   LogOut,
+  Menu
 } from 'lucide-react';
-import { useDeck } from '@/contexts/DeckContext';
 import { useSettings } from '@/contexts/SettingsContext';
 import { useAuth } from '@/contexts/AuthContext';
+import { useCardOperations } from '@/features/deck/hooks/useCardOperations';
 import { AddCardModal } from '@/features/deck/components/AddCardModal';
 import { SettingsModal } from '@/features/settings/components/SettingsModal';
 import { CramModal } from '@/features/study/components/CramModal';
 import { SabotageStore } from '@/features/sabotage/SabotageStore';
-import { getCards } from '@/services/db/repositories/cardRepository';
-import { Card } from '@/types';
-import { useCardOperations } from '@/features/deck/hooks/useCardOperations';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -266,6 +325,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { PolishFlag, NorwegianFlag, JapaneseFlag } from '@/components/ui/flags';
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { toast } from 'sonner';
 import clsx from 'clsx';
 
@@ -281,6 +341,8 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
   const [isCramModalOpen, setIsCramModalOpen] = useState(false);
   const [isSabotageOpen, setIsSabotageOpen] = useState(false);
 
+  const isStudyMode = location.pathname === '/study';
+
   const languages = [
     { code: 'polish', name: 'Polish', Flag: PolishFlag },
     { code: 'norwegian', name: 'Norwegian', Flag: NorwegianFlag },
@@ -290,94 +352,69 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
   const currentLanguage = languages.find(lang => lang.code === settings.language) || languages[0];
 
   const navItems = [
-    { icon: LayoutDashboard, label: 'Dashboard', path: '/', action: undefined },
-    { icon: GraduationCap, label: 'Study', path: '/study', action: undefined },
-    { icon: ListIcon, label: 'Cards', path: '/cards', action: undefined },
+    { icon: LayoutDashboard, label: 'Overview', path: '/', action: undefined },
+    { icon: GraduationCap, label: 'Study Session', path: '/study', action: undefined },
+    { icon: ListIcon, label: 'Card Index', path: '/cards', action: undefined },
     { icon: Trophy, label: 'Leaderboard', path: '/leaderboard', action: undefined },
     { type: 'separator' },
-    { icon: Plus, label: 'Add', path: '#', action: () => setIsAddModalOpen(true) },
+    { icon: Plus, label: 'Add Entry', path: '#', action: () => setIsAddModalOpen(true) },
     { icon: Zap, label: 'Cram', path: '#', action: () => setIsCramModalOpen(true) },
     { icon: Skull, label: 'Sabotage', path: '#', action: () => setIsSabotageOpen(true) },
   ];
 
-  return (
-    <div className="min-h-screen bg-background text-foreground font-sans flex selection:bg-gray-200 dark:selection:bg-gray-800">
-      
-      {/* --- Desktop Sidebar (Hidden on Mobile) --- */}
-      <aside className="hidden md:flex w-64 flex-col fixed h-full z-40 border-r border-border bg-background transition-colors duration-300">
-        {/* Header */}
-        <div className="p-6 flex items-center gap-2">
-            <div className="w-8 h-8 bg-primary text-background flex items-center justify-center rounded-full">
-                <Command size={16} strokeWidth={2.5} />
-            </div>
-            <div className="flex flex-col">
-                <span className="font-bold text-sm tracking-tight leading-none">PolskiMine</span>
-                <span className="text-[9px] font-mono text-muted-foreground uppercase tracking-wider mt-1">v{typeof __APP_VERSION__ !== 'undefined' ? __APP_VERSION__ : 'Dev'}</span>
-            </div>
-        </div>
+  const NavigationContent = () => (
+    <div className="flex flex-col h-full">
+       {/* Header */}
+       <div className="p-8 pb-12">
+          <div className="flex items-center gap-3">
+              <div className="w-6 h-6 bg-foreground rounded-full" />
+              <span className="font-bold text-lg tracking-tight">LinguaFlow</span>
+          </div>
+       </div>
 
-        {/* Navigation */}
-        <nav className="flex-1 px-4 space-y-1 py-4">
-            {navItems.map((item, idx) => {
-                if (item.type === 'separator') {
-                    return <div key={idx} className="my-4 border-t border-border/50 mx-2" />;
-                }
+       {/* Nav Items */}
+       <nav className="flex-1 px-6 space-y-2">
+          {navItems.map((item, idx) => {
+              if (item.type === 'separator') {
+                  return <div key={idx} className="my-6 border-t border-border/40 mx-2" />;
+              }
 
-                const isActive = location.pathname === item.path && !item.action;
-                
-                const content = (
-                    <>
-                        <span className={clsx("transition-colors", isActive ? "text-foreground" : "text-muted-foreground group-hover:text-foreground")}>
-                            {item.icon && <item.icon size={18} strokeWidth={2} />}
-                        </span>
-                        <span className={clsx("font-medium tracking-tight", isActive ? "text-foreground" : "text-muted-foreground group-hover:text-foreground")}>
-                            {item.label}
-                        </span>
-                        {isActive && <div className="ml-auto w-1.5 h-1.5 rounded-full bg-foreground" />}
-                    </>
-                );
+              const isActive = location.pathname === item.path && !item.action;
+              
+              const content = (
+                  <>
+                      <span className={clsx("mr-4", isActive ? "text-foreground" : "text-muted-foreground/70 group-hover:text-foreground")}>
+                          {item.icon && <item.icon size={20} strokeWidth={1.5} />}
+                      </span>
+                      <span className={clsx("font-medium text-sm tracking-tight", isActive ? "text-foreground" : "text-muted-foreground group-hover:text-foreground")}>
+                          {item.label}
+                      </span>
+                  </>
+              );
 
-                const className = clsx(
-                    "group w-full flex items-center gap-3 px-3 py-2.5 text-sm rounded-md transition-all duration-200",
-                    isActive ? "bg-secondary" : "hover:bg-secondary/50"
-                );
+              const className = "group w-full flex items-center py-2 px-2 rounded-lg transition-all duration-200 hover:bg-secondary/50";
 
-                if (item.action) {
-                    return <button key={item.label} onClick={item.action} className={className}>{content}</button>;
-                }
+              if (item.action) {
+                  return <button key={item.label} onClick={item.action} className={className}>{content}</button>;
+              }
 
-                return <Link key={item.label} to={item.path} className={className}>{content}</Link>;
-            })}
-        </nav>
+              return <Link key={item.label} to={item.path} className={className}>{content}</Link>;
+          })}
+       </nav>
 
-        {/* Footer / Settings */}
-        <div className="p-4 space-y-2 border-t border-border">
-            <button 
-                onClick={() => setIsSettingsOpen(true)}
-                className="flex items-center gap-3 px-3 py-2 text-sm text-muted-foreground hover:text-foreground transition-colors w-full font-medium"
-            >
-                <Settings size={18} />
-                Settings
-            </button>
-          <button 
-            onClick={signOut}
-            className="flex items-center gap-3 px-3 py-2 text-sm text-red-500/70 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/10 transition-all w-full font-medium rounded-md"
-          >
-            <LogOut size={18} />
-            Log Out
-          </button>
-            
+       {/* Footer */}
+       <div className="p-6 space-y-4">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <button className="flex items-center justify-between gap-3 px-3 py-2.5 text-sm border border-border hover:border-foreground/20 transition-colors w-full rounded-md bg-background outline-none group">
-                  <div className="flex items-center gap-3 font-medium">
-                    <currentLanguage.Flag className="w-5 h-3.5 rounded-[2px] shadow-sm" />
-                    <span className="text-muted-foreground group-hover:text-foreground transition-colors">{currentLanguage.name}</span>
+                <button className="flex items-center justify-between w-full p-3 rounded-xl bg-secondary/30 hover:bg-secondary/60 transition-colors border border-transparent hover:border-border/50">
+                  <div className="flex items-center gap-3">
+                    <currentLanguage.Flag className="w-5 h-auto rounded-xs" />
+                    <span className="text-sm font-medium">{currentLanguage.name}</span>
                   </div>
                   <ChevronUp size={14} className="text-muted-foreground" />
                 </button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="start" className="w-56 p-1.5 bg-popover border-border shadow-xl rounded-lg">
+              <DropdownMenuContent align="start" className="w-56 p-2">
                 {languages.map((lang) => (
                   <DropdownMenuItem
                     key={lang.code}
@@ -385,116 +422,75 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
                       updateSettings({ language: lang.code });
                       toast.success(`Switched to ${lang.name}`);
                     }}
-                    className="flex items-center justify-between gap-3 px-3 py-2.5 cursor-pointer rounded-md focus:bg-secondary focus:text-foreground"
+                    className="gap-3 py-2.5"
                   >
-                    <div className="flex items-center gap-3">
-                      <lang.Flag className="w-5 h-3.5 rounded-[2px] shadow-sm" />
-                      <span className="font-medium">{lang.name}</span>
-                    </div>
-                    {settings.language === lang.code && (
-                      <Check size={14} className="text-foreground" />
-                    )}
+                    <lang.Flag className="w-4 h-auto rounded-xs" />
+                    <span className="font-medium">{lang.name}</span>
+                    {settings.language === lang.code && <Check size={14} className="ml-auto" />}
                   </DropdownMenuItem>
                 ))}
               </DropdownMenuContent>
             </DropdownMenu>
-        </div>
+
+            <div className="flex items-center justify-between px-2">
+                <button onClick={() => setIsSettingsOpen(true)} className="p-2 text-muted-foreground hover:text-foreground transition-colors">
+                    <Settings size={20} strokeWidth={1.5} />
+                </button>
+                <button onClick={signOut} className="p-2 text-muted-foreground hover:text-destructive transition-colors">
+                    <LogOut size={20} strokeWidth={1.5} />
+                </button>
+            </div>
+            <div className="px-2">
+                <span className="text-[10px] font-mono text-muted-foreground/40 uppercase tracking-widest">v{typeof __APP_VERSION__ !== 'undefined' ? __APP_VERSION__ : 'Dev'}</span>
+            </div>
+       </div>
+    </div>
+  );
+
+  return (
+    <div className="min-h-screen bg-background text-foreground font-sans flex selection:bg-primary/10">
+      {/* Desktop Sidebar */}
+      <aside className={clsx(
+        "hidden md:block fixed h-full w-72 z-40 bg-background/50 backdrop-blur-sm border-r border-border/40 transition-all duration-500",
+        isStudyMode ? "-translate-x-full opacity-0" : "translate-x-0 opacity-100"
+      )}>
+        <NavigationContent />
       </aside>
 
-      {/* --- Mobile Bottom Navigation --- */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-md border-t border-border pb-safe">
-         <div className="flex items-center justify-around p-2">
-            {navItems.filter(i => i.type !== 'separator').map((item) => {
-                const isActive = location.pathname === item.path && !item.action;
-                const Icon = item.icon;
-
-                if (item.action) {
-                   return (
-                     <button key={item.label} onClick={item.action} className="flex flex-col items-center gap-1 p-2 text-muted-foreground active:text-foreground">
-                        {Icon && <Icon size={20} />}
-                        <span className="text-[9px] font-medium">{item.label}</span>
-                     </button>
-                   );
-                }
-                
-                return (
-                  <Link 
-                    key={item.label} 
-                    to={item.path} 
-                    className={clsx(
-                      "flex flex-col items-center gap-1 p-2 transition-colors", 
-                      isActive ? "text-primary" : "text-muted-foreground"
-                    )}
-                  >
-                      {Icon && <Icon size={20} />}
-                      <span className="text-[9px] font-medium">{item.label}</span>
-                  </Link>
-                );
-            })}
-            <button onClick={() => setIsSettingsOpen(true)} className="flex flex-col items-center gap-1 p-2 text-muted-foreground active:text-foreground">
-               <Settings size={20} />
-               <span className="text-[9px] font-medium">Setup</span>
-            </button>
-         </div>
-      </nav>
-      
-      {/* --- Mobile Header --- */}
-      <div className="md:hidden fixed top-0 left-0 right-0 z-40 h-14 bg-background/80 backdrop-blur-sm border-b border-border flex items-center justify-between px-4">
-         <div className="flex items-center gap-2">
-            <div className="w-6 h-6 bg-primary text-background flex items-center justify-center rounded-full">
-                <Command size={12} strokeWidth={3} />
-            </div>
-            <span className="font-bold text-sm tracking-tight">PolskiMine</span>
-         </div>
-         
-         <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <button className="flex items-center gap-2 px-2 py-1 rounded-md bg-secondary/50">
-                    <currentLanguage.Flag className="w-4 h-3 rounded-[2px]" />
-                    <ChevronUp size={12} className="text-muted-foreground" />
-                </button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-48">
-                 {languages.map((lang) => (
-                  <DropdownMenuItem
-                    key={lang.code}
-                    onClick={() => updateSettings({ language: lang.code })}
-                    className="gap-3"
-                  >
-                    <lang.Flag className="w-4 h-3" />
-                    <span>{lang.name}</span>
-                  </DropdownMenuItem>
-                ))}
-              </DropdownMenuContent>
-         </DropdownMenu>
+      {/* Mobile Header */}
+      <div className={clsx(
+        "md:hidden fixed top-0 left-0 right-0 z-40 h-16 bg-background/80 backdrop-blur-md border-b border-border/40 flex items-center justify-between px-6 transition-transform duration-300",
+        isStudyMode && "-translate-y-full"
+      )}>
+         <span className="font-bold tracking-tight">LinguaFlow</span>
+         <Sheet>
+            <SheetTrigger asChild>
+                <button><Menu size={24} strokeWidth={1.5} /></button>
+            </SheetTrigger>
+            <SheetContent side="left" className="p-0 w-72">
+                <NavigationContent />
+            </SheetContent>
+         </Sheet>
       </div>
 
-      {/* --- Main Content --- */}
-      {/* Adjusted margin-left for desktop, padding for mobile header/footer */}
-      <main className="flex-1 w-full min-h-screen flex flex-col bg-background md:ml-64 pt-14 md:pt-0 pb-20 md:pb-0">
-        <div className="flex-1 p-6 md:p-12 max-w-screen-2xl mx-auto w-full animate-in fade-in duration-500">
+      {/* Main Content */}
+      <main className={clsx(
+        "flex-1 min-h-screen transition-all duration-500",
+        !isStudyMode && "md:ml-72 pt-20 md:pt-0"
+      )}>
+        <div className={clsx(
+            "max-w-7xl mx-auto w-full animate-in fade-in duration-700",
+            isStudyMode ? "p-0 h-screen" : "p-6 md:p-16"
+        )}>
             {children}
         </div>
       </main>
 
       {/* Global Modals */}
-      <AddCardModal 
-        isOpen={isAddModalOpen}
-        onClose={() => setIsAddModalOpen(false)}
-        onAdd={addCard}
-      />
-      <SettingsModal 
-        isOpen={isSettingsOpen}
-        onClose={() => setIsSettingsOpen(false)}
-      />
-      <CramModal 
-        isOpen={isCramModalOpen} 
-        onClose={() => setIsCramModalOpen(false)} 
-      />
-      <SabotageStore 
-        isOpen={isSabotageOpen}
-        onClose={() => setIsSabotageOpen(false)}
-      />
+      <AddCardModal isOpen={isAddModalOpen} onClose={() => setIsAddModalOpen(false)} onAdd={addCard} />
+      <SettingsModal isOpen={isSettingsOpen} onClose={() => setIsSettingsOpen(false)} />
+      <CramModal isOpen={isCramModalOpen} onClose={() => setIsCramModalOpen(false)} />
+      <SabotageStore isOpen={isSabotageOpen} onClose={() => setIsSabotageOpen(false)} />
     </div>
   );
 };
@@ -536,7 +532,6 @@ function Badge({ className, variant, ...props }: BadgeProps) {
 }
 
 export { Badge, badgeVariants }
-
 ## src/components/ui/button.tsx
 import * as React from "react"
 import { Slot } from "@radix-ui/react-slot"
@@ -595,7 +590,6 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
 Button.displayName = "Button"
 
 export { Button, buttonVariants }
-
 ## src/components/ui/card.tsx
 import * as React from "react"
 
@@ -673,7 +667,6 @@ const CardFooter = React.forwardRef<
 CardFooter.displayName = "CardFooter"
 
 export { Card, CardHeader, CardFooter, CardTitle, CardDescription, CardContent }
-
 ## src/components/ui/color-picker.tsx
 import React from 'react';
 import { Input } from '@/components/ui/input';
@@ -733,7 +726,6 @@ export const ColorPicker: React.FC<ColorPickerProps> = ({ label, value, onChange
     </div>
   );
 };
-
 ## src/components/ui/dialog.tsx
 import * as React from "react"
 import * as DialogPrimitive from "@radix-ui/react-dialog"
@@ -756,8 +748,8 @@ const DialogOverlay = React.forwardRef<
   <DialogPrimitive.Overlay
     ref={ref}
     className={cn(
-      // Changed: Lighter background with backdrop blur for a cleaner, modern feel
-      "fixed inset-0 z-50 bg-white/80 dark:bg-black/60 backdrop-blur-[2px]",
+      // Changed: Darker background with backdrop blur for better contrast
+      "fixed inset-0 z-50 bg-black/50 dark:bg-black/80 backdrop-blur-sm",
       className
     )}
     {...props}
@@ -775,7 +767,7 @@ const DialogContent = React.forwardRef<
       ref={ref}
       className={cn(
         // Changed: w-[95vw] for mobile to ensure it fits but has margins
-        "fixed left-[50%] top-[50%] z-50 grid w-[95vw] max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4 border border-gray-200 dark:border-gray-800 bg-white dark:bg-black p-6 shadow-2xl rounded-lg sm:rounded-xl",
+        "fixed left-[50%] top-[50%] z-50 grid w-[95vw] max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4 border border-border bg-background p-6 shadow-2xl rounded-lg sm:rounded-xl",
         className
       )}
       {...props}
@@ -841,7 +833,7 @@ const DialogDescription = React.forwardRef<
   <DialogPrimitive.Description
     ref={ref}
     // Changed: Lighter gray for better hierarchy
-    className={cn("text-sm text-gray-500 dark:text-gray-400", className)}
+    className={cn("text-sm text-muted-foreground", className)}
     {...props}
   />
 ))
@@ -859,7 +851,6 @@ export {
   DialogTitle,
   DialogDescription,
 }
-
 ## src/components/ui/dropdown-menu.tsx
 import * as React from "react"
 import * as DropdownMenuPrimitive from "@radix-ui/react-dropdown-menu"
@@ -1060,7 +1051,6 @@ export {
   DropdownMenuSubTrigger,
   DropdownMenuRadioGroup,
 }
-
 ## src/components/ui/flags.tsx
 import React from 'react';
 
@@ -1089,7 +1079,6 @@ export const JapaneseFlag: React.FC<FlagProps> = ({ className }) => (
     <circle cx="16" cy="12" r="7" fill="#FF6B6B"/>
   </svg>
 );
-
 ## src/components/ui/input.tsx
 import * as React from "react"
 
@@ -1101,7 +1090,7 @@ const Input = React.forwardRef<HTMLInputElement, React.ComponentProps<"input">>(
       <input
         type={type}
         className={cn(
-          "flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-base shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 md:text-sm",
+          "flex h-9 w-full rounded-md border border-border bg-background px-3 py-1 text-base transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:border-foreground/20 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm hover:border-foreground/20",
           className
         )}
         ref={ref}
@@ -1113,7 +1102,6 @@ const Input = React.forwardRef<HTMLInputElement, React.ComponentProps<"input">>(
 Input.displayName = "Input"
 
 export { Input }
-
 ## src/components/ui/label.tsx
 import * as React from "react"
 import * as LabelPrimitive from "@radix-ui/react-label"
@@ -1139,7 +1127,6 @@ const Label = React.forwardRef<
 Label.displayName = LabelPrimitive.Root.displayName
 
 export { Label }
-
 ## src/components/ui/progress.tsx
 "use client"
 
@@ -1169,7 +1156,6 @@ const Progress = React.forwardRef<
 Progress.displayName = ProgressPrimitive.Root.displayName
 
 export { Progress }
-
 ## src/components/ui/select.tsx
 "use client"
 
@@ -1192,7 +1178,7 @@ const SelectTrigger = React.forwardRef<
   <SelectPrimitive.Trigger
     ref={ref}
     className={cn(
-      "flex h-9 w-full items-center justify-between whitespace-nowrap rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm ring-offset-background data-[placeholder]:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring disabled:cursor-not-allowed disabled:opacity-50 [&>span]:line-clamp-1",
+      "flex h-9 w-full items-center justify-between whitespace-nowrap rounded-md border border-border bg-background px-3 py-2 text-sm ring-offset-background data-[placeholder]:text-muted-foreground focus:outline-none focus:border-foreground/20 disabled:cursor-not-allowed disabled:opacity-50 [&>span]:line-clamp-1 hover:border-foreground/20 transition-colors",
       className
     )}
     {...props}
@@ -1330,7 +1316,6 @@ export {
   SelectScrollUpButton,
   SelectScrollDownButton,
 }
-
 ## src/components/ui/sheet.tsx
 import * as React from "react"
 import * as SheetPrimitive from "@radix-ui/react-dialog"
@@ -1470,7 +1455,6 @@ export {
   SheetTitle,
   SheetDescription,
 }
-
 ## src/components/ui/slider.tsx
 "use client"
 
@@ -1500,7 +1484,6 @@ const Slider = React.forwardRef<
 Slider.displayName = SliderPrimitive.Root.displayName
 
 export { Slider }
-
 ## src/components/ui/switch.tsx
 import * as React from "react"
 import * as SwitchPrimitives from "@radix-ui/react-switch"
@@ -1529,7 +1512,6 @@ const Switch = React.forwardRef<
 Switch.displayName = SwitchPrimitives.Root.displayName
 
 export { Switch }
-
 ## src/components/ui/textarea.tsx
 import * as React from "react"
 
@@ -1542,7 +1524,7 @@ const Textarea = React.forwardRef<
   return (
     <textarea
       className={cn(
-        "flex min-h-[60px] w-full rounded-md border border-input bg-transparent px-3 py-2 text-base shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 md:text-sm",
+        "flex min-h-[60px] w-full rounded-md border border-border bg-background px-3 py-2 text-base placeholder:text-muted-foreground focus-visible:outline-none focus-visible:border-foreground/20 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm hover:border-foreground/20 transition-colors",
         className
       )}
       ref={ref}
@@ -1553,7 +1535,6 @@ const Textarea = React.forwardRef<
 Textarea.displayName = "Textarea"
 
 export { Textarea }
-
 ## src/components/ui/tooltip.tsx
 import * as React from "react"
 import * as TooltipPrimitive from "@radix-ui/react-tooltip"
@@ -1585,7 +1566,6 @@ const TooltipContent = React.forwardRef<
 TooltipContent.displayName = TooltipPrimitive.Content.displayName
 
 export { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider }
-
 ## src/constants.ts
 import { Card, ReviewHistory } from './types';
 
@@ -1684,7 +1664,6 @@ export const LANGUAGE_NAMES = {
   norwegian: 'Norwegian',
   japanese: 'Japanese'
 } as const;
-
 ## src/contexts/AuthContext.tsx
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import type { Session, User } from '@supabase/supabase-js';
@@ -1832,7 +1811,6 @@ export const useAuth = () => {
   }
   return context;
 };
-
 ## src/contexts/DeckContext.tsx
 import React, {
   createContext,
@@ -1865,6 +1843,7 @@ import {
   getTodayReviewStats,
 } from '@/services/db/repositories/statsRepository';
 import { supabase } from '@/lib/supabase';
+import { applyStudyLimits, isNewCard } from '@/services/studyLimits';
 
 interface DeckContextValue {
   history: ReviewHistory;
@@ -1893,6 +1872,8 @@ export const DeckProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [stats, setStats] = useState<DeckStats>({
     total: 0,
     due: 0,
+    newDue: 0,
+    reviewDue: 0,
     learned: 0,
     streak: 0,
     totalReviews: 0,
@@ -1912,16 +1893,28 @@ export const DeckProvider: React.FC<{ children: React.ReactNode }> = ({ children
       ]);
 
       setReviewsToday(todayReviews);
+
+      const limitedCards = applyStudyLimits(dueCards, {
+        dailyNewLimit: settings.dailyNewLimit,
+        dailyReviewLimit: settings.dailyReviewLimit,
+        reviewsToday: todayReviews,
+      });
+
+      const newDue = limitedCards.filter(isNewCard).length;
+      const reviewDue = limitedCards.length - newDue;
+
       setStats((prev) => ({
         ...prev,
         total: dbStats.total,
         learned: dbStats.learned,
-        due: dueCards.length,
+        due: limitedCards.length,
+        newDue,
+        reviewDue,
       }));
     } catch (error) {
       console.error('Failed to refresh stats', error);
     }
-  }, [settings.language]);
+  }, [settings.language, settings.dailyNewLimit, settings.dailyReviewLimit]);
 
   const refreshDeckData = useCallback(() => {
     setDataVersion((version) => version + 1);
@@ -1939,21 +1932,24 @@ export const DeckProvider: React.FC<{ children: React.ReactNode }> = ({ children
         await refreshStats();
         
         // Check if deck is empty and load beginner deck if needed
-        const { count } = await supabase
-          .from('cards')
-          .select('*', { count: 'exact', head: true })
-          .eq('language', settings.language);
-          
-        if (count === 0) {
-          const deck =
-            settings.language === 'norwegian'
-              ? NORWEGIAN_BEGINNER_DECK
-              : settings.language === 'japanese'
-              ? JAPANESE_BEGINNER_DECK
-              : BEGINNER_DECK;
-          await saveAllCards(deck);
-          toast.success(`Loaded Beginner ${languageLabel(settings.language)} course!`);
-          await refreshStats();
+        if (user) {
+          const { count } = await supabase
+            .from('cards')
+            .select('*', { count: 'exact', head: true })
+            .eq('language', settings.language)
+            .eq('user_id', user.id);
+            
+          if (count === 0) {
+            const deck =
+              settings.language === 'norwegian'
+                ? NORWEGIAN_BEGINNER_DECK
+                : settings.language === 'japanese'
+                ? JAPANESE_BEGINNER_DECK
+                : BEGINNER_DECK;
+            await saveAllCards(deck);
+            toast.success(`Loaded Beginner ${languageLabel(settings.language)} course!`);
+            await refreshStats();
+          }
         }
       } catch (error) {
         console.error('Failed to load data from DB', error);
@@ -2047,6 +2043,8 @@ export const DeckProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setStats((prev) => ({
         ...prev,
         due: Math.max(0, prev.due - 1),
+        newDue: oldCard.status === 'new' ? Math.max(0, prev.newDue - 1) : prev.newDue,
+        reviewDue: oldCard.status !== 'new' ? Math.max(0, prev.reviewDue - 1) : prev.reviewDue,
         totalReviews: prev.totalReviews + 1,
       }));
 
@@ -2084,6 +2082,8 @@ export const DeckProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setStats((prev) => ({
           ...prev,
           due: prev.due + 1,
+          newDue: oldCard.status === 'new' ? prev.newDue + 1 : prev.newDue,
+          reviewDue: oldCard.status !== 'new' ? prev.reviewDue + 1 : prev.reviewDue,
           totalReviews: Math.max(0, prev.totalReviews - 1),
         }));
         toast.error("Failed to save review progress");
@@ -2106,6 +2106,8 @@ export const DeckProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setStats((prev) => ({
         ...prev,
         due: prev.due + 1,
+        newDue: card.status === 'new' ? prev.newDue + 1 : prev.newDue,
+        reviewDue: card.status !== 'new' ? prev.reviewDue + 1 : prev.reviewDue,
         totalReviews: Math.max(0, prev.totalReviews - 1),
       }));
 
@@ -2142,7 +2144,6 @@ export const useDeck = () => {
   }
   return context;
 };
-
 ## src/contexts/SettingsContext.tsx
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { UserSettings } from '../types';
@@ -2244,7 +2245,6 @@ export const useSettings = () => {
   }
   return context;
 };
-
 ## src/contexts/ThemeContext.tsx
 import React, { createContext, useContext, useEffect, useState } from 'react';
 
@@ -2265,37 +2265,21 @@ const ThemeContext = createContext<ThemeContextState | undefined>(undefined);
 
 export function ThemeProvider({
   children,
-  defaultTheme = 'system',
+  defaultTheme = 'light',
   storageKey = 'vite-ui-theme',
 }: ThemeProviderProps) {
-  const [theme, setTheme] = useState<Theme>(
-    () => (localStorage.getItem(storageKey) as Theme) || defaultTheme
-  );
+  // Always force light theme
+  const theme = 'light';
 
   useEffect(() => {
     const root = window.document.documentElement;
-
     root.classList.remove('light', 'dark');
-
-    if (theme === 'system') {
-      const systemTheme = window.matchMedia('(prefers-color-scheme: dark)')
-        .matches
-        ? 'dark'
-        : 'light';
-
-      root.classList.add(systemTheme);
-      return;
-    }
-
-    root.classList.add(theme);
-  }, [theme]);
+    root.classList.add('light');
+  }, []);
 
   const value = {
     theme,
-    setTheme: (theme: Theme) => {
-      localStorage.setItem(storageKey, theme);
-      setTheme(theme);
-    },
+    setTheme: () => {}, // No-op
   };
 
   return (
@@ -2313,7 +2297,6 @@ export const useTheme = () => {
 
   return context;
 };
-
 ## src/features/auth/AuthPage.tsx
 import React, { useState } from 'react';
 import { Command, ArrowRight, Mail, Lock, User as UserIcon, Loader2 } from 'lucide-react';
@@ -2357,7 +2340,7 @@ export const AuthPage: React.FC = () => {
           <h1 className="text-3xl font-bold tracking-tight">
             {isSignUp ? 'Create an account' : 'Welcome back'}
           </h1>
-          <p className="text-muted-foreground">Enter your credentials to access PolskiMine</p>
+          <p className="text-muted-foreground">Enter your credentials to access LinguaFlow</p>
         </div>
 
         <div className="space-y-6">
@@ -2468,7 +2451,6 @@ export const AuthPage: React.FC = () => {
     </div>
   );
 };
-
 ## src/features/auth/LoginScreen.tsx
 import React from 'react';
 import { LogIn, Command } from 'lucide-react';
@@ -2484,7 +2466,7 @@ export const LoginScreen: React.FC = () => {
           <Command size={32} />
         </div>
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">PolskiMine</h1>
+          <h1 className="text-3xl font-bold tracking-tight">LinguaFlow</h1>
           <p className="text-muted-foreground mt-2 max-w-sm">
             Sign in to sync your decks, earn XP, and climb the global leaderboard.
           </p>
@@ -2504,18 +2486,14 @@ export const LoginScreen: React.FC = () => {
     </div>
   );
 };
-
 ## src/features/dashboard/components/Dashboard.tsx
-import React, { useMemo } from 'react';
-import { Card as CardType, DeckStats, ReviewHistory } from '@/types';
-import { ArrowRight, Play } from 'lucide-react';
+import React from 'react';
+import { DeckStats, ReviewHistory } from '@/types';
+import { Play } from 'lucide-react';
 import { Heatmap } from './Heatmap';
 import { useSettings } from '@/contexts/SettingsContext';
 import { useChartColors } from '@/hooks/useChartColors';
-import {
-  BarChart, Bar, Tooltip, ResponsiveContainer, XAxis
-} from 'recharts';
-import { differenceInCalendarDays, parseISO, addDays, format } from 'date-fns';
+import { BarChart, Bar, Tooltip, ResponsiveContainer } from 'recharts';
 
 interface DashboardProps {
   metrics: { new: number; learning: number; graduated: number; known: number };
@@ -2525,12 +2503,10 @@ interface DashboardProps {
   onStartSession: () => void;
 }
 
-// Ultra Minimal Stat
-const StatItem = ({ label, value, sub }: { label: string, value: string | number, sub?: string }) => (
+const StatBlock = ({ label, value, colorClass = "text-foreground" }: { label: string, value: string | number, colorClass?: string }) => (
     <div className="flex flex-col gap-2">
         <span className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground">{label}</span>
-        <span className="text-4xl lg:text-6xl font-light tracking-tighter text-foreground">{value}</span>
-        {sub && <span className="text-xs text-muted-foreground font-medium">{sub}</span>}
+        <span className={`text-3xl md:text-4xl font-light tracking-tight ${colorClass}`}>{value}</span>
     </div>
 );
 
@@ -2545,78 +2521,88 @@ export const Dashboard: React.FC<DashboardProps> = ({
   const colors = useChartColors();
 
   return (
-    <div className="space-y-16 md:space-y-24">
+    <div className="space-y-20 md:space-y-32 pb-20">
       {/* Hero Section */}
-      <section className="flex flex-col md:flex-row md:items-end justify-between gap-8 md:gap-10">
-        <div className="space-y-2 md:space-y-4">
-            {/* Responsive text sizing: 5xl on mobile, 8xl on desktop */}
-            <h1 className="text-6xl md:text-8xl font-bold tracking-tighter text-foreground leading-[0.9]">
-                {stats.due} <span className="text-muted-foreground/30">Due</span>
+      <section className="flex flex-col md:flex-row md:items-end justify-between gap-12">
+        <div className="space-y-6">
+            <h1 className="text-[5rem] md:text-[8rem] leading-[0.8] font-bold tracking-tighter text-foreground">
+                {stats.due}
+                <span className="text-muted-foreground/20 ml-4">Due</span>
             </h1>
-            <p className="text-muted-foreground font-mono text-xs uppercase tracking-widest pl-1 md:pl-2">
-               {settings.language} — {stats.total} Total Cards
-            </p>
+            <div className="flex flex-col gap-1 pl-2">
+                <p className="text-sm text-muted-foreground font-medium">
+                    {settings.language.charAt(0).toUpperCase() + settings.language.slice(1)} Deck
+                </p>
+                <p className="text-[10px] font-mono text-muted-foreground uppercase tracking-widest">
+                    {stats.newDue} New <span className="mx-2 text-border">|</span> {stats.reviewDue} Review
+                </p>
+            </div>
         </div>
-        <div className="pb-2 w-full md:w-auto">
+        
+        <div className="w-full md:w-auto">
             <button 
                 onClick={onStartSession}
                 disabled={stats.due === 0}
-                className="w-full md:w-auto justify-center group relative flex items-center gap-4 pl-8 pr-6 py-4 bg-primary text-primary-foreground text-sm font-medium rounded-full hover:opacity-90 transition-all disabled:opacity-50 disabled:cursor-not-allowed overflow-hidden shadow-lg md:shadow-none"
+                className="group relative w-full md:w-auto overflow-hidden rounded-full bg-foreground text-background px-10 py-5 text-lg font-medium transition-all hover:bg-foreground/90 disabled:opacity-30 disabled:cursor-not-allowed"
             >
-                <span className="relative z-10">Start Session</span>
-                <div className="relative z-10 w-6 h-6 bg-background rounded-full flex items-center justify-center text-primary group-hover:translate-x-1 transition-transform">
-                    <Play size={10} fill="currentColor" className="ml-0.5" />
-                </div>
+                <span className="flex items-center justify-center gap-3">
+                    Start Session
+                    <Play size={16} fill="currentColor" />
+                </span>
             </button>
         </div>
       </section>
 
-      {/* Data Grid - 2 columns on mobile, 4 on desktop */}
-      <section className="grid grid-cols-2 lg:grid-cols-4 gap-y-12 gap-x-4 md:gap-16 border-t border-border pt-12 md:pt-16">
-        <StatItem label="New" value={metrics.new} />
-        <StatItem label="Learning" value={metrics.learning} />
-        <StatItem label="Review" value={metrics.graduated} />
-        <StatItem label="Mastered" value={metrics.known} />
+      {/* Metrics Grid */}
+      <section className="grid grid-cols-2 lg:grid-cols-4 gap-x-8 gap-y-12 border-t border-border/40 pt-12">
+        <StatBlock label="New" value={metrics.new} />
+        <StatBlock label="Learning" value={metrics.learning} />
+        <StatBlock label="Review" value={metrics.graduated} />
+        <StatBlock label="Mastered" value={metrics.known} />
       </section>
 
-      {/* Analytics Row */}
-      <section className="flex flex-col gap-12 md:gap-16 border-t border-border pt-12 md:pt-16">
+      {/* Visualizations */}
+      <section className="grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-24 border-t border-border/40 pt-12">
         
-        {/* Heatmap */}
-        <div className="space-y-6 md:space-y-8 overflow-hidden">
+        {/* Activity */}
+        <div className="space-y-6">
             <div className="flex items-baseline justify-between">
                 <h3 className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground">Consistency</h3>
-                <span className="text-xs text-foreground font-medium">{stats.streak} Day Streak</span>
+                <span className="text-2xl font-light tracking-tight">{stats.streak} <span className="text-sm text-muted-foreground font-normal">day streak</span></span>
             </div>
-            <Heatmap history={history} />
+            <div className="pt-2">
+                <Heatmap history={history} />
+            </div>
         </div>
 
-        {/* Forecast Chart - Utilitarian Style */}
-        <div className="space-y-6 md:space-y-8">
+        {/* Forecast */}
+        <div className="space-y-6">
             <div className="flex items-baseline justify-between">
                 <h3 className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground">Forecast</h3>
-                <span className="text-xs text-muted-foreground">Next 14 Days</span>
+                <span className="text-sm text-muted-foreground">Upcoming Load</span>
             </div>
-            <div className="h-40 w-full">
+            <div className="h-32 w-full">
                 <ResponsiveContainer width="100%" height="100%">
-                    <BarChart data={forecast} barGap={0}>
+                    <BarChart data={forecast}>
                         <Tooltip 
-                          cursor={{ fill: colors.muted }}
+                          cursor={{ fill: 'transparent' }}
                           content={({ active, payload }) => {
                             if (active && payload && payload.length) {
                             return (
-                              <div
-                                className="text-[10px] py-1 px-2 font-mono rounded shadow-sm text-primary-foreground"
-                                style={{ backgroundColor: colors.primary }}
-                              >
-                              {payload[0].payload.fullDate}: <span className="font-bold">{payload[0].value}</span>
+                              <div className="bg-foreground text-background text-xs px-2 py-1 rounded font-mono">
+                                {payload[0].value} cards
                               </div>
                             );
                             }
                             return null;
                           }}
                         />
-                        <Bar dataKey="count" fill={colors.primary} radius={[2, 2, 2, 2]} barSize={8} />
+                        <Bar 
+                            dataKey="count" 
+                            fill={colors.foreground} 
+                            radius={[2, 2, 2, 2]} 
+                            barSize={4}
+                        />
                     </BarChart>
                 </ResponsiveContainer>
             </div>
@@ -2661,7 +2647,7 @@ export const Heatmap: React.FC<HeatmapProps> = ({ history }) => {
   }, [history]);
 
   const getColorClass = (count: number) => {
-    if (count === 0) return 'bg-border';
+    if (count === 0) return 'bg-muted-foreground/20';
     if (count <= 2) return 'bg-primary/40';
     if (count <= 5) return 'bg-primary/60';
     if (count <= 9) return 'bg-primary/80';
@@ -2691,7 +2677,6 @@ export const Heatmap: React.FC<HeatmapProps> = ({ history }) => {
     </TooltipProvider>
   );
 };
-
 ## src/features/dashboard/components/RetentionStats.tsx
 import React, { useMemo } from 'react';
 import { Card } from '@/types';
@@ -2901,7 +2886,6 @@ export const RetentionStats: React.FC<RetentionStatsProps> = ({ cards }) => {
     </div>
   );
 };
-
 ## src/features/deck/components/AddCardModal.tsx
 import React, { useState, useEffect, useMemo } from "react";
 import { ArrowRight } from "lucide-react";
@@ -3120,13 +3104,11 @@ export const AddCardModal: React.FC<AddCardModalProps> = ({ isOpen, onClose, onA
     </Dialog>
   );
 };
-
 ## src/features/deck/components/CardList.tsx
 import React from 'react';
-import clsx from 'clsx';
 import { FixedSizeList as List, ListChildComponentProps } from 'react-window';
 import AutoSizer from 'react-virtualized-auto-sizer';
-import { Pencil, Trash2, AlertTriangle } from 'lucide-react';
+import { Pencil, Trash2 } from 'lucide-react';
 import { Card, CardStatus } from '@/types';
 
 interface CardListProps {
@@ -3136,59 +3118,56 @@ interface CardListProps {
   onDeleteCard: (id: string) => void;
 }
 
-interface RowData {
-  cards: Card[];
-  onEditCard: (card: Card) => void;
-  onDeleteCard: (id: string) => void;
-}
+const StatusDot = ({ status }: { status: string }) => {
+    const color = {
+        new: 'bg-blue-500',
+        learning: 'bg-amber-500',
+        graduated: 'bg-emerald-500',
+        known: 'bg-zinc-300 dark:bg-zinc-700'
+    }[status as CardStatus] || 'bg-gray-300';
 
-const statusColors: Record<CardStatus, string> = {
-  new: 'bg-blue-500',
-  learning: 'bg-amber-500',
-  graduated: 'bg-emerald-500',
-  known: 'bg-gray-300',
+    return <div className={`w-1.5 h-1.5 rounded-full ${color}`} />;
 };
 
-const Row = ({ index, style, data }: ListChildComponentProps<RowData>) => {
+const Row = ({ index, style, data }: ListChildComponentProps<any>) => {
   const { cards, onEditCard, onDeleteCard } = data;
   const card = cards[index];
   
   if (!card) return null;
+
   return (
-    <div
-      style={style}
-      className="group flex items-center border-b border-gray-50 dark:border-gray-900 px-2 hover:bg-gray-50 dark:hover:bg-gray-900 transition-colors cursor-default"
-    >
-      <div className="w-6 md:w-8 flex justify-center items-center gap-1 shrink-0">
-        <div className={clsx('w-1.5 h-1.5 rounded-full', statusColors[card.status as CardStatus])} />
-        {card.isLeech && (
-            <div title="Leech Card">
-                <AlertTriangle size={10} className="text-amber-500" />
-            </div>
-        )}
+    <div style={style} className="group flex items-center gap-6 px-2 hover:bg-secondary/30 transition-colors border-b border-border/40">
+      {/* Status */}
+      <div className="w-4 shrink-0 flex justify-center">
+        <StatusDot status={card.status} />
       </div>
       
-      <div className="flex-1 min-w-0 pr-2 md:pr-4">
-        <div className="flex flex-col md:flex-row md:items-baseline gap-0 md:gap-3">
-          <span className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">
-            {card.targetSentence}
-          </span>
-          <span className="text-xs text-gray-400 dark:text-gray-600 truncate flex-1">
+      {/* Content */}
+      <div className="flex-1 min-w-0 py-4">
+          <div className="flex items-baseline gap-3 mb-1">
+            <span className="text-base font-medium tracking-tight text-foreground truncate">
+                {card.targetSentence}
+            </span>
+          </div>
+          <span className="text-sm text-muted-foreground truncate font-light">
             {card.nativeTranslation}
           </span>
-        </div>
       </div>
 
-      {/* Date hidden on mobile */}
-      <div className="hidden md:block w-24 text-right text-[10px] font-mono text-gray-300 dark:text-gray-700 shrink-0">
-        {new Date(card.dueDate).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
+      {/* Meta */}
+      <div className="hidden md:flex flex-col items-end w-32 shrink-0 gap-1">
+        <span className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground/60">Due</span>
+        <span className="text-xs font-mono text-muted-foreground">
+            {new Date(card.dueDate).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
+        </span>
       </div>
       
-      <div className="w-14 md:w-16 flex items-center justify-end gap-2 opacity-100 md:opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
-        <button onClick={() => onEditCard(card)} className="text-gray-400 hover:text-black dark:hover:text-white p-1">
+      {/* Actions */}
+      <div className="w-20 flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+        <button onClick={() => onEditCard(card)} className="p-2 text-muted-foreground hover:text-foreground rounded-md hover:bg-background">
           <Pencil size={14} />
         </button>
-        <button onClick={() => onDeleteCard(card.id)} className="text-gray-400 hover:text-red-600 p-1">
+        <button onClick={() => onDeleteCard(card.id)} className="p-2 text-muted-foreground hover:text-destructive rounded-md hover:bg-background">
           <Trash2 size={14} />
         </button>
       </div>
@@ -3196,27 +3175,24 @@ const Row = ({ index, style, data }: ListChildComponentProps<RowData>) => {
   );
 };
 
-export const CardList: React.FC<CardListProps> = ({ cards, searchTerm, onEditCard, onDeleteCard }) => {
-  const filteredCards = cards;
-
-  return (
-    <div className="flex-1 h-full min-h-[400px] flex flex-col">
+export const CardList: React.FC<CardListProps> = ({ cards, onEditCard, onDeleteCard }) => (
+    <div className="flex-1 h-full w-full">
       <AutoSizer>
         {({ height, width }) => (
           <List
             height={height}
             width={width}
-            itemCount={filteredCards.length}
-            itemSize={56}
-            itemData={{ cards: filteredCards, onEditCard, onDeleteCard }}
+            itemCount={cards.length}
+            itemSize={88}
+            itemData={{ cards, onEditCard, onDeleteCard }}
+            className="no-scrollbar"
           >
             {Row}
           </List>
         )}
       </AutoSizer>
     </div>
-  );
-};
+);
 
 ## src/features/deck/components/GenerateCardsModal.tsx
 import React, { useState } from 'react';
@@ -3331,33 +3307,35 @@ export const GenerateCardsModal: React.FC<GenerateCardsModalProps> = ({ isOpen, 
 
   return (
     <Dialog open={isOpen} onOpenChange={resetAndClose}>
-      <DialogContent className="sm:max-w-2xl p-8 bg-background border border-border shadow-2xl sm:rounded-xl">
+      <DialogContent className="sm:max-w-3xl p-12 bg-white dark:bg-black border border-border shadow-2xl sm:rounded-xl gap-0">
         
-        <div className="flex items-center gap-3 mb-6">
-          <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary">
-            <Sparkles size={20} />
-          </div>
+        <div className="flex justify-between items-start mb-10">
           <div>
-             <DialogTitle className="text-xl font-bold tracking-tight">AI Deck Generator</DialogTitle>
-             <DialogDescription className="text-xs text-muted-foreground">Generate content for {settings.language}</DialogDescription>
+             <DialogTitle className="text-3xl font-light tracking-tight mb-2">AI Generator</DialogTitle>
+             <DialogDescription className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground">
+                Target Language: {settings.language}
+             </DialogDescription>
+          </div>
+          <div className="w-12 h-12 rounded-full bg-secondary flex items-center justify-center text-foreground">
+            <Sparkles size={20} strokeWidth={1.5} />
           </div>
         </div>
 
         {step === 'config' ? (
-          <div className="space-y-8 animate-in fade-in slide-in-from-bottom-2">
-            <div className="grid grid-cols-2 gap-6">
+          <div className="space-y-10 animate-in fade-in slide-in-from-bottom-2">
+            <div className="grid grid-cols-2 gap-12">
               <div>
                 <MetaLabel>Difficulty Level</MetaLabel>
                 <EditorialSelect
                   value={difficulty}
-                  onChange={(e) => setDifficulty(e.target.value as Difficulty)}
+                  onChange={(value) => setDifficulty(value as Difficulty)}
                   options={DIFFICULTIES.map(d => ({ value: d, label: `${d} Level` }))}
                 />
               </div>
               <div>
-                 <div className="flex justify-between mb-3">
-                    <MetaLabel className="mb-0">Card Count</MetaLabel>
-                    <span className="font-mono text-sm font-bold">{count[0]}</span>
+                 <div className="flex justify-between mb-4">
+                    <MetaLabel className="mb-0">Quantity</MetaLabel>
+                    <span className="font-mono text-xl font-light">{count[0]}</span>
                  </div>
                  <Slider
                     value={count}
@@ -3365,6 +3343,7 @@ export const GenerateCardsModal: React.FC<GenerateCardsModalProps> = ({ isOpen, 
                     min={3}
                     max={10}
                     step={1}
+                    className="py-2"
                  />
               </div>
             </div>
@@ -3374,57 +3353,57 @@ export const GenerateCardsModal: React.FC<GenerateCardsModalProps> = ({ isOpen, 
               <EditorialInput 
                 value={topic}
                 onChange={(e) => setTopic(e.target.value)}
-                placeholder="e.g. Business Meetings, Ordering Food, Harry Potter..."
+                placeholder="e.g. Business Meetings, Ordering Food..."
                 autoFocus
               />
             </div>
 
-            <div className="flex justify-end pt-4">
-              <Button onClick={handleGenerate} disabled={loading || !topic} className="w-full md:w-auto">
+            <div className="flex justify-end pt-8">
+              <Button onClick={handleGenerate} disabled={loading || !topic} className="w-full md:w-auto rounded-full px-8 py-6 text-md">
                 {loading ? (
-                  <><Loader2 className="animate-spin mr-2" size={16} /> Generating...</>
+                  <><Loader2 className="animate-spin mr-2" size={18} /> Generating...</>
                 ) : (
-                  <><Sparkles className="mr-2" size={16} /> Generate Cards</>
+                  <><Sparkles className="mr-2" size={18} /> Generate Cards</>
                 )}
               </Button>
             </div>
           </div>
         ) : (
-          <div className="space-y-6 animate-in fade-in slide-in-from-right-2">
-            <div className="max-h-[400px] overflow-y-auto pr-2 space-y-3 custom-scrollbar">
+          <div className="space-y-8 animate-in fade-in slide-in-from-right-2">
+            <div className="max-h-[400px] overflow-y-auto pr-4 space-y-4 custom-scrollbar">
                {generatedData.map((card, idx) => (
                  <div 
                     key={idx}
                     onClick={() => toggleSelection(idx)}
                     className={`
-                        p-4 rounded-lg border cursor-pointer transition-all duration-200 relative group
+                        p-6 rounded-xl border cursor-pointer transition-all duration-200 relative group
                         ${selectedIndices.has(idx) 
                             ? 'border-primary bg-primary/5' 
-                            : 'border-border opacity-60 hover:opacity-100'
+                            : 'border-border/50 hover:border-border hover:bg-secondary/30'
                         }
                     `}
                  >
-                    <div className="absolute top-3 right-3">
-                        {selectedIndices.has(idx) ? <Check size={16} className="text-primary" /> : <div className="w-4 h-4 rounded-full border border-muted-foreground" />}
+                    <div className="absolute top-6 right-6">
+                        {selectedIndices.has(idx) ? <Check size={20} className="text-primary" /> : <div className="w-5 h-5 rounded-full border border-muted-foreground/30" />}
                     </div>
-                    <div className="pr-8">
-                        <div className="font-medium text-lg mb-1">{card.targetSentence}</div>
-                        <div className="text-sm text-muted-foreground">{card.nativeTranslation}</div>
-                        <div className="flex gap-2 mt-2">
-                            {card.targetWord && <span className="text-[10px] bg-secondary px-1.5 py-0.5 rounded font-mono text-foreground">{card.targetWord}</span>}
-                            <span className="text-[10px] bg-secondary px-1.5 py-0.5 rounded font-mono text-muted-foreground">{difficulty}</span>
+                    <div className="pr-12">
+                        <div className="font-medium text-xl mb-2 tracking-tight">{card.targetSentence}</div>
+                        <div className="text-sm text-muted-foreground font-mono opacity-70">{card.nativeTranslation}</div>
+                        <div className="flex gap-3 mt-4">
+                            {card.targetWord && <span className="text-[10px] bg-secondary px-2 py-1 rounded font-mono text-foreground uppercase tracking-wider">{card.targetWord}</span>}
+                            <span className="text-[10px] border border-border px-2 py-1 rounded font-mono text-muted-foreground uppercase tracking-wider">{difficulty}</span>
                         </div>
                     </div>
                  </div>
                ))}
             </div>
 
-            <div className="flex items-center justify-between pt-2 border-t border-border">
-                <button onClick={() => setStep('config')} className="text-sm text-muted-foreground hover:text-foreground">
+            <div className="flex items-center justify-between pt-6 border-t border-border">
+                <button onClick={() => setStep('config')} className="text-sm text-muted-foreground hover:text-foreground transition-colors">
                     Back to Config
                 </button>
-                <Button onClick={handleSave} disabled={selectedIndices.size === 0}>
-                    Save {selectedIndices.size} Cards <ArrowRight size={16} className="ml-2" />
+                <Button onClick={handleSave} disabled={selectedIndices.size === 0} className="rounded-full px-8 py-6">
+                    Save {selectedIndices.size} Cards <ArrowRight size={18} className="ml-2" />
                 </Button>
             </div>
           </div>
@@ -3433,7 +3412,6 @@ export const GenerateCardsModal: React.FC<GenerateCardsModalProps> = ({ isOpen, 
     </Dialog>
   );
 };
-
 ## src/features/deck/data/beginnerDeck.ts
 import { Card } from '@/types';
 import { v4 as uuidv4 } from 'uuid';
@@ -3917,7 +3895,6 @@ export const BEGINNER_DECK: Card[] = [
   createCard("Jak masz na imię?", "What is your name?"),
   createCard("Mam na imię...", "My name is...")
 ];
-
 ## src/features/deck/data/japaneseBeginnerDeck.ts
 import { Card } from '@/types';
 import { v4 as uuidv4 } from 'uuid';
@@ -3975,7 +3952,6 @@ export const JAPANESE_BEGINNER_DECK: Card[] = [
   createCard("トイレはどこですか？", "Where is the toilet?", "トイレ", "", "トイレはどこですか？"),
   createCard("駅はどこですか？", "Where is the station?", "駅", "", "駅[えき]はどこですか？"),
 ];
-
 ## src/features/deck/data/norwegianBeginnerDeck.ts
 import { Card } from '@/types';
 import { v4 as uuidv4 } from 'uuid';
@@ -4010,7 +3986,6 @@ export const NORWEGIAN_BEGINNER_DECK: Card[] = [
 
   
 ];
-
 ## src/features/deck/hooks/useCardOperations.ts
 import { useCallback } from 'react';
 import { toast } from 'sonner';
@@ -4078,7 +4053,6 @@ export const useCardOperations = (): CardOperations => {
 
   return { addCard, updateCard, deleteCard };
 };
-
 ## src/features/deck/hooks/useCardsQuery.ts
 import { useQuery, keepPreviousData } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
@@ -4114,7 +4088,6 @@ export const useCardsQuery = (page = 0, pageSize = 50, searchTerm = '') => {
     placeholderData: keepPreviousData, // Keep previous data while fetching new page
   });
 };
-
 ## src/features/deck/services/ai.ts
 import { supabase } from '@/lib/supabase';
 
@@ -4269,12 +4242,12 @@ export const aiService = {
     }
   }
 };
-
 ## src/features/leaderboard/Leaderboard.tsx
 import React, { useEffect, useState } from 'react';
-import { Trophy, Medal, User as UserIcon } from 'lucide-react';
+import { Trophy } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
+import clsx from 'clsx';
 
 interface Profile {
   id: string;
@@ -4296,10 +4269,7 @@ export const Leaderboard: React.FC = () => {
         .order('xp', { ascending: false })
         .limit(50);
 
-      if (error) {
-        console.error('Failed to load leaderboard', error);
-      }
-
+      if (error) console.error('Failed to load leaderboard', error);
       setProfiles(data || []);
       setLoading(false);
     };
@@ -4307,67 +4277,104 @@ export const Leaderboard: React.FC = () => {
     fetchLeaderboard();
   }, []);
 
-  const renderRankIcon = (index: number) => {
-    if (index === 0) return <Medal className="text-yellow-500" />;
-    if (index === 1) return <Medal className="text-gray-400" />;
-    if (index === 2) return <Medal className="text-amber-600" />;
-    return <span className="font-mono font-bold text-muted-foreground">#{index + 1}</span>;
+  const RankDisplay = ({ rank }: { rank: number }) => {
+    if (rank <= 3) {
+       return (
+         <div className="relative flex items-center justify-center w-8 h-8">
+            <span className={clsx(
+                "text-3xl font-bold tracking-tighter leading-none",
+                rank === 1 ? "text-yellow-500" : 
+                rank === 2 ? "text-zinc-400" : 
+                "text-amber-700"
+            )}>
+                {rank}
+            </span>
+         </div>
+       );
+    }
+    return <span className="font-mono text-sm text-muted-foreground/50">#{rank}</span>;
   };
 
   return (
-    <div className="max-w-2xl mx-auto p-6 space-y-8">
-      <div className="flex items-center gap-4 mb-8">
-        <div className="bg-yellow-100 p-3 rounded-full text-yellow-600 dark:bg-yellow-900/20">
-          <Trophy size={32} />
+    <div className="max-w-5xl mx-auto pb-20 space-y-16 md:space-y-24">
+      
+      {/* Header Section */}
+      <header className="space-y-6">
+        <div className="flex items-center gap-4 text-muted-foreground">
+            <Trophy size={20} strokeWidth={1.5} />
+            <span className="text-xs font-mono uppercase tracking-widest">Global Rankings</span>
         </div>
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Leaderboard</h1>
-          <p className="text-muted-foreground">Top language miners globally</p>
-        </div>
+        <h1 className="text-6xl md:text-9xl font-bold tracking-tighter text-foreground leading-[0.85]">
+          Top Miners
+        </h1>
+      </header>
+
+      {/* Table Header */}
+      <div className="hidden md:grid grid-cols-12 gap-4 border-b border-foreground text-[10px] font-mono uppercase tracking-widest text-muted-foreground pb-2">
+        <div className="col-span-1 text-center">Rank</div>
+        <div className="col-span-6">Miner</div>
+        <div className="col-span-2">Level</div>
+        <div className="col-span-3 text-right">Total XP</div>
       </div>
 
-      <div className="bg-white dark:bg-zinc-900 rounded-xl border border-border overflow-hidden shadow-sm">
+      {/* List */}
+      <div className="space-y-1">
         {loading ? (
-          <div className="p-8 text-center text-muted-foreground">Loading ranks...</div>
-        ) : (
-          profiles.map((profile, index) => (
-            <div
-              key={profile.id}
-              className={`flex items-center p-4 border-b border-border last:border-0 ${
-                profile.id === user?.id ? 'bg-primary/5' : ''
-              }`}
-            >
-              <div className="w-12 flex justify-center font-mono font-bold text-lg text-muted-foreground">
-                {renderRankIcon(index)}
-              </div>
-              <div className="flex-1 flex items-center gap-3">
-                <div className="w-8 h-8 bg-secondary rounded-full flex items-center justify-center">
-                  <UserIcon size={16} className="opacity-50" />
-                </div>
-                <div>
-                  <div className="font-medium flex items-center gap-2">
-                    {profile.username || 'Anonymous Miner'}
-                    {profile.id === user?.id && (
-                      <span className="text-[10px] bg-primary text-primary-foreground px-1.5 py-0.5 rounded">
-                        YOU
-                      </span>
-                    )}
-                  </div>
-                  <div className="text-xs text-muted-foreground">Level {profile.level}</div>
-                </div>
-              </div>
-              <div className="font-mono font-bold text-lg tracking-tight">
-                {profile.xp.toLocaleString()} {' '}
-                <span className="text-xs font-sans font-normal text-muted-foreground">XP</span>
-              </div>
+            <div className="py-20 text-center text-muted-foreground font-mono text-xs animate-pulse">
+                SYNCING LEDGER...
             </div>
-          ))
+        ) : (
+          profiles.map((profile, index) => {
+            const rank = index + 1;
+            const isCurrentUser = profile.id === user?.id;
+
+            return (
+              <div
+                key={profile.id}
+                className={clsx(
+                  "group relative grid grid-cols-12 gap-4 items-center py-4 md:py-5 border-b border-border/40 transition-all duration-300",
+                  isCurrentUser ? "opacity-100" : "opacity-70 hover:opacity-100"
+                )}
+              >
+                {/* Rank */}
+                <div className="col-span-2 md:col-span-1 flex justify-center">
+                   <RankDisplay rank={rank} />
+                </div>
+                
+                {/* User Info */}
+                <div className="col-span-7 md:col-span-6 flex items-center gap-3">
+                    <span className="text-lg md:text-xl font-medium tracking-tight truncate">
+                        {profile.username || 'Anonymous'}
+                    </span>
+                    {isCurrentUser && (
+                        <div className="w-1.5 h-1.5 bg-primary rounded-full animate-pulse" title="You" />
+                    )}
+                </div>
+
+                {/* Level (Hidden on small mobile) */}
+                <div className="hidden md:block col-span-2">
+                    <span className="text-sm font-mono text-muted-foreground">
+                        Lvl {profile.level}
+                    </span>
+                </div>
+                
+                {/* XP */}
+                <div className="col-span-3 md:col-span-3 text-right">
+                    <span className="text-xl md:text-2xl font-light tracking-tight tabular-nums">
+                        {profile.xp.toLocaleString()}
+                    </span>
+                </div>
+
+                {/* Hover Indicator Line */}
+                <div className="absolute bottom-0 left-0 w-0 h-px bg-foreground transition-all duration-300 group-hover:w-full opacity-20" />
+              </div>
+            );
+          })
         )}
       </div>
     </div>
   );
 };
-
 ## src/features/sabotage/SabotageStore.tsx
 import React, { useEffect, useState } from 'react';
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
@@ -4508,7 +4515,6 @@ export const SabotageStore: React.FC<SabotageStoreProps> = ({ isOpen, onClose })
     </Dialog>
   );
 };
-
 ## src/features/settings/components/AlgorithmSettings.tsx
 import React from 'react';
 import { UserSettings } from '@/types';
@@ -4569,7 +4575,6 @@ export const AlgorithmSettings: React.FC<AlgorithmSettingsProps> = ({ localSetti
     </section>
   </div>
 );
-
 ## src/features/settings/components/AudioSettings.tsx
 import React from 'react';
 import { Volume2 } from 'lucide-react';
@@ -4610,8 +4615,8 @@ export const AudioSettings: React.FC<AudioSettingsProps> = ({
         <MetaLabel>TTS Provider</MetaLabel>
         <EditorialSelect
           value={provider}
-          onChange={(event) =>
-            updateTts({ provider: event.target.value as UserSettings['tts']['provider'], voiceURI: null })
+          onChange={(value) =>
+            updateTts({ provider: value as UserSettings['tts']['provider'], voiceURI: null })
           }
           options={[
             { value: 'browser', label: 'Browser (Default)' },
@@ -4667,8 +4672,8 @@ export const AudioSettings: React.FC<AudioSettingsProps> = ({
         </div>
         <EditorialSelect
           value={localSettings.tts.voiceURI || 'default'}
-          onChange={(event) =>
-            updateTts({ voiceURI: event.target.value === 'default' ? null : event.target.value })
+          onChange={(value) =>
+            updateTts({ voiceURI: value === 'default' ? null : value })
           }
           options={[
             { value: 'default', label: 'System Default' },
@@ -4708,7 +4713,6 @@ export const AudioSettings: React.FC<AudioSettingsProps> = ({
     </div>
   );
 };
-
 ## src/features/settings/components/DataSettings.tsx
 import React, { RefObject } from 'react';
 import { Download, Upload, RefreshCw } from 'lucide-react';
@@ -4783,7 +4787,6 @@ export const DataSettings: React.FC<DataSettingsProps> = ({
     </p>
   </div>
 );
-
 ## src/features/settings/components/GeneralSettings.tsx
 import React from 'react';
 import { LANGUAGE_NAMES } from '@/constants';
@@ -4808,10 +4811,10 @@ export const GeneralSettings: React.FC<GeneralSettingsProps> = ({ localSettings,
         <MetaLabel>Target Language</MetaLabel>
         <EditorialSelect
           value={localSettings.language}
-          onChange={(event) =>
+          onChange={(value) =>
             setLocalSettings((prev) => ({
               ...prev,
-              language: event.target.value as UserSettings['language'],
+              language: value as UserSettings['language'],
             }))
           }
           options={['polish', 'norwegian', 'japanese'].map((language) => ({
@@ -4821,22 +4824,6 @@ export const GeneralSettings: React.FC<GeneralSettingsProps> = ({ localSettings,
         />
         <p className="mt-2 text-xs text-muted-foreground">
           Switching languages will filter your card view. It does not delete data.
-        </p>
-      </section>
-
-      <section>
-        <MetaLabel>Theme</MetaLabel>
-        <EditorialSelect
-          value={theme}
-          onChange={(event) => setTheme(event.target.value as 'light' | 'dark' | 'system')}
-          options={[
-            { value: 'light', label: 'Light' },
-            { value: 'dark', label: 'Dark' },
-            { value: 'system', label: 'System' },
-          ]}
-        />
-        <p className="mt-2 text-xs text-muted-foreground">
-          Choose your preferred appearance.
         </p>
       </section>
 
@@ -4911,7 +4898,6 @@ export const GeneralSettings: React.FC<GeneralSettingsProps> = ({ localSettings,
     </div>
   );
 };
-
 ## src/features/settings/components/SettingsModal.tsx
 import React, { useState, useRef, useEffect } from 'react';
 import { Check, AlertCircle, LogOut } from 'lucide-react';
@@ -4949,7 +4935,7 @@ interface SettingsModalProps {
 
 type SettingsTab = 'general' | 'audio' | 'study' | 'algorithm' | 'data' | 'danger';
 
-const CLOUD_SYNC_FLAG = 'polskimine_cloud_sync_complete';
+const CLOUD_SYNC_FLAG = 'linguaflow_cloud_sync_complete';
 const readCloudSyncFlag = () =>
     typeof window !== 'undefined' && localStorage.getItem(CLOUD_SYNC_FLAG) === '1';
 
@@ -5340,7 +5326,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
       <DialogContent className="sm:max-w-4xl h-[80vh] md:h-[600px] p-0 gap-0 overflow-hidden flex flex-col md:flex-row bg-background border border-border shadow-2xl sm:rounded-xl">
         
         {/* Sidebar */}
-        <div className="w-full md:w-64 bg-secondary/30 border-b md:border-b-0 md:border-r border-border p-6 flex flex-col justify-between shrink-0">
+        <div className="w-full md:w-64 bg-secondary border-b md:border-b-0 md:border-r border-border p-6 flex flex-col justify-between shrink-0">
             <div>
                 <DialogTitle className="font-bold tracking-tight text-lg mb-8 flex items-center gap-2">
                     Settings
@@ -5466,7 +5452,6 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
     </Dialog>
   );
 };
-
 ## src/features/settings/components/StudySettings.tsx
 import React from 'react';
 import { UserSettings } from '@/types';
@@ -5508,7 +5493,6 @@ export const StudySettings: React.FC<StudySettingsProps> = ({ localSettings, set
     </section>
   </div>
 );
-
 ## src/features/study/components/CramModal.tsx
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -5598,23 +5582,14 @@ export const CramModal = ({ isOpen, onClose }: CramModalProps) => {
         </Dialog>
     );
 }
-
 ## src/features/study/components/Flashcard.tsx
 import React, { useMemo, useEffect, useCallback, useState } from 'react';
 import { Card, Language } from '@/types';
 import { escapeRegExp, parseFurigana } from '@/lib/utils';
 import { ttsService } from '@/services/tts';
 import { useSettings } from '@/contexts/SettingsContext';
-import { PlayCircle, Eye, AlertTriangle } from 'lucide-react';
-import { supabase } from '@/lib/supabase';
-import { uwuify, FAKE_ANSWERS } from '@/lib/memeUtils';
-import { useAuth } from '@/contexts/AuthContext';
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+import { Play } from 'lucide-react';
+import { uwuify } from '@/lib/memeUtils';
 
 interface FlashcardProps {
   card: Card;
@@ -5634,22 +5609,10 @@ export const Flashcard: React.FC<FlashcardProps> = ({
   language = 'polish' 
 }) => {
   const { settings } = useSettings(); 
-  const { user } = useAuth();
   const [isRevealed, setIsRevealed] = useState(!blindMode);
-  const [activeCurse, setActiveCurse] = useState<string | null>(null);
-  const [displayData, setDisplayData] = useState({
-    sentence: card.targetSentence,
-    translation: card.nativeTranslation,
-  });
-  const [isGlitching, setIsGlitching] = useState(false);
-
-  useEffect(() => {
-    setIsRevealed(!blindMode);
-  }, [card.id, blindMode]);
-
-  useEffect(() => {
-    if (isFlipped) setIsRevealed(true);
-  }, [isFlipped]);
+  
+  useEffect(() => { setIsRevealed(!blindMode); }, [card.id, blindMode]);
+  useEffect(() => { if (isFlipped) setIsRevealed(true); }, [isFlipped]);
   
   const speak = useCallback(() => {
     ttsService.speak(card.targetSentence, language, settings.tts);
@@ -5657,231 +5620,92 @@ export const Flashcard: React.FC<FlashcardProps> = ({
 
   useEffect(() => {
     if (autoPlayAudio) speak();
-    // Only run when the card ID changes
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [card.id]);
 
-  useEffect(() => {
-    return () => ttsService.stop();
-  }, []);
+  const displayedSentence = card.targetSentence;
 
-  useEffect(() => {
-    if (!user?.id) return;
-
-    let isMounted = true;
-
-    const checkCurses = async () => {
-      const { data, error } = await supabase
-        .from('active_curses')
-        .select('curse_type, expires_at')
-        .eq('victim_id', user.id)
-        .eq('is_active', true)
-        .gt('expires_at', new Date().toISOString())
-        .order('expires_at', { ascending: false })
-        .limit(1)
-        .maybeSingle();
-
-      if (!isMounted) return;
-
-      if (error && error.code !== 'PGRST116') {
-        console.error('Failed to fetch curses', error);
-        return;
-      }
-
-      setActiveCurse(data?.curse_type ?? null);
-    };
-
-    checkCurses();
-
-    return () => {
-      isMounted = false;
-    };
-  }, [user?.id]);
-
-  useEffect(() => {
-    let sentence = card.targetSentence;
-    let translation = card.nativeTranslation;
-
-    if (activeCurse === 'uwu') {
-      sentence = uwuify(sentence);
-      translation = uwuify(translation);
-    }
-
-    setDisplayData({ sentence, translation });
-  }, [activeCurse, card.targetSentence, card.nativeTranslation]);
-
-  useEffect(() => {
-    if (!isFlipped || activeCurse !== 'gaslight') return;
-
-    if (Math.random() >= 0.3) return;
-
-    const fakeAnswer = FAKE_ANSWERS[Math.floor(Math.random() * FAKE_ANSWERS.length)];
-    setDisplayData(prev => ({ ...prev, translation: fakeAnswer }));
-
-    let glitchTimeout: ReturnType<typeof setTimeout> | null = null;
-    const revealTimeout = setTimeout(() => {
-      setIsGlitching(true);
-      glitchTimeout = setTimeout(() => {
-        setDisplayData(prev => ({ ...prev, translation: card.nativeTranslation }));
-        setIsGlitching(false);
-      }, 300);
-    }, 1500);
-
-    return () => {
-      clearTimeout(revealTimeout);
-      if (glitchTimeout) clearTimeout(glitchTimeout);
-      setIsGlitching(false);
-      setDisplayData(prev => ({ ...prev, translation: card.nativeTranslation }));
-    };
-  }, [isFlipped, activeCurse, card.nativeTranslation]);
-
-  const getContainerStyle = (): React.CSSProperties => {
-    const style: React.CSSProperties = {};
-
-    if (activeCurse === 'comic_sans') {
-      style.fontFamily = '"Comic Sans MS", "Chalkboard SE", sans-serif';
-    }
-
-    if (activeCurse === 'blur') {
-      style.animation = 'drunkenBlur 3s infinite ease-in-out';
-    }
-
-    if (activeCurse === 'rotate') {
-      style.transform = 'rotate(180deg)';
-    }
-
-    return style;
-  };
-
-  const displayedSentence = displayData.sentence;
-  const displayedTranslation = displayData.translation;
-
-  // High-impact typography for the sentence
-  const HighlightedSentence = useMemo(() => {
-    // Base font classes: smaller on mobile (3xl), larger on desktop (6xl)
-    const fontClasses = "text-3xl md:text-6xl font-medium tracking-tight text-center leading-snug";
-
+  const RenderedSentence = useMemo(() => {
+    const baseClasses = "text-4xl md:text-7xl font-medium tracking-tight leading-tight text-center transition-all duration-500";
+    
     if (!isRevealed) {
       return (
-        <button 
+        <div 
           onClick={() => setIsRevealed(true)}
-          className="group relative cursor-pointer appearance-none bg-transparent border-none w-full text-center"
-          type="button"
-          aria-label="Reveal sentence"
+          className="cursor-pointer group flex flex-col items-center gap-4"
         >
-          <p className={`${fontClasses} blur-lg select-none opacity-50 transition-all duration-300 group-hover:opacity-70 group-hover:blur-md`}>
+          <p className={`${baseClasses} blur-xl opacity-20 group-hover:opacity-30`}>
             {displayedSentence}
           </p>
-          <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-             <Eye className="w-8 h-8 text-foreground/50" />
-          </div>
-        </button>
+          <span className="text-xs font-mono uppercase tracking-widest text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity">
+            Click to Reveal
+          </span>
+        </div>
       );
     }
 
-    // Japanese Mode with Furigana
     if (language === 'japanese' && card.furigana) {
       const segments = parseFurigana(card.furigana);
-      
       return (
-        // Changed: Added 'items-end' to align Kanji base with Kana baseline
-        <p className={`${fontClasses} flex flex-wrap justify-center items-end gap-1`}>
-          {segments.map((segment, i) => {
-            const text = segment.text.replace(/\s/g, '');
-            if (!text && !segment.furigana) return null;
-
-            const isTarget = card.targetWord && text === card.targetWord;
-            
-            if (segment.furigana) {
-              return (
-                <ruby key={i} className="group">
-                  <span className={isTarget ? "border-b-2 border-foreground pb-1" : ""}>{text}</span>
-                  <rt className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 text-sm md:text-xl text-muted-foreground font-normal select-none">{segment.furigana}</rt>
-                </ruby>
-              );
-            } else {
-               if (!card.targetWord) return <span key={i} className="opacity-80">{text}</span>;
-
-               const parts = text.split(new RegExp(`(${escapeRegExp(card.targetWord)})`, 'gi'));
-               return (
-                 <span key={i} className="opacity-80">
-                   {parts.map((part, j) => (
-                     part.toLowerCase() === card.targetWord!.toLowerCase() ? (
-                       <span key={j} className="border-b-2 border-foreground pb-1 inline-block text-foreground opacity-100">{part}</span>
-                     ) : part
-                   ))}
-                 </span>
-               );
-            }
-          })}
-        </p>
+        <div className={`${baseClasses} flex flex-wrap justify-center items-end gap-x-1`}>
+          {segments.map((segment, i) => (
+            segment.furigana ? (
+              <div key={i} className="flex flex-col items-center">
+                <span className="text-sm md:text-lg text-muted-foreground mb-1 select-none">{segment.furigana}</span>
+                <span className={card.targetWord === segment.text ? "text-primary" : ""}>{segment.text}</span>
+              </div>
+            ) : (
+              <span key={i} className={card.targetWord === segment.text ? "text-primary" : ""}>{segment.text}</span>
+            )
+          ))}
+        </div>
       );
     }
 
-    if (!card.targetWord) return <p className={fontClasses}>{displayedSentence}</p>;
-    
-    const parts = displayedSentence.split(new RegExp(`(${escapeRegExp(card.targetWord)})`, 'gi'));
-    return (
-      <p className={fontClasses}>
-        {parts.map((part, i) => (
-          part.toLowerCase() === card.targetWord!.toLowerCase() ? (
-            <span key={i} className="border-b-2 border-foreground pb-1 inline-block">{part}</span>
-          ) : <span key={i} className="opacity-80">{part}</span>
-        ))}
-      </p>
-    );
+    if (card.targetWord) {
+        const parts = displayedSentence.split(new RegExp(`(${escapeRegExp(card.targetWord)})`, 'gi'));
+        return (
+            <p className={baseClasses}>
+                {parts.map((part, i) => 
+                    part.toLowerCase() === card.targetWord!.toLowerCase() 
+                    ? <span key={i} className="text-primary border-b-2 border-primary/30">{part}</span> 
+                    : <span key={i}>{part}</span>
+                )}
+            </p>
+        );
+    }
+
+    return <p className={baseClasses}>{displayedSentence}</p>;
   }, [displayedSentence, card.targetWord, card.furigana, isRevealed, language]);
 
   return (
-    <div
-      className={`w-full max-w-3xl flex flex-col items-center justify-center gap-8 md:gap-16 min-h-[40vh] ${isGlitching ? 'glitch-effect' : ''}`}
-      style={getContainerStyle()}
-    >
-      
-      {card.isLeech && (
-        <TooltipProvider>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <div className="flex items-center gap-2 text-amber-500 bg-amber-500/10 px-3 py-1 rounded-full text-sm font-medium animate-in fade-in slide-in-from-top-2">
-                <AlertTriangle size={16} />
-                <span>Leech</span>
-              </div>
-            </TooltipTrigger>
-            <TooltipContent>
-              <p>You've struggled with this card many times.</p>
-              <p>Consider rewriting or deleting it to avoid frustration.</p>
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
-      )}
-
-      {/* Front Side */}
-      <div className="flex flex-col items-center gap-6 md:gap-8 animate-in fade-in zoom-in-95 duration-500 px-4">
-        {HighlightedSentence}
-        
-        <button 
+    <div className="w-full max-w-4xl mx-auto flex flex-col items-center justify-center min-h-[60vh] py-12">
+      {/* Audio Control */}
+      <button 
           onClick={speak}
-          className="text-muted-foreground hover:text-foreground transition-colors p-2 opacity-50 hover:opacity-100"
-        >
-            <PlayCircle size={24} strokeWidth={1} />
-        </button>
+          className="mb-12 text-muted-foreground hover:text-foreground transition-colors p-4 rounded-full hover:bg-secondary/50"
+      >
+            <Play size={24} fill="currentColor" className="opacity-50" />
+      </button>
+
+      {/* Main Content */}
+      <div className="w-full px-6">
+        {RenderedSentence}
       </div>
 
-      {/* Back Side (Answer) */}
-      {isFlipped && (
-        <div className="flex flex-col items-center gap-4 text-center animate-in slide-in-from-bottom-4 fade-in duration-500 border-t border-border/50 pt-8 md:pt-12 w-full md:w-3/4 px-4">
-            <div className="font-serif text-xl md:text-3xl italic text-muted-foreground">
-              {showTranslation ? displayedTranslation : <span className="blur-md">Hidden</span>}
-            </div>
-            
-            {(card.notes || card.furigana) && (
-                <div className="pt-4 flex flex-col gap-2 text-xs md:text-sm font-mono text-muted-foreground/70">
-                    {card.furigana && <span>{card.furigana}</span>}
-                    {card.notes && <span>{card.notes}</span>}
-                </div>
-            )}
-        </div>
-      )}
+      {/* Back Side / Answer */}
+      <div className={`mt-16 transition-all duration-500 flex flex-col items-center gap-4 ${isFlipped ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8 pointer-events-none'}`}>
+        <div className="h-px w-12 bg-border mb-4" />
+        {showTranslation && (
+            <p className="text-xl md:text-2xl text-muted-foreground font-light text-center max-w-2xl leading-relaxed">
+                {card.nativeTranslation}
+            </p>
+        )}
+        {card.notes && (
+            <p className="text-sm font-mono text-muted-foreground/60 mt-2 max-w-md text-center">
+                {card.notes}
+            </p>
+        )}
+      </div>
     </div>
   );
 };
@@ -6081,7 +5905,6 @@ export const StudySession: React.FC<StudySessionProps> = ({
     </div>
   );
 };
-
 ## src/features/study/hooks/useStudySession.ts
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Card, Grade, UserSettings } from '@/types';
@@ -6192,7 +6015,6 @@ export const useStudySession = ({
     progress,
   };
 };
-
 ## src/features/study/logic/srs.ts
 import { addDays, startOfDay, subHours, isBefore, isSameDay, addMinutes } from 'date-fns';
 import { Card, Grade, UserSettings, CardStatus } from '@/types';
@@ -6336,7 +6158,6 @@ export const isCardDue = (card: Card, now: Date = new Date()): boolean => {
   // OR if the specific time has passed (fallback for weird timezones/migrations)
   return isBefore(due, srsToday) || due <= now;
 };
-
 ## src/hooks/useChartColors.ts
 import { useMemo } from 'react';
 import { useSettings } from '@/contexts/SettingsContext';
@@ -6374,6 +6195,97 @@ export const useChartColors = () => {
     };
   }, [theme, settings.language, settings.languageColors]);
 };
+## src/index.css
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 240 10% 3.9%;
+    --card: 0 0% 100%;
+    --card-foreground: 240 10% 3.9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 240 10% 3.9%;
+    --primary: 240 5.9% 10%;
+    --primary-foreground: 0 0% 98%;
+    --secondary: 240 4.8% 95.9%;
+    --secondary-foreground: 240 5.9% 10%;
+    --muted: 240 4.8% 95.9%;
+    --muted-foreground: 240 3.8% 46.1%;
+    --accent: 240 4.8% 95.9%;
+    --accent-foreground: 240 5.9% 10%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 240 5.9% 90%;
+    --input: 240 5.9% 90%;
+    --ring: 240 10% 3.9%;
+    --radius: 0.75rem;
+  }
+
+  .dark {
+    --background: 240 10% 3.9%;
+    --foreground: 0 0% 98%;
+    --card: 240 10% 3.9%;
+    --card-foreground: 0 0% 98%;
+    --popover: 240 10% 3.9%;
+    --popover-foreground: 0 0% 98%;
+    --primary: 0 0% 98%;
+    --primary-foreground: 240 5.9% 10%;
+    --secondary: 240 3.7% 15.9%;
+    --secondary-foreground: 0 0% 98%;
+    --muted: 240 3.7% 15.9%;
+    --muted-foreground: 240 5% 64.9%;
+    --accent: 240 3.7% 15.9%;
+    --accent-foreground: 0 0% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 240 3.7% 15.9%;
+    --input: 240 3.7% 15.9%;
+    --ring: 240 4.9% 83.9%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+  /* Hide scrollbar for Chrome, Safari and Opera */
+  .no-scrollbar::-webkit-scrollbar {
+      display: none;
+  }
+  /* Hide scrollbar for IE, Edge and Firefox */
+  .no-scrollbar {
+      -ms-overflow-style: none;  /* IE and Edge */
+      scrollbar-width: none;  /* Firefox */
+  }
+}
+
+@theme {
+  --color-background: hsl(var(--background));
+  --color-foreground: hsl(var(--foreground));
+  --color-card: hsl(var(--card));
+  --color-card-foreground: hsl(var(--card-foreground));
+  --color-popover: hsl(var(--popover));
+  --color-popover-foreground: hsl(var(--popover-foreground));
+  --color-primary: hsl(var(--primary));
+  --color-primary-foreground: hsl(var(--primary-foreground));
+  --color-secondary: hsl(var(--secondary));
+  --color-secondary-foreground: hsl(var(--secondary-foreground));
+  --color-muted: hsl(var(--muted));
+  --color-muted-foreground: hsl(var(--muted-foreground));
+  --color-accent: hsl(var(--accent));
+  --color-accent-foreground: hsl(var(--accent-foreground));
+  --color-destructive: hsl(var(--destructive));
+  --color-destructive-foreground: hsl(var(--destructive-foreground));
+  --color-border: hsl(var(--border));
+  --color-input: hsl(var(--input));
+  --color-ring: hsl(var(--ring));
+  --radius-DEFAULT: var(--radius);
+}
 
 ## src/lib/memeUtils.ts
 export const uwuify = (text: string) => {
@@ -6400,7 +6312,6 @@ export const FAKE_ANSWERS = [
   'Your mom',
   'Bitcoin',
 ];
-
 ## src/lib/supabase.ts
 import { createClient } from '@supabase/supabase-js';
 
@@ -6412,7 +6323,6 @@ if (!supabaseUrl || !supabaseAnonKey) {
 }
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey);
-
 ## src/lib/utils.ts
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
@@ -6509,7 +6419,6 @@ export function hslToHex(hslString: string): string {
   };
   return `#${f(0)}${f(8)}${f(4)}`;
 }
-
 ## src/main.tsx
 import React from 'react';
 import ReactDOM from 'react-dom/client';
@@ -6543,7 +6452,6 @@ export const AppRoutes: React.FC = () => (
     <Route path="/leaderboard" element={<Leaderboard />} />
   </Routes>
 );
-
 ## src/routes/CardsRoute.tsx
 import React, { useState, useEffect } from 'react';
 import { Search, Sparkles, ChevronLeft, ChevronRight } from 'lucide-react';
@@ -6684,7 +6592,6 @@ export const CardsRoute: React.FC = () => {
     </div>
   );
 };
-
 ## src/routes/DashboardRoute.tsx
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -6722,7 +6629,6 @@ export const DashboardRoute: React.FC = () => {
     />
   );
 };
-
 ## src/routes/StudyRoute.tsx
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
@@ -6791,22 +6697,8 @@ export const StudyRoute: React.FC = () => {
 
   if (isLoading) {
     return (
-      <div data-testid="loading-skeleton" className="w-full max-w-4xl mx-auto p-4 space-y-6 animate-pulse flex flex-col items-center justify-center min-h-[60vh]">
-        {/* Header Skeleton */}
-        <div className="w-full flex justify-between items-center mb-4">
-           <div className="h-4 bg-gray-200 rounded w-24"></div>
-           <div className="h-4 bg-gray-200 rounded w-16"></div>
-        </div>
-
-        {/* Card Skeleton */}
-        <div className="w-full bg-gray-100 border border-gray-200 rounded-lg h-[400px]"></div>
-
-        {/* Controls Skeleton */}
-        <div className="w-full max-w-md grid grid-cols-3 gap-4 mt-8">
-           <div className="h-12 bg-gray-200 rounded-lg"></div>
-           <div className="h-12 bg-gray-200 rounded-lg"></div>
-           <div className="h-12 bg-gray-200 rounded-lg"></div>
-        </div>
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
       </div>
     );
   }
@@ -6822,7 +6714,6 @@ export const StudyRoute: React.FC = () => {
     />
   );
 };
-
 ## src/services/db/client.ts
 import { openDB, DBSchema, IDBPDatabase } from 'idb';
 import { Card } from '@/types';
@@ -6833,7 +6724,7 @@ export interface HistoryEntry {
   byLanguage?: Record<string, number>;
 }
 
-export interface PolskiMineDB extends DBSchema {
+export interface LinguaFlowDB extends DBSchema {
   cards: {
     key: string;
     value: Card;
@@ -6845,14 +6736,14 @@ export interface PolskiMineDB extends DBSchema {
   };
 }
 
-const DB_NAME = 'polskimine-db';
+const DB_NAME = 'linguaflow-db';
 const DB_VERSION = 3;
 
-let dbPromise: Promise<IDBPDatabase<PolskiMineDB>> | null = null;
+let dbPromise: Promise<IDBPDatabase<LinguaFlowDB>> | null = null;
 
 export const getDB = () => {
   if (!dbPromise) {
-    dbPromise = openDB<PolskiMineDB>(DB_NAME, DB_VERSION, {
+    dbPromise = openDB<LinguaFlowDB>(DB_NAME, DB_VERSION, {
       upgrade(db, _oldVersion, _newVersion, transaction) {
         let cardStore;
         if (!db.objectStoreNames.contains('cards')) {
@@ -6884,7 +6775,6 @@ export const getDB = () => {
 export const resetDBCache = () => {
   dbPromise = null;
 };
-
 ## src/services/db/index.ts
 import * as cardRepository from './repositories/cardRepository';
 import * as historyRepository from './repositories/historyRepository';
@@ -6908,7 +6798,6 @@ export const db = {
   saveFullHistory: historyRepository.saveFullHistory,
   clearHistory: historyRepository.clearHistory,
 };
-
 ## src/services/db/repositories/cardRepository.ts
 import { Card } from '@/types';
 import { getSRSDate } from '@/features/study/logic/srs';
@@ -6982,9 +6871,11 @@ const mapToDB = (card: Card, userId: string) => ({
 });
 
 export const getCards = async (): Promise<Card[]> => {
+  const userId = await ensureUser();
   const { data, error } = await supabase
     .from('cards')
     .select('*')
+    .eq('user_id', userId)
     .order('created_at', { ascending: true });
 
   if (error) throw error;
@@ -7018,6 +6909,7 @@ export const clearAllCards = async () => {
 };
 
 export const getDueCards = async (now: Date = new Date(), language?: Language): Promise<Card[]> => {
+  const userId = await ensureUser();
   const srsToday = getSRSDate(now);
   const cutoffDate = new Date(srsToday);
   cutoffDate.setDate(cutoffDate.getDate() + 1);
@@ -7025,6 +6917,7 @@ export const getDueCards = async (now: Date = new Date(), language?: Language): 
   let query = supabase
     .from('cards')
     .select('*')
+    .eq('user_id', userId)
     .neq('status', 'known')
     .lte('due_date', cutoffDate.toISOString())
     .order('due_date', { ascending: true });
@@ -7039,9 +6932,11 @@ export const getDueCards = async (now: Date = new Date(), language?: Language): 
 };
 
 export const getCramCards = async (limit: number, tag?: string, language?: Language): Promise<Card[]> => {
+  const userId = await ensureUser();
   let query = supabase
     .from('cards')
     .select('*')
+    .eq('user_id', userId)
     .neq('status', 'known');
 
   if (language) {
@@ -7076,7 +6971,8 @@ export const deleteCardsByLanguage = async (language: Language) => {
 };
 
 export const getTags = async (language?: Language): Promise<string[]> => {
-  let query = supabase.from('cards').select('tags');
+  const userId = await ensureUser();
+  let query = supabase.from('cards').select('tags').eq('user_id', userId);
   
   if (language) {
     query = query.eq('language', language);
@@ -7094,7 +6990,6 @@ export const getTags = async (language?: Language): Promise<string[]> => {
 
   return Array.from(uniqueTags).sort();
 };
-
 ## src/services/db/repositories/historyRepository.ts
 import { supabase } from '@/lib/supabase';
 import { ReviewHistory } from '@/types';
@@ -7188,17 +7083,28 @@ export const clearHistory = async (language?: Language) => {
     throw error;
   }
 };
-
 ## src/services/db/repositories/statsRepository.ts
 import { getSRSDate } from '@/features/study/logic/srs';
 import { SRS_CONFIG } from '@/constants';
 import { supabase } from '@/lib/supabase';
 import { differenceInCalendarDays, parseISO, addDays, format } from 'date-fns';
 
+const ensureUser = async () => {
+  const { data, error } = await supabase.auth.getUser();
+  if (error) throw error;
+  const userId = data.user?.id;
+  if (!userId) {
+    throw new Error('User not logged in');
+  }
+  return userId;
+};
+
 export const getDashboardStats = async (language?: string) => {
+  const userId = await ensureUser();
   let query = supabase
     .from('cards')
-    .select('status, due_date');
+    .select('status, due_date')
+    .eq('user_id', userId);
 
   if (language) {
     query = query.eq('language', language);
@@ -7238,9 +7144,11 @@ export const getDashboardStats = async (language?: string) => {
 };
 
 export const getStats = async (language?: string) => {
+  const userId = await ensureUser();
   let query = supabase
     .from('cards')
-    .select('status, due_date, language');
+    .select('status, due_date, language')
+    .eq('user_id', userId);
 
   if (language) {
     query = query.eq('language', language);
@@ -7263,6 +7171,7 @@ export const getStats = async (language?: string) => {
 };
 
 export const getTodayReviewStats = async (language?: string) => {
+  const userId = await ensureUser();
   const srsToday = getSRSDate(new Date());
   const rangeStart = new Date(srsToday);
   rangeStart.setHours(rangeStart.getHours() + SRS_CONFIG.CUTOFF_HOUR);
@@ -7272,6 +7181,7 @@ export const getTodayReviewStats = async (language?: string) => {
   let query = supabase
     .from('activity_log')
     .select('activity_type, language')
+    .eq('user_id', userId)
     .gte('created_at', rangeStart.toISOString())
     .lt('created_at', rangeEnd.toISOString());
 
@@ -7295,7 +7205,6 @@ export const getTodayReviewStats = async (language?: string) => {
 
   return { newCards, reviewCards };
 };
-
 ## src/services/studyLimits.ts
 import { Card, UserSettings } from '../types';
 import { State } from 'ts-fsrs';
@@ -7309,7 +7218,7 @@ interface LimitOptions {
   };
 }
 
-const isNewCard = (card: Card) => {
+export const isNewCard = (card: Card) => {
 
   if (card.status === 'new') return true;
 
@@ -7360,7 +7269,6 @@ export const applyStudyLimits = (cards: Card[], settings: LimitOptions): Card[] 
 
   return limitedCards;
 };
-
 ## src/services/tts/index.ts
 import { Language, TTSSettings, TTSProvider } from "@/types";
 
@@ -7538,7 +7446,7 @@ class TTSService {
                     'Ocp-Apim-Subscription-Key': settings.azureApiKey,
                     'Content-Type': 'application/ssml+xml',
                     'X-Microsoft-OutputFormat': 'audio-16khz-128kbitrate-mono-mp3',
-                    'User-Agent': 'PolskiMine'
+                    'User-Agent': 'LinguaFlow'
                 },
                 body: ssml
             });
@@ -7595,7 +7503,6 @@ class TTSService {
 }
 
 export const ttsService = new TTSService();
-
 ## src/types/index.ts
 import { Card as FSRSCard, State as FSRSState } from 'ts-fsrs';
 
@@ -7642,6 +7549,8 @@ export type ReviewHistory = Record<string, number>; // 'YYYY-MM-DD': count
 export interface DeckStats {
   total: number;
   due: number;
+  newDue: number;
+  reviewDue: number;
   learned: number;
   streak: number;
   totalReviews: number;
@@ -7680,12 +7589,10 @@ export interface UserSettings {
     enable_fuzzing?: boolean;
   }
 }
-
 ## src/vite-env.d.ts
 /// <reference types="vite/client" />
 
 declare const __APP_VERSION__: string;
-
 ## src/vitest.setup.ts
 import '@testing-library/jest-dom/vitest';
 import { vi } from 'vitest';
@@ -7734,7 +7641,6 @@ if (typeof window !== 'undefined') {
     })),
   });
 }
-
 ## supabase/functions/generate-card/index.ts
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 
@@ -7795,6 +7701,46 @@ serve(async (req) => {
     )
   }
 })
+## tsconfig.json
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "experimentalDecorators": true,
+    "useDefineForClassFields": false,
+    "module": "ESNext",
+    "lib": [
+      "ES2022",
+      "DOM",
+      "DOM.Iterable"
+    ],
+    "skipLibCheck": true,
+    "types": [
+      "node"
+    ],
+    "moduleResolution": "bundler",
+    "isolatedModules": true,
+    "moduleDetection": "force",
+    "allowJs": true,
+    "esModuleInterop": true,
+    "jsx": "react-jsx",
+    "paths": {
+      "@/*": [
+        "./src/*"
+      ]
+    },
+    "allowImportingTsExtensions": true,
+    "noEmit": true
+  }
+}
+## vercel.json
+{
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
+}
 
 ## vite.config.ts
 import path from 'path';

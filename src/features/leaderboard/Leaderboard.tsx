@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { Trophy, Medal, User as UserIcon } from 'lucide-react';
+import { Trophy } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
+import clsx from 'clsx';
 
 interface Profile {
   id: string;
@@ -23,10 +24,7 @@ export const Leaderboard: React.FC = () => {
         .order('xp', { ascending: false })
         .limit(50);
 
-      if (error) {
-        console.error('Failed to load leaderboard', error);
-      }
-
+      if (error) console.error('Failed to load leaderboard', error);
       setProfiles(data || []);
       setLoading(false);
     };
@@ -34,61 +32,99 @@ export const Leaderboard: React.FC = () => {
     fetchLeaderboard();
   }, []);
 
-  const renderRankIcon = (index: number) => {
-    if (index === 0) return <Medal className="text-yellow-500" />;
-    if (index === 1) return <Medal className="text-gray-400" />;
-    if (index === 2) return <Medal className="text-amber-600" />;
-    return <span className="font-mono font-bold text-muted-foreground">#{index + 1}</span>;
+  const RankDisplay = ({ rank }: { rank: number }) => {
+    if (rank <= 3) {
+       return (
+         <div className="relative flex items-center justify-center w-8 h-8">
+            <span className={clsx(
+                "text-3xl font-bold tracking-tighter leading-none",
+                rank === 1 ? "text-yellow-500" : 
+                rank === 2 ? "text-zinc-400" : 
+                "text-amber-700"
+            )}>
+                {rank}
+            </span>
+         </div>
+       );
+    }
+    return <span className="font-mono text-sm text-muted-foreground/50">#{rank}</span>;
   };
 
   return (
-    <div className="max-w-2xl mx-auto p-6 space-y-8">
-      <div className="flex items-center gap-4 mb-8">
-        <div className="bg-yellow-100 p-3 rounded-full text-yellow-600 dark:bg-yellow-900/20">
-          <Trophy size={32} />
+    <div className="max-w-5xl mx-auto pb-20 space-y-16 md:space-y-24">
+      
+      {/* Header Section */}
+      <header className="space-y-6">
+        <div className="flex items-center gap-4 text-muted-foreground">
+            <Trophy size={20} strokeWidth={1.5} />
+            <span className="text-xs font-mono uppercase tracking-widest">Global Rankings</span>
         </div>
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Leaderboard</h1>
-          <p className="text-muted-foreground">Top language miners globally</p>
-        </div>
+        <h1 className="text-6xl md:text-9xl font-bold tracking-tighter text-foreground leading-[0.85]">
+          Top Miners
+        </h1>
+      </header>
+
+      {/* Table Header */}
+      <div className="hidden md:grid grid-cols-12 gap-4 border-b border-foreground text-[10px] font-mono uppercase tracking-widest text-muted-foreground pb-2">
+        <div className="col-span-1 text-center">Rank</div>
+        <div className="col-span-6">Miner</div>
+        <div className="col-span-2">Level</div>
+        <div className="col-span-3 text-right">Total XP</div>
       </div>
 
-      <div className="bg-white dark:bg-zinc-900 rounded-xl border border-border overflow-hidden shadow-sm">
+      {/* List */}
+      <div className="space-y-1">
         {loading ? (
-          <div className="p-8 text-center text-muted-foreground">Loading ranks...</div>
-        ) : (
-          profiles.map((profile, index) => (
-            <div
-              key={profile.id}
-              className={`flex items-center p-4 border-b border-border last:border-0 ${
-                profile.id === user?.id ? 'bg-primary/5' : ''
-              }`}
-            >
-              <div className="w-12 flex justify-center font-mono font-bold text-lg text-muted-foreground">
-                {renderRankIcon(index)}
-              </div>
-              <div className="flex-1 flex items-center gap-3">
-                <div className="w-8 h-8 bg-secondary rounded-full flex items-center justify-center">
-                  <UserIcon size={16} className="opacity-50" />
-                </div>
-                <div>
-                  <div className="font-medium flex items-center gap-2">
-                    {profile.username || 'Anonymous Miner'}
-                    {profile.id === user?.id && (
-                      <span className="text-[10px] bg-primary text-primary-foreground px-1.5 py-0.5 rounded">
-                        YOU
-                      </span>
-                    )}
-                  </div>
-                  <div className="text-xs text-muted-foreground">Level {profile.level}</div>
-                </div>
-              </div>
-              <div className="font-mono font-bold text-lg tracking-tight">
-                {profile.xp.toLocaleString()} {' '}
-                <span className="text-xs font-sans font-normal text-muted-foreground">XP</span>
-              </div>
+            <div className="py-20 text-center text-muted-foreground font-mono text-xs animate-pulse">
+                SYNCING LEDGER...
             </div>
-          ))
+        ) : (
+          profiles.map((profile, index) => {
+            const rank = index + 1;
+            const isCurrentUser = profile.id === user?.id;
+
+            return (
+              <div
+                key={profile.id}
+                className={clsx(
+                  "group relative grid grid-cols-12 gap-4 items-center py-4 md:py-5 border-b border-border/40 transition-all duration-300",
+                  isCurrentUser ? "opacity-100" : "opacity-70 hover:opacity-100"
+                )}
+              >
+                {/* Rank */}
+                <div className="col-span-2 md:col-span-1 flex justify-center">
+                   <RankDisplay rank={rank} />
+                </div>
+                
+                {/* User Info */}
+                <div className="col-span-7 md:col-span-6 flex items-center gap-3">
+                    <span className="text-lg md:text-xl font-medium tracking-tight truncate">
+                        {profile.username || 'Anonymous'}
+                    </span>
+                    {isCurrentUser && (
+                        <div className="w-1.5 h-1.5 bg-primary rounded-full animate-pulse" title="You" />
+                    )}
+                </div>
+
+                {/* Level (Hidden on small mobile) */}
+                <div className="hidden md:block col-span-2">
+                    <span className="text-sm font-mono text-muted-foreground">
+                        Lvl {profile.level}
+                    </span>
+                </div>
+                
+                {/* XP */}
+                <div className="col-span-3 md:col-span-3 text-right">
+                    <span className="text-xl md:text-2xl font-light tracking-tight tabular-nums">
+                        {profile.xp.toLocaleString()}
+                    </span>
+                </div>
+
+                {/* Hover Indicator Line */}
+                <div className="absolute bottom-0 left-0 w-0 h-px bg-foreground transition-all duration-300 group-hover:w-full opacity-20" />
+              </div>
+            );
+          })
         )}
       </div>
     </div>

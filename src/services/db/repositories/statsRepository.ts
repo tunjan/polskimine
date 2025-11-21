@@ -43,7 +43,7 @@ export const getDashboardStats = async (language?: string) => {
   const today = new Date();
   const forecast = new Array(daysToShow).fill(0).map((_, i) => ({ 
       day: format(addDays(today, i), 'd'),
-      fullDate: format(addDays(today, i), 'MMM d'),
+      fullDate: addDays(today, i).toISOString(),
       count: 0 
   }));
   

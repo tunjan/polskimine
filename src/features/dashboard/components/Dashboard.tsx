@@ -1,13 +1,12 @@
-import React, { useMemo } from 'react';
-import { Card as CardType, DeckStats, ReviewHistory } from '@/types';
-import { ArrowRight, Play } from 'lucide-react';
+import React from 'react';
+import { DeckStats, ReviewHistory } from '@/types';
+import { ArrowRight, Play, TrendingUp, Activity, Calendar } from 'lucide-react';
 import { Heatmap } from './Heatmap';
+import { RetentionStats } from './RetentionStats';
 import { useSettings } from '@/contexts/SettingsContext';
 import { useChartColors } from '@/hooks/useChartColors';
-import {
-  BarChart, Bar, Tooltip, ResponsiveContainer, XAxis
-} from 'recharts';
-import { differenceInCalendarDays, parseISO, addDays, format } from 'date-fns';
+import { BarChart, Bar, ResponsiveContainer, XAxis } from 'recharts';
+import { format, addDays, parseISO } from 'date-fns';
 
 interface DashboardProps {
   metrics: { new: number; learning: number; graduated: number; known: number };
@@ -15,15 +14,17 @@ interface DashboardProps {
   stats: DeckStats;
   history: ReviewHistory;
   onStartSession: () => void;
+  cards: any[]; // Added to pass to RetentionStats
 }
 
-// Ultra Minimal Stat
-const StatItem = ({ label, value, sub }: { label: string, value: string | number, sub?: string }) => (
-    <div className="flex flex-col gap-2">
-        <span className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground">{label}</span>
-        <span className="text-4xl lg:text-6xl font-light tracking-tighter text-foreground">{value}</span>
-        {sub && <span className="text-xs text-muted-foreground font-medium">{sub}</span>}
+const StatCard = ({ label, value, subtext }: { label: string; value: string | number; subtext?: string }) => (
+  <div className="flex flex-col gap-2 p-6 rounded-xl bg-secondary/20 border border-border/50">
+    <span className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground">{label}</span>
+    <div className="flex items-baseline gap-2">
+        <span className="text-3xl font-light tracking-tight tabular-nums">{value}</span>
+        {subtext && <span className="text-xs text-muted-foreground">{subtext}</span>}
     </div>
+  </div>
 );
 
 export const Dashboard: React.FC<DashboardProps> = ({
@@ -32,94 +33,125 @@ export const Dashboard: React.FC<DashboardProps> = ({
   stats,
   history,
   onStartSession,
+  cards
 }) => {
   const { settings } = useSettings();
   const colors = useChartColors();
 
+  // Prepare forecast data for the mini chart
+  const forecastData = forecast.slice(0, 7).map(item => ({
+    ...item,
+    day: format(parseISO(item.fullDate), 'EEE')
+  }));
+
   return (
-    <div className="space-y-16 md:space-y-24">
+    <div className="space-y-16 animate-in fade-in duration-700 pb-12">
       {/* Hero Section */}
-      <section className="flex flex-col md:flex-row md:items-end justify-between gap-8 md:gap-10">
-        <div className="space-y-2 md:space-y-4">
-            {/* Responsive text sizing: 5xl on mobile, 8xl on desktop */}
-            <h1 className="text-6xl md:text-8xl font-bold tracking-tighter text-foreground leading-[0.9]">
-                {stats.due} <span className="text-muted-foreground/30">Due</span>
+      <section className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-end">
+        <div className="lg:col-span-7 space-y-6">
+          <div className="flex items-center gap-3">
+             <div className={`h-1.5 w-1.5 rounded-full bg-primary`} />
+             <span className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground">
+               {settings.language} Deck
+             </span>
+          </div>
+          
+          <div className="space-y-2">
+            <h1 className="text-7xl sm:text-8xl lg:text-9xl font-light tracking-tighter text-foreground -ml-1">
+                {stats.due}
             </h1>
-            <div className="flex gap-4 pl-1 md:pl-2">
-                <p className="text-muted-foreground font-mono text-xs uppercase tracking-widest">
-                   {settings.language} — {stats.total} Total Cards
-                </p>
-                <span className="text-muted-foreground/30 font-mono text-xs">|</span>
-                <p className="text-muted-foreground font-mono text-xs uppercase tracking-widest">
-                   <span className="text-primary">{stats.newDue} New</span> / {stats.reviewDue} Review
-                </p>
-            </div>
+            <p className="text-xl text-muted-foreground font-light tracking-tight">
+                Cards due for review today
+            </p>
+          </div>
+
+          <div className="flex gap-8 pt-4">
+             <div className="flex flex-col gap-1">
+                <span className="text-2xl font-medium tabular-nums">{stats.newDue}</span>
+                <span className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground">New</span>
+             </div>
+             <div className="w-px bg-border h-10" />
+             <div className="flex flex-col gap-1">
+                <span className="text-2xl font-medium tabular-nums">{stats.reviewDue}</span>
+                <span className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground">Review</span>
+             </div>
+          </div>
         </div>
-        <div className="pb-2 w-full md:w-auto">
+
+        <div className="lg:col-span-5 flex flex-col justify-end gap-6">
+            <div className="bg-secondary/30 rounded-2xl p-6 border border-border/50 space-y-4">
+                <div className="flex justify-between items-center">
+                    <h3 className="text-sm font-medium">7-Day Forecast</h3>
+                    <span className="text-xs text-muted-foreground">Upcoming load</span>
+                </div>
+                <div className="h-32 w-full">
+                    <ResponsiveContainer width="100%" height="100%">
+                        <BarChart data={forecastData}>
+                            <XAxis 
+                                dataKey="day" 
+                                axisLine={false} 
+                                tickLine={false} 
+                                tick={{ fontSize: 10, fill: colors.muted }} 
+                                dy={10}
+                            />
+                            <Bar 
+                                dataKey="count" 
+                                fill={colors.foreground} 
+                                radius={[2, 2, 2, 2]} 
+                                barSize={32}
+                                fillOpacity={0.9}
+                            />
+                        </BarChart>
+                    </ResponsiveContainer>
+                </div>
+            </div>
+            
             <button 
                 onClick={onStartSession}
                 disabled={stats.due === 0}
-                className="w-full md:w-auto justify-center group relative flex items-center gap-4 pl-8 pr-6 py-4 bg-primary text-primary-foreground text-sm font-medium rounded-full hover:opacity-90 transition-all disabled:opacity-50 disabled:cursor-not-allowed overflow-hidden shadow-lg md:shadow-none"
+                className="group w-full bg-foreground text-background hover:opacity-90 transition-all px-8 py-5 rounded-xl flex items-center justify-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-foreground/5"
             >
-                <span className="relative z-10">Start Session</span>
-                <div className="relative z-10 w-6 h-6 bg-background rounded-full flex items-center justify-center text-primary group-hover:translate-x-1 transition-transform">
-                    <Play size={10} fill="currentColor" className="ml-0.5" />
-                </div>
+                <span className="font-medium tracking-tight text-lg">Start Session</span>
+                <Play size={18} fill="currentColor" />
             </button>
         </div>
       </section>
 
-      {/* Data Grid - 2 columns on mobile, 4 on desktop */}
-      <section className="grid grid-cols-2 lg:grid-cols-4 gap-y-12 gap-x-4 md:gap-16 border-t border-border pt-12 md:pt-16">
-        <StatItem label="New" value={metrics.new} />
-        <StatItem label="Learning" value={metrics.learning} />
-        <StatItem label="Review" value={metrics.graduated} />
-        <StatItem label="Mastered" value={metrics.known} />
+      {/* Stats Grid */}
+      <section className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <StatCard label="New Cards" value={metrics.new} />
+        <StatCard label="Learning" value={metrics.learning} />
+        <StatCard label="Graduated" value={metrics.graduated} />
+        <StatCard label="Mastered" value={metrics.known} />
       </section>
 
-      {/* Analytics Row */}
-      <section className="flex flex-col gap-12 md:gap-16 border-t border-border pt-12 md:pt-16">
-        
-        {/* Heatmap */}
-        <div className="space-y-6 md:space-y-8 overflow-hidden">
-            <div className="flex items-baseline justify-between">
-                <h3 className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground">Consistency</h3>
-                <span className="text-xs text-foreground font-medium">{stats.streak} Day Streak</span>
+      {/* Analytics Section */}
+      <section className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
+        <div className="space-y-6">
+            <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                    <Activity size={16} className="text-muted-foreground" />
+                    <h3 className="text-lg font-medium tracking-tight">Activity</h3>
+                </div>
+                <div className="flex items-baseline gap-2">
+                    <span className="text-2xl font-light tabular-nums">{stats.streak}</span>
+                    <span className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground">Day Streak</span>
+                </div>
             </div>
-            <Heatmap history={history} />
+            <div className="p-6 rounded-2xl border border-border/50 bg-background">
+                <Heatmap history={history} />
+            </div>
         </div>
 
-        {/* Forecast Chart - Utilitarian Style */}
-        <div className="space-y-6 md:space-y-8">
-            <div className="flex items-baseline justify-between">
-                <h3 className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground">Forecast</h3>
-                <span className="text-xs text-muted-foreground">Next 14 Days</span>
+        <div className="space-y-6">
+            <div className="flex items-center gap-2">
+                <TrendingUp size={16} className="text-muted-foreground" />
+                <h3 className="text-lg font-medium tracking-tight">Retention</h3>
             </div>
-            <div className="h-40 w-full">
-                <ResponsiveContainer width="100%" height="100%">
-                    <BarChart data={forecast} barGap={0}>
-                        <Tooltip 
-                          cursor={{ fill: colors.muted }}
-                          content={({ active, payload }) => {
-                            if (active && payload && payload.length) {
-                            return (
-                              <div
-                                className="text-[10px] py-1 px-2 font-mono rounded shadow-sm text-primary-foreground"
-                                style={{ backgroundColor: colors.primary }}
-                              >
-                              {payload[0].payload.fullDate}: <span className="font-bold">{payload[0].value}</span>
-                              </div>
-                            );
-                            }
-                            return null;
-                          }}
-                        />
-                        <Bar dataKey="count" fill={colors.primary} radius={[2, 2, 2, 2]} barSize={8} />
-                    </BarChart>
-                </ResponsiveContainer>
-            </div>
+            <RetentionStats cards={cards} />
         </div>
       </section>
     </div>
   );
 };
+

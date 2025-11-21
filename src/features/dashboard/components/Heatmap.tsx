@@ -32,27 +32,27 @@ export const Heatmap: React.FC<HeatmapProps> = ({ history }) => {
   }, [history]);
 
   const getColorClass = (count: number) => {
-    if (count === 0) return 'bg-muted-foreground/20';
-    if (count <= 2) return 'bg-primary/40';
-    if (count <= 5) return 'bg-primary/60';
-    if (count <= 9) return 'bg-primary/80';
+    if (count === 0) return 'bg-secondary';
+    if (count <= 2) return 'bg-primary/30';
+    if (count <= 5) return 'bg-primary/50';
+    if (count <= 9) return 'bg-primary/70';
     return 'bg-primary';
   };
 
   return (
     <TooltipProvider>
-      <div className="w-full overflow-x-auto no-scrollbar">
+      <div className="w-full overflow-x-auto no-scrollbar pb-2">
           <div className="w-max">
-              <div className="grid grid-rows-7 grid-flow-col gap-1">
+              <div className="grid grid-rows-7 grid-flow-col gap-[3px]">
               {calendarData.map((day) => (
-                  <Tooltip key={day.dateKey} delayDuration={100}>
+                  <Tooltip key={day.dateKey} delayDuration={0}>
                       <TooltipTrigger asChild>
                           <div
-                              className={`w-3 h-3 rounded-sm transition-colors duration-200 ${day.inFuture ? 'opacity-0 pointer-events-none' : getColorClass(day.count)}`}
+                              className={`w-2.5 h-2.5 rounded-[1px] transition-colors duration-200 ${day.inFuture ? 'opacity-0 pointer-events-none' : getColorClass(day.count)}`}
                           />
                       </TooltipTrigger>
-                      <TooltipContent className="text-[10px] font-mono bg-primary text-primary-foreground border-none">
-                          {format(day.date, 'MMM d, yyyy')}: <span className="font-bold">{day.count}</span> reviews
+                      <TooltipContent className="text-[10px] font-mono bg-foreground text-background border-none px-2 py-1">
+                          {format(day.date, 'MMM d')}: <span className="font-bold">{day.count}</span>
                       </TooltipContent>
                   </Tooltip>
               ))}

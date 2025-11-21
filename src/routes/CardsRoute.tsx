@@ -55,31 +55,29 @@ export const CardsRoute: React.FC = () => {
   };
 
   return (
-    <div className="flex flex-col gap-6 md:gap-8" style={{ height: 'calc(100vh - 120px)' }}>
-      <div className="flex items-center justify-between">
-        <h2 className="text-xl font-bold tracking-tight text-black dark:text-white">Index</h2>
-        
-        <div className="flex gap-3">
-            <button 
-                onClick={() => setIsGenerateModalOpen(true)} 
-                className="flex items-center gap-2 text-xs md:text-sm font-medium text-primary hover:opacity-80 transition-opacity px-3 py-1.5 rounded-full bg-primary/10"
-            >
-                <Sparkles size={14} /> 
-                <span>AI Generator</span>
-            </button>
+    <div className="flex flex-col gap-6 h-[calc(100vh-10rem)]">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 px-1">
+            <h1 className="text-3xl font-light tracking-tight">Index</h1>
+            <div className="flex gap-3">
+                <button onClick={() => setIsGenerateModalOpen(true)} className="text-xs font-mono uppercase tracking-widest border border-border hover:border-foreground px-4 py-2 rounded transition-colors">
+                    AI Gen
+                </button>
+                <button onClick={() => setIsAddModalOpen(true)} className="bg-foreground text-background px-4 py-2 rounded text-xs font-mono uppercase tracking-widest hover:opacity-90 transition-opacity">
+                    Add Entry
+                </button>
+            </div>
         </div>
-      </div>
-
-      <div className="relative">
-        <Search size={14} className="absolute left-0 top-1/2 -translate-y-1/2 text-gray-400" />
-        <input 
-            type="text"
-            placeholder="Filter entries..."
-            className="w-full bg-transparent border-b border-gray-200 dark:border-gray-800 py-2 pl-6 text-sm outline-none focus:border-black dark:focus:border-white transition-colors placeholder:text-gray-300"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-        />
-      </div>
+        
+        <div className="relative">
+            <Search size={16} className="absolute left-0 top-1/2 -translate-y-1/2 text-muted-foreground" />
+            <input 
+                type="text"
+                placeholder="Search your deck..."
+                className="w-full bg-transparent border-b border-border py-3 pl-8 text-base outline-none focus:border-foreground transition-colors placeholder:text-muted-foreground/50 font-light"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+            />
+        </div>
 
       {isLoading ? (
         <div className="flex-1 flex items-center justify-center">
@@ -94,15 +92,15 @@ export const CardsRoute: React.FC = () => {
             onDeleteCard={handleDeleteCard}
           />
           
-          <div className="flex items-center justify-between py-4 border-t border-gray-100 dark:border-gray-800">
-            <span className="text-xs text-gray-500">
+          <div className="flex items-center justify-between py-4 border-t border-border/40">
+            <span className="text-xs text-muted-foreground">
               Showing {cards.length > 0 ? page * pageSize + 1 : 0} - {Math.min((page + 1) * pageSize, totalCount)} of {totalCount}
             </span>
             <div className="flex gap-2">
               <button
                 onClick={() => setPage(p => Math.max(0, p - 1))}
                 disabled={page === 0}
-                className="p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-800 disabled:opacity-50"
+                className="p-1 rounded hover:bg-secondary disabled:opacity-50"
               >
                 <ChevronLeft size={16} />
               </button>
@@ -113,7 +111,7 @@ export const CardsRoute: React.FC = () => {
                   }
                 }}
                 disabled={isPlaceholderData || (page + 1) * pageSize >= totalCount}
-                className="p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-800 disabled:opacity-50"
+                className="p-1 rounded hover:bg-secondary disabled:opacity-50"
               >
                 <ChevronRight size={16} />
               </button>

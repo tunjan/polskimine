@@ -81,6 +81,19 @@ export const getCards = async (): Promise<Card[]> => {
   return (data ?? []).map(mapToCard);
 };
 
+export const getAllCardsByLanguage = async (language: Language): Promise<Card[]> => {
+  const userId = await ensureUser();
+  const { data, error } = await supabase
+    .from('cards')
+    .select('*')
+    .eq('user_id', userId)
+    .eq('language', language)
+    .order('created_at', { ascending: true });
+
+  if (error) throw error;
+  return (data ?? []).map(mapToCard);
+};
+
 export const saveCard = async (card: Card) => {
   const userId = await ensureUser();
   const payload = mapToDB(card, userId);

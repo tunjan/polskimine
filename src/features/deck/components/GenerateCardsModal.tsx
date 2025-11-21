@@ -110,21 +110,23 @@ export const GenerateCardsModal: React.FC<GenerateCardsModalProps> = ({ isOpen, 
 
   return (
     <Dialog open={isOpen} onOpenChange={resetAndClose}>
-      <DialogContent className="sm:max-w-2xl p-8 bg-white dark:bg-black border border-border shadow-2xl sm:rounded-xl">
+      <DialogContent className="sm:max-w-3xl p-12 bg-white dark:bg-black border border-border shadow-2xl sm:rounded-xl gap-0">
         
-        <div className="flex items-center gap-3 mb-6">
-          <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary">
-            <Sparkles size={20} />
-          </div>
+        <div className="flex justify-between items-start mb-10">
           <div>
-             <DialogTitle className="text-xl font-bold tracking-tight">AI Deck Generator</DialogTitle>
-             <DialogDescription className="text-xs text-muted-foreground">Generate content for {settings.language}</DialogDescription>
+             <DialogTitle className="text-3xl font-light tracking-tight mb-2">AI Generator</DialogTitle>
+             <DialogDescription className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground">
+                Target Language: {settings.language}
+             </DialogDescription>
+          </div>
+          <div className="w-12 h-12 rounded-full bg-secondary flex items-center justify-center text-foreground">
+            <Sparkles size={20} strokeWidth={1.5} />
           </div>
         </div>
 
         {step === 'config' ? (
-          <div className="space-y-8 animate-in fade-in slide-in-from-bottom-2">
-            <div className="grid grid-cols-2 gap-6">
+          <div className="space-y-10 animate-in fade-in slide-in-from-bottom-2">
+            <div className="grid grid-cols-2 gap-12">
               <div>
                 <MetaLabel>Difficulty Level</MetaLabel>
                 <EditorialSelect
@@ -134,9 +136,9 @@ export const GenerateCardsModal: React.FC<GenerateCardsModalProps> = ({ isOpen, 
                 />
               </div>
               <div>
-                 <div className="flex justify-between mb-3">
-                    <MetaLabel className="mb-0">Card Count</MetaLabel>
-                    <span className="font-mono text-sm font-bold">{count[0]}</span>
+                 <div className="flex justify-between mb-4">
+                    <MetaLabel className="mb-0">Quantity</MetaLabel>
+                    <span className="font-mono text-xl font-light">{count[0]}</span>
                  </div>
                  <Slider
                     value={count}
@@ -144,6 +146,7 @@ export const GenerateCardsModal: React.FC<GenerateCardsModalProps> = ({ isOpen, 
                     min={3}
                     max={10}
                     step={1}
+                    className="py-2"
                  />
               </div>
             </div>
@@ -153,57 +156,57 @@ export const GenerateCardsModal: React.FC<GenerateCardsModalProps> = ({ isOpen, 
               <EditorialInput 
                 value={topic}
                 onChange={(e) => setTopic(e.target.value)}
-                placeholder="e.g. Business Meetings, Ordering Food, Harry Potter..."
+                placeholder="e.g. Business Meetings, Ordering Food..."
                 autoFocus
               />
             </div>
 
-            <div className="flex justify-end pt-4">
-              <Button onClick={handleGenerate} disabled={loading || !topic} className="w-full md:w-auto">
+            <div className="flex justify-end pt-8">
+              <Button onClick={handleGenerate} disabled={loading || !topic} className="w-full md:w-auto rounded-full px-8 py-6 text-md">
                 {loading ? (
-                  <><Loader2 className="animate-spin mr-2" size={16} /> Generating...</>
+                  <><Loader2 className="animate-spin mr-2" size={18} /> Generating...</>
                 ) : (
-                  <><Sparkles className="mr-2" size={16} /> Generate Cards</>
+                  <><Sparkles className="mr-2" size={18} /> Generate Cards</>
                 )}
               </Button>
             </div>
           </div>
         ) : (
-          <div className="space-y-6 animate-in fade-in slide-in-from-right-2">
-            <div className="max-h-[400px] overflow-y-auto pr-2 space-y-3 custom-scrollbar">
+          <div className="space-y-8 animate-in fade-in slide-in-from-right-2">
+            <div className="max-h-[400px] overflow-y-auto pr-4 space-y-4 custom-scrollbar">
                {generatedData.map((card, idx) => (
                  <div 
                     key={idx}
                     onClick={() => toggleSelection(idx)}
                     className={`
-                        p-4 rounded-lg border cursor-pointer transition-all duration-200 relative group
+                        p-6 rounded-xl border cursor-pointer transition-all duration-200 relative group
                         ${selectedIndices.has(idx) 
                             ? 'border-primary bg-primary/5' 
-                            : 'border-border opacity-60 hover:opacity-100'
+                            : 'border-border/50 hover:border-border hover:bg-secondary/30'
                         }
                     `}
                  >
-                    <div className="absolute top-3 right-3">
-                        {selectedIndices.has(idx) ? <Check size={16} className="text-primary" /> : <div className="w-4 h-4 rounded-full border border-muted-foreground" />}
+                    <div className="absolute top-6 right-6">
+                        {selectedIndices.has(idx) ? <Check size={20} className="text-primary" /> : <div className="w-5 h-5 rounded-full border border-muted-foreground/30" />}
                     </div>
-                    <div className="pr-8">
-                        <div className="font-medium text-lg mb-1">{card.targetSentence}</div>
-                        <div className="text-sm text-muted-foreground">{card.nativeTranslation}</div>
-                        <div className="flex gap-2 mt-2">
-                            {card.targetWord && <span className="text-[10px] bg-secondary px-1.5 py-0.5 rounded font-mono text-foreground">{card.targetWord}</span>}
-                            <span className="text-[10px] bg-secondary px-1.5 py-0.5 rounded font-mono text-muted-foreground">{difficulty}</span>
+                    <div className="pr-12">
+                        <div className="font-medium text-xl mb-2 tracking-tight">{card.targetSentence}</div>
+                        <div className="text-sm text-muted-foreground font-mono opacity-70">{card.nativeTranslation}</div>
+                        <div className="flex gap-3 mt-4">
+                            {card.targetWord && <span className="text-[10px] bg-secondary px-2 py-1 rounded font-mono text-foreground uppercase tracking-wider">{card.targetWord}</span>}
+                            <span className="text-[10px] border border-border px-2 py-1 rounded font-mono text-muted-foreground uppercase tracking-wider">{difficulty}</span>
                         </div>
                     </div>
                  </div>
                ))}
             </div>
 
-            <div className="flex items-center justify-between pt-2 border-t border-border">
-                <button onClick={() => setStep('config')} className="text-sm text-muted-foreground hover:text-foreground">
+            <div className="flex items-center justify-between pt-6 border-t border-border">
+                <button onClick={() => setStep('config')} className="text-sm text-muted-foreground hover:text-foreground transition-colors">
                     Back to Config
                 </button>
-                <Button onClick={handleSave} disabled={selectedIndices.size === 0}>
-                    Save {selectedIndices.size} Cards <ArrowRight size={16} className="ml-2" />
+                <Button onClick={handleSave} disabled={selectedIndices.size === 0} className="rounded-full px-8 py-6">
+                    Save {selectedIndices.size} Cards <ArrowRight size={18} className="ml-2" />
                 </Button>
             </div>
           </div>

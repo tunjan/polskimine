@@ -65,22 +65,8 @@ export const StudyRoute: React.FC = () => {
 
   if (isLoading) {
     return (
-      <div data-testid="loading-skeleton" className="w-full max-w-4xl mx-auto p-4 space-y-6 animate-pulse flex flex-col items-center justify-center min-h-[60vh]">
-        {/* Header Skeleton */}
-        <div className="w-full flex justify-between items-center mb-4">
-           <div className="h-4 bg-gray-200 rounded w-24"></div>
-           <div className="h-4 bg-gray-200 rounded w-16"></div>
-        </div>
-
-        {/* Card Skeleton */}
-        <div className="w-full bg-gray-100 border border-gray-200 rounded-lg h-[400px]"></div>
-
-        {/* Controls Skeleton */}
-        <div className="w-full max-w-md grid grid-cols-3 gap-4 mt-8">
-           <div className="h-12 bg-gray-200 rounded-lg"></div>
-           <div className="h-12 bg-gray-200 rounded-lg"></div>
-           <div className="h-12 bg-gray-200 rounded-lg"></div>
-        </div>
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
       </div>
     );
   }

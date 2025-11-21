@@ -144,7 +144,7 @@ export const AddCardModal: React.FC<AddCardModalProps> = ({ isOpen, onClose, onA
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-2xl p-12 bg-white dark:bg-black border border-border shadow-2xl sm:rounded-xl gap-0">
+      <DialogContent className="sm:max-w-2xl p-12 bg-background border border-border shadow-2xl sm:rounded-xl gap-0">
         <form onSubmit={handleSubmit} className="flex flex-col gap-10">
             {/* Header */}
             <div className="flex justify-between items-center">

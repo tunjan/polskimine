@@ -36,7 +36,7 @@ export const CramModal = ({ isOpen, onClose }: CramModalProps) => {
 
     return (
         <Dialog open={isOpen} onOpenChange={onClose}>
-            <DialogContent className="sm:max-w-md p-8 bg-white dark:bg-black border border-border">
+            <DialogContent className="sm:max-w-md p-8 bg-background border border-border">
                 <div className="space-y-8">
                     <div>
                         <DialogTitle className="text-xl font-bold tracking-tight">Cram Session</DialogTitle>
