@@ -33,14 +33,14 @@ export default defineConfig(({ mode }) => {
       test: {
         globals: true,
         environment: 'jsdom',
-        setupFiles: './vitest.setup.ts',
+        setupFiles: './src/vitest.setup.ts',
         coverage: {
           reporter: ['text', 'lcov'],
           include: [
-            'services/**/*.ts',
-            'components/**/*.tsx',
-            'contexts/**/*.tsx',
-            'routes/**/*.tsx'
+            'src/services/**/*.ts',
+            'src/components/**/*.tsx',
+            'src/contexts/**/*.tsx',
+            'src/routes/**/*.tsx'
           ]
         }
       }
