@@ -7,6 +7,7 @@ import { Toaster } from 'sonner';
 import { Layout } from './components/Layout';
 import { DashboardRoute } from './routes/DashboardRoute';
 import { StudyRoute } from './routes/StudyRoute';
+import { CardsRoute } from './routes/CardsRoute';
 
 const PolskiMineApp: React.FC = () => {
   return (
@@ -15,6 +16,7 @@ const PolskiMineApp: React.FC = () => {
         <Routes>
           <Route path="/" element={<DashboardRoute />} />
           <Route path="/study" element={<StudyRoute />} />
+          <Route path="/cards" element={<CardsRoute />} />
         </Routes>
       </Layout>
     </BrowserRouter>

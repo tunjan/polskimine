@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { X, RotateCcw, Save, AlertTriangle, Download, Upload, FileJson } from 'lucide-react';
+import { X, RotateCcw, Save, AlertTriangle, Download, Upload, FileJson, FileText } from 'lucide-react';
+import { v4 as uuidv4 } from 'uuid';
 import { Button } from './ui/Button';
 import { useSettings } from '../contexts/SettingsContext';
 import { useDeck } from '../contexts/DeckContext';
@@ -22,6 +23,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
   const [confirmResetDeck, setConfirmResetDeck] = useState(false);
   const [confirmResetSettings, setConfirmResetSettings] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const csvInputRef = useRef<HTMLInputElement>(null);
   const modalRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -139,7 +141,12 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
   };
 
   const handleImportClick = () => {
-      fileInputRef.current?.click();
+      if (!fileInputRef.current) {
+          console.error("File input ref is null");
+          toast.error("Import unavailable");
+          return;
+      }
+      fileInputRef.current.click();
   };
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -178,6 +185,111 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
       reader.readAsText(file);
   };
 
+  const handleImportCSVClick = () => {
+      if (!csvInputRef.current) {
+          console.error("CSV input ref is null");
+          toast.error("Import unavailable");
+          return;
+      }
+      csvInputRef.current.click();
+  };
+
+  const handleCSVFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+      const file = e.target.files?.[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = async (event) => {
+          try {
+              const text = event.target?.result as string;
+              const lines = text.split(/\r?\n/).filter(line => line.trim() !== '');
+              
+              if (lines.length === 0) {
+                  throw new Error("Empty CSV file");
+              }
+
+              const newCards: Card[] = [];
+              
+              // Simple CSV parser (handles quotes roughly)
+              const parseLine = (line: string) => {
+                  const parts: string[] = [];
+                  let current = '';
+                  let inQuotes = false;
+                  
+                  for (let i = 0; i < line.length; i++) {
+                      const char = line[i];
+                      if (char === '"') {
+                          inQuotes = !inQuotes;
+                      } else if ((char === ',' || char === ';') && !inQuotes) {
+                          parts.push(current.trim());
+                          current = '';
+                      } else {
+                          current += char;
+                      }
+                  }
+                  parts.push(current.trim());
+                  return parts;
+              };
+
+              // Check for header
+              const firstLine = parseLine(lines[0]);
+              const hasHeader = firstLine.some(col => 
+                  ['front', 'back', 'target', 'translation', 'sentence', 'meaning'].includes(col.toLowerCase())
+              );
+
+              const startIndex = hasHeader ? 1 : 0;
+              
+              for (let i = startIndex; i < lines.length; i++) {
+                  const cols = parseLine(lines[i]);
+                  if (cols.length < 2) continue;
+
+                  const targetSentence = cols[0];
+                  const nativeTranslation = cols[1];
+                  const notes = cols[2] || '';
+                  const tags = cols[3] ? cols[3].split(' ').filter(t => t) : [];
+
+                  if (targetSentence && nativeTranslation) {
+                      newCards.push({
+                          id: uuidv4(),
+                          targetSentence,
+                          nativeTranslation,
+                          notes,
+                          tags,
+                          status: 'new',
+                          interval: 0,
+                          easeFactor: 2.5,
+                          dueDate: new Date().toISOString(),
+                          reps: 0,
+                          lapses: 0
+                      });
+                  }
+              }
+
+              if (newCards.length === 0) {
+                  toast.error("No valid cards found in CSV");
+                  return;
+              }
+
+              if (!confirm(`Found ${newCards.length} cards. Import them? This will append to your deck.`)) {
+                  if (csvInputRef.current) csvInputRef.current.value = '';
+                  return;
+              }
+
+              // Append to existing cards
+              const existingCards = await db.getCards();
+              await db.saveAllCards([...existingCards, ...newCards]);
+              
+              toast.success(`Imported ${newCards.length} cards successfully!`);
+              setTimeout(() => window.location.reload(), 1500);
+
+          } catch (err) {
+              console.error(err);
+              toast.error("Failed to import CSV.");
+          }
+      };
+      reader.readAsText(file);
+  };
+
   const inputClass = "w-full px-3 py-2 bg-white border border-gray-300 rounded-md focus:ring-1 focus:ring-gray-900 focus:border-gray-900 outline-none text-sm transition-all";
   const labelClass = "block text-xs font-mono text-gray-500 uppercase mb-1.5";
 
@@ -208,11 +320,21 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                     <Button variant="outline" onClick={handleImportClick} className="w-full justify-start">
                         <Upload size={16} className="mr-2" /> Import Backup
                     </Button>
+                    <Button variant="outline" onClick={handleImportCSVClick} className="w-full justify-start">
+                        <FileText size={16} className="mr-2" /> Import CSV
+                    </Button>
                     <input 
                         type="file" 
                         ref={fileInputRef} 
                         onChange={handleFileChange} 
                         accept=".json" 
+                        className="hidden" 
+                    />
+                    <input 
+                        type="file" 
+                        ref={csvInputRef} 
+                        onChange={handleCSVFileChange} 
+                        accept=".csv,.txt" 
                         className="hidden" 
                     />
                 </div>
@@ -243,6 +365,18 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                             className="toggle"
                             checked={localSettings.showTranslationAfterFlip}
                             onChange={e => setLocalSettings({...localSettings, showTranslationAfterFlip: e.target.checked})}
+                        />
+                    </label>
+                    <label className="flex items-center justify-between p-3 border border-gray-200 rounded-md cursor-pointer md:col-span-2">
+                        <div className="flex flex-col">
+                            <span className="text-sm text-gray-700">Ignore Learning Steps When Queue Empty</span>
+                            <span className="text-[10px] text-gray-400">If no other cards are due, show learning cards immediately instead of waiting.</span>
+                        </div>
+                        <input 
+                            type="checkbox" 
+                            className="toggle"
+                            checked={localSettings.ignoreLearningStepsWhenNoCards}
+                            onChange={e => setLocalSettings({...localSettings, ignoreLearningStepsWhenNoCards: e.target.checked})}
                         />
                     </label>
                 </div>

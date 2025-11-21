@@ -25,6 +25,7 @@ export interface Card extends Partial<FSRSCard> {
   lapses?: number;
   state?: FSRSState;
   last_review?: string; // ISO Date string
+  first_review?: string; // ISO Date string
   learningStep?: number; // 1 = waiting for 10m review
 }
 
@@ -46,6 +47,7 @@ export interface UserSettings {
   dailyReviewLimit: number;
   autoPlayAudio: boolean;
   showTranslationAfterFlip: boolean;
+  ignoreLearningStepsWhenNoCards: boolean;
   fsrs: {
     request_retention: number; // 0.8 to 0.99
     maximum_interval: number; // Days

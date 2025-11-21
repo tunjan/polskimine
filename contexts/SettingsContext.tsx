@@ -7,6 +7,7 @@ const DEFAULT_SETTINGS: UserSettings = {
   dailyReviewLimit: 100,
   autoPlayAudio: false,
   showTranslationAfterFlip: true,
+  ignoreLearningStepsWhenNoCards: false,
   fsrs: {
     request_retention: FSRS_DEFAULTS.request_retention,
     maximum_interval: FSRS_DEFAULTS.maximum_interval,

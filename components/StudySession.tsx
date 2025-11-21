@@ -79,7 +79,29 @@ export const StudySession: React.FC<StudySessionProps> = ({ dueCards, onUpdateCa
   };
 
   const currentCard = sessionCards[currentIndex];
-  const isDue = currentCard ? isCardDue(currentCard, now) : false;
+  let isDue = currentCard ? isCardDue(currentCard, now) : false;
+
+  // If card is not due (waiting for learning step), but it's the only card left (or we are blocked),
+  // and the setting is enabled, we treat it as due.
+  if (currentCard && !isDue && settings.ignoreLearningStepsWhenNoCards) {
+      // Check if there are any other cards in the session that ARE due.
+      // Since we process linearly, and appended cards go to the end, 
+      // if we are at currentIndex, it means previous cards are done.
+      // We only need to check if there are subsequent cards that are due.
+      // However, usually subsequent cards are also appended learning cards (waiting).
+      // If there was a due card, it would likely be before the learning cards in a sorted queue,
+      // but here we just append. 
+      // So if we have [L1 (wait), D1 (due)], we are blocked at L1.
+      // If we want to be smart, we should check if ANY card in the remaining queue is due.
+      // If NO card is due, then we can skip the wait for L1.
+      
+      const remainingCards = sessionCards.slice(currentIndex);
+      const hasAnyDueCard = remainingCards.some(c => isCardDue(c, now));
+      
+      if (!hasAnyDueCard) {
+          isDue = true;
+      }
+  }
 
   const handleGrade = React.useCallback((grade: Grade) => {
     if (!currentCard) return;

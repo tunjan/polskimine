@@ -82,7 +82,8 @@ export const calculateNextReview = (card: Card, grade: Grade, settings?: UserSet
       learningStep: 1, // Mark as waiting for 2nd review
       scheduled_days: 0,
       elapsed_days: 0,
-      reps: (card.reps || 0) + 1
+      reps: (card.reps || 0) + 1,
+      first_review: card.first_review || now.toISOString()
     };
   }
 
@@ -98,7 +99,8 @@ export const calculateNextReview = (card: Card, grade: Grade, settings?: UserSet
       ...card,
       ...log,
       status: mapStateToStatus(log.state),
-      learningStep: undefined // Clear step
+      learningStep: undefined, // Clear step
+      first_review: card.first_review
     };
   }
 
@@ -112,7 +114,8 @@ export const calculateNextReview = (card: Card, grade: Grade, settings?: UserSet
         dueDate: addMinutes(now, 1).toISOString(),
         learningStep: 1, // Stay in step 1
         reps: (card.reps || 0) + 1,
-        lapses: (card.lapses || 0) + 1
+        lapses: (card.lapses || 0) + 1,
+        first_review: card.first_review
      };
   }
   
@@ -136,6 +139,7 @@ export const calculateNextReview = (card: Card, grade: Grade, settings?: UserSet
     lapses: log.lapses,
     state: log.state,
     last_review: log.last_review ? log.last_review.toISOString() : now.toISOString(),
+    first_review: card.first_review || (isNew ? now.toISOString() : undefined),
     status,
     // Update legacy fields for backward compatibility if needed, or just sync them
     interval: log.scheduled_days,

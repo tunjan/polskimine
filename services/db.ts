@@ -167,15 +167,32 @@ class DatabaseService {
     let reviewCards = 0;
 
     for (const card of allCards) {
-      if (card.last_review) {
-        const reviewDate = new Date(card.last_review);
-        if (reviewDate >= srsToday && reviewDate < nextDay) {
-          if ((card.reps || 0) === 1) {
-            newCards++;
-          } else if ((card.reps || 0) > 1) {
-            reviewCards++;
-          }
+      if (!card.last_review) continue;
+      
+      const lastReviewDate = new Date(card.last_review);
+      const reviewedToday = lastReviewDate >= srsToday && lastReviewDate < nextDay;
+      
+      if (!reviewedToday) continue;
+
+      // It was reviewed today. Was it a "New" card today?
+      let isNewToday = false;
+      
+      if (card.first_review) {
+        const firstReviewDate = new Date(card.first_review);
+        if (firstReviewDate >= srsToday && firstReviewDate < nextDay) {
+          isNewToday = true;
         }
+      } else {
+        // Fallback: if reps is 1, it's definitely new today.
+        if ((card.reps || 0) === 1) {
+            isNewToday = true;
+        }
+      }
+
+      if (isNewToday) {
+        newCards++;
+      } else {
+        reviewCards++;
       }
     }
     return { newCards, reviewCards };

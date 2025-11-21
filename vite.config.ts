@@ -19,8 +19,16 @@ export default defineConfig(({ mode }) => {
       },
       resolve: {
         alias: {
-          '@': path.resolve(__dirname, '.'),
-        }
+          '@': path.resolve(__dirname, './src'),
+        },
+      },
+      optimizeDeps: {
+        include: ['react-window'],
+      },
+      build: {
+        commonjsOptions: {
+          include: [/react-window/, /node_modules/],
+        },
       },
       test: {
         globals: true,
