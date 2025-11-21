@@ -2,7 +2,7 @@ import { Card as FSRSCard, State as FSRSState } from 'ts-fsrs';
 
 export type CardStatus = 'new' | 'learning' | 'graduated' | 'known';
 
-export interface Card extends Partial<FSRSCard> {
+export interface Card extends Omit<Partial<FSRSCard>, 'due' | 'last_review'> {
   id: string;
   targetSentence: string; // "Ten samochód jest szybki"
   targetWord?: string; // Optional: "samochód". If empty, whole sentence is the target.
@@ -24,7 +24,8 @@ export interface Card extends Partial<FSRSCard> {
   reps?: number;
   lapses?: number;
   state?: FSRSState;
-  last_review?: string; // ISO Date string
+  due?: string; // ISO Date string (overrides FSRSCard's Date type)
+  last_review?: string; // ISO Date string (overrides FSRSCard's Date type)
   first_review?: string; // ISO Date string
   learningStep?: number; // 1 = waiting for 10m review
 }
