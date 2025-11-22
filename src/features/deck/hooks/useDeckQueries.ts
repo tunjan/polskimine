@@ -14,16 +14,13 @@ import { getSRSDate } from '@/features/study/logic/srs';
 import { format } from 'date-fns';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
+import { toast } from 'sonner';
 
-// Helper function to calculate XP based on card status and grade
+// REWORKED: Only award XP for New cards. 0 for everything else.
 const calculateXP = (cardStatus: string, grade: Grade): number => {
-  return cardStatus === 'new'
-    ? 50
-    : grade === 'Again'
-    ? 1
-    : grade === 'Hard'
-    ? 5
-    : 10;
+  // Only 'new' cards give immediate gratification
+  if (cardStatus === 'new') return 50;
+  return 0;
 };
 
 export const useDeckStatsQuery = () => {
@@ -74,32 +71,30 @@ export const useRecordReviewMutation = () => {
       // 1. Increment history in DB
       await incrementHistory(today, 1, card.language || settings.language);
       
-      // 2. Award XP if user exists
-      if (user) {
-        const xpAmount = calculateXP(card.status, grade);
+      // 2. Award XP ONLY if it's a new card
+      const xpAmount = calculateXP(card.status, grade);
 
+      if (user) {
         // Insert activity log
         await supabase
           .from('activity_log')
           .insert({
             user_id: user.id,
             activity_type: card.status === 'new' ? 'new_card' : 'review',
-            xp_awarded: xpAmount,
+            xp_awarded: xpAmount, // This will be 0 for reviews
             language: card.language || settings.language,
           });
 
-        // FIX: Persist XP to profile to prevent data loss on refresh
-        const { error: xpError } = await supabase.rpc('increment_profile_xp', {
-          user_id: user.id,
-          amount: xpAmount
-        });
-
-        if (xpError) {
-          console.error('Failed to update profile XP:', xpError);
+        if (xpAmount > 0) {
+          const { error: xpError } = await supabase.rpc('increment_profile_xp', {
+            user_id: user.id,
+            amount: xpAmount
+          });
+          if (xpError) console.error('Failed to update profile XP:', xpError);
         }
       }
       
-      return { card, grade, today };
+      return { card, grade, today, xpAmount };
     },
     onMutate: async ({ card, grade }) => {
       const today = format(getSRSDate(new Date()), 'yyyy-MM-dd');
@@ -146,12 +141,12 @@ export const useRecordReviewMutation = () => {
       // derives the due count from the dueCards array. Updating both causes desync.
       // The invalidation on settlement will sync deckStats from the server.
 
-      // 7. Optimistically update Profile XP
+      // 7. Optimistically update Profile XP (Only if > 0)
       if (user) {
         const xpAmount = calculateXP(card.status, grade);
         incrementXPOptimistically(xpAmount);
 
-        // Optimistically update Dashboard Stats (Language XP)
+        // Update Dashboard Stats
         queryClient.setQueryData(['dashboardStats', settings.language], (old: any) => {
             if (!old) return old;
             return {
@@ -179,6 +174,44 @@ export const useRecordReviewMutation = () => {
       queryClient.invalidateQueries({ queryKey: ['dueCards', settings.language] });
       queryClient.invalidateQueries({ queryKey: ['dashboardStats', settings.language] });
     },
+  });
+};
+
+// NEW: Mutation to claim the daily completion bonus
+export const useClaimDailyBonusMutation = () => {
+  const queryClient = useQueryClient();
+  const { settings } = useSettings();
+  const { user, incrementXPOptimistically } = useAuth();
+  const BONUS_AMOUNT = 300; // Big reward for finishing
+
+  return useMutation({
+    mutationFn: async () => {
+      if (!user) return;
+      
+      const { data, error } = await supabase.rpc('claim_daily_bonus', {
+        p_user_id: user.id,
+        p_language: settings.language,
+        p_xp_amount: BONUS_AMOUNT
+      });
+
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: (data) => {
+      if (data && data.success) {
+        toast.success(`Daily Goal Complete! +${BONUS_AMOUNT} XP`);
+        incrementXPOptimistically(BONUS_AMOUNT);
+        
+        // Update Dashboard Stats
+        queryClient.setQueryData(['dashboardStats', settings.language], (old: any) => {
+            if (!old) return old;
+            return {
+                ...old,
+                languageXp: (old.languageXp || 0) + BONUS_AMOUNT
+            };
+        });
+      }
+    }
   });
 };
 

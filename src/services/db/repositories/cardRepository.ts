@@ -1,6 +1,7 @@
 import { Card } from '@/types';
 import { getSRSDate } from '@/features/study/logic/srs';
 import { supabase } from '@/lib/supabase';
+import { SRS_CONFIG } from '@/constants';
 
 type Language = Card['language'];
 
@@ -156,6 +157,8 @@ export const getDueCards = async (now: Date = new Date(), language?: Language): 
   const srsToday = getSRSDate(now);
   const cutoffDate = new Date(srsToday);
   cutoffDate.setDate(cutoffDate.getDate() + 1);
+  // FIX: Add cutoff hour to ensure we capture cards due late at night (00:00 - 04:00)
+  cutoffDate.setHours(SRS_CONFIG.CUTOFF_HOUR);
 
   let query = supabase
     .from('cards')

@@ -10,9 +10,10 @@ import React, {
 import { toast } from 'sonner';
 import { Card, DeckStats, Grade, ReviewHistory } from '@/types';
 import { getUTCDateString } from '@/constants';
-import { BEGINNER_DECK } from '@/features/deck/data/beginnerDeck';
+import { POLISH_BEGINNER_DECK } from '@/features/deck/data/polishBeginnerDeck';
 import { NORWEGIAN_BEGINNER_DECK } from '@/features/deck/data/norwegianBeginnerDeck';
 import { JAPANESE_BEGINNER_DECK } from '@/features/deck/data/japaneseBeginnerDeck';
+import { SPANISH_BEGINNER_DECK } from '@/features/deck/data/spanishBeginnerDeck';
 import { useSettings } from './SettingsContext';
 import { useAuth } from './AuthContext';
 import { getSRSDate } from '@/features/study/logic/srs';
@@ -45,6 +46,7 @@ const DeckContext = createContext<DeckContextValue | undefined>(undefined);
 const languageLabel = (language: string) => {
   if (language === 'norwegian') return 'Norwegian';
   if (language === 'japanese') return 'Japanese';
+  if (language === 'spanish') return 'Spanish';
   return 'Polish';
 };
 
@@ -201,7 +203,9 @@ export const DeckProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 ? NORWEGIAN_BEGINNER_DECK
                 : settings.language === 'japanese'
                 ? JAPANESE_BEGINNER_DECK
-                : BEGINNER_DECK;
+                : settings.language === 'spanish'
+                ? SPANISH_BEGINNER_DECK
+                : POLISH_BEGINNER_DECK;
             
          // FIX: Generate fresh UUIDs to prevent database collisions
          const deck = rawDeck.map(card => ({

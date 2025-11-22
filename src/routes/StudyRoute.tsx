@@ -5,20 +5,24 @@ import { StudySession } from '@/features/study/components/StudySession';
 import { useDeck } from '@/contexts/DeckContext';
 import { useSettings } from '@/contexts/SettingsContext';
 import { useCardOperations } from '@/features/deck/hooks/useCardOperations';
-import { applyStudyLimits } from '@/services/studyLimits';
+import { isNewCard } from '@/services/studyLimits'; // Import helper
 import {
   getCramCards,
   getDueCards,
 } from '@/services/db/repositories/cardRepository';
 import { getTodayReviewStats } from '@/services/db/repositories/statsRepository';
+import { useClaimDailyBonusMutation } from '@/features/deck/hooks/useDeckQueries';
 
 export const StudyRoute: React.FC = () => {
   const { recordReview, undoReview, canUndo } = useDeck();
   const { updateCard } = useCardOperations();
   const { settings } = useSettings();
+  const claimBonus = useClaimDailyBonusMutation();
+  
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const [sessionCards, setSessionCards] = useState<Card[]>([]);
+  const [reserveCards, setReserveCards] = useState<Card[]>([]); // New State
   const [isLoading, setIsLoading] = useState(true);
 
   const mode = searchParams.get('mode');
@@ -32,17 +36,44 @@ export const StudyRoute: React.FC = () => {
           const tag = searchParams.get('tag') || undefined;
           const cramCards = await getCramCards(limit, tag, settings.language);
           setSessionCards(cramCards);
+          setReserveCards([]);
         } else {
           const due = await getDueCards(new Date(), settings.language);
           const reviewsToday = await getTodayReviewStats(settings.language);
-          const currentNewLimit = settings.dailyNewLimits?.[settings.language] ?? 20;
-          const currentReviewLimit = settings.dailyReviewLimits?.[settings.language] ?? 100;
-          const limited = applyStudyLimits(due, {
-            dailyNewLimit: currentNewLimit,
-            dailyReviewLimit: currentReviewLimit,
-            reviewsToday
-          });
-          setSessionCards(limited);
+          
+          const dailyNewLimit = settings.dailyNewLimits?.[settings.language] ?? 20;
+          const dailyReviewLimit = settings.dailyReviewLimits?.[settings.language] ?? 100;
+          
+          // Manual Limit Logic to populate Reserve
+          const active: Card[] = [];
+          const reserve: Card[] = [];
+          
+          let newCount = reviewsToday.newCards || 0;
+          let reviewCount = reviewsToday.reviewCards || 0;
+
+          const hasLimit = (val: number) => val > 0;
+
+          for (const card of due) {
+            if (isNewCard(card)) {
+              // If limit exists and we met it, add to reserve
+              if (hasLimit(dailyNewLimit) && newCount >= dailyNewLimit) {
+                reserve.push(card);
+              } else {
+                active.push(card);
+                if (hasLimit(dailyNewLimit)) newCount++;
+              }
+            } else {
+              // For reviews, we strictly cut off (no reserve needed usually)
+              if (hasLimit(dailyReviewLimit) && reviewCount >= dailyReviewLimit) {
+                 continue;
+              }
+              active.push(card);
+              if (hasLimit(dailyReviewLimit)) reviewCount++;
+            }
+          }
+          
+          setSessionCards(active);
+          setReserveCards(reserve);
         }
       } catch (error) {
         console.error("Failed to load cards", error);
@@ -54,15 +85,26 @@ export const StudyRoute: React.FC = () => {
   }, [settings.dailyNewLimits, settings.dailyReviewLimits, settings.language, isCramMode, searchParams]);
 
   const handleUpdateCard = (card: Card) => {
-    if (!isCramMode) {
-      updateCard(card);
+    if (isCramMode) {
+      if (card.status === 'known') {
+        updateCard(card);
+      }
+      return;
     }
+    updateCard(card);
   };
 
   const handleRecordReview = (card: Card, grade: Grade) => {
     if (!isCramMode) {
       recordReview(card, grade);
     }
+  };
+
+  const handleSessionComplete = () => {
+    if (!isCramMode) {
+      claimBonus.mutate();
+    }
+    navigate('/');
   };
 
   if (isLoading) {
@@ -76,9 +118,11 @@ export const StudyRoute: React.FC = () => {
   return (
     <StudySession 
       dueCards={sessionCards}
+      reserveCards={reserveCards} // Pass reserve
       onUpdateCard={handleUpdateCard}
       onRecordReview={handleRecordReview}
       onExit={() => navigate('/')}
+      onComplete={handleSessionComplete}
       onUndo={isCramMode ? undefined : undoReview}
       canUndo={isCramMode ? false : canUndo}
     />

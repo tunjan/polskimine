@@ -28,7 +28,6 @@ export const Flashcard: React.FC<FlashcardProps> = ({
   const { isCursedWith } = useSabotage();
   const [isRevealed, setIsRevealed] = useState(!blindMode);
   
-  // Track if we've already spoken for this card to prevent re-trigger on settings change
   const hasSpokenRef = React.useRef<string | null>(null);
   
   // Gaslight State
@@ -38,7 +37,6 @@ export const Flashcard: React.FC<FlashcardProps> = ({
   useEffect(() => { setIsRevealed(!blindMode); }, [card.id, blindMode]);
   useEffect(() => { if (isFlipped) setIsRevealed(true); }, [isFlipped]);
   
-  // Prepare Gaslighting logic when card changes
   useEffect(() => {
     if (isCursedWith('gaslight') && Math.random() > 0.5) {
         const randomFake = FAKE_ANSWERS[Math.floor(Math.random() * FAKE_ANSWERS.length)];
@@ -50,48 +48,50 @@ export const Flashcard: React.FC<FlashcardProps> = ({
     }
   }, [card.id, isCursedWith]);
 
-  // Text Processing based on curses
   const processText = (text: string) => {
       if (isCursedWith('uwu')) return uwuify(text);
       return text;
   };
   
   const speak = useCallback(() => {
-    // Don't speak the UwU version, speak the real one
     ttsService.speak(card.targetSentence, language, settings.tts);
   }, [card.targetSentence, language, settings.tts]);
 
   useEffect(() => {
-    // Reset spoken flag when card changes
     if (hasSpokenRef.current !== card.id) {
       hasSpokenRef.current = null;
     }
 
-    // Only speak if auto-play is enabled and we haven't spoken for this card yet
     if (autoPlayAudio && hasSpokenRef.current !== card.id) {
       speak();
       hasSpokenRef.current = card.id;
     }
     
-    // Cleanup: Stop TTS when card changes or component unmounts to prevent audio ghosting
-    // from async fetch completing after card has already transitioned
     return () => {
       ttsService.stop();
     };
   }, [card.id, autoPlayAudio, speak]);
 
-  // Apply Visual Curses via CSS classes
-  const containerClasses = cn(
-      "w-full max-w-4xl mx-auto flex flex-col items-center justify-center h-full transition-all duration-700",
-      isCursedWith('rotate') && "rotate-180",
-      isCursedWith('comic_sans') && "font-['Comic_Sans_MS']",
-      isCursedWith('blur') && "animate-pulse blur-[1px]"
-  );
-
   const displayedSentence = processText(card.targetSentence);
 
+  // --- DYNAMIC FONT SCALING ---
+  const fontSizeClass = useMemo(() => {
+    const cleanLength = language === 'japanese' && card.furigana 
+        ? parseFurigana(card.furigana).reduce((acc, curr) => acc + curr.text.length, 0)
+        : displayedSentence.length;
+
+    if (cleanLength < 10) return "text-6xl md:text-8xl"; 
+    if (cleanLength < 20) return "text-5xl md:text-7xl"; 
+    if (cleanLength < 40) return "text-4xl md:text-6xl"; 
+    if (cleanLength < 80) return "text-3xl md:text-5xl"; 
+    return "text-2xl md:text-4xl"; 
+  }, [displayedSentence, language, card.furigana]);
+
   const RenderedSentence = useMemo(() => {
-    const baseClasses = "text-4xl md:text-7xl font-medium tracking-tight leading-tight text-center transition-all duration-500";
+    const baseClasses = cn(
+        "font-medium tracking-tight leading-tight text-center transition-all duration-500 text-balance max-w-5xl mx-auto",
+        fontSizeClass
+    );
     
     if (!isRevealed) {
       return (
@@ -99,7 +99,7 @@ export const Flashcard: React.FC<FlashcardProps> = ({
           onClick={() => setIsRevealed(true)}
           className="cursor-pointer group flex flex-col items-center gap-4"
         >
-          <p className={`${baseClasses} blur-xl opacity-20 group-hover:opacity-30`}>
+          <p className={cn(baseClasses, "blur-xl opacity-20 group-hover:opacity-30")}>
             {displayedSentence}
           </p>
           <span className="text-xs font-mono uppercase tracking-widest text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity">
@@ -112,10 +112,8 @@ export const Flashcard: React.FC<FlashcardProps> = ({
     if (language === 'japanese' && card.furigana) {
       const segments = parseFurigana(card.furigana);
       return (
-        <div className={`${baseClasses} flex flex-wrap justify-center items-end gap-x-1`}>
+        <div className={cn(baseClasses, "flex flex-wrap justify-center items-end gap-x-[0.1em] leading-relaxed")}>
           {segments.map((segment, i) => {
-            // Fixed: Check if this segment is part of the target word
-            // For Okurigana (e.g., 食べる), the target word may span multiple segments
             const isPartOfTarget = card.targetWord && (
               card.targetWord === segment.text || 
               card.targetWord.includes(segment.text) ||
@@ -124,8 +122,9 @@ export const Flashcard: React.FC<FlashcardProps> = ({
             
             if (segment.furigana) {
               return (
-                <div key={i} className="group flex flex-col items-center">
-                  <span className="text-sm md:text-lg text-muted-foreground mb-1 select-none opacity-0 group-hover:opacity-100 transition-opacity">
+                <div key={i} className="group flex flex-col items-center justify-end">
+                  {/* FIX: Changed opacity-70 to opacity-0 so it is hidden by default */}
+                  <span className="text-[0.5em] text-muted-foreground mb-[0.1em] select-none opacity-0 group-hover:opacity-100 transition-opacity leading-none">
                       {processText(segment.furigana)}
                   </span>
                   <span className={isPartOfTarget ? "text-primary" : ""}>
@@ -145,12 +144,9 @@ export const Flashcard: React.FC<FlashcardProps> = ({
     }
 
     if (card.targetWord) {
-        // Note: Highlighting might break if UwU modifies the word significantly, 
-        // but we attempt to match loosely or just display text if match fails.
         const rawTarget = card.targetWord;
         const parts = displayedSentence.split(new RegExp(`(${escapeRegExp(rawTarget)})`, 'gi'));
         
-        // If split didn't work (because UwU changed the text), fall back to plain display
         if (parts.length === 1 && parts[0] === displayedSentence && isCursedWith('uwu')) {
              return <p className={baseClasses}>{displayedSentence}</p>;
         }
@@ -167,7 +163,14 @@ export const Flashcard: React.FC<FlashcardProps> = ({
     }
 
     return <p className={baseClasses}>{displayedSentence}</p>;
-  }, [displayedSentence, card.targetWord, card.furigana, isRevealed, language, isCursedWith]);
+  }, [displayedSentence, card.targetWord, card.furigana, isRevealed, language, isCursedWith, fontSizeClass]);
+
+  const containerClasses = cn(
+      "w-full max-w-6xl mx-auto flex flex-col items-center justify-center h-full transition-all duration-700",
+      isCursedWith('rotate') && "rotate-180",
+      isCursedWith('comic_sans') && "font-['Comic_Sans_MS']",
+      isCursedWith('blur') && "animate-pulse blur-[1px]"
+  );
 
   return (
     <div className={containerClasses}>
@@ -191,7 +194,7 @@ export const Flashcard: React.FC<FlashcardProps> = ({
             {showTranslation && (
                 <div className="relative">
                     <p className={cn(
-                        "text-xl md:text-2xl text-muted-foreground font-light text-center max-w-2xl leading-relaxed",
+                        "text-xl md:text-2xl text-muted-foreground font-light text-center max-w-2xl leading-relaxed text-balance",
                         isGaslit && "text-destructive animate-pulse"
                     )}>
                         {processText(displayedTranslation)}

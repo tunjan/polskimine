@@ -12,11 +12,12 @@ import { LanguageThemeManager } from '@/components/common/LanguageThemeManager';
 import { AppRoutes } from '@/router';
 import { AuthProvider, useAuth } from '@/contexts/AuthContext';
 import { AuthPage } from '@/features/auth/AuthPage';
+import { UsernameSetup } from '@/features/auth/UsernameSetup';
 
 const queryClient = new QueryClient();
 
 const LinguaFlowApp: React.FC = () => {
-  const { user, loading } = useAuth();
+  const { user, profile, loading } = useAuth();
 
   if (loading) {
     return (
@@ -29,6 +30,26 @@ const LinguaFlowApp: React.FC = () => {
   if (!user) {
     return <AuthPage />;
   }
+
+  // ---------------------------------------------------------
+  // BLOCKING CHECK: If user exists but profile/username is missing
+  // ---------------------------------------------------------
+  
+  // Case 1: Profile hasn't loaded yet (async fetch after auth)
+  if (!profile) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
+      </div>
+    );
+  }
+
+  // Case 2: Profile loaded, but username is null (First time Google Login)
+  if (!profile.username) {
+    return <UsernameSetup />;
+  }
+
+  // ---------------------------------------------------------
 
   return (
     <BrowserRouter>

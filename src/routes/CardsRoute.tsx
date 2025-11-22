@@ -1,17 +1,29 @@
-import React, { useState, useEffect } from 'react';
-import { Search, Sparkles, ChevronLeft, ChevronRight } from 'lucide-react';
+import React, { useState, useEffect, useCallback } from 'react';
+import { Search, ChevronLeft, ChevronRight, Plus, Sparkles, Zap, X, Trash2 } from 'lucide-react';
 import { useDeck } from '@/contexts/DeckContext';
 import { useSettings } from '@/contexts/SettingsContext';
 import { Card } from '@/types';
 import { AddCardModal } from '@/features/deck/components/AddCardModal';
 import { GenerateCardsModal } from '@/features/deck/components/GenerateCardsModal';
+import { CardHistoryModal } from '@/features/deck/components/CardHistoryModal';
 import { CardList } from '@/features/deck/components/CardList';
 import { useCardOperations } from '@/features/deck/hooks/useCardOperations';
 import { useCardsQuery } from '@/features/deck/hooks/useCardsQuery';
+import { toast } from 'sonner';
+import clsx from 'clsx';
+
+const StatItem = ({ label, value }: { label: string; value: number }) => (
+    <div className="flex flex-col gap-1">
+        <span className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground">{label}</span>
+        <span className="text-2xl font-light tracking-tight tabular-nums">{value}</span>
+    </div>
+);
 
 export const CardsRoute: React.FC = () => {
   const { settings } = useSettings();
-  const { addCard, addCardsBatch, deleteCard } = useCardOperations();
+  const { stats } = useDeck();
+  const { addCard, addCardsBatch, deleteCard, prioritizeCards } = useCardOperations();
+  
   const [searchTerm, setSearchTerm] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
   const [page, setPage] = useState(0);
@@ -20,116 +32,283 @@ export const CardsRoute: React.FC = () => {
   const { data, isLoading, isPlaceholderData } = useCardsQuery(page, pageSize, debouncedSearch);
   const cards = data?.data || [];
   const totalCount = data?.count || 0;
-  const totalPages = Math.ceil(totalCount / pageSize);
 
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isGenerateModalOpen, setIsGenerateModalOpen] = useState(false);
-  const [editingCard, setEditingCard] = useState<Card | undefined>(undefined);
+  const [isHistoryModalOpen, setIsHistoryModalOpen] = useState(false);
+  const [selectedCard, setSelectedCard] = useState<Card | undefined>(undefined);
 
-  // Debounce search
+  // Selection State
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  // Add state to track the last clicked index for range selection
+  const [lastSelectedIndex, setLastSelectedIndex] = useState<number | null>(null);
+
   useEffect(() => {
     const timer = setTimeout(() => {
       setDebouncedSearch(searchTerm);
-      setPage(0); // Reset to first page on search
+      setPage(0);
     }, 300);
     return () => clearTimeout(timer);
   }, [searchTerm]);
 
+  // Clear selection when page or search changes to avoid confusion
+  useEffect(() => {
+    setSelectedIds(new Set());
+    setLastSelectedIndex(null); // Reset this too
+  }, [page, debouncedSearch]);
+
   const handleEditCard = (card: Card) => {
-    setEditingCard(card);
+    setSelectedCard(card);
     setIsAddModalOpen(true);
   };
 
-  const handleDeleteCard = (id: string) => {
-    deleteCard(id);
+  const handleViewHistory = (card: Card) => {
+    setSelectedCard(card);
+    setIsHistoryModalOpen(true);
   };
 
-  const handleAddCard = (card: Card) => {
-    addCard(card);
+  const handleToggleSelect = useCallback((id: string, index: number, isShift: boolean) => {
+    setSelectedIds(prev => {
+        const next = new Set(prev);
+
+        // RANGE SELECTION (Shift + Click)
+        if (isShift && lastSelectedIndex !== null) {
+            const start = Math.min(lastSelectedIndex, index);
+            const end = Math.max(lastSelectedIndex, index);
+            
+            // Get all IDs in the range from the current visible cards
+            const idsInRange = cards.slice(start, end + 1).map(c => c.id);
+            
+            // Determine target state based on the card clicked
+            // If the clicked card was NOT selected, we select the whole range.
+            // If it WAS selected, strictly speaking we usually still select the range in file explorers,
+            // but let's stick to "Add range to selection" for simplicity.
+            const shouldSelect = !prev.has(id);
+
+            if (shouldSelect) {
+                idsInRange.forEach(rangeId => next.add(rangeId));
+            } else {
+                // Optional: If you want shift-click to deselect a range if the target is deselected
+                idsInRange.forEach(rangeId => next.delete(rangeId));
+            }
+        } 
+        // SINGLE SELECTION (No Shift)
+        else {
+            if (next.has(id)) next.delete(id);
+            else next.add(id);
+            
+            // Only update the anchor point on a single click
+            setLastSelectedIndex(index);
+        }
+
+        return next;
+    });
+  }, [cards, lastSelectedIndex]);
+
+  const handleBatchPrioritize = async () => {
+    if (selectedIds.size === 0) return;
+    await prioritizeCards(Array.from(selectedIds));
+    setSelectedIds(new Set());
   };
 
-  const handleBatchAddCards = async (newCards: Card[]) => {
-    await addCardsBatch(newCards);
+  const handleBatchDelete = async () => {
+    if (selectedIds.size === 0) return;
+    if (confirm(`Are you sure you want to delete ${selectedIds.size} cards?`)) {
+        const ids = Array.from(selectedIds);
+        // We don't have a batch delete hook yet, so loop for now (or add one later)
+        // For UI responsiveness, we'll just use a loop but a real batch RPC is better for production
+        for (const id of ids) {
+            await deleteCard(id);
+        }
+        setSelectedIds(new Set());
+        toast.success("Deleted selected cards");
+    }
   };
 
   return (
-    <div className="flex flex-col gap-6 h-[calc(100vh-6rem)]">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 px-1">
-            <h1 className="text-3xl font-light tracking-tight">Index</h1>
-            <div className="flex gap-3">
-                <button onClick={() => setIsGenerateModalOpen(true)} className="text-xs font-mono uppercase tracking-widest border border-border hover:border-foreground px-4 py-2 rounded-md transition-colors">
-                    AI Gen
-                </button>
-                <button onClick={() => setIsAddModalOpen(true)} className="bg-foreground text-background px-4 py-2 rounded-md text-xs font-mono uppercase tracking-widest hover:opacity-90 transition-opacity">
-                    Add Entry
-                </button>
-            </div>
-        </div>
+    <div className="flex flex-col h-[calc(100vh-4rem)] max-w-6xl mx-auto w-full animate-in fade-in duration-700 relative">
         
-        <div className="relative">
-            <Search size={16} className="absolute left-0 top-1/2 -translate-y-1/2 text-muted-foreground" />
-            <input 
-                type="text"
-                placeholder="Search your deck..."
-                className="w-full bg-transparent border-b border-border py-3 pl-8 text-base outline-none focus:border-foreground transition-colors placeholder:text-muted-foreground/50 font-light"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-            />
-        </div>
+        {/* Header Stats Section */}
+        <div className="pt-6 pb-12 border-b border-border/40 mb-8">
+            <div className="flex flex-col md:flex-row md:items-end justify-between gap-8">
+                <div className="space-y-6">
+                    <div className="flex items-center gap-3">
+                        <div className="w-1.5 h-1.5 rounded-full bg-primary" />
+                        <span className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground">
+                            {settings.language} Database
+                        </span>
+                    </div>
+                    <h1 className="text-6xl md:text-7xl font-light tracking-tighter text-foreground leading-[0.8]">
+                        Index
+                    </h1>
+                </div>
 
-      {isLoading ? (
-        <div className="flex-1 flex items-center justify-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
-        </div>
-      ) : (
-        <>
-          <CardList
-            cards={cards}
-            searchTerm="" // Search is handled by query now
-            onEditCard={handleEditCard}
-            onDeleteCard={handleDeleteCard}
-          />
-          
-          <div className="flex items-center justify-between pt-4 pb-1 border-t border-border/40">
-            <span className="text-xs text-muted-foreground">
-              Showing {cards.length > 0 ? page * pageSize + 1 : 0} - {Math.min((page + 1) * pageSize, totalCount)} of {totalCount}
-            </span>
-            <div className="flex gap-2">
-              <button
-                onClick={() => setPage(p => Math.max(0, p - 1))}
-                disabled={page === 0}
-                className="p-1 rounded-md hover:bg-secondary disabled:opacity-50 transition-colors"
-              >
-                <ChevronLeft size={16} />
-              </button>
-              <button
-                onClick={() => {
-                  if (!isPlaceholderData && (page + 1) * pageSize < totalCount) {
-                    setPage(p => p + 1);
-                  }
-                }}
-                disabled={isPlaceholderData || (page + 1) * pageSize >= totalCount}
-                className="p-1 rounded-md hover:bg-secondary disabled:opacity-50 transition-colors"
-              >
-                <ChevronRight size={16} />
-              </button>
+                <div className="flex gap-12 pr-4">
+                    <StatItem label="Total Cards" value={stats.total} />
+                    <div className="w-px bg-border/40 h-10 self-center hidden sm:block" />
+                    <StatItem label="Learned" value={stats.learned} />
+                </div>
             </div>
-          </div>
-        </>
-      )}
+        </div>
 
-      <AddCardModal 
-        isOpen={isAddModalOpen}
-        onClose={() => { setIsAddModalOpen(false); setEditingCard(undefined); }}
-        onAdd={handleAddCard}
-        initialCard={editingCard}
-      />
+        {/* Controls */}
+        <div className="flex flex-col md:flex-row gap-6 justify-between items-end mb-6 px-1">
+            <div className="relative w-full md:max-w-md group">
+                <Search size={16} className="absolute left-0 top-3 text-muted-foreground group-focus-within:text-foreground transition-colors" />
+                <input 
+                    type="text"
+                    placeholder="Search sentence or translation..."
+                    className="w-full bg-transparent border-b border-border/60 py-2.5 pl-8 text-base font-light outline-none focus:border-foreground transition-all placeholder:text-muted-foreground/40"
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                />
+            </div>
 
-      <GenerateCardsModal 
-        isOpen={isGenerateModalOpen}
-        onClose={() => setIsGenerateModalOpen(false)}
-        onAddCards={handleBatchAddCards}
-      />
+            <div className="flex items-center gap-3 w-full md:w-auto">
+                <button 
+                    onClick={() => setIsGenerateModalOpen(true)} 
+                    className="flex-1 md:flex-none flex items-center justify-center gap-2 px-4 py-2.5 rounded-md border border-border hover:border-foreground/50 hover:bg-secondary/20 transition-all text-xs font-mono uppercase tracking-widest text-muted-foreground hover:text-foreground"
+                >
+                    <Sparkles size={14} />
+                    <span>AI Gen</span>
+                </button>
+                <button 
+                    onClick={() => setIsAddModalOpen(true)} 
+                    className="flex-1 md:flex-none flex items-center justify-center gap-2 px-4 py-2.5 rounded-md bg-primary text-primary-foreground hover:opacity-90 transition-all text-xs font-mono uppercase tracking-widest"
+                >
+                    <Plus size={14} />
+                    <span>New Entry</span>
+                </button>
+            </div>
+        </div>
+
+        {/* Table / List Area */}
+        <div className="flex-1 min-h-0 flex flex-col border-t border-border/40 relative">
+             <div className="hidden md:flex items-center px-1 py-3 text-[10px] font-mono uppercase tracking-widest text-muted-foreground/40 border-b border-border/40">
+                <div className="w-10 flex justify-center">
+                    {/* Select All placeholder - for now just a label */}
+                </div>
+                <div className="flex-1">Content</div>
+                <div className="w-20 mr-4">Status</div>
+                <div className="w-20 mr-4">Progress</div>
+                <div className="w-24 mr-4 text-right">Schedule</div>
+                <div className="w-10 mr-2"></div>
+             </div>
+
+             {isLoading ? (
+                <div className="flex-1 flex items-center justify-center">
+                    <div className="flex flex-col items-center gap-4">
+                        <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary" />
+                        <span className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground">Loading Index...</span>
+                    </div>
+                </div>
+             ) : (
+                <CardList
+                    cards={cards}
+                    searchTerm=""
+                    onEditCard={handleEditCard}
+                    onDeleteCard={(id) => deleteCard(id)}
+                    onViewHistory={handleViewHistory}
+                    onPrioritizeCard={(id) => prioritizeCards([id])}
+                    selectedIds={selectedIds}
+                    onToggleSelect={handleToggleSelect}
+                />
+             )}
+        </div>
+
+        {/* Pagination */}
+        <div className="py-4 flex items-center justify-between border-t border-border/40 mt-auto">
+            <span className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground">
+                {totalCount} entries found
+            </span>
+            
+            <div className="flex items-center gap-4">
+                <span className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground">
+                    Page {page + 1}
+                </span>
+                <div className="flex gap-1">
+                    <button
+                        onClick={() => setPage(p => Math.max(0, p - 1))}
+                        disabled={page === 0}
+                        className="p-2 rounded hover:bg-secondary disabled:opacity-30 disabled:hover:bg-transparent transition-colors"
+                    >
+                        <ChevronLeft size={14} />
+                    </button>
+                    <button
+                        onClick={() => {
+                            if (!isPlaceholderData && (page + 1) * pageSize < totalCount) {
+                                setPage(p => p + 1);
+                            }
+                        }}
+                        disabled={isPlaceholderData || (page + 1) * pageSize >= totalCount}
+                        className="p-2 rounded hover:bg-secondary disabled:opacity-30 disabled:hover:bg-transparent transition-colors"
+                    >
+                        <ChevronRight size={14} />
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        {/* Batch Action Floating Bar */}
+        <div className={clsx(
+            "absolute bottom-6 left-1/2 -translate-x-1/2 z-20 transition-all duration-300",
+            selectedIds.size > 0 ? "translate-y-0 opacity-100" : "translate-y-10 opacity-0 pointer-events-none"
+        )}>
+            <div className="bg-foreground text-background px-4 py-3 rounded-full shadow-xl flex items-center gap-6">
+                <div className="flex items-center gap-3 pl-2">
+                    <div className="w-5 h-5 bg-background text-foreground rounded-full flex items-center justify-center text-xs font-bold">
+                        {selectedIds.size}
+                    </div>
+                    <span className="text-xs font-mono uppercase tracking-widest">Selected</span>
+                </div>
+                
+                <div className="h-4 w-px bg-background/20" />
+                
+                <div className="flex items-center gap-2">
+                    <button 
+                        onClick={handleBatchPrioritize}
+                        className="flex items-center gap-2 px-3 py-1.5 rounded-full hover:bg-background/20 transition-colors text-xs font-mono uppercase tracking-wider"
+                    >
+                        <Zap size={14} /> Learn Now
+                    </button>
+                    <button 
+                        onClick={handleBatchDelete}
+                        className="flex items-center gap-2 px-3 py-1.5 rounded-full hover:bg-red-500/20 text-red-300 hover:text-red-200 transition-colors text-xs font-mono uppercase tracking-wider"
+                    >
+                        <Trash2 size={14} /> Delete
+                    </button>
+                </div>
+
+                <div className="h-4 w-px bg-background/20" />
+
+                <button 
+                    onClick={() => setSelectedIds(new Set())}
+                    className="p-1.5 hover:bg-background/20 rounded-full transition-colors"
+                >
+                    <X size={14} />
+                </button>
+            </div>
+        </div>
+
+        {/* Modals */}
+        <AddCardModal 
+            isOpen={isAddModalOpen}
+            onClose={() => { setIsAddModalOpen(false); setSelectedCard(undefined); }}
+            onAdd={(card) => addCard(card)}
+            initialCard={selectedCard}
+        />
+        
+        <GenerateCardsModal 
+            isOpen={isGenerateModalOpen}
+            onClose={() => setIsGenerateModalOpen(false)}
+            onAddCards={(cards) => addCardsBatch(cards)}
+        />
+
+        <CardHistoryModal 
+            isOpen={isHistoryModalOpen}
+            onClose={() => { setIsHistoryModalOpen(false); setSelectedCard(undefined); }}
+            card={selectedCard}
+        />
     </div>
   );
 };

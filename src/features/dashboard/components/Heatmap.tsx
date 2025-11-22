@@ -2,6 +2,7 @@ import React, { useMemo } from 'react';
 import { ReviewHistory } from '@/types';
 import { addDays, subDays, startOfDay, format } from 'date-fns';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { clsx } from 'clsx';
 
 interface HeatmapProps {
   history: ReviewHistory;
@@ -32,27 +33,30 @@ export const Heatmap: React.FC<HeatmapProps> = ({ history }) => {
   }, [history]);
 
   const getColorClass = (count: number) => {
-    if (count === 0) return 'bg-secondary';
-    if (count <= 2) return 'bg-primary/30';
-    if (count <= 5) return 'bg-primary/50';
-    if (count <= 9) return 'bg-primary/70';
-    return 'bg-primary';
+    if (count === 0) return 'bg-secondary/40';
+    if (count <= 2) return 'bg-foreground/20';
+    if (count <= 5) return 'bg-foreground/40';
+    if (count <= 9) return 'bg-foreground/70';
+    return 'bg-foreground';
   };
 
   return (
     <TooltipProvider>
-      <div className="w-full overflow-x-auto no-scrollbar pb-2">
-          <div className="w-max">
-              <div className="grid grid-rows-7 grid-flow-col gap-[3px]">
+      <div className="w-full overflow-x-auto no-scrollbar">
+          <div className="min-w-max">
+              <div className="grid grid-rows-7 grid-flow-col gap-[4px]">
               {calendarData.map((day) => (
                   <Tooltip key={day.dateKey} delayDuration={0}>
                       <TooltipTrigger asChild>
                           <div
-                              className={`w-2.5 h-2.5 rounded-[1px] transition-colors duration-200 ${day.inFuture ? 'opacity-0 pointer-events-none' : getColorClass(day.count)}`}
+                              className={clsx(
+                                  "w-3 h-3 sm:w-3.5 sm:h-3.5 rounded-[1px] transition-all duration-300",
+                                  day.inFuture ? 'opacity-0 pointer-events-none' : getColorClass(day.count)
+                              )}
                           />
                       </TooltipTrigger>
-                      <TooltipContent className="text-[10px] font-mono bg-foreground text-background border-none px-2 py-1">
-                          {format(day.date, 'MMM d')}: <span className="font-bold">{day.count}</span>
+                      <TooltipContent className="text-[10px] font-mono uppercase tracking-wider bg-foreground text-background border-none px-3 py-1.5">
+                          {format(day.date, 'MMM d')}: <span className="font-bold">{day.count}</span> reviews
                       </TooltipContent>
                   </Tooltip>
               ))}

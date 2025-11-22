@@ -7,6 +7,8 @@ import { useStudySession } from '../hooks/useStudySession';
 import clsx from 'clsx';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
+// ... (getCardStatus and getQueueCounts helpers remain the same)
+
 const getCardStatus = (card: Card) => {
   // FSRS State: New=0, Learning=1, Review=2, Relearning=3
   if (card.state === 0 || (card.state === undefined && card.status === 'new')) 
@@ -39,18 +41,22 @@ const getQueueCounts = (cards: Card[]) => {
 
 interface StudySessionProps {
   dueCards: Card[];
+  reserveCards?: Card[]; // Added prop
   onUpdateCard: (card: Card) => void;
   onRecordReview: (oldCard: Card, grade: Grade) => void;
   onExit: () => void;
+  onComplete?: () => void;
   onUndo?: () => void;
   canUndo?: boolean;
 }
 
 export const StudySession: React.FC<StudySessionProps> = ({
   dueCards,
+  reserveCards = [], // Default empty
   onUpdateCard,
   onRecordReview,
   onExit,
+  onComplete,
   onUndo,
   canUndo,
 }) => {
@@ -69,6 +75,7 @@ export const StudySession: React.FC<StudySessionProps> = ({
     isProcessing,
   } = useStudySession({
     dueCards,
+    reserveCards, // Pass to hook
     settings,
     onUpdateCard,
     onRecordReview,
@@ -76,13 +83,10 @@ export const StudySession: React.FC<StudySessionProps> = ({
     onUndo,
   });
 
-  // Calculate remaining counts
   const counts = useMemo(() => {
     return getQueueCounts(sessionCards.slice(currentIndex));
   }, [sessionCards, currentIndex]);
 
-  // Use refs to hold current state values to prevent event listener rebinding on every render
-  // This eliminates thrashing on keyboard listener detach/attach cycles
   const stateRef = useRef({ 
     isFlipped, 
     sessionComplete, 
@@ -91,7 +95,6 @@ export const StudySession: React.FC<StudySessionProps> = ({
     isProcessing,
   });
 
-  // Use refs to hold callback references to prevent listener re-attachment
   const handleGradeRef = useRef(handleGrade);
   const handleMarkKnownRef = useRef(handleMarkKnown);
   const handleUndoRef = useRef(handleUndo);
@@ -110,7 +113,6 @@ export const StudySession: React.FC<StudySessionProps> = ({
     onExitRef.current = onExit;
   }, [handleGrade, handleMarkKnown, handleUndo, onUndo, onExit]);
 
-  // Keyboard shortcuts - use refs to avoid rebinding listener on every state change
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       const state = stateRef.current;
@@ -126,7 +128,6 @@ export const StudySession: React.FC<StudySessionProps> = ({
         else if (e.key === '4') { e.preventDefault(); handleGradeRef.current('Hard'); }
       }
 
-      // Mark Known Hotkey (K)
       if (e.code === 'KeyK' && !state.sessionComplete && !state.isProcessing) {
         e.preventDefault();
         handleMarkKnownRef.current();
@@ -146,9 +147,16 @@ export const StudySession: React.FC<StudySessionProps> = ({
   if (sessionComplete) {
     return (
       <div className="fixed inset-0 bg-background flex flex-col items-center justify-center animate-in fade-in duration-500">
-        <h2 className="text-4xl md:text-6xl font-light tracking-tighter mb-8">Session Complete</h2>
-        <div className="flex gap-8">
-            <button onClick={onExit} className="text-sm font-mono uppercase tracking-widest hover:underline">Return Home</button>
+        <div className="text-center space-y-6">
+          <h2 className="text-4xl md:text-6xl font-light tracking-tighter">Session Complete</h2>
+          <p className="text-muted-foreground">Queue cleared for now.</p>
+          
+          <button 
+            onClick={() => onComplete ? onComplete() : onExit()}
+            className="bg-primary text-primary-foreground px-8 py-3 rounded-md text-sm font-mono uppercase tracking-widest hover:opacity-90 transition-all"
+          >
+            Finish & Claim Rewards
+          </button>
         </div>
       </div>
     );
@@ -167,40 +175,41 @@ export const StudySession: React.FC<StudySessionProps> = ({
       </div>
 
       {/* Controls Overlay (Top) */}
-      <div className="absolute top-0 left-0 right-0 p-6 flex justify-between items-start z-50 pointer-events-none">
-         <div className="flex items-center gap-4 font-mono text-xs pointer-events-auto">
-            {/* New System Counters: Unseen / Lapse / Learning / Mature */}
-            <div className="flex gap-6 font-bold">
+      <div className="absolute top-0 left-0 right-0 p-4 md:p-6 flex justify-between items-start z-50 pointer-events-none">
+         <div className="flex items-center gap-2 md:gap-4 font-mono text-xs pointer-events-auto">
+            {/* Counters */}
+            <div className="flex gap-3 md:gap-6 font-bold bg-background/90 backdrop-blur border border-border/50 px-3 py-2 md:py-0 rounded-md md:rounded-none md:border-none md:bg-transparent shadow-sm md:shadow-none">
               <span className="text-blue-500" title="Unseen">{counts.unseen}</span>
               <span className="text-red-500" title="Lapse">{counts.lapse}</span>
               <span className="text-orange-500" title="Learning">{counts.learning}</span>
               <span className="text-green-500" title="Mature">{counts.mature}</span>
             </div>
 
-            {/* Separator */}
-            <span className="text-muted-foreground/30">|</span>
-
-            {/* Current Card Status Label */}
-            {(() => {
-                 const status = getCardStatus(currentCard);
-                 return (
-                     <span className={clsx("font-bold uppercase tracking-wider", status.className)}>
-                         {status.text}
-                     </span>
-                 );
-             })()}
+            {/* Status Label */}
+            <div className="hidden sm:flex items-center gap-4">
+                <span className="text-muted-foreground/30">|</span>
+                {(() => {
+                     const status = getCardStatus(currentCard);
+                     return (
+                         <span className={clsx("font-bold uppercase tracking-wider", status.className)}>
+                             {status.text}
+                         </span>
+                     );
+                 })()}
+            </div>
          </div>
 
-         <div className="flex gap-4 pointer-events-auto">
+         {/* Action Buttons */}
+         <div className="flex gap-2 md:gap-4 pointer-events-auto bg-background/90 backdrop-blur border border-border/50 p-1 rounded-md md:rounded-none md:border-none md:bg-transparent md:p-0 shadow-sm md:shadow-none">
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
                   <button 
                     onClick={handleMarkKnown} 
                     disabled={isProcessing}
-                    className="p-2 rounded-full hover:bg-secondary text-muted-foreground hover:text-foreground transition-colors disabled:opacity-50"
+                    className="p-2 rounded-md hover:bg-secondary text-muted-foreground hover:text-foreground transition-colors disabled:opacity-50"
                   >
-                    <Archive size={20} />
+                    <Archive size={18} className="md:w-5 md:h-5" />
                   </button>
                 </TooltipTrigger>
                 <TooltipContent>
@@ -210,17 +219,17 @@ export const StudySession: React.FC<StudySessionProps> = ({
             </TooltipProvider>
 
             {canUndo && (
-                <button onClick={handleUndo} className="p-2 rounded-full hover:bg-secondary text-muted-foreground hover:text-foreground transition-colors">
-                    <Undo2 size={20} />
+                <button onClick={handleUndo} className="p-2 rounded-md hover:bg-secondary text-muted-foreground hover:text-foreground transition-colors">
+                    <Undo2 size={18} className="md:w-5 md:h-5" />
                 </button>
             )}
-            <button onClick={onExit} className="p-2 rounded-full hover:bg-secondary text-muted-foreground hover:text-foreground transition-colors">
-                <X size={20} />
+            <button onClick={onExit} className="p-2 rounded-md hover:bg-secondary text-muted-foreground hover:text-foreground transition-colors">
+                <X size={18} className="md:w-5 md:h-5" />
             </button>
          </div>
       </div>
 
-      {/* Main Content - Flex-1 to take up all available space */}
+      {/* Main Content */}
       <div className="flex-1 w-full flex flex-col items-center justify-center p-6 md:p-12 overflow-hidden relative">
          <Flashcard 
             card={currentCard} 
@@ -232,8 +241,8 @@ export const StudySession: React.FC<StudySessionProps> = ({
           />
       </div>
 
-      {/* Bottom Actions - Fixed Height */}
-      <div className="h-32 md:h-40 shrink-0 flex items-center justify-center px-6 pb-8">
+      {/* Bottom Actions */}
+      <div className="h-32 md:h-40 shrink-0 flex items-center justify-center px-4 md:px-6 pb-6 md:pb-8">
         {!isFlipped ? (
              <button 
               onClick={() => setIsFlipped(true)}
@@ -243,7 +252,7 @@ export const StudySession: React.FC<StudySessionProps> = ({
               {isProcessing ? 'Processing...' : 'Reveal Answer'}
              </button>
         ) : (
-            <div className="grid grid-cols-2 gap-6 w-full max-w-lg animate-in slide-in-from-bottom-4 fade-in duration-300">
+            <div className="grid grid-cols-2 gap-4 md:gap-6 w-full max-w-lg animate-in slide-in-from-bottom-4 fade-in duration-300">
               <button 
                 onClick={() => handleGrade('Again')}
                 disabled={isProcessing}

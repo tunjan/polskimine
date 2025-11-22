@@ -20,9 +20,10 @@ import {
 } from '@/services/db/repositories/cardRepository';
 import { getDB } from '@/services/db/client';
 import { getHistory } from '@/services/db/repositories/historyRepository';
-import { BEGINNER_DECK } from '@/features/deck/data/beginnerDeck';
+import { POLISH_BEGINNER_DECK } from '@/features/deck/data/polishBeginnerDeck';
 import { NORWEGIAN_BEGINNER_DECK } from '@/features/deck/data/norwegianBeginnerDeck';
 import { JAPANESE_BEGINNER_DECK } from '@/features/deck/data/japaneseBeginnerDeck';
+import { SPANISH_BEGINNER_DECK } from '@/features/deck/data/spanishBeginnerDeck';
 import { GeneralSettings } from './GeneralSettings';
 import { AudioSettings } from './AudioSettings';
 import { StudySettings } from './StudySettings';
@@ -89,7 +90,7 @@ const pickValue = (row: CsvRow, keys: string[]): string | undefined => {
 };
 
 const isLanguage = (value?: string): value is Language =>
-    value === 'polish' || value === 'norwegian' || value === 'japanese';
+    value === 'polish' || value === 'norwegian' || value === 'japanese' || value === 'spanish';
 
 const rowToCard = (row: CsvRow, fallbackLanguage: Language): Card | null => {
     const sentence = pickValue(row, ['target_sentence', 'sentence', 'text', 'front', 'prompt']);
@@ -133,8 +134,6 @@ const parseCardsFromCsv = (payload: string, fallbackLanguage: Language): Card[] 
     const sanitized = payload.replace(/\r\n/g, '\n').trim();
     if (!sanitized) return [];
 
-    // Parse lines while respecting quoted fields that may contain newlines
-    // Split by newlines that are NOT inside quotes
     const lines: string[] = [];
     let current = '';
     let inQuotes = false;
@@ -143,7 +142,6 @@ const parseCardsFromCsv = (payload: string, fallbackLanguage: Language): Card[] 
         const char = sanitized[i];
         
         if (char === '"') {
-            // Check for escaped quote ("")
             if (inQuotes && sanitized[i + 1] === '"') {
                 current += '""';
                 i++;
@@ -152,7 +150,6 @@ const parseCardsFromCsv = (payload: string, fallbackLanguage: Language): Card[] 
                 current += char;
             }
         } else if (char === '\n' && !inQuotes) {
-            // Only split on newlines outside of quotes
             if (current.trim().length > 0) {
                 lines.push(current);
             }
@@ -162,7 +159,6 @@ const parseCardsFromCsv = (payload: string, fallbackLanguage: Language): Card[] 
         }
     }
     
-    // Add remaining line
     if (current.trim().length > 0) {
         lines.push(current);
     }
@@ -195,8 +191,6 @@ const parseCardsFromCsv = (payload: string, fallbackLanguage: Language): Card[] 
 
 const signatureForCard = (sentence: string, language: Language) =>
     `${language}::${sentence.trim().toLowerCase()}`;
-
-// --- Main Component ---
 
 export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
   const { settings, updateSettings } = useSettings();
@@ -251,7 +245,6 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
         try {
             await updateUsername(localUsername);
         } catch (error) {
-            // Error is handled in updateUsername
             return;
         }
     }
@@ -269,21 +262,16 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
         const { data: { user } } = await supabase.auth.getUser();
         if (!user) throw new Error("No user found");
 
-        // 1. Fetch current profile stats
         const { data: currentProfile } = await supabase
             .from('profiles')
             .select('xp, points, level')
             .eq('id', user.id)
             .single();
 
-        const oldXp = currentProfile?.xp || 0;
-
-        // 2. DELETE logs and history for this language FIRST
         await deleteCardsByLanguage(localSettings.language);
         await supabase.from('study_history').delete().eq('user_id', user.id).eq('language', localSettings.language);
         await supabase.from('activity_log').delete().eq('user_id', user.id).eq('language', localSettings.language);
 
-        // 3. FIX: Use database RPC to recalculate XP efficiently (no client-side pagination)
         const { error: recalcError } = await supabase.rpc('recalculate_user_xp', {
             target_user_id: user.id
         });
@@ -294,17 +282,15 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
             return;
         }
 
-        // 6. Re-seed Beginner Deck
-        const rawDeck = localSettings.language === 'norwegian' ? NORWEGIAN_BEGINNER_DECK : (localSettings.language === 'japanese' ? JAPANESE_BEGINNER_DECK : BEGINNER_DECK);
+        const rawDeck = 
+            localSettings.language === 'norwegian' ? NORWEGIAN_BEGINNER_DECK : 
+            (localSettings.language === 'japanese' ? JAPANESE_BEGINNER_DECK : 
+            (localSettings.language === 'spanish' ? SPANISH_BEGINNER_DECK : POLISH_BEGINNER_DECK));
         const deck = rawDeck.map(c => ({ ...c, id: uuidv4(), dueDate: new Date().toISOString() }));
         await saveAllCards(deck);
         
         toast.success("Deck reset successfully");
-        
-        // Clear query cache to prevent stale data
         queryClient.clear();
-        
-        // Small delay to ensure DB writes propagate before reload
         setTimeout(() => window.location.reload(), 500);
     } catch (e) {
         console.error(e);
@@ -325,28 +311,16 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
              return;
         }
 
-        // 1. Delete all cards for user
         await supabase.from('cards').delete().eq('user_id', user.id);
-
-        // 2. Delete all study history
         await supabase.from('study_history').delete().eq('user_id', user.id);
-
-        // 3. Delete all activity logs (This resets daily limits)
         await supabase.from('activity_log').delete().eq('user_id', user.id);
-
-        // 4. Reset Profile Stats (XP, Points, Level)
         await supabase.from('profiles').update({ xp: 0, points: 0, level: 1 }).eq('id', user.id);
 
-        // 5. Clear local storage settings & sync flags
         localStorage.removeItem('language_mining_settings');
         localStorage.removeItem(CLOUD_SYNC_FLAG);
 
         toast.success("Account reset successfully. Restarting...");
-        
-        // FIX: Clear React Query Cache
         queryClient.clear();
-
-        // Reload to apply clean state
         setTimeout(() => window.location.reload(), 1500);
 
     } catch (error: any) {
@@ -388,7 +362,6 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                 return;
             }
 
-            // Sync Cards
             if (cards.length > 0) {
                 const normalizedCards = cards.map((card) => ({
                     id: card.id,
@@ -421,7 +394,6 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                 if (cardError) throw cardError;
             }
 
-            // Sync History
             if (historyEntries.length > 0) {
                 const normalizedHistory = historyEntries.map(entry => ({
                     user_id: user.id,
@@ -454,12 +426,11 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
             const cards = await getCards();
             const history = await getHistory();
             
-            // Create a safe copy of settings excluding secrets
             const safeSettings = {
                 ...localSettings,
                 tts: {
                     ...localSettings.tts,
-                    googleApiKey: '', // Strip sensitive data
+                    googleApiKey: '',
                     azureApiKey: ''
                 }
             };
@@ -501,7 +472,6 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                 return;
             }
 
-            // Fetch only lightweight data for duplicate detection
             const existingSignatures = await getCardSignatures(localSettings.language);
             const seen = new Set(
                 existingSignatures.map((card) =>
@@ -548,12 +518,13 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-4xl h-[80vh] md:h-[600px] p-0 gap-0 overflow-hidden flex flex-col md:flex-row bg-background border border-border shadow-2xl sm:rounded-xl">
+      {/* UPDATED: Responsive height and padding */}
+      <DialogContent className="w-[95vw] max-w-[95vw] sm:max-w-4xl h-[90vh] md:h-[600px] p-0 gap-0 overflow-hidden flex flex-col md:flex-row bg-background border border-border shadow-2xl rounded-xl">
         
         {/* Sidebar */}
-        <div className="w-full md:w-64 bg-secondary border-b md:border-b-0 md:border-r border-border p-6 flex flex-col justify-between shrink-0">
+        <div className="w-full md:w-64 bg-secondary border-b md:border-b-0 md:border-r border-border p-4 md:p-6 flex flex-col justify-between shrink-0">
             <div>
-                <DialogTitle className="font-bold tracking-tight text-lg mb-8 flex items-center gap-2">
+                <DialogTitle className="font-bold tracking-tight text-lg mb-4 md:mb-8 flex items-center gap-2">
                     Settings
                 </DialogTitle>
                 <nav className="flex flex-row md:flex-col gap-1 overflow-x-auto md:overflow-visible no-scrollbar pb-2 md:pb-0">
@@ -574,15 +545,14 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                 </nav>
             </div>
             
-            {/* Mobile Hide / Desktop Show Footer */}
             <div className="hidden md:block text-[10px] font-mono text-muted-foreground/60">
                 ID: {settings.language.toUpperCase()}_V1
             </div>
         </div>
 
         {/* Content Area */}
-        <div className="flex-1 flex flex-col min-w-0">
-            <div className="flex-1 p-8 md:p-10 overflow-y-auto">
+        <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
+            <div className="flex-1 p-4 md:p-10 overflow-y-auto">
                 
                 {activeTab === 'general' && (
                     <GeneralSettings 
@@ -611,20 +581,20 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                 )}
 
                 {activeTab === 'data' && (
-                                        <DataSettings
-                                            onExport={handleExport}
-                                            onImport={handleImport}
-                                            csvInputRef={csvInputRef}
-                                            onSyncToCloud={handleSyncToCloud}
-                                            isSyncingToCloud={isSyncingToCloud}
-                                            syncComplete={hasSyncedToCloud}
-                                        />
+                    <DataSettings
+                        onExport={handleExport}
+                        onImport={handleImport}
+                        csvInputRef={csvInputRef}
+                        onSyncToCloud={handleSyncToCloud}
+                        isSyncingToCloud={isSyncingToCloud}
+                        syncComplete={hasSyncedToCloud}
+                    />
                 )}
 
                 {activeTab === 'danger' && (
-                    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-500">
+                    <div className="space-y-6 md:space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-500">
                         {/* Reset Deck */}
-                        <div className="p-6 border border-border bg-secondary/10 rounded-lg space-y-4">
+                        <div className="p-4 md:p-6 border border-border bg-secondary/10 rounded-lg space-y-4">
                             <div className="flex items-start gap-3">
                                 <AlertCircle className="text-orange-500 shrink-0" size={20} />
                                 <div>
@@ -648,7 +618,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                         </div>
 
                         {/* Hard Reset Account */}
-                        <div className="p-6 border border-destructive/20 bg-destructive/5 rounded-lg space-y-4">
+                        <div className="p-4 md:p-6 border border-destructive/20 bg-destructive/5 rounded-lg space-y-4">
                             <div className="flex items-start gap-3">
                                 <Skull className="text-destructive shrink-0" size={20} />
                                 <div>
@@ -675,7 +645,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
             </div>
 
             {/* Footer Actions */}
-            <div className="p-6 border-t border-border bg-background flex justify-between items-center gap-4 shrink-0 flex-wrap">
+            <div className="p-4 md:p-6 border-t border-border bg-background flex justify-between items-center gap-4 shrink-0 flex-wrap">
                 <button 
                     onClick={() => {
                         onClose();

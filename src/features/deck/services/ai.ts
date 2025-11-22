@@ -4,7 +4,7 @@ interface BatchGenerationOptions {
   difficulty: string;
   topic: string;
   count: number;
-  language: 'polish' | 'norwegian' | 'japanese';
+  language: 'polish' | 'norwegian' | 'japanese' | 'spanish';
 }
 
 function extractJSON(text: string): string {
@@ -68,18 +68,18 @@ async function callGemini(prompt: string, apiKey: string): Promise<string> {
 }
 
 export const aiService = {
-  async translateText(text: string, language: 'polish' | 'norwegian' | 'japanese' = 'polish', apiKey: string): Promise<string> {
-    const langName = language === 'norwegian' ? 'Norwegian' : (language === 'japanese' ? 'Japanese' : 'Polish');
+  async translateText(text: string, language: 'polish' | 'norwegian' | 'japanese' | 'spanish' = 'polish', apiKey: string): Promise<string> {
+    const langName = language === 'norwegian' ? 'Norwegian' : (language === 'japanese' ? 'Japanese' : (language === 'spanish' ? 'Spanish' : 'Polish'));
     const prompt = `Translate the following ${langName} text to English. Provide only the translation, no explanations.\n\nText: "${text}"`;
     return await callGemini(prompt, apiKey);
   },
 
-  async analyzeWord(word: string, contextSentence: string, language: 'polish' | 'norwegian' | 'japanese' = 'polish', apiKey: string): Promise<{
+  async analyzeWord(word: string, contextSentence: string, language: 'polish' | 'norwegian' | 'japanese' | 'spanish' = 'polish', apiKey: string): Promise<{
     definition: string;
     partOfSpeech: string;
     contextMeaning: string;
   }> {
-    const langName = language === 'norwegian' ? 'Norwegian' : (language === 'japanese' ? 'Japanese' : 'Polish');
+    const langName = language === 'norwegian' ? 'Norwegian' : (language === 'japanese' ? 'Japanese' : (language === 'spanish' ? 'Spanish' : 'Polish'));
     const prompt = `
       Analyze the ${langName} word "${word}" in the context of the sentence: "${contextSentence}".
       Return a JSON object with the following fields:
@@ -104,12 +104,12 @@ export const aiService = {
     }
   },
 
-  async generateCardContent(sentence: string, language: 'polish' | 'norwegian' | 'japanese' = 'polish', apiKey: string): Promise<{
+  async generateCardContent(sentence: string, language: 'polish' | 'norwegian' | 'japanese' | 'spanish' = 'polish', apiKey: string): Promise<{
     translation: string;
     notes: string;
     furigana?: string;
   }> {
-    const langName = language === 'norwegian' ? 'Norwegian' : (language === 'japanese' ? 'Japanese' : 'Polish');
+    const langName = language === 'norwegian' ? 'Norwegian' : (language === 'japanese' ? 'Japanese' : (language === 'spanish' ? 'Spanish' : 'Polish'));
     
     let prompt = `
       Analyze the following ${langName} sentence for a flashcard: "${sentence}".
@@ -142,7 +142,7 @@ export const aiService = {
   },
 
   async generateBatchCards({ difficulty, topic, count, language, apiKey }: BatchGenerationOptions & { apiKey: string }): Promise<any[]> {
-    const langName = language === 'norwegian' ? 'Norwegian' : (language === 'japanese' ? 'Japanese' : 'Polish');
+    const langName = language === 'norwegian' ? 'Norwegian' : (language === 'japanese' ? 'Japanese' : (language === 'spanish' ? 'Spanish' : 'Polish'));
     
     let prompt = `
       Generate ${count} flashcards for a ${difficulty} level ${langName} learner.

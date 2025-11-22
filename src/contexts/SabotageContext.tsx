@@ -44,14 +44,18 @@ export const SabotageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
     const enrichedCurses = await Promise.all(
       rawCurses.map(async (curse) => {
+        // If we have an origin ID, we try to fetch the name.
         if (curse.origin_user_id) {
           const { data: profile } = await supabase
             .from('profiles')
             .select('username')
             .eq('id', curse.origin_user_id)
             .single();
+          
+          // If profile found, use username. Fallback to 'Unknown Rival' if ID exists but name fetch fails.
           return { ...curse, sender_username: profile?.username || 'Unknown Rival' };
         }
+        // Only truly anonymous if no ID exists
         return { ...curse, sender_username: 'Anonymous' };
       })
     );
@@ -82,14 +86,22 @@ export const SabotageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         async (payload) => {
           const newCurse = payload.new as ActiveCurse;
           let senderName = 'Anonymous';
+
           if (newCurse.origin_user_id) {
+            // Default to Unknown Rival immediately if we have an ID, so we don't show Anonymous on error
+            senderName = 'Unknown Rival';
+            
             const { data } = await supabase
               .from('profiles')
               .select('username')
               .eq('id', newCurse.origin_user_id)
               .single();
-            if (data?.username) senderName = data.username || 'Unknown Rival';
+            
+            if (data?.username) {
+              senderName = data.username;
+            }
           }
+
           const enriched = { ...newCurse, sender_username: senderName };
           setActiveCurses((prev) => [...prev, enriched]);
           setNotificationQueue((prev) => [...prev, enriched]);

@@ -8,12 +8,14 @@ import {
   saveAllCards,
 } from '@/services/db/repositories/cardRepository';
 import { useDeck } from '@/contexts/DeckContext';
+import { supabase } from '@/lib/supabase';
 
 interface CardOperations {
   addCard: (card: Card) => Promise<void>;
   addCardsBatch: (cards: Card[]) => Promise<void>;
   updateCard: (card: Card) => Promise<void>;
   deleteCard: (id: string) => Promise<void>;
+  prioritizeCards: (ids: string[]) => Promise<void>;
 }
 
 export const useCardOperations = (): CardOperations => {
@@ -79,5 +81,29 @@ export const useCardOperations = (): CardOperations => {
     [queryClient, refreshDeckData]
   );
 
-  return { addCard, addCardsBatch, updateCard, deleteCard };
+  const prioritizeCards = useCallback(
+    async (ids: string[]) => {
+      try {
+        // Set due_date to epoch (1970) to ensure they appear first in ascending sort
+        const { error } = await supabase
+          .from('cards')
+          .update({ due_date: new Date(0).toISOString() })
+          .in('id', ids);
+
+        if (error) throw error;
+
+        await queryClient.invalidateQueries({ queryKey: ['cards'] });
+        // Also invalidate due cards so the study session picks them up immediately
+        await queryClient.invalidateQueries({ queryKey: ['dueCards'] });
+        refreshDeckData();
+        toast.success(`${ids.length} card${ids.length === 1 ? '' : 's'} moved to top of queue`);
+      } catch (error) {
+        console.error(error);
+        toast.error('Failed to prioritize cards');
+      }
+    },
+    [queryClient, refreshDeckData]
+  );
+
+  return { addCard, addCardsBatch, updateCard, deleteCard, prioritizeCards };
 };

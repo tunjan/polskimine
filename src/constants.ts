@@ -104,5 +104,6 @@ export const FSRS_DEFAULTS = {
 export const LANGUAGE_NAMES = {
   polish: 'Polish',
   norwegian: 'Norwegian',
-  japanese: 'Japanese'
+  japanese: 'Japanese',
+  spanish: 'Spanish'
 } as const;

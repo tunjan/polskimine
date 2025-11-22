@@ -86,6 +86,8 @@ export const getStats = async (language?: string) => {
   const srsToday = getSRSDate(new Date());
   const cutoffDate = new Date(srsToday);
   cutoffDate.setDate(cutoffDate.getDate() + 1);
+  // FIX: Add cutoff hour here as well for consistency
+  cutoffDate.setHours(SRS_CONFIG.CUTOFF_HOUR);
 
   const due = cards.filter(
     (card) => card.status !== 'known' && card.due_date <= cutoffDate.toISOString()
@@ -99,6 +101,7 @@ export const getTodayReviewStats = async (language?: string) => {
   const userId = await ensureUser();
   const srsToday = getSRSDate(new Date());
   const rangeStart = new Date(srsToday);
+  // This was already correct (adds 4h to 00:00), but effectively ensures 4am start
   rangeStart.setHours(rangeStart.getHours() + SRS_CONFIG.CUTOFF_HOUR);
   const rangeEnd = new Date(rangeStart);
   rangeEnd.setDate(rangeEnd.getDate() + 1);

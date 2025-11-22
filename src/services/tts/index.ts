@@ -4,7 +4,8 @@ import { Language, TTSSettings, TTSProvider } from "@/types";
 const LANG_CODE_MAP: Record<Language, string[]> = {
     polish: ['pl-PL', 'pl'],
     norwegian: ['nb-NO', 'no-NO', 'no'],
-    japanese: ['ja-JP', 'ja']
+    japanese: ['ja-JP', 'ja'],
+    spanish: ['es-ES', 'es-MX', 'es']
 };
 
 export interface VoiceOption {

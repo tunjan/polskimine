@@ -12,7 +12,8 @@ import {
   Skull,
   Trophy,
   ChevronUp,
-  Check
+  Check,
+  Command
 } from 'lucide-react';
 import { useSettings } from '@/contexts/SettingsContext';
 import { useAuth } from '@/contexts/AuthContext';
@@ -29,15 +30,80 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { PolishFlag, NorwegianFlag, JapaneseFlag } from '@/components/ui/flags';
+import { PolishFlag, NorwegianFlag, JapaneseFlag, SpanishFlag } from '@/components/ui/flags';
 import { toast } from 'sonner';
 import clsx from 'clsx';
+
+// --- Utility Components for the Sidebar ---
+
+const NavLinkItem = ({ 
+  to, 
+  icon: Icon, 
+  label, 
+  isActive, 
+  onClick 
+}: { 
+  to: string; 
+  icon: React.ElementType; 
+  label: string; 
+  isActive: boolean;
+  onClick?: () => void;
+}) => (
+  <Link
+    to={to}
+    onClick={onClick}
+    className={clsx(
+      "group flex items-center gap-3 px-3 py-2 rounded-md transition-all duration-200",
+      isActive 
+        ? "bg-secondary/60 text-foreground" 
+        : "text-muted-foreground hover:text-foreground hover:bg-secondary/30"
+    )}
+  >
+    <Icon 
+      size={18} 
+      strokeWidth={1.5} 
+      className={clsx(
+        "transition-colors", 
+        isActive ? "text-foreground" : "text-muted-foreground group-hover:text-foreground"
+      )} 
+    />
+    <span className="text-sm font-medium tracking-tight">{label}</span>
+  </Link>
+);
+
+const ActionButton = ({ 
+  icon: Icon, 
+  label, 
+  onClick,
+  shortcut 
+}: { 
+  icon: React.ElementType; 
+  label: string; 
+  onClick: () => void;
+  shortcut?: string;
+}) => (
+  <button
+    onClick={onClick}
+    className="w-full group flex items-center justify-between px-3 py-2 rounded-md text-muted-foreground hover:text-foreground hover:bg-secondary/30 transition-all duration-200"
+  >
+    <div className="flex items-center gap-3">
+      <Icon size={18} strokeWidth={1.5} className="text-muted-foreground group-hover:text-foreground transition-colors" />
+      <span className="text-sm font-medium tracking-tight">{label}</span>
+    </div>
+    {shortcut && (
+      <span className="text-[10px] font-mono opacity-0 group-hover:opacity-50 transition-opacity border border-border px-1 rounded">
+        {shortcut}
+      </span>
+    )}
+  </button>
+);
 
 export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { addCard } = useCardOperations();
   const { settings, updateSettings } = useSettings();
-  const { signOut } = useAuth();
+  const { signOut, user } = useAuth();
   const location = useLocation();
+  
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isCramModalOpen, setIsCramModalOpen] = useState(false);
@@ -50,176 +116,199 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
     { code: 'polish', name: 'Polish', Flag: PolishFlag },
     { code: 'norwegian', name: 'Norwegian', Flag: NorwegianFlag },
     { code: 'japanese', name: 'Japanese', Flag: JapaneseFlag },
+    { code: 'spanish', name: 'Spanish', Flag: SpanishFlag },
   ] as const;
 
   const currentLanguage = languages.find(lang => lang.code === settings.language) || languages[0];
 
-  const navItems = [
-    { icon: LayoutDashboard, label: 'Overview', path: '/' },
-    { icon: ListIcon, label: 'Index', path: '/cards' },
-    { icon: GraduationCap, label: 'Study', path: '/study' },
-    { icon: Trophy, label: 'Leaderboard', path: '/leaderboard' },
-  ];
+  const handleMobileClick = () => {
+    setIsMobileNavOpen(false);
+  };
 
-  const Navigation: React.FC<{ onInteract?: () => void }> = ({ onInteract }) => (
-    <div className="flex flex-col h-full py-8 md:py-6">
-      <div className="px-6 mb-12 md:mb-10">
-        <div className="flex items-center gap-3">
-          <div className="w-6 h-6 bg-foreground rounded-sm flex items-center justify-center">
-             <span className="text-background font-bold text-[10px] tracking-tighter">LF</span>
+  const NavigationContent = () => (
+    <div className="flex flex-col h-full py-6 px-4">
+      {/* 1. Header / Logo */}
+      <div className="px-2 mb-10 flex items-center justify-between">
+        <div className="flex items-center gap-2.5">
+          <div className="w-5 h-5 bg-foreground text-background rounded-[4px] flex items-center justify-center">
+             <Command size={12} strokeWidth={3} />
           </div>
           <span className="font-semibold tracking-tight text-sm">LinguaFlow</span>
         </div>
+        <span className="text-[9px] font-mono text-muted-foreground/50 border border-border/50 px-1 rounded">
+          V2.0
+        </span>
       </div>
 
-      <nav className="flex-1 px-4 md:px-3 space-y-1 md:space-y-0.5">
-        {navItems.map((item) => {
-          const isActive = location.pathname === item.path;
-          return (
-            <Link
-              key={item.path}
-              to={item.path}
-              onClick={() => {
-                // Close sheet on mobile after navigation
-                onInteract && onInteract();
-              }}
-              className={clsx(
-                "flex items-center gap-4 md:gap-3 px-4 py-4 md:px-3 md:py-2 rounded-md transition-all duration-200 group",
-                isActive 
-                  ? "bg-secondary text-foreground" 
-                  : "text-muted-foreground hover:text-foreground hover:bg-secondary/50"
-              )}
-            >
-              <item.icon className={clsx("w-6 h-6 md:w-4 md:h-4 transition-colors", isActive ? "text-foreground" : "text-muted-foreground group-hover:text-foreground")} strokeWidth={2} />
-              <span className="text-lg md:text-sm font-medium">{item.label}</span>
-            </Link>
-          );
-        })}
-        
-        <div className="pt-8 md:pt-6 pb-4 md:pb-2 px-4 md:px-3">
-          <p className="text-xs md:text-[10px] font-mono uppercase tracking-widest text-muted-foreground/60">Actions</p>
+      {/* 2. Main Navigation */}
+      <div className="space-y-1">
+        <div className="px-3 pb-2">
+          <span className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground/50">Menu</span>
         </div>
+        <NavLinkItem 
+          to="/" 
+          icon={LayoutDashboard} 
+          label="Overview" 
+          isActive={location.pathname === '/'} 
+          onClick={handleMobileClick}
+        />
+        <NavLinkItem 
+          to="/cards" 
+          icon={ListIcon} 
+          label="Index" 
+          isActive={location.pathname === '/cards'} 
+          onClick={handleMobileClick}
+        />
+        <NavLinkItem 
+          to="/study" 
+          icon={GraduationCap} 
+          label="Study" 
+          isActive={location.pathname === '/study'} 
+          onClick={handleMobileClick}
+        />
+        <NavLinkItem 
+          to="/leaderboard" 
+          icon={Trophy} 
+          label="Leaderboard" 
+          isActive={location.pathname === '/leaderboard'} 
+          onClick={handleMobileClick}
+        />
+      </div>
 
-        <button
-          onClick={() => { setIsAddModalOpen(true); onInteract && onInteract(); }}
-          className="w-full flex items-center gap-4 md:gap-3 px-4 py-4 md:px-3 md:py-2 rounded-md text-muted-foreground hover:text-foreground hover:bg-secondary/50 transition-all duration-200 group"
-        >
-            <Plus className="w-6 h-6 md:w-4 md:h-4" strokeWidth={2} />
-            <span className="text-lg md:text-sm font-medium">Add Entry</span>
-        </button>
-        <button
-          onClick={() => { setIsCramModalOpen(true); onInteract && onInteract(); }}
-            className="w-full flex items-center gap-4 md:gap-3 px-4 py-4 md:px-3 md:py-2 rounded-md text-muted-foreground hover:text-foreground hover:bg-secondary/50 transition-all duration-200 group"
-        >
-            <Zap className="w-6 h-6 md:w-4 md:h-4" strokeWidth={2} />
-            <span className="text-lg md:text-sm font-medium">Cram</span>
-        </button>
-        <button
-          onClick={() => { setIsSabotageOpen(true); onInteract && onInteract(); }}
-            className="w-full flex items-center gap-4 md:gap-3 px-4 py-4 md:px-3 md:py-2 rounded-md text-muted-foreground hover:text-foreground hover:bg-secondary/50 transition-all duration-200 group"
-        >
-            <Skull className="w-6 h-6 md:w-4 md:h-4" strokeWidth={2} />
-            <span className="text-lg md:text-sm font-medium">Sabotage</span>
-        </button>
-      </nav>
+      {/* 3. Utilities / Tools */}
+      <div className="mt-8 space-y-1">
+        <div className="px-3 pb-2">
+          <span className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground/50">Tools</span>
+        </div>
+        <ActionButton 
+          icon={Plus} 
+          label="Add Entry" 
+          onClick={() => { setIsAddModalOpen(true); handleMobileClick(); }} 
+        />
+        <ActionButton 
+          icon={Zap} 
+          label="Cram Mode" 
+          onClick={() => { setIsCramModalOpen(true); handleMobileClick(); }} 
+        />
+        <ActionButton 
+          icon={Skull} 
+          label="Sabotage" 
+          onClick={() => { setIsSabotageOpen(true); handleMobileClick(); }} 
+        />
+      </div>
 
-      <div className="px-4 md:px-3 mt-auto space-y-2 md:space-y-1 pb-8 md:pb-0">
+      {/* 4. Footer (User & Settings) */}
+      <div className="mt-auto pt-6 space-y-2 border-t border-border/40">
+        
+        {/* Language Selector */}
         <DropdownMenu>
             <DropdownMenuTrigger asChild>
-            <button className="w-full flex items-center justify-between px-4 py-4 md:px-3 md:py-2 rounded-md text-muted-foreground hover:text-foreground hover:bg-secondary/50 transition-all group">
-                <div className="flex items-center gap-4 md:gap-3">
-                    <currentLanguage.Flag className="w-5 h-auto md:w-3.5 rounded-xs grayscale group-hover:grayscale-0 transition-all" />
-                    <span className="text-lg md:text-sm font-medium">{currentLanguage.name}</span>
+            <button className="w-full flex items-center justify-between px-3 py-2 rounded-md text-muted-foreground hover:text-foreground hover:bg-secondary/30 transition-all group">
+                <div className="flex items-center gap-3">
+                    <div className="w-4 h-4 flex items-center justify-center grayscale group-hover:grayscale-0 transition-all">
+                        <currentLanguage.Flag className="w-full h-auto rounded-[2px]" />
+                    </div>
+                    <span className="text-sm font-medium">{currentLanguage.name}</span>
                 </div>
-                <ChevronUp size={14} className="text-muted-foreground group-hover:text-foreground opacity-50" />
+                <ChevronUp size={14} className="text-muted-foreground/50 group-hover:text-foreground transition-colors" />
             </button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="start" className="w-56 p-1">
+            <DropdownMenuContent align="start" className="w-52 p-1 bg-background border-border">
             {languages.map((lang) => (
                 <DropdownMenuItem
                 key={lang.code}
                 onClick={() => {
                     updateSettings({ language: lang.code });
                     toast.success(`Switched to ${lang.name}`);
-              onInteract && onInteract();
+                    handleMobileClick();
                 }}
-                className="gap-3 py-2"
+                className="gap-3 py-2 text-xs font-medium"
                 >
-                <lang.Flag className="w-3.5 h-auto rounded-xs" />
-                <span className="font-medium text-sm">{lang.name}</span>
+                <lang.Flag className="w-3.5 h-auto rounded-[2px]" />
+                <span className="flex-1">{lang.name}</span>
                 {settings.language === lang.code && <Check size={14} className="ml-auto" />}
                 </DropdownMenuItem>
             ))}
             </DropdownMenuContent>
         </DropdownMenu>
 
+        {/* Settings */}
         <button
-          onClick={() => { setIsSettingsOpen(true); onInteract && onInteract(); }}
-          className="w-full flex items-center gap-4 md:gap-3 px-4 py-4 md:px-3 md:py-2 rounded-md text-muted-foreground hover:text-foreground hover:bg-secondary/50 transition-all"
+          onClick={() => { setIsSettingsOpen(true); handleMobileClick(); }}
+          className="w-full flex items-center gap-3 px-3 py-2 rounded-md text-muted-foreground hover:text-foreground hover:bg-secondary/30 transition-all"
         >
-          <Settings className="w-6 h-6 md:w-4 md:h-4" strokeWidth={2} />
-          <span className="text-lg md:text-sm font-medium">Settings</span>
+          <Settings size={18} strokeWidth={1.5} />
+          <span className="text-sm font-medium">Settings</span>
         </button>
+
+        {/* Sign Out */}
         <button
-          onClick={() => { signOut(); onInteract && onInteract(); }}
-          className="w-full flex items-center gap-4 md:gap-3 px-4 py-4 md:px-3 md:py-2 rounded-md text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-all"
+          onClick={() => { signOut(); handleMobileClick(); }}
+          className="w-full flex items-center gap-3 px-3 py-2 rounded-md text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-all"
         >
-          <LogOut className="w-6 h-6 md:w-4 md:h-4" strokeWidth={2} />
-          <span className="text-lg md:text-sm font-medium">Sign Out</span>
+          <LogOut size={18} strokeWidth={1.5} />
+          <span className="text-sm font-medium">Log out</span>
         </button>
+        
+        {user && (
+            <div className="px-3 pt-2">
+                <p className="text-[10px] font-mono text-muted-foreground/40 truncate">
+                    {user.email}
+                </p>
+            </div>
+        )}
       </div>
     </div>
   );
 
   return (
-    <div className="min-h-screen bg-background text-foreground font-sans selection:bg-foreground selection:text-background">
-      {/* Desktop Sidebar */}
+    <div className="min-h-screen bg-background text-foreground font-sans selection:bg-primary/20 selection:text-foreground">
+      
+      {/* Desktop Sidebar - Fixed Left */}
       {!isStudyMode && (
-        <aside className="hidden md:block fixed left-0 top-0 h-full w-60 border-r border-border/40 z-30 bg-background/50 backdrop-blur-xl">
-          <Navigation />
+        <aside className="hidden md:block fixed left-0 top-0 h-full w-64 border-r border-border/40 z-40 bg-background">
+          <NavigationContent />
         </aside>
       )}
 
       {/* Mobile Header */}
       {!isStudyMode && (
-        <div className="md:hidden fixed top-0 left-0 right-0 h-14 border-b border-border/40 bg-background/80 backdrop-blur-md z-30 flex items-center justify-between px-4">
+        <div className="md:hidden fixed top-0 left-0 right-0 h-14 border-b border-border/40 bg-background/80 backdrop-blur-md z-40 flex items-center justify-between px-4">
           <div className="flex items-center gap-2">
-             <div className="w-5 h-5 bg-foreground rounded-sm flex items-center justify-center">
-                <span className="text-background font-bold text-[8px] tracking-tighter">LF</span>
+             <div className="w-5 h-5 bg-foreground text-background rounded-[4px] flex items-center justify-center">
+                <Command size={12} strokeWidth={3} />
              </div>
              <span className="font-semibold tracking-tight text-sm">LinguaFlow</span>
           </div>
-          {/* Controlled Sheet for mobile sidebar */}
-          <Sheet
-            // Radix Dialog root supports controlled open state
-            open={isMobileNavOpen}
-            onOpenChange={(open) => setIsMobileNavOpen(open)}
-          >
+          
+          <Sheet open={isMobileNavOpen} onOpenChange={setIsMobileNavOpen}>
             <SheetTrigger asChild>
-              <button className="p-2 -mr-2 text-muted-foreground hover:text-foreground"><Menu size={20} strokeWidth={1.5} /></button>
+              <button className="p-2 -mr-2 text-muted-foreground hover:text-foreground active:opacity-70">
+                <Menu size={20} strokeWidth={1.5} />
+              </button>
             </SheetTrigger>
-            <SheetContent side="top" className="p-0 w-full h-full border-b-0">
-              <Navigation onInteract={() => setIsMobileNavOpen(false)} />
+            <SheetContent side="left" className="p-0 w-72 border-r border-border/40">
+              <NavigationContent />
             </SheetContent>
           </Sheet>
         </div>
       )}
 
-      {/* Main Content */}
+      {/* Main Content Area */}
       <main className={clsx(
-        "min-h-screen transition-all duration-300",
-        !isStudyMode ? "md:ml-60 pt-14 md:pt-0" : "p-0"
+        "min-h-screen transition-all duration-300 ease-in-out",
+        !isStudyMode ? "md:ml-64 pt-14 md:pt-0" : "p-0"
       )}>
         <div className={clsx(
-          "mx-auto w-full h-full",
-          !isStudyMode ? "max-w-6xl p-6 md:p-12 lg:p-16" : ""
+          "w-full h-full mx-auto",
+          !isStudyMode ? "max-w-7xl p-6 md:p-12" : ""
         )}>
           {children}
           <SabotageNotification />
         </div>
       </main>
 
-      {/* Modals */}
+      {/* Global Modals */}
       <AddCardModal isOpen={isAddModalOpen} onClose={() => setIsAddModalOpen(false)} onAdd={addCard} />
       <SettingsModal isOpen={isSettingsOpen} onClose={() => setIsSettingsOpen(false)} />
       <CramModal isOpen={isCramModalOpen} onClose={() => setIsCramModalOpen(false)} />

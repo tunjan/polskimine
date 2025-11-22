@@ -24,7 +24,7 @@ export const GeneralSettings: React.FC<GeneralSettingsProps> = ({
   const { theme, setTheme } = useTheme();
 
   return (
-    <div className="space-y-10 max-w-lg animate-in fade-in slide-in-from-bottom-2 duration-500">
+    <div className="space-y-6 md:space-y-10 max-w-lg animate-in fade-in slide-in-from-bottom-2 duration-500">
       <section>
         <MetaLabel>Profile</MetaLabel>
         <div className="space-y-2">
@@ -71,7 +71,7 @@ export const GeneralSettings: React.FC<GeneralSettingsProps> = ({
               language: value as UserSettings['language'],
             }))
           }
-          options={['polish', 'norwegian', 'japanese'].map((language) => ({
+          options={['polish', 'norwegian', 'japanese', 'spanish'].map((language) => ({
             value: language,
             label: LANGUAGE_NAMES[language as keyof typeof LANGUAGE_NAMES],
           }))}

@@ -6,7 +6,8 @@ import { FSRS_DEFAULTS } from '../constants';
 const createLimits = (val: number): Record<Language, number> => ({
   polish: val,
   norwegian: val,
-  japanese: val
+  japanese: val,
+  spanish: val
 });
 
 export const DEFAULT_SETTINGS: UserSettings = {
@@ -15,6 +16,7 @@ export const DEFAULT_SETTINGS: UserSettings = {
     polish: '346 84% 45%',
     norwegian: '200 90% 40%',
     japanese: '330 85% 65%',
+    spanish: '45 100% 50%', // Yellow/Goldish
   },
   dailyNewLimits: createLimits(20),
   dailyReviewLimits: createLimits(100),
