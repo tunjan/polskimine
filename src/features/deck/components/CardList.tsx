@@ -1,10 +1,11 @@
 import React from 'react';
 import { FixedSizeList as List, ListChildComponentProps } from 'react-window';
 import AutoSizer from 'react-virtualized-auto-sizer';
-import { MoreHorizontal, Pencil, Trash2 } from 'lucide-react';
+import { MoreHorizontal, Pencil, Trash2, Clock } from 'lucide-react';
 import { Card } from '@/types';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import clsx from 'clsx';
+import { formatDistanceToNow, parseISO, isPast, isValid } from 'date-fns';
 
 interface CardListProps {
   cards: Card[];
@@ -12,6 +13,30 @@ interface CardListProps {
   onEditCard: (card: Card) => void;
   onDeleteCard: (id: string) => void;
 }
+
+// Helper to format the due date friendly
+const DueDateLabel = ({ dateStr, status }: { dateStr: string, status: string }) => {
+  if (status === 'new') return null;
+  
+  const date = parseISO(dateStr);
+  if (!isValid(date)) return null;
+
+  const isOverdue = isPast(date);
+  const relativeTime = formatDistanceToNow(date, { addSuffix: true });
+
+  return (
+    <div 
+      className={clsx(
+        "flex items-center gap-1.5 text-xs transition-colors",
+        isOverdue ? "text-orange-500 font-medium" : "text-muted-foreground"
+      )}
+      title={`Due: ${date.toLocaleString()}`}
+    >
+      <Clock size={10} />
+      <span className="truncate max-w-[100px]">{isOverdue ? 'Due now' : relativeTime}</span>
+    </div>
+  );
+};
 
 const Row = ({ index, style, data }: ListChildComponentProps<any>) => {
   const { cards, onEditCard, onDeleteCard } = data;
@@ -45,10 +70,12 @@ const Row = ({ index, style, data }: ListChildComponentProps<any>) => {
       </div>
 
       {/* Metadata - Only show on md+ */}
-      <div className="hidden md:flex flex-col items-end justify-center w-32 shrink-0 gap-1">
+      <div className="hidden md:flex flex-col items-end justify-center w-40 shrink-0 gap-1.5">
         <span className={clsx("text-[10px] font-mono uppercase tracking-widest", statusColors[card.status as keyof typeof statusColors])}>
             {card.status}
         </span>
+        {/* Added Due Date Label */}
+        <DueDateLabel dateStr={card.dueDate} status={card.status} />
       </div>
       
       {/* Actions */}
@@ -71,7 +98,15 @@ const Row = ({ index, style, data }: ListChildComponentProps<any>) => {
   );
 };
 
-export const CardList: React.FC<CardListProps> = ({ cards, onEditCard, onDeleteCard }) => (
+export const CardList: React.FC<CardListProps> = ({ cards, onEditCard, onDeleteCard }) => {
+  // FIX: Memoize itemData to prevent re-rendering all rows on every parent re-render
+  const itemData = React.useMemo(() => ({
+    cards,
+    onEditCard,
+    onDeleteCard
+  }), [cards, onEditCard, onDeleteCard]);
+
+  return (
     <div className="flex-1 h-full w-full border-t border-border/40">
       <AutoSizer>
         {({ height, width }) => (
@@ -80,7 +115,7 @@ export const CardList: React.FC<CardListProps> = ({ cards, onEditCard, onDeleteC
             width={width}
             itemCount={cards.length}
             itemSize={80}
-            itemData={{ cards, onEditCard, onDeleteCard }}
+            itemData={itemData}
             className="no-scrollbar"
           >
             {Row}
@@ -88,4 +123,5 @@ export const CardList: React.FC<CardListProps> = ({ cards, onEditCard, onDeleteC
         )}
       </AutoSizer>
     </div>
-);
+  );
+};

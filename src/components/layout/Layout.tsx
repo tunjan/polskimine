@@ -21,6 +21,7 @@ import { AddCardModal } from '@/features/deck/components/AddCardModal';
 import { SettingsModal } from '@/features/settings/components/SettingsModal';
 import { CramModal } from '@/features/study/components/CramModal';
 import { SabotageStore } from '@/features/sabotage/SabotageStore';
+import { SabotageNotification } from '@/features/sabotage/SabotageNotification';
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import {
   DropdownMenu,
@@ -41,6 +42,7 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isCramModalOpen, setIsCramModalOpen] = useState(false);
   const [isSabotageOpen, setIsSabotageOpen] = useState(false);
+  const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
 
   const isStudyMode = location.pathname === '/study';
 
@@ -59,7 +61,7 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
     { icon: Trophy, label: 'Leaderboard', path: '/leaderboard' },
   ];
 
-  const Navigation = () => (
+  const Navigation: React.FC<{ onInteract?: () => void }> = ({ onInteract }) => (
     <div className="flex flex-col h-full py-8 md:py-6">
       <div className="px-6 mb-12 md:mb-10">
         <div className="flex items-center gap-3">
@@ -77,6 +79,10 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
             <Link
               key={item.path}
               to={item.path}
+              onClick={() => {
+                // Close sheet on mobile after navigation
+                onInteract && onInteract();
+              }}
               className={clsx(
                 "flex items-center gap-4 md:gap-3 px-4 py-4 md:px-3 md:py-2 rounded-md transition-all duration-200 group",
                 isActive 
@@ -95,21 +101,21 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
         </div>
 
         <button
-            onClick={() => setIsAddModalOpen(true)}
-            className="w-full flex items-center gap-4 md:gap-3 px-4 py-4 md:px-3 md:py-2 rounded-md text-muted-foreground hover:text-foreground hover:bg-secondary/50 transition-all duration-200 group"
+          onClick={() => { setIsAddModalOpen(true); onInteract && onInteract(); }}
+          className="w-full flex items-center gap-4 md:gap-3 px-4 py-4 md:px-3 md:py-2 rounded-md text-muted-foreground hover:text-foreground hover:bg-secondary/50 transition-all duration-200 group"
         >
             <Plus className="w-6 h-6 md:w-4 md:h-4" strokeWidth={2} />
             <span className="text-lg md:text-sm font-medium">Add Entry</span>
         </button>
         <button
-            onClick={() => setIsCramModalOpen(true)}
+          onClick={() => { setIsCramModalOpen(true); onInteract && onInteract(); }}
             className="w-full flex items-center gap-4 md:gap-3 px-4 py-4 md:px-3 md:py-2 rounded-md text-muted-foreground hover:text-foreground hover:bg-secondary/50 transition-all duration-200 group"
         >
             <Zap className="w-6 h-6 md:w-4 md:h-4" strokeWidth={2} />
             <span className="text-lg md:text-sm font-medium">Cram</span>
         </button>
         <button
-            onClick={() => setIsSabotageOpen(true)}
+          onClick={() => { setIsSabotageOpen(true); onInteract && onInteract(); }}
             className="w-full flex items-center gap-4 md:gap-3 px-4 py-4 md:px-3 md:py-2 rounded-md text-muted-foreground hover:text-foreground hover:bg-secondary/50 transition-all duration-200 group"
         >
             <Skull className="w-6 h-6 md:w-4 md:h-4" strokeWidth={2} />
@@ -135,6 +141,7 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
                 onClick={() => {
                     updateSettings({ language: lang.code });
                     toast.success(`Switched to ${lang.name}`);
+              onInteract && onInteract();
                 }}
                 className="gap-3 py-2"
                 >
@@ -147,14 +154,14 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
         </DropdownMenu>
 
         <button
-          onClick={() => setIsSettingsOpen(true)}
+          onClick={() => { setIsSettingsOpen(true); onInteract && onInteract(); }}
           className="w-full flex items-center gap-4 md:gap-3 px-4 py-4 md:px-3 md:py-2 rounded-md text-muted-foreground hover:text-foreground hover:bg-secondary/50 transition-all"
         >
           <Settings className="w-6 h-6 md:w-4 md:h-4" strokeWidth={2} />
           <span className="text-lg md:text-sm font-medium">Settings</span>
         </button>
         <button
-          onClick={signOut}
+          onClick={() => { signOut(); onInteract && onInteract(); }}
           className="w-full flex items-center gap-4 md:gap-3 px-4 py-4 md:px-3 md:py-2 rounded-md text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-all"
         >
           <LogOut className="w-6 h-6 md:w-4 md:h-4" strokeWidth={2} />
@@ -182,12 +189,17 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
              </div>
              <span className="font-semibold tracking-tight text-sm">LinguaFlow</span>
           </div>
-          <Sheet>
+          {/* Controlled Sheet for mobile sidebar */}
+          <Sheet
+            // Radix Dialog root supports controlled open state
+            open={isMobileNavOpen}
+            onOpenChange={(open) => setIsMobileNavOpen(open)}
+          >
             <SheetTrigger asChild>
               <button className="p-2 -mr-2 text-muted-foreground hover:text-foreground"><Menu size={20} strokeWidth={1.5} /></button>
             </SheetTrigger>
             <SheetContent side="top" className="p-0 w-full h-full border-b-0">
-              <Navigation />
+              <Navigation onInteract={() => setIsMobileNavOpen(false)} />
             </SheetContent>
           </Sheet>
         </div>
@@ -203,6 +215,7 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
           !isStudyMode ? "max-w-6xl p-6 md:p-12 lg:p-16" : ""
         )}>
           {children}
+          <SabotageNotification />
         </div>
       </main>
 

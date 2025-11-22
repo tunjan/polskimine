@@ -42,6 +42,26 @@ export const GeneralSettings: React.FC<GeneralSettingsProps> = ({
       </section>
 
       <section>
+        <MetaLabel>AI Configuration</MetaLabel>
+        <div className="space-y-2">
+          <div className="text-sm font-medium">Gemini API Key</div>
+          <Input
+            type="password"
+            value={localSettings.geminiApiKey || ''}
+            onChange={(e) => setLocalSettings(prev => ({ ...prev, geminiApiKey: e.target.value }))}
+            placeholder="AIzaSy..."
+            className="font-mono text-xs"
+          />
+          <p className="text-xs text-muted-foreground">
+            Required for Auto-Fill and Card Generation.
+            <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noreferrer" className="ml-1 underline hover:text-primary">
+              Get a free key here.
+            </a>
+          </p>
+        </div>
+      </section>
+
+      <section>
         <MetaLabel>Target Language</MetaLabel>
         <EditorialSelect
           value={localSettings.language}

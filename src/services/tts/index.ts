@@ -18,6 +18,8 @@ class TTSService {
     private browserVoices: SpeechSynthesisVoice[] = [];
     private audioContext: AudioContext | null = null;
     private currentSource: AudioBufferSourceNode | null = null;
+    private currentOperationId = 0;
+    private abortController: AbortController | null = null;
 
     constructor() {
         if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
@@ -31,6 +33,18 @@ class TTSService {
 
     private updateVoices() {
         this.browserVoices = window.speechSynthesis.getVoices();
+    }
+    
+    /**
+     * Cleanup method to properly dispose of AudioContext and prevent memory leaks
+     * Call this when the service is being destroyed or on app unmount
+     */
+    dispose() {
+        this.stop();
+        if (this.audioContext) {
+            this.audioContext.close().catch(() => {});
+            this.audioContext = null;
+        }
     }
 
     /**
@@ -94,14 +108,21 @@ class TTSService {
     }
 
     async speak(text: string, language: Language, settings: TTSSettings) {
+        // Abort any in-flight network request before starting new speak
+        if (this.abortController) {
+            this.abortController.abort();
+        }
         this.stop();
+        const opId = ++this.currentOperationId;
+        this.abortController = new AbortController();
 
+        
         if (settings.provider === 'browser') {
             this.speakBrowser(text, language, settings);
         } else if (settings.provider === 'google') {
-            await this.speakGoogle(text, language, settings);
+            await this.speakGoogle(text, language, settings, opId);
         } else if (settings.provider === 'azure') {
-            await this.speakAzure(text, language, settings);
+            await this.speakAzure(text, language, settings, opId);
         }
     }
 
@@ -124,13 +145,14 @@ class TTSService {
         window.speechSynthesis.speak(utterance);
     }
 
-    private async speakGoogle(text: string, language: Language, settings: TTSSettings) {
+    private async speakGoogle(text: string, language: Language, settings: TTSSettings, opId: number) {
         if (!settings.googleApiKey) return;
 
         try {
             const response = await fetch(`https://texttospeech.googleapis.com/v1/text:synthesize?key=${settings.googleApiKey}`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
+                signal: this.abortController?.signal,
                 body: JSON.stringify({
                     input: { text },
                     voice: settings.voiceURI ? { name: settings.voiceURI, languageCode: LANG_CODE_MAP[language][0] } : { languageCode: LANG_CODE_MAP[language][0] },
@@ -144,15 +166,20 @@ class TTSService {
             });
 
             const data = await response.json();
+            
+            // Check if this operation is still the latest active one
+            if (this.currentOperationId !== opId) return;
+            
             if (data.audioContent) {
-                this.playAudioContent(data.audioContent);
+                this.playAudioContent(data.audioContent, opId);
             }
-        } catch (e) {
+        } catch (e: any) {
+            if (e?.name === 'AbortError') return; // Silently ignore aborted fetches
             console.error("Google TTS error", e);
         }
     }
 
-    private async speakAzure(text: string, language: Language, settings: TTSSettings) {
+    private async speakAzure(text: string, language: Language, settings: TTSSettings, opId: number) {
         if (!settings.azureApiKey || !settings.azureRegion) return;
 
         try {
@@ -176,56 +203,83 @@ class TTSService {
                     'X-Microsoft-OutputFormat': 'audio-16khz-128kbitrate-mono-mp3',
                     'User-Agent': 'LinguaFlow'
                 },
+                signal: this.abortController?.signal,
                 body: ssml
             });
 
             if (!response.ok) throw new Error(await response.text());
 
+            // Check if this operation is still the latest active one
+            if (this.currentOperationId !== opId) return;
+
             const blob = await response.blob();
             const arrayBuffer = await blob.arrayBuffer();
-            this.playAudioBuffer(arrayBuffer);
+            this.playAudioBuffer(arrayBuffer, opId);
 
-        } catch (e) {
+        } catch (e: any) {
+            if (e?.name === 'AbortError') return;
             console.error("Azure TTS error", e);
         }
     }
 
-    private playAudioContent(base64Audio: string) {
+    private playAudioContent(base64Audio: string, opId: number) {
         const binaryString = window.atob(base64Audio);
         const len = binaryString.length;
         const bytes = new Uint8Array(len);
         for (let i = 0; i < len; i++) {
             bytes[i] = binaryString.charCodeAt(i);
         }
-        this.playAudioBuffer(bytes.buffer);
+        this.playAudioBuffer(bytes.buffer, opId);
     }
 
-    private async playAudioBuffer(buffer: ArrayBuffer) {
+    private async playAudioBuffer(buffer: ArrayBuffer, opId: number) {
         if (!this.audioContext) {
             this.audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
         }
 
         try {
             const decodedBuffer = await this.audioContext.decodeAudioData(buffer);
+            
+            // CRITICAL CHECK: Ensure we are still on the same operation
+            if (this.currentOperationId !== opId) return;
+
             if (this.currentSource) {
                 this.currentSource.stop();
             }
-            this.currentSource = this.audioContext.createBufferSource();
-            this.currentSource.buffer = decodedBuffer;
-            this.currentSource.connect(this.audioContext.destination);
-            this.currentSource.start(0);
+                        this.currentSource = this.audioContext.createBufferSource();
+                        this.currentSource.buffer = decodedBuffer;
+                        this.currentSource.connect(this.audioContext.destination);
+                        this.currentSource.onended = () => {
+                            // Suspend the context when idle to conserve resources & avoid autoplay blocking policies
+                            if (this.audioContext && this.audioContext.state === 'running') {
+                                this.audioContext.suspend().catch(() => {});
+                            }
+                        };
+                        // Resume if previously suspended (user initiated playback implied)
+                        if (this.audioContext.state === 'suspended') {
+                            try { await this.audioContext.resume(); } catch {}
+                        }
+                        this.currentSource.start(0);
         } catch (e) {
             console.error("Audio playback error", e);
         }
     }
 
     stop() {
+        this.currentOperationId++; // Invalidate any pending async operations
+        if (this.abortController) {
+            this.abortController.abort();
+            this.abortController = null;
+        }
         if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
             window.speechSynthesis.cancel();
         }
         if (this.currentSource) {
             this.currentSource.stop();
             this.currentSource = null;
+        }
+        if (this.audioContext && this.audioContext.state === 'running') {
+            this.audioContext.suspend().catch(() => {});
         }
     }
 }

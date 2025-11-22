@@ -29,7 +29,7 @@ export function ThemeProvider({
     root.classList.add('light');
   }, []);
 
-  const value = {
+  const value: ThemeContextState = {
     theme,
     setTheme: () => {}, // No-op
   };

@@ -1,4 +1,7 @@
+// supabase/functions/generate-card/index.ts
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
+// Declare Deno for TypeScript type checking environment
+declare const Deno: any;
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -12,18 +15,16 @@ serve(async (req: Request) => {
   }
 
   try {
-    // 2. Parse body
+    // Extract user-provided apiKey (optional) and prompt
     const { prompt, apiKey: userApiKey } = await req.json()
-    
-    // 3. Validate Key
-    // Use user key if provided (BYOK), otherwise fallback to env
+    // Fallback to server env key if user did not provide one
     const apiKey = userApiKey || Deno.env.get('GEMINI_API_KEY')
 
     if (!apiKey) {
       throw new Error('No Gemini API Key provided. Please add one in Settings.')
     }
 
-    // 4. Call Google Gemini API
+    // 3. Call Google Gemini API
     const response = await fetch(
       `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`,
       {
@@ -39,16 +40,15 @@ serve(async (req: Request) => {
 
     const data = await response.json()
 
-    // 5. Handle API Errors
+    // 4. Parse the response
     if (!response.ok) {
       console.error('Gemini API Error:', data)
-      const errorMessage = data.error?.message || 'Failed to generate content from Gemini'
-      throw new Error(errorMessage)
+      throw new Error(data.error?.message || 'Failed to generate content')
     }
 
     const generatedText = data.candidates?.[0]?.content?.parts?.[0]?.text || ''
 
-    // 6. Return Success
+    // 5. Return the text to your React app
     return new Response(
       JSON.stringify({ text: generatedText }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }

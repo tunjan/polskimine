@@ -1,29 +1,29 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
-import App from './App';
+import App from '@/App';
 
 // Mock all context providers and components
-vi.mock('./contexts/ThemeContext', () => ({
+vi.mock('@/contexts/ThemeContext', () => ({
   ThemeProvider: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
 }));
 
-vi.mock('./contexts/SettingsContext', () => ({
+vi.mock('@/contexts/SettingsContext', () => ({
   SettingsProvider: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
 }));
 
-vi.mock('./contexts/DeckContext', () => ({
+vi.mock('@/contexts/DeckContext', () => ({
   DeckProvider: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
 }));
 
-vi.mock('./components/Layout', () => ({
+vi.mock('@/components/layout/Layout', () => ({
   Layout: ({ children }: { children: React.ReactNode }) => <div data-testid="layout">{children}</div>,
 }));
 
-vi.mock('./routes/DashboardRoute', () => ({
+vi.mock('@/routes/DashboardRoute', () => ({
   DashboardRoute: () => <div data-testid="dashboard-route">Dashboard</div>,
 }));
 
-vi.mock('./routes/StudyRoute', () => ({
+vi.mock('@/routes/StudyRoute', () => ({
   StudyRoute: () => <div data-testid="study-route">Study</div>,
 }));
 

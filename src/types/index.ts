@@ -69,8 +69,9 @@ export interface TTSSettings {
 export interface UserSettings {
   language: Language;
   languageColors?: Record<Language, string>; // HSL values e.g. "346 84% 45%"
-  dailyNewLimit: number;
-  dailyReviewLimit: number;
+  // Per-language study limits (migrated from single number fields)
+  dailyNewLimits: Record<Language, number>;
+  dailyReviewLimits: Record<Language, number>;
   autoPlayAudio: boolean;
   blindMode: boolean; // New: Play audio before showing text
   showTranslationAfterFlip: boolean;
@@ -82,4 +83,5 @@ export interface UserSettings {
     w?: number[]; // Weights
     enable_fuzzing?: boolean;
   }
+  geminiApiKey: string; // Gemini API key for client-side AI calls
 }

@@ -15,30 +15,52 @@ const createCard = (sentence: string, translation: string, targetWord?: string, 
 });
 
 export const BEGINNER_DECK: Card[] = [
+  // --- GREETINGS & ESSENTIALS ---
+  createCard("Dzień dobry, poproszę kawę.", "Good morning, a coffee please.", "poproszę", "Polite way to ask for something."),
+  createCard("Dziękuję bardzo.", "Thank you very much.", "Dziękuję", ""),
+  createCard("Nie rozumiem.", "I don't understand.", "rozumiem", "Verb: rozumieć."),
+  createCard("Przepraszam, gdzie jest toaleta?", "Excuse me, where is the toilet?", "gdzie", ""),
+  createCard("Mówisz po angielsku?", "Do you speak English?", "Mówisz", "Informal singular."),
 
-  createCard("Dzień dobry.", "Good morning / Good afternoon.", undefined, "Formal greeting used during the day."),
-  createCard("Dobry wieczór.", "Good evening.", undefined, "Formal greeting used in the evening."),
-  createCard("Cześć.", "Hi / Bye.", undefined, "Informal greeting and farewell."),
-  createCard("Do widzenia.", "Goodbye.", undefined, "Formal farewell."),
-  createCard("Dobranoc.", "Good night.", undefined, "Used before going to sleep."),
-  createCard("Dziękuję.", "Thank you.", undefined, ""),
-  createCard("Proszę.", "Please / Here you go.", undefined, ""),
-  createCard("Przepraszam.", "I'm sorry / Excuse me.", undefined, ""),
-  createCard("Tak.", "Yes.", undefined, ""),
-  createCard("Nie.", "No.", undefined, ""),
+  // --- TO BE (BYĆ) ---
+  createCard("Jestem zmęczony.", "I am tired (male).", "Jestem", ""),
+  createCard("Ona jest bardzo miła.", "She is very nice.", "jest", ""),
+  createCard("To jest mój dom.", "This is my house.", "To", "Used as a pointer here."),
+  createCard("Jesteśmy w pracy.", "We are at work.", "pracy", "Locative case of 'praca'."),
+  createCard("Gdzie oni są?", "Where are they?", "są", ""),
 
+  // --- TO HAVE (MIEĆ) & NEGATION (GENITIVE) ---
+  createCard("Mam pytanie.", "I have a question.", "Mam", ""),
+  createCard("Nie mam czasu.", "I don't have time.", "czasu", "Genitive case of 'czas' (negation)."),
+  createCard("Masz ochotę na piwo?", "Do you feel like having a beer?", "ochotę", "Idiom: Mieć ochotę na..."),
+  createCard("On nie ma pieniędzy.", "He doesn't have money.", "pieniędzy", "Genitive plural."),
 
-  createCard("Jak masz na imię?", "What is your name?", "imię", "Informal."),
-  createCard("Mam na imię Anna.", "My name is Anna.", "imię", ""),
-  createCard("Miło mi cię poznać.", "Nice to meet you.", "poznać", "Informal."),
-  createCard("Skąd jesteś?", "Where are you from?", "jesteś", "Informal."),
-  createCard("Jestem z Polski.", "I am from Poland.", "Polski", "Genitive case of Polska."),
-  createCard("Mieszkam w Warszawie.", "I live in Warsaw.", "Warszawie", "Locative case of Warszawa."),
+  // --- COMMON VERBS ---
+  createCard("Co robisz?", "What are you doing?", "robisz", ""),
+  createCard("Idę do sklepu.", "I am going to the store.", "Idę", "Directional movement."),
+  createCard("Chcę kupić chleb.", "I want to buy bread.", "Chcę", "Verb: chcieć + infinitive."),
+  createCard("Lubię czytać książki.", "I like reading books.", "Lubię", ""),
+  createCard("Muszę już iść.", "I have to go now.", "Muszę", "Modal verb: musieć."),
+  createCard("Wiesz, o co chodzi?", "Do you know what it's about?", "Wiesz", "Common phrase."),
+  createCard("Mogę ci pomóc?", "Can I help you?", "pomóc", "Takes dative case (ci)."),
 
+  // --- PRONOUNS & QUESTIONS ---
+  createCard("Kto to jest?", "Who is this?", "Kto", ""),
+  createCard("Dlaczego płaczesz?", "Why are you crying?", "Dlaczego", ""),
+  createCard("Kiedy wracasz?", "When are you coming back?", "Kiedy", ""),
+  createCard("Wszystko w porządku?", "Is everything in order/okay?", "porządku", ""),
+  createCard("Nic się nie stało.", "Nothing happened.", "Nic", "Double negation is standard in Polish."),
 
-  createCard("Jestem zmęczony.", "I am tired.", "Jestem", "Masculine form."),
-  createCard("Jesteś głodna?", "Are you hungry?", "Jesteś", "Feminine form."),
-  createCard("On jest w domu.", "He is at home.", "jest", ""),
-  createCard("Ona jest w pracy.", "She is at work.", "jest", ""),
-  createCard("To jest trudne.", "This is difficult.", "jest", ""),
+  // --- ADJECTIVES & DESCRIBING ---
+  createCard("Ten samochód jest szybki.", "This car is fast.", "szybki", ""),
+  createCard("Pogoda jest dzisiaj ładna.", "The weather is nice today.", "ładna", ""),
+  createCard("Jest mi zimno.", "I am cold.", "zimno", "Literally: 'It is cold to me'."),
+  createCard("To jest za drogie.", "This is too expensive.", "drogie", ""),
+
+  // --- TIME & PLACE ---
+  createCard("Mieszkam w Polsce.", "I live in Poland.", "Polsce", "Locative case."),
+  createCard("Widzimy się jutro.", "See you tomorrow.", "jutro", ""),
+  createCard("Teraz czy później?", "Now or later?", "Teraz", ""),
+  createCard("Jest blisko stąd.", "It is close to here.", "blisko", ""),
+  createCard("To jest daleko.", "It is far.", "daleko", ""),
 ];

@@ -40,6 +40,10 @@ export const GenerateCardsModal: React.FC<GenerateCardsModalProps> = ({ isOpen, 
       toast.error("Please enter a topic");
       return;
     }
+    if (!settings.geminiApiKey) {
+      toast.error("Please add your Gemini API Key in Settings > General");
+      return;
+    }
 
     setLoading(true);
     try {
@@ -47,7 +51,8 @@ export const GenerateCardsModal: React.FC<GenerateCardsModalProps> = ({ isOpen, 
         difficulty,
         topic,
         count: count[0],
-        language: settings.language
+        language: settings.language,
+        apiKey: settings.geminiApiKey
       });
       
       setGeneratedData(results);

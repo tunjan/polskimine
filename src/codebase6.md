@@ -1,11 +1,12 @@
 
-## src/App.tsx
+## App.tsx
 import React from 'react';
 import { BrowserRouter } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { DeckProvider } from '@/contexts/DeckContext';
 import { SettingsProvider } from '@/contexts/SettingsContext';
 import { ThemeProvider } from '@/contexts/ThemeContext';
+import { SabotageProvider } from '@/contexts/SabotageContext';
 import { Toaster } from 'sonner';
 import { Layout } from '@/components/layout/Layout';
 import { ErrorBoundary } from '@/components/common/ErrorBoundary';
@@ -49,8 +50,10 @@ const App: React.FC = () => {
           <AuthProvider>
             <SettingsProvider>
               <DeckProvider>
-                <LinguaFlowApp />
-                <Toaster position="bottom-right" />
+                <SabotageProvider>
+                  <LinguaFlowApp />
+                  <Toaster position="bottom-right" />
+                </SabotageProvider>
               </DeckProvider>
             </SettingsProvider>
           </AuthProvider>
@@ -61,7 +64,7 @@ const App: React.FC = () => {
 };
 
 export default App;
-## src/components/common/ErrorBoundary.tsx
+## components/common/ErrorBoundary.tsx
 import React, { Component, ErrorInfo, ReactNode } from 'react';
 import { Button } from '@/components/ui/button';
 
@@ -106,7 +109,7 @@ export class ErrorBoundary extends Component<Props, State> {
     return this.props.children;
   }
 }
-## src/components/common/LanguageThemeManager.tsx
+## components/common/LanguageThemeManager.tsx
 import React, { useLayoutEffect } from 'react';
 import { useSettings } from '@/contexts/SettingsContext';
 
@@ -152,11 +155,20 @@ export const LanguageThemeManager: React.FC = () => {
     } else {
       styleTag.innerHTML = '';
     }
+
+    // Cleanup on unmount to prevent theme leak
+    return () => {
+      root.removeAttribute('data-language');
+      const existingStyleTag = document.getElementById(STYLE_TAG_ID);
+      if (existingStyleTag) {
+        existingStyleTag.remove();
+      }
+    };
   }, [settings.language, settings.languageColors]);
 
   return null;
 };
-## src/components/form/EditorialInput.tsx
+## components/form/EditorialInput.tsx
 import React from 'react';
 import { Input } from '@/components/ui/input';
 
@@ -165,7 +177,7 @@ interface EditorialInputProps extends React.InputHTMLAttributes<HTMLInputElement
 export const EditorialInput: React.FC<EditorialInputProps> = (props) => (
   <Input {...props} />
 );
-## src/components/form/EditorialSelect.tsx
+## components/form/EditorialSelect.tsx
 import React from 'react';
 import {
   Select,
@@ -209,7 +221,7 @@ export const EditorialSelect: React.FC<EditorialSelectProps> = ({
     </SelectContent>
   </Select>
 );
-## src/components/form/EditorialTextarea.tsx
+## components/form/EditorialTextarea.tsx
 import React from 'react';
 import { Textarea } from '@/components/ui/textarea';
 
@@ -218,7 +230,7 @@ interface EditorialTextareaProps extends React.TextareaHTMLAttributes<HTMLTextAr
 export const EditorialTextarea: React.FC<EditorialTextareaProps> = (props) => (
   <Textarea {...props} />
 );
-## src/components/form/MetaLabel.tsx
+## components/form/MetaLabel.tsx
 import React from 'react';
 import clsx from 'clsx';
 
@@ -232,7 +244,7 @@ export const MetaLabel: React.FC<MetaLabelProps> = ({ className, children }) => 
     {children}
   </label>
 );
-## src/components/layout/Layout.tsx
+## components/layout/Layout.tsx
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import {
@@ -256,6 +268,7 @@ import { AddCardModal } from '@/features/deck/components/AddCardModal';
 import { SettingsModal } from '@/features/settings/components/SettingsModal';
 import { CramModal } from '@/features/study/components/CramModal';
 import { SabotageStore } from '@/features/sabotage/SabotageStore';
+import { SabotageNotification } from '@/features/sabotage/SabotageNotification';
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import {
   DropdownMenu,
@@ -276,6 +289,7 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isCramModalOpen, setIsCramModalOpen] = useState(false);
   const [isSabotageOpen, setIsSabotageOpen] = useState(false);
+  const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
 
   const isStudyMode = location.pathname === '/study';
 
@@ -294,7 +308,7 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
     { icon: Trophy, label: 'Leaderboard', path: '/leaderboard' },
   ];
 
-  const Navigation = () => (
+  const Navigation: React.FC<{ onInteract?: () => void }> = ({ onInteract }) => (
     <div className="flex flex-col h-full py-8 md:py-6">
       <div className="px-6 mb-12 md:mb-10">
         <div className="flex items-center gap-3">
@@ -312,6 +326,10 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
             <Link
               key={item.path}
               to={item.path}
+              onClick={() => {
+                // Close sheet on mobile after navigation
+                onInteract && onInteract();
+              }}
               className={clsx(
                 "flex items-center gap-4 md:gap-3 px-4 py-4 md:px-3 md:py-2 rounded-md transition-all duration-200 group",
                 isActive 
@@ -330,21 +348,21 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
         </div>
 
         <button
-            onClick={() => setIsAddModalOpen(true)}
-            className="w-full flex items-center gap-4 md:gap-3 px-4 py-4 md:px-3 md:py-2 rounded-md text-muted-foreground hover:text-foreground hover:bg-secondary/50 transition-all duration-200 group"
+          onClick={() => { setIsAddModalOpen(true); onInteract && onInteract(); }}
+          className="w-full flex items-center gap-4 md:gap-3 px-4 py-4 md:px-3 md:py-2 rounded-md text-muted-foreground hover:text-foreground hover:bg-secondary/50 transition-all duration-200 group"
         >
             <Plus className="w-6 h-6 md:w-4 md:h-4" strokeWidth={2} />
             <span className="text-lg md:text-sm font-medium">Add Entry</span>
         </button>
         <button
-            onClick={() => setIsCramModalOpen(true)}
+          onClick={() => { setIsCramModalOpen(true); onInteract && onInteract(); }}
             className="w-full flex items-center gap-4 md:gap-3 px-4 py-4 md:px-3 md:py-2 rounded-md text-muted-foreground hover:text-foreground hover:bg-secondary/50 transition-all duration-200 group"
         >
             <Zap className="w-6 h-6 md:w-4 md:h-4" strokeWidth={2} />
             <span className="text-lg md:text-sm font-medium">Cram</span>
         </button>
         <button
-            onClick={() => setIsSabotageOpen(true)}
+          onClick={() => { setIsSabotageOpen(true); onInteract && onInteract(); }}
             className="w-full flex items-center gap-4 md:gap-3 px-4 py-4 md:px-3 md:py-2 rounded-md text-muted-foreground hover:text-foreground hover:bg-secondary/50 transition-all duration-200 group"
         >
             <Skull className="w-6 h-6 md:w-4 md:h-4" strokeWidth={2} />
@@ -370,6 +388,7 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
                 onClick={() => {
                     updateSettings({ language: lang.code });
                     toast.success(`Switched to ${lang.name}`);
+              onInteract && onInteract();
                 }}
                 className="gap-3 py-2"
                 >
@@ -382,14 +401,14 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
         </DropdownMenu>
 
         <button
-          onClick={() => setIsSettingsOpen(true)}
+          onClick={() => { setIsSettingsOpen(true); onInteract && onInteract(); }}
           className="w-full flex items-center gap-4 md:gap-3 px-4 py-4 md:px-3 md:py-2 rounded-md text-muted-foreground hover:text-foreground hover:bg-secondary/50 transition-all"
         >
           <Settings className="w-6 h-6 md:w-4 md:h-4" strokeWidth={2} />
           <span className="text-lg md:text-sm font-medium">Settings</span>
         </button>
         <button
-          onClick={signOut}
+          onClick={() => { signOut(); onInteract && onInteract(); }}
           className="w-full flex items-center gap-4 md:gap-3 px-4 py-4 md:px-3 md:py-2 rounded-md text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-all"
         >
           <LogOut className="w-6 h-6 md:w-4 md:h-4" strokeWidth={2} />
@@ -417,12 +436,17 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
              </div>
              <span className="font-semibold tracking-tight text-sm">LinguaFlow</span>
           </div>
-          <Sheet>
+          {/* Controlled Sheet for mobile sidebar */}
+          <Sheet
+            // Radix Dialog root supports controlled open state
+            open={isMobileNavOpen}
+            onOpenChange={(open) => setIsMobileNavOpen(open)}
+          >
             <SheetTrigger asChild>
               <button className="p-2 -mr-2 text-muted-foreground hover:text-foreground"><Menu size={20} strokeWidth={1.5} /></button>
             </SheetTrigger>
             <SheetContent side="top" className="p-0 w-full h-full border-b-0">
-              <Navigation />
+              <Navigation onInteract={() => setIsMobileNavOpen(false)} />
             </SheetContent>
           </Sheet>
         </div>
@@ -438,6 +462,7 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
           !isStudyMode ? "max-w-6xl p-6 md:p-12 lg:p-16" : ""
         )}>
           {children}
+          <SabotageNotification />
         </div>
       </main>
 
@@ -450,7 +475,7 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
   );
 };
 
-## src/components/ui/badge.tsx
+## components/ui/badge.tsx
 import * as React from "react"
 import { cva, type VariantProps } from "class-variance-authority"
 
@@ -487,7 +512,7 @@ function Badge({ className, variant, ...props }: BadgeProps) {
 }
 
 export { Badge, badgeVariants }
-## src/components/ui/button.tsx
+## components/ui/button.tsx
 import * as React from "react"
 import { Slot } from "@radix-ui/react-slot"
 import { cva, type VariantProps } from "class-variance-authority"
@@ -545,7 +570,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
 Button.displayName = "Button"
 
 export { Button, buttonVariants }
-## src/components/ui/card.tsx
+## components/ui/card.tsx
 import * as React from "react"
 
 import { cn } from "@/lib/utils"
@@ -622,7 +647,7 @@ const CardFooter = React.forwardRef<
 CardFooter.displayName = "CardFooter"
 
 export { Card, CardHeader, CardFooter, CardTitle, CardDescription, CardContent }
-## src/components/ui/color-picker.tsx
+## components/ui/color-picker.tsx
 import React from 'react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -681,7 +706,7 @@ export const ColorPicker: React.FC<ColorPickerProps> = ({ label, value, onChange
     </div>
   );
 };
-## src/components/ui/dialog.tsx
+## components/ui/dialog.tsx
 import * as React from "react"
 import * as DialogPrimitive from "@radix-ui/react-dialog"
 import { X } from "lucide-react"
@@ -806,7 +831,7 @@ export {
   DialogTitle,
   DialogDescription,
 }
-## src/components/ui/dropdown-menu.tsx
+## components/ui/dropdown-menu.tsx
 import * as React from "react"
 import * as DropdownMenuPrimitive from "@radix-ui/react-dropdown-menu"
 import { Check, ChevronRight, Circle } from "lucide-react"
@@ -1006,7 +1031,7 @@ export {
   DropdownMenuSubTrigger,
   DropdownMenuRadioGroup,
 }
-## src/components/ui/flags.tsx
+## components/ui/flags.tsx
 import React from 'react';
 
 interface FlagProps {
@@ -1034,7 +1059,7 @@ export const JapaneseFlag: React.FC<FlagProps> = ({ className }) => (
     <circle cx="16" cy="12" r="7" fill="#FF6B6B"/>
   </svg>
 );
-## src/components/ui/input.tsx
+## components/ui/input.tsx
 import * as React from "react"
 
 import { cn } from "@/lib/utils"
@@ -1057,7 +1082,7 @@ const Input = React.forwardRef<HTMLInputElement, React.ComponentProps<"input">>(
 Input.displayName = "Input"
 
 export { Input }
-## src/components/ui/label.tsx
+## components/ui/label.tsx
 import * as React from "react"
 import * as LabelPrimitive from "@radix-ui/react-label"
 import { cva, type VariantProps } from "class-variance-authority"
@@ -1082,7 +1107,7 @@ const Label = React.forwardRef<
 Label.displayName = LabelPrimitive.Root.displayName
 
 export { Label }
-## src/components/ui/progress.tsx
+## components/ui/progress.tsx
 "use client"
 
 import * as React from "react"
@@ -1111,7 +1136,7 @@ const Progress = React.forwardRef<
 Progress.displayName = ProgressPrimitive.Root.displayName
 
 export { Progress }
-## src/components/ui/select.tsx
+## components/ui/select.tsx
 "use client"
 
 import * as React from "react"
@@ -1271,7 +1296,7 @@ export {
   SelectScrollUpButton,
   SelectScrollDownButton,
 }
-## src/components/ui/sheet.tsx
+## components/ui/sheet.tsx
 import * as React from "react"
 import * as SheetPrimitive from "@radix-ui/react-dialog"
 import { cva, type VariantProps } from "class-variance-authority"
@@ -1410,7 +1435,7 @@ export {
   SheetTitle,
   SheetDescription,
 }
-## src/components/ui/slider.tsx
+## components/ui/slider.tsx
 "use client"
 
 import * as React from "react"
@@ -1439,7 +1464,7 @@ const Slider = React.forwardRef<
 Slider.displayName = SliderPrimitive.Root.displayName
 
 export { Slider }
-## src/components/ui/switch.tsx
+## components/ui/switch.tsx
 import * as React from "react"
 import * as SwitchPrimitives from "@radix-ui/react-switch"
 
@@ -1467,7 +1492,7 @@ const Switch = React.forwardRef<
 Switch.displayName = SwitchPrimitives.Root.displayName
 
 export { Switch }
-## src/components/ui/textarea.tsx
+## components/ui/textarea.tsx
 import * as React from "react"
 
 import { cn } from "@/lib/utils"
@@ -1490,7 +1515,7 @@ const Textarea = React.forwardRef<
 Textarea.displayName = "Textarea"
 
 export { Textarea }
-## src/components/ui/tooltip.tsx
+## components/ui/tooltip.tsx
 import * as React from "react"
 import * as TooltipPrimitive from "@radix-ui/react-tooltip"
 
@@ -1521,7 +1546,7 @@ const TooltipContent = React.forwardRef<
 TooltipContent.displayName = TooltipPrimitive.Content.displayName
 
 export { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider }
-## src/constants.ts
+## constants.ts
 import { Card, ReviewHistory } from './types';
 
 export const MOCK_CARDS: Card[] = [
@@ -1583,6 +1608,17 @@ export const MOCK_CARDS: Card[] = [
 ];
 
 
+/**
+ * Helper to convert a Date to YYYY-MM-DD string using LOCAL time.
+ * Matches date-fns format('yyyy-MM-dd') usage elsewhere to avoid UTC drift
+ * (e.g., dates near midnight appearing as previous/next day in some timezones).
+ */
+export const getUTCDateString = (date: Date): string => {
+  const offset = date.getTimezoneOffset();
+  const localDate = new Date(date.getTime() - offset * 60 * 1000);
+  return localDate.toISOString().split('T')[0];
+};
+
 const generateMockHistory = (): ReviewHistory => {
   const history: ReviewHistory = {};
   const today = new Date();
@@ -1590,7 +1626,7 @@ const generateMockHistory = (): ReviewHistory => {
 
     const pastDate = new Date(today);
     pastDate.setDate(today.getDate() - Math.floor(Math.random() * 365));
-    const dateKey = pastDate.toISOString().split('T')[0];
+    const dateKey = getUTCDateString(pastDate);
     
 
     history[dateKey] = (history[dateKey] || 0) + Math.floor(Math.random() * 10) + 1;
@@ -1619,7 +1655,7 @@ export const LANGUAGE_NAMES = {
   norwegian: 'Norwegian',
   japanese: 'Japanese'
 } as const;
-## src/contexts/AuthContext.tsx
+## contexts/AuthContext.tsx
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import type { Session, User } from '@supabase/supabase-js';
 import { supabase } from '@/lib/supabase';
@@ -1645,6 +1681,7 @@ interface AuthContextType {
   signUpWithEmail: (email: string, password: string, username: string) => Promise<void>;
   updateUsername: (username: string) => Promise<void>;
   loading: boolean;
+  incrementXPOptimistically: (amount: number) => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -1693,6 +1730,41 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       subscription.unsubscribe();
     };
   }, []);
+
+  // --- REALTIME LISTENER FOR POINTS/XP ---
+  useEffect(() => {
+    if (!user) return;
+
+    const channel = supabase
+      .channel('profile-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'profiles',
+          filter: `id=eq.${user.id}`,
+        },
+        (payload) => {
+          const newProfile = payload.new as Profile;
+          // Prevent XP/Points downgrade during optimistic updates
+          // Only accept server updates if they are higher than current local state
+          setProfile(prev => {
+            if (!prev) return newProfile;
+            // Guard against race condition: don't downgrade XP if local is ahead
+            if (prev.xp > newProfile.xp || prev.points > newProfile.points) {
+              return prev;
+            }
+            return newProfile;
+          });
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [user]);
 
   const fetchProfile = async (userId: string) => {
     const { data, error } = await supabase
@@ -1772,13 +1844,26 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       toast.error('Failed to update username');
       throw error;
     }
+    // No need to manually setProfile here, the realtime subscription will catch it
+  };
 
-    setProfile((prev) => (prev ? { ...prev, username: newUsername } : null));
+  const incrementXPOptimistically = (amount: number) => {
+    if (!profile) return;
+    
+    setProfile(prev => {
+      if (!prev) return null;
+      return {
+        ...prev,
+        xp: (prev.xp || 0) + amount,
+        points: (prev.points || 0) + amount,
+        level: Math.floor(Math.sqrt(((prev.xp || 0) + amount) / 100)) + 1
+      };
+    });
   };
 
   return (
     <AuthContext.Provider
-      value={{ session, user, profile, signInWithGoogle, signOut, signInWithEmail, signUpWithEmail, updateUsername, loading }}
+      value={{ session, user, profile, signInWithGoogle, signOut, signInWithEmail, signUpWithEmail, updateUsername, loading, incrementXPOptimistically }}
     >
       {children}
     </AuthContext.Provider>
@@ -1792,7 +1877,7 @@ export const useAuth = () => {
   }
   return context;
 };
-## src/contexts/DeckContext.tsx
+## contexts/DeckContext.tsx
 import React, {
   createContext,
   useCallback,
@@ -1802,9 +1887,9 @@ import React, {
   useRef,
   useState,
 } from 'react';
-import { format } from 'date-fns';
 import { toast } from 'sonner';
 import { Card, DeckStats, Grade, ReviewHistory } from '@/types';
+import { getUTCDateString } from '@/constants';
 import { BEGINNER_DECK } from '@/features/deck/data/beginnerDeck';
 import { NORWEGIAN_BEGINNER_DECK } from '@/features/deck/data/norwegianBeginnerDeck';
 import { JAPANESE_BEGINNER_DECK } from '@/features/deck/data/japaneseBeginnerDeck';
@@ -1864,31 +1949,12 @@ export const DeckProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   // Prevent double loading of beginner deck
   const isSeeding = useRef(false);
+  // Track which languages have been successfully seeded
+  const seededLanguages = useRef<Set<string>>(new Set());
 
-  // Derived Stats
-  const stats = useMemo<DeckStats>(() => {
-    if (!dbStats || !dueCards || !reviewsToday) {
-      return {
-        total: 0,
-        due: 0,
-        newDue: 0,
-        reviewDue: 0,
-        learned: 0,
-        streak: 0,
-        totalReviews: 0,
-        longestStreak: 0,
-      };
-    }
-
-    const limitedCards = applyStudyLimits(dueCards, {
-      dailyNewLimit: settings.dailyNewLimit,
-      dailyReviewLimit: settings.dailyReviewLimit,
-      reviewsToday: reviewsToday,
-    });
-
-    const newDue = limitedCards.filter(isNewCard).length;
-    const reviewDue = limitedCards.length - newDue;
-
+  // Memoize streak calculation separately with higher granularity control
+  // to prevent expensive recalculation on every review
+  const streakStats = useMemo(() => {
     // Calculate streaks from history
     const sortedDates = Object.keys(history || {}).sort();
     let currentStreak = 0;
@@ -1900,17 +1966,18 @@ export const DeckProvider: React.FC<{ children: React.ReactNode }> = ({ children
       0
     );
 
+    // Use UTC date strings consistently to prevent timezone mismatches
     const srsToday = getSRSDate(new Date());
-    const todayStr = format(srsToday, 'yyyy-MM-dd');
+    const todayStr = getUTCDateString(srsToday);
     const srsYesterday = new Date(srsToday);
     srsYesterday.setDate(srsYesterday.getDate() - 1);
-    const yesterdayStr = format(srsYesterday, 'yyyy-MM-dd');
+    const yesterdayStr = getUTCDateString(srsYesterday);
 
     if (history?.[todayStr]) {
       currentStreak = 1;
       const checkDate = new Date(srsYesterday);
       while (true) {
-        const dateStr = format(checkDate, 'yyyy-MM-dd');
+        const dateStr = getUTCDateString(checkDate);
         if (history[dateStr]) {
           currentStreak++;
           checkDate.setDate(checkDate.getDate() - 1);
@@ -1922,7 +1989,7 @@ export const DeckProvider: React.FC<{ children: React.ReactNode }> = ({ children
       currentStreak = 0;
        const checkDate = new Date(srsYesterday);
        while (true) {
-         const dateStr = format(checkDate, 'yyyy-MM-dd');
+         const dateStr = getUTCDateString(checkDate);
          if (history[dateStr]) {
            currentStreak++;
            checkDate.setDate(checkDate.getDate() - 1);
@@ -1950,49 +2017,95 @@ export const DeckProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
     }
 
+    return { currentStreak, longestStreak, totalReviews };
+  }, [history]); // Only recalculate when history object reference changes
+
+  // Derived Stats
+  // Performance note: This calculation now delegates expensive streak computation
+  // to a separate useMemo to reduce render cost during rapid reviews
+  // 
+  // IMPORTANT: The 'due' count is derived from limitedCards.length to ensure consistency.
+  // The optimistic update in useDeckQueries also updates deckStats.due, but this context
+  // uses the client-side array as the source of truth for the current session.
+  // This prevents desync between the mutation's filter logic and the context's applyStudyLimits.
+  const stats = useMemo<DeckStats>(() => {
+    if (!dbStats || !dueCards || !reviewsToday) {
+      return {
+        total: 0,
+        due: 0,
+        newDue: 0,
+        reviewDue: 0,
+        learned: 0,
+        streak: 0,
+        totalReviews: 0,
+        longestStreak: 0,
+      };
+    }
+
+    const currentNewLimit = settings.dailyNewLimits?.[settings.language] ?? 20;
+    const currentReviewLimit = settings.dailyReviewLimits?.[settings.language] ?? 100;
+
+    const limitedCards = applyStudyLimits(dueCards, {
+      dailyNewLimit: currentNewLimit,
+      dailyReviewLimit: currentReviewLimit,
+      reviewsToday: reviewsToday,
+    });
+
+    const newDue = limitedCards.filter(isNewCard).length;
+    const reviewDue = limitedCards.length - newDue;
+
     return {
       total: dbStats.total,
       learned: dbStats.learned,
-      due: limitedCards.length,
+      due: limitedCards.length, // Source of truth: client-side filtered array
       newDue,
       reviewDue,
-      streak: currentStreak,
-      totalReviews,
-      longestStreak,
+      streak: streakStats.currentStreak,
+      totalReviews: streakStats.totalReviews,
+      longestStreak: streakStats.longestStreak,
     };
-  }, [dbStats, dueCards, reviewsToday, history, settings.dailyNewLimit, settings.dailyReviewLimit]);
+  }, [dbStats, dueCards, reviewsToday, settings.dailyNewLimits, settings.dailyReviewLimits, settings.language, streakStats]);
 
   // Beginner Deck Loading
   useEffect(() => {
     const loadBeginnerDeck = async () => {
-      // Check if we are already seeding to prevent race conditions
-      if (isSeeding.current) return;
+      // Abort if currently seeding or this language already seeded
+      if (isSeeding.current || seededLanguages.current.has(settings.language)) return;
 
       if (!statsLoading && dbStats && dbStats.total === 0 && user) {
-         // Lock the process
+         // Lock the process immediately
          isSeeding.current = true;
 
-         const deck =
+         const rawDeck =
               settings.language === 'norwegian'
                 ? NORWEGIAN_BEGINNER_DECK
                 : settings.language === 'japanese'
                 ? JAPANESE_BEGINNER_DECK
                 : BEGINNER_DECK;
             
-         try {
-            await saveAllCards(deck);
-            toast.success(`Loaded Beginner ${languageLabel(settings.language)} course!`);
-            // Invalidate queries to update UI
-            await Promise.all([
-              queryClient.invalidateQueries({ queryKey: ['deckStats', settings.language] }),
-              queryClient.invalidateQueries({ queryKey: ['dueCards', settings.language] }),
-              queryClient.invalidateQueries({ queryKey: ['cards'] })
-            ]);
-         } catch (e) {
-             console.error("Failed to load beginner deck", e);
-             // Optional: Unlock if failed so it can retry on refresh
-             // isSeeding.current = false; 
-         }
+         // FIX: Generate fresh UUIDs to prevent database collisions
+         const deck = rawDeck.map(card => ({
+           ...card,
+           id: crypto.randomUUID(),
+           dueDate: new Date().toISOString()
+         }));
+            
+        try {
+          await saveAllCards(deck);
+          // Mark this language as seeded only after success
+          seededLanguages.current.add(settings.language);
+          toast.success(`Loaded Beginner ${languageLabel(settings.language)} course!`);
+          await Promise.all([
+            queryClient.invalidateQueries({ queryKey: ['deckStats', settings.language] }),
+            queryClient.invalidateQueries({ queryKey: ['dueCards', settings.language] }),
+            queryClient.invalidateQueries({ queryKey: ['cards'] })
+          ]);
+        } catch (e) {
+          console.error("Failed to load beginner deck", e);
+        } finally {
+          // Always unlock so retries (e.g. language switch) are possible
+          isSeeding.current = false;
+        }
       }
     };
     
@@ -2000,7 +2113,7 @@ export const DeckProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, [dbStats, statsLoading, user, settings.language, queryClient]);
 
   const recordReview = useCallback(async (oldCard: Card, grade: Grade) => {
-      const today = format(getSRSDate(new Date()), 'yyyy-MM-dd');
+      const today = getUTCDateString(getSRSDate(new Date()));
       setLastReview({ card: oldCard, date: today });
       
       try {
@@ -2008,7 +2121,8 @@ export const DeckProvider: React.FC<{ children: React.ReactNode }> = ({ children
       } catch (error) {
           console.error("Failed to record review", error);
           toast.error("Failed to save review progress");
-          setLastReview(null); // Clear undo if failed
+          // Only clear undo state if the failed card matches current lastReview
+          setLastReview(prev => (prev?.card.id === oldCard.id ? null : prev));
       }
   }, [recordReviewMutation]);
 
@@ -2059,10 +2173,165 @@ export const useDeck = () => {
   }
   return context;
 };
-## src/contexts/SettingsContext.tsx
+## contexts/SabotageContext.tsx
+import React, { createContext, useContext, useEffect, useState } from 'react';
+import { supabase } from '@/lib/supabase';
+import { useAuth } from './AuthContext';
+
+export type CurseType = 'comic_sans' | 'blur' | 'uwu' | 'rotate' | 'gaslight';
+
+interface ActiveCurse {
+  id: string;
+  curse_type: CurseType;
+  expires_at: string;
+  origin_user_id?: string;
+  sender_username?: string;
+}
+
+interface SabotageContextType {
+  activeCurses: ActiveCurse[];
+  isCursedWith: (type: CurseType) => boolean;
+  notificationQueue: ActiveCurse[];
+  dismissNotification: () => void;
+}
+
+const SabotageContext = createContext<SabotageContextType | undefined>(undefined);
+
+export const SabotageProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const { user } = useAuth();
+  const [activeCurses, setActiveCurses] = useState<ActiveCurse[]>([]);
+  const [notificationQueue, setNotificationQueue] = useState<ActiveCurse[]>([]);
+
+  const fetchCurses = async () => {
+    if (!user) return;
+
+    const { data: cursesData, error } = await supabase
+      .from('active_curses')
+      .select('*')
+      .eq('target_user_id', user.id)
+      .gt('expires_at', new Date().toISOString());
+
+    if (error) {
+      console.error('Error fetching curses:', error);
+      return;
+    }
+
+    const rawCurses = (cursesData || []) as ActiveCurse[];
+
+    const enrichedCurses = await Promise.all(
+      rawCurses.map(async (curse) => {
+        if (curse.origin_user_id) {
+          const { data: profile } = await supabase
+            .from('profiles')
+            .select('username')
+            .eq('id', curse.origin_user_id)
+            .single();
+          return { ...curse, sender_username: profile?.username || 'Unknown Rival' };
+        }
+        return { ...curse, sender_username: 'Anonymous' };
+      })
+    );
+
+    setActiveCurses(enrichedCurses);
+
+    const seenIds: string[] = JSON.parse(localStorage.getItem('linguaflow_seen_curses') || '[]');
+    const newCurses = enrichedCurses.filter((c) => !seenIds.includes(c.id));
+    if (newCurses.length > 0) {
+      setNotificationQueue(newCurses);
+    }
+  };
+
+  useEffect(() => {
+    fetchCurses();
+    if (!user) return;
+
+    const channel = supabase
+      .channel('sabotage_events')
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'active_curses',
+          filter: `target_user_id=eq.${user.id}`,
+        },
+        async (payload) => {
+          const newCurse = payload.new as ActiveCurse;
+          let senderName = 'Anonymous';
+          if (newCurse.origin_user_id) {
+            const { data } = await supabase
+              .from('profiles')
+              .select('username')
+              .eq('id', newCurse.origin_user_id)
+              .single();
+            if (data?.username) senderName = data.username || 'Unknown Rival';
+          }
+          const enriched = { ...newCurse, sender_username: senderName };
+          setActiveCurses((prev) => [...prev, enriched]);
+          setNotificationQueue((prev) => [...prev, enriched]);
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [user]);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const now = new Date().toISOString();
+      setActiveCurses((prev) => {
+        const valid = prev.filter((c) => c.expires_at > now);
+        return valid.length !== prev.length ? valid : prev;
+      });
+    }, 1000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const isCursedWith = (type: CurseType) => activeCurses.some((c) => c.curse_type === type);
+
+  const dismissNotification = () => {
+    setNotificationQueue((prev) => {
+      if (prev.length === 0) return prev;
+      const [dismissed, ...rest] = prev;
+      const seenIds: string[] = JSON.parse(localStorage.getItem('linguaflow_seen_curses') || '[]');
+      if (!seenIds.includes(dismissed.id)) {
+        seenIds.push(dismissed.id);
+        localStorage.setItem('linguaflow_seen_curses', JSON.stringify(seenIds));
+      }
+      return rest;
+    });
+  };
+
+  return (
+    <SabotageContext.Provider
+      value={{ activeCurses, isCursedWith, notificationQueue, dismissNotification }}
+    >
+      {children}
+    </SabotageContext.Provider>
+  );
+};
+
+export const useSabotage = () => {
+  const context = useContext(SabotageContext);
+  if (!context) {
+    throw new Error('useSabotage must be used within SabotageProvider');
+  }
+  return context;
+};
+
+## contexts/SettingsContext.tsx
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { UserSettings } from '../types';
+import { UserSettings, Language } from '../types';
 import { FSRS_DEFAULTS } from '../constants';
+
+// Helper to create per-language limits objects
+const createLimits = (val: number): Record<Language, number> => ({
+  polish: val,
+  norwegian: val,
+  japanese: val
+});
 
 export const DEFAULT_SETTINGS: UserSettings = {
   language: 'polish',
@@ -2071,16 +2340,16 @@ export const DEFAULT_SETTINGS: UserSettings = {
     norwegian: '200 90% 40%',
     japanese: '330 85% 65%',
   },
-  dailyNewLimit: 20,
-  dailyReviewLimit: 100,
+  dailyNewLimits: createLimits(20),
+  dailyReviewLimits: createLimits(100),
   autoPlayAudio: false,
   blindMode: false,
   showTranslationAfterFlip: true,
   ignoreLearningStepsWhenNoCards: false,
-  // Added TTS Defaults
+  geminiApiKey: '',
   tts: {
     provider: 'browser',
-    voiceURI: null, // null = use browser default
+    voiceURI: null,
     volume: 1.0,
     rate: 0.9,
     pitch: 1.0,
@@ -2105,45 +2374,62 @@ interface SettingsContextType {
 const SettingsContext = createContext<SettingsContextType | undefined>(undefined);
 
 export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [settings, setSettings] = useState<UserSettings>(DEFAULT_SETTINGS);
-
-  useEffect(() => {
-    const saved = localStorage.getItem('language_mining_settings');
-    if (saved) {
-      try {
+  // Lazy initialization: read localStorage before first render to avoid overwriting saved settings
+  const [settings, setSettings] = useState<UserSettings>(() => {
+    if (typeof window === 'undefined') return DEFAULT_SETTINGS;
+    try {
+      const saved = localStorage.getItem('language_mining_settings');
+      if (saved) {
         const parsed = JSON.parse(saved);
 
-        setSettings(prev => ({
-            ...prev,
+        // Migration: single numeric fields -> per-language objects
+        let migratedDailyNewLimits = parsed.dailyNewLimits;
+        if (typeof parsed.dailyNewLimit === 'number') {
+          migratedDailyNewLimits = createLimits(parsed.dailyNewLimit);
+        }
+        let migratedDailyReviewLimits = parsed.dailyReviewLimits;
+        if (typeof parsed.dailyReviewLimit === 'number') {
+          migratedDailyReviewLimits = createLimits(parsed.dailyReviewLimit);
+        }
+
+        return {
+          ...DEFAULT_SETTINGS,
             ...parsed,
-            // Deep merge nested objects to ensure new fields (like tts) exist if local storage is old
-            fsrs: { ...prev.fsrs, ...(parsed.fsrs || {}) },
-            tts: { ...prev.tts, ...(parsed.tts || {}) },
-            languageColors: { ...prev.languageColors, ...(parsed.languageColors || {}) }
-        }));
-      } catch (e) {
-        console.error("Failed to parse settings", e);
+            dailyNewLimits: migratedDailyNewLimits || DEFAULT_SETTINGS.dailyNewLimits,
+            dailyReviewLimits: migratedDailyReviewLimits || DEFAULT_SETTINGS.dailyReviewLimits,
+            fsrs: { ...DEFAULT_SETTINGS.fsrs, ...(parsed.fsrs || {}) },
+            tts: { ...DEFAULT_SETTINGS.tts, ...(parsed.tts || {}) },
+            languageColors: { ...DEFAULT_SETTINGS.languageColors, ...(parsed.languageColors || {}) },
+            geminiApiKey: parsed.geminiApiKey || DEFAULT_SETTINGS.geminiApiKey
+        };
       }
+    } catch (e) {
+      console.error('Failed to parse settings', e);
     }
-  }, []);
+    return DEFAULT_SETTINGS;
+  });
 
   const updateSettings = (newSettings: Partial<UserSettings>) => {
-    setSettings(prev => {
-      const updated = {
-        ...prev,
-        ...newSettings,
-        fsrs: { ...prev.fsrs, ...(newSettings.fsrs || {}) },
-        tts: { ...prev.tts, ...(newSettings.tts || {}) },
-        languageColors: { ...prev.languageColors, ...(newSettings.languageColors || {}) }
-      };
-      localStorage.setItem('language_mining_settings', JSON.stringify(updated));
-      return updated;
-    });
+    setSettings(prev => ({
+      ...prev,
+      ...newSettings,
+      fsrs: { ...prev.fsrs, ...(newSettings.fsrs || {}) },
+      tts: { ...prev.tts, ...(newSettings.tts || {}) },
+      languageColors: { ...prev.languageColors, ...(newSettings.languageColors || {}) },
+      dailyNewLimits: { ...prev.dailyNewLimits, ...(newSettings.dailyNewLimits || {}) },
+      dailyReviewLimits: { ...prev.dailyReviewLimits, ...(newSettings.dailyReviewLimits || {}) },
+    }));
   };
+
+  // Sync settings to localStorage whenever they change
+  // (separated from state updater to ensure pure reducer functions and prevent
+  // multiple writes in Strict Mode)
+  useEffect(() => {
+    localStorage.setItem('language_mining_settings', JSON.stringify(settings));
+  }, [settings]);
 
   const resetSettings = () => {
     setSettings(DEFAULT_SETTINGS);
-    localStorage.setItem('language_mining_settings', JSON.stringify(DEFAULT_SETTINGS));
   };
 
   return (
@@ -2160,7 +2446,7 @@ export const useSettings = () => {
   }
   return context;
 };
-## src/contexts/ThemeContext.tsx
+## contexts/ThemeContext.tsx
 import React, { createContext, useContext, useEffect, useState } from 'react';
 
 type Theme = 'dark' | 'light' | 'system';
@@ -2192,7 +2478,7 @@ export function ThemeProvider({
     root.classList.add('light');
   }, []);
 
-  const value = {
+  const value: ThemeContextState = {
     theme,
     setTheme: () => {}, // No-op
   };
@@ -2212,7 +2498,7 @@ export const useTheme = () => {
 
   return context;
 };
-## src/features/auth/AuthPage.tsx
+## features/auth/AuthPage.tsx
 import React, { useState } from 'react';
 import { Command, ArrowRight, Mail, Lock, User as UserIcon, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
@@ -2366,7 +2652,7 @@ export const AuthPage: React.FC = () => {
     </div>
   );
 };
-## src/features/auth/LoginScreen.tsx
+## features/auth/LoginScreen.tsx
 import React from 'react';
 import { LogIn, Command } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
@@ -2401,12 +2687,13 @@ export const LoginScreen: React.FC = () => {
     </div>
   );
 };
-## src/features/dashboard/components/Dashboard.tsx
+## features/dashboard/components/Dashboard.tsx
 import React from 'react';
 import { DeckStats, ReviewHistory } from '@/types';
 import { ArrowRight, TrendingUp, Activity, Info } from 'lucide-react';
 import { Heatmap } from './Heatmap';
 import { RetentionStats } from './RetentionStats';
+import { LevelProgressBar } from './LevelProgressBar';
 import { useSettings } from '@/contexts/SettingsContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { useChartColors } from '@/hooks/useChartColors';
@@ -2414,12 +2701,13 @@ import { format, parseISO } from 'date-fns';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 interface DashboardProps {
-  metrics: { new: number; learning: number; graduated: number; known: number };
-  forecast: { day: string; fullDate: string; count: number }[];
-  stats: DeckStats;
-  history: ReviewHistory;
-  onStartSession: () => void;
-  cards: any[]; // Added to pass to RetentionStats
+    metrics: { new: number; learning: number; graduated: number; known: number };
+    forecast: { day: string; fullDate: string; count: number }[];
+    stats: DeckStats;
+    history: ReviewHistory;
+    onStartSession: () => void;
+    cards: any[]; // Added to pass to RetentionStats
+    languageXp: number; // Per-language XP
 }
 
 const StatCard = ({ label, value, subtext }: { label: string; value: string | number; subtext?: string }) => (
@@ -2432,17 +2720,24 @@ const StatCard = ({ label, value, subtext }: { label: string; value: string | nu
   </div>
 );
 
+// Helper to calculate level from XP
+const calculateLevel = (xp: number) => Math.floor(Math.sqrt(xp / 100)) + 1;
+
 export const Dashboard: React.FC<DashboardProps> = ({
-  metrics,
-  forecast,
-  stats,
-  history,
-  onStartSession,
-  cards
+        metrics,
+        forecast,
+        stats,
+        history,
+        onStartSession,
+        cards,
+        languageXp
 }) => {
   const { settings } = useSettings();
   const { profile } = useAuth();
   const colors = useChartColors();
+
+    // Calculate level based on language specific XP
+    const currentLevel = calculateLevel(languageXp);
 
   return (
     <div className="space-y-16 animate-in fade-in duration-700 pb-12">
@@ -2470,16 +2765,16 @@ export const Dashboard: React.FC<DashboardProps> = ({
             </p>
           </div>
 
-          {/* Breakdown Stats */}
+             {/* Breakdown Stats (Renamed: New->Unseen, Review->Mature) */}
           <div className="flex gap-12 pt-4">
              <div className="flex flex-col gap-1">
                 <span className="text-2xl font-medium tabular-nums">{stats.newDue}</span>
-                <span className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground">New</span>
+                     <span className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground">Unseen</span>
              </div>
              <div className="w-px bg-border h-10" />
              <div className="flex flex-col gap-1">
                 <span className="text-2xl font-medium tabular-nums">{stats.reviewDue}</span>
-                <span className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground">Review</span>
+                     <span className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground">Mature</span>
              </div>
           </div>
         </div>
@@ -2499,75 +2794,74 @@ export const Dashboard: React.FC<DashboardProps> = ({
                 </button>
             </div>
 
-            {/* Profile XP / Points Widget */}
-            <div className="grid grid-cols-2 gap-8">
-                <div>
-                    <div className="flex items-center gap-2 mb-2">
-                        <span className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground">Lifetime XP</span>
-                        <TooltipProvider>
-                            <Tooltip>
-                                <TooltipTrigger>
-                                    <Info size={12} className="text-muted-foreground hover:text-foreground transition-colors" />
-                                </TooltipTrigger>
-                                <TooltipContent side="top" className="max-w-xs p-4 bg-popover border-border">
-                                    <div className="space-y-3">
-                                        <p className="font-semibold text-sm">How to earn XP:</p>
-                                        <ul className="text-xs space-y-1.5 text-muted-foreground list-disc pl-3">
-                                            <li><span className="text-foreground font-medium">New Card:</span> +50 XP</li>
-                                            <li><span className="text-foreground font-medium">Review (Good/Easy):</span> +10 XP</li>
-                                            <li><span className="text-foreground font-medium">Review (Hard):</span> +5 XP</li>
-                                            <li><span className="text-foreground font-medium">Review (Again):</span> +1 XP</li>
-                                        </ul>
-                                        <div className="h-px bg-border my-2"/>
-                                        <p className="text-xs text-muted-foreground">
-                                            XP determines your <span className="text-foreground font-medium">Rank</span> and <span className="text-foreground font-medium">Level</span>. It never decreases.
+            {/* Profile XP / Points Widget + Level Progress */}
+            <div className="space-y-8">
+                <div className="grid grid-cols-2 gap-8">
+                    <div>
+                        <div className="flex items-center gap-2 mb-2">
+                            <span className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground">{settings.language} XP</span>
+                            <TooltipProvider>
+                                <Tooltip>
+                                    <TooltipTrigger>
+                                        <Info size={12} className="text-muted-foreground hover:text-foreground transition-colors" />
+                                    </TooltipTrigger>
+                                    <TooltipContent side="top" className="max-w-xs p-4 bg-popover border-border">
+                                        <div className="space-y-3">
+                                            <p className="font-semibold text-sm">XP Breakdown:</p>
+                                            <ul className="text-xs space-y-1.5 text-muted-foreground list-disc pl-3">
+                                                <li><span className="text-foreground font-medium">New Card:</span> +50 XP</li>
+                                                <li><span className="text-foreground font-medium">Review (Good/Easy):</span> +10 XP</li>
+                                                <li><span className="text-foreground font-medium">Review (Hard):</span> +5 XP</li>
+                                                <li><span className="text-foreground font-medium">Review (Again):</span> +1 XP</li>
+                                            </ul>
+                                        </div>
+                                    </TooltipContent>
+                                </Tooltip>
+                            </TooltipProvider>
+                        </div>
+                        <div className="text-3xl font-light tracking-tight tabular-nums">
+                            {languageXp.toLocaleString()}
+                        </div>
+                    </div>
+                    <div>
+                        <div className="flex items-center gap-2 mb-2">
+                            <span className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground">Points</span>
+                            <TooltipProvider>
+                                <Tooltip>
+                                    <TooltipTrigger>
+                                        <Info size={12} className="text-muted-foreground hover:text-foreground transition-colors" />
+                                    </TooltipTrigger>
+                                    <TooltipContent side="top" className="max-w-xs p-4 bg-popover border-border">
+                                        <p className="text-xs text-muted-foreground leading-relaxed">
+                                            Points are earned 1:1 with XP but are a <span className="text-foreground font-medium">spendable currency</span>. Use them in the Sabotage Store.
                                         </p>
-                                    </div>
-                                </TooltipContent>
-                            </Tooltip>
-                        </TooltipProvider>
+                                    </TooltipContent>
+                                </Tooltip>
+                            </TooltipProvider>
+                        </div>
+                        <div className="text-3xl font-light tracking-tight tabular-nums text-primary">
+                            {profile?.points?.toLocaleString() ?? 0}
+                        </div>
                     </div>
-                    <div className="text-3xl font-light tracking-tight tabular-nums">
-                        {profile?.xp?.toLocaleString() ?? 0}
-                    </div>
-                    <div className="text-xs text-muted-foreground mt-1 font-mono">Lvl {profile?.level ?? 1}</div>
                 </div>
-
-                <div>
-                    <div className="flex items-center gap-2 mb-2">
-                        <span className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground">Points</span>
-                        <TooltipProvider>
-                            <Tooltip>
-                                <TooltipTrigger>
-                                    <Info size={12} className="text-muted-foreground hover:text-foreground transition-colors" />
-                                </TooltipTrigger>
-                                <TooltipContent side="top" className="max-w-xs p-4 bg-popover border-border">
-                                    <p className="text-xs text-muted-foreground leading-relaxed">
-                                        Points are earned 1:1 with XP but are a <span className="text-foreground font-medium">spendable currency</span>. Use them in the Sabotage Store to disrupt other learners on the leaderboard.
-                                    </p>
-                                </TooltipContent>
-                            </Tooltip>
-                        </TooltipProvider>
-                    </div>
-                    <div className="text-3xl font-light tracking-tight tabular-nums text-primary">
-                        {profile?.points?.toLocaleString() ?? 0}
-                    </div>
-                    <div className="text-xs text-muted-foreground mt-1 font-mono">Available</div>
+                {/* New Level Progress Bar using Language XP and Level */}
+                <div className="pt-4 border-t border-border/40">
+                    <LevelProgressBar xp={languageXp} level={currentLevel} />
                 </div>
             </div>
         </div>
       </section>
 
-      {/* Stats Grid */}
+            {/* Stats Grid (Renamed labels) */}
       <section className="grid grid-cols-2 md:grid-cols-4 gap-12 border-t border-border/50 pt-12">
-        <StatCard label="New Cards" value={metrics.new} />
+                <StatCard label="Unseen" value={metrics.new} />
         <StatCard label="Learning" value={metrics.learning} />
-        <StatCard label="Graduated" value={metrics.graduated} />
-        <StatCard label="Mastered" value={metrics.known} />
+                <StatCard label="Mature" value={metrics.graduated} />
+                <StatCard label="Known" value={metrics.known} />
       </section>
 
       {/* Analytics Section */}
-      <section className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
+      <section className="grid grid-cols-1 lg:grid-cols-1 gap-8 lg:gap-12">
         <div className="space-y-6">
             <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
@@ -2597,7 +2891,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
 };
 
 
-## src/features/dashboard/components/Heatmap.tsx
+## features/dashboard/components/Heatmap.tsx
 import React, { useMemo } from 'react';
 import { ReviewHistory } from '@/types';
 import { addDays, subDays, startOfDay, format } from 'date-fns';
@@ -2662,7 +2956,53 @@ export const Heatmap: React.FC<HeatmapProps> = ({ history }) => {
     </TooltipProvider>
   );
 };
-## src/features/dashboard/components/RetentionStats.tsx
+## features/dashboard/components/LevelProgressBar.tsx
+import React, { useMemo } from 'react';
+import { Progress } from '@/components/ui/progress';
+import { cn } from '@/lib/utils';
+
+interface LevelProgressBarProps {
+  xp: number;
+  level: number;
+  className?: string;
+}
+
+export const LevelProgressBar: React.FC<LevelProgressBarProps> = ({ xp, level, className }) => {
+  const progressData = useMemo(() => {
+    // Inverse of: level = Math.floor(Math.sqrt(xp / 100)) + 1
+    // Therefore: xp = 100 * (level - 1)^2
+    const currentLevelStartXP = 100 * Math.pow(level - 1, 2);
+    const nextLevelStartXP = 100 * Math.pow(level, 2);
+
+    const xpGainedInLevel = xp - currentLevelStartXP;
+    const xpRequiredForLevel = nextLevelStartXP - currentLevelStartXP;
+
+    const percentage = Math.min(100, Math.max(0, (xpGainedInLevel / xpRequiredForLevel) * 100));
+    const xpRemaining = nextLevelStartXP - xp;
+
+    return { percentage, xpRemaining, nextLevelStartXP };
+  }, [xp, level]);
+
+  return (
+    <div className={cn('flex flex-col gap-3 w-full', className)}>
+      {/* Labels */}
+      <div className="flex justify-between items-end">
+        <div className="flex flex-col">
+          <span className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground">Current Level</span>
+          <span className="text-sm font-medium font-mono">{level}</span>
+        </div>
+        <div className="flex flex-col items-end">
+          <span className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground">Next Level</span>
+          <span className="text-xs font-mono text-muted-foreground">-{progressData.xpRemaining.toLocaleString()} XP</span>
+        </div>
+      </div>
+      {/* Bar */}
+      <Progress value={progressData.percentage} className="h-1 bg-secondary" />
+    </div>
+  );
+};
+
+## features/dashboard/components/RetentionStats.tsx
 import React, { useMemo, useState } from 'react';
 import { Card } from '@/types';
 import {
@@ -2780,11 +3120,12 @@ export const RetentionStats: React.FC<RetentionStatsProps> = ({ cards }) => {
       }
     });
 
+    // Updated labels & colors: Unseen / Learning / Mature / Known
     return [
-      { name: 'New', value: counts.new, color: colors.primary },
+      { name: 'Unseen', value: counts.new, color: colors.primary },
       { name: 'Learning', value: counts.learning, color: colors.muted },
-      { name: 'Graduated', value: counts.graduated, color: colors.border },
-      { name: 'Known', value: counts.known, color: colors.foreground },
+      { name: 'Mature', value: counts.graduated, color: colors.foreground },
+      { name: 'Known', value: counts.known, color: colors.border },
     ];
   }, [cards, colors]);
 
@@ -2926,8 +3267,8 @@ export const RetentionStats: React.FC<RetentionStatsProps> = ({ cards }) => {
     </div>
   );
 };
-## src/features/deck/components/AddCardModal.tsx
-import React, { useState, useEffect, useMemo } from "react";
+## features/deck/components/AddCardModal.tsx
+import React, { useState, useEffect, useMemo, useRef } from "react";
 import { ArrowRight } from "lucide-react";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Card } from "@/types";
@@ -2956,9 +3297,20 @@ export const AddCardModal: React.FC<AddCardModalProps> = ({ isOpen, onClose, onA
     furigana: ""
   });
   const [isGenerating, setIsGenerating] = useState(false);
+  const isMounted = React.useRef(false);
+  
+  // Track previous open state to detect modal opening
+  const wasOpen = useRef(false);
 
   useEffect(() => {
-    if (isOpen) {
+    isMounted.current = true;
+    return () => { isMounted.current = false; };
+  }, []);
+
+  useEffect(() => {
+    // Only reset form when modal transitions from closed to open
+    // This prevents wiping user input when settings change while modal is open
+    if (isOpen && !wasOpen.current) {
         if (initialCard) {
             const isJapanese = initialCard.language === 'japanese' || (!initialCard.language && settings.language === 'japanese');
             setForm({
@@ -2972,27 +3324,34 @@ export const AddCardModal: React.FC<AddCardModalProps> = ({ isOpen, onClose, onA
             setForm({ sentence: "", targetWord: "", translation: "", notes: "", furigana: "" });
         }
     }
+    wasOpen.current = isOpen;
   }, [isOpen, initialCard, settings.language]);
 
-  const handleAutoFill = async () => {
-    if (!form.sentence) return;
+    const handleAutoFill = async () => {
+        if (!form.sentence) return;
+        if (!settings.geminiApiKey) {
+            toast.error("Please add your Gemini API Key in Settings > General");
+            return;
+        }
     setIsGenerating(true);
     try {
         const targetLanguage = initialCard?.language || settings.language;
-        const result = await aiService.generateCardContent(form.sentence, targetLanguage);
+                const result = await aiService.generateCardContent(form.sentence, targetLanguage, settings.geminiApiKey);
         
-        setForm(prev => ({ 
-            ...prev, 
-            sentence: (targetLanguage === 'japanese' && result.furigana) ? result.furigana : prev.sentence,
-            translation: result.translation, 
-            notes: result.notes,
-            furigana: result.furigana || prev.furigana 
-        }));
-        toast.success("Content generated");
+        if (isMounted.current) {
+            setForm(prev => ({ 
+                ...prev, 
+                sentence: (targetLanguage === 'japanese' && result.furigana) ? result.furigana : prev.sentence,
+                translation: result.translation, 
+                notes: result.notes,
+                furigana: result.furigana || prev.furigana 
+            }));
+            toast.success("Content generated");
+        }
     } catch (e) {
-        toast.error("Generation failed");
+        if (isMounted.current) toast.error("Generation failed");
     } finally {
-        setIsGenerating(false);
+        if (isMounted.current) setIsGenerating(false);
     }
   };
 
@@ -3144,14 +3503,15 @@ export const AddCardModal: React.FC<AddCardModalProps> = ({ isOpen, onClose, onA
     </Dialog>
   );
 };
-## src/features/deck/components/CardList.tsx
+## features/deck/components/CardList.tsx
 import React from 'react';
 import { FixedSizeList as List, ListChildComponentProps } from 'react-window';
 import AutoSizer from 'react-virtualized-auto-sizer';
-import { MoreHorizontal, Pencil, Trash2 } from 'lucide-react';
+import { MoreHorizontal, Pencil, Trash2, Clock } from 'lucide-react';
 import { Card } from '@/types';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import clsx from 'clsx';
+import { formatDistanceToNow, parseISO, isPast, isValid } from 'date-fns';
 
 interface CardListProps {
   cards: Card[];
@@ -3159,6 +3519,30 @@ interface CardListProps {
   onEditCard: (card: Card) => void;
   onDeleteCard: (id: string) => void;
 }
+
+// Helper to format the due date friendly
+const DueDateLabel = ({ dateStr, status }: { dateStr: string, status: string }) => {
+  if (status === 'new') return null;
+  
+  const date = parseISO(dateStr);
+  if (!isValid(date)) return null;
+
+  const isOverdue = isPast(date);
+  const relativeTime = formatDistanceToNow(date, { addSuffix: true });
+
+  return (
+    <div 
+      className={clsx(
+        "flex items-center gap-1.5 text-xs transition-colors",
+        isOverdue ? "text-orange-500 font-medium" : "text-muted-foreground"
+      )}
+      title={`Due: ${date.toLocaleString()}`}
+    >
+      <Clock size={10} />
+      <span className="truncate max-w-[100px]">{isOverdue ? 'Due now' : relativeTime}</span>
+    </div>
+  );
+};
 
 const Row = ({ index, style, data }: ListChildComponentProps<any>) => {
   const { cards, onEditCard, onDeleteCard } = data;
@@ -3192,10 +3576,12 @@ const Row = ({ index, style, data }: ListChildComponentProps<any>) => {
       </div>
 
       {/* Metadata - Only show on md+ */}
-      <div className="hidden md:flex flex-col items-end justify-center w-32 shrink-0 gap-1">
+      <div className="hidden md:flex flex-col items-end justify-center w-40 shrink-0 gap-1.5">
         <span className={clsx("text-[10px] font-mono uppercase tracking-widest", statusColors[card.status as keyof typeof statusColors])}>
             {card.status}
         </span>
+        {/* Added Due Date Label */}
+        <DueDateLabel dateStr={card.dueDate} status={card.status} />
       </div>
       
       {/* Actions */}
@@ -3218,7 +3604,15 @@ const Row = ({ index, style, data }: ListChildComponentProps<any>) => {
   );
 };
 
-export const CardList: React.FC<CardListProps> = ({ cards, onEditCard, onDeleteCard }) => (
+export const CardList: React.FC<CardListProps> = ({ cards, onEditCard, onDeleteCard }) => {
+  // FIX: Memoize itemData to prevent re-rendering all rows on every parent re-render
+  const itemData = React.useMemo(() => ({
+    cards,
+    onEditCard,
+    onDeleteCard
+  }), [cards, onEditCard, onDeleteCard]);
+
+  return (
     <div className="flex-1 h-full w-full border-t border-border/40">
       <AutoSizer>
         {({ height, width }) => (
@@ -3227,7 +3621,7 @@ export const CardList: React.FC<CardListProps> = ({ cards, onEditCard, onDeleteC
             width={width}
             itemCount={cards.length}
             itemSize={80}
-            itemData={{ cards, onEditCard, onDeleteCard }}
+            itemData={itemData}
             className="no-scrollbar"
           >
             {Row}
@@ -3235,9 +3629,10 @@ export const CardList: React.FC<CardListProps> = ({ cards, onEditCard, onDeleteC
         )}
       </AutoSizer>
     </div>
-);
+  );
+};
 
-## src/features/deck/components/GenerateCardsModal.tsx
+## features/deck/components/GenerateCardsModal.tsx
 import React, { useState } from 'react';
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { EditorialInput } from '@/components/form/EditorialInput';
@@ -3280,6 +3675,10 @@ export const GenerateCardsModal: React.FC<GenerateCardsModalProps> = ({ isOpen, 
       toast.error("Please enter a topic");
       return;
     }
+    if (!settings.geminiApiKey) {
+      toast.error("Please add your Gemini API Key in Settings > General");
+      return;
+    }
 
     setLoading(true);
     try {
@@ -3287,7 +3686,8 @@ export const GenerateCardsModal: React.FC<GenerateCardsModalProps> = ({ isOpen, 
         difficulty,
         topic,
         count: count[0],
-        language: settings.language
+        language: settings.language,
+        apiKey: settings.geminiApiKey
       });
       
       setGeneratedData(results);
@@ -3455,7 +3855,7 @@ export const GenerateCardsModal: React.FC<GenerateCardsModalProps> = ({ isOpen, 
     </Dialog>
   );
 };
-## src/features/deck/data/beginnerDeck.ts
+## features/deck/data/beginnerDeck.ts
 import { Card } from '@/types';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -3473,35 +3873,56 @@ const createCard = (sentence: string, translation: string, targetWord?: string, 
 });
 
 export const BEGINNER_DECK: Card[] = [
+  // --- GREETINGS & ESSENTIALS ---
+  createCard("Dzień dobry, poproszę kawę.", "Good morning, a coffee please.", "poproszę", "Polite way to ask for something."),
+  createCard("Dziękuję bardzo.", "Thank you very much.", "Dziękuję", ""),
+  createCard("Nie rozumiem.", "I don't understand.", "rozumiem", "Verb: rozumieć."),
+  createCard("Przepraszam, gdzie jest toaleta?", "Excuse me, where is the toilet?", "gdzie", ""),
+  createCard("Mówisz po angielsku?", "Do you speak English?", "Mówisz", "Informal singular."),
 
-  createCard("Dzień dobry.", "Good morning / Good afternoon.", undefined, "Formal greeting used during the day."),
-  createCard("Dobry wieczór.", "Good evening.", undefined, "Formal greeting used in the evening."),
-  createCard("Cześć.", "Hi / Bye.", undefined, "Informal greeting and farewell."),
-  createCard("Do widzenia.", "Goodbye.", undefined, "Formal farewell."),
-  createCard("Dobranoc.", "Good night.", undefined, "Used before going to sleep."),
-  createCard("Dziękuję.", "Thank you.", undefined, ""),
-  createCard("Proszę.", "Please / Here you go.", undefined, ""),
-  createCard("Przepraszam.", "I'm sorry / Excuse me.", undefined, ""),
-  createCard("Tak.", "Yes.", undefined, ""),
-  createCard("Nie.", "No.", undefined, ""),
+  // --- TO BE (BYĆ) ---
+  createCard("Jestem zmęczony.", "I am tired (male).", "Jestem", ""),
+  createCard("Ona jest bardzo miła.", "She is very nice.", "jest", ""),
+  createCard("To jest mój dom.", "This is my house.", "To", "Used as a pointer here."),
+  createCard("Jesteśmy w pracy.", "We are at work.", "pracy", "Locative case of 'praca'."),
+  createCard("Gdzie oni są?", "Where are they?", "są", ""),
 
+  // --- TO HAVE (MIEĆ) & NEGATION (GENITIVE) ---
+  createCard("Mam pytanie.", "I have a question.", "Mam", ""),
+  createCard("Nie mam czasu.", "I don't have time.", "czasu", "Genitive case of 'czas' (negation)."),
+  createCard("Masz ochotę na piwo?", "Do you feel like having a beer?", "ochotę", "Idiom: Mieć ochotę na..."),
+  createCard("On nie ma pieniędzy.", "He doesn't have money.", "pieniędzy", "Genitive plural."),
 
-  createCard("Jak masz na imię?", "What is your name?", "imię", "Informal."),
-  createCard("Mam na imię Anna.", "My name is Anna.", "imię", ""),
-  createCard("Miło mi cię poznać.", "Nice to meet you.", "poznać", "Informal."),
-  createCard("Skąd jesteś?", "Where are you from?", "jesteś", "Informal."),
-  createCard("Jestem z Polski.", "I am from Poland.", "Polski", "Genitive case of Polska."),
-  createCard("Mieszkam w Warszawie.", "I live in Warsaw.", "Warszawie", "Locative case of Warszawa."),
+  // --- COMMON VERBS ---
+  createCard("Co robisz?", "What are you doing?", "robisz", ""),
+  createCard("Idę do sklepu.", "I am going to the store.", "Idę", "Directional movement."),
+  createCard("Chcę kupić chleb.", "I want to buy bread.", "Chcę", "Verb: chcieć + infinitive."),
+  createCard("Lubię czytać książki.", "I like reading books.", "Lubię", ""),
+  createCard("Muszę już iść.", "I have to go now.", "Muszę", "Modal verb: musieć."),
+  createCard("Wiesz, o co chodzi?", "Do you know what it's about?", "Wiesz", "Common phrase."),
+  createCard("Mogę ci pomóc?", "Can I help you?", "pomóc", "Takes dative case (ci)."),
 
+  // --- PRONOUNS & QUESTIONS ---
+  createCard("Kto to jest?", "Who is this?", "Kto", ""),
+  createCard("Dlaczego płaczesz?", "Why are you crying?", "Dlaczego", ""),
+  createCard("Kiedy wracasz?", "When are you coming back?", "Kiedy", ""),
+  createCard("Wszystko w porządku?", "Is everything in order/okay?", "porządku", ""),
+  createCard("Nic się nie stało.", "Nothing happened.", "Nic", "Double negation is standard in Polish."),
 
-  createCard("Jestem zmęczony.", "I am tired.", "Jestem", "Masculine form."),
-  createCard("Jesteś głodna?", "Are you hungry?", "Jesteś", "Feminine form."),
-  createCard("On jest w domu.", "He is at home.", "jest", ""),
-  createCard("Ona jest w pracy.", "She is at work.", "jest", ""),
-  createCard("To jest trudne.", "This is difficult.", "jest", ""),
+  // --- ADJECTIVES & DESCRIBING ---
+  createCard("Ten samochód jest szybki.", "This car is fast.", "szybki", ""),
+  createCard("Pogoda jest dzisiaj ładna.", "The weather is nice today.", "ładna", ""),
+  createCard("Jest mi zimno.", "I am cold.", "zimno", "Literally: 'It is cold to me'."),
+  createCard("To jest za drogie.", "This is too expensive.", "drogie", ""),
+
+  // --- TIME & PLACE ---
+  createCard("Mieszkam w Polsce.", "I live in Poland.", "Polsce", "Locative case."),
+  createCard("Widzimy się jutro.", "See you tomorrow.", "jutro", ""),
+  createCard("Teraz czy później?", "Now or later?", "Teraz", ""),
+  createCard("Jest blisko stąd.", "It is close to here.", "blisko", ""),
+  createCard("To jest daleko.", "It is far.", "daleko", ""),
 ];
-
-## src/features/deck/data/japaneseBeginnerDeck.ts
+## features/deck/data/japaneseBeginnerDeck.ts
 import { Card } from '@/types';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -3520,45 +3941,48 @@ const createCard = (sentence: string, translation: string, targetWord?: string, 
 });
 
 export const JAPANESE_BEGINNER_DECK: Card[] = [
-
-  createCard("おはようございます。", "Good morning.", undefined, "Formal greeting used in the morning.", "おはようございます。"),
-  createCard("こんにちは。", "Hello / Good afternoon.", undefined, "Used during the day.", "こんにちは。"),
-  createCard("こんばんは。", "Good evening.", undefined, "Used in the evening.", "こんばんは。"),
-  createCard("おやすみなさい。", "Good night.", undefined, "Used before going to sleep.", "おやすみなさい。"),
-  createCard("ありがとうございます。", "Thank you.", undefined, "Formal.", "ありがとうございます。"),
-  createCard("すみません。", "Excuse me / I'm sorry.", undefined, "", "すみません。"),
-  createCard("はい。", "Yes.", undefined, "", "はい。"),
-  createCard("いいえ。", "No.", undefined, "", "いいえ。"),
-
-
-  createCard("はじめまして。", "Nice to meet you.", undefined, "Used when meeting someone for the first time.", "はじめまして。"),
-  createCard("私の名前は田中です。", "My name is Tanaka.", "名前", "", "私[わたし]の 名前[なまえ]は 田中[たなか]です。"),
-  createCard("よろしくお願いします。", "Please treat me well / Nice to meet you.", undefined, "Standard phrase used at the end of an introduction.", "よろしくお 願[ねが]いします。"),
+  // --- GREETINGS & SELF INTRO ---
+  createCard("はじめまして、田中です。", "Nice to meet you, I am Tanaka.", "はじめまして", "", "はじめまして、 田中[たなか]です。"),
+  createCard("よろしくお願いします。", "Please treat me well.", "願い", "Set phrase for introductions.", "よろしくお 願[ねが]いします。"),
   createCard("お元気ですか？", "How are you?", "元気", "", "お 元気[げんき]ですか？"),
-  createCard("元気です。", "I am fine.", "元気", "", "元気[げんき]です。"),
+  createCard("英語を話せますか？", "Can you speak English?", "話せます", "Potential form.", "英語[えいご]を 話[はな]せますか？"),
+  createCard("日本語が少し分かります。", "I understand a little Japanese.", "分かります", "", "日本語[にほんご]が 少[すこ]し 分[わ]かります。"),
 
+  // --- PARTICLES & BASICS (Wa, Desu) ---
+  createCard("これは何ですか？", "What is this?", "何", "", "これは 何[なん]ですか？"),
+  createCard("それは私のペンです。", "That is my pen.", "私", "", "それは 私[わたし]のペンです。"),
+  createCard("トイレはどこですか？", "Where is the toilet?", "どこ", "", "トイレはどこですか？"),
+  createCard("駅はあそこです。", "The station is over there.", "駅", "", "駅[えき]はあそこです。"),
+  
+  // --- VERBS (Masu Form) & OBJECTS (Wo) ---
+  createCard("私は寿司を食べます。", "I eat sushi.", "食べます", "", "私[わたし]は 寿司[すし]を 食[た]べます。"),
+  createCard("何を飲みますか？", "What will you drink?", "飲みます", "", "何[なに]を 飲[の]みますか？"),
+  createCard("毎日、日本語を勉強します。", "I study Japanese every day.", "勉強", "", "毎日[まいにち]、 日本語[にほんご]を 勉強[べんきょう]します。"),
+  createCard("テレビを見ました。", "I watched TV.", "見ました", "Past tense.", "テレビを 見[み]ました。"),
 
-  createCard("私は学生です。", "I am a student.", "学生", "", "私[わたし]は 学生[がくせい]です。"),
-  createCard("これはペンです。", "This is a pen.", "これ", "", "これはペンです。"),
-  createCard("日本語を勉強しています。", "I am studying Japanese.", "勉強", "", "日本語[にほんご]を 勉強[べんきょう]しています。"),
-  createCard("分かりません。", "I don't understand.", "分かりません", "", "分[わ]かりません。"),
-  createCard("もう一度お願いします。", "Once more, please.", "一度", "", "もう 一度[いちど]お 願[ねが]いします。"),
+  // --- MOVEMENT (Ni/E) & TIME ---
+  createCard("明日、東京に行きます。", "I will go to Tokyo tomorrow.", "行きます", "", "明日[あした]、 東京[とうきょう]に 行[い]きます。"),
+  createCard("何時に帰りますか？", "What time will you go home?", "帰り", "", "何時[なんじ]に 帰[かえ]りますか？"),
+  createCard("友達と来ました。", "I came with a friend.", "来ました", "", "友達[ともだち]と 来[き]ました。"),
+  
+  // --- EXISTENCE (Iru/Aru) ---
+  createCard("猫がいます。", "There is a cat.", "います", "Used for living things.", "猫[ねこ]がいます。"),
+  createCard("お金がありません。", "I don't have money.", "ありません", "Negative existence (inanimate).", "お 金[かね]がありません。"),
+  createCard("コンビニがありますか？", "Is there a convenience store?", "あります", "", "コンビニがありますか？"),
 
+  // --- ADJECTIVES ---
+  createCard("このラーメンは美味しいです。", "This ramen is delicious.", "美味しい", "", "このラーメンは 美味[おい]しいです。"),
+  createCard("今日は暑いですね。", "It is hot today, isn't it?", "暑い", "", "今日[きょう]は 暑[あつ]いですね。"),
+  createCard("日本の夏は蒸し暑いです。", "Japanese summers are humid.", "蒸し暑い", "", "日本[にほん]の 夏[なつ]は 蒸[む]し 暑[あつ]いです。"),
+  createCard("それは面白そうですね。", "That looks interesting.", "面白", "", "それは 面白[おもしろ]そうですね。"),
 
-  createCard("水をください。", "Water, please.", "水", "", "水[みず]をください。"),
-  createCard("いただきます。", "Thank you for the meal (before eating).", undefined, "", "いただきます。"),
-  createCard("ごちそうさまでした。", "Thank you for the meal (after eating).", undefined, "", "ごちそうさまでした。"),
-  createCard("美味しいです。", "It is delicious.", "美味しい", "", "美味[おい]しいです。"),
-
-
-  createCard("一、二、三。", "One, two, three.", undefined, "", "一[いち]、 二[に]、 三[さん]。"),
-  createCard("いくらですか？", "How much is it?", "いくら", "", "いくらですか？"),
-
-
-  createCard("トイレはどこですか？", "Where is the toilet?", "トイレ", "", "トイレはどこですか？"),
-  createCard("駅はどこですか？", "Where is the station?", "駅", "", "駅[えき]はどこですか？"),
+  // --- REQUESTS ---
+  createCard("これをください。", "Please give me this.", "ください", "", "これをください。"),
+  createCard("ちょっと待ってください。", "Please wait a moment.", "待って", "Te-form + kudasai.", "ちょっと 待[ま]ってください。"),
+  createCard("もう一度言ってください。", "Please say it one more time.", "言って", "", "もう 一度[いちど] 言[い]ってください。"),
+  createCard("手伝ってもらえますか？", "Could you help me?", "手伝って", "", "手伝[てつだ]ってもらえますか？"),
 ];
-## src/features/deck/data/norwegianBeginnerDeck.ts
+## features/deck/data/norwegianBeginnerDeck.ts
 import { Card } from '@/types';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -3576,23 +4000,49 @@ const createCard = (sentence: string, translation: string, targetWord?: string, 
 });
 
 export const NORWEGIAN_BEGINNER_DECK: Card[] = [
+  // --- BASICS ---
+  createCard("Hei, hvordan går det?", "Hi, how is it going?", "går", ""),
+  createCard("Det går bra, takk.", "It goes well, thanks.", "bra", ""),
+  createCard("Hva heter du?", "What are you called?", "heter", "Common way to ask for name."),
+  createCard("Jeg heter Anna.", "My name is Anna.", "heter", ""),
+  createCard("Hyggelig å hilse på deg.", "Nice to meet you.", "hilse", ""),
 
-  createCard("God morgen.", "Good morning.", undefined, "Formal morning greeting."),
-  createCard("God dag.", "Good day.", undefined, "Formal daytime greeting."),
-  createCard("God kveld.", "Good evening.", undefined, "Formal evening greeting."),
-  createCard("Hei.", "Hi.", undefined, "Informal greeting."),
-  createCard("Ha det.", "Goodbye.", undefined, "Informal farewell."),
-  createCard("God natt.", "Good night.", undefined, "Used before going to sleep."),
-  createCard("Takk.", "Thank you.", undefined, ""),
-  createCard("Vær så snill.", "Please.", undefined, "Literally 'be so kind'."),
-  createCard("Unnskyld.", "Excuse me / I'm sorry.", undefined, ""),
-  createCard("Ja.", "Yes.", undefined, ""),
-  createCard("Nei.", "No.", undefined, ""),
+  // --- V2 RULE PRACTICE ---
+  createCard("Jeg bor i Norge.", "I live in Norway.", "bor", ""),
+  createCard("Nå bor jeg i Norge.", "Now I live in Norway.", "bor", "V2 Rule: Verb must be second element."),
+  createCard("I dag er det kaldt.", "Today it is cold.", "er", "V2 Rule applied."),
+  createCard("Hvor kommer du fra?", "Where do you come from?", "kommer", ""),
+  createCard("Jeg kommer fra USA.", "I come from the USA.", "kommer", ""),
 
+  // --- MODAL VERBS (Can, Will, Must) ---
+  createCard("Kan du hjelpe meg?", "Can you help me?", "hjelpe", ""),
+  createCard("Jeg vil gjerne ha en kaffe.", "I would like to have a coffee.", "vil", "Polite request."),
+  createCard("Du må ikke gjøre det.", "You must not do that.", "må", ""),
+  createCard("Skal vi gå på kino?", "Shall we go to the cinema?", "Skal", "Future/Suggestion."),
+  createCard("Jeg forstår ikke.", "I don't understand.", "forstår", ""),
 
-  
+  // --- COMMON VERBS ---
+  createCard("Hva gjør du?", "What are you doing?", "gjør", ""),
+  createCard("Jeg liker å gå på tur.", "I like to go for a walk/hike.", "liker", "Very culturally important phrase."),
+  createCard("Snakker du engelsk?", "Do you speak English?", "Snakker", ""),
+  createCard("Jeg vet ikke.", "I don't know.", "vet", ""),
+  createCard("Vi ses senere.", "See you later.", "ses", "Passive-s form used for reciprocity."),
+
+  // --- FOOD & SHOPPING ---
+  createCard("Hvor mye koster det?", "How much does it cost?", "koster", ""),
+  createCard("Kan jeg få regningen?", "Can I get the bill?", "få", "Very common verb 'to get/receive'."),
+  createCard("Jeg er sulten.", "I am hungry.", "sulten", ""),
+  createCard("Er butikken åpen?", "Is the shop open?", "åpen", ""),
+  createCard("Tusen takk.", "A thousand thanks.", "Tusen", ""),
+
+  // --- PRONOUNS & PREPOSITIONS ---
+  createCard("Hvem er det?", "Who is that?", "Hvem", ""),
+  createCard("Det er min bil.", "That is my car.", "min", ""),
+  createCard("Bilen står på gaten.", "The car stands on the street.", "på", ""),
+  createCard("Jeg gleder meg.", "I am looking forward to it.", "gleder", "Reflexive verb."),
+  createCard("Ha en fin dag!", "Have a nice day!", "fin", ""),
 ];
-## src/features/deck/hooks/useCardOperations.ts
+## features/deck/hooks/useCardOperations.ts
 import { useCallback } from 'react';
 import { toast } from 'sonner';
 import { useQueryClient } from '@tanstack/react-query';
@@ -3600,11 +4050,13 @@ import { Card } from '@/types';
 import {
   deleteCard as deleteCardFromRepo,
   saveCard,
+  saveAllCards,
 } from '@/services/db/repositories/cardRepository';
 import { useDeck } from '@/contexts/DeckContext';
 
 interface CardOperations {
   addCard: (card: Card) => Promise<void>;
+  addCardsBatch: (cards: Card[]) => Promise<void>;
   updateCard: (card: Card) => Promise<void>;
   deleteCard: (id: string) => Promise<void>;
 }
@@ -3623,6 +4075,21 @@ export const useCardOperations = (): CardOperations => {
       } catch (error) {
         console.error(error);
         toast.error('Failed to add card');
+      }
+    },
+    [queryClient, refreshDeckData]
+  );
+
+  const addCardsBatch = useCallback(
+    async (cards: Card[]) => {
+      try {
+        await saveAllCards(cards);
+        await queryClient.invalidateQueries({ queryKey: ['cards'] });
+        refreshDeckData();
+        toast.success(`${cards.length} cards added successfully`);
+      } catch (error) {
+        console.error(error);
+        toast.error('Failed to add cards');
       }
     },
     [queryClient, refreshDeckData]
@@ -3657,9 +4124,9 @@ export const useCardOperations = (): CardOperations => {
     [queryClient, refreshDeckData]
   );
 
-  return { addCard, updateCard, deleteCard };
+  return { addCard, addCardsBatch, updateCard, deleteCard };
 };
-## src/features/deck/hooks/useCardsQuery.ts
+## features/deck/hooks/useCardsQuery.ts
 import { useQuery, keepPreviousData } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
 import { useSettings } from '@/contexts/SettingsContext';
@@ -3694,7 +4161,7 @@ export const useCardsQuery = (page = 0, pageSize = 50, searchTerm = '') => {
     placeholderData: keepPreviousData, // Keep previous data while fetching new page
   });
 };
-## src/features/deck/hooks/useDeckQueries.ts
+## features/deck/hooks/useDeckQueries.ts
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useSettings } from '@/contexts/SettingsContext';
 import {
@@ -3712,6 +4179,17 @@ import { format } from 'date-fns';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
 
+// Helper function to calculate XP based on card status and grade
+const calculateXP = (cardStatus: string, grade: Grade): number => {
+  return cardStatus === 'new'
+    ? 50
+    : grade === 'Again'
+    ? 1
+    : grade === 'Hard'
+    ? 5
+    : 10;
+};
+
 export const useDeckStatsQuery = () => {
   const { settings } = useSettings();
   return useQuery({
@@ -3726,7 +4204,7 @@ export const useDueCardsQuery = () => {
   return useQuery({
     queryKey: ['dueCards', settings.language],
     queryFn: () => getDueCards(new Date(), settings.language),
-    staleTime: 0, // Always fresh for study
+    staleTime: 60 * 1000, // Cache for 1 minute to reduce refetch thrashing
   });
 };
 
@@ -3751,7 +4229,7 @@ export const useHistoryQuery = () => {
 export const useRecordReviewMutation = () => {
   const queryClient = useQueryClient();
   const { settings } = useSettings();
-  const { user } = useAuth();
+  const { user, incrementXPOptimistically } = useAuth();
 
   return useMutation({
     mutationFn: async ({ card, grade }: { card: Card; grade: Grade }) => {
@@ -3762,43 +4240,56 @@ export const useRecordReviewMutation = () => {
       
       // 2. Award XP if user exists
       if (user) {
-          const xpAmount =
-            card.status === 'new'
-              ? 50
-              : grade === 'Again'
-              ? 1
-              : grade === 'Hard'
-              ? 5
-              : 10;
+        const xpAmount = calculateXP(card.status, grade);
 
-          await supabase
-            .from('activity_log')
-            .insert({
-              user_id: user.id,
-              activity_type: card.status === 'new' ? 'new_card' : 'review',
-              xp_awarded: xpAmount,
-              language: card.language || settings.language,
-            });
+        // Insert activity log
+        await supabase
+          .from('activity_log')
+          .insert({
+            user_id: user.id,
+            activity_type: card.status === 'new' ? 'new_card' : 'review',
+            xp_awarded: xpAmount,
+            language: card.language || settings.language,
+          });
+
+        // FIX: Persist XP to profile to prevent data loss on refresh
+        const { error: xpError } = await supabase.rpc('increment_profile_xp', {
+          user_id: user.id,
+          amount: xpAmount
+        });
+
+        if (xpError) {
+          console.error('Failed to update profile XP:', xpError);
+        }
       }
       
       return { card, grade, today };
     },
-    onMutate: async ({ card }) => {
+    onMutate: async ({ card, grade }) => {
       const today = format(getSRSDate(new Date()), 'yyyy-MM-dd');
       
-      await queryClient.cancelQueries({ queryKey: ['history', settings.language] });
-      await queryClient.cancelQueries({ queryKey: ['reviewsToday', settings.language] });
+      // 1. Cancel ALL relevant queries to prevent overwrites from background refetches
+      await Promise.all([
+        queryClient.cancelQueries({ queryKey: ['history', settings.language] }),
+        queryClient.cancelQueries({ queryKey: ['reviewsToday', settings.language] }),
+        queryClient.cancelQueries({ queryKey: ['dueCards', settings.language] }),
+        queryClient.cancelQueries({ queryKey: ['deckStats', settings.language] }),
+        queryClient.cancelQueries({ queryKey: ['dashboardStats', settings.language] }) // Added: prevent overwrite of optimistic language XP
+      ]);
       
+      // 2. Snapshot previous values for rollback
       const previousHistory = queryClient.getQueryData(['history', settings.language]);
       const previousReviewsToday = queryClient.getQueryData(['reviewsToday', settings.language]);
+      const previousDueCards = queryClient.getQueryData(['dueCards', settings.language]);
+      const previousDashboardStats = queryClient.getQueryData(['dashboardStats', settings.language]); // Added snapshot
       
-      // Optimistically update history
+      // 3. Optimistically update history
       queryClient.setQueryData(['history', settings.language], (old: any) => {
         if (!old) return { [today]: 1 };
         return { ...old, [today]: (old[today] || 0) + 1 };
       });
       
-      // Optimistically update reviewsToday
+      // 4. Optimistically update reviewsToday
       queryClient.setQueryData(['reviewsToday', settings.language], (old: any) => {
          if (!old) return { newCards: 0, reviewCards: 0 };
          return {
@@ -3807,17 +4298,50 @@ export const useRecordReviewMutation = () => {
          };
       });
 
-      return { previousHistory, previousReviewsToday };
+      // 5. Optimistically update: REMOVE CARD FROM DUE QUEUE regardless of grade.
+      // If graded 'Again', it enters a short learning interval and should not count as currently due.
+      // The study session manages immediate re-queue locally.
+      queryClient.setQueryData(['dueCards', settings.language], (old: Card[] | undefined) => {
+        if (!old) return [];
+        return old.filter(c => c.id !== card.id);
+      });
+
+      // Note: We do NOT optimistically update deckStats.due here because DeckContext
+      // derives the due count from the dueCards array. Updating both causes desync.
+      // The invalidation on settlement will sync deckStats from the server.
+
+      // 7. Optimistically update Profile XP
+      if (user) {
+        const xpAmount = calculateXP(card.status, grade);
+        incrementXPOptimistically(xpAmount);
+
+        // Optimistically update Dashboard Stats (Language XP)
+        queryClient.setQueryData(['dashboardStats', settings.language], (old: any) => {
+            if (!old) return old;
+            return {
+                ...old,
+                languageXp: (old.languageXp || 0) + xpAmount
+            };
+        });
+      }
+
+      return { previousHistory, previousReviewsToday, previousDueCards, previousDashboardStats };
     },
     onError: (err, newTodo, context) => {
-      queryClient.setQueryData(['history', settings.language], context?.previousHistory);
-      queryClient.setQueryData(['reviewsToday', settings.language], context?.previousReviewsToday);
+      // Rollback EVERYTHING if it fails
+      if (context) {
+        queryClient.setQueryData(['history', settings.language], context.previousHistory);
+        queryClient.setQueryData(['reviewsToday', settings.language], context.previousReviewsToday);
+        queryClient.setQueryData(['dueCards', settings.language], context.previousDueCards);
+        queryClient.setQueryData(['dashboardStats', settings.language], context.previousDashboardStats);
+      }
     },
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ['history', settings.language] });
       queryClient.invalidateQueries({ queryKey: ['reviewsToday', settings.language] });
       queryClient.invalidateQueries({ queryKey: ['deckStats', settings.language] });
       queryClient.invalidateQueries({ queryKey: ['dueCards', settings.language] });
+      queryClient.invalidateQueries({ queryKey: ['dashboardStats', settings.language] });
     },
   });
 };
@@ -3842,7 +4366,7 @@ export const useUndoReviewMutation = () => {
   });
 };
 
-## src/features/deck/services/ai.ts
+## features/deck/services/ai.ts
 import { supabase } from '@/lib/supabase';
 
 interface BatchGenerationOptions {
@@ -3853,47 +4377,59 @@ interface BatchGenerationOptions {
 }
 
 function extractJSON(text: string): string {
-  // Remove Markdown code blocks if present
-  const markdownRegex = /```(?:json)?\s*([\s\S]*?)\s*```/;
-  const match = text.match(markdownRegex);
-  if (match) {
-    return match[1];
+  // Try to find a JSON code block first (case-insensitive)
+  const jsonBlockMatch = text.match(/```(?:json)?\s*([\s\S]*?)\s*```/i);
+  if (jsonBlockMatch) {
+    return jsonBlockMatch[1];
   }
   
-  // Fallback: Try to find first { or [ and last } or ]
-  const firstOpen = text.search(/[{[]/);
-  const lastClose = text.search(/[}\]]$/); 
+  // Fallback: Find the outermost curly braces or brackets
+  const firstOpenBrace = text.indexOf('{');
+  const firstOpenBracket = text.indexOf('[');
   
-  if (firstOpen !== -1 && lastClose !== -1 && lastClose > firstOpen) {
-      return text.substring(firstOpen, lastClose + 1);
+  let firstOpen = -1;
+  if (firstOpenBrace !== -1 && firstOpenBracket !== -1) {
+    firstOpen = Math.min(firstOpenBrace, firstOpenBracket);
+  } else {
+    firstOpen = Math.max(firstOpenBrace, firstOpenBracket);
   }
 
-  // Ideally, just return text and let JSON.parse throw, 
-  // but clean up common markdown artifacts first.
-  return text.replace(/```json/g, '').replace(/```/g, '');
+  if (firstOpen !== -1) {
+    // Find the corresponding last close
+    const lastCloseBrace = text.lastIndexOf('}');
+    const lastCloseBracket = text.lastIndexOf(']');
+    const lastClose = Math.max(lastCloseBrace, lastCloseBracket);
+    
+    if (lastClose > firstOpen) {
+      return text.substring(firstOpen, lastClose + 1);
+    }
+  }
+
+  return text;
 }
 
-async function callGemini(prompt: string): Promise<string> {
+async function callGemini(prompt: string, apiKey: string): Promise<string> {
+  if (!apiKey) {
+    throw new Error('Gemini API Key is missing. Please add it in Settings.');
+  }
   const { data, error } = await supabase.functions.invoke('generate-card', {
-    body: { prompt }
+    body: { prompt, apiKey }
   });
 
   if (error) {
-    console.error('Gemini API Error:', error);
     throw new Error(error.message || 'Failed to fetch from Gemini API');
   }
-
   return data.text;
 }
 
 export const aiService = {
-  async translateText(text: string, language: 'polish' | 'norwegian' | 'japanese' = 'polish'): Promise<string> {
+  async translateText(text: string, language: 'polish' | 'norwegian' | 'japanese' = 'polish', apiKey: string): Promise<string> {
     const langName = language === 'norwegian' ? 'Norwegian' : (language === 'japanese' ? 'Japanese' : 'Polish');
     const prompt = `Translate the following ${langName} text to English. Provide only the translation, no explanations.\n\nText: "${text}"`;
-    return await callGemini(prompt);
+    return await callGemini(prompt, apiKey);
   },
 
-  async analyzeWord(word: string, contextSentence: string, language: 'polish' | 'norwegian' | 'japanese' = 'polish'): Promise<{
+  async analyzeWord(word: string, contextSentence: string, language: 'polish' | 'norwegian' | 'japanese' = 'polish', apiKey: string): Promise<{
     definition: string;
     partOfSpeech: string;
     contextMeaning: string;
@@ -3909,7 +4445,7 @@ export const aiService = {
       Return ONLY the JSON object, no markdown formatting.
     `;
     
-    const result = await callGemini(prompt);
+    const result = await callGemini(prompt, apiKey);
     try {
       const cleanResult = extractJSON(result);
       return JSON.parse(cleanResult);
@@ -3923,7 +4459,7 @@ export const aiService = {
     }
   },
 
-  async generateCardContent(sentence: string, language: 'polish' | 'norwegian' | 'japanese' = 'polish'): Promise<{
+  async generateCardContent(sentence: string, language: 'polish' | 'norwegian' | 'japanese' = 'polish', apiKey: string): Promise<{
     translation: string;
     notes: string;
     furigana?: string;
@@ -3947,7 +4483,7 @@ export const aiService = {
       Return ONLY the JSON object, no markdown formatting.
     `;
 
-    const result = await callGemini(prompt);
+    const result = await callGemini(prompt, apiKey);
     try {
       const cleanResult = extractJSON(result);
       return JSON.parse(cleanResult);
@@ -3960,7 +4496,7 @@ export const aiService = {
     }
   },
 
-  async generateBatchCards({ difficulty, topic, count, language }: BatchGenerationOptions): Promise<any[]> {
+  async generateBatchCards({ difficulty, topic, count, language, apiKey }: BatchGenerationOptions & { apiKey: string }): Promise<any[]> {
     const langName = language === 'norwegian' ? 'Norwegian' : (language === 'japanese' ? 'Japanese' : 'Polish');
     
     let prompt = `
@@ -3984,7 +4520,7 @@ export const aiService = {
       Strictly return ONLY the JSON array. No markdown code blocks, no introduction.
     `;
 
-    const result = await callGemini(prompt);
+    const result = await callGemini(prompt, apiKey);
     
     try {
       const cleanResult = extractJSON(result);
@@ -3996,41 +4532,56 @@ export const aiService = {
     }
   }
 };
-## src/features/leaderboard/Leaderboard.tsx
+## features/leaderboard/Leaderboard.tsx
 import React, { useEffect, useState } from 'react';
-import { Trophy, Info } from 'lucide-react';
+import { Trophy, Info, Globe, Calendar, Filter } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import clsx from 'clsx';
 
-interface Profile {
+interface LeaderboardEntry {
   id: string;
   username: string | null;
   xp: number;
   level: number;
 }
 
+type TimeRange = 'weekly' | 'monthly' | 'yearly' | 'lifetime';
+type LanguageFilter = 'all' | 'polish' | 'norwegian' | 'japanese';
+
 export const Leaderboard: React.FC = () => {
   const { user } = useAuth();
-  const [profiles, setProfiles] = useState<Profile[]>([]);
+  const [profiles, setProfiles] = useState<LeaderboardEntry[]>([]);
   const [loading, setLoading] = useState(true);
+  
+  // Filters
+  const [timeRange, setTimeRange] = useState<TimeRange>('weekly');
+  const [languageFilter, setLanguageFilter] = useState<LanguageFilter>('all');
 
   useEffect(() => {
     const fetchLeaderboard = async () => {
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('id, username, xp, level')
-        .order('xp', { ascending: false })
-        .limit(50);
+      setLoading(true);
+      
+      try {
+        // Call the RPC function we created in Supabase
+        const { data, error } = await supabase.rpc('get_leaderboard', {
+          time_range: timeRange,
+          language_filter: languageFilter
+        });
 
-      if (error) console.error('Failed to load leaderboard', error);
-      setProfiles(data || []);
-      setLoading(false);
+        if (error) throw error;
+        setProfiles(data || []);
+      } catch (error) {
+        console.error('Failed to load leaderboard', error);
+      } finally {
+        setLoading(false);
+      }
     };
 
     fetchLeaderboard();
-  }, []);
+  }, [timeRange, languageFilter]);
 
   const RankDisplay = ({ rank }: { rank: number }) => {
     if (rank <= 3) {
@@ -4051,32 +4602,73 @@ export const Leaderboard: React.FC = () => {
   };
 
   return (
-    <div className="max-w-5xl mx-auto pb-20 space-y-16 md:space-y-24">
+    <div className="max-w-5xl mx-auto pb-20 space-y-12 md:space-y-16 animate-in fade-in duration-700">
       
       {/* Header Section */}
-      <header className="space-y-6">
+      <header className="space-y-8">
         <div className="flex items-center gap-4 text-muted-foreground">
             <Trophy size={20} strokeWidth={1.5} />
             <span className="text-xs font-mono uppercase tracking-widest">Global Rankings</span>
         </div>
         
-        <div className="flex items-start gap-4">
-            <h1 className="text-6xl md:text-9xl font-bold tracking-tighter text-foreground leading-[0.85]">
-            Top Miners
-            </h1>
-            <TooltipProvider>
-                <Tooltip>
-                    <TooltipTrigger>
-                        <Info size={24} className="text-muted-foreground hover:text-foreground transition-colors mt-2" />
-                    </TooltipTrigger>
-                    <TooltipContent side="bottom" align="start" className="max-w-xs p-4">
-                        <div className="space-y-2">
-                            <p><span className="font-bold text-primary">XP (Experience):</span> Measures your lifetime learning progress. It determines your Rank and Level. It never decreases.</p>
-                            <p><span className="font-bold text-primary">Points:</span> A spendable currency earned alongside XP. Use Points in the Sabotage Store to mess with other learners.</p>
-                        </div>
-                    </TooltipContent>
-                </Tooltip>
-            </TooltipProvider>
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-8">
+            <div className="flex items-start gap-4">
+                <h1 className="text-5xl md:text-8xl font-bold tracking-tighter text-foreground leading-[0.85]">
+                Top Miners
+                </h1>
+                <TooltipProvider>
+                    <Tooltip>
+                        <TooltipTrigger>
+                            <Info size={24} className="text-muted-foreground hover:text-foreground transition-colors mt-2" />
+                        </TooltipTrigger>
+                        <TooltipContent side="bottom" align="start" className="max-w-xs p-4">
+                            <div className="space-y-2">
+                                <p>Rankings are calculated based on XP earned during the selected time period.</p>
+                                <p className="text-xs text-muted-foreground">XP is earned by adding cards (50xp) and reviewing them (1-10xp).</p>
+                            </div>
+                        </TooltipContent>
+                    </Tooltip>
+                </TooltipProvider>
+            </div>
+
+            {/* Filters */}
+            <div className="flex flex-col sm:flex-row gap-4 w-full md:w-auto">
+                {/* Language Filter */}
+                <div className="w-full sm:w-40">
+                    <label className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground mb-1.5 block flex items-center gap-2">
+                        <Globe size={10} /> Language
+                    </label>
+                    <Select value={languageFilter} onValueChange={(v) => setLanguageFilter(v as LanguageFilter)}>
+                        <SelectTrigger className="h-10">
+                            <SelectValue placeholder="Language" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="all">All Languages</SelectItem>
+                            <SelectItem value="polish">Polish</SelectItem>
+                            <SelectItem value="norwegian">Norwegian</SelectItem>
+                            <SelectItem value="japanese">Japanese</SelectItem>
+                        </SelectContent>
+                    </Select>
+                </div>
+
+                {/* Time Range Filter */}
+                <div className="w-full sm:w-40">
+                    <label className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground mb-1.5 block flex items-center gap-2">
+                        <Calendar size={10} /> Period
+                    </label>
+                    <Select value={timeRange} onValueChange={(v) => setTimeRange(v as TimeRange)}>
+                        <SelectTrigger className="h-10">
+                            <SelectValue placeholder="Period" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="weekly">Last 7 Days</SelectItem>
+                            <SelectItem value="monthly">Last 30 Days</SelectItem>
+                            <SelectItem value="yearly">Last Year</SelectItem>
+                            <SelectItem value="lifetime">All Time</SelectItem>
+                        </SelectContent>
+                    </Select>
+                </div>
+            </div>
         </div>
       </header>
 
@@ -4085,26 +4677,35 @@ export const Leaderboard: React.FC = () => {
         <div className="col-span-1 text-center">Rank</div>
         <div className="col-span-6">Miner</div>
         <div className="col-span-2">Level</div>
-        <div className="col-span-3 text-right">Lifetime XP</div>
+        <div className="col-span-3 text-right">
+            {timeRange === 'lifetime' ? 'Lifetime XP' : 'XP Gained'}
+        </div>
       </div>
 
       {/* List */}
-      <div className="space-y-1">
+      <div className="space-y-1 min-h-[300px]">
         {loading ? (
-            <div className="py-20 text-center text-muted-foreground font-mono text-xs animate-pulse">
-                SYNCING LEDGER...
+            <div className="py-20 flex flex-col items-center justify-center gap-4 text-muted-foreground animate-pulse">
+                <Filter size={24} className="opacity-50" />
+                <span className="font-mono text-xs tracking-widest">CALCULATING RANKS...</span>
+            </div>
+        ) : profiles.length === 0 ? (
+            <div className="py-20 flex flex-col items-center justify-center gap-4 text-muted-foreground">
+                <span className="font-mono text-xs tracking-widest">NO DATA FOR THIS PERIOD</span>
             </div>
         ) : (
           profiles.map((profile, index) => {
             const rank = index + 1;
             const isCurrentUser = profile.id === user?.id;
+            // Calculate level dynamically from XP (per-language or global)
+            const level = Math.floor(Math.sqrt(profile.xp / 100)) + 1;
 
             return (
               <div
                 key={profile.id}
                 className={clsx(
                   "group relative grid grid-cols-12 gap-4 items-center py-4 md:py-5 border-b border-border/40 transition-all duration-300",
-                  isCurrentUser ? "opacity-100" : "opacity-70 hover:opacity-100"
+                  isCurrentUser ? "opacity-100 bg-secondary/10" : "opacity-70 hover:opacity-100"
                 )}
               >
                 {/* Rank */}
@@ -4114,19 +4715,24 @@ export const Leaderboard: React.FC = () => {
                 
                 {/* User Info */}
                 <div className="col-span-7 md:col-span-6 flex items-center gap-3">
-                    <span className="text-lg md:text-xl font-medium tracking-tight truncate">
+                    <span className={clsx(
+                        "text-lg md:text-xl font-medium tracking-tight truncate",
+                        isCurrentUser && "text-primary"
+                    )}>
                         {profile.username || 'Anonymous'}
                     </span>
                     {isCurrentUser && (
-                        <div className="w-1.5 h-1.5 bg-primary rounded-full animate-pulse" title="You" />
+                        <div className="px-2 py-0.5 rounded-full bg-primary/10 text-primary text-[9px] font-mono uppercase tracking-widest">
+                            You
+                        </div>
                     )}
                 </div>
 
                 {/* Level (Hidden on small mobile) */}
                 <div className="hidden md:block col-span-2">
-                    <span className="text-sm font-mono text-muted-foreground">
-                        Lvl {profile.level}
-                    </span>
+                  <span className="text-sm font-mono text-muted-foreground">
+                    Lvl {level}
+                  </span>
                 </div>
                 
                 {/* XP */}
@@ -4134,6 +4740,7 @@ export const Leaderboard: React.FC = () => {
                     <span className="text-xl md:text-2xl font-light tracking-tight tabular-nums">
                         {profile.xp.toLocaleString()}
                     </span>
+                    <span className="text-[10px] text-muted-foreground font-mono ml-1">xp</span>
                 </div>
 
                 {/* Hover Indicator Line */}
@@ -4146,7 +4753,88 @@ export const Leaderboard: React.FC = () => {
     </div>
   );
 };
-## src/features/sabotage/SabotageStore.tsx
+## features/sabotage/SabotageNotification.tsx
+import React, { useEffect, useState } from 'react';
+import { Skull, AlertTriangle } from 'lucide-react';
+import { useSabotage, CurseType } from '@/contexts/SabotageContext';
+import { Dialog, DialogContent } from '@/components/ui/dialog';
+import { cn } from '@/lib/utils';
+
+const CURSE_DETAILS: Record<CurseType, { name: string; description: string }> = {
+  comic_sans: { name: 'Comic Sans Hell', description: 'Your font has been downgraded. Permanently.' },
+  blur: { name: 'Beer Goggles', description: 'Everything is a little bit fuzzy...' },
+  uwu: { name: 'The UwUifier', description: 'Your deck is feeling... kawaiii.' },
+  rotate: { name: 'Australian Mode', description: 'Hope you can read upside down.' },
+  gaslight: { name: 'Gaslight Pro', description: 'Are you sure that was the translation?' },
+};
+
+export const SabotageNotification: React.FC = () => {
+  const { notificationQueue, dismissNotification } = useSabotage();
+  const [isOpen, setIsOpen] = useState(false);
+  const [shake, setShake] = useState(false);
+
+  const currentNotification = notificationQueue[0];
+
+  useEffect(() => {
+    if (currentNotification) {
+      setIsOpen(true);
+      setShake(true);
+      const timer = setTimeout(() => setShake(false), 500);
+      return () => clearTimeout(timer);
+    } else {
+      setIsOpen(false);
+    }
+  }, [currentNotification]);
+
+  if (!currentNotification) return null;
+
+  const details = CURSE_DETAILS[currentNotification.curse_type] || { name: 'Unknown Curse', description: 'Something bad happened.' };
+
+  return (
+    <Dialog open={isOpen} onOpenChange={(open) => !open && dismissNotification()}>
+      <DialogContent
+        className={cn(
+          'sm:max-w-md border-destructive/50 bg-destructive/10 backdrop-blur-xl shadow-[0_0_50px_-12px_rgba(239,68,68,0.5)]',
+          shake && 'animate-shake'
+        )}
+      >
+        <div className="flex flex-col items-center text-center space-y-6 py-6">
+          <div className="relative">
+            <div className="absolute inset-0 bg-destructive blur-2xl opacity-20 animate-pulse rounded-full" />
+            <div className="relative bg-background p-4 rounded-full border-2 border-destructive shadow-xl">
+              <Skull size={48} className="text-destructive animate-[wiggle_1s_ease-in-out_infinite]" />
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <h2 className="text-3xl font-black tracking-tighter text-destructive uppercase">Sabotaged!</h2>
+            <p className="text-lg font-medium text-foreground">
+              <span className="font-bold text-destructive">{currentNotification.sender_username}</span> attacked you!
+            </p>
+          </div>
+
+            <div className="w-full bg-background/50 border border-destructive/20 p-4 rounded-lg">
+              <div className="flex items-center justify-center gap-2 text-destructive mb-2">
+                <AlertTriangle size={16} />
+                <span className="text-xs font-mono uppercase tracking-widest">Active Effect</span>
+              </div>
+              <h3 className="text-xl font-bold mb-1">{details.name}</h3>
+              <p className="text-sm text-muted-foreground">{details.description}</p>
+            </div>
+
+          <button
+            onClick={dismissNotification}
+            className="w-full bg-destructive text-destructive-foreground font-bold uppercase tracking-widest py-4 rounded-md hover:bg-destructive/90 transition-all hover:scale-[1.02] active:scale-[0.98]"
+          >
+            Accept My Fate
+          </button>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+};
+
+## features/sabotage/SabotageStore.tsx
 import React, { useEffect, useState } from 'react';
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import { supabase } from '@/lib/supabase';
@@ -4297,7 +4985,7 @@ export const SabotageStore: React.FC<SabotageStoreProps> = ({ isOpen, onClose })
     </Dialog>
   );
 };
-## src/features/settings/components/AlgorithmSettings.tsx
+## features/settings/components/AlgorithmSettings.tsx
 import React from 'react';
 import { UserSettings } from '@/types';
 import { Slider } from '@/components/ui/slider';
@@ -4357,7 +5045,7 @@ export const AlgorithmSettings: React.FC<AlgorithmSettingsProps> = ({ localSetti
     </section>
   </div>
 );
-## src/features/settings/components/AudioSettings.tsx
+## features/settings/components/AudioSettings.tsx
 import React from 'react';
 import { Volume2 } from 'lucide-react';
 import { UserSettings } from '@/types';
@@ -4495,7 +5183,7 @@ export const AudioSettings: React.FC<AudioSettingsProps> = ({
     </div>
   );
 };
-## src/features/settings/components/DataSettings.tsx
+## features/settings/components/DataSettings.tsx
 import React, { RefObject } from 'react';
 import { Download, Upload, RefreshCw } from 'lucide-react';
 
@@ -4569,7 +5257,7 @@ export const DataSettings: React.FC<DataSettingsProps> = ({
     </p>
   </div>
 );
-## src/features/settings/components/GeneralSettings.tsx
+## features/settings/components/GeneralSettings.tsx
 import React from 'react';
 import { LANGUAGE_NAMES } from '@/constants';
 import { UserSettings } from '@/types';
@@ -4609,6 +5297,26 @@ export const GeneralSettings: React.FC<GeneralSettingsProps> = ({
           />
           <p className="text-xs text-muted-foreground">
             This is how you'll appear on the leaderboard.
+          </p>
+        </div>
+      </section>
+
+      <section>
+        <MetaLabel>AI Configuration</MetaLabel>
+        <div className="space-y-2">
+          <div className="text-sm font-medium">Gemini API Key</div>
+          <Input
+            type="password"
+            value={localSettings.geminiApiKey || ''}
+            onChange={(e) => setLocalSettings(prev => ({ ...prev, geminiApiKey: e.target.value }))}
+            placeholder="AIzaSy..."
+            className="font-mono text-xs"
+          />
+          <p className="text-xs text-muted-foreground">
+            Required for Auto-Fill and Card Generation.
+            <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noreferrer" className="ml-1 underline hover:text-primary">
+              Get a free key here.
+            </a>
           </p>
         </div>
       </section>
@@ -4704,7 +5412,7 @@ export const GeneralSettings: React.FC<GeneralSettingsProps> = ({
     </div>
   );
 };
-## src/features/settings/components/SettingsModal.tsx
+## features/settings/components/SettingsModal.tsx
 import React, { useState, useRef, useEffect } from 'react';
 import { Check, AlertCircle, LogOut, Skull } from 'lucide-react';
 import clsx from 'clsx';
@@ -4722,6 +5430,7 @@ import { ttsService, VoiceOption } from '@/services/tts';
 import {
     deleteCardsByLanguage,
     saveAllCards,
+    getCardSignatures,
     getCards,
 } from '@/services/db/repositories/cardRepository';
 import { getDB } from '@/services/db/client';
@@ -4766,7 +5475,7 @@ const parseCsvLine = (line: string, delimiter: string) => {
     for (let i = 0; i < line.length; i++) {
         const char = line[i];
         if (char === '"') {
-            if (inQuotes && line[i + 1] === '"') {
+            if (inQuotes && i + 1 < line.length && line[i + 1] === '"') {
                 current += '"';
                 i += 1;
             } else {
@@ -4839,10 +5548,39 @@ const parseCardsFromCsv = (payload: string, fallbackLanguage: Language): Card[] 
     const sanitized = payload.replace(/\r\n/g, '\n').trim();
     if (!sanitized) return [];
 
-    const lines = sanitized
-        .split('\n')
-        .map((line) => line.trim())
-        .filter((line) => line.length > 0);
+    // Parse lines while respecting quoted fields that may contain newlines
+    // Split by newlines that are NOT inside quotes
+    const lines: string[] = [];
+    let current = '';
+    let inQuotes = false;
+
+    for (let i = 0; i < sanitized.length; i++) {
+        const char = sanitized[i];
+        
+        if (char === '"') {
+            // Check for escaped quote ("")
+            if (inQuotes && sanitized[i + 1] === '"') {
+                current += '""';
+                i++;
+            } else {
+                inQuotes = !inQuotes;
+                current += char;
+            }
+        } else if (char === '\n' && !inQuotes) {
+            // Only split on newlines outside of quotes
+            if (current.trim().length > 0) {
+                lines.push(current);
+            }
+            current = '';
+        } else {
+            current += char;
+        }
+    }
+    
+    // Add remaining line
+    if (current.trim().length > 0) {
+        lines.push(current);
+    }
 
     if (lines.length < 2) return [];
 
@@ -4960,46 +5698,16 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
         await supabase.from('study_history').delete().eq('user_id', user.id).eq('language', localSettings.language);
         await supabase.from('activity_log').delete().eq('user_id', user.id).eq('language', localSettings.language);
 
-        // 3. Recalculate Total XP from REMAINING logs (Paginated to ensure accuracy)
-        let verifiedXp = 0;
-        let page = 0;
-        const pageSize = 1000;
+        // 3. FIX: Use database RPC to recalculate XP efficiently (no client-side pagination)
+        const { error: recalcError } = await supabase.rpc('recalculate_user_xp', {
+            target_user_id: user.id
+        });
 
-        while (true) {
-            const { data: logs, error } = await supabase
-                .from('activity_log')
-                .select('xp_awarded')
-                .eq('user_id', user.id)
-                .range(page * pageSize, (page + 1) * pageSize - 1);
-
-            if (error) {
-                console.error("Error fetching logs for recalculation", error);
-                break; // Fail safe, verifiedXp remains what we have so far
-            }
-            
-            if (!logs || logs.length === 0) break;
-
-            const chunkSum = logs.reduce((acc, curr) => acc + (curr.xp_awarded || 0), 0);
-            verifiedXp += chunkSum;
-
-            if (logs.length < pageSize) break;
-            page++;
+        if (recalcError) {
+            console.error('Error recalculating XP:', recalcError);
+            toast.error('Failed to recalculate XP');
+            return;
         }
-
-        // 4. Calculate Logic for Points (Currency)
-        // If we removed 1000 XP, we should remove 1000 Points.
-        // Delta = OldXP - NewVerifiedXP
-        const xpDelta = Math.max(0, oldXp - verifiedXp);
-        const newPoints = Math.max(0, (currentProfile?.points || 0) - xpDelta);
-        
-        // Simple level recalculation (fallback logic)
-        const newLevel = verifiedXp === 0 ? 1 : (currentProfile?.level || 1); 
-
-        // 5. Update Profile with Verified Values
-        await supabase
-            .from('profiles')
-            .update({ xp: verifiedXp, points: newPoints, level: newLevel })
-            .eq('id', user.id);
 
         // 6. Re-seed Beginner Deck
         const rawDeck = localSettings.language === 'norwegian' ? NORWEGIAN_BEGINNER_DECK : (localSettings.language === 'japanese' ? JAPANESE_BEGINNER_DECK : BEGINNER_DECK);
@@ -5208,10 +5916,11 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                 return;
             }
 
-            const existingCards = await getCards();
+            // Fetch only lightweight data for duplicate detection
+            const existingSignatures = await getCardSignatures(localSettings.language);
             const seen = new Set(
-                existingCards.map((card) =>
-                    signatureForCard(card.targetSentence, (card.language || 'polish') as Language)
+                existingSignatures.map((card) =>
+                    signatureForCard(card.target_sentence, localSettings.language)
                 )
             );
 
@@ -5413,48 +6122,66 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
     </Dialog>
   );
 };
-## src/features/settings/components/StudySettings.tsx
+## features/settings/components/StudySettings.tsx
 import React from 'react';
 import { UserSettings } from '@/types';
 import { EditorialInput } from '@/components/form/EditorialInput';
 import { MetaLabel } from '@/components/form/MetaLabel';
+import { LANGUAGE_NAMES } from '@/constants';
 
 interface StudySettingsProps {
   localSettings: UserSettings;
   setLocalSettings: React.Dispatch<React.SetStateAction<UserSettings>>;
 }
 
-export const StudySettings: React.FC<StudySettingsProps> = ({ localSettings, setLocalSettings }) => (
-  <div className="space-y-10 max-w-sm animate-in fade-in slide-in-from-bottom-2 duration-500">
-    <section>
-      <MetaLabel>New Cards / Day</MetaLabel>
-      <EditorialInput
-        type="number"
-        value={localSettings.dailyNewLimit}
-        onChange={(event) =>
-          setLocalSettings((prev) => ({
-            ...prev,
-            dailyNewLimit: parseInt(event.target.value, 10) || 0,
-          }))
-        }
-      />
-    </section>
-    <section>
-      <MetaLabel>Reviews / Day</MetaLabel>
-      <EditorialInput
-        type="number"
-        value={localSettings.dailyReviewLimit}
-        onChange={(event) =>
-          setLocalSettings((prev) => ({
-            ...prev,
-            dailyReviewLimit: parseInt(event.target.value, 10) || 0,
-          }))
-        }
-      />
-    </section>
-  </div>
-);
-## src/features/study/components/CramModal.tsx
+export const StudySettings: React.FC<StudySettingsProps> = ({ localSettings, setLocalSettings }) => {
+  const currentLangName = LANGUAGE_NAMES[localSettings.language];
+  const currentDailyNew = localSettings.dailyNewLimits?.[localSettings.language] ?? 0;
+  const currentDailyReview = localSettings.dailyReviewLimits?.[localSettings.language] ?? 0;
+
+  return (
+    <div className="space-y-10 max-w-sm animate-in fade-in slide-in-from-bottom-2 duration-500">
+      <div className="bg-secondary/20 p-4 rounded text-xs text-muted-foreground leading-relaxed mb-6">
+        These limits apply specifically to your <strong>{currentLangName}</strong> deck.
+      </div>
+      <section>
+        <MetaLabel>New Cards / Day</MetaLabel>
+        <EditorialInput
+          type="number"
+          value={currentDailyNew}
+          onChange={(event) => {
+            const val = parseInt(event.target.value, 10) || 0;
+            setLocalSettings(prev => ({
+              ...prev,
+              dailyNewLimits: {
+                ...prev.dailyNewLimits,
+                [prev.language]: val
+              }
+            }));
+          }}
+        />
+      </section>
+      <section>
+        <MetaLabel>Reviews / Day</MetaLabel>
+        <EditorialInput
+          type="number"
+          value={currentDailyReview}
+          onChange={(event) => {
+            const val = parseInt(event.target.value, 10) || 0;
+            setLocalSettings(prev => ({
+              ...prev,
+              dailyReviewLimits: {
+                ...prev.dailyReviewLimits,
+                [prev.language]: val
+              }
+            }));
+          }}
+        />
+      </section>
+    </div>
+  );
+};
+## features/study/components/CramModal.tsx
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
@@ -5543,12 +6270,14 @@ export const CramModal = ({ isOpen, onClose }: CramModalProps) => {
         </Dialog>
     );
 }
-## src/features/study/components/Flashcard.tsx
+## features/study/components/Flashcard.tsx
 import React, { useMemo, useEffect, useCallback, useState } from 'react';
 import { Card, Language } from '@/types';
-import { escapeRegExp, parseFurigana } from '@/lib/utils';
+import { escapeRegExp, parseFurigana, cn } from '@/lib/utils';
 import { ttsService } from '@/services/tts';
 import { useSettings } from '@/contexts/SettingsContext';
+import { useSabotage } from '@/contexts/SabotageContext';
+import { uwuify, FAKE_ANSWERS } from '@/lib/memeUtils';
 import { Play } from 'lucide-react';
 
 interface FlashcardProps {
@@ -5569,20 +6298,70 @@ export const Flashcard: React.FC<FlashcardProps> = ({
   language = 'polish' 
 }) => {
   const { settings } = useSettings(); 
+  const { isCursedWith } = useSabotage();
   const [isRevealed, setIsRevealed] = useState(!blindMode);
   
+  // Track if we've already spoken for this card to prevent re-trigger on settings change
+  const hasSpokenRef = React.useRef<string | null>(null);
+  
+  // Gaslight State
+  const [displayedTranslation, setDisplayedTranslation] = useState(card.nativeTranslation);
+  const [isGaslit, setIsGaslit] = useState(false);
+
   useEffect(() => { setIsRevealed(!blindMode); }, [card.id, blindMode]);
   useEffect(() => { if (isFlipped) setIsRevealed(true); }, [isFlipped]);
   
+  // Prepare Gaslighting logic when card changes
+  useEffect(() => {
+    if (isCursedWith('gaslight') && Math.random() > 0.5) {
+        const randomFake = FAKE_ANSWERS[Math.floor(Math.random() * FAKE_ANSWERS.length)];
+        setDisplayedTranslation(randomFake);
+        setIsGaslit(true);
+    } else {
+        setDisplayedTranslation(card.nativeTranslation);
+        setIsGaslit(false);
+    }
+  }, [card.id, isCursedWith]);
+
+  // Text Processing based on curses
+  const processText = (text: string) => {
+      if (isCursedWith('uwu')) return uwuify(text);
+      return text;
+  };
+  
   const speak = useCallback(() => {
+    // Don't speak the UwU version, speak the real one
     ttsService.speak(card.targetSentence, language, settings.tts);
   }, [card.targetSentence, language, settings.tts]);
 
   useEffect(() => {
-    if (autoPlayAudio) speak();
-  }, [card.id]);
+    // Reset spoken flag when card changes
+    if (hasSpokenRef.current !== card.id) {
+      hasSpokenRef.current = null;
+    }
 
-  const displayedSentence = card.targetSentence;
+    // Only speak if auto-play is enabled and we haven't spoken for this card yet
+    if (autoPlayAudio && hasSpokenRef.current !== card.id) {
+      speak();
+      hasSpokenRef.current = card.id;
+    }
+    
+    // Cleanup: Stop TTS when card changes or component unmounts to prevent audio ghosting
+    // from async fetch completing after card has already transitioned
+    return () => {
+      ttsService.stop();
+    };
+  }, [card.id, autoPlayAudio, speak]);
+
+  // Apply Visual Curses via CSS classes
+  const containerClasses = cn(
+      "w-full max-w-4xl mx-auto flex flex-col items-center justify-center h-full transition-all duration-700",
+      isCursedWith('rotate') && "rotate-180",
+      isCursedWith('comic_sans') && "font-['Comic_Sans_MS']",
+      isCursedWith('blur') && "animate-pulse blur-[1px]"
+  );
+
+  const displayedSentence = processText(card.targetSentence);
 
   const RenderedSentence = useMemo(() => {
     const baseClasses = "text-4xl md:text-7xl font-medium tracking-tight leading-tight text-center transition-all duration-500";
@@ -5607,38 +6386,64 @@ export const Flashcard: React.FC<FlashcardProps> = ({
       const segments = parseFurigana(card.furigana);
       return (
         <div className={`${baseClasses} flex flex-wrap justify-center items-end gap-x-1`}>
-          {segments.map((segment, i) => (
-            segment.furigana ? (
-              <div key={i} className="group flex flex-col items-center">
-                <span className="text-sm md:text-lg text-muted-foreground mb-1 select-none opacity-0 group-hover:opacity-100 transition-opacity">{segment.furigana}</span>
-                <span className={card.targetWord === segment.text ? "text-primary" : ""}>{segment.text}</span>
-              </div>
-            ) : (
-              <span key={i} className={card.targetWord === segment.text ? "text-primary" : ""}>{segment.text}</span>
-            )
-          ))}
+          {segments.map((segment, i) => {
+            // Fixed: Check if this segment is part of the target word
+            // For Okurigana (e.g., 食べる), the target word may span multiple segments
+            const isPartOfTarget = card.targetWord && (
+              card.targetWord === segment.text || 
+              card.targetWord.includes(segment.text) ||
+              segment.text === card.targetWord
+            );
+            
+            if (segment.furigana) {
+              return (
+                <div key={i} className="group flex flex-col items-center">
+                  <span className="text-sm md:text-lg text-muted-foreground mb-1 select-none opacity-0 group-hover:opacity-100 transition-opacity">
+                      {processText(segment.furigana)}
+                  </span>
+                  <span className={isPartOfTarget ? "text-primary" : ""}>
+                      {processText(segment.text)}
+                  </span>
+                </div>
+              );
+            }
+            return (
+              <span key={i} className={isPartOfTarget ? "text-primary" : ""}>
+                  {processText(segment.text)}
+              </span>
+            );
+          })}
         </div>
       );
     }
 
     if (card.targetWord) {
-        const parts = displayedSentence.split(new RegExp(`(${escapeRegExp(card.targetWord)})`, 'gi'));
+        // Note: Highlighting might break if UwU modifies the word significantly, 
+        // but we attempt to match loosely or just display text if match fails.
+        const rawTarget = card.targetWord;
+        const parts = displayedSentence.split(new RegExp(`(${escapeRegExp(rawTarget)})`, 'gi'));
+        
+        // If split didn't work (because UwU changed the text), fall back to plain display
+        if (parts.length === 1 && parts[0] === displayedSentence && isCursedWith('uwu')) {
+             return <p className={baseClasses}>{displayedSentence}</p>;
+        }
+
         return (
             <p className={baseClasses}>
                 {parts.map((part, i) => 
-                    part.toLowerCase() === card.targetWord!.toLowerCase() 
-                    ? <span key={i} className="text-primary border-b-2 border-primary/30">{part}</span> 
-                    : <span key={i}>{part}</span>
+                    part.toLowerCase() === rawTarget.toLowerCase() 
+                    ? <span key={i} className="text-primary border-b-2 border-primary/30">{processText(part)}</span> 
+                    : <span key={i}>{processText(part)}</span>
                 )}
             </p>
         );
     }
 
     return <p className={baseClasses}>{displayedSentence}</p>;
-  }, [displayedSentence, card.targetWord, card.furigana, isRevealed, language]);
+  }, [displayedSentence, card.targetWord, card.furigana, isRevealed, language, isCursedWith]);
 
   return (
-    <div className="w-full max-w-4xl mx-auto flex flex-col items-center justify-center h-full">
+    <div className={containerClasses}>
       {/* Main Content */}
       <div className="w-full px-6 flex flex-col items-center gap-8">
         {RenderedSentence}
@@ -5653,18 +6458,27 @@ export const Flashcard: React.FC<FlashcardProps> = ({
       </div>
 
       {/* Back Side / Answer */}
-      {/* Conditionally rendering allows the Question to be perfectly centered when answer is hidden */}
       {isFlipped && (
         <div className="mt-12 flex flex-col items-center gap-4 animate-in fade-in slide-in-from-bottom-8 duration-500 fill-mode-forwards">
             <div className="h-px w-12 bg-border mb-4" />
             {showTranslation && (
-                <p className="text-xl md:text-2xl text-muted-foreground font-light text-center max-w-2xl leading-relaxed">
-                    {card.nativeTranslation}
-                </p>
+                <div className="relative">
+                    <p className={cn(
+                        "text-xl md:text-2xl text-muted-foreground font-light text-center max-w-2xl leading-relaxed",
+                        isGaslit && "text-destructive animate-pulse"
+                    )}>
+                        {processText(displayedTranslation)}
+                    </p>
+                    {isGaslit && (
+                        <p className="absolute -right-16 top-0 text-[8px] uppercase tracking-widest text-destructive -rotate-12 opacity-50">
+                            Gaslit
+                        </p>
+                    )}
+                </div>
             )}
             {card.notes && (
                 <p className="text-sm font-mono text-muted-foreground/60 mt-2 max-w-md text-center">
-                    {card.notes}
+                    {processText(card.notes)}
                 </p>
             )}
         </div>
@@ -5673,41 +6487,43 @@ export const Flashcard: React.FC<FlashcardProps> = ({
   );
 };
 
-## src/features/study/components/StudySession.tsx
-import React, { useEffect, useMemo } from 'react';
-import { X, Undo2 } from 'lucide-react';
+## features/study/components/StudySession.tsx
+import React, { useEffect, useMemo, useRef } from 'react';
+import { X, Undo2, Archive } from 'lucide-react';
 import { Card, Grade } from '@/types';
 import { useSettings } from '@/contexts/SettingsContext';
 import { Flashcard } from './Flashcard';
 import { useStudySession } from '../hooks/useStudySession';
 import clsx from 'clsx';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 const getCardStatus = (card: Card) => {
   // FSRS State: New=0, Learning=1, Review=2, Relearning=3
   if (card.state === 0 || (card.state === undefined && card.status === 'new')) 
-    return { text: 'New', className: 'text-blue-500' };
+    return { text: 'Unseen', className: 'text-blue-500' };
   if (card.state === 1 || (card.state === undefined && card.status === 'learning')) 
-    return { text: 'Learn', className: 'text-orange-500' };
+    return { text: 'Learning', className: 'text-orange-500' };
   if (card.state === 3) 
-    return { text: 'Relearn', className: 'text-red-500' };
-  return { text: 'Review', className: 'text-green-500' };
+    return { text: 'Lapse', className: 'text-red-500' };
+  return { text: 'Mature', className: 'text-green-500' };
 };
 
 const getQueueCounts = (cards: Card[]) => {
   return cards.reduce(
     (acc, card) => {
-      if (card.state === 0 || (card.state === undefined && card.status === 'new')) {
-        acc.new++;
-      } else if (card.state === 1 || (card.state === undefined && card.status === 'learning')) {
-        acc.learn++;
-      } else if (card.state === 3) {
-        acc.relearn++;
+      const state = card.state;
+      if (state === 0 || (state === undefined && card.status === 'new')) {
+        acc.unseen++;
+      } else if (state === 1 || (state === undefined && card.status === 'learning')) {
+        acc.learning++;
+      } else if (state === 3) {
+        acc.lapse++;
       } else {
-        acc.review++;
+        acc.mature++;
       }
       return acc;
     },
-    { new: 0, learn: 0, relearn: 0, review: 0 }
+    { unseen: 0, learning: 0, lapse: 0, mature: 0 }
   );
 };
 
@@ -5737,8 +6553,10 @@ export const StudySession: React.FC<StudySessionProps> = ({
     setIsFlipped,
     sessionComplete,
     handleGrade,
+    handleMarkKnown,
     handleUndo,
     progress,
+    isProcessing,
   } = useStudySession({
     dueCards,
     settings,
@@ -5753,30 +6571,67 @@ export const StudySession: React.FC<StudySessionProps> = ({
     return getQueueCounts(sessionCards.slice(currentIndex));
   }, [sessionCards, currentIndex]);
 
-  // Keyboard shortcuts (same as before)
+  // Use refs to hold current state values to prevent event listener rebinding on every render
+  // This eliminates thrashing on keyboard listener detach/attach cycles
+  const stateRef = useRef({ 
+    isFlipped, 
+    sessionComplete, 
+    currentCard,
+    canUndo,
+    isProcessing,
+  });
+
+  // Use refs to hold callback references to prevent listener re-attachment
+  const handleGradeRef = useRef(handleGrade);
+  const handleMarkKnownRef = useRef(handleMarkKnown);
+  const handleUndoRef = useRef(handleUndo);
+  const onUndoRef = useRef(onUndo);
+  const onExitRef = useRef(onExit);
+
+  useEffect(() => {
+    stateRef.current = { isFlipped, sessionComplete, currentCard, canUndo, isProcessing };
+  }, [isFlipped, sessionComplete, currentCard, canUndo, isProcessing]);
+
+  useEffect(() => {
+    handleGradeRef.current = handleGrade;
+    handleMarkKnownRef.current = handleMarkKnown;
+    handleUndoRef.current = handleUndo;
+    onUndoRef.current = onUndo;
+    onExitRef.current = onExit;
+  }, [handleGrade, handleMarkKnown, handleUndo, onUndo, onExit]);
+
+  // Keyboard shortcuts - use refs to avoid rebinding listener on every state change
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (!currentCard && !sessionComplete) return;
+      const state = stateRef.current;
+      if (!state.currentCard && !state.sessionComplete) return;
       
-      if (!isFlipped && !sessionComplete && e.code === 'Space') {
+      if (!state.isFlipped && !state.sessionComplete && e.code === 'Space') {
         e.preventDefault();
         setIsFlipped(true);
-      } else if (isFlipped && !sessionComplete) {
-        if (e.code === 'Space' || e.key === '2') { e.preventDefault(); handleGrade('Good'); }
-        else if (e.key === '1') { e.preventDefault(); handleGrade('Again'); }
-        else if (e.key === '3') { e.preventDefault(); handleGrade('Easy'); }
-        else if (e.key === '4') { e.preventDefault(); handleGrade('Hard'); }
+      } else if (state.isFlipped && !state.sessionComplete && !state.isProcessing) {
+        if (e.code === 'Space' || e.key === '2') { e.preventDefault(); handleGradeRef.current('Good'); }
+        else if (e.key === '1') { e.preventDefault(); handleGradeRef.current('Again'); }
+        else if (e.key === '3') { e.preventDefault(); handleGradeRef.current('Easy'); }
+        else if (e.key === '4') { e.preventDefault(); handleGradeRef.current('Hard'); }
       }
 
-      if (e.key === 'z' && canUndo && onUndo) {
+      // Mark Known Hotkey (K)
+      if (e.code === 'KeyK' && !state.sessionComplete && !state.isProcessing) {
         e.preventDefault();
-        handleUndo();
+        handleMarkKnownRef.current();
       }
-      if (e.key === 'Escape') onExit();
+
+      if (e.key === 'z' && state.canUndo && onUndoRef.current) {
+        e.preventDefault();
+        handleUndoRef.current();
+      }
+      if (e.key === 'Escape') onExitRef.current();
     };
+    
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [sessionComplete, currentCard, isFlipped, canUndo, handleGrade, handleUndo, setIsFlipped, onUndo, onExit]);
+  }, []);
 
   if (sessionComplete) {
     return (
@@ -5804,12 +6659,12 @@ export const StudySession: React.FC<StudySessionProps> = ({
       {/* Controls Overlay (Top) */}
       <div className="absolute top-0 left-0 right-0 p-6 flex justify-between items-start z-50 pointer-events-none">
          <div className="flex items-center gap-4 font-mono text-xs pointer-events-auto">
-            {/* Dynamic Counters */}
+            {/* New System Counters: Unseen / Lapse / Learning / Mature */}
             <div className="flex gap-6 font-bold">
-                <span className="text-blue-500">{counts.new}</span>
-                <span className="text-red-500">{counts.relearn}</span>
-                <span className="text-orange-500">{counts.learn}</span>
-                <span className="text-green-500">{counts.review}</span>
+              <span className="text-blue-500" title="Unseen">{counts.unseen}</span>
+              <span className="text-red-500" title="Lapse">{counts.lapse}</span>
+              <span className="text-orange-500" title="Learning">{counts.learning}</span>
+              <span className="text-green-500" title="Mature">{counts.mature}</span>
             </div>
 
             {/* Separator */}
@@ -5827,6 +6682,23 @@ export const StudySession: React.FC<StudySessionProps> = ({
          </div>
 
          <div className="flex gap-4 pointer-events-auto">
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <button 
+                    onClick={handleMarkKnown} 
+                    disabled={isProcessing}
+                    className="p-2 rounded-full hover:bg-secondary text-muted-foreground hover:text-foreground transition-colors disabled:opacity-50"
+                  >
+                    <Archive size={20} />
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Mark as Known (K)</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+
             {canUndo && (
                 <button onClick={handleUndo} className="p-2 rounded-full hover:bg-secondary text-muted-foreground hover:text-foreground transition-colors">
                     <Undo2 size={20} />
@@ -5854,35 +6726,38 @@ export const StudySession: React.FC<StudySessionProps> = ({
       <div className="h-32 md:h-40 shrink-0 flex items-center justify-center px-6 pb-8">
         {!isFlipped ? (
              <button 
-                onClick={() => setIsFlipped(true)}
-                className="w-full max-w-md h-14 rounded-md border border-border/50 hover:border-foreground/50 hover:bg-secondary/50 transition-all text-xs font-mono uppercase tracking-widest text-muted-foreground hover:text-foreground"
+              onClick={() => setIsFlipped(true)}
+              disabled={isProcessing}
+              className="w-full max-w-md h-14 rounded-md border border-border/50 hover:border-foreground/50 hover:bg-secondary/50 transition-all text-xs font-mono uppercase tracking-widest text-muted-foreground hover:text-foreground disabled:opacity-50 disabled:cursor-not-allowed"
              >
-                Reveal Answer
+              {isProcessing ? 'Processing...' : 'Reveal Answer'}
              </button>
         ) : (
             <div className="grid grid-cols-2 gap-6 w-full max-w-lg animate-in slide-in-from-bottom-4 fade-in duration-300">
-                <button 
-                    onClick={() => handleGrade('Again')}
-                    className="group h-16 rounded-md border border-border/50 hover:border-red-500/50 hover:bg-red-500/5 transition-all flex flex-col items-center justify-center gap-1"
-                >
-                    <span className="text-xs font-mono uppercase tracking-wider text-muted-foreground group-hover:text-red-500">Again</span>
-                    <span className="text-[10px] font-mono text-muted-foreground/50">1</span>
-                </button>
-                <button 
-                    onClick={() => handleGrade('Good')}
-                    className="group h-16 rounded-md border border-primary/30 hover:border-primary hover:bg-primary/5 transition-all flex flex-col items-center justify-center gap-1"
-                >
-                    <span className="text-xs font-mono uppercase tracking-wider text-foreground group-hover:text-primary">Good</span>
-                    <span className="text-[10px] font-mono text-muted-foreground/50">Space</span>
-                </button>
+              <button 
+                onClick={() => handleGrade('Again')}
+                disabled={isProcessing}
+                className="group h-16 rounded-md border border-border/50 hover:border-red-500/50 hover:bg-red-500/5 transition-all flex flex-col items-center justify-center gap-1 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <span className="text-xs font-mono uppercase tracking-wider text-muted-foreground group-hover:text-red-500">Again</span>
+                <span className="text-[10px] font-mono text-muted-foreground/50">1</span>
+              </button>
+              <button 
+                onClick={() => handleGrade('Good')}
+                disabled={isProcessing}
+                className="group h-16 rounded-md border border-primary/30 hover:border-primary hover:bg-primary/5 transition-all flex flex-col items-center justify-center gap-1 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <span className="text-xs font-mono uppercase tracking-wider text-foreground group-hover:text-primary">Good</span>
+                <span className="text-[10px] font-mono text-muted-foreground/50">Space</span>
+              </button>
             </div>
         )}
       </div>
     </div>
   );
 };
-## src/features/study/hooks/useStudySession.ts
-import { useCallback, useEffect, useMemo, useState } from 'react';
+## features/study/hooks/useStudySession.ts
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Card, Grade, UserSettings } from '@/types';
 import { calculateNextReview, isCardDue } from '@/features/study/logic/srs';
 
@@ -5908,12 +6783,21 @@ export const useStudySession = ({
   const [isFlipped, setIsFlipped] = useState(false);
   const [sessionComplete, setSessionComplete] = useState(dueCards.length === 0);
   const [actionHistory, setActionHistory] = useState<{ addedCard: boolean }[]>([]);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const isInitialized = useRef(false);
+  
+  // Synchronous ref to prevent race condition in keyboard event handler
+  const isProcessingRef = useRef(false);
 
+  // Initialize session only once to prevent index resets when dueCards change during reviews
   useEffect(() => {
-    setSessionCards(dueCards);
-    setCurrentIndex(0);
-    setSessionComplete(dueCards.length === 0);
-    setActionHistory([]);
+    if (!isInitialized.current && dueCards.length > 0) {
+      setSessionCards(dueCards);
+      setCurrentIndex(0);
+      setSessionComplete(dueCards.length === 0);
+      setActionHistory([]);
+      isInitialized.current = true;
+    }
   }, [dueCards]);
 
   const currentCard = sessionCards[currentIndex];
@@ -5921,58 +6805,110 @@ export const useStudySession = ({
   const isCurrentCardDue = useMemo(() => {
     if (!currentCard) return false;
     const now = new Date();
-    let due = isCardDue(currentCard, now);
-    if (
-      currentCard &&
-      !due &&
-      settings.ignoreLearningStepsWhenNoCards
-    ) {
-      const remainingCards = sessionCards.slice(currentIndex);
-      if (!remainingCards.some((card) => isCardDue(card, now))) {
-        due = true;
-      }
-    }
-    return due;
-  }, [currentCard, currentIndex, sessionCards, settings.ignoreLearningStepsWhenNoCards]);
+    // Relaxed check: treat the current card as reviewable if its dueDate <= now.
+    // Early reviews (slightly in future) are managed by queue logic; we don't gate UI here.
+    return isCardDue(currentCard, now);
+  }, [currentCard]);
 
   const handleGrade = useCallback(
-    (grade: Grade) => {
-      if (!currentCard) return;
-      const updatedCard = calculateNextReview(currentCard, grade, settings.fsrs);
-      onUpdateCard(updatedCard);
-      onRecordReview(currentCard, grade);
+    async (grade: Grade) => {
+      // Check synchronous ref instead of state
+      if (!currentCard || isProcessingRef.current) return;
+      
+      // Lock immediately before any async operations
+      isProcessingRef.current = true;
+      setIsProcessing(true);
+      
+      try {
+        const updatedCard = calculateNextReview(currentCard, grade, settings.fsrs);
+        // Sequence: update card, then record review. Fail fast without advancing index.
+        await Promise.resolve(onUpdateCard(updatedCard));
+        await Promise.resolve(onRecordReview(currentCard, grade));
 
-      let appended = false;
-      if (updatedCard.status === 'learning') {
-        setSessionCards((prev) => [...prev, updatedCard]);
-        appended = true;
-      }
-      setActionHistory((prev) => [...prev, { addedCard: appended }]);
+        let appended = false;
+        if (updatedCard.status === 'learning') {
+          setSessionCards((prev) => {
+            const last = prev[prev.length - 1];
+            if (last && last.id === updatedCard.id) return prev; // Prevent duplicate append
+            return [...prev, updatedCard];
+          });
+          appended = true;
+        }
+        setActionHistory((prev) => [...prev, { addedCard: appended }]);
 
-      if (currentIndex < sessionCards.length - 1 || appended) {
-        setIsFlipped(false);
-        setCurrentIndex((prev) => prev + 1);
-      } else {
-        setSessionComplete(true);
+        if (currentIndex < sessionCards.length - 1 || appended) {
+          setIsFlipped(false);
+          setCurrentIndex((prev) => prev + 1);
+        } else {
+          setSessionComplete(true);
+        }
+      } catch (e) {
+        console.error("Review failed", e);
+        return;
+      } finally {
+        // Unlock synchronously
+        isProcessingRef.current = false;
+        setIsProcessing(false);
       }
     },
     [currentCard, currentIndex, onRecordReview, onUpdateCard, sessionCards.length, settings.fsrs]
   );
 
+  const handleMarkKnown = useCallback(async () => {
+    if (!currentCard || isProcessingRef.current) return;
+
+    isProcessingRef.current = true;
+    setIsProcessing(true);
+
+    try {
+      const updatedCard: Card = {
+        ...currentCard,
+        status: 'known',
+      };
+
+      await Promise.resolve(onUpdateCard(updatedCard));
+      
+      // We don't record a review for "known" as it's a manual override,
+      // but we do advance the queue.
+      setActionHistory((prev) => [...prev, { addedCard: false }]);
+
+      if (currentIndex < sessionCards.length - 1) {
+        setIsFlipped(false);
+        setCurrentIndex((prev) => prev + 1);
+      } else {
+        setSessionComplete(true);
+      }
+    } catch (e) {
+      console.error("Mark known failed", e);
+    } finally {
+      isProcessingRef.current = false;
+      setIsProcessing(false);
+    }
+  }, [currentCard, currentIndex, onUpdateCard, sessionCards.length]);
+
   const handleUndo = useCallback(() => {
     if (!canUndo || !onUndo) return;
     onUndo();
+    
     if (currentIndex > 0 || sessionComplete) {
-      const lastAction = actionHistory[actionHistory.length - 1];
-      if (lastAction?.addedCard) {
-        setSessionCards((prev) => prev.slice(0, -1));
-      }
-      setActionHistory((prev) => prev.slice(0, -1));
+      setActionHistory((prev) => {
+        const newHistory = prev.slice(0, -1);
+        const lastAction = prev[prev.length - 1];
+        
+        // If the last action added a card to the queue (learning status),
+        // remove that ghost card from the end of sessionCards
+        if (lastAction?.addedCard) {
+          setSessionCards((prevCards) => prevCards.slice(0, -1));
+        }
+        
+        return newHistory;
+      });
+      
       setSessionComplete(false);
       setCurrentIndex((prev) => Math.max(0, prev - 1));
       setIsFlipped(true);
     }
-  }, [actionHistory, canUndo, currentIndex, onUndo, sessionComplete]);
+  }, [canUndo, currentIndex, onUndo, sessionComplete]);
 
   const progress = sessionCards.length
     ? (currentIndex / sessionCards.length) * 100
@@ -5987,11 +6923,13 @@ export const useStudySession = ({
     sessionComplete,
     isCurrentCardDue,
     handleGrade,
+    handleMarkKnown,
     handleUndo,
     progress,
+    isProcessing,
   };
 };
-## src/features/study/logic/srs.ts
+## features/study/logic/srs.ts
 import { addDays, startOfDay, subHours, isBefore, isSameDay, addMinutes } from 'date-fns';
 import { Card, Grade, UserSettings, CardStatus } from '@/types';
 import { SRS_CONFIG, FSRS_DEFAULTS } from '@/constants';
@@ -6135,7 +7073,7 @@ export const isCardDue = (card: Card, now: Date = new Date()): boolean => {
   // OR if the specific time has passed (fallback for weird timezones/migrations)
   return isBefore(due, srsToday) || due <= now;
 };
-## src/hooks/useChartColors.ts
+## hooks/useChartColors.ts
 import { useMemo } from 'react';
 import { useSettings } from '@/contexts/SettingsContext';
 import { useTheme } from '@/contexts/ThemeContext';
@@ -6172,7 +7110,7 @@ export const useChartColors = () => {
     };
   }, [theme, settings.language, settings.languageColors]);
 };
-## src/lib/memeUtils.ts
+## lib/memeUtils.ts
 export const uwuify = (text: string) => {
   return text
     .replace(/r/g, 'w')
@@ -6197,7 +7135,7 @@ export const FAKE_ANSWERS = [
   'Your mom',
   'Bitcoin',
 ];
-## src/lib/supabase.ts
+## lib/supabase.ts
 import { createClient } from '@supabase/supabase-js';
 
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
@@ -6208,7 +7146,7 @@ if (!supabaseUrl || !supabaseAnonKey) {
 }
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey);
-## src/lib/utils.ts
+## lib/utils.ts
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 
@@ -6304,7 +7242,7 @@ export function hslToHex(hslString: string): string {
   };
   return `#${f(0)}${f(8)}${f(4)}`;
 }
-## src/main.tsx
+## main.tsx
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import './index.css';
@@ -6321,7 +7259,7 @@ root.render(
     <App />
   </React.StrictMode>
 );
-## src/router.tsx
+## router.tsx
 import React from 'react';
 import { Routes, Route } from 'react-router-dom';
 import { DashboardRoute } from '@/routes/DashboardRoute';
@@ -6337,7 +7275,7 @@ export const AppRoutes: React.FC = () => (
     <Route path="/leaderboard" element={<Leaderboard />} />
   </Routes>
 );
-## src/routes/CardsRoute.tsx
+## routes/CardsRoute.tsx
 import React, { useState, useEffect } from 'react';
 import { Search, Sparkles, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useDeck } from '@/contexts/DeckContext';
@@ -6351,7 +7289,7 @@ import { useCardsQuery } from '@/features/deck/hooks/useCardsQuery';
 
 export const CardsRoute: React.FC = () => {
   const { settings } = useSettings();
-  const { addCard, deleteCard } = useCardOperations();
+  const { addCard, addCardsBatch, deleteCard } = useCardOperations();
   const [searchTerm, setSearchTerm] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
   const [page, setPage] = useState(0);
@@ -6389,9 +7327,7 @@ export const CardsRoute: React.FC = () => {
   };
 
   const handleBatchAddCards = async (newCards: Card[]) => {
-    for (const card of newCards) {
-        await addCard(card);
-    }
+    await addCardsBatch(newCards);
   };
 
   return (
@@ -6475,7 +7411,7 @@ export const CardsRoute: React.FC = () => {
     </div>
   );
 };
-## src/routes/DashboardRoute.tsx
+## routes/DashboardRoute.tsx
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
@@ -6483,7 +7419,7 @@ import { Dashboard } from '@/features/dashboard/components/Dashboard';
 import { useDeck } from '@/contexts/DeckContext';
 import { useSettings } from '@/contexts/SettingsContext';
 import { getDashboardStats } from '@/services/db/repositories/statsRepository';
-import { getAllCardsByLanguage } from '@/services/db/repositories/cardRepository';
+import { getCardsForDashboard } from '@/services/db/repositories/cardRepository';
 
 export const DashboardRoute: React.FC = () => {
   const { history, stats } = useDeck();
@@ -6496,8 +7432,8 @@ export const DashboardRoute: React.FC = () => {
   });
 
   const { data: cards, isLoading: isCardsLoading } = useQuery({
-    queryKey: ['allCards', settings.language],
-    queryFn: () => getAllCardsByLanguage(settings.language),
+    queryKey: ['dashboardCards', settings.language],
+    queryFn: () => getCardsForDashboard(settings.language),
   });
 
   if (isStatsLoading || isCardsLoading || !dashboardStats || !cards) {
@@ -6512,6 +7448,7 @@ export const DashboardRoute: React.FC = () => {
     <Dashboard 
       metrics={dashboardStats.counts}
       forecast={dashboardStats.forecast}
+      languageXp={dashboardStats.languageXp}
       stats={stats}
       history={history}
       onStartSession={() => navigate('/study')}
@@ -6519,7 +7456,7 @@ export const DashboardRoute: React.FC = () => {
     />
   );
 };
-## src/routes/StudyRoute.tsx
+## routes/StudyRoute.tsx
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Card, Grade } from '@/types';
@@ -6557,9 +7494,11 @@ export const StudyRoute: React.FC = () => {
         } else {
           const due = await getDueCards(new Date(), settings.language);
           const reviewsToday = await getTodayReviewStats(settings.language);
+          const currentNewLimit = settings.dailyNewLimits?.[settings.language] ?? 20;
+          const currentReviewLimit = settings.dailyReviewLimits?.[settings.language] ?? 100;
           const limited = applyStudyLimits(due, {
-            dailyNewLimit: settings.dailyNewLimit,
-            dailyReviewLimit: settings.dailyReviewLimit,
+            dailyNewLimit: currentNewLimit,
+            dailyReviewLimit: currentReviewLimit,
             reviewsToday
           });
           setSessionCards(limited);
@@ -6571,7 +7510,7 @@ export const StudyRoute: React.FC = () => {
       }
     };
     loadCards();
-  }, [settings.dailyNewLimit, settings.dailyReviewLimit, settings.language, isCramMode, searchParams]);
+  }, [settings.dailyNewLimits, settings.dailyReviewLimits, settings.language, isCramMode, searchParams]);
 
   const handleUpdateCard = (card: Card) => {
     if (!isCramMode) {
@@ -6604,7 +7543,7 @@ export const StudyRoute: React.FC = () => {
     />
   );
 };
-## src/services/db/client.ts
+## services/db/client.ts
 import { openDB, DBSchema, IDBPDatabase } from 'idb';
 import { Card } from '@/types';
 
@@ -6665,7 +7604,7 @@ export const getDB = () => {
 export const resetDBCache = () => {
   dbPromise = null;
 };
-## src/services/db/index.ts
+## services/db/index.ts
 import * as cardRepository from './repositories/cardRepository';
 import * as historyRepository from './repositories/historyRepository';
 import * as statsRepository from './repositories/statsRepository';
@@ -6688,7 +7627,7 @@ export const db = {
   saveFullHistory: historyRepository.saveFullHistory,
   clearHistory: historyRepository.clearHistory,
 };
-## src/services/db/repositories/cardRepository.ts
+## services/db/repositories/cardRepository.ts
 import { Card } from '@/types';
 import { getSRSDate } from '@/features/study/logic/srs';
 import { supabase } from '@/lib/supabase';
@@ -6785,6 +7724,32 @@ export const getAllCardsByLanguage = async (language: Language): Promise<Card[]>
   return (data ?? []).map(mapToCard);
 };
 
+export const getCardsForRetention = async (language: Language): Promise<Partial<Card>[]> => {
+  const userId = await ensureUser();
+  const { data, error } = await supabase
+    .from('cards')
+    .select('id, due_date, status, stability, state')
+    .eq('user_id', userId)
+    .eq('language', language)
+    .order('created_at', { ascending: true });
+
+  if (error) throw error;
+  return (data ?? []) as Partial<Card>[];
+};
+
+// Lightweight selection for dashboard retention & forecast computations
+export const getCardsForDashboard = async (language: Language): Promise<Array<{ id: string; due_date: string | null; status: string; stability: number | null; state: number | null }>> => {
+  const userId = await ensureUser();
+  const { data, error } = await supabase
+    .from('cards')
+    .select('id, due_date, status, stability, state')
+    .eq('user_id', userId)
+    .eq('language', language)
+    .order('created_at', { ascending: true });
+  if (error) throw error;
+  return (data ?? []) as Array<{ id: string; due_date: string | null; status: string; stability: number | null; state: number | null }>;
+};
+
 export const saveCard = async (card: Card) => {
   const userId = await ensureUser();
   const payload = mapToDB(card, userId);
@@ -6801,8 +7766,13 @@ export const saveAllCards = async (cards: Card[]) => {
   if (!cards.length) return;
   const userId = await ensureUser();
   const payload = cards.map((card) => mapToDB(card, userId));
-  const { error } = await supabase.from('cards').upsert(payload);
-  if (error) throw error;
+  // Batch to avoid oversized payloads for very large imports
+  const BATCH_SIZE = 100;
+  for (let i = 0; i < payload.length; i += BATCH_SIZE) {
+    const chunk = payload.slice(i, i + BATCH_SIZE);
+    const { error } = await supabase.from('cards').upsert(chunk);
+    if (error) throw error;
+  }
 };
 
 export const clearAllCards = async () => {
@@ -6836,30 +7806,15 @@ export const getDueCards = async (now: Date = new Date(), language?: Language): 
 
 export const getCramCards = async (limit: number, tag?: string, language?: Language): Promise<Card[]> => {
   const userId = await ensureUser();
-  let query = supabase
-    .from('cards')
-    .select('*')
-    .eq('user_id', userId)
-    .neq('status', 'known');
-
-  if (language) {
-    query = query.eq('language', language);
-  }
-
-  if (tag) {
-    query = query.contains('tags', [tag]);
-  }
-
-  const { data, error } = await query.limit(Math.max(limit, 50));
+  // Use server-side randomization via RPC to avoid fetching entire table into memory.
+  const { data, error } = await supabase.rpc('get_random_cards', {
+    p_user_id: userId,
+    p_language: language || 'polish',
+    p_limit: limit,
+    p_tag: tag || null,
+  });
   if (error) throw error;
-
-  const cards = (data ?? []).map(mapToCard);
-  for (let i = cards.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [cards[i], cards[j]] = [cards[j], cards[i]];
-  }
-
-  return cards.slice(0, limit);
+  return (data ?? []).map(mapToCard);
 };
 
 export const deleteCardsByLanguage = async (language: Language) => {
@@ -6871,6 +7826,18 @@ export const deleteCardsByLanguage = async (language: Language) => {
     .eq('user_id', userId);
 
   if (error) throw error;
+};
+
+export const getCardSignatures = async (language: Language): Promise<Array<{ target_sentence: string; language: string }>> => {
+  const userId = await ensureUser();
+  const { data, error } = await supabase
+    .from('cards')
+    .select('target_sentence, language')
+    .eq('user_id', userId)
+    .eq('language', language);
+
+  if (error) throw error;
+  return data ?? [];
 };
 
 export const getTags = async (language?: Language): Promise<string[]> => {
@@ -6893,7 +7860,7 @@ export const getTags = async (language?: Language): Promise<string[]> => {
 
   return Array.from(uniqueTags).sort();
 };
-## src/services/db/repositories/historyRepository.ts
+## services/db/repositories/historyRepository.ts
 import { supabase } from '@/lib/supabase';
 import { ReviewHistory } from '@/types';
 
@@ -6986,7 +7953,7 @@ export const clearHistory = async (language?: Language) => {
     throw error;
   }
 };
-## src/services/db/repositories/statsRepository.ts
+## services/db/repositories/statsRepository.ts
 import { getSRSDate } from '@/features/study/logic/srs';
 import { SRS_CONFIG } from '@/constants';
 import { supabase } from '@/lib/supabase';
@@ -7013,10 +7980,21 @@ export const getDashboardStats = async (language?: string) => {
     query = query.eq('language', language);
   }
 
-  const { data, error } = await query;
-  if (error) throw error;
+  const { data: cardsData, error: cardsError } = await query;
+  if (cardsError) throw cardsError;
 
-  const cards = data ?? [];
+  const cards = cardsData ?? [];
+
+  // Language specific XP via RPC (returns 0 if no language or no data)
+  let languageXp = 0;
+  if (language) {
+    const { data: xpData, error: xpError } = await supabase.rpc('get_user_language_xp', {
+      target_language: language
+    });
+    if (!xpError && typeof xpData === 'number') {
+      languageXp = xpData;
+    }
+  }
 
   // Metrics
   const counts = { new: 0, learning: 0, graduated: 0, known: 0 };
@@ -7030,12 +8008,12 @@ export const getDashboardStats = async (language?: string) => {
   // Forecast
   const daysToShow = 14;
   const today = new Date();
-  const forecast = new Array(daysToShow).fill(0).map((_, i) => ({ 
-      day: format(addDays(today, i), 'd'),
-      fullDate: addDays(today, i).toISOString(),
-      count: 0 
+  const forecast = new Array(daysToShow).fill(0).map((_, i) => ({
+    day: format(addDays(today, i), 'd'),
+    fullDate: addDays(today, i).toISOString(),
+    count: 0
   }));
-  
+
   cards.forEach((card: any) => {
     if (card.status === 'known' || card.status === 'new') return;
     const dueDate = parseISO(card.due_date);
@@ -7043,7 +8021,7 @@ export const getDashboardStats = async (language?: string) => {
     if (diff >= 0 && diff < daysToShow) forecast[diff].count++;
   });
 
-  return { counts, forecast };
+  return { counts, forecast, languageXp };
 };
 
 export const getStats = async (language?: string) => {
@@ -7108,7 +8086,7 @@ export const getTodayReviewStats = async (language?: string) => {
 
   return { newCards, reviewCards };
 };
-## src/services/studyLimits.ts
+## services/studyLimits.ts
 import { Card, UserSettings } from '../types';
 import { State } from 'ts-fsrs';
 
@@ -7172,7 +8150,7 @@ export const applyStudyLimits = (cards: Card[], settings: LimitOptions): Card[] 
 
   return limitedCards;
 };
-## src/services/tts/index.ts
+## services/tts/index.ts
 import { Language, TTSSettings, TTSProvider } from "@/types";
 
 // Map app language codes to BCP 47 language tags
@@ -7193,6 +8171,8 @@ class TTSService {
     private browserVoices: SpeechSynthesisVoice[] = [];
     private audioContext: AudioContext | null = null;
     private currentSource: AudioBufferSourceNode | null = null;
+    private currentOperationId = 0;
+    private abortController: AbortController | null = null;
 
     constructor() {
         if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
@@ -7206,6 +8186,18 @@ class TTSService {
 
     private updateVoices() {
         this.browserVoices = window.speechSynthesis.getVoices();
+    }
+    
+    /**
+     * Cleanup method to properly dispose of AudioContext and prevent memory leaks
+     * Call this when the service is being destroyed or on app unmount
+     */
+    dispose() {
+        this.stop();
+        if (this.audioContext) {
+            this.audioContext.close().catch(() => {});
+            this.audioContext = null;
+        }
     }
 
     /**
@@ -7269,14 +8261,21 @@ class TTSService {
     }
 
     async speak(text: string, language: Language, settings: TTSSettings) {
+        // Abort any in-flight network request before starting new speak
+        if (this.abortController) {
+            this.abortController.abort();
+        }
         this.stop();
+        const opId = ++this.currentOperationId;
+        this.abortController = new AbortController();
 
+        
         if (settings.provider === 'browser') {
             this.speakBrowser(text, language, settings);
         } else if (settings.provider === 'google') {
-            await this.speakGoogle(text, language, settings);
+            await this.speakGoogle(text, language, settings, opId);
         } else if (settings.provider === 'azure') {
-            await this.speakAzure(text, language, settings);
+            await this.speakAzure(text, language, settings, opId);
         }
     }
 
@@ -7299,13 +8298,14 @@ class TTSService {
         window.speechSynthesis.speak(utterance);
     }
 
-    private async speakGoogle(text: string, language: Language, settings: TTSSettings) {
+    private async speakGoogle(text: string, language: Language, settings: TTSSettings, opId: number) {
         if (!settings.googleApiKey) return;
 
         try {
             const response = await fetch(`https://texttospeech.googleapis.com/v1/text:synthesize?key=${settings.googleApiKey}`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
+                signal: this.abortController?.signal,
                 body: JSON.stringify({
                     input: { text },
                     voice: settings.voiceURI ? { name: settings.voiceURI, languageCode: LANG_CODE_MAP[language][0] } : { languageCode: LANG_CODE_MAP[language][0] },
@@ -7319,15 +8319,20 @@ class TTSService {
             });
 
             const data = await response.json();
+            
+            // Check if this operation is still the latest active one
+            if (this.currentOperationId !== opId) return;
+            
             if (data.audioContent) {
-                this.playAudioContent(data.audioContent);
+                this.playAudioContent(data.audioContent, opId);
             }
-        } catch (e) {
+        } catch (e: any) {
+            if (e?.name === 'AbortError') return; // Silently ignore aborted fetches
             console.error("Google TTS error", e);
         }
     }
 
-    private async speakAzure(text: string, language: Language, settings: TTSSettings) {
+    private async speakAzure(text: string, language: Language, settings: TTSSettings, opId: number) {
         if (!settings.azureApiKey || !settings.azureRegion) return;
 
         try {
@@ -7351,50 +8356,74 @@ class TTSService {
                     'X-Microsoft-OutputFormat': 'audio-16khz-128kbitrate-mono-mp3',
                     'User-Agent': 'LinguaFlow'
                 },
+                signal: this.abortController?.signal,
                 body: ssml
             });
 
             if (!response.ok) throw new Error(await response.text());
 
+            // Check if this operation is still the latest active one
+            if (this.currentOperationId !== opId) return;
+
             const blob = await response.blob();
             const arrayBuffer = await blob.arrayBuffer();
-            this.playAudioBuffer(arrayBuffer);
+            this.playAudioBuffer(arrayBuffer, opId);
 
-        } catch (e) {
+        } catch (e: any) {
+            if (e?.name === 'AbortError') return;
             console.error("Azure TTS error", e);
         }
     }
 
-    private playAudioContent(base64Audio: string) {
+    private playAudioContent(base64Audio: string, opId: number) {
         const binaryString = window.atob(base64Audio);
         const len = binaryString.length;
         const bytes = new Uint8Array(len);
         for (let i = 0; i < len; i++) {
             bytes[i] = binaryString.charCodeAt(i);
         }
-        this.playAudioBuffer(bytes.buffer);
+        this.playAudioBuffer(bytes.buffer, opId);
     }
 
-    private async playAudioBuffer(buffer: ArrayBuffer) {
+    private async playAudioBuffer(buffer: ArrayBuffer, opId: number) {
         if (!this.audioContext) {
             this.audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
         }
 
         try {
             const decodedBuffer = await this.audioContext.decodeAudioData(buffer);
+            
+            // CRITICAL CHECK: Ensure we are still on the same operation
+            if (this.currentOperationId !== opId) return;
+
             if (this.currentSource) {
                 this.currentSource.stop();
             }
-            this.currentSource = this.audioContext.createBufferSource();
-            this.currentSource.buffer = decodedBuffer;
-            this.currentSource.connect(this.audioContext.destination);
-            this.currentSource.start(0);
+                        this.currentSource = this.audioContext.createBufferSource();
+                        this.currentSource.buffer = decodedBuffer;
+                        this.currentSource.connect(this.audioContext.destination);
+                        this.currentSource.onended = () => {
+                            // Suspend the context when idle to conserve resources & avoid autoplay blocking policies
+                            if (this.audioContext && this.audioContext.state === 'running') {
+                                this.audioContext.suspend().catch(() => {});
+                            }
+                        };
+                        // Resume if previously suspended (user initiated playback implied)
+                        if (this.audioContext.state === 'suspended') {
+                            try { await this.audioContext.resume(); } catch {}
+                        }
+                        this.currentSource.start(0);
         } catch (e) {
             console.error("Audio playback error", e);
         }
     }
 
     stop() {
+        this.currentOperationId++; // Invalidate any pending async operations
+        if (this.abortController) {
+            this.abortController.abort();
+            this.abortController = null;
+        }
         if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
             window.speechSynthesis.cancel();
         }
@@ -7402,11 +8431,82 @@ class TTSService {
             this.currentSource.stop();
             this.currentSource = null;
         }
+        if (this.audioContext && this.audioContext.state === 'running') {
+            this.audioContext.suspend().catch(() => {});
+        }
     }
 }
 
 export const ttsService = new TTSService();
-## src/types/index.ts
+## supabase/functions/generate-card/index.ts
+// supabase/functions/generate-card/index.ts
+import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
+// Declare Deno for TypeScript type checking environment
+declare const Deno: any;
+
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+}
+
+serve(async (req: Request) => {
+  // 1. Handle CORS preflight requests
+  if (req.method === 'OPTIONS') {
+    return new Response('ok', { headers: corsHeaders })
+  }
+
+  try {
+    // Extract user-provided apiKey (optional) and prompt
+    const { prompt, apiKey: userApiKey } = await req.json()
+    // Fallback to server env key if user did not provide one
+    const apiKey = userApiKey || Deno.env.get('GEMINI_API_KEY')
+
+    if (!apiKey) {
+      throw new Error('No Gemini API Key provided. Please add one in Settings.')
+    }
+
+    // 3. Call Google Gemini API
+    const response = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          contents: [{ parts: [{ text: prompt }] }],
+        }),
+      }
+    )
+
+    const data = await response.json()
+
+    // 4. Parse the response
+    if (!response.ok) {
+      console.error('Gemini API Error:', data)
+      throw new Error(data.error?.message || 'Failed to generate content')
+    }
+
+    const generatedText = data.candidates?.[0]?.content?.parts?.[0]?.text || ''
+
+    // 5. Return the text to your React app
+    return new Response(
+      JSON.stringify({ text: generatedText }),
+      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+    )
+
+  } catch (error: any) {
+    console.error('Function Error:', error)
+    return new Response(
+      JSON.stringify({ error: error?.message || 'Unknown error' }),
+      { 
+        status: 500, 
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+      }
+    )
+  }
+})
+## types/index.ts
 import { Card as FSRSCard, State as FSRSState } from 'ts-fsrs';
 
 export type Difficulty = 'A1' | 'A2' | 'B1' | 'B2' | 'C1' | 'C2';
@@ -7478,8 +8578,9 @@ export interface TTSSettings {
 export interface UserSettings {
   language: Language;
   languageColors?: Record<Language, string>; // HSL values e.g. "346 84% 45%"
-  dailyNewLimit: number;
-  dailyReviewLimit: number;
+  // Per-language study limits (migrated from single number fields)
+  dailyNewLimits: Record<Language, number>;
+  dailyReviewLimits: Record<Language, number>;
   autoPlayAudio: boolean;
   blindMode: boolean; // New: Play audio before showing text
   showTranslationAfterFlip: boolean;
@@ -7491,12 +8592,13 @@ export interface UserSettings {
     w?: number[]; // Weights
     enable_fuzzing?: boolean;
   }
+  geminiApiKey: string; // Gemini API key for client-side AI calls
 }
-## src/vite-env.d.ts
+## vite-env.d.ts
 /// <reference types="vite/client" />
 
 declare const __APP_VERSION__: string;
-## src/vitest.setup.ts
+## vitest.setup.ts
 import '@testing-library/jest-dom/vitest';
 import { vi } from 'vitest';
 
@@ -7544,109 +8646,3 @@ if (typeof window !== 'undefined') {
     })),
   });
 }
-## supabase/functions/generate-card/index.ts
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
-
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-}
-
-serve(async (req) => {
-  if (req.method === 'OPTIONS') {
-    return new Response('ok', { headers: corsHeaders })
-  }
-
-  try {
-    const { prompt } = await req.json()
-    const apiKey = Deno.env.get('GEMINI_API_KEY')
-
-    if (!apiKey) {
-      throw new Error('GEMINI_API_KEY is not set')
-    }
-
-    const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`,
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          contents: [{
-            parts: [{
-              text: prompt
-            }]
-          }]
-        })
-      }
-    )
-
-    const data = await response.json()
-    
-    if (!response.ok) {
-      throw new Error(data.error?.message || 'Failed to fetch from Gemini API')
-    }
-
-    const text = data.candidates[0]?.content?.parts[0]?.text || ''
-
-    return new Response(
-      JSON.stringify({ text }),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    )
-  } catch (error) {
-    return new Response(
-      JSON.stringify({ error: error.message }),
-      { 
-        status: 400,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-      }
-    )
-  }
-})
-## vite.config.ts
-import path from 'path';
-import { fileURLToPath } from 'url';
-import { defineConfig, loadEnv } from 'vite';
-import react from '@vitejs/plugin-react';
-import { version } from './package.json';
-
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-
-export default defineConfig(({ mode }) => {
-    const env = loadEnv(mode, '.', '');
-    return {
-      server: {
-        port: 3000,
-        host: '0.0.0.0',
-      },
-      plugins: [react()],
-      define: {
-        '__APP_VERSION__': JSON.stringify(version),
-      },
-      resolve: {
-        alias: {
-          '@': path.resolve(__dirname, './src'),
-        },
-      },
-      build: {
-        commonjsOptions: {
-          include: [/node_modules/],
-        },
-      },
-      test: {
-        globals: true,
-        environment: 'jsdom',
-        setupFiles: './src/vitest.setup.ts',
-        coverage: {
-          reporter: ['text', 'lcov'],
-          include: [
-            'src/services/**/*.ts',
-            'src/components/**/*.tsx',
-            'src/contexts/**/*.tsx',
-            'src/routes/**/*.tsx'
-          ]
-        }
-      }
-    };
-});

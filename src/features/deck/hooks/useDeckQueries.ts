@@ -15,6 +15,17 @@ import { format } from 'date-fns';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
 
+// Helper function to calculate XP based on card status and grade
+const calculateXP = (cardStatus: string, grade: Grade): number => {
+  return cardStatus === 'new'
+    ? 50
+    : grade === 'Again'
+    ? 1
+    : grade === 'Hard'
+    ? 5
+    : 10;
+};
+
 export const useDeckStatsQuery = () => {
   const { settings } = useSettings();
   return useQuery({
@@ -29,7 +40,7 @@ export const useDueCardsQuery = () => {
   return useQuery({
     queryKey: ['dueCards', settings.language],
     queryFn: () => getDueCards(new Date(), settings.language),
-    staleTime: 0, // Always fresh for study
+    staleTime: 60 * 1000, // Cache for 1 minute to reduce refetch thrashing
   });
 };
 
@@ -54,7 +65,7 @@ export const useHistoryQuery = () => {
 export const useRecordReviewMutation = () => {
   const queryClient = useQueryClient();
   const { settings } = useSettings();
-  const { user } = useAuth();
+  const { user, incrementXPOptimistically } = useAuth();
 
   return useMutation({
     mutationFn: async ({ card, grade }: { card: Card; grade: Grade }) => {
@@ -65,43 +76,56 @@ export const useRecordReviewMutation = () => {
       
       // 2. Award XP if user exists
       if (user) {
-          const xpAmount =
-            card.status === 'new'
-              ? 50
-              : grade === 'Again'
-              ? 1
-              : grade === 'Hard'
-              ? 5
-              : 10;
+        const xpAmount = calculateXP(card.status, grade);
 
-          await supabase
-            .from('activity_log')
-            .insert({
-              user_id: user.id,
-              activity_type: card.status === 'new' ? 'new_card' : 'review',
-              xp_awarded: xpAmount,
-              language: card.language || settings.language,
-            });
+        // Insert activity log
+        await supabase
+          .from('activity_log')
+          .insert({
+            user_id: user.id,
+            activity_type: card.status === 'new' ? 'new_card' : 'review',
+            xp_awarded: xpAmount,
+            language: card.language || settings.language,
+          });
+
+        // FIX: Persist XP to profile to prevent data loss on refresh
+        const { error: xpError } = await supabase.rpc('increment_profile_xp', {
+          user_id: user.id,
+          amount: xpAmount
+        });
+
+        if (xpError) {
+          console.error('Failed to update profile XP:', xpError);
+        }
       }
       
       return { card, grade, today };
     },
-    onMutate: async ({ card }) => {
+    onMutate: async ({ card, grade }) => {
       const today = format(getSRSDate(new Date()), 'yyyy-MM-dd');
       
-      await queryClient.cancelQueries({ queryKey: ['history', settings.language] });
-      await queryClient.cancelQueries({ queryKey: ['reviewsToday', settings.language] });
+      // 1. Cancel ALL relevant queries to prevent overwrites from background refetches
+      await Promise.all([
+        queryClient.cancelQueries({ queryKey: ['history', settings.language] }),
+        queryClient.cancelQueries({ queryKey: ['reviewsToday', settings.language] }),
+        queryClient.cancelQueries({ queryKey: ['dueCards', settings.language] }),
+        queryClient.cancelQueries({ queryKey: ['deckStats', settings.language] }),
+        queryClient.cancelQueries({ queryKey: ['dashboardStats', settings.language] }) // Added: prevent overwrite of optimistic language XP
+      ]);
       
+      // 2. Snapshot previous values for rollback
       const previousHistory = queryClient.getQueryData(['history', settings.language]);
       const previousReviewsToday = queryClient.getQueryData(['reviewsToday', settings.language]);
+      const previousDueCards = queryClient.getQueryData(['dueCards', settings.language]);
+      const previousDashboardStats = queryClient.getQueryData(['dashboardStats', settings.language]); // Added snapshot
       
-      // Optimistically update history
+      // 3. Optimistically update history
       queryClient.setQueryData(['history', settings.language], (old: any) => {
         if (!old) return { [today]: 1 };
         return { ...old, [today]: (old[today] || 0) + 1 };
       });
       
-      // Optimistically update reviewsToday
+      // 4. Optimistically update reviewsToday
       queryClient.setQueryData(['reviewsToday', settings.language], (old: any) => {
          if (!old) return { newCards: 0, reviewCards: 0 };
          return {
@@ -110,17 +134,50 @@ export const useRecordReviewMutation = () => {
          };
       });
 
-      return { previousHistory, previousReviewsToday };
+      // 5. Optimistically update: REMOVE CARD FROM DUE QUEUE regardless of grade.
+      // If graded 'Again', it enters a short learning interval and should not count as currently due.
+      // The study session manages immediate re-queue locally.
+      queryClient.setQueryData(['dueCards', settings.language], (old: Card[] | undefined) => {
+        if (!old) return [];
+        return old.filter(c => c.id !== card.id);
+      });
+
+      // Note: We do NOT optimistically update deckStats.due here because DeckContext
+      // derives the due count from the dueCards array. Updating both causes desync.
+      // The invalidation on settlement will sync deckStats from the server.
+
+      // 7. Optimistically update Profile XP
+      if (user) {
+        const xpAmount = calculateXP(card.status, grade);
+        incrementXPOptimistically(xpAmount);
+
+        // Optimistically update Dashboard Stats (Language XP)
+        queryClient.setQueryData(['dashboardStats', settings.language], (old: any) => {
+            if (!old) return old;
+            return {
+                ...old,
+                languageXp: (old.languageXp || 0) + xpAmount
+            };
+        });
+      }
+
+      return { previousHistory, previousReviewsToday, previousDueCards, previousDashboardStats };
     },
     onError: (err, newTodo, context) => {
-      queryClient.setQueryData(['history', settings.language], context?.previousHistory);
-      queryClient.setQueryData(['reviewsToday', settings.language], context?.previousReviewsToday);
+      // Rollback EVERYTHING if it fails
+      if (context) {
+        queryClient.setQueryData(['history', settings.language], context.previousHistory);
+        queryClient.setQueryData(['reviewsToday', settings.language], context.previousReviewsToday);
+        queryClient.setQueryData(['dueCards', settings.language], context.previousDueCards);
+        queryClient.setQueryData(['dashboardStats', settings.language], context.previousDashboardStats);
+      }
     },
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ['history', settings.language] });
       queryClient.invalidateQueries({ queryKey: ['reviewsToday', settings.language] });
       queryClient.invalidateQueries({ queryKey: ['deckStats', settings.language] });
       queryClient.invalidateQueries({ queryKey: ['dueCards', settings.language] });
+      queryClient.invalidateQueries({ queryKey: ['dashboardStats', settings.language] });
     },
   });
 };

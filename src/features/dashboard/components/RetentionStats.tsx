@@ -115,11 +115,12 @@ export const RetentionStats: React.FC<RetentionStatsProps> = ({ cards }) => {
       }
     });
 
+    // Updated labels & colors: Unseen / Learning / Mature / Known
     return [
-      { name: 'New', value: counts.new, color: colors.primary },
+      { name: 'Unseen', value: counts.new, color: colors.primary },
       { name: 'Learning', value: counts.learning, color: colors.muted },
-      { name: 'Graduated', value: counts.graduated, color: colors.border },
-      { name: 'Known', value: counts.known, color: colors.foreground },
+      { name: 'Mature', value: counts.graduated, color: colors.foreground },
+      { name: 'Known', value: counts.known, color: colors.border },
     ];
   }, [cards, colors]);
 

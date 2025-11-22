@@ -8,47 +8,70 @@ interface BatchGenerationOptions {
 }
 
 function extractJSON(text: string): string {
-  // Remove Markdown code blocks if present
-  const markdownRegex = /```(?:json)?\s*([\s\S]*?)\s*```/;
-  const match = text.match(markdownRegex);
-  if (match) {
-    return match[1];
+  // Try to find a JSON code block first (case-insensitive)
+  const jsonBlockMatch = text.match(/```(?:json)?\s*([\s\S]*?)\s*```/i);
+  if (jsonBlockMatch) {
+    return jsonBlockMatch[1];
   }
   
-  // Fallback: Try to find first { or [ and last } or ]
-  const firstOpen = text.search(/[{[]/);
-  const lastClose = text.search(/[}\]]$/); 
+  // Fallback: Find the outermost curly braces or brackets
+  const firstOpenBrace = text.indexOf('{');
+  const firstOpenBracket = text.indexOf('[');
   
-  if (firstOpen !== -1 && lastClose !== -1 && lastClose > firstOpen) {
-      return text.substring(firstOpen, lastClose + 1);
+  let firstOpen = -1;
+  if (firstOpenBrace !== -1 && firstOpenBracket !== -1) {
+    firstOpen = Math.min(firstOpenBrace, firstOpenBracket);
+  } else {
+    firstOpen = Math.max(firstOpenBrace, firstOpenBracket);
   }
 
-  // Ideally, just return text and let JSON.parse throw, 
-  // but clean up common markdown artifacts first.
-  return text.replace(/```json/g, '').replace(/```/g, '');
+  if (firstOpen !== -1) {
+    // Find the corresponding last close
+    const lastCloseBrace = text.lastIndexOf('}');
+    const lastCloseBracket = text.lastIndexOf(']');
+    const lastClose = Math.max(lastCloseBrace, lastCloseBracket);
+    
+    if (lastClose > firstOpen) {
+      return text.substring(firstOpen, lastClose + 1);
+    }
+  }
+
+  return text;
 }
 
-async function callGemini(prompt: string): Promise<string> {
+async function callGemini(prompt: string, apiKey: string): Promise<string> {
+  if (!apiKey) {
+    throw new Error('Gemini API Key is missing. Please add it in Settings.');
+  }
+
+  // FIX: Explicitly stringify body and set headers to prevent serialization issues
   const { data, error } = await supabase.functions.invoke('generate-card', {
-    body: { prompt }
+    body: JSON.stringify({ prompt, apiKey }),
+    headers: {
+      'Content-Type': 'application/json'
+    }
   });
 
   if (error) {
-    console.error('Gemini API Error:', error);
+    console.error("Edge Function Error:", error);
+    // Check specifically for 404 to give a helpful hint
+    if (error.code === 'FUNCTION_NOT_FOUND' || error.status === 404) {
+      throw new Error('AI Function not deployed. Run: supabase functions deploy generate-card');
+    }
     throw new Error(error.message || 'Failed to fetch from Gemini API');
   }
-
+  
   return data.text;
 }
 
 export const aiService = {
-  async translateText(text: string, language: 'polish' | 'norwegian' | 'japanese' = 'polish'): Promise<string> {
+  async translateText(text: string, language: 'polish' | 'norwegian' | 'japanese' = 'polish', apiKey: string): Promise<string> {
     const langName = language === 'norwegian' ? 'Norwegian' : (language === 'japanese' ? 'Japanese' : 'Polish');
     const prompt = `Translate the following ${langName} text to English. Provide only the translation, no explanations.\n\nText: "${text}"`;
-    return await callGemini(prompt);
+    return await callGemini(prompt, apiKey);
   },
 
-  async analyzeWord(word: string, contextSentence: string, language: 'polish' | 'norwegian' | 'japanese' = 'polish'): Promise<{
+  async analyzeWord(word: string, contextSentence: string, language: 'polish' | 'norwegian' | 'japanese' = 'polish', apiKey: string): Promise<{
     definition: string;
     partOfSpeech: string;
     contextMeaning: string;
@@ -64,7 +87,7 @@ export const aiService = {
       Return ONLY the JSON object, no markdown formatting.
     `;
     
-    const result = await callGemini(prompt);
+    const result = await callGemini(prompt, apiKey);
     try {
       const cleanResult = extractJSON(result);
       return JSON.parse(cleanResult);
@@ -78,7 +101,7 @@ export const aiService = {
     }
   },
 
-  async generateCardContent(sentence: string, language: 'polish' | 'norwegian' | 'japanese' = 'polish'): Promise<{
+  async generateCardContent(sentence: string, language: 'polish' | 'norwegian' | 'japanese' = 'polish', apiKey: string): Promise<{
     translation: string;
     notes: string;
     furigana?: string;
@@ -102,7 +125,7 @@ export const aiService = {
       Return ONLY the JSON object, no markdown formatting.
     `;
 
-    const result = await callGemini(prompt);
+    const result = await callGemini(prompt, apiKey);
     try {
       const cleanResult = extractJSON(result);
       return JSON.parse(cleanResult);
@@ -115,7 +138,7 @@ export const aiService = {
     }
   },
 
-  async generateBatchCards({ difficulty, topic, count, language }: BatchGenerationOptions): Promise<any[]> {
+  async generateBatchCards({ difficulty, topic, count, language, apiKey }: BatchGenerationOptions & { apiKey: string }): Promise<any[]> {
     const langName = language === 'norwegian' ? 'Norwegian' : (language === 'japanese' ? 'Japanese' : 'Polish');
     
     let prompt = `
@@ -139,7 +162,7 @@ export const aiService = {
       Strictly return ONLY the JSON array. No markdown code blocks, no introduction.
     `;
 
-    const result = await callGemini(prompt);
+    const result = await callGemini(prompt, apiKey);
     
     try {
       const cleanResult = extractJSON(result);

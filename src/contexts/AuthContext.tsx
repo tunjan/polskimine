@@ -23,6 +23,7 @@ interface AuthContextType {
   signUpWithEmail: (email: string, password: string, username: string) => Promise<void>;
   updateUsername: (username: string) => Promise<void>;
   loading: boolean;
+  incrementXPOptimistically: (amount: number) => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -88,7 +89,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         },
         (payload) => {
           const newProfile = payload.new as Profile;
-          setProfile(newProfile);
+          // Prevent XP/Points downgrade during optimistic updates
+          // Only accept server updates if they are higher than current local state
+          setProfile(prev => {
+            if (!prev) return newProfile;
+            // Guard against race condition: don't downgrade XP if local is ahead
+            if (prev.xp > newProfile.xp || prev.points > newProfile.points) {
+              return prev;
+            }
+            return newProfile;
+          });
         }
       )
       .subscribe();
@@ -179,9 +189,23 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     // No need to manually setProfile here, the realtime subscription will catch it
   };
 
+  const incrementXPOptimistically = (amount: number) => {
+    if (!profile) return;
+    
+    setProfile(prev => {
+      if (!prev) return null;
+      return {
+        ...prev,
+        xp: (prev.xp || 0) + amount,
+        points: (prev.points || 0) + amount,
+        level: Math.floor(Math.sqrt(((prev.xp || 0) + amount) / 100)) + 1
+      };
+    });
+  };
+
   return (
     <AuthContext.Provider
-      value={{ session, user, profile, signInWithGoogle, signOut, signInWithEmail, signUpWithEmail, updateUsername, loading }}
+      value={{ session, user, profile, signInWithGoogle, signOut, signInWithEmail, signUpWithEmail, updateUsername, loading, incrementXPOptimistically }}
     >
       {children}
     </AuthContext.Provider>

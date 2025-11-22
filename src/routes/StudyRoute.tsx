@@ -35,9 +35,11 @@ export const StudyRoute: React.FC = () => {
         } else {
           const due = await getDueCards(new Date(), settings.language);
           const reviewsToday = await getTodayReviewStats(settings.language);
+          const currentNewLimit = settings.dailyNewLimits?.[settings.language] ?? 20;
+          const currentReviewLimit = settings.dailyReviewLimits?.[settings.language] ?? 100;
           const limited = applyStudyLimits(due, {
-            dailyNewLimit: settings.dailyNewLimit,
-            dailyReviewLimit: settings.dailyReviewLimit,
+            dailyNewLimit: currentNewLimit,
+            dailyReviewLimit: currentReviewLimit,
             reviewsToday
           });
           setSessionCards(limited);
@@ -49,7 +51,7 @@ export const StudyRoute: React.FC = () => {
       }
     };
     loadCards();
-  }, [settings.dailyNewLimit, settings.dailyReviewLimit, settings.language, isCramMode, searchParams]);
+  }, [settings.dailyNewLimits, settings.dailyReviewLimits, settings.language, isCramMode, searchParams]);
 
   const handleUpdateCard = (card: Card) => {
     if (!isCramMode) {

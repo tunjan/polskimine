@@ -59,6 +59,17 @@ export const MOCK_CARDS: Card[] = [
 ];
 
 
+/**
+ * Helper to convert a Date to YYYY-MM-DD string using LOCAL time.
+ * Matches date-fns format('yyyy-MM-dd') usage elsewhere to avoid UTC drift
+ * (e.g., dates near midnight appearing as previous/next day in some timezones).
+ */
+export const getUTCDateString = (date: Date): string => {
+  const offset = date.getTimezoneOffset();
+  const localDate = new Date(date.getTime() - offset * 60 * 1000);
+  return localDate.toISOString().split('T')[0];
+};
+
 const generateMockHistory = (): ReviewHistory => {
   const history: ReviewHistory = {};
   const today = new Date();
@@ -66,7 +77,7 @@ const generateMockHistory = (): ReviewHistory => {
 
     const pastDate = new Date(today);
     pastDate.setDate(today.getDate() - Math.floor(Math.random() * 365));
-    const dateKey = pastDate.toISOString().split('T')[0];
+    const dateKey = getUTCDateString(pastDate);
     
 
     history[dateKey] = (history[dateKey] || 0) + Math.floor(Math.random() * 10) + 1;

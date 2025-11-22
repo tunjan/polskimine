@@ -5,7 +5,7 @@ import { Dashboard } from '@/features/dashboard/components/Dashboard';
 import { useDeck } from '@/contexts/DeckContext';
 import { useSettings } from '@/contexts/SettingsContext';
 import { getDashboardStats } from '@/services/db/repositories/statsRepository';
-import { getAllCardsByLanguage } from '@/services/db/repositories/cardRepository';
+import { getCardsForDashboard } from '@/services/db/repositories/cardRepository';
 
 export const DashboardRoute: React.FC = () => {
   const { history, stats } = useDeck();
@@ -18,8 +18,8 @@ export const DashboardRoute: React.FC = () => {
   });
 
   const { data: cards, isLoading: isCardsLoading } = useQuery({
-    queryKey: ['allCards', settings.language],
-    queryFn: () => getAllCardsByLanguage(settings.language),
+    queryKey: ['dashboardCards', settings.language],
+    queryFn: () => getCardsForDashboard(settings.language),
   });
 
   if (isStatsLoading || isCardsLoading || !dashboardStats || !cards) {
@@ -34,6 +34,7 @@ export const DashboardRoute: React.FC = () => {
     <Dashboard 
       metrics={dashboardStats.counts}
       forecast={dashboardStats.forecast}
+      languageXp={dashboardStats.languageXp}
       stats={stats}
       history={history}
       onStartSession={() => navigate('/study')}

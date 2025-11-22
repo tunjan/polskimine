@@ -5,11 +5,13 @@ import { Card } from '@/types';
 import {
   deleteCard as deleteCardFromRepo,
   saveCard,
+  saveAllCards,
 } from '@/services/db/repositories/cardRepository';
 import { useDeck } from '@/contexts/DeckContext';
 
 interface CardOperations {
   addCard: (card: Card) => Promise<void>;
+  addCardsBatch: (cards: Card[]) => Promise<void>;
   updateCard: (card: Card) => Promise<void>;
   deleteCard: (id: string) => Promise<void>;
 }
@@ -28,6 +30,21 @@ export const useCardOperations = (): CardOperations => {
       } catch (error) {
         console.error(error);
         toast.error('Failed to add card');
+      }
+    },
+    [queryClient, refreshDeckData]
+  );
+
+  const addCardsBatch = useCallback(
+    async (cards: Card[]) => {
+      try {
+        await saveAllCards(cards);
+        await queryClient.invalidateQueries({ queryKey: ['cards'] });
+        refreshDeckData();
+        toast.success(`${cards.length} cards added successfully`);
+      } catch (error) {
+        console.error(error);
+        toast.error('Failed to add cards');
       }
     },
     [queryClient, refreshDeckData]
@@ -62,5 +79,5 @@ export const useCardOperations = (): CardOperations => {
     [queryClient, refreshDeckData]
   );
 
-  return { addCard, updateCard, deleteCard };
+  return { addCard, addCardsBatch, updateCard, deleteCard };
 };

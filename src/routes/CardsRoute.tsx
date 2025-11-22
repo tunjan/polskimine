@@ -11,7 +11,7 @@ import { useCardsQuery } from '@/features/deck/hooks/useCardsQuery';
 
 export const CardsRoute: React.FC = () => {
   const { settings } = useSettings();
-  const { addCard, deleteCard } = useCardOperations();
+  const { addCard, addCardsBatch, deleteCard } = useCardOperations();
   const [searchTerm, setSearchTerm] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
   const [page, setPage] = useState(0);
@@ -49,9 +49,7 @@ export const CardsRoute: React.FC = () => {
   };
 
   const handleBatchAddCards = async (newCards: Card[]) => {
-    for (const card of newCards) {
-        await addCard(card);
-    }
+    await addCardsBatch(newCards);
   };
 
   return (

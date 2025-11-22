@@ -28,6 +28,9 @@ export const Flashcard: React.FC<FlashcardProps> = ({
   const { isCursedWith } = useSabotage();
   const [isRevealed, setIsRevealed] = useState(!blindMode);
   
+  // Track if we've already spoken for this card to prevent re-trigger on settings change
+  const hasSpokenRef = React.useRef<string | null>(null);
+  
   // Gaslight State
   const [displayedTranslation, setDisplayedTranslation] = useState(card.nativeTranslation);
   const [isGaslit, setIsGaslit] = useState(false);
@@ -59,8 +62,23 @@ export const Flashcard: React.FC<FlashcardProps> = ({
   }, [card.targetSentence, language, settings.tts]);
 
   useEffect(() => {
-    if (autoPlayAudio) speak();
-  }, [card.id]);
+    // Reset spoken flag when card changes
+    if (hasSpokenRef.current !== card.id) {
+      hasSpokenRef.current = null;
+    }
+
+    // Only speak if auto-play is enabled and we haven't spoken for this card yet
+    if (autoPlayAudio && hasSpokenRef.current !== card.id) {
+      speak();
+      hasSpokenRef.current = card.id;
+    }
+    
+    // Cleanup: Stop TTS when card changes or component unmounts to prevent audio ghosting
+    // from async fetch completing after card has already transitioned
+    return () => {
+      ttsService.stop();
+    };
+  }, [card.id, autoPlayAudio, speak]);
 
   // Apply Visual Curses via CSS classes
   const containerClasses = cn(
@@ -95,22 +113,33 @@ export const Flashcard: React.FC<FlashcardProps> = ({
       const segments = parseFurigana(card.furigana);
       return (
         <div className={`${baseClasses} flex flex-wrap justify-center items-end gap-x-1`}>
-          {segments.map((segment, i) => (
-            segment.furigana ? (
-              <div key={i} className="group flex flex-col items-center">
-                <span className="text-sm md:text-lg text-muted-foreground mb-1 select-none opacity-0 group-hover:opacity-100 transition-opacity">
-                    {processText(segment.furigana)}
-                </span>
-                <span className={card.targetWord === segment.text ? "text-primary" : ""}>
-                    {processText(segment.text)}
-                </span>
-              </div>
-            ) : (
-              <span key={i} className={card.targetWord === segment.text ? "text-primary" : ""}>
+          {segments.map((segment, i) => {
+            // Fixed: Check if this segment is part of the target word
+            // For Okurigana (e.g., 食べる), the target word may span multiple segments
+            const isPartOfTarget = card.targetWord && (
+              card.targetWord === segment.text || 
+              card.targetWord.includes(segment.text) ||
+              segment.text === card.targetWord
+            );
+            
+            if (segment.furigana) {
+              return (
+                <div key={i} className="group flex flex-col items-center">
+                  <span className="text-sm md:text-lg text-muted-foreground mb-1 select-none opacity-0 group-hover:opacity-100 transition-opacity">
+                      {processText(segment.furigana)}
+                  </span>
+                  <span className={isPartOfTarget ? "text-primary" : ""}>
+                      {processText(segment.text)}
+                  </span>
+                </div>
+              );
+            }
+            return (
+              <span key={i} className={isPartOfTarget ? "text-primary" : ""}>
                   {processText(segment.text)}
               </span>
-            )
-          ))}
+            );
+          })}
         </div>
       );
     }

@@ -15,6 +15,7 @@ import { ttsService, VoiceOption } from '@/services/tts';
 import {
     deleteCardsByLanguage,
     saveAllCards,
+    getCardSignatures,
     getCards,
 } from '@/services/db/repositories/cardRepository';
 import { getDB } from '@/services/db/client';
@@ -59,7 +60,7 @@ const parseCsvLine = (line: string, delimiter: string) => {
     for (let i = 0; i < line.length; i++) {
         const char = line[i];
         if (char === '"') {
-            if (inQuotes && line[i + 1] === '"') {
+            if (inQuotes && i + 1 < line.length && line[i + 1] === '"') {
                 current += '"';
                 i += 1;
             } else {
@@ -132,10 +133,39 @@ const parseCardsFromCsv = (payload: string, fallbackLanguage: Language): Card[] 
     const sanitized = payload.replace(/\r\n/g, '\n').trim();
     if (!sanitized) return [];
 
-    const lines = sanitized
-        .split('\n')
-        .map((line) => line.trim())
-        .filter((line) => line.length > 0);
+    // Parse lines while respecting quoted fields that may contain newlines
+    // Split by newlines that are NOT inside quotes
+    const lines: string[] = [];
+    let current = '';
+    let inQuotes = false;
+
+    for (let i = 0; i < sanitized.length; i++) {
+        const char = sanitized[i];
+        
+        if (char === '"') {
+            // Check for escaped quote ("")
+            if (inQuotes && sanitized[i + 1] === '"') {
+                current += '""';
+                i++;
+            } else {
+                inQuotes = !inQuotes;
+                current += char;
+            }
+        } else if (char === '\n' && !inQuotes) {
+            // Only split on newlines outside of quotes
+            if (current.trim().length > 0) {
+                lines.push(current);
+            }
+            current = '';
+        } else {
+            current += char;
+        }
+    }
+    
+    // Add remaining line
+    if (current.trim().length > 0) {
+        lines.push(current);
+    }
 
     if (lines.length < 2) return [];
 
@@ -253,46 +283,16 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
         await supabase.from('study_history').delete().eq('user_id', user.id).eq('language', localSettings.language);
         await supabase.from('activity_log').delete().eq('user_id', user.id).eq('language', localSettings.language);
 
-        // 3. Recalculate Total XP from REMAINING logs (Paginated to ensure accuracy)
-        let verifiedXp = 0;
-        let page = 0;
-        const pageSize = 1000;
+        // 3. FIX: Use database RPC to recalculate XP efficiently (no client-side pagination)
+        const { error: recalcError } = await supabase.rpc('recalculate_user_xp', {
+            target_user_id: user.id
+        });
 
-        while (true) {
-            const { data: logs, error } = await supabase
-                .from('activity_log')
-                .select('xp_awarded')
-                .eq('user_id', user.id)
-                .range(page * pageSize, (page + 1) * pageSize - 1);
-
-            if (error) {
-                console.error("Error fetching logs for recalculation", error);
-                break; // Fail safe, verifiedXp remains what we have so far
-            }
-            
-            if (!logs || logs.length === 0) break;
-
-            const chunkSum = logs.reduce((acc, curr) => acc + (curr.xp_awarded || 0), 0);
-            verifiedXp += chunkSum;
-
-            if (logs.length < pageSize) break;
-            page++;
+        if (recalcError) {
+            console.error('Error recalculating XP:', recalcError);
+            toast.error('Failed to recalculate XP');
+            return;
         }
-
-        // 4. Calculate Logic for Points (Currency)
-        // If we removed 1000 XP, we should remove 1000 Points.
-        // Delta = OldXP - NewVerifiedXP
-        const xpDelta = Math.max(0, oldXp - verifiedXp);
-        const newPoints = Math.max(0, (currentProfile?.points || 0) - xpDelta);
-        
-        // Simple level recalculation (fallback logic)
-        const newLevel = verifiedXp === 0 ? 1 : (currentProfile?.level || 1); 
-
-        // 5. Update Profile with Verified Values
-        await supabase
-            .from('profiles')
-            .update({ xp: verifiedXp, points: newPoints, level: newLevel })
-            .eq('id', user.id);
 
         // 6. Re-seed Beginner Deck
         const rawDeck = localSettings.language === 'norwegian' ? NORWEGIAN_BEGINNER_DECK : (localSettings.language === 'japanese' ? JAPANESE_BEGINNER_DECK : BEGINNER_DECK);
@@ -501,10 +501,11 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                 return;
             }
 
-            const existingCards = await getCards();
+            // Fetch only lightweight data for duplicate detection
+            const existingSignatures = await getCardSignatures(localSettings.language);
             const seen = new Set(
-                existingCards.map((card) =>
-                    signatureForCard(card.targetSentence, (card.language || 'polish') as Language)
+                existingSignatures.map((card) =>
+                    signatureForCard(card.target_sentence, localSettings.language)
                 )
             );
 

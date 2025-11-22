@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useRef } from "react";
 import { ArrowRight } from "lucide-react";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Card } from "@/types";
@@ -27,9 +27,20 @@ export const AddCardModal: React.FC<AddCardModalProps> = ({ isOpen, onClose, onA
     furigana: ""
   });
   const [isGenerating, setIsGenerating] = useState(false);
+  const isMounted = React.useRef(false);
+  
+  // Track previous open state to detect modal opening
+  const wasOpen = useRef(false);
 
   useEffect(() => {
-    if (isOpen) {
+    isMounted.current = true;
+    return () => { isMounted.current = false; };
+  }, []);
+
+  useEffect(() => {
+    // Only reset form when modal transitions from closed to open
+    // This prevents wiping user input when settings change while modal is open
+    if (isOpen && !wasOpen.current) {
         if (initialCard) {
             const isJapanese = initialCard.language === 'japanese' || (!initialCard.language && settings.language === 'japanese');
             setForm({
@@ -43,27 +54,34 @@ export const AddCardModal: React.FC<AddCardModalProps> = ({ isOpen, onClose, onA
             setForm({ sentence: "", targetWord: "", translation: "", notes: "", furigana: "" });
         }
     }
+    wasOpen.current = isOpen;
   }, [isOpen, initialCard, settings.language]);
 
-  const handleAutoFill = async () => {
-    if (!form.sentence) return;
+    const handleAutoFill = async () => {
+        if (!form.sentence) return;
+        if (!settings.geminiApiKey) {
+            toast.error("Please add your Gemini API Key in Settings > General");
+            return;
+        }
     setIsGenerating(true);
     try {
         const targetLanguage = initialCard?.language || settings.language;
-        const result = await aiService.generateCardContent(form.sentence, targetLanguage);
+                const result = await aiService.generateCardContent(form.sentence, targetLanguage, settings.geminiApiKey);
         
-        setForm(prev => ({ 
-            ...prev, 
-            sentence: (targetLanguage === 'japanese' && result.furigana) ? result.furigana : prev.sentence,
-            translation: result.translation, 
-            notes: result.notes,
-            furigana: result.furigana || prev.furigana 
-        }));
-        toast.success("Content generated");
+        if (isMounted.current) {
+            setForm(prev => ({ 
+                ...prev, 
+                sentence: (targetLanguage === 'japanese' && result.furigana) ? result.furigana : prev.sentence,
+                translation: result.translation, 
+                notes: result.notes,
+                furigana: result.furigana || prev.furigana 
+            }));
+            toast.success("Content generated");
+        }
     } catch (e) {
-        toast.error("Generation failed");
+        if (isMounted.current) toast.error("Generation failed");
     } finally {
-        setIsGenerating(false);
+        if (isMounted.current) setIsGenerating(false);
     }
   };
 

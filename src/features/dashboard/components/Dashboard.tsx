@@ -3,6 +3,7 @@ import { DeckStats, ReviewHistory } from '@/types';
 import { ArrowRight, TrendingUp, Activity, Info } from 'lucide-react';
 import { Heatmap } from './Heatmap';
 import { RetentionStats } from './RetentionStats';
+import { LevelProgressBar } from './LevelProgressBar';
 import { useSettings } from '@/contexts/SettingsContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { useChartColors } from '@/hooks/useChartColors';
@@ -10,12 +11,13 @@ import { format, parseISO } from 'date-fns';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 interface DashboardProps {
-  metrics: { new: number; learning: number; graduated: number; known: number };
-  forecast: { day: string; fullDate: string; count: number }[];
-  stats: DeckStats;
-  history: ReviewHistory;
-  onStartSession: () => void;
-  cards: any[]; // Added to pass to RetentionStats
+    metrics: { new: number; learning: number; graduated: number; known: number };
+    forecast: { day: string; fullDate: string; count: number }[];
+    stats: DeckStats;
+    history: ReviewHistory;
+    onStartSession: () => void;
+    cards: any[]; // Added to pass to RetentionStats
+    languageXp: number; // Per-language XP
 }
 
 const StatCard = ({ label, value, subtext }: { label: string; value: string | number; subtext?: string }) => (
@@ -28,17 +30,24 @@ const StatCard = ({ label, value, subtext }: { label: string; value: string | nu
   </div>
 );
 
+// Helper to calculate level from XP
+const calculateLevel = (xp: number) => Math.floor(Math.sqrt(xp / 100)) + 1;
+
 export const Dashboard: React.FC<DashboardProps> = ({
-  metrics,
-  forecast,
-  stats,
-  history,
-  onStartSession,
-  cards
+        metrics,
+        forecast,
+        stats,
+        history,
+        onStartSession,
+        cards,
+        languageXp
 }) => {
   const { settings } = useSettings();
   const { profile } = useAuth();
   const colors = useChartColors();
+
+    // Calculate level based on language specific XP
+    const currentLevel = calculateLevel(languageXp);
 
   return (
     <div className="space-y-16 animate-in fade-in duration-700 pb-12">
@@ -66,16 +75,16 @@ export const Dashboard: React.FC<DashboardProps> = ({
             </p>
           </div>
 
-          {/* Breakdown Stats */}
+             {/* Breakdown Stats (Renamed: New->Unseen, Review->Mature) */}
           <div className="flex gap-12 pt-4">
              <div className="flex flex-col gap-1">
                 <span className="text-2xl font-medium tabular-nums">{stats.newDue}</span>
-                <span className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground">New</span>
+                     <span className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground">Unseen</span>
              </div>
              <div className="w-px bg-border h-10" />
              <div className="flex flex-col gap-1">
                 <span className="text-2xl font-medium tabular-nums">{stats.reviewDue}</span>
-                <span className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground">Review</span>
+                     <span className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground">Mature</span>
              </div>
           </div>
         </div>
@@ -95,75 +104,74 @@ export const Dashboard: React.FC<DashboardProps> = ({
                 </button>
             </div>
 
-            {/* Profile XP / Points Widget */}
-            <div className="grid grid-cols-2 gap-8">
-                <div>
-                    <div className="flex items-center gap-2 mb-2">
-                        <span className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground">Lifetime XP</span>
-                        <TooltipProvider>
-                            <Tooltip>
-                                <TooltipTrigger>
-                                    <Info size={12} className="text-muted-foreground hover:text-foreground transition-colors" />
-                                </TooltipTrigger>
-                                <TooltipContent side="top" className="max-w-xs p-4 bg-popover border-border">
-                                    <div className="space-y-3">
-                                        <p className="font-semibold text-sm">How to earn XP:</p>
-                                        <ul className="text-xs space-y-1.5 text-muted-foreground list-disc pl-3">
-                                            <li><span className="text-foreground font-medium">New Card:</span> +50 XP</li>
-                                            <li><span className="text-foreground font-medium">Review (Good/Easy):</span> +10 XP</li>
-                                            <li><span className="text-foreground font-medium">Review (Hard):</span> +5 XP</li>
-                                            <li><span className="text-foreground font-medium">Review (Again):</span> +1 XP</li>
-                                        </ul>
-                                        <div className="h-px bg-border my-2"/>
-                                        <p className="text-xs text-muted-foreground">
-                                            XP determines your <span className="text-foreground font-medium">Rank</span> and <span className="text-foreground font-medium">Level</span>. It never decreases.
+            {/* Profile XP / Points Widget + Level Progress */}
+            <div className="space-y-8">
+                <div className="grid grid-cols-2 gap-8">
+                    <div>
+                        <div className="flex items-center gap-2 mb-2">
+                            <span className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground">{settings.language} XP</span>
+                            <TooltipProvider>
+                                <Tooltip>
+                                    <TooltipTrigger>
+                                        <Info size={12} className="text-muted-foreground hover:text-foreground transition-colors" />
+                                    </TooltipTrigger>
+                                    <TooltipContent side="top" className="max-w-xs p-4 bg-popover border-border">
+                                        <div className="space-y-3">
+                                            <p className="font-semibold text-sm">XP Breakdown:</p>
+                                            <ul className="text-xs space-y-1.5 text-muted-foreground list-disc pl-3">
+                                                <li><span className="text-foreground font-medium">New Card:</span> +50 XP</li>
+                                                <li><span className="text-foreground font-medium">Review (Good/Easy):</span> +10 XP</li>
+                                                <li><span className="text-foreground font-medium">Review (Hard):</span> +5 XP</li>
+                                                <li><span className="text-foreground font-medium">Review (Again):</span> +1 XP</li>
+                                            </ul>
+                                        </div>
+                                    </TooltipContent>
+                                </Tooltip>
+                            </TooltipProvider>
+                        </div>
+                        <div className="text-3xl font-light tracking-tight tabular-nums">
+                            {languageXp.toLocaleString()}
+                        </div>
+                    </div>
+                    <div>
+                        <div className="flex items-center gap-2 mb-2">
+                            <span className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground">Points</span>
+                            <TooltipProvider>
+                                <Tooltip>
+                                    <TooltipTrigger>
+                                        <Info size={12} className="text-muted-foreground hover:text-foreground transition-colors" />
+                                    </TooltipTrigger>
+                                    <TooltipContent side="top" className="max-w-xs p-4 bg-popover border-border">
+                                        <p className="text-xs text-muted-foreground leading-relaxed">
+                                            Points are earned 1:1 with XP but are a <span className="text-foreground font-medium">spendable currency</span>. Use them in the Sabotage Store.
                                         </p>
-                                    </div>
-                                </TooltipContent>
-                            </Tooltip>
-                        </TooltipProvider>
+                                    </TooltipContent>
+                                </Tooltip>
+                            </TooltipProvider>
+                        </div>
+                        <div className="text-3xl font-light tracking-tight tabular-nums text-primary">
+                            {profile?.points?.toLocaleString() ?? 0}
+                        </div>
                     </div>
-                    <div className="text-3xl font-light tracking-tight tabular-nums">
-                        {profile?.xp?.toLocaleString() ?? 0}
-                    </div>
-                    <div className="text-xs text-muted-foreground mt-1 font-mono">Lvl {profile?.level ?? 1}</div>
                 </div>
-
-                <div>
-                    <div className="flex items-center gap-2 mb-2">
-                        <span className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground">Points</span>
-                        <TooltipProvider>
-                            <Tooltip>
-                                <TooltipTrigger>
-                                    <Info size={12} className="text-muted-foreground hover:text-foreground transition-colors" />
-                                </TooltipTrigger>
-                                <TooltipContent side="top" className="max-w-xs p-4 bg-popover border-border">
-                                    <p className="text-xs text-muted-foreground leading-relaxed">
-                                        Points are earned 1:1 with XP but are a <span className="text-foreground font-medium">spendable currency</span>. Use them in the Sabotage Store to disrupt other learners on the leaderboard.
-                                    </p>
-                                </TooltipContent>
-                            </Tooltip>
-                        </TooltipProvider>
-                    </div>
-                    <div className="text-3xl font-light tracking-tight tabular-nums text-primary">
-                        {profile?.points?.toLocaleString() ?? 0}
-                    </div>
-                    <div className="text-xs text-muted-foreground mt-1 font-mono">Available</div>
+                {/* New Level Progress Bar using Language XP and Level */}
+                <div className="pt-4 border-t border-border/40">
+                    <LevelProgressBar xp={languageXp} level={currentLevel} />
                 </div>
             </div>
         </div>
       </section>
 
-      {/* Stats Grid */}
+            {/* Stats Grid (Renamed labels) */}
       <section className="grid grid-cols-2 md:grid-cols-4 gap-12 border-t border-border/50 pt-12">
-        <StatCard label="New Cards" value={metrics.new} />
+                <StatCard label="Unseen" value={metrics.new} />
         <StatCard label="Learning" value={metrics.learning} />
-        <StatCard label="Graduated" value={metrics.graduated} />
-        <StatCard label="Mastered" value={metrics.known} />
+                <StatCard label="Mature" value={metrics.graduated} />
+                <StatCard label="Known" value={metrics.known} />
       </section>
 
       {/* Analytics Section */}
-      <section className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
+      <section className="grid grid-cols-1 lg:grid-cols-1 gap-8 lg:gap-12">
         <div className="space-y-6">
             <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">

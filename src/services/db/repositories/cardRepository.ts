@@ -94,6 +94,32 @@ export const getAllCardsByLanguage = async (language: Language): Promise<Card[]>
   return (data ?? []).map(mapToCard);
 };
 
+export const getCardsForRetention = async (language: Language): Promise<Partial<Card>[]> => {
+  const userId = await ensureUser();
+  const { data, error } = await supabase
+    .from('cards')
+    .select('id, due_date, status, stability, state')
+    .eq('user_id', userId)
+    .eq('language', language)
+    .order('created_at', { ascending: true });
+
+  if (error) throw error;
+  return (data ?? []) as Partial<Card>[];
+};
+
+// Lightweight selection for dashboard retention & forecast computations
+export const getCardsForDashboard = async (language: Language): Promise<Array<{ id: string; due_date: string | null; status: string; stability: number | null; state: number | null }>> => {
+  const userId = await ensureUser();
+  const { data, error } = await supabase
+    .from('cards')
+    .select('id, due_date, status, stability, state')
+    .eq('user_id', userId)
+    .eq('language', language)
+    .order('created_at', { ascending: true });
+  if (error) throw error;
+  return (data ?? []) as Array<{ id: string; due_date: string | null; status: string; stability: number | null; state: number | null }>;
+};
+
 export const saveCard = async (card: Card) => {
   const userId = await ensureUser();
   const payload = mapToDB(card, userId);
@@ -110,8 +136,13 @@ export const saveAllCards = async (cards: Card[]) => {
   if (!cards.length) return;
   const userId = await ensureUser();
   const payload = cards.map((card) => mapToDB(card, userId));
-  const { error } = await supabase.from('cards').upsert(payload);
-  if (error) throw error;
+  // Batch to avoid oversized payloads for very large imports
+  const BATCH_SIZE = 100;
+  for (let i = 0; i < payload.length; i += BATCH_SIZE) {
+    const chunk = payload.slice(i, i + BATCH_SIZE);
+    const { error } = await supabase.from('cards').upsert(chunk);
+    if (error) throw error;
+  }
 };
 
 export const clearAllCards = async () => {
@@ -145,30 +176,15 @@ export const getDueCards = async (now: Date = new Date(), language?: Language): 
 
 export const getCramCards = async (limit: number, tag?: string, language?: Language): Promise<Card[]> => {
   const userId = await ensureUser();
-  let query = supabase
-    .from('cards')
-    .select('*')
-    .eq('user_id', userId)
-    .neq('status', 'known');
-
-  if (language) {
-    query = query.eq('language', language);
-  }
-
-  if (tag) {
-    query = query.contains('tags', [tag]);
-  }
-
-  const { data, error } = await query.limit(Math.max(limit, 50));
+  // Use server-side randomization via RPC to avoid fetching entire table into memory.
+  const { data, error } = await supabase.rpc('get_random_cards', {
+    p_user_id: userId,
+    p_language: language || 'polish',
+    p_limit: limit,
+    p_tag: tag || null,
+  });
   if (error) throw error;
-
-  const cards = (data ?? []).map(mapToCard);
-  for (let i = cards.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [cards[i], cards[j]] = [cards[j], cards[i]];
-  }
-
-  return cards.slice(0, limit);
+  return (data ?? []).map(mapToCard);
 };
 
 export const deleteCardsByLanguage = async (language: Language) => {
@@ -180,6 +196,18 @@ export const deleteCardsByLanguage = async (language: Language) => {
     .eq('user_id', userId);
 
   if (error) throw error;
+};
+
+export const getCardSignatures = async (language: Language): Promise<Array<{ target_sentence: string; language: string }>> => {
+  const userId = await ensureUser();
+  const { data, error } = await supabase
+    .from('cards')
+    .select('target_sentence, language')
+    .eq('user_id', userId)
+    .eq('language', language);
+
+  if (error) throw error;
+  return data ?? [];
 };
 
 export const getTags = async (language?: Language): Promise<string[]> => {

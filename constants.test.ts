@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { MOCK_CARDS, MOCK_HISTORY, STORAGE_KEY, HISTORY_KEY, SRS_CONFIG, FSRS_DEFAULTS } from './constants';
+import { MOCK_CARDS, MOCK_HISTORY, STORAGE_KEY, HISTORY_KEY, SRS_CONFIG, FSRS_DEFAULTS } from '@/constants';
 
 describe('Constants', () => {
   describe('MOCK_CARDS', () => {

@@ -24,10 +24,21 @@ export const getDashboardStats = async (language?: string) => {
     query = query.eq('language', language);
   }
 
-  const { data, error } = await query;
-  if (error) throw error;
+  const { data: cardsData, error: cardsError } = await query;
+  if (cardsError) throw cardsError;
 
-  const cards = data ?? [];
+  const cards = cardsData ?? [];
+
+  // Language specific XP via RPC (returns 0 if no language or no data)
+  let languageXp = 0;
+  if (language) {
+    const { data: xpData, error: xpError } = await supabase.rpc('get_user_language_xp', {
+      target_language: language
+    });
+    if (!xpError && typeof xpData === 'number') {
+      languageXp = xpData;
+    }
+  }
 
   // Metrics
   const counts = { new: 0, learning: 0, graduated: 0, known: 0 };
@@ -41,12 +52,12 @@ export const getDashboardStats = async (language?: string) => {
   // Forecast
   const daysToShow = 14;
   const today = new Date();
-  const forecast = new Array(daysToShow).fill(0).map((_, i) => ({ 
-      day: format(addDays(today, i), 'd'),
-      fullDate: addDays(today, i).toISOString(),
-      count: 0 
+  const forecast = new Array(daysToShow).fill(0).map((_, i) => ({
+    day: format(addDays(today, i), 'd'),
+    fullDate: addDays(today, i).toISOString(),
+    count: 0
   }));
-  
+
   cards.forEach((card: any) => {
     if (card.status === 'known' || card.status === 'new') return;
     const dueDate = parseISO(card.due_date);
@@ -54,7 +65,7 @@ export const getDashboardStats = async (language?: string) => {
     if (diff >= 0 && diff < daysToShow) forecast[diff].count++;
   });
 
-  return { counts, forecast };
+  return { counts, forecast, languageXp };
 };
 
 export const getStats = async (language?: string) => {
