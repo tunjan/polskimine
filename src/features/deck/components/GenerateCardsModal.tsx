@@ -149,7 +149,7 @@ export const GenerateCardsModal: React.FC<GenerateCardsModalProps> = ({ isOpen, 
                     value={count}
                     onValueChange={setCount}
                     min={3}
-                    max={10}
+                    max={300}
                     step={1}
                     className="py-2"
                  />
