@@ -162,11 +162,11 @@ export const GenerateCardsModal: React.FC<GenerateCardsModalProps> = ({ isOpen, 
             </div>
 
             <div className="flex justify-end pt-8">
-              <Button onClick={handleGenerate} disabled={loading || !topic} className="w-full md:w-auto rounded-full px-8 py-6 text-md">
+              <Button onClick={handleGenerate} disabled={loading || !topic} className="w-full md:w-auto h-12 px-8">
                 {loading ? (
-                  <><Loader2 className="animate-spin mr-2" size={18} /> Generating...</>
+                  <><Loader2 className="animate-spin mr-2" size={16} /> Generating...</>
                 ) : (
-                  <><Sparkles className="mr-2" size={18} /> Generate Cards</>
+                  <><Sparkles className="mr-2" size={16} /> Generate Cards</>
                 )}
               </Button>
             </div>
@@ -202,11 +202,11 @@ export const GenerateCardsModal: React.FC<GenerateCardsModalProps> = ({ isOpen, 
             </div>
 
             <div className="flex items-center justify-between pt-6 border-t border-border">
-                <button onClick={() => setStep('config')} className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+                <button onClick={() => setStep('config')} className="text-xs font-mono uppercase tracking-widest text-muted-foreground hover:text-foreground transition-colors">
                     Back to Config
                 </button>
-                <Button onClick={handleSave} disabled={selectedIndices.size === 0} className="rounded-full px-8 py-6">
-                    Save {selectedIndices.size} Cards <ArrowRight size={18} className="ml-2" />
+                <Button onClick={handleSave} disabled={selectedIndices.size === 0} className="h-12 px-8">
+                    Save {selectedIndices.size} Cards <ArrowRight size={16} className="ml-2" />
                 </Button>
             </div>
           </div>

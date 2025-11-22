@@ -3,7 +3,7 @@ import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
-import { Skull, Type, EyeOff, RefreshCcw, Zap } from 'lucide-react';
+import { Skull, Type, EyeOff, RefreshCcw, Zap, Wallet } from 'lucide-react';
 
 interface Profile {
   id: string;
@@ -57,6 +57,12 @@ export const SabotageStore: React.FC<SabotageStoreProps> = ({ isOpen, onClose })
       return;
     }
 
+    // Client-side check (Server should also verify)
+    if ((profile?.points || 0) < cost) {
+        toast.error("Not enough points! Keep reviewing cards.");
+        return;
+    }
+
     setLoading(true);
 
     const { data, error } = await supabase.rpc('buy_curse', {
@@ -89,8 +95,13 @@ export const SabotageStore: React.FC<SabotageStoreProps> = ({ isOpen, onClose })
           <Skull /> The Sabotage Store
         </DialogTitle>
 
-        <div className="mb-4 p-2 bg-destructive/10 rounded border border-destructive/20 text-center">
-          Your Balance: <span className="font-mono font-bold text-xl">{profile?.xp ?? 0} XP</span>
+        <div className="mb-4 p-3 bg-destructive/5 rounded-lg border border-destructive/20 text-center flex flex-col items-center gap-1">
+          <span className="text-xs font-mono uppercase tracking-widest text-muted-foreground">Wallet Balance</span>
+          <div className="flex items-center gap-2 text-2xl font-bold">
+            <Wallet className="text-destructive" size={24} />
+            <span>{profile?.points ?? 0} pts</span>
+          </div>
+          <span className="text-[10px] text-muted-foreground">Lifetime XP: {profile?.xp} (Safe from spending)</span>
         </div>
 
         <div className="space-y-4">
@@ -101,7 +112,7 @@ export const SabotageStore: React.FC<SabotageStoreProps> = ({ isOpen, onClose })
                 <button
                   key={v.id}
                   onClick={() => setSelectedVictim(v.id)}
-                  className={`px-4 py-2 rounded-full border text-sm whitespace-nowrap transition-all ${
+                  className={`px-4 py-2 rounded-md border text-xs font-mono uppercase tracking-wider whitespace-nowrap transition-all ${
                     selectedVictim === v.id
                       ? 'bg-destructive text-destructive-foreground border-destructive'
                       : 'border-border hover:bg-secondary text-muted-foreground'
@@ -119,7 +130,7 @@ export const SabotageStore: React.FC<SabotageStoreProps> = ({ isOpen, onClose })
                 key={curse.id}
                 disabled={loading || !selectedVictim}
                 onClick={() => handlePurchase(curse.id, curse.cost)}
-                className="flex items-center gap-4 p-3 rounded-lg border border-border hover:border-destructive/50 hover:bg-destructive/5 transition-all disabled:opacity-50 text-left group"
+                className="flex items-center gap-4 p-3 rounded-md border border-border hover:border-destructive/50 hover:bg-destructive/5 transition-all disabled:opacity-50 text-left group"
               >
                 <div className="p-2 bg-secondary rounded group-hover:bg-destructive/20 transition-colors">
                   <curse.icon size={20} className="text-destructive" />
@@ -128,7 +139,7 @@ export const SabotageStore: React.FC<SabotageStoreProps> = ({ isOpen, onClose })
                   <div className="font-bold text-sm">{curse.name}</div>
                   <div className="text-xs text-muted-foreground">{curse.desc}</div>
                 </div>
-                <div className="font-mono text-destructive text-sm whitespace-nowrap">-{curse.cost} XP</div>
+                <div className="font-mono text-destructive text-sm whitespace-nowrap">-{curse.cost} pts</div>
               </button>
             ))}
           </div>

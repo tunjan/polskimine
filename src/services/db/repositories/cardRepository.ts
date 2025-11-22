@@ -138,7 +138,7 @@ export const getDueCards = async (now: Date = new Date(), language?: Language): 
     query = query.eq('language', language);
   }
 
-  const { data, error } = await query;
+  const { data, error } = await query.limit(1000);
   if (error) throw error;
   return (data ?? []).map(mapToCard);
 };

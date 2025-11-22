@@ -1,12 +1,13 @@
 import React from 'react';
 import { DeckStats, ReviewHistory } from '@/types';
-import { ArrowRight, Play, TrendingUp, Activity, Calendar } from 'lucide-react';
+import { ArrowRight, TrendingUp, Activity, Info } from 'lucide-react';
 import { Heatmap } from './Heatmap';
 import { RetentionStats } from './RetentionStats';
 import { useSettings } from '@/contexts/SettingsContext';
+import { useAuth } from '@/contexts/AuthContext';
 import { useChartColors } from '@/hooks/useChartColors';
-import { BarChart, Bar, ResponsiveContainer, XAxis } from 'recharts';
-import { format, addDays, parseISO } from 'date-fns';
+import { format, parseISO } from 'date-fns';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 interface DashboardProps {
   metrics: { new: number; learning: number; graduated: number; known: number };
@@ -18,10 +19,10 @@ interface DashboardProps {
 }
 
 const StatCard = ({ label, value, subtext }: { label: string; value: string | number; subtext?: string }) => (
-  <div className="flex flex-col gap-2 p-6 rounded-xl bg-secondary/20 border border-border/50">
+  <div className="flex flex-col gap-1">
     <span className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground">{label}</span>
     <div className="flex items-baseline gap-2">
-        <span className="text-3xl font-light tracking-tight tabular-nums">{value}</span>
+        <span className="text-4xl font-light tracking-tighter tabular-nums">{value}</span>
         {subtext && <span className="text-xs text-muted-foreground">{subtext}</span>}
     </div>
   </div>
@@ -36,19 +37,18 @@ export const Dashboard: React.FC<DashboardProps> = ({
   cards
 }) => {
   const { settings } = useSettings();
+  const { profile } = useAuth();
   const colors = useChartColors();
-
-  // Prepare forecast data for the mini chart
-  const forecastData = forecast.slice(0, 7).map(item => ({
-    ...item,
-    day: format(parseISO(item.fullDate), 'EEE')
-  }));
 
   return (
     <div className="space-y-16 animate-in fade-in duration-700 pb-12">
       {/* Hero Section */}
-      <section className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-end">
-        <div className="lg:col-span-7 space-y-6">
+      <section className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-start">
+        
+        {/* Left Column: Stats & Due */}
+        <div className="lg:col-span-7 space-y-10">
+          
+          {/* Deck Identifier */}
           <div className="flex items-center gap-3">
              <div className={`h-1.5 w-1.5 rounded-full bg-primary`} />
              <span className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground">
@@ -56,6 +56,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
              </span>
           </div>
           
+          {/* Main Counter */}
           <div className="space-y-2">
             <h1 className="text-7xl sm:text-8xl lg:text-9xl font-light tracking-tighter text-foreground -ml-1">
                 {stats.due}
@@ -65,7 +66,8 @@ export const Dashboard: React.FC<DashboardProps> = ({
             </p>
           </div>
 
-          <div className="flex gap-8 pt-4">
+          {/* Breakdown Stats */}
+          <div className="flex gap-12 pt-4">
              <div className="flex flex-col gap-1">
                 <span className="text-2xl font-medium tabular-nums">{stats.newDue}</span>
                 <span className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground">New</span>
@@ -78,47 +80,82 @@ export const Dashboard: React.FC<DashboardProps> = ({
           </div>
         </div>
 
-        <div className="lg:col-span-5 flex flex-col justify-end gap-6">
-            <div className="bg-secondary/30 rounded-2xl p-6 border border-border/50 space-y-4">
-                <div className="flex justify-between items-center">
-                    <h3 className="text-sm font-medium">7-Day Forecast</h3>
-                    <span className="text-xs text-muted-foreground">Upcoming load</span>
+        {/* Right Column: Actions & User Stats */}
+        <div className="lg:col-span-5 flex flex-col justify-between h-full gap-12">
+            
+            {/* Start Button */}
+            <div className="pt-2">
+                <button 
+                    onClick={onStartSession}
+                    disabled={stats.due === 0}
+                    className="group w-full bg-transparent hover:bg-transparent text-foreground transition-all py-2 flex items-center justify-between gap-4 disabled:opacity-50 disabled:cursor-not-allowed border-b border-foreground/20 hover:border-foreground pb-6"
+                >
+                    <span className="font-light tracking-tight text-4xl">Start Session</span>
+                    <ArrowRight size={32} className="group-hover:translate-x-2 transition-transform opacity-50 group-hover:opacity-100" />
+                </button>
+            </div>
+
+            {/* Profile XP / Points Widget */}
+            <div className="grid grid-cols-2 gap-8">
+                <div>
+                    <div className="flex items-center gap-2 mb-2">
+                        <span className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground">Lifetime XP</span>
+                        <TooltipProvider>
+                            <Tooltip>
+                                <TooltipTrigger>
+                                    <Info size={12} className="text-muted-foreground hover:text-foreground transition-colors" />
+                                </TooltipTrigger>
+                                <TooltipContent side="top" className="max-w-xs p-4 bg-popover border-border">
+                                    <div className="space-y-3">
+                                        <p className="font-semibold text-sm">How to earn XP:</p>
+                                        <ul className="text-xs space-y-1.5 text-muted-foreground list-disc pl-3">
+                                            <li><span className="text-foreground font-medium">New Card:</span> +50 XP</li>
+                                            <li><span className="text-foreground font-medium">Review (Good/Easy):</span> +10 XP</li>
+                                            <li><span className="text-foreground font-medium">Review (Hard):</span> +5 XP</li>
+                                            <li><span className="text-foreground font-medium">Review (Again):</span> +1 XP</li>
+                                        </ul>
+                                        <div className="h-px bg-border my-2"/>
+                                        <p className="text-xs text-muted-foreground">
+                                            XP determines your <span className="text-foreground font-medium">Rank</span> and <span className="text-foreground font-medium">Level</span>. It never decreases.
+                                        </p>
+                                    </div>
+                                </TooltipContent>
+                            </Tooltip>
+                        </TooltipProvider>
+                    </div>
+                    <div className="text-3xl font-light tracking-tight tabular-nums">
+                        {profile?.xp?.toLocaleString() ?? 0}
+                    </div>
+                    <div className="text-xs text-muted-foreground mt-1 font-mono">Lvl {profile?.level ?? 1}</div>
                 </div>
-                <div className="h-32 w-full">
-                    <ResponsiveContainer width="100%" height="100%">
-                        <BarChart data={forecastData}>
-                            <XAxis 
-                                dataKey="day" 
-                                axisLine={false} 
-                                tickLine={false} 
-                                tick={{ fontSize: 10, fill: colors.muted }} 
-                                dy={10}
-                            />
-                            <Bar 
-                                dataKey="count" 
-                                fill={colors.foreground} 
-                                radius={[2, 2, 2, 2]} 
-                                barSize={32}
-                                fillOpacity={0.9}
-                            />
-                        </BarChart>
-                    </ResponsiveContainer>
+
+                <div>
+                    <div className="flex items-center gap-2 mb-2">
+                        <span className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground">Points</span>
+                        <TooltipProvider>
+                            <Tooltip>
+                                <TooltipTrigger>
+                                    <Info size={12} className="text-muted-foreground hover:text-foreground transition-colors" />
+                                </TooltipTrigger>
+                                <TooltipContent side="top" className="max-w-xs p-4 bg-popover border-border">
+                                    <p className="text-xs text-muted-foreground leading-relaxed">
+                                        Points are earned 1:1 with XP but are a <span className="text-foreground font-medium">spendable currency</span>. Use them in the Sabotage Store to disrupt other learners on the leaderboard.
+                                    </p>
+                                </TooltipContent>
+                            </Tooltip>
+                        </TooltipProvider>
+                    </div>
+                    <div className="text-3xl font-light tracking-tight tabular-nums text-primary">
+                        {profile?.points?.toLocaleString() ?? 0}
+                    </div>
+                    <div className="text-xs text-muted-foreground mt-1 font-mono">Available</div>
                 </div>
             </div>
-            
-            <button 
-                onClick={onStartSession}
-                disabled={stats.due === 0}
-                className="group w-full bg-foreground text-background hover:opacity-90 transition-all px-8 py-5 rounded-xl flex items-center justify-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-foreground/5"
-            >
-                <span className="font-medium tracking-tight text-lg">Start Session</span>
-                <Play size={18} fill="currentColor" />
-            </button>
         </div>
       </section>
 
       {/* Stats Grid */}
-      <section className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <section className="grid grid-cols-2 md:grid-cols-4 gap-12 border-t border-border/50 pt-12">
         <StatCard label="New Cards" value={metrics.new} />
         <StatCard label="Learning" value={metrics.learning} />
         <StatCard label="Graduated" value={metrics.graduated} />

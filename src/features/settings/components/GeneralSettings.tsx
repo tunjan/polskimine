@@ -6,17 +6,41 @@ import { MetaLabel } from '@/components/form/MetaLabel';
 import { Switch } from '@/components/ui/switch';
 import { ColorPicker } from '@/components/ui/color-picker';
 import { useTheme } from '@/contexts/ThemeContext';
+import { Input } from '@/components/ui/input';
 
 interface GeneralSettingsProps {
   localSettings: UserSettings;
   setLocalSettings: React.Dispatch<React.SetStateAction<UserSettings>>;
+  username: string;
+  setUsername: (username: string) => void;
 }
 
-export const GeneralSettings: React.FC<GeneralSettingsProps> = ({ localSettings, setLocalSettings }) => {
+export const GeneralSettings: React.FC<GeneralSettingsProps> = ({ 
+  localSettings, 
+  setLocalSettings,
+  username,
+  setUsername
+}) => {
   const { theme, setTheme } = useTheme();
 
   return (
     <div className="space-y-10 max-w-lg animate-in fade-in slide-in-from-bottom-2 duration-500">
+      <section>
+        <MetaLabel>Profile</MetaLabel>
+        <div className="space-y-2">
+          <div className="text-sm font-medium">Username</div>
+          <Input 
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+            placeholder="Enter your username"
+            className="max-w-xs"
+          />
+          <p className="text-xs text-muted-foreground">
+            This is how you'll appear on the leaderboard.
+          </p>
+        </div>
+      </section>
+
       <section>
         <MetaLabel>Target Language</MetaLabel>
         <EditorialSelect

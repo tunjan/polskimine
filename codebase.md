@@ -1,66 +1,4 @@
 
-## dist/assets/index-DjDKeKGE.css
-@layer properties{@supports ((-webkit-hyphens:none) and (not (margin-trim:inline))) or ((-moz-orient:inline) and (not (color:rgb(from red r g b)))){*,:before,:after,::backdrop{--tw-translate-x:0;--tw-translate-y:0;--tw-translate-z:0;--tw-rotate-x:initial;--tw-rotate-y:initial;--tw-rotate-z:initial;--tw-skew-x:initial;--tw-skew-y:initial;--tw-space-y-reverse:0;--tw-border-style:solid;--tw-leading:initial;--tw-font-weight:initial;--tw-tracking:initial;--tw-shadow:0 0 #0000;--tw-shadow-color:initial;--tw-shadow-alpha:100%;--tw-inset-shadow:0 0 #0000;--tw-inset-shadow-color:initial;--tw-inset-shadow-alpha:100%;--tw-ring-color:initial;--tw-ring-shadow:0 0 #0000;--tw-inset-ring-color:initial;--tw-inset-ring-shadow:0 0 #0000;--tw-ring-inset:initial;--tw-ring-offset-width:0px;--tw-ring-offset-color:#fff;--tw-ring-offset-shadow:0 0 #0000;--tw-outline-style:solid;--tw-blur:initial;--tw-brightness:initial;--tw-contrast:initial;--tw-grayscale:initial;--tw-hue-rotate:initial;--tw-invert:initial;--tw-opacity:initial;--tw-saturate:initial;--tw-sepia:initial;--tw-drop-shadow:initial;--tw-drop-shadow-color:initial;--tw-drop-shadow-alpha:100%;--tw-drop-shadow-size:initial;--tw-backdrop-blur:initial;--tw-backdrop-brightness:initial;--tw-backdrop-contrast:initial;--tw-backdrop-grayscale:initial;--tw-backdrop-hue-rotate:initial;--tw-backdrop-invert:initial;--tw-backdrop-opacity:initial;--tw-backdrop-saturate:initial;--tw-backdrop-sepia:initial;--tw-duration:initial;--tw-ease:initial;--tw-space-x-reverse:0}}}@layer theme{:root,:host{--font-sans:Inter,sans-serif;--font-serif:Merriweather,serif;--font-mono:JetBrains Mono,monospace;--color-red-50:oklch(97.1% .013 17.38);--color-red-400:oklch(70.4% .191 22.216);--color-red-500:oklch(63.7% .237 25.331);--color-red-600:oklch(57.7% .245 27.325);--color-red-900:oklch(39.6% .141 25.723);--color-red-950:oklch(25.8% .092 26.042);--color-amber-500:oklch(76.9% .188 70.08);--color-amber-600:oklch(66.6% .179 58.318);--color-yellow-100:oklch(97.3% .071 103.193);--color-yellow-500:oklch(79.5% .184 86.047);--color-yellow-600:oklch(68.1% .162 75.834);--color-yellow-900:oklch(42.1% .095 57.708);--color-emerald-500:oklch(69.6% .17 162.48);--color-blue-500:oklch(62.3% .214 259.815);--color-gray-50:oklch(98.5% .002 247.839);--color-gray-100:oklch(96.7% .003 264.542);--color-gray-200:oklch(92.8% .006 264.531);--color-gray-300:oklch(87.2% .01 258.338);--color-gray-400:oklch(70.7% .022 261.325);--color-gray-500:oklch(55.1% .027 264.364);--color-gray-600:oklch(44.6% .03 256.802);--color-gray-700:oklch(37.3% .034 259.733);--color-gray-800:oklch(27.8% .033 256.848);--color-gray-900:oklch(21% .034 264.665);--color-zinc-900:oklch(21% .006 285.885);--color-black:#000;--color-white:#fff;--spacing:.25rem;--breakpoint-2xl:96rem;--container-sm:24rem;--container-md:28rem;--container-lg:32rem;--container-2xl:42rem;--container-3xl:48rem;--container-4xl:56rem;--text-xs:.75rem;--text-xs--line-height:calc(1/.75);--text-sm:.875rem;--text-sm--line-height:calc(1.25/.875);--text-base:1rem;--text-base--line-height: 1.5 ;--text-lg:1.125rem;--text-lg--line-height:calc(1.75/1.125);--text-xl:1.25rem;--text-xl--line-height:calc(1.75/1.25);--text-2xl:1.5rem;--text-2xl--line-height:calc(2/1.5);--text-3xl:1.875rem;--text-3xl--line-height: 1.2 ;--text-4xl:2.25rem;--text-4xl--line-height:calc(2.5/2.25);--text-6xl:3.75rem;--text-6xl--line-height:1;--text-8xl:6rem;--text-8xl--line-height:1;--font-weight-light:300;--font-weight-normal:400;--font-weight-medium:500;--font-weight-semibold:600;--font-weight-bold:700;--tracking-tighter:-.05em;--tracking-tight:-.025em;--tracking-wide:.025em;--tracking-wider:.05em;--tracking-widest:.1em;--leading-tight:1.25;--leading-snug:1.375;--leading-relaxed:1.625;--radius-sm:.25rem;--radius-md:.375rem;--radius-lg:.5rem;--radius-xl:.75rem;--ease-out:cubic-bezier(0,0,.2,1);--ease-in-out:cubic-bezier(.4,0,.2,1);--animate-spin:spin 1s linear infinite;--animate-pulse:pulse 2s cubic-bezier(.4,0,.6,1)infinite;--blur-sm:8px;--blur-md:12px;--blur-lg:16px;--default-transition-duration:.15s;--default-transition-timing-function:cubic-bezier(.4,0,.2,1);--default-font-family:var(--font-sans);--default-mono-font-family:var(--font-mono)}}@layer base{*,:after,:before,::backdrop{box-sizing:border-box;border:0 solid;margin:0;padding:0}::file-selector-button{box-sizing:border-box;border:0 solid;margin:0;padding:0}html,:host{-webkit-text-size-adjust:100%;-moz-tab-size:4;-o-tab-size:4;tab-size:4;line-height:1.5;font-family:var(--default-font-family,ui-sans-serif,system-ui,sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji");font-feature-settings:var(--default-font-feature-settings,normal);font-variation-settings:var(--default-font-variation-settings,normal);-webkit-tap-highlight-color:transparent}hr{height:0;color:inherit;border-top-width:1px}abbr:where([title]){-webkit-text-decoration:underline dotted;text-decoration:underline dotted}h1,h2,h3,h4,h5,h6{font-size:inherit;font-weight:inherit}a{color:inherit;-webkit-text-decoration:inherit;text-decoration:inherit}b,strong{font-weight:bolder}code,kbd,samp,pre{font-family:var(--default-mono-font-family,ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace);font-feature-settings:var(--default-mono-font-feature-settings,normal);font-variation-settings:var(--default-mono-font-variation-settings,normal);font-size:1em}small{font-size:80%}sub,sup{vertical-align:baseline;font-size:75%;line-height:0;position:relative}sub{bottom:-.25em}sup{top:-.5em}table{text-indent:0;border-color:inherit;border-collapse:collapse}:-moz-focusring{outline:auto}progress{vertical-align:baseline}summary{display:list-item}ol,ul,menu{list-style:none}img,svg,video,canvas,audio,iframe,embed,object{vertical-align:middle;display:block}img,video{max-width:100%;height:auto}button,input,select,optgroup,textarea{font:inherit;font-feature-settings:inherit;font-variation-settings:inherit;letter-spacing:inherit;color:inherit;opacity:1;background-color:#0000;border-radius:0}::file-selector-button{font:inherit;font-feature-settings:inherit;font-variation-settings:inherit;letter-spacing:inherit;color:inherit;opacity:1;background-color:#0000;border-radius:0}:where(select:is([multiple],[size])) optgroup{font-weight:bolder}:where(select:is([multiple],[size])) optgroup option{padding-inline-start:20px}::file-selector-button{margin-inline-end:4px}::-moz-placeholder{opacity:1}::placeholder{opacity:1}@supports (not (-webkit-appearance:-apple-pay-button)) or (contain-intrinsic-size:1px){::-moz-placeholder{color:currentColor}::placeholder{color:currentColor}@supports (color:color-mix(in lab,red,red)){::-moz-placeholder{color:color-mix(in oklab,currentcolor 50%,transparent)}::placeholder{color:color-mix(in oklab,currentcolor 50%,transparent)}}}textarea{resize:vertical}::-webkit-search-decoration{-webkit-appearance:none}::-webkit-date-and-time-value{min-height:1lh;text-align:inherit}::-webkit-datetime-edit{display:inline-flex}::-webkit-datetime-edit-fields-wrapper{padding:0}::-webkit-datetime-edit{padding-block:0}::-webkit-datetime-edit-year-field{padding-block:0}::-webkit-datetime-edit-month-field{padding-block:0}::-webkit-datetime-edit-day-field{padding-block:0}::-webkit-datetime-edit-hour-field{padding-block:0}::-webkit-datetime-edit-minute-field{padding-block:0}::-webkit-datetime-edit-second-field{padding-block:0}::-webkit-datetime-edit-millisecond-field{padding-block:0}::-webkit-datetime-edit-meridiem-field{padding-block:0}::-webkit-calendar-picker-indicator{line-height:1}:-moz-ui-invalid{box-shadow:none}button,input:where([type=button],[type=reset],[type=submit]){-webkit-appearance:button;-moz-appearance:button;appearance:button}::file-selector-button{-webkit-appearance:button;-moz-appearance:button;appearance:button}::-webkit-inner-spin-button{height:auto}::-webkit-outer-spin-button{height:auto}[hidden]:where(:not([hidden=until-found])){display:none!important}:root{--background:0 0% 100%;--foreground:240 10% 3.9%;--card:0 0% 100%;--card-foreground:240 10% 3.9%;--popover:0 0% 100%;--popover-foreground:240 10% 3.9%;--primary:346 84% 45%;--primary-foreground:0 85.7% 97.3%;--secondary:240 4.8% 95.9%;--secondary-foreground:240 5.9% 10%;--muted:240 4.8% 95.9%;--muted-foreground:240 3.8% 46.1%;--accent:240 4.8% 95.9%;--accent-foreground:240 5.9% 10%;--destructive:0 84.2% 60.2%;--destructive-foreground:0 0% 98%;--border:240 5.9% 90%;--input:240 5.9% 90%;--ring:346 84% 45%;--radius:.75rem}.dark{--background:240 10% 3.9%;--foreground:0 0% 98%;--card:240 10% 3.9%;--card-foreground:0 0% 98%;--popover:240 10% 3.9%;--popover-foreground:0 0% 98%;--primary:346 84% 55%;--primary-foreground:0 85.7% 97.3%;--secondary:240 3.7% 15.9%;--secondary-foreground:0 0% 98%;--muted:240 3.7% 15.9%;--muted-foreground:240 5% 64.9%;--accent:240 3.7% 15.9%;--accent-foreground:0 0% 98%;--destructive:0 62.8% 30.6%;--destructive-foreground:0 0% 98%;--border:240 3.7% 15.9%;--input:240 3.7% 15.9%;--ring:346 84% 55%}:root[data-language=polish]{--primary:346 84% 45%;--primary-foreground:0 0% 98%;--ring:346 84% 45%}.dark:root[data-language=polish]{--primary:346 84% 60%;--primary-foreground:0 0% 98%;--ring:346 84% 60%}:root[data-language=norwegian]{--primary:200 90% 40%;--primary-foreground:0 0% 98%;--ring:200 90% 40%;--background:200 30% 98%}.dark:root[data-language=norwegian]{--primary:200 90% 60%;--primary-foreground:0 0% 98%;--ring:200 90% 60%;--background:200 30% 5%}:root[data-language=japanese]{--primary:330 85% 65%;--primary-foreground:0 0% 98%;--ring:330 85% 65%;--background:330 30% 99%}.dark:root[data-language=japanese]{--primary:330 85% 75%;--primary-foreground:330 10% 10%;--ring:330 85% 75%;--background:330 20% 5%}*{border-color:hsl(var(--border))}body{background-color:hsl(var(--background));color:hsl(var(--foreground));-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;font-feature-settings:"rlig" 1,"calt" 1}}@layer components;@layer utilities{.pointer-events-none{pointer-events:none}.sr-only{clip-path:inset(50%);white-space:nowrap;border-width:0;width:1px;height:1px;margin:-1px;padding:0;position:absolute;overflow:hidden}.absolute{position:absolute}.fixed{position:fixed}.relative{position:relative}.static{position:static}.inset-0{inset:calc(var(--spacing)*0)}.inset-x-0{inset-inline:calc(var(--spacing)*0)}.inset-y-0{inset-block:calc(var(--spacing)*0)}.top-0{top:calc(var(--spacing)*0)}.top-1\/2{top:50%}.top-3{top:calc(var(--spacing)*3)}.top-3\.5{top:calc(var(--spacing)*3.5)}.top-4{top:calc(var(--spacing)*4)}.top-\[50\%\]{top:50%}.right-0{right:calc(var(--spacing)*0)}.right-2{right:calc(var(--spacing)*2)}.right-3{right:calc(var(--spacing)*3)}.right-4{right:calc(var(--spacing)*4)}.bottom-0{bottom:calc(var(--spacing)*0)}.left-0{left:calc(var(--spacing)*0)}.left-1\/2{left:50%}.left-2{left:calc(var(--spacing)*2)}.left-\[50\%\]{left:50%}.z-10{z-index:10}.z-40{z-index:40}.z-50{z-index:50}.container{width:100%}@media(min-width:40rem){.container{max-width:40rem}}@media(min-width:48rem){.container{max-width:48rem}}@media(min-width:64rem){.container{max-width:64rem}}@media(min-width:80rem){.container{max-width:80rem}}@media(min-width:96rem){.container{max-width:96rem}}.-mx-1{margin-inline:calc(var(--spacing)*-1)}.mx-2{margin-inline:calc(var(--spacing)*2)}.mx-auto{margin-inline:auto}.my-1{margin-block:calc(var(--spacing)*1)}.my-4{margin-block:calc(var(--spacing)*4)}.mt-1{margin-top:calc(var(--spacing)*1)}.mt-2{margin-top:calc(var(--spacing)*2)}.mt-6{margin-top:calc(var(--spacing)*6)}.mt-8{margin-top:calc(var(--spacing)*8)}.mr-1{margin-right:calc(var(--spacing)*1)}.mr-2{margin-right:calc(var(--spacing)*2)}.mb-0{margin-bottom:calc(var(--spacing)*0)}.mb-1{margin-bottom:calc(var(--spacing)*1)}.mb-2{margin-bottom:calc(var(--spacing)*2)}.mb-3{margin-bottom:calc(var(--spacing)*3)}.mb-4{margin-bottom:calc(var(--spacing)*4)}.mb-6{margin-bottom:calc(var(--spacing)*6)}.mb-8{margin-bottom:calc(var(--spacing)*8)}.-ml-2{margin-left:calc(var(--spacing)*-2)}.ml-0\.5{margin-left:calc(var(--spacing)*.5)}.ml-2{margin-left:calc(var(--spacing)*2)}.ml-auto{margin-left:auto}.block{display:block}.contents{display:contents}.flex{display:flex}.grid{display:grid}.hidden{display:none}.inline-block{display:inline-block}.inline-flex{display:inline-flex}.h-1{height:calc(var(--spacing)*1)}.h-1\.5{height:calc(var(--spacing)*1.5)}.h-2{height:calc(var(--spacing)*2)}.h-3{height:calc(var(--spacing)*3)}.h-3\.5{height:calc(var(--spacing)*3.5)}.h-4{height:calc(var(--spacing)*4)}.h-5{height:calc(var(--spacing)*5)}.h-6{height:calc(var(--spacing)*6)}.h-8{height:calc(var(--spacing)*8)}.h-9{height:calc(var(--spacing)*9)}.h-10{height:calc(var(--spacing)*10)}.h-11{height:calc(var(--spacing)*11)}.h-12{height:calc(var(--spacing)*12)}.h-14{height:calc(var(--spacing)*14)}.h-16{height:calc(var(--spacing)*16)}.h-24{height:calc(var(--spacing)*24)}.h-40{height:calc(var(--spacing)*40)}.h-64{height:calc(var(--spacing)*64)}.h-\[80vh\]{height:80vh}.h-\[150\%\]{height:150%}.h-\[400px\]{height:400px}.h-\[var\(--radix-select-trigger-height\)\]{height:var(--radix-select-trigger-height)}.h-auto{height:auto}.h-full{height:100%}.h-px{height:1px}.max-h-\[--radix-select-content-available-height\]{max-height:--radix-select-content-available-height}.max-h-\[300px\]{max-height:300px}.max-h-\[400px\]{max-height:400px}.max-h-\[var\(--radix-dropdown-menu-content-available-height\)\]{max-height:var(--radix-dropdown-menu-content-available-height)}.min-h-20{min-height:calc(var(--spacing)*20)}.min-h-\[40vh\]{min-height:40vh}.min-h-\[50vh\]{min-height:50vh}.min-h-\[60px\]{min-height:60px}.min-h-\[60vh\]{min-height:60vh}.min-h-\[400px\]{min-height:400px}.min-h-screen{min-height:100vh}.w-1{width:calc(var(--spacing)*1)}.w-1\.5{width:calc(var(--spacing)*1.5)}.w-2{width:calc(var(--spacing)*2)}.w-3{width:calc(var(--spacing)*3)}.w-3\.5{width:calc(var(--spacing)*3.5)}.w-3\/4{width:75%}.w-4{width:calc(var(--spacing)*4)}.w-5{width:calc(var(--spacing)*5)}.w-6{width:calc(var(--spacing)*6)}.w-8{width:calc(var(--spacing)*8)}.w-9{width:calc(var(--spacing)*9)}.w-10{width:calc(var(--spacing)*10)}.w-12{width:calc(var(--spacing)*12)}.w-14{width:calc(var(--spacing)*14)}.w-16{width:calc(var(--spacing)*16)}.w-24{width:calc(var(--spacing)*24)}.w-48{width:calc(var(--spacing)*48)}.w-56{width:calc(var(--spacing)*56)}.w-64{width:calc(var(--spacing)*64)}.w-\[95vw\]{width:95vw}.w-\[150\%\]{width:150%}.w-full{width:100%}.w-max{width:-moz-max-content;width:max-content}.max-w-2xl{max-width:var(--container-2xl)}.max-w-3xl{max-width:var(--container-3xl)}.max-w-4xl{max-width:var(--container-4xl)}.max-w-lg{max-width:var(--container-lg)}.max-w-md{max-width:var(--container-md)}.max-w-screen-2xl{max-width:var(--breakpoint-2xl)}.max-w-sm{max-width:var(--container-sm)}.min-w-0{min-width:calc(var(--spacing)*0)}.min-w-\[8rem\]{min-width:8rem}.min-w-\[var\(--radix-select-trigger-width\)\]{min-width:var(--radix-select-trigger-width)}.flex-1{flex:1}.shrink-0{flex-shrink:0}.grow{flex-grow:1}.origin-\[--radix-dropdown-menu-content-transform-origin\]{transform-origin:--radix-dropdown-menu-content-transform-origin}.origin-\[--radix-select-content-transform-origin\]{transform-origin:--radix-select-content-transform-origin}.origin-\[--radix-tooltip-content-transform-origin\]{transform-origin:--radix-tooltip-content-transform-origin}.-translate-x-1\/2{--tw-translate-x: -50% ;translate:var(--tw-translate-x)var(--tw-translate-y)}.translate-x-\[-50\%\]{--tw-translate-x:-50%;translate:var(--tw-translate-x)var(--tw-translate-y)}.-translate-y-1\/2{--tw-translate-y: -50% ;translate:var(--tw-translate-x)var(--tw-translate-y)}.translate-y-\[-50\%\]{--tw-translate-y:-50%;translate:var(--tw-translate-x)var(--tw-translate-y)}.transform{transform:var(--tw-rotate-x,)var(--tw-rotate-y,)var(--tw-rotate-z,)var(--tw-skew-x,)var(--tw-skew-y,)}.animate-pulse{animation:var(--animate-pulse)}.animate-spin{animation:var(--animate-spin)}.cursor-default{cursor:default}.cursor-pointer{cursor:pointer}.touch-none{touch-action:none}.resize-none{resize:none}.appearance-none{-webkit-appearance:none;-moz-appearance:none;appearance:none}.grid-flow-col{grid-auto-flow:column}.grid-cols-1{grid-template-columns:repeat(1,minmax(0,1fr))}.grid-cols-2{grid-template-columns:repeat(2,minmax(0,1fr))}.grid-cols-3{grid-template-columns:repeat(3,minmax(0,1fr))}.grid-rows-7{grid-template-rows:repeat(7,minmax(0,1fr))}.flex-col{flex-direction:column}.flex-col-reverse{flex-direction:column-reverse}.flex-row{flex-direction:row}.flex-wrap{flex-wrap:wrap}.items-baseline{align-items:baseline}.items-center{align-items:center}.items-end{align-items:flex-end}.items-start{align-items:flex-start}.justify-around{justify-content:space-around}.justify-between{justify-content:space-between}.justify-center{justify-content:center}.justify-end{justify-content:flex-end}.gap-0{gap:calc(var(--spacing)*0)}.gap-1{gap:calc(var(--spacing)*1)}.gap-2{gap:calc(var(--spacing)*2)}.gap-3{gap:calc(var(--spacing)*3)}.gap-4{gap:calc(var(--spacing)*4)}.gap-6{gap:calc(var(--spacing)*6)}.gap-8{gap:calc(var(--spacing)*8)}.gap-10{gap:calc(var(--spacing)*10)}.gap-12{gap:calc(var(--spacing)*12)}:where(.space-y-1>:not(:last-child)){--tw-space-y-reverse:0;margin-block-start:calc(calc(var(--spacing)*1)*var(--tw-space-y-reverse));margin-block-end:calc(calc(var(--spacing)*1)*calc(1 - var(--tw-space-y-reverse)))}:where(.space-y-1\.5>:not(:last-child)){--tw-space-y-reverse:0;margin-block-start:calc(calc(var(--spacing)*1.5)*var(--tw-space-y-reverse));margin-block-end:calc(calc(var(--spacing)*1.5)*calc(1 - var(--tw-space-y-reverse)))}:where(.space-y-2>:not(:last-child)){--tw-space-y-reverse:0;margin-block-start:calc(calc(var(--spacing)*2)*var(--tw-space-y-reverse));margin-block-end:calc(calc(var(--spacing)*2)*calc(1 - var(--tw-space-y-reverse)))}:where(.space-y-3>:not(:last-child)){--tw-space-y-reverse:0;margin-block-start:calc(calc(var(--spacing)*3)*var(--tw-space-y-reverse));margin-block-end:calc(calc(var(--spacing)*3)*calc(1 - var(--tw-space-y-reverse)))}:where(.space-y-4>:not(:last-child)){--tw-space-y-reverse:0;margin-block-start:calc(calc(var(--spacing)*4)*var(--tw-space-y-reverse));margin-block-end:calc(calc(var(--spacing)*4)*calc(1 - var(--tw-space-y-reverse)))}:where(.space-y-6>:not(:last-child)){--tw-space-y-reverse:0;margin-block-start:calc(calc(var(--spacing)*6)*var(--tw-space-y-reverse));margin-block-end:calc(calc(var(--spacing)*6)*calc(1 - var(--tw-space-y-reverse)))}:where(.space-y-8>:not(:last-child)){--tw-space-y-reverse:0;margin-block-start:calc(calc(var(--spacing)*8)*var(--tw-space-y-reverse));margin-block-end:calc(calc(var(--spacing)*8)*calc(1 - var(--tw-space-y-reverse)))}:where(.space-y-10>:not(:last-child)){--tw-space-y-reverse:0;margin-block-start:calc(calc(var(--spacing)*10)*var(--tw-space-y-reverse));margin-block-end:calc(calc(var(--spacing)*10)*calc(1 - var(--tw-space-y-reverse)))}:where(.space-y-16>:not(:last-child)){--tw-space-y-reverse:0;margin-block-start:calc(calc(var(--spacing)*16)*var(--tw-space-y-reverse));margin-block-end:calc(calc(var(--spacing)*16)*calc(1 - var(--tw-space-y-reverse)))}.gap-x-4{-moz-column-gap:calc(var(--spacing)*4);column-gap:calc(var(--spacing)*4)}.gap-x-12{-moz-column-gap:calc(var(--spacing)*12);column-gap:calc(var(--spacing)*12)}.gap-y-8{row-gap:calc(var(--spacing)*8)}.gap-y-12{row-gap:calc(var(--spacing)*12)}.truncate{text-overflow:ellipsis;white-space:nowrap;overflow:hidden}.overflow-hidden{overflow:hidden}.overflow-x-auto{overflow-x:auto}.overflow-x-hidden{overflow-x:hidden}.overflow-y-auto{overflow-y:auto}.rounded{border-radius:.25rem}.rounded-\[2px\]{border-radius:2px}.rounded-full{border-radius:3.40282e38px}.rounded-lg{border-radius:var(--radius-lg)}.rounded-md{border-radius:var(--radius-md)}.rounded-none{border-radius:0}.rounded-sm{border-radius:var(--radius-sm)}.rounded-xl{border-radius:var(--radius-xl)}.border{border-style:var(--tw-border-style);border-width:1px}.border-0{border-style:var(--tw-border-style);border-width:0}.border-2{border-style:var(--tw-border-style);border-width:2px}.border-t{border-top-style:var(--tw-border-style);border-top-width:1px}.border-r{border-right-style:var(--tw-border-style);border-right-width:1px}.border-b{border-bottom-style:var(--tw-border-style);border-bottom-width:1px}.border-b-2{border-bottom-style:var(--tw-border-style);border-bottom-width:2px}.border-dashed{--tw-border-style:dashed;border-style:dashed}.border-none{--tw-border-style:none;border-style:none}.border-gray-50{border-color:var(--color-gray-50)}.border-gray-100{border-color:var(--color-gray-100)}.border-gray-200{border-color:var(--color-gray-200)}.border-transparent{border-color:#0000}.bg-amber-500{background-color:var(--color-amber-500)}.bg-amber-500\/10{background-color:#f99c001a}@supports (color:color-mix(in lab,red,red)){.bg-amber-500\/10{background-color:color-mix(in oklab,var(--color-amber-500)10%,transparent)}}.bg-black\/80{background-color:#000c}@supports (color:color-mix(in lab,red,red)){.bg-black\/80{background-color:color-mix(in oklab,var(--color-black)80%,transparent)}}.bg-blue-500{background-color:var(--color-blue-500)}.bg-emerald-500{background-color:var(--color-emerald-500)}.bg-gray-100{background-color:var(--color-gray-100)}.bg-gray-200{background-color:var(--color-gray-200)}.bg-gray-300{background-color:var(--color-gray-300)}.bg-red-500\/10{background-color:#fb2c361a}@supports (color:color-mix(in lab,red,red)){.bg-red-500\/10{background-color:color-mix(in oklab,var(--color-red-500)10%,transparent)}}.bg-transparent{background-color:#0000}.bg-white{background-color:var(--color-white)}.bg-white\/80{background-color:#fffc}@supports (color:color-mix(in lab,red,red)){.bg-white\/80{background-color:color-mix(in oklab,var(--color-white)80%,transparent)}}.bg-yellow-100{background-color:var(--color-yellow-100)}.fill-current{fill:currentColor}.p-0{padding:calc(var(--spacing)*0)}.p-1{padding:calc(var(--spacing)*1)}.p-1\.5{padding:calc(var(--spacing)*1.5)}.p-2{padding:calc(var(--spacing)*2)}.p-3{padding:calc(var(--spacing)*3)}.p-4{padding:calc(var(--spacing)*4)}.p-6{padding:calc(var(--spacing)*6)}.p-8{padding:calc(var(--spacing)*8)}.p-12{padding:calc(var(--spacing)*12)}.px-0{padding-inline:calc(var(--spacing)*0)}.px-1{padding-inline:calc(var(--spacing)*1)}.px-1\.5{padding-inline:calc(var(--spacing)*1.5)}.px-2{padding-inline:calc(var(--spacing)*2)}.px-2\.5{padding-inline:calc(var(--spacing)*2.5)}.px-3{padding-inline:calc(var(--spacing)*3)}.px-4{padding-inline:calc(var(--spacing)*4)}.px-6{padding-inline:calc(var(--spacing)*6)}.px-8{padding-inline:calc(var(--spacing)*8)}.py-0{padding-block:calc(var(--spacing)*0)}.py-0\.5{padding-block:calc(var(--spacing)*.5)}.py-1{padding-block:calc(var(--spacing)*1)}.py-1\.5{padding-block:calc(var(--spacing)*1.5)}.py-2{padding-block:calc(var(--spacing)*2)}.py-2\.5{padding-block:calc(var(--spacing)*2.5)}.py-3{padding-block:calc(var(--spacing)*3)}.py-4{padding-block:calc(var(--spacing)*4)}.pt-0{padding-top:calc(var(--spacing)*0)}.pt-2{padding-top:calc(var(--spacing)*2)}.pt-4{padding-top:calc(var(--spacing)*4)}.pt-6{padding-top:calc(var(--spacing)*6)}.pt-8{padding-top:calc(var(--spacing)*8)}.pt-12{padding-top:calc(var(--spacing)*12)}.pt-14{padding-top:calc(var(--spacing)*14)}.pr-2{padding-right:calc(var(--spacing)*2)}.pr-6{padding-right:calc(var(--spacing)*6)}.pr-8{padding-right:calc(var(--spacing)*8)}.pb-0{padding-bottom:calc(var(--spacing)*0)}.pb-0\.5{padding-bottom:calc(var(--spacing)*.5)}.pb-1{padding-bottom:calc(var(--spacing)*1)}.pb-2{padding-bottom:calc(var(--spacing)*2)}.pb-20{padding-bottom:calc(var(--spacing)*20)}.pl-1{padding-left:calc(var(--spacing)*1)}.pl-2{padding-left:calc(var(--spacing)*2)}.pl-6{padding-left:calc(var(--spacing)*6)}.pl-8{padding-left:calc(var(--spacing)*8)}.text-center{text-align:center}.text-left{text-align:left}.text-right{text-align:right}.font-mono{font-family:var(--font-mono)}.font-sans{font-family:var(--font-sans)}.font-serif{font-family:var(--font-serif)}.text-2xl{font-size:var(--text-2xl);line-height:var(--tw-leading,var(--text-2xl--line-height))}.text-3xl{font-size:var(--text-3xl);line-height:var(--tw-leading,var(--text-3xl--line-height))}.text-4xl{font-size:var(--text-4xl);line-height:var(--tw-leading,var(--text-4xl--line-height))}.text-6xl{font-size:var(--text-6xl);line-height:var(--tw-leading,var(--text-6xl--line-height))}.text-base{font-size:var(--text-base);line-height:var(--tw-leading,var(--text-base--line-height))}.text-lg{font-size:var(--text-lg);line-height:var(--tw-leading,var(--text-lg--line-height))}.text-sm{font-size:var(--text-sm);line-height:var(--tw-leading,var(--text-sm--line-height))}.text-xl{font-size:var(--text-xl);line-height:var(--tw-leading,var(--text-xl--line-height))}.text-xs{font-size:var(--text-xs);line-height:var(--tw-leading,var(--text-xs--line-height))}.text-\[9px\]{font-size:9px}.text-\[10px\]{font-size:10px}.text-\[11px\]{font-size:11px}.leading-\[0\.9\]{--tw-leading:.9;line-height:.9}.leading-none{--tw-leading:1;line-height:1}.leading-relaxed{--tw-leading:var(--leading-relaxed);line-height:var(--leading-relaxed)}.leading-snug{--tw-leading:var(--leading-snug);line-height:var(--leading-snug)}.leading-tight{--tw-leading:var(--leading-tight);line-height:var(--leading-tight)}.font-bold{--tw-font-weight:var(--font-weight-bold);font-weight:var(--font-weight-bold)}.font-light{--tw-font-weight:var(--font-weight-light);font-weight:var(--font-weight-light)}.font-medium{--tw-font-weight:var(--font-weight-medium);font-weight:var(--font-weight-medium)}.font-normal{--tw-font-weight:var(--font-weight-normal);font-weight:var(--font-weight-normal)}.font-semibold{--tw-font-weight:var(--font-weight-semibold);font-weight:var(--font-weight-semibold)}.tracking-\[0\.2em\]{--tw-tracking:.2em;letter-spacing:.2em}.tracking-tight{--tw-tracking:var(--tracking-tight);letter-spacing:var(--tracking-tight)}.tracking-tighter{--tw-tracking:var(--tracking-tighter);letter-spacing:var(--tracking-tighter)}.tracking-wide{--tw-tracking:var(--tracking-wide);letter-spacing:var(--tracking-wide)}.tracking-wider{--tw-tracking:var(--tracking-wider);letter-spacing:var(--tracking-wider)}.tracking-widest{--tw-tracking:var(--tracking-widest);letter-spacing:var(--tracking-widest)}.whitespace-nowrap{white-space:nowrap}.text-amber-500{color:var(--color-amber-500)}.text-amber-600{color:var(--color-amber-600)}.text-black{color:var(--color-black)}.text-gray-300{color:var(--color-gray-300)}.text-gray-400{color:var(--color-gray-400)}.text-gray-500{color:var(--color-gray-500)}.text-gray-600{color:var(--color-gray-600)}.text-gray-900{color:var(--color-gray-900)}.text-red-500{color:var(--color-red-500)}.text-red-500\/70{color:#fb2c36b3}@supports (color:color-mix(in lab,red,red)){.text-red-500\/70{color:color-mix(in oklab,var(--color-red-500)70%,transparent)}}.text-red-600{color:var(--color-red-600)}.text-yellow-500{color:var(--color-yellow-500)}.text-yellow-600{color:var(--color-yellow-600)}.uppercase{text-transform:uppercase}.italic{font-style:italic}.underline{text-decoration-line:underline}.underline-offset-4{text-underline-offset:4px}.antialiased{-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}.opacity-0{opacity:0}.opacity-50{opacity:.5}.opacity-60{opacity:.6}.opacity-70{opacity:.7}.opacity-80{opacity:.8}.opacity-100{opacity:1}.shadow{--tw-shadow:0 1px 3px 0 var(--tw-shadow-color,#0000001a),0 1px 2px -1px var(--tw-shadow-color,#0000001a);box-shadow:var(--tw-inset-shadow),var(--tw-inset-ring-shadow),var(--tw-ring-offset-shadow),var(--tw-ring-shadow),var(--tw-shadow)}.shadow-2xl{--tw-shadow:0 25px 50px -12px var(--tw-shadow-color,#00000040);box-shadow:var(--tw-inset-shadow),var(--tw-inset-ring-shadow),var(--tw-ring-offset-shadow),var(--tw-ring-shadow),var(--tw-shadow)}.shadow-lg{--tw-shadow:0 10px 15px -3px var(--tw-shadow-color,#0000001a),0 4px 6px -4px var(--tw-shadow-color,#0000001a);box-shadow:var(--tw-inset-shadow),var(--tw-inset-ring-shadow),var(--tw-ring-offset-shadow),var(--tw-ring-shadow),var(--tw-shadow)}.shadow-md{--tw-shadow:0 4px 6px -1px var(--tw-shadow-color,#0000001a),0 2px 4px -2px var(--tw-shadow-color,#0000001a);box-shadow:var(--tw-inset-shadow),var(--tw-inset-ring-shadow),var(--tw-ring-offset-shadow),var(--tw-ring-shadow),var(--tw-shadow)}.shadow-sm{--tw-shadow:0 1px 3px 0 var(--tw-shadow-color,#0000001a),0 1px 2px -1px var(--tw-shadow-color,#0000001a);box-shadow:var(--tw-inset-shadow),var(--tw-inset-ring-shadow),var(--tw-ring-offset-shadow),var(--tw-ring-shadow),var(--tw-shadow)}.shadow-xl{--tw-shadow:0 20px 25px -5px var(--tw-shadow-color,#0000001a),0 8px 10px -6px var(--tw-shadow-color,#0000001a);box-shadow:var(--tw-inset-shadow),var(--tw-inset-ring-shadow),var(--tw-ring-offset-shadow),var(--tw-ring-shadow),var(--tw-shadow)}.ring-0{--tw-ring-shadow:var(--tw-ring-inset,)0 0 0 calc(0px + var(--tw-ring-offset-width))var(--tw-ring-color,currentcolor);box-shadow:var(--tw-inset-shadow),var(--tw-inset-ring-shadow),var(--tw-ring-offset-shadow),var(--tw-ring-shadow),var(--tw-shadow)}.outline{outline-style:var(--tw-outline-style);outline-width:1px}.blur{--tw-blur:blur(8px);filter:var(--tw-blur,)var(--tw-brightness,)var(--tw-contrast,)var(--tw-grayscale,)var(--tw-hue-rotate,)var(--tw-invert,)var(--tw-saturate,)var(--tw-sepia,)var(--tw-drop-shadow,)}.blur-lg{--tw-blur:blur(var(--blur-lg));filter:var(--tw-blur,)var(--tw-brightness,)var(--tw-contrast,)var(--tw-grayscale,)var(--tw-hue-rotate,)var(--tw-invert,)var(--tw-saturate,)var(--tw-sepia,)var(--tw-drop-shadow,)}.blur-md{--tw-blur:blur(var(--blur-md));filter:var(--tw-blur,)var(--tw-brightness,)var(--tw-contrast,)var(--tw-grayscale,)var(--tw-hue-rotate,)var(--tw-invert,)var(--tw-saturate,)var(--tw-sepia,)var(--tw-drop-shadow,)}.filter{filter:var(--tw-blur,)var(--tw-brightness,)var(--tw-contrast,)var(--tw-grayscale,)var(--tw-hue-rotate,)var(--tw-invert,)var(--tw-saturate,)var(--tw-sepia,)var(--tw-drop-shadow,)}.backdrop-blur-\[2px\]{--tw-backdrop-blur:blur(2px);-webkit-backdrop-filter:var(--tw-backdrop-blur,)var(--tw-backdrop-brightness,)var(--tw-backdrop-contrast,)var(--tw-backdrop-grayscale,)var(--tw-backdrop-hue-rotate,)var(--tw-backdrop-invert,)var(--tw-backdrop-opacity,)var(--tw-backdrop-saturate,)var(--tw-backdrop-sepia,);backdrop-filter:var(--tw-backdrop-blur,)var(--tw-backdrop-brightness,)var(--tw-backdrop-contrast,)var(--tw-backdrop-grayscale,)var(--tw-backdrop-hue-rotate,)var(--tw-backdrop-invert,)var(--tw-backdrop-opacity,)var(--tw-backdrop-saturate,)var(--tw-backdrop-sepia,)}.backdrop-blur-md{--tw-backdrop-blur:blur(var(--blur-md));-webkit-backdrop-filter:var(--tw-backdrop-blur,)var(--tw-backdrop-brightness,)var(--tw-backdrop-contrast,)var(--tw-backdrop-grayscale,)var(--tw-backdrop-hue-rotate,)var(--tw-backdrop-invert,)var(--tw-backdrop-opacity,)var(--tw-backdrop-saturate,)var(--tw-backdrop-sepia,);backdrop-filter:var(--tw-backdrop-blur,)var(--tw-backdrop-brightness,)var(--tw-backdrop-contrast,)var(--tw-backdrop-grayscale,)var(--tw-backdrop-hue-rotate,)var(--tw-backdrop-invert,)var(--tw-backdrop-opacity,)var(--tw-backdrop-saturate,)var(--tw-backdrop-sepia,)}.backdrop-blur-sm{--tw-backdrop-blur:blur(var(--blur-sm));-webkit-backdrop-filter:var(--tw-backdrop-blur,)var(--tw-backdrop-brightness,)var(--tw-backdrop-contrast,)var(--tw-backdrop-grayscale,)var(--tw-backdrop-hue-rotate,)var(--tw-backdrop-invert,)var(--tw-backdrop-opacity,)var(--tw-backdrop-saturate,)var(--tw-backdrop-sepia,);backdrop-filter:var(--tw-backdrop-blur,)var(--tw-backdrop-brightness,)var(--tw-backdrop-contrast,)var(--tw-backdrop-grayscale,)var(--tw-backdrop-hue-rotate,)var(--tw-backdrop-invert,)var(--tw-backdrop-opacity,)var(--tw-backdrop-saturate,)var(--tw-backdrop-sepia,)}.transition{transition-property:color,background-color,border-color,outline-color,text-decoration-color,fill,stroke,--tw-gradient-from,--tw-gradient-via,--tw-gradient-to,opacity,box-shadow,transform,translate,scale,rotate,filter,backdrop-filter,display,content-visibility,overlay,pointer-events;transition-timing-function:var(--tw-ease,var(--default-transition-timing-function));transition-duration:var(--tw-duration,var(--default-transition-duration))}.transition-all{transition-property:all;transition-timing-function:var(--tw-ease,var(--default-transition-timing-function));transition-duration:var(--tw-duration,var(--default-transition-duration))}.transition-colors{transition-property:color,background-color,border-color,outline-color,text-decoration-color,fill,stroke,--tw-gradient-from,--tw-gradient-via,--tw-gradient-to;transition-timing-function:var(--tw-ease,var(--default-transition-timing-function));transition-duration:var(--tw-duration,var(--default-transition-duration))}.transition-opacity{transition-property:opacity;transition-timing-function:var(--tw-ease,var(--default-transition-timing-function));transition-duration:var(--tw-duration,var(--default-transition-duration))}.transition-transform{transition-property:transform,translate,scale,rotate;transition-timing-function:var(--tw-ease,var(--default-transition-timing-function));transition-duration:var(--tw-duration,var(--default-transition-duration))}.duration-200{--tw-duration:.2s;transition-duration:.2s}.duration-300{--tw-duration:.3s;transition-duration:.3s}.duration-500{--tw-duration:.5s;transition-duration:.5s}.duration-700{--tw-duration:.7s;transition-duration:.7s}.ease-in-out{--tw-ease:var(--ease-in-out);transition-timing-function:var(--ease-in-out)}.ease-out{--tw-ease:var(--ease-out);transition-timing-function:var(--ease-out)}.outline-none{--tw-outline-style:none;outline-style:none}.select-none{-webkit-user-select:none;-moz-user-select:none;user-select:none}@media(hover:hover){.group-hover\:translate-x-1:is(:where(.group):hover *){--tw-translate-x:calc(var(--spacing)*1);translate:var(--tw-translate-x)var(--tw-translate-y)}.group-hover\:opacity-70:is(:where(.group):hover *){opacity:.7}.group-hover\:opacity-100:is(:where(.group):hover *){opacity:1}.group-hover\:blur-md:is(:where(.group):hover *){--tw-blur:blur(var(--blur-md));filter:var(--tw-blur,)var(--tw-brightness,)var(--tw-contrast,)var(--tw-grayscale,)var(--tw-hue-rotate,)var(--tw-invert,)var(--tw-saturate,)var(--tw-sepia,)var(--tw-drop-shadow,)}}.peer-disabled\:cursor-not-allowed:is(:where(.peer):disabled~*){cursor:not-allowed}.peer-disabled\:opacity-70:is(:where(.peer):disabled~*){opacity:.7}.selection\:bg-gray-200 ::-moz-selection{background-color:var(--color-gray-200)}.selection\:bg-gray-200 ::selection{background-color:var(--color-gray-200)}.selection\:bg-gray-200::-moz-selection{background-color:var(--color-gray-200)}.selection\:bg-gray-200::selection{background-color:var(--color-gray-200)}.selection\:text-black ::-moz-selection{color:var(--color-black)}.selection\:text-black ::selection{color:var(--color-black)}.selection\:text-black::-moz-selection{color:var(--color-black)}.selection\:text-black::selection{color:var(--color-black)}.file\:border-0::file-selector-button{border-style:var(--tw-border-style);border-width:0}.file\:bg-transparent::file-selector-button{background-color:#0000}.file\:text-sm::file-selector-button{font-size:var(--text-sm);line-height:var(--tw-leading,var(--text-sm--line-height))}.file\:font-medium::file-selector-button{--tw-font-weight:var(--font-weight-medium);font-weight:var(--font-weight-medium)}.placeholder\:text-gray-300::-moz-placeholder{color:var(--color-gray-300)}.placeholder\:text-gray-300::placeholder{color:var(--color-gray-300)}.last\:border-0:last-child{border-style:var(--tw-border-style);border-width:0}@media(hover:hover){.hover\:bg-gray-50:hover{background-color:var(--color-gray-50)}.hover\:bg-gray-100:hover{background-color:var(--color-gray-100)}.hover\:bg-red-50:hover{background-color:var(--color-red-50)}.hover\:bg-red-500\/20:hover{background-color:#fb2c3633}@supports (color:color-mix(in lab,red,red)){.hover\:bg-red-500\/20:hover{background-color:color-mix(in oklab,var(--color-red-500)20%,transparent)}}.hover\:text-black:hover{color:var(--color-black)}.hover\:text-red-600:hover{color:var(--color-red-600)}.hover\:underline:hover{text-decoration-line:underline}.hover\:opacity-80:hover{opacity:.8}.hover\:opacity-90:hover{opacity:.9}.hover\:opacity-100:hover{opacity:1}}.focus\:border-black:focus{border-color:var(--color-black)}.focus\:ring-0:focus{--tw-ring-shadow:var(--tw-ring-inset,)0 0 0 calc(0px + var(--tw-ring-offset-width))var(--tw-ring-color,currentcolor);box-shadow:var(--tw-inset-shadow),var(--tw-inset-ring-shadow),var(--tw-ring-offset-shadow),var(--tw-ring-shadow),var(--tw-shadow)}.focus\:ring-1:focus{--tw-ring-shadow:var(--tw-ring-inset,)0 0 0 calc(1px + var(--tw-ring-offset-width))var(--tw-ring-color,currentcolor);box-shadow:var(--tw-inset-shadow),var(--tw-inset-ring-shadow),var(--tw-ring-offset-shadow),var(--tw-ring-shadow),var(--tw-shadow)}.focus\:ring-2:focus{--tw-ring-shadow:var(--tw-ring-inset,)0 0 0 calc(2px + var(--tw-ring-offset-width))var(--tw-ring-color,currentcolor);box-shadow:var(--tw-inset-shadow),var(--tw-inset-ring-shadow),var(--tw-ring-offset-shadow),var(--tw-ring-shadow),var(--tw-shadow)}.focus\:ring-offset-2:focus{--tw-ring-offset-width:2px;--tw-ring-offset-shadow:var(--tw-ring-inset,)0 0 0 var(--tw-ring-offset-width)var(--tw-ring-offset-color)}.focus\:outline-none:focus{--tw-outline-style:none;outline-style:none}.focus-visible\:ring-1:focus-visible{--tw-ring-shadow:var(--tw-ring-inset,)0 0 0 calc(1px + var(--tw-ring-offset-width))var(--tw-ring-color,currentcolor);box-shadow:var(--tw-inset-shadow),var(--tw-inset-ring-shadow),var(--tw-ring-offset-shadow),var(--tw-ring-shadow),var(--tw-shadow)}.focus-visible\:ring-2:focus-visible{--tw-ring-shadow:var(--tw-ring-inset,)0 0 0 calc(2px + var(--tw-ring-offset-width))var(--tw-ring-color,currentcolor);box-shadow:var(--tw-inset-shadow),var(--tw-inset-ring-shadow),var(--tw-ring-offset-shadow),var(--tw-ring-shadow),var(--tw-shadow)}.focus-visible\:ring-offset-2:focus-visible{--tw-ring-offset-width:2px;--tw-ring-offset-shadow:var(--tw-ring-inset,)0 0 0 var(--tw-ring-offset-width)var(--tw-ring-offset-color)}.focus-visible\:outline-none:focus-visible{--tw-outline-style:none;outline-style:none}.disabled\:pointer-events-none:disabled{pointer-events:none}.disabled\:cursor-not-allowed:disabled{cursor:not-allowed}.disabled\:opacity-30:disabled{opacity:.3}.disabled\:opacity-50:disabled{opacity:.5}.disabled\:opacity-60:disabled{opacity:.6}.data-\[disabled\]\:pointer-events-none[data-disabled]{pointer-events:none}.data-\[disabled\]\:opacity-50[data-disabled]{opacity:.5}.data-\[side\=bottom\]\:translate-y-1[data-side=bottom]{--tw-translate-y:calc(var(--spacing)*1);translate:var(--tw-translate-x)var(--tw-translate-y)}.data-\[side\=left\]\:-translate-x-1[data-side=left]{--tw-translate-x:calc(var(--spacing)*-1);translate:var(--tw-translate-x)var(--tw-translate-y)}.data-\[side\=right\]\:translate-x-1[data-side=right]{--tw-translate-x:calc(var(--spacing)*1);translate:var(--tw-translate-x)var(--tw-translate-y)}.data-\[side\=top\]\:-translate-y-1[data-side=top]{--tw-translate-y:calc(var(--spacing)*-1);translate:var(--tw-translate-x)var(--tw-translate-y)}.data-\[state\=checked\]\:translate-x-4[data-state=checked]{--tw-translate-x:calc(var(--spacing)*4);translate:var(--tw-translate-x)var(--tw-translate-y)}.data-\[state\=closed\]\:duration-300[data-state=closed]{--tw-duration:.3s;transition-duration:.3s}.data-\[state\=open\]\:duration-500[data-state=open]{--tw-duration:.5s;transition-duration:.5s}.data-\[state\=unchecked\]\:translate-x-0[data-state=unchecked]{--tw-translate-x:calc(var(--spacing)*0);translate:var(--tw-translate-x)var(--tw-translate-y)}@media(min-width:40rem){.sm\:inline{display:inline}.sm\:max-w-2xl{max-width:var(--container-2xl)}.sm\:max-w-4xl{max-width:var(--container-4xl)}.sm\:max-w-lg{max-width:var(--container-lg)}.sm\:max-w-md{max-width:var(--container-md)}.sm\:max-w-sm{max-width:var(--container-sm)}.sm\:grid-cols-2{grid-template-columns:repeat(2,minmax(0,1fr))}.sm\:flex-row{flex-direction:row}.sm\:justify-end{justify-content:flex-end}:where(.sm\:space-x-2>:not(:last-child)){--tw-space-x-reverse:0;margin-inline-start:calc(calc(var(--spacing)*2)*var(--tw-space-x-reverse));margin-inline-end:calc(calc(var(--spacing)*2)*calc(1 - var(--tw-space-x-reverse)))}.sm\:rounded-xl{border-radius:var(--radius-xl)}.sm\:text-left{text-align:left}}@media(min-width:48rem){.md\:ml-64{margin-left:calc(var(--spacing)*64)}.md\:block{display:block}.md\:flex{display:flex}.md\:hidden{display:none}.md\:h-\[600px\]{height:600px}.md\:w-3\/4{width:75%}.md\:w-8{width:calc(var(--spacing)*8)}.md\:w-16{width:calc(var(--spacing)*16)}.md\:w-64{width:calc(var(--spacing)*64)}.md\:w-auto{width:auto}.md\:grid-cols-2{grid-template-columns:repeat(2,minmax(0,1fr))}.md\:flex-col{flex-direction:column}.md\:flex-row{flex-direction:row}.md\:items-baseline{align-items:baseline}.md\:items-end{align-items:flex-end}.md\:gap-3{gap:calc(var(--spacing)*3)}.md\:gap-8{gap:calc(var(--spacing)*8)}.md\:gap-10{gap:calc(var(--spacing)*10)}.md\:gap-16{gap:calc(var(--spacing)*16)}:where(.md\:space-y-4>:not(:last-child)){--tw-space-y-reverse:0;margin-block-start:calc(calc(var(--spacing)*4)*var(--tw-space-y-reverse));margin-block-end:calc(calc(var(--spacing)*4)*calc(1 - var(--tw-space-y-reverse)))}:where(.md\:space-y-8>:not(:last-child)){--tw-space-y-reverse:0;margin-block-start:calc(calc(var(--spacing)*8)*var(--tw-space-y-reverse));margin-block-end:calc(calc(var(--spacing)*8)*calc(1 - var(--tw-space-y-reverse)))}:where(.md\:space-y-24>:not(:last-child)){--tw-space-y-reverse:0;margin-block-start:calc(calc(var(--spacing)*24)*var(--tw-space-y-reverse));margin-block-end:calc(calc(var(--spacing)*24)*calc(1 - var(--tw-space-y-reverse)))}.md\:overflow-visible{overflow:visible}.md\:border-r{border-right-style:var(--tw-border-style);border-right-width:1px}.md\:border-b-0{border-bottom-style:var(--tw-border-style);border-bottom-width:0}.md\:p-10{padding:calc(var(--spacing)*10)}.md\:p-12{padding:calc(var(--spacing)*12)}.md\:pt-0{padding-top:calc(var(--spacing)*0)}.md\:pt-12{padding-top:calc(var(--spacing)*12)}.md\:pt-16{padding-top:calc(var(--spacing)*16)}.md\:pr-4{padding-right:calc(var(--spacing)*4)}.md\:pb-0{padding-bottom:calc(var(--spacing)*0)}.md\:pl-2{padding-left:calc(var(--spacing)*2)}.md\:text-3xl{font-size:var(--text-3xl);line-height:var(--tw-leading,var(--text-3xl--line-height))}.md\:text-4xl{font-size:var(--text-4xl);line-height:var(--tw-leading,var(--text-4xl--line-height))}.md\:text-6xl{font-size:var(--text-6xl);line-height:var(--tw-leading,var(--text-6xl--line-height))}.md\:text-8xl{font-size:var(--text-8xl);line-height:var(--tw-leading,var(--text-8xl--line-height))}.md\:text-sm{font-size:var(--text-sm);line-height:var(--tw-leading,var(--text-sm--line-height))}.md\:text-xl{font-size:var(--text-xl);line-height:var(--tw-leading,var(--text-xl--line-height))}.md\:opacity-0{opacity:0}.md\:shadow-none{--tw-shadow:0 0 #0000;box-shadow:var(--tw-inset-shadow),var(--tw-inset-ring-shadow),var(--tw-ring-offset-shadow),var(--tw-ring-shadow),var(--tw-shadow)}}@media(min-width:64rem){.lg\:grid-cols-4{grid-template-columns:repeat(4,minmax(0,1fr))}.lg\:text-6xl{font-size:var(--text-6xl);line-height:var(--tw-leading,var(--text-6xl--line-height))}}.dark\:border-gray-800:where(.dark,.dark *){border-color:var(--color-gray-800)}.dark\:border-gray-900:where(.dark,.dark *){border-color:var(--color-gray-900)}.dark\:bg-black:where(.dark,.dark *){background-color:var(--color-black)}.dark\:bg-black\/60:where(.dark,.dark *){background-color:#0009}@supports (color:color-mix(in lab,red,red)){.dark\:bg-black\/60:where(.dark,.dark *){background-color:color-mix(in oklab,var(--color-black)60%,transparent)}}.dark\:bg-gray-900:where(.dark,.dark *){background-color:var(--color-gray-900)}.dark\:bg-yellow-900\/20:where(.dark,.dark *){background-color:#733e0a33}@supports (color:color-mix(in lab,red,red)){.dark\:bg-yellow-900\/20:where(.dark,.dark *){background-color:color-mix(in oklab,var(--color-yellow-900)20%,transparent)}}.dark\:bg-zinc-900:where(.dark,.dark *){background-color:var(--color-zinc-900)}.dark\:text-gray-100:where(.dark,.dark *){color:var(--color-gray-100)}.dark\:text-gray-400:where(.dark,.dark *){color:var(--color-gray-400)}.dark\:text-gray-600:where(.dark,.dark *){color:var(--color-gray-600)}.dark\:text-gray-700:where(.dark,.dark *){color:var(--color-gray-700)}.dark\:text-red-400:where(.dark,.dark *){color:var(--color-red-400)}.dark\:text-white:where(.dark,.dark *){color:var(--color-white)}.dark\:selection\:bg-gray-800:where(.dark,.dark *) ::-moz-selection{background-color:var(--color-gray-800)}.dark\:selection\:bg-gray-800:where(.dark,.dark *) ::selection{background-color:var(--color-gray-800)}.dark\:selection\:bg-gray-800:where(.dark,.dark *)::-moz-selection{background-color:var(--color-gray-800)}.dark\:selection\:bg-gray-800:where(.dark,.dark *)::selection{background-color:var(--color-gray-800)}@media(hover:hover){.dark\:hover\:bg-gray-800:where(.dark,.dark *):hover{background-color:var(--color-gray-800)}.dark\:hover\:bg-gray-900:where(.dark,.dark *):hover{background-color:var(--color-gray-900)}.dark\:hover\:bg-red-900\/10:where(.dark,.dark *):hover{background-color:#82181a1a}@supports (color:color-mix(in lab,red,red)){.dark\:hover\:bg-red-900\/10:where(.dark,.dark *):hover{background-color:color-mix(in oklab,var(--color-red-900)10%,transparent)}}.dark\:hover\:bg-red-950\/10:where(.dark,.dark *):hover{background-color:#4608091a}@supports (color:color-mix(in lab,red,red)){.dark\:hover\:bg-red-950\/10:where(.dark,.dark *):hover{background-color:color-mix(in oklab,var(--color-red-950)10%,transparent)}}.dark\:hover\:text-white:where(.dark,.dark *):hover{color:var(--color-white)}}.dark\:focus\:border-white:where(.dark,.dark *):focus{border-color:var(--color-white)}.\[\&_svg\]\:pointer-events-none svg{pointer-events:none}.\[\&_svg\]\:size-4 svg{width:calc(var(--spacing)*4);height:calc(var(--spacing)*4)}.\[\&_svg\]\:shrink-0 svg{flex-shrink:0}.\[\&\>span\]\:line-clamp-1>span{-webkit-line-clamp:1;-webkit-box-orient:vertical;display:-webkit-box;overflow:hidden}.\[\&\>svg\]\:size-4>svg{width:calc(var(--spacing)*4);height:calc(var(--spacing)*4)}.\[\&\>svg\]\:shrink-0>svg{flex-shrink:0}}.no-scrollbar::-webkit-scrollbar{display:none}.no-scrollbar{-ms-overflow-style:none;scrollbar-width:none}@keyframes drunkenBlur{0%{filter:blur();transform:translate(0)}25%{filter:blur(1px);transform:translate(1px)}50%{filter:blur(2px);transform:translate(-1px)rotate(1deg)}75%{filter:blur(1px);transform:translate(0)}to{filter:blur();transform:translate(0)}}.glitch-effect{color:red;animation:.3s cubic-bezier(.25,.46,.45,.94) infinite both glitch}@keyframes glitch{0%{transform:translate(0)}20%{transform:translate(-2px,2px)}40%{transform:translate(-2px,-2px)}60%{transform:translate(2px,2px)}80%{transform:translate(2px,-2px)}to{transform:translate(0)}}@property --tw-translate-x{syntax:"*";inherits:false;initial-value:0}@property --tw-translate-y{syntax:"*";inherits:false;initial-value:0}@property --tw-translate-z{syntax:"*";inherits:false;initial-value:0}@property --tw-rotate-x{syntax:"*";inherits:false}@property --tw-rotate-y{syntax:"*";inherits:false}@property --tw-rotate-z{syntax:"*";inherits:false}@property --tw-skew-x{syntax:"*";inherits:false}@property --tw-skew-y{syntax:"*";inherits:false}@property --tw-space-y-reverse{syntax:"*";inherits:false;initial-value:0}@property --tw-border-style{syntax:"*";inherits:false;initial-value:solid}@property --tw-leading{syntax:"*";inherits:false}@property --tw-font-weight{syntax:"*";inherits:false}@property --tw-tracking{syntax:"*";inherits:false}@property --tw-shadow{syntax:"*";inherits:false;initial-value:0 0 #0000}@property --tw-shadow-color{syntax:"*";inherits:false}@property --tw-shadow-alpha{syntax:"<percentage>";inherits:false;initial-value:100%}@property --tw-inset-shadow{syntax:"*";inherits:false;initial-value:0 0 #0000}@property --tw-inset-shadow-color{syntax:"*";inherits:false}@property --tw-inset-shadow-alpha{syntax:"<percentage>";inherits:false;initial-value:100%}@property --tw-ring-color{syntax:"*";inherits:false}@property --tw-ring-shadow{syntax:"*";inherits:false;initial-value:0 0 #0000}@property --tw-inset-ring-color{syntax:"*";inherits:false}@property --tw-inset-ring-shadow{syntax:"*";inherits:false;initial-value:0 0 #0000}@property --tw-ring-inset{syntax:"*";inherits:false}@property --tw-ring-offset-width{syntax:"<length>";inherits:false;initial-value:0}@property --tw-ring-offset-color{syntax:"*";inherits:false;initial-value:#fff}@property --tw-ring-offset-shadow{syntax:"*";inherits:false;initial-value:0 0 #0000}@property --tw-outline-style{syntax:"*";inherits:false;initial-value:solid}@property --tw-blur{syntax:"*";inherits:false}@property --tw-brightness{syntax:"*";inherits:false}@property --tw-contrast{syntax:"*";inherits:false}@property --tw-grayscale{syntax:"*";inherits:false}@property --tw-hue-rotate{syntax:"*";inherits:false}@property --tw-invert{syntax:"*";inherits:false}@property --tw-opacity{syntax:"*";inherits:false}@property --tw-saturate{syntax:"*";inherits:false}@property --tw-sepia{syntax:"*";inherits:false}@property --tw-drop-shadow{syntax:"*";inherits:false}@property --tw-drop-shadow-color{syntax:"*";inherits:false}@property --tw-drop-shadow-alpha{syntax:"<percentage>";inherits:false;initial-value:100%}@property --tw-drop-shadow-size{syntax:"*";inherits:false}@property --tw-backdrop-blur{syntax:"*";inherits:false}@property --tw-backdrop-brightness{syntax:"*";inherits:false}@property --tw-backdrop-contrast{syntax:"*";inherits:false}@property --tw-backdrop-grayscale{syntax:"*";inherits:false}@property --tw-backdrop-hue-rotate{syntax:"*";inherits:false}@property --tw-backdrop-invert{syntax:"*";inherits:false}@property --tw-backdrop-opacity{syntax:"*";inherits:false}@property --tw-backdrop-saturate{syntax:"*";inherits:false}@property --tw-backdrop-sepia{syntax:"*";inherits:false}@property --tw-duration{syntax:"*";inherits:false}@property --tw-ease{syntax:"*";inherits:false}@property --tw-space-x-reverse{syntax:"*";inherits:false;initial-value:0}@keyframes spin{to{transform:rotate(360deg)}}@keyframes pulse{50%{opacity:.5}}
-
-## metadata.json
-{
-  "name": "PolskiMining",
-  "description": "A local-first, spaced-repetition flashcard app for learning Polish through sentence mining.",
-  "requestFramePermissions": []
-}
-## package.json
-{
-  "name": "linguaflow",
-  "private": true,
-  "version": "0.0.0",
-  "type": "module",
-  "scripts": {
-    "dev": "vite",
-    "build": "vite build",
-    "preview": "vite preview",
-    "test": "vitest"
-  },
-  "dependencies": {
-    "clsx": "^2.1.1",
-    "date-fns": "^4.1.0",
-    "idb": "^8.0.3",
-    "lucide-react": "^0.554.0",
-    "react": "^19.2.0",
-    "react-dom": "^19.2.0",
-    "react-router-dom": "^7.9.6",
-    "react-window": "^2.2.3",
-    "recharts": "^3.4.1",
-    "sonner": "^2.0.7",
-    "tailwind-merge": "^3.4.0",
-    "ts-fsrs": "^5.2.3",
-    "uuid": "^13.0.0"
-  },
-  "devDependencies": {
-    "@tailwindcss/postcss": "^4.1.17",
-    "@testing-library/dom": "^10.4.1",
-    "@testing-library/jest-dom": "^6.9.1",
-    "@testing-library/react": "^16.3.0",
-    "@testing-library/user-event": "^14.6.1",
-    "@types/node": "^24.10.1",
-    "@types/react-window": "^1.8.8",
-    "@vitejs/plugin-react": "^5.1.1",
-    "autoprefixer": "^10.4.22",
-    "fake-indexeddb": "^6.2.5",
-    "jsdom": "^27.2.0",
-    "postcss": "^8.5.6",
-    "tailwindcss": "^4.1.17",
-    "typescript": "^5.9.3",
-    "vite": "^7.2.2",
-    "vitest": "^4.0.10"
-  },
-  "overrides": {
-    "react-window": {
-      "react": "$react",
-      "react-dom": "$react-dom"
-    }
-  }
-}
-
 ## src/App.tsx
 import React from 'react';
 import { BrowserRouter } from 'react-router-dom';
@@ -300,16 +238,16 @@ import { Link, useLocation } from 'react-router-dom';
 import {
   LayoutDashboard,
   GraduationCap,
-  Plus,
-  Zap,
   List as ListIcon,
   Settings,
-  ChevronUp,
-  Check,
-  Trophy,
-  Skull,
   LogOut,
-  Menu
+  Menu,
+  Plus,
+  Zap,
+  Skull,
+  Trophy,
+  ChevronUp,
+  Check
 } from 'lucide-react';
 import { useSettings } from '@/contexts/SettingsContext';
 import { useAuth } from '@/contexts/AuthContext';
@@ -318,6 +256,7 @@ import { AddCardModal } from '@/features/deck/components/AddCardModal';
 import { SettingsModal } from '@/features/settings/components/SettingsModal';
 import { CramModal } from '@/features/study/components/CramModal';
 import { SabotageStore } from '@/features/sabotage/SabotageStore';
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -325,11 +264,8 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { PolishFlag, NorwegianFlag, JapaneseFlag } from '@/components/ui/flags';
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { toast } from 'sonner';
 import clsx from 'clsx';
-
-declare const __APP_VERSION__: string;
 
 export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { addCard } = useCardOperations();
@@ -352,141 +288,160 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
   const currentLanguage = languages.find(lang => lang.code === settings.language) || languages[0];
 
   const navItems = [
-    { icon: LayoutDashboard, label: 'Overview', path: '/', action: undefined },
-    { icon: GraduationCap, label: 'Study Session', path: '/study', action: undefined },
-    { icon: ListIcon, label: 'Card Index', path: '/cards', action: undefined },
-    { icon: Trophy, label: 'Leaderboard', path: '/leaderboard', action: undefined },
-    { type: 'separator' },
-    { icon: Plus, label: 'Add Entry', path: '#', action: () => setIsAddModalOpen(true) },
-    { icon: Zap, label: 'Cram', path: '#', action: () => setIsCramModalOpen(true) },
-    { icon: Skull, label: 'Sabotage', path: '#', action: () => setIsSabotageOpen(true) },
+    { icon: LayoutDashboard, label: 'Overview', path: '/' },
+    { icon: ListIcon, label: 'Index', path: '/cards' },
+    { icon: GraduationCap, label: 'Study', path: '/study' },
+    { icon: Trophy, label: 'Leaderboard', path: '/leaderboard' },
   ];
 
-  const NavigationContent = () => (
-    <div className="flex flex-col h-full">
-       {/* Header */}
-       <div className="p-8 pb-12">
-          <div className="flex items-center gap-3">
-              <div className="w-6 h-6 bg-foreground rounded-full" />
-              <span className="font-bold text-lg tracking-tight">LinguaFlow</span>
+  const Navigation = () => (
+    <div className="flex flex-col h-full py-8 md:py-6">
+      <div className="px-6 mb-12 md:mb-10">
+        <div className="flex items-center gap-3">
+          <div className="w-6 h-6 bg-foreground rounded-sm flex items-center justify-center">
+             <span className="text-background font-bold text-[10px] tracking-tighter">LF</span>
           </div>
-       </div>
+          <span className="font-semibold tracking-tight text-sm">LinguaFlow</span>
+        </div>
+      </div>
 
-       {/* Nav Items */}
-       <nav className="flex-1 px-6 space-y-2">
-          {navItems.map((item, idx) => {
-              if (item.type === 'separator') {
-                  return <div key={idx} className="my-6 border-t border-border/40 mx-2" />;
-              }
+      <nav className="flex-1 px-4 md:px-3 space-y-1 md:space-y-0.5">
+        {navItems.map((item) => {
+          const isActive = location.pathname === item.path;
+          return (
+            <Link
+              key={item.path}
+              to={item.path}
+              className={clsx(
+                "flex items-center gap-4 md:gap-3 px-4 py-4 md:px-3 md:py-2 rounded-md transition-all duration-200 group",
+                isActive 
+                  ? "bg-secondary text-foreground" 
+                  : "text-muted-foreground hover:text-foreground hover:bg-secondary/50"
+              )}
+            >
+              <item.icon className={clsx("w-6 h-6 md:w-4 md:h-4 transition-colors", isActive ? "text-foreground" : "text-muted-foreground group-hover:text-foreground")} strokeWidth={2} />
+              <span className="text-lg md:text-sm font-medium">{item.label}</span>
+            </Link>
+          );
+        })}
+        
+        <div className="pt-8 md:pt-6 pb-4 md:pb-2 px-4 md:px-3">
+          <p className="text-xs md:text-[10px] font-mono uppercase tracking-widest text-muted-foreground/60">Actions</p>
+        </div>
 
-              const isActive = location.pathname === item.path && !item.action;
-              
-              const content = (
-                  <>
-                      <span className={clsx("mr-4", isActive ? "text-foreground" : "text-muted-foreground/70 group-hover:text-foreground")}>
-                          {item.icon && <item.icon size={20} strokeWidth={1.5} />}
-                      </span>
-                      <span className={clsx("font-medium text-sm tracking-tight", isActive ? "text-foreground" : "text-muted-foreground group-hover:text-foreground")}>
-                          {item.label}
-                      </span>
-                  </>
-              );
+        <button
+            onClick={() => setIsAddModalOpen(true)}
+            className="w-full flex items-center gap-4 md:gap-3 px-4 py-4 md:px-3 md:py-2 rounded-md text-muted-foreground hover:text-foreground hover:bg-secondary/50 transition-all duration-200 group"
+        >
+            <Plus className="w-6 h-6 md:w-4 md:h-4" strokeWidth={2} />
+            <span className="text-lg md:text-sm font-medium">Add Entry</span>
+        </button>
+        <button
+            onClick={() => setIsCramModalOpen(true)}
+            className="w-full flex items-center gap-4 md:gap-3 px-4 py-4 md:px-3 md:py-2 rounded-md text-muted-foreground hover:text-foreground hover:bg-secondary/50 transition-all duration-200 group"
+        >
+            <Zap className="w-6 h-6 md:w-4 md:h-4" strokeWidth={2} />
+            <span className="text-lg md:text-sm font-medium">Cram</span>
+        </button>
+        <button
+            onClick={() => setIsSabotageOpen(true)}
+            className="w-full flex items-center gap-4 md:gap-3 px-4 py-4 md:px-3 md:py-2 rounded-md text-muted-foreground hover:text-foreground hover:bg-secondary/50 transition-all duration-200 group"
+        >
+            <Skull className="w-6 h-6 md:w-4 md:h-4" strokeWidth={2} />
+            <span className="text-lg md:text-sm font-medium">Sabotage</span>
+        </button>
+      </nav>
 
-              const className = "group w-full flex items-center py-2 px-2 rounded-lg transition-all duration-200 hover:bg-secondary/50";
+      <div className="px-4 md:px-3 mt-auto space-y-2 md:space-y-1 pb-8 md:pb-0">
+        <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+            <button className="w-full flex items-center justify-between px-4 py-4 md:px-3 md:py-2 rounded-md text-muted-foreground hover:text-foreground hover:bg-secondary/50 transition-all group">
+                <div className="flex items-center gap-4 md:gap-3">
+                    <currentLanguage.Flag className="w-5 h-auto md:w-3.5 rounded-xs grayscale group-hover:grayscale-0 transition-all" />
+                    <span className="text-lg md:text-sm font-medium">{currentLanguage.name}</span>
+                </div>
+                <ChevronUp size={14} className="text-muted-foreground group-hover:text-foreground opacity-50" />
+            </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="start" className="w-56 p-1">
+            {languages.map((lang) => (
+                <DropdownMenuItem
+                key={lang.code}
+                onClick={() => {
+                    updateSettings({ language: lang.code });
+                    toast.success(`Switched to ${lang.name}`);
+                }}
+                className="gap-3 py-2"
+                >
+                <lang.Flag className="w-3.5 h-auto rounded-xs" />
+                <span className="font-medium text-sm">{lang.name}</span>
+                {settings.language === lang.code && <Check size={14} className="ml-auto" />}
+                </DropdownMenuItem>
+            ))}
+            </DropdownMenuContent>
+        </DropdownMenu>
 
-              if (item.action) {
-                  return <button key={item.label} onClick={item.action} className={className}>{content}</button>;
-              }
-
-              return <Link key={item.label} to={item.path} className={className}>{content}</Link>;
-          })}
-       </nav>
-
-       {/* Footer */}
-       <div className="p-6 space-y-4">
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <button className="flex items-center justify-between w-full p-3 rounded-xl bg-secondary/30 hover:bg-secondary/60 transition-colors border border-transparent hover:border-border/50">
-                  <div className="flex items-center gap-3">
-                    <currentLanguage.Flag className="w-5 h-auto rounded-xs" />
-                    <span className="text-sm font-medium">{currentLanguage.name}</span>
-                  </div>
-                  <ChevronUp size={14} className="text-muted-foreground" />
-                </button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="start" className="w-56 p-2">
-                {languages.map((lang) => (
-                  <DropdownMenuItem
-                    key={lang.code}
-                    onClick={() => {
-                      updateSettings({ language: lang.code });
-                      toast.success(`Switched to ${lang.name}`);
-                    }}
-                    className="gap-3 py-2.5"
-                  >
-                    <lang.Flag className="w-4 h-auto rounded-xs" />
-                    <span className="font-medium">{lang.name}</span>
-                    {settings.language === lang.code && <Check size={14} className="ml-auto" />}
-                  </DropdownMenuItem>
-                ))}
-              </DropdownMenuContent>
-            </DropdownMenu>
-
-            <div className="flex items-center justify-between px-2">
-                <button onClick={() => setIsSettingsOpen(true)} className="p-2 text-muted-foreground hover:text-foreground transition-colors">
-                    <Settings size={20} strokeWidth={1.5} />
-                </button>
-                <button onClick={signOut} className="p-2 text-muted-foreground hover:text-destructive transition-colors">
-                    <LogOut size={20} strokeWidth={1.5} />
-                </button>
-            </div>
-            <div className="px-2">
-                <span className="text-[10px] font-mono text-muted-foreground/40 uppercase tracking-widest">v{typeof __APP_VERSION__ !== 'undefined' ? __APP_VERSION__ : 'Dev'}</span>
-            </div>
-       </div>
+        <button
+          onClick={() => setIsSettingsOpen(true)}
+          className="w-full flex items-center gap-4 md:gap-3 px-4 py-4 md:px-3 md:py-2 rounded-md text-muted-foreground hover:text-foreground hover:bg-secondary/50 transition-all"
+        >
+          <Settings className="w-6 h-6 md:w-4 md:h-4" strokeWidth={2} />
+          <span className="text-lg md:text-sm font-medium">Settings</span>
+        </button>
+        <button
+          onClick={signOut}
+          className="w-full flex items-center gap-4 md:gap-3 px-4 py-4 md:px-3 md:py-2 rounded-md text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-all"
+        >
+          <LogOut className="w-6 h-6 md:w-4 md:h-4" strokeWidth={2} />
+          <span className="text-lg md:text-sm font-medium">Sign Out</span>
+        </button>
+      </div>
     </div>
   );
 
   return (
-    <div className="min-h-screen bg-background text-foreground font-sans flex selection:bg-primary/10">
+    <div className="min-h-screen bg-background text-foreground font-sans selection:bg-foreground selection:text-background">
       {/* Desktop Sidebar */}
-      <aside className={clsx(
-        "hidden md:block fixed h-full w-72 z-40 bg-background/50 backdrop-blur-sm border-r border-border/40 transition-all duration-500",
-        isStudyMode ? "-translate-x-full opacity-0" : "translate-x-0 opacity-100"
-      )}>
-        <NavigationContent />
-      </aside>
+      {!isStudyMode && (
+        <aside className="hidden md:block fixed left-0 top-0 h-full w-60 border-r border-border/40 z-30 bg-background/50 backdrop-blur-xl">
+          <Navigation />
+        </aside>
+      )}
 
       {/* Mobile Header */}
-      <div className={clsx(
-        "md:hidden fixed top-0 left-0 right-0 z-40 h-16 bg-background/80 backdrop-blur-md border-b border-border/40 flex items-center justify-between px-6 transition-transform duration-300",
-        isStudyMode && "-translate-y-full"
-      )}>
-         <span className="font-bold tracking-tight">LinguaFlow</span>
-         <Sheet>
+      {!isStudyMode && (
+        <div className="md:hidden fixed top-0 left-0 right-0 h-14 border-b border-border/40 bg-background/80 backdrop-blur-md z-30 flex items-center justify-between px-4">
+          <div className="flex items-center gap-2">
+             <div className="w-5 h-5 bg-foreground rounded-sm flex items-center justify-center">
+                <span className="text-background font-bold text-[8px] tracking-tighter">LF</span>
+             </div>
+             <span className="font-semibold tracking-tight text-sm">LinguaFlow</span>
+          </div>
+          <Sheet>
             <SheetTrigger asChild>
-                <button><Menu size={24} strokeWidth={1.5} /></button>
+              <button className="p-2 -mr-2 text-muted-foreground hover:text-foreground"><Menu size={20} strokeWidth={1.5} /></button>
             </SheetTrigger>
-            <SheetContent side="left" className="p-0 w-72">
-                <NavigationContent />
+            <SheetContent side="top" className="p-0 w-full h-full border-b-0">
+              <Navigation />
             </SheetContent>
-         </Sheet>
-      </div>
+          </Sheet>
+        </div>
+      )}
 
       {/* Main Content */}
       <main className={clsx(
-        "flex-1 min-h-screen transition-all duration-500",
-        !isStudyMode && "md:ml-72 pt-20 md:pt-0"
+        "min-h-screen transition-all duration-300",
+        !isStudyMode ? "md:ml-60 pt-14 md:pt-0" : "p-0"
       )}>
         <div className={clsx(
-            "max-w-7xl mx-auto w-full animate-in fade-in duration-700",
-            isStudyMode ? "p-0 h-screen" : "p-6 md:p-16"
+          "mx-auto w-full h-full",
+          !isStudyMode ? "max-w-6xl p-6 md:p-12 lg:p-16" : ""
         )}>
-            {children}
+          {children}
         </div>
       </main>
 
-      {/* Global Modals */}
+      {/* Modals */}
       <AddCardModal isOpen={isAddModalOpen} onClose={() => setIsAddModalOpen(false)} onAdd={addCard} />
       <SettingsModal isOpen={isSettingsOpen} onClose={() => setIsSettingsOpen(false)} />
       <CramModal isOpen={isCramModalOpen} onClose={() => setIsCramModalOpen(false)} />
@@ -540,12 +495,12 @@ import { cva, type VariantProps } from "class-variance-authority"
 import { cn } from "@/lib/utils"
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-xs font-mono uppercase tracking-wider font-medium transition-all focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
   {
     variants: {
       variant: {
         default:
-          "bg-primary text-primary-foreground shadow hover:bg-primary/90",
+          "bg-primary text-primary-foreground shadow-sm hover:bg-primary/90 border border-transparent",
         destructive:
           "bg-destructive text-destructive-foreground shadow-sm hover:bg-destructive/90",
         outline:
@@ -557,7 +512,7 @@ const buttonVariants = cva(
       },
       size: {
         default: "h-9 px-4 py-2",
-        sm: "h-8 rounded-md px-3 text-xs",
+        sm: "h-8 rounded-md px-3 text-[10px]",
         lg: "h-10 rounded-md px-8",
         icon: "h-9 w-9",
       },
@@ -1673,7 +1628,8 @@ import { toast } from 'sonner';
 interface Profile {
   id: string;
   username: string | null;
-  xp: number;
+  xp: number;     // Lifetime accumulation for Ranking
+  points: number; // Spendable currency for Sabotage
   level: number;
   avatar_url?: string | null;
   updated_at?: string | null;
@@ -1687,6 +1643,7 @@ interface AuthContextType {
   signOut: () => Promise<void>;
   signInWithEmail: (email: string, password: string) => Promise<void>;
   signUpWithEmail: (email: string, password: string, username: string) => Promise<void>;
+  updateUsername: (username: string) => Promise<void>;
   loading: boolean;
 }
 
@@ -1749,13 +1706,21 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       return;
     }
 
-    setProfile(data as Profile);
+    // Ensure points exists, default to 0 if column is missing or null
+    const safeData = {
+        ...data,
+        points: data.points ?? 0
+    };
+
+    setProfile(safeData as Profile);
   };
 
   const signInWithGoogle = async () => {
+    const redirectTo = window.location.origin;
+    
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
-      options: { redirectTo: window.location.origin },
+      options: { redirectTo },
     });
 
     if (error) {
@@ -1795,9 +1760,25 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
+  const updateUsername = async (newUsername: string) => {
+    if (!user) return;
+
+    const { error } = await supabase
+      .from('profiles')
+      .update({ username: newUsername })
+      .eq('id', user.id);
+
+    if (error) {
+      toast.error('Failed to update username');
+      throw error;
+    }
+
+    setProfile((prev) => (prev ? { ...prev, username: newUsername } : null));
+  };
+
   return (
     <AuthContext.Provider
-      value={{ session, user, profile, signInWithGoogle, signOut, signInWithEmail, signUpWithEmail, loading }}
+      value={{ session, user, profile, signInWithGoogle, signOut, signInWithEmail, signUpWithEmail, updateUsername, loading }}
     >
       {children}
     </AuthContext.Provider>
@@ -1818,6 +1799,7 @@ import React, {
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
 } from 'react';
 import { format } from 'date-fns';
@@ -1829,21 +1811,17 @@ import { JAPANESE_BEGINNER_DECK } from '@/features/deck/data/japaneseBeginnerDec
 import { useSettings } from './SettingsContext';
 import { useAuth } from './AuthContext';
 import { getSRSDate } from '@/features/study/logic/srs';
-import {
-  saveAllCards,
-  saveCard,
-  getDueCards,
-} from '@/services/db/repositories/cardRepository';
-import {
-  getHistory as fetchHistory,
-  incrementHistory,
-} from '@/services/db/repositories/historyRepository';
-import {
-  getStats as fetchStats,
-  getTodayReviewStats,
-} from '@/services/db/repositories/statsRepository';
-import { supabase } from '@/lib/supabase';
+import { useQueryClient } from '@tanstack/react-query';
+import { saveAllCards } from '@/services/db/repositories/cardRepository';
 import { applyStudyLimits, isNewCard } from '@/services/studyLimits';
+import {
+  useDeckStatsQuery,
+  useDueCardsQuery,
+  useReviewsTodayQuery,
+  useHistoryQuery,
+  useRecordReviewMutation,
+  useUndoReviewMutation,
+} from '@/features/deck/hooks/useDeckQueries';
 
 interface DeckContextValue {
   history: ReviewHistory;
@@ -1866,109 +1844,58 @@ const languageLabel = (language: string) => {
 };
 
 export const DeckProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const queryClient = useQueryClient();
   const { settings } = useSettings();
   const { user } = useAuth();
-  const [history, setHistory] = useState<ReviewHistory>({});
-  const [stats, setStats] = useState<DeckStats>({
-    total: 0,
-    due: 0,
-    newDue: 0,
-    reviewDue: 0,
-    learned: 0,
-    streak: 0,
-    totalReviews: 0,
-    longestStreak: 0,
-  });
-  const [reviewsToday, setReviewsToday] = useState({ newCards: 0, reviewCards: 0 });
-  const [isLoading, setIsLoading] = useState(true);
-  const [dataVersion, setDataVersion] = useState(0);
+  
+  // Queries
+  const { data: dbStats, isLoading: statsLoading } = useDeckStatsQuery();
+  const { data: dueCards, isLoading: dueCardsLoading } = useDueCardsQuery();
+  const { data: reviewsToday, isLoading: reviewsLoading } = useReviewsTodayQuery();
+  const { data: history, isLoading: historyLoading } = useHistoryQuery();
+  
+  // Mutations
+  const recordReviewMutation = useRecordReviewMutation();
+  const undoReviewMutation = useUndoReviewMutation();
+
   const [lastReview, setLastReview] = useState<{ card: Card; date: string } | null>(null);
 
-  const refreshStats = useCallback(async () => {
-    try {
-      const [dbStats, dueCards, todayReviews] = await Promise.all([
-        fetchStats(settings.language),
-        getDueCards(new Date(), settings.language),
-        getTodayReviewStats(settings.language),
-      ]);
+  const isLoading = statsLoading || dueCardsLoading || reviewsLoading || historyLoading;
 
-      setReviewsToday(todayReviews);
+  // Prevent double loading of beginner deck
+  const isSeeding = useRef(false);
 
-      const limitedCards = applyStudyLimits(dueCards, {
-        dailyNewLimit: settings.dailyNewLimit,
-        dailyReviewLimit: settings.dailyReviewLimit,
-        reviewsToday: todayReviews,
-      });
-
-      const newDue = limitedCards.filter(isNewCard).length;
-      const reviewDue = limitedCards.length - newDue;
-
-      setStats((prev) => ({
-        ...prev,
-        total: dbStats.total,
-        learned: dbStats.learned,
-        due: limitedCards.length,
-        newDue,
-        reviewDue,
-      }));
-    } catch (error) {
-      console.error('Failed to refresh stats', error);
+  // Derived Stats
+  const stats = useMemo<DeckStats>(() => {
+    if (!dbStats || !dueCards || !reviewsToday) {
+      return {
+        total: 0,
+        due: 0,
+        newDue: 0,
+        reviewDue: 0,
+        learned: 0,
+        streak: 0,
+        totalReviews: 0,
+        longestStreak: 0,
+      };
     }
-  }, [settings.language, settings.dailyNewLimit, settings.dailyReviewLimit]);
 
-  const refreshDeckData = useCallback(() => {
-    setDataVersion((version) => version + 1);
-  }, []);
+    const limitedCards = applyStudyLimits(dueCards, {
+      dailyNewLimit: settings.dailyNewLimit,
+      dailyReviewLimit: settings.dailyReviewLimit,
+      reviewsToday: reviewsToday,
+    });
 
-  // Removed local card state management functions as we now use React Query
+    const newDue = limitedCards.filter(isNewCard).length;
+    const reviewDue = limitedCards.length - newDue;
 
-
-  useEffect(() => {
-    const loadData = async () => {
-      setIsLoading(true);
-      try {
-        const loadedHistory = await fetchHistory(settings.language);
-        setHistory(loadedHistory);
-        await refreshStats();
-        
-        // Check if deck is empty and load beginner deck if needed
-        if (user) {
-          const { count } = await supabase
-            .from('cards')
-            .select('*', { count: 'exact', head: true })
-            .eq('language', settings.language)
-            .eq('user_id', user.id);
-            
-          if (count === 0) {
-            const deck =
-              settings.language === 'norwegian'
-                ? NORWEGIAN_BEGINNER_DECK
-                : settings.language === 'japanese'
-                ? JAPANESE_BEGINNER_DECK
-                : BEGINNER_DECK;
-            await saveAllCards(deck);
-            toast.success(`Loaded Beginner ${languageLabel(settings.language)} course!`);
-            await refreshStats();
-          }
-        }
-      } catch (error) {
-        console.error('Failed to load data from DB', error);
-        toast.error('Failed to load your deck. Please refresh.');
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    loadData();
-  }, [refreshStats, settings.language, dataVersion]);
-
-  useEffect(() => {
-    const sortedDates = Object.keys(history).sort();
+    // Calculate streaks from history
+    const sortedDates = Object.keys(history || {}).sort();
     let currentStreak = 0;
     let longestStreak = 0;
     let tempStreak = 0;
 
-    const totalReviews = Object.values(history).reduce(
+    const totalReviews = Object.values(history || {}).reduce(
       (acc, val) => acc + (typeof val === 'number' ? val : 0),
       0
     );
@@ -1979,7 +1906,7 @@ export const DeckProvider: React.FC<{ children: React.ReactNode }> = ({ children
     srsYesterday.setDate(srsYesterday.getDate() - 1);
     const yesterdayStr = format(srsYesterday, 'yyyy-MM-dd');
 
-    if (history[todayStr]) {
+    if (history?.[todayStr]) {
       currentStreak = 1;
       const checkDate = new Date(srsYesterday);
       while (true) {
@@ -1991,18 +1918,18 @@ export const DeckProvider: React.FC<{ children: React.ReactNode }> = ({ children
           break;
         }
       }
-    } else if (history[yesterdayStr]) {
+    } else if (history?.[yesterdayStr]) {
       currentStreak = 0;
-      const checkDate = new Date(srsYesterday);
-      while (true) {
-        const dateStr = format(checkDate, 'yyyy-MM-dd');
-        if (history[dateStr]) {
-          currentStreak++;
-          checkDate.setDate(checkDate.getDate() - 1);
-        } else {
-          break;
-        }
-      }
+       const checkDate = new Date(srsYesterday);
+       while (true) {
+         const dateStr = format(checkDate, 'yyyy-MM-dd');
+         if (history[dateStr]) {
+           currentStreak++;
+           checkDate.setDate(checkDate.getDate() - 1);
+         } else {
+           break;
+         }
+       }
     }
 
     if (sortedDates.length > 0) {
@@ -2023,115 +1950,103 @@ export const DeckProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
     }
 
-    setStats((prev) => ({
-      ...prev,
+    return {
+      total: dbStats.total,
+      learned: dbStats.learned,
+      due: limitedCards.length,
+      newDue,
+      reviewDue,
       streak: currentStreak,
       totalReviews,
       longestStreak,
-    }));
-  }, [history]);
+    };
+  }, [dbStats, dueCards, reviewsToday, history, settings.dailyNewLimit, settings.dailyReviewLimit]);
 
-  const recordReview = useCallback(
-    async (oldCard: Card, grade: Grade) => {
-      const today = format(getSRSDate(new Date()), 'yyyy-MM-dd');
-      
-      setHistory((prev) => ({
-        ...prev,
-        [today]: (prev[today] || 0) + 1,
-      }));
-      
-      setStats((prev) => ({
-        ...prev,
-        due: Math.max(0, prev.due - 1),
-        newDue: oldCard.status === 'new' ? Math.max(0, prev.newDue - 1) : prev.newDue,
-        reviewDue: oldCard.status !== 'new' ? Math.max(0, prev.reviewDue - 1) : prev.reviewDue,
-        totalReviews: prev.totalReviews + 1,
-      }));
+  // Beginner Deck Loading
+  useEffect(() => {
+    const loadBeginnerDeck = async () => {
+      // Check if we are already seeding to prevent race conditions
+      if (isSeeding.current) return;
 
-      setLastReview({ card: oldCard, date: today });
-      try {
-        await incrementHistory(today, 1, oldCard.language || settings.language);
-        if (user) {
-          const xpAmount =
-            oldCard.status === 'new'
-              ? 50
-              : grade === 'Again'
-              ? 1
-              : grade === 'Hard'
-              ? 5
-              : 10;
+      if (!statsLoading && dbStats && dbStats.total === 0 && user) {
+         // Lock the process
+         isSeeding.current = true;
 
-          void supabase
-            .from('activity_log')
-            .insert({
-              user_id: user.id,
-              activity_type: oldCard.status === 'new' ? 'new_card' : 'review',
-              xp_awarded: xpAmount,
-              language: oldCard.language || settings.language,
-            })
-            .then(({ error }) => {
-              if (error) {
-                console.error('Failed to award XP', error);
-              }
-            });
-        }
-      } catch (error) {
-        console.error(error);
-        // Rollback
-        setHistory((prev) => ({ ...prev, [today]: Math.max(0, (prev[today] || 0) - 1) }));
-        setStats((prev) => ({
-          ...prev,
-          due: prev.due + 1,
-          newDue: oldCard.status === 'new' ? prev.newDue + 1 : prev.newDue,
-          reviewDue: oldCard.status !== 'new' ? prev.reviewDue + 1 : prev.reviewDue,
-          totalReviews: Math.max(0, prev.totalReviews - 1),
-        }));
-        toast.error("Failed to save review progress");
+         const deck =
+              settings.language === 'norwegian'
+                ? NORWEGIAN_BEGINNER_DECK
+                : settings.language === 'japanese'
+                ? JAPANESE_BEGINNER_DECK
+                : BEGINNER_DECK;
+            
+         try {
+            await saveAllCards(deck);
+            toast.success(`Loaded Beginner ${languageLabel(settings.language)} course!`);
+            // Invalidate queries to update UI
+            await Promise.all([
+              queryClient.invalidateQueries({ queryKey: ['deckStats', settings.language] }),
+              queryClient.invalidateQueries({ queryKey: ['dueCards', settings.language] }),
+              queryClient.invalidateQueries({ queryKey: ['cards'] })
+            ]);
+         } catch (e) {
+             console.error("Failed to load beginner deck", e);
+             // Optional: Unlock if failed so it can retry on refresh
+             // isSeeding.current = false; 
+         }
       }
-    },
-    [settings.language, user]
-  );
+    };
+    
+    loadBeginnerDeck();
+  }, [dbStats, statsLoading, user, settings.language, queryClient]);
+
+  const recordReview = useCallback(async (oldCard: Card, grade: Grade) => {
+      const today = format(getSRSDate(new Date()), 'yyyy-MM-dd');
+      setLastReview({ card: oldCard, date: today });
+      
+      try {
+        await recordReviewMutation.mutateAsync({ card: oldCard, grade });
+      } catch (error) {
+          console.error("Failed to record review", error);
+          toast.error("Failed to save review progress");
+          setLastReview(null); // Clear undo if failed
+      }
+  }, [recordReviewMutation]);
 
   const undoReview = useCallback(async () => {
-    if (!lastReview) return;
-    const { card, date } = lastReview;
-    
-    try {
-      await saveCard(card);
-      setHistory((prev) => ({
-        ...prev,
-        [date]: Math.max(0, (prev[date] || 0) - 1),
-      }));
+      if (!lastReview) return;
+      const { card, date } = lastReview;
       
-      setStats((prev) => ({
-        ...prev,
-        due: prev.due + 1,
-        newDue: card.status === 'new' ? prev.newDue + 1 : prev.newDue,
-        reviewDue: card.status !== 'new' ? prev.reviewDue + 1 : prev.reviewDue,
-        totalReviews: Math.max(0, prev.totalReviews - 1),
-      }));
+      try {
+          await undoReviewMutation.mutateAsync({ card, date });
+          setLastReview(null);
+          toast.success('Review undone');
+      } catch (error) {
+          console.error("Failed to undo review", error);
+          toast.error("Failed to undo review");
+      }
+  }, [lastReview, undoReviewMutation]);
 
-      await incrementHistory(date, -1, card.language || settings.language);
-      setLastReview(null);
-      toast.success('Review undone');
-    } catch (error) {
-      console.error(error);
-    }
-  }, [lastReview, settings.language]);
+  const refreshDeckData = useCallback(() => {
+      queryClient.invalidateQueries({ queryKey: ['deckStats'] });
+      queryClient.invalidateQueries({ queryKey: ['dueCards'] });
+      queryClient.invalidateQueries({ queryKey: ['reviewsToday'] });
+      queryClient.invalidateQueries({ queryKey: ['history'] });
+      queryClient.invalidateQueries({ queryKey: ['cards'] });
+  }, [queryClient]);
 
   const value = useMemo(
     () => ({
-      history,
+      history: history || {},
       stats,
-      reviewsToday,
+      reviewsToday: reviewsToday || { newCards: 0, reviewCards: 0 },
       isLoading,
-      dataVersion,
+      dataVersion: 0,
       recordReview,
       undoReview,
       canUndo: !!lastReview,
       refreshDeckData,
     }),
-    [history, stats, reviewsToday, isLoading, dataVersion, recordReview, undoReview, lastReview, refreshDeckData]
+    [history, stats, reviewsToday, isLoading, recordReview, undoReview, lastReview, refreshDeckData]
   );
 
   return <DeckContext.Provider value={value}>{children}</DeckContext.Provider>;
@@ -2392,10 +2307,10 @@ export const AuthPage: React.FC = () => {
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-primary text-primary-foreground h-11 rounded-md font-medium hover:opacity-90 transition-all flex items-center justify-center gap-2 mt-6"
+              className="w-full bg-primary text-primary-foreground h-11 rounded-md text-xs font-mono uppercase tracking-wider hover:opacity-90 transition-all flex items-center justify-center gap-2 mt-6"
             >
               {loading ? (
-                <Loader2 className="animate-spin" size={18} />
+                <Loader2 className="animate-spin" size={16} />
               ) : (
                 <>
                   {isSignUp ? 'Sign Up' : 'Sign In'}
@@ -2417,7 +2332,7 @@ export const AuthPage: React.FC = () => {
           <button
             onClick={signInWithGoogle}
             type="button"
-            className="w-full border border-border h-11 rounded-md font-medium hover:bg-secondary/50 transition-colors flex items-center justify-center gap-2"
+            className="w-full border border-border h-11 rounded-md text-xs font-mono uppercase tracking-wider hover:bg-secondary/50 transition-colors flex items-center justify-center gap-2"
           >
             <svg
               className="w-4 h-4"
@@ -2489,11 +2404,14 @@ export const LoginScreen: React.FC = () => {
 ## src/features/dashboard/components/Dashboard.tsx
 import React from 'react';
 import { DeckStats, ReviewHistory } from '@/types';
-import { Play } from 'lucide-react';
+import { ArrowRight, TrendingUp, Activity, Info } from 'lucide-react';
 import { Heatmap } from './Heatmap';
+import { RetentionStats } from './RetentionStats';
 import { useSettings } from '@/contexts/SettingsContext';
+import { useAuth } from '@/contexts/AuthContext';
 import { useChartColors } from '@/hooks/useChartColors';
-import { BarChart, Bar, Tooltip, ResponsiveContainer } from 'recharts';
+import { format, parseISO } from 'date-fns';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 interface DashboardProps {
   metrics: { new: number; learning: number; graduated: number; known: number };
@@ -2501,13 +2419,17 @@ interface DashboardProps {
   stats: DeckStats;
   history: ReviewHistory;
   onStartSession: () => void;
+  cards: any[]; // Added to pass to RetentionStats
 }
 
-const StatBlock = ({ label, value, colorClass = "text-foreground" }: { label: string, value: string | number, colorClass?: string }) => (
-    <div className="flex flex-col gap-2">
-        <span className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground">{label}</span>
-        <span className={`text-3xl md:text-4xl font-light tracking-tight ${colorClass}`}>{value}</span>
+const StatCard = ({ label, value, subtext }: { label: string; value: string | number; subtext?: string }) => (
+  <div className="flex flex-col gap-1">
+    <span className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground">{label}</span>
+    <div className="flex items-baseline gap-2">
+        <span className="text-4xl font-light tracking-tighter tabular-nums">{value}</span>
+        {subtext && <span className="text-xs text-muted-foreground">{subtext}</span>}
     </div>
+  </div>
 );
 
 export const Dashboard: React.FC<DashboardProps> = ({
@@ -2516,101 +2438,164 @@ export const Dashboard: React.FC<DashboardProps> = ({
   stats,
   history,
   onStartSession,
+  cards
 }) => {
   const { settings } = useSettings();
+  const { profile } = useAuth();
   const colors = useChartColors();
 
   return (
-    <div className="space-y-20 md:space-y-32 pb-20">
+    <div className="space-y-16 animate-in fade-in duration-700 pb-12">
       {/* Hero Section */}
-      <section className="flex flex-col md:flex-row md:items-end justify-between gap-12">
-        <div className="space-y-6">
-            <h1 className="text-[5rem] md:text-[8rem] leading-[0.8] font-bold tracking-tighter text-foreground">
+      <section className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-start">
+        
+        {/* Left Column: Stats & Due */}
+        <div className="lg:col-span-7 space-y-10">
+          
+          {/* Deck Identifier */}
+          <div className="flex items-center gap-3">
+             <div className={`h-1.5 w-1.5 rounded-full bg-primary`} />
+             <span className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground">
+               {settings.language} Deck
+             </span>
+          </div>
+          
+          {/* Main Counter */}
+          <div className="space-y-2">
+            <h1 className="text-7xl sm:text-8xl lg:text-9xl font-light tracking-tighter text-foreground -ml-1">
                 {stats.due}
-                <span className="text-muted-foreground/20 ml-4">Due</span>
             </h1>
-            <div className="flex flex-col gap-1 pl-2">
-                <p className="text-sm text-muted-foreground font-medium">
-                    {settings.language.charAt(0).toUpperCase() + settings.language.slice(1)} Deck
-                </p>
-                <p className="text-[10px] font-mono text-muted-foreground uppercase tracking-widest">
-                    {stats.newDue} New <span className="mx-2 text-border">|</span> {stats.reviewDue} Review
-                </p>
-            </div>
-        </div>
-        
-        <div className="w-full md:w-auto">
-            <button 
-                onClick={onStartSession}
-                disabled={stats.due === 0}
-                className="group relative w-full md:w-auto overflow-hidden rounded-full bg-foreground text-background px-10 py-5 text-lg font-medium transition-all hover:bg-foreground/90 disabled:opacity-30 disabled:cursor-not-allowed"
-            >
-                <span className="flex items-center justify-center gap-3">
-                    Start Session
-                    <Play size={16} fill="currentColor" />
-                </span>
-            </button>
-        </div>
-      </section>
+            <p className="text-xl text-muted-foreground font-light tracking-tight">
+                Cards due for review today
+            </p>
+          </div>
 
-      {/* Metrics Grid */}
-      <section className="grid grid-cols-2 lg:grid-cols-4 gap-x-8 gap-y-12 border-t border-border/40 pt-12">
-        <StatBlock label="New" value={metrics.new} />
-        <StatBlock label="Learning" value={metrics.learning} />
-        <StatBlock label="Review" value={metrics.graduated} />
-        <StatBlock label="Mastered" value={metrics.known} />
-      </section>
+          {/* Breakdown Stats */}
+          <div className="flex gap-12 pt-4">
+             <div className="flex flex-col gap-1">
+                <span className="text-2xl font-medium tabular-nums">{stats.newDue}</span>
+                <span className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground">New</span>
+             </div>
+             <div className="w-px bg-border h-10" />
+             <div className="flex flex-col gap-1">
+                <span className="text-2xl font-medium tabular-nums">{stats.reviewDue}</span>
+                <span className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground">Review</span>
+             </div>
+          </div>
+        </div>
 
-      {/* Visualizations */}
-      <section className="grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-24 border-t border-border/40 pt-12">
-        
-        {/* Activity */}
-        <div className="space-y-6">
-            <div className="flex items-baseline justify-between">
-                <h3 className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground">Consistency</h3>
-                <span className="text-2xl font-light tracking-tight">{stats.streak} <span className="text-sm text-muted-foreground font-normal">day streak</span></span>
-            </div>
+        {/* Right Column: Actions & User Stats */}
+        <div className="lg:col-span-5 flex flex-col justify-between h-full gap-12">
+            
+            {/* Start Button */}
             <div className="pt-2">
+                <button 
+                    onClick={onStartSession}
+                    disabled={stats.due === 0}
+                    className="group w-full bg-transparent hover:bg-transparent text-foreground transition-all py-2 flex items-center justify-between gap-4 disabled:opacity-50 disabled:cursor-not-allowed border-b border-foreground/20 hover:border-foreground pb-6"
+                >
+                    <span className="font-light tracking-tight text-4xl">Start Session</span>
+                    <ArrowRight size={32} className="group-hover:translate-x-2 transition-transform opacity-50 group-hover:opacity-100" />
+                </button>
+            </div>
+
+            {/* Profile XP / Points Widget */}
+            <div className="grid grid-cols-2 gap-8">
+                <div>
+                    <div className="flex items-center gap-2 mb-2">
+                        <span className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground">Lifetime XP</span>
+                        <TooltipProvider>
+                            <Tooltip>
+                                <TooltipTrigger>
+                                    <Info size={12} className="text-muted-foreground hover:text-foreground transition-colors" />
+                                </TooltipTrigger>
+                                <TooltipContent side="top" className="max-w-xs p-4 bg-popover border-border">
+                                    <div className="space-y-3">
+                                        <p className="font-semibold text-sm">How to earn XP:</p>
+                                        <ul className="text-xs space-y-1.5 text-muted-foreground list-disc pl-3">
+                                            <li><span className="text-foreground font-medium">New Card:</span> +50 XP</li>
+                                            <li><span className="text-foreground font-medium">Review (Good/Easy):</span> +10 XP</li>
+                                            <li><span className="text-foreground font-medium">Review (Hard):</span> +5 XP</li>
+                                            <li><span className="text-foreground font-medium">Review (Again):</span> +1 XP</li>
+                                        </ul>
+                                        <div className="h-px bg-border my-2"/>
+                                        <p className="text-xs text-muted-foreground">
+                                            XP determines your <span className="text-foreground font-medium">Rank</span> and <span className="text-foreground font-medium">Level</span>. It never decreases.
+                                        </p>
+                                    </div>
+                                </TooltipContent>
+                            </Tooltip>
+                        </TooltipProvider>
+                    </div>
+                    <div className="text-3xl font-light tracking-tight tabular-nums">
+                        {profile?.xp?.toLocaleString() ?? 0}
+                    </div>
+                    <div className="text-xs text-muted-foreground mt-1 font-mono">Lvl {profile?.level ?? 1}</div>
+                </div>
+
+                <div>
+                    <div className="flex items-center gap-2 mb-2">
+                        <span className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground">Points</span>
+                        <TooltipProvider>
+                            <Tooltip>
+                                <TooltipTrigger>
+                                    <Info size={12} className="text-muted-foreground hover:text-foreground transition-colors" />
+                                </TooltipTrigger>
+                                <TooltipContent side="top" className="max-w-xs p-4 bg-popover border-border">
+                                    <p className="text-xs text-muted-foreground leading-relaxed">
+                                        Points are earned 1:1 with XP but are a <span className="text-foreground font-medium">spendable currency</span>. Use them in the Sabotage Store to disrupt other learners on the leaderboard.
+                                    </p>
+                                </TooltipContent>
+                            </Tooltip>
+                        </TooltipProvider>
+                    </div>
+                    <div className="text-3xl font-light tracking-tight tabular-nums text-primary">
+                        {profile?.points?.toLocaleString() ?? 0}
+                    </div>
+                    <div className="text-xs text-muted-foreground mt-1 font-mono">Available</div>
+                </div>
+            </div>
+        </div>
+      </section>
+
+      {/* Stats Grid */}
+      <section className="grid grid-cols-2 md:grid-cols-4 gap-12 border-t border-border/50 pt-12">
+        <StatCard label="New Cards" value={metrics.new} />
+        <StatCard label="Learning" value={metrics.learning} />
+        <StatCard label="Graduated" value={metrics.graduated} />
+        <StatCard label="Mastered" value={metrics.known} />
+      </section>
+
+      {/* Analytics Section */}
+      <section className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
+        <div className="space-y-6">
+            <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                    <Activity size={16} className="text-muted-foreground" />
+                    <h3 className="text-lg font-medium tracking-tight">Activity</h3>
+                </div>
+                <div className="flex items-baseline gap-2">
+                    <span className="text-2xl font-light tabular-nums">{stats.streak}</span>
+                    <span className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground">Day Streak</span>
+                </div>
+            </div>
+            <div className="p-6 rounded-2xl border border-border/50 bg-background">
                 <Heatmap history={history} />
             </div>
         </div>
 
-        {/* Forecast */}
         <div className="space-y-6">
-            <div className="flex items-baseline justify-between">
-                <h3 className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground">Forecast</h3>
-                <span className="text-sm text-muted-foreground">Upcoming Load</span>
+            <div className="flex items-center gap-2">
+                <TrendingUp size={16} className="text-muted-foreground" />
+                <h3 className="text-lg font-medium tracking-tight">Retention</h3>
             </div>
-            <div className="h-32 w-full">
-                <ResponsiveContainer width="100%" height="100%">
-                    <BarChart data={forecast}>
-                        <Tooltip 
-                          cursor={{ fill: 'transparent' }}
-                          content={({ active, payload }) => {
-                            if (active && payload && payload.length) {
-                            return (
-                              <div className="bg-foreground text-background text-xs px-2 py-1 rounded font-mono">
-                                {payload[0].value} cards
-                              </div>
-                            );
-                            }
-                            return null;
-                          }}
-                        />
-                        <Bar 
-                            dataKey="count" 
-                            fill={colors.foreground} 
-                            radius={[2, 2, 2, 2]} 
-                            barSize={4}
-                        />
-                    </BarChart>
-                </ResponsiveContainer>
-            </div>
+            <RetentionStats cards={cards} />
         </div>
       </section>
     </div>
   );
 };
+
 
 ## src/features/dashboard/components/Heatmap.tsx
 import React, { useMemo } from 'react';
@@ -2647,27 +2632,27 @@ export const Heatmap: React.FC<HeatmapProps> = ({ history }) => {
   }, [history]);
 
   const getColorClass = (count: number) => {
-    if (count === 0) return 'bg-muted-foreground/20';
-    if (count <= 2) return 'bg-primary/40';
-    if (count <= 5) return 'bg-primary/60';
-    if (count <= 9) return 'bg-primary/80';
+    if (count === 0) return 'bg-secondary';
+    if (count <= 2) return 'bg-primary/30';
+    if (count <= 5) return 'bg-primary/50';
+    if (count <= 9) return 'bg-primary/70';
     return 'bg-primary';
   };
 
   return (
     <TooltipProvider>
-      <div className="w-full overflow-x-auto no-scrollbar">
+      <div className="w-full overflow-x-auto no-scrollbar pb-2">
           <div className="w-max">
-              <div className="grid grid-rows-7 grid-flow-col gap-1">
+              <div className="grid grid-rows-7 grid-flow-col gap-[3px]">
               {calendarData.map((day) => (
-                  <Tooltip key={day.dateKey} delayDuration={100}>
+                  <Tooltip key={day.dateKey} delayDuration={0}>
                       <TooltipTrigger asChild>
                           <div
-                              className={`w-3 h-3 rounded-sm transition-colors duration-200 ${day.inFuture ? 'opacity-0 pointer-events-none' : getColorClass(day.count)}`}
+                              className={`w-2.5 h-2.5 rounded-[1px] transition-colors duration-200 ${day.inFuture ? 'opacity-0 pointer-events-none' : getColorClass(day.count)}`}
                           />
                       </TooltipTrigger>
-                      <TooltipContent className="text-[10px] font-mono bg-primary text-primary-foreground border-none">
-                          {format(day.date, 'MMM d, yyyy')}: <span className="font-bold">{day.count}</span> reviews
+                      <TooltipContent className="text-[10px] font-mono bg-foreground text-background border-none px-2 py-1">
+                          {format(day.date, 'MMM d')}: <span className="font-bold">{day.count}</span>
                       </TooltipContent>
                   </Tooltip>
               ))}
@@ -2678,23 +2663,22 @@ export const Heatmap: React.FC<HeatmapProps> = ({ history }) => {
   );
 };
 ## src/features/dashboard/components/RetentionStats.tsx
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { Card } from '@/types';
 import {
   BarChart,
   Bar,
   XAxis,
   YAxis,
-  CartesianGrid,
   Tooltip,
   ResponsiveContainer,
   Cell,
   PieChart,
   Pie,
-  Legend
 } from 'recharts';
-import { differenceInCalendarDays, parseISO } from 'date-fns';
+import { differenceInCalendarDays, parseISO, format, addDays, addMonths, eachMonthOfInterval } from 'date-fns';
 import { useChartColors } from '@/hooks/useChartColors';
+import clsx from 'clsx';
 
 interface RetentionStatsProps {
   cards: Card[];
@@ -2702,31 +2686,64 @@ interface RetentionStatsProps {
 
 export const RetentionStats: React.FC<RetentionStatsProps> = ({ cards }) => {
   const colors = useChartColors();
-
+  const [forecastRange, setForecastRange] = useState<'7d' | '1m' | '1y'>('7d');
 
   const forecastData = useMemo(() => {
-    const daysToShow = 30;
-    const data = new Array(daysToShow).fill(0).map((_, i) => ({ day: i, count: 0, label: `+${i}d` }));
     const today = new Date();
+    let data: { label: string; count: number; fullDate?: Date }[] = [];
+
+    if (forecastRange === '7d') {
+      data = Array.from({ length: 7 }).map((_, i) => {
+        const date = addDays(today, i);
+        return {
+            label: format(date, 'EEE'),
+            count: 0,
+            fullDate: date
+        };
+      });
+    } else if (forecastRange === '1m') {
+       data = Array.from({ length: 30 }).map((_, i) => {
+        const date = addDays(today, i);
+        return {
+            label: format(date, 'd'),
+            count: 0,
+            fullDate: date
+        };
+      });
+    } else if (forecastRange === '1y') {
+        const months = eachMonthOfInterval({
+            start: today,
+            end: addMonths(today, 11)
+        });
+        data = months.map(date => ({
+            label: format(date, 'MMM'),
+            count: 0,
+            fullDate: date
+        }));
+    }
 
     cards.forEach(card => {
-      if (card.status === 'known' || card.status === 'new') return;
+      if (card.status === 'known' || card.status === 'new' || !card.dueDate) return;
       
       const dueDate = parseISO(card.dueDate);
-      const diff = differenceInCalendarDays(dueDate, today);
+      const diffDays = differenceInCalendarDays(dueDate, today);
       
-      if (diff >= 0 && diff < daysToShow) {
-        data[diff].count++;
+      if (diffDays < 0) return; 
+
+      if (forecastRange === '7d' && diffDays < 7) {
+        data[diffDays].count++;
+      } else if (forecastRange === '1m' && diffDays < 30) {
+        data[diffDays].count++;
+      } else if (forecastRange === '1y') {
+          const monthIndex = data.findIndex(d => d.fullDate && d.fullDate.getMonth() === dueDate.getMonth() && d.fullDate.getFullYear() === dueDate.getFullYear());
+          if (monthIndex !== -1) {
+              data[monthIndex].count++;
+          }
       }
     });
     
-
-    data[0].label = 'Today';
-    data[1].label = 'Tmrw';
-    
     return data;
-  }, [cards]);
-
+  }, [cards, forecastRange]);
 
   const stabilityData = useMemo(() => {
     const buckets = [
@@ -2736,9 +2753,7 @@ export const RetentionStats: React.FC<RetentionStatsProps> = ({ cards }) => {
       { label: '7-14d', min: 7, max: 14, count: 0 },
       { label: '14-30d', min: 14, max: 30, count: 0 },
       { label: '1-3m', min: 30, max: 90, count: 0 },
-      { label: '3-6m', min: 90, max: 180, count: 0 },
-      { label: '6m-1y', min: 180, max: 365, count: 0 },
-      { label: '1y+', min: 365, max: Infinity, count: 0 },
+      { label: '3m+', min: 90, max: Infinity, count: 0 },
     ];
 
     cards.forEach(card => {
@@ -2750,7 +2765,6 @@ export const RetentionStats: React.FC<RetentionStatsProps> = ({ cards }) => {
 
     return buckets;
   }, [cards]);
-
 
   const statusData = useMemo(() => {
     const counts = {
@@ -2772,49 +2786,83 @@ export const RetentionStats: React.FC<RetentionStatsProps> = ({ cards }) => {
       { name: 'Graduated', value: counts.graduated, color: colors.border },
       { name: 'Known', value: counts.known, color: colors.foreground },
     ];
-  }, [cards, colors.primary, colors.muted, colors.border, colors.foreground]);
+  }, [cards, colors]);
+
+  const CustomTooltip = ({ active, payload, label }: any) => {
+    if (active && payload && payload.length) {
+      return (
+        <div className="bg-foreground text-background text-xs p-2 rounded shadow-xl border-none">
+          <p className="font-medium">{label}</p>
+          <p>{payload[0].value} cards</p>
+        </div>
+      );
+    }
+    return null;
+  };
+
+  if (!cards || cards.length === 0) {
+    return (
+      <div className="flex flex-col gap-6">
+        <div className="bg-background p-8 rounded-2xl border border-border/50 flex flex-col items-center justify-center text-center h-64">
+          <p className="text-muted-foreground text-sm">No cards available yet.</p>
+          <p className="text-xs text-muted-foreground/50 mt-1">Add some cards to see your retention stats.</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="space-y-6">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <div className="flex flex-col gap-6">
         {/* Forecast Chart */}
-        <div className="bg-white dark:bg-gray-900 p-6 rounded-xl border border-gray-100 dark:border-gray-800 shadow-sm">
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Upcoming Reviews (30 Days)</h3>
-          <div className="h-64 w-full">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={forecastData}>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={colors.border} opacity={0.5} />
-                <XAxis 
-                  dataKey="label" 
-                  tick={{ fontSize: 10, fill: colors.foreground }} 
-                  interval={2}
-                  axisLine={false}
-                  tickLine={false}
-                />
-                <YAxis 
-                  tick={{ fontSize: 10, fill: colors.foreground }} 
-                  axisLine={false}
-                  tickLine={false}
-                />
-                <Tooltip 
-                  contentStyle={{
-                    borderRadius: '8px',
-                    border: `1px solid ${colors.border}`,
-                    backgroundColor: colors.background,
-                    color: colors.foreground,
-                    boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)'
-                  }}
-                  cursor={{ fill: colors.muted }}
-                />
-                <Bar dataKey="count" fill={colors.primary} radius={[4, 4, 0, 0]} />
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
+        <div className="bg-background p-6 rounded-2xl border border-border/50 flex flex-col">
+            <div className="flex items-center justify-between mb-6">
+                <div>
+                    <h3 className="text-sm font-medium">Upcoming Reviews</h3>
+                    <p className="text-xs text-muted-foreground mt-1">Projected workload</p>
+                </div>
+                <div className="flex bg-secondary/50 rounded-lg p-1 gap-1">
+                    {(['7d', '1m', '1y'] as const).map((range) => (
+                        <button
+                            key={range}
+                            onClick={() => setForecastRange(range)}
+                            className={clsx(
+                                "px-3 py-1 rounded-md text-[10px] font-medium transition-all uppercase tracking-wider",
+                                forecastRange === range 
+                                    ? "bg-background text-foreground shadow-sm" 
+                                    : "text-muted-foreground hover:text-foreground hover:bg-background/50"
+                            )}
+                        >
+                            {range}
+                        </button>
+                    ))}
+                </div>
+            </div>
+            <div className="h-64 w-full">
+                <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={forecastData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                        <XAxis 
+                            dataKey="label" 
+                            tick={{ fontSize: 10, fill: colors.muted }} 
+                            axisLine={false}
+                            tickLine={false}
+                            interval={forecastRange === '1m' ? 2 : 0}
+                            dy={10}
+                        />
+                        <YAxis 
+                            tick={{ fontSize: 10, fill: colors.muted }} 
+                            axisLine={false}
+                            tickLine={false}
+                        />
+                        <Tooltip content={<CustomTooltip />} cursor={{ fill: colors.muted, opacity: 0.2 }} />
+                        <Bar dataKey="count" fill={colors.foreground} radius={[4, 4, 4, 4]} barSize={forecastRange === '1m' ? 8 : 32} />
+                    </BarChart>
+                </ResponsiveContainer>
+            </div>
         </div>
 
         {/* Status Distribution */}
-        <div className="bg-white dark:bg-gray-900 p-6 rounded-xl border border-gray-100 dark:border-gray-800 shadow-sm">
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Card Status</h3>
+        <div className="bg-background p-6 rounded-2xl border border-border/50 flex flex-col">
+          <h3 className="text-sm font-medium mb-6">Card Status</h3>
           <div className="h-64 w-full">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
@@ -2824,61 +2872,53 @@ export const RetentionStats: React.FC<RetentionStatsProps> = ({ cards }) => {
                   cy="50%"
                   innerRadius={60}
                   outerRadius={80}
-                  paddingAngle={5}
+                  paddingAngle={4}
                   dataKey="value"
+                  stroke="none"
                 >
                   {statusData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={entry.color} strokeWidth={0} />
+                    <Cell key={`cell-${index}`} fill={entry.color} />
                   ))}
                 </Pie>
-                <Tooltip 
-                   contentStyle={{
-                     borderRadius: '8px',
-                     border: `1px solid ${colors.border}`,
-                     backgroundColor: colors.background,
-                     color: colors.foreground,
-                     boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)'
-                   }}
-                />
-                <Legend verticalAlign="bottom" height={36} iconType="circle" />
+                <Tooltip content={<CustomTooltip />} />
               </PieChart>
             </ResponsiveContainer>
           </div>
+          <div className="flex flex-wrap justify-center gap-x-6 gap-y-2 mt-6">
+             {statusData.map((entry) => (
+                 <div key={entry.name} className="flex items-center gap-2">
+                     <div className="w-2 h-2 rounded-full" style={{ backgroundColor: entry.color }} />
+                     <span className="text-xs font-medium text-muted-foreground">{entry.name}</span>
+                     <span className="text-xs text-foreground font-mono">{entry.value}</span>
+                 </div>
+             ))}
+          </div>
         </div>
-      </div>
 
       {/* Stability Chart */}
-        <div className="bg-white dark:bg-gray-900 p-6 rounded-xl border border-gray-100 dark:border-gray-800 shadow-sm">
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Memory Stability (Retention Strength)</h3>
-          <p className="text-sm text-gray-500 dark:text-gray-400 mb-6">
-          Shows how long cards are expected to be remembered (90% retention probability). Higher is better.
-        </p>
+        <div className="bg-background p-6 rounded-2xl border border-border/50 flex flex-col">
+          <div className="mb-6">
+            <h3 className="text-sm font-medium">Memory Stability</h3>
+            <p className="text-xs text-muted-foreground mt-1">Retention strength distribution</p>
+          </div>
         <div className="h-64 w-full">
           <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={stabilityData}>
-              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={colors.border} opacity={0.5} />
+            <BarChart data={stabilityData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
               <XAxis 
                 dataKey="label" 
-                tick={{ fontSize: 11, fill: colors.foreground }} 
+                tick={{ fontSize: 10, fill: colors.muted }} 
                 axisLine={false}
                 tickLine={false}
+                interval={0}
+                dy={10}
               />
               <YAxis 
-                tick={{ fontSize: 11, fill: colors.foreground }} 
+                tick={{ fontSize: 10, fill: colors.muted }} 
                 axisLine={false}
                 tickLine={false}
               />
-              <Tooltip 
-                contentStyle={{
-                  borderRadius: '8px',
-                  border: `1px solid ${colors.border}`,
-                  backgroundColor: colors.background,
-                  color: colors.foreground,
-                  boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)'
-                }}
-                cursor={{ fill: colors.muted }}
-              />
-              <Bar dataKey="count" fill={colors.primary} radius={[4, 4, 0, 0]} />
+              <Tooltip content={<CustomTooltip />} cursor={{ fill: colors.muted, opacity: 0.2 }} />
+              <Bar dataKey="count" fill={colors.foreground} radius={[4, 4, 4, 4]} barSize={32} />
             </BarChart>
           </ResponsiveContainer>
         </div>
@@ -3094,7 +3134,7 @@ export const AddCardModal: React.FC<AddCardModalProps> = ({ isOpen, onClose, onA
             <div className="flex justify-end pt-6">
                 <button 
                     type="submit" 
-                    className="flex items-center gap-3 bg-primary text-primary-foreground px-8 py-3 rounded-full text-sm font-medium hover:opacity-90 transition-opacity"
+                    className="flex items-center gap-3 bg-primary text-primary-foreground px-8 py-3 rounded-md text-xs font-mono uppercase tracking-wider hover:opacity-90 transition-opacity"
                 >
                     Save <ArrowRight size={16} />
                 </button>
@@ -3108,8 +3148,10 @@ export const AddCardModal: React.FC<AddCardModalProps> = ({ isOpen, onClose, onA
 import React from 'react';
 import { FixedSizeList as List, ListChildComponentProps } from 'react-window';
 import AutoSizer from 'react-virtualized-auto-sizer';
-import { Pencil, Trash2 } from 'lucide-react';
-import { Card, CardStatus } from '@/types';
+import { MoreHorizontal, Pencil, Trash2 } from 'lucide-react';
+import { Card } from '@/types';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import clsx from 'clsx';
 
 interface CardListProps {
   cards: Card[];
@@ -3118,72 +3160,73 @@ interface CardListProps {
   onDeleteCard: (id: string) => void;
 }
 
-const StatusDot = ({ status }: { status: string }) => {
-    const color = {
-        new: 'bg-blue-500',
-        learning: 'bg-amber-500',
-        graduated: 'bg-emerald-500',
-        known: 'bg-zinc-300 dark:bg-zinc-700'
-    }[status as CardStatus] || 'bg-gray-300';
-
-    return <div className={`w-1.5 h-1.5 rounded-full ${color}`} />;
-};
-
 const Row = ({ index, style, data }: ListChildComponentProps<any>) => {
   const { cards, onEditCard, onDeleteCard } = data;
   const card = cards[index];
-  
   if (!card) return null;
 
+  const statusColors = {
+      new: 'text-blue-500',
+      learning: 'text-amber-500',
+      graduated: 'text-emerald-500',
+      known: 'text-muted-foreground'
+  };
+
   return (
-    <div style={style} className="group flex items-center gap-6 px-2 hover:bg-secondary/30 transition-colors border-b border-border/40">
-      {/* Status */}
-      <div className="w-4 shrink-0 flex justify-center">
-        <StatusDot status={card.status} />
-      </div>
+    <div style={style} className="group flex items-center gap-6 px-4 hover:bg-secondary/30 transition-colors border-b border-border/40">
+      {/* Status Indicator */}
+      <div className={clsx("w-2 h-2 rounded-full shrink-0", 
+          card.status === 'new' ? 'bg-blue-500' :
+          card.status === 'learning' ? 'bg-amber-500' :
+          card.status === 'graduated' ? 'bg-emerald-500' : 'bg-zinc-300 dark:bg-zinc-700'
+      )} />
       
       {/* Content */}
-      <div className="flex-1 min-w-0 py-4">
-          <div className="flex items-baseline gap-3 mb-1">
-            <span className="text-base font-medium tracking-tight text-foreground truncate">
-                {card.targetSentence}
-            </span>
-          </div>
+      <div className="flex-1 min-w-0 py-4 flex flex-col justify-center">
+          <span className="text-base font-normal text-foreground truncate">
+             {card.targetSentence}
+          </span>
           <span className="text-sm text-muted-foreground truncate font-light">
-            {card.nativeTranslation}
+             {card.nativeTranslation}
           </span>
       </div>
 
-      {/* Meta */}
-      <div className="hidden md:flex flex-col items-end w-32 shrink-0 gap-1">
-        <span className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground/60">Due</span>
-        <span className="text-xs font-mono text-muted-foreground">
-            {new Date(card.dueDate).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
+      {/* Metadata - Only show on md+ */}
+      <div className="hidden md:flex flex-col items-end justify-center w-32 shrink-0 gap-1">
+        <span className={clsx("text-[10px] font-mono uppercase tracking-widest", statusColors[card.status as keyof typeof statusColors])}>
+            {card.status}
         </span>
       </div>
       
       {/* Actions */}
-      <div className="w-20 flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-        <button onClick={() => onEditCard(card)} className="p-2 text-muted-foreground hover:text-foreground rounded-md hover:bg-background">
-          <Pencil size={14} />
-        </button>
-        <button onClick={() => onDeleteCard(card.id)} className="p-2 text-muted-foreground hover:text-destructive rounded-md hover:bg-background">
-          <Trash2 size={14} />
-        </button>
+      <div className="w-12 flex items-center justify-end">
+        <DropdownMenu>
+            <DropdownMenuTrigger className="p-2 rounded-md text-muted-foreground hover:text-foreground hover:bg-secondary opacity-0 group-hover:opacity-100 transition-all focus:opacity-100 outline-none">
+                <MoreHorizontal size={16} />
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={() => onEditCard(card)}>
+                    <Pencil size={14} className="mr-2" /> Edit
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => onDeleteCard(card.id)} className="text-destructive focus:text-destructive">
+                    <Trash2 size={14} className="mr-2" /> Delete
+                </DropdownMenuItem>
+            </DropdownMenuContent>
+        </DropdownMenu>
       </div>
     </div>
   );
 };
 
 export const CardList: React.FC<CardListProps> = ({ cards, onEditCard, onDeleteCard }) => (
-    <div className="flex-1 h-full w-full">
+    <div className="flex-1 h-full w-full border-t border-border/40">
       <AutoSizer>
         {({ height, width }) => (
           <List
             height={height}
             width={width}
             itemCount={cards.length}
-            itemSize={88}
+            itemSize={80}
             itemData={{ cards, onEditCard, onDeleteCard }}
             className="no-scrollbar"
           >
@@ -3359,11 +3402,11 @@ export const GenerateCardsModal: React.FC<GenerateCardsModalProps> = ({ isOpen, 
             </div>
 
             <div className="flex justify-end pt-8">
-              <Button onClick={handleGenerate} disabled={loading || !topic} className="w-full md:w-auto rounded-full px-8 py-6 text-md">
+              <Button onClick={handleGenerate} disabled={loading || !topic} className="w-full md:w-auto h-12 px-8">
                 {loading ? (
-                  <><Loader2 className="animate-spin mr-2" size={18} /> Generating...</>
+                  <><Loader2 className="animate-spin mr-2" size={16} /> Generating...</>
                 ) : (
-                  <><Sparkles className="mr-2" size={18} /> Generate Cards</>
+                  <><Sparkles className="mr-2" size={16} /> Generate Cards</>
                 )}
               </Button>
             </div>
@@ -3399,11 +3442,11 @@ export const GenerateCardsModal: React.FC<GenerateCardsModalProps> = ({ isOpen, 
             </div>
 
             <div className="flex items-center justify-between pt-6 border-t border-border">
-                <button onClick={() => setStep('config')} className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+                <button onClick={() => setStep('config')} className="text-xs font-mono uppercase tracking-widest text-muted-foreground hover:text-foreground transition-colors">
                     Back to Config
                 </button>
-                <Button onClick={handleSave} disabled={selectedIndices.size === 0} className="rounded-full px-8 py-6">
-                    Save {selectedIndices.size} Cards <ArrowRight size={18} className="ml-2" />
+                <Button onClick={handleSave} disabled={selectedIndices.size === 0} className="h-12 px-8">
+                    Save {selectedIndices.size} Cards <ArrowRight size={16} className="ml-2" />
                 </Button>
             </div>
           </div>
@@ -3456,445 +3499,8 @@ export const BEGINNER_DECK: Card[] = [
   createCard("On jest w domu.", "He is at home.", "jest", ""),
   createCard("Ona jest w pracy.", "She is at work.", "jest", ""),
   createCard("To jest trudne.", "This is difficult.", "jest", ""),
-
-
-  createCard("Mam pytanie.", "I have a question.", "Mam", ""),
-  createCard("Masz czas?", "Do you have time?", "Masz", ""),
-  createCard("On ma psa.", "He has a dog.", "ma", "Accusative: pies -> psa."),
-  createCard("Ona ma kota.", "She has a cat.", "ma", "Accusative: kot -> kota."),
-  createCard("Nie mam pieniędzy.", "I don't have money.", "mam", "Genitive required after negation."),
-
-
-  createCard("Idę do sklepu.", "I am walking to the store.", "Idę", "Motion on foot."),
-  createCard("Jadę do Krakowa.", "I am going (by vehicle) to Krakow.", "Jadę", "Motion by vehicle."),
-  createCard("Gdzie idziesz?", "Where are you going?", "idziesz", ""),
-  createCard("Idziemy na spacer.", "We are going for a walk.", "Idziemy", ""),
-
-
-  createCard("Chcę kawę.", "I want coffee.", "Chcę", "Accusative: kawa -> kawę."),
-  createCard("Co chcesz robić?", "What do you want to do?", "chcesz", ""),
-  createCard("On chce spać.", "He wants to sleep.", "chce", ""),
-
-
-  createCard("Lubię Polskę.", "I like Poland.", "Lubię", "Accusative: Polska -> Polskę."),
-  createCard("Lubisz czytać?", "Do you like reading?", "Lubisz", ""),
-  createCard("Nie lubię tego.", "I don't like this.", "lubię", "Genitive after negation."),
-
-
-  createCard("Poproszę wodę.", "Water, please.", "wodę", "Accusative: woda -> wodę."),
-  createCard("Smacznego!", "Bon appétit!", undefined, ""),
-  createCard("To jest pyszne.", "This is delicious.", "pyszne", ""),
-  createCard("Jestem głodny.", "I am hungry.", "głodny", "Masculine."),
-  createCard("Chcę jeść.", "I want to eat.", "jeść", ""),
-
-
-  createCard("Która jest godzina?", "What time is it?", "godzina", ""),
-  createCard("Jest pierwsza.", "It is one o'clock.", "pierwsza", ""),
-  createCard("Jeden, dwa, trzy.", "One, two, three.", undefined, ""),
-  createCard("Ile to kosztuje?", "How much does this cost?", "kosztuje", ""),
-
-
-  createCard("Gdzie jest toaleta?", "Where is the toilet?", "toaleta", ""),
-  createCard("Prosto i w prawo.", "Straight and to the right.", "prawo", ""),
-  createCard("W lewo.", "To the left.", "lewo", ""),
-  createCard("Szukam dworca.", "I am looking for the station.", "dworca", "Genitive: dworzec -> dworca."),
-
-
-  createCard("To jest moja matka.", "This is my mother.", "matka", ""),
-  createCard("To jest mój ojciec.", "This is my father.", "ojciec", ""),
-  createCard("Masz rodzeństwo?", "Do you have siblings?", "rodzeństwo", ""),
-
-
-  createCard("Zimno mi.", "I am cold.", "Zimno", ""),
-  createCard("Jest gorąco.", "It is hot.", "gorąco", ""),
-  createCard("Pada deszcz.", "It is raining.", "Pada", ""),
-  createCard("Świeci słońce.", "The sun is shining.", "słońce", ""),
-
-
-  createCard("Jestem naukowcem.", "I am a scientist."),
-  createCard("Jestem inżynierem.", "I am an engineer."),
-  createCard("Jestem specjalistą.", "I am a specialist."),
-  createCard("Jestem studentem.", "I am a student."),
-  createCard("To jest uniwersytet.", "This is the university."),
-  createCard("Studiuję ochronę środowiska.", "I study environmental protection."),
-  createCard("Interesuje mnie ekologia.", "Ecology interests me."),
-  createCard("To jest woda.", "This is water."),
-  createCard("Badam jakość wody.", "I investigate the quality of the water."),
-  createCard("To jest powietrze.", "This is air."),
-  createCard("Analizuję zanieczyszczenie powietrza.", "I analyze the pollution of the air."),
-  createCard("Lubię przyrodę.", "I like nature."),
-
-
-  createCard("Jestem w domu.", "I am at home."),
-  createCard("Idę do domu.", "I am going home."),
-  createCard("Jestem na uniwersytecie.", "I am at the university."),
-  createCard("Idę na uniwersytet.", "I am going to the university."),
-  createCard("Mieszkam w mieście.", "I live in the city."),
-  createCard("Jadę do miasta.", "I am driving to the city."),
-  createCard("To jest Kraków.", "This is Krakow."),
-  createCard("Lubię Kraków.", "I like Krakow."),
-  createCard("Jestem w Krakowie.", "I am in Krakow."),
-
-
-  createCard("Czytam książkę.", "I am reading a book."),
-  createCard("Mam książkę.", "I have a book."),
-  createCard("Szukam książki.", "I am looking for a book."),
-  createCard("Piszę e-mail.", "I am writing an email."),
-  createCard("Wysyłam e-mail.", "I am sending an email."),
-  createCard("Nie mam e-maila.", "I do not have the email."),
-  createCard("Piję kawę.", "I am drinking coffee."),
-  createCard("Nie ma kawy.", "There is no coffee."),
-  createCard("Potrzebuję kawy.", "I need coffee."),
-  createCard("Zamawiam kawę.", "I am ordering coffee."),
-  createCard("Chcę herbatę.", "I want tea."),
-  createCard("Nie chcę herbaty.", "I do not want tea."),
-  createCard("Lubię kawę.", "I like coffee."),
-  createCard("Nie lubię kawy.", "I do not like coffee."),
-  createCard("Jem obiad.", "I am eating lunch."),
-  createCard("Nie jem obiadu.", "I am not eating lunch."),
-  createCard("Widzę problem.", "I see a problem."),
-  createCard("Nie widzę problemu.", "I do not see a problem."),
-
-
-  createCard("To jest słońce.", "This is the sun."),
-  createCard("Widzę słońce.", "I see the sun."),
-  createCard("Nie ma słońca.", "There is no sun."),
-  createCard("To jest deszcz.", "This is rain."),
-  createCard("Pada deszcz.", "It is raining."),
-  createCard("Nie lubię deszczu.", "I do not like rain."),
-  createCard("To jest smog.", "This is smog."),
-  createCard("W mieście jest smog.", "There is smog in the city."),
-  createCard("Badamy smog.", "We are investigating the smog."),
-  createCard("To jest rzeka.", "This is a river."),
-  createCard("Widzę rzekę.", "I see a river."),
-  createCard("Idę nad rzekę.", "I am going to the river."),
-  createCard("To jest las.", "This is a forest."),
-  createCard("Lubię las.", "I like the forest."),
-  createCard("Idziemy na spacer.", "We are going for a walk."),
-  createCard("To jest morze.", "This is the sea."),
-  createCard("Jedziemy nad morze.", "We are going to the seaside."),
-  createCard("Wieje wiatr.", "The wind is blowing."),
-  createCard("To jest ziemia.", "This is earth/soil."),
-  createCard("To jest ogień.", "This is fire."),
-  createCard("Widzę drzewo.", "I see a tree."),
-  createCard("Ptaki śpiewają.", "Birds are singing."),
-
-
-  createCard("To jest laboratorium.", "This is the laboratory."),
-  createCard("Pracuję w laboratorium.", "I work in the laboratory."),
-  createCard("Wchodzę do laboratorium.", "I am entering the laboratory."),
-  createCard("To jest mikroskop.", "This is a microscope."),
-  createCard("Używam mikroskopu.", "I am using a microscope."),
-  createCard("Mam wynik.", "I have a result."),
-  createCard("Szukam wyniku.", "I am looking for the result."),
-  createCard("Piszę raport.", "I am writing a report."),
-  createCard("Analizuję raport.", "I am analyzing the report."),
-  createCard("Wysyłam raport.", "I am sending the report."),
-
-
-  createCard("To jest profesor.", "This is the professor."),
-  createCard("Słucham profesora.", "I am listening to the professor."),
-  createCard("Rozmawiam z profesorem.", "I am talking with the professor."),
-  createCard("To jest koleżanka.", "This is a colleague/friend."),
-  createCard("Lubię koleżankę.", "I like the colleague."),
-  createCard("Idę z koleżanką.", "I am going with the colleague."),
-  createCard("To jest student.", "This is a student."),
-  createCard("Widzę studenta.", "I see the student."),
-  createCard("To jest grupa.", "This is a group."),
-  createCard("Pracuję z grupą.", "I work with the group."),
-  createCard("To jest człowiek.", "This is a human/man."),
-  createCard("Nie znam tego człowieka.", "I do not know that man."),
-  createCard("Widzę ludzi.", "I see people."),
-  createCard("Tam są ludzie.", "There are people there."),
-  createCard("To jest kobieta.", "This is a woman."),
-  createCard("To jest mężczyzna.", "This is a man."),
-  createCard("On jest dobrym człowiekiem.", "He is a good human."),
-  createCard("Wszyscy to wiedzą.", "Everyone knows that."),
-  createCard("Nikt nie wie.", "Nobody knows."),
-  createCard("Kto to jest?", "Who is that?"),
-
-
-  createCard("Jestem tutaj.", "I am here."),
-  createCard("Nie ma mnie tam.", "I am not there."),
-  createCard("Jesteś gotowy?", "Are you ready?"),
-  createCard("On jest w domu.", "He is at home."),
-  createCard("To jest możliwe.", "This is possible."),
-  createCard("To nie jest łatwe.", "This is not easy."),
-  createCard("Wszystko jest w porządku.", "Everything is in order."),
-  createCard("To jest duży problem.", "This is a big problem."),
-  createCard("To jest moja sprawa.", "This is my business."),
-
-
-  createCard("Mam czas.", "I have time."),
-  createCard("Nie mam czasu.", "I do not have time."),
-  createCard("Mam pytanie.", "I have a question."),
-  createCard("Masz rację.", "You are right."),
-  createCard("Co masz?", "What do you have?"),
-  createCard("Chcę to zrobić.", "I want to do this."),
-  createCard("Nie chcę tego robić.", "I do not want to do this."),
-  createCard("Potrzebuję pomocy.", "I need help."),
-  createCard("On ma samochód.", "He has a car."),
-  createCard("Nie mamy pieniędzy.", "We do not have money."),
-  createCard("Wiem to.", "I know this."),
-  createCard("Nie wiem.", "I do not know."),
-  createCard("Wiesz, o co chodzi?", "Do you know what it's about?"),
-  createCard("Rozumiem.", "I understand."),
-  createCard("Nie rozumiem słowa.", "I do not understand the word."),
-  createCard("Mówię po polsku.", "I speak Polish."),
-  createCard("Co mówisz?", "What are you saying?"),
-  createCard("On nic nie mówi.", "He says nothing."),
-  createCard("Myślę, że tak.", "I think so."),
-  createCard("Pamiętam ten dzień.", "I remember that day."),
-
-
-  createCard("Co robisz?", "What are you doing?"),
-  createCard("Nic nie robię.", "I am doing nothing."),
-  createCard("Idę do pracy.", "I am going to work."),
-  createCard("Wracam z pracy.", "I am returning from work."),
-  createCard("Praca jest ważna.", "Work is important."),
-  createCard("Szukam pracy.", "I am looking for work."),
-  createCard("Lubię moją pracę.", "I like my work."),
-  createCard("To działa.", "It works."),
-  createCard("Kupuję chleb.", "I am buying bread."),
-  createCard("Jem śniadanie.", "I am eating breakfast."),
-
-
-  createCard("Jest teraz.", "It is now."),
-  createCard("Teraz idę.", "I am going now."),
-  createCard("Masz chwilę?", "Do you have a moment?"),
-  createCard("To jest koniec.", "This is the end."),
-  createCard("Czekam na ciebie.", "I am waiting for you."),
-  createCard("Jutro będę.", "I will be there tomorrow."),
-  createCard("To było wczoraj.", "That was yesterday."),
-  createCard("Czas to pieniądz.", "Time is money."),
-  createCard("Zawsze tak jest.", "It is always like this."),
-  createCard("Nigdy tego nie robię.", "I never do that."),
-
-
-  createCard("Jadę do domu.", "I am driving home."),
-  createCard("Gdzie jest samochód?", "Where is the car?"),
-  createCard("Nie mam samochodu.", "I do not have a car."),
-  createCard("Idę na nogach.", "I am going on foot."),
-  createCard("To jest długa droga.", "This is a long way."),
-  createCard("Jesteśmy na miejscu.", "We have arrived."),
-  createCard("Czekam na autobus.", "I am waiting for the bus."),
-  createCard("Autobus już jedzie.", "The bus is coming."),
-  createCard("Gdzie idziesz?", "Where are you walking?"),
-  createCard("Wracam zaraz.", "I am returning right away."),
-  createCard("Idź prosto.", "Go straight."),
-  createCard("Skręć w prawo.", "Turn right."),
-  createCard("Skręć w lewo.", "Turn left."),
-  createCard("To jest blisko.", "This is close."),
-  createCard("To jest daleko.", "This is far."),
-  createCard("Patrz w górę.", "Look up."),
-  createCard("Patrz w dół.", "Look down."),
-  createCard("Stoję obok ciebie.", "I am standing next to you."),
-  createCard("Jestem w środku.", "I am inside."),
-  createCard("Czekam na zewnątrz.", "I am waiting outside."),
-
-
-  createCard("To jest dobry pomysł.", "This is a good idea."),
-  createCard("To jest zły pomysł.", "This is a bad idea."),
-  createCard("Mam nowy telefon.", "I have a new phone."),
-  createCard("To jest stary dom.", "This is an old house."),
-  createCard("Ona jest młoda.", "She is young."),
-  createCard("Ten dzień jest długi.", "This day is long."),
-  createCard("Język polski jest trudny.", "The Polish language is difficult."),
-  createCard("To jest proste.", "This is simple."),
-  createCard("Wszystko jest jasne.", "Everything is clear."),
-  createCard("To jest ważne pytanie.", "This is an important question."),
-  createCard("Widzę cię.", "I see you."),
-  createCard("Nie widzę cię.", "I do not see you."),
-  createCard("Słyszysz mnie?", "Do you hear me?"),
-  createCard("Nic nie słyszę.", "I hear nothing."),
-  createCard("Słucham muzyki.", "I am listening to music."),
-  createCard("Patrzę na to.", "I am looking at this."),
-  createCard("Wyglądasz dobrze.", "You look good."),
-  createCard("Czuję to.", "I feel it."),
-  createCard("To dobrze pachnie.", "It smells good."),
-  createCard("Widzę światło.", "I see the light."),
-
-
-  createCard("Daj mi to.", "Give me this."),
-  createCard("Co mi dasz?", "What will you give me?"),
-  createCard("Biorę to.", "I am taking this."),
-  createCard("Zabieram to do domu.", "I am taking this home."),
-  createCard("Daję ci słowo.", "I give you my word."),
-  createCard("Proszę o pomoc.", "I am asking for help."),
-  createCard("Dziękuję za wszystko.", "Thank you for everything."),
-  createCard("To jest dla ciebie.", "This is for you."),
-  createCard("Nie mam nic dla ciebie.", "I have nothing for you."),
-  createCard("Weź to.", "Take this."),
-  createCard("Idę do sklepu.", "I am going to the shop."),
-  createCard("Jestem w sklepie.", "I am in the shop."),
-  createCard("Ile to kosztuje?", "How much does this cost?"),
-  createCard("To jest tanie.", "This is cheap."),
-  createCard("To jest drogie.", "This is expensive."),
-  createCard("Płacę kartą.", "I am paying by card."),
-  createCard("Płacę gotówką.", "I am paying with cash."),
-  createCard("Chcę to kupić.", "I want to buy this."),
-  createCard("Nie mam pieniędzy.", "I do not have money."),
-  createCard("Masz drobne?", "Do you have change?"),
-
-
-  createCard("To jest życie.", "This is life."),
-  createCard("Takie jest życie.", "Such is life."),
-  createCard("Kocham życie.", "I love life."),
-  createCard("Świat jest mały.", "The world is small."),
-  createCard("Mieszkam na świecie.", "I live in the world."),
-  createCard("To jest historia.", "This is history/story."),
-  createCard("Opowiem ci historię.", "I will tell you a story."),
-  createCard("Koniec świata.", "The end of the world."),
-  createCard("Szukam miejsca.", "I am looking for a place."),
-  createCard("To jest moje miejsce.", "This is my place."),
-  createCard("To jest prawda.", "This is the truth."),
-  createCard("Mówię prawdę.", "I speak the truth."),
-  createCard("Mam nadzieję.", "I have hope."),
-  createCard("Wierzę ci.", "I believe you."),
-  createCard("Wierzysz w Boga?", "Do you believe in God?"),
-  createCard("To jest ważne.", "This is important."),
-  createCard("To nie ma znaczenia.", "It doesn't matter."),
-  createCard("Szukam sensu.", "I am looking for meaning."),
-  createCard("To jest błąd.", "This is a mistake."),
-  createCard("Mam pewność.", "I am sure."),
-  createCard("Robię to, bo chcę.", "I do it because I want to."),
-  createCard("Jeśli możesz, zrób to.", "If you can, do it."),
-  createCard("Ale to nie jest prawda.", "But that is not true."),
-  createCard("Albo ja, albo ty.", "Either me or you."),
-  createCard("Więc idziemy.", "So we are going."),
-  createCard("Tylko ty wiesz.", "Only you know."),
-  createCard("Może jutro.", "Maybe tomorrow."),
-  createCard("Nawet on to wie.", "Even he knows that."),
-  createCard("Właśnie to robię.", "I am doing exactly that."),
-  createCard("Dlatego pytam.", "That is why I ask."),
-
-
-  createCard("Dzień jest jasny.", "The day is bright."),
-  createCard("To był dobry dzień.", "It was a good day."),
-  createCard("Cały dzień pracuję.", "I work all day."),
-  createCard("Już jest noc.", "It is already night."),
-  createCard("W nocy śpię.", "At night I sleep."),
-  createCard("Idę spać.", "I am going to sleep."),
-  createCard("Rano piję kawę.", "In the morning I drink coffee."),
-  createCard("Wieczorem jestem w domu.", "In the evening I am at home."),
-  createCard("Spotkamy się wieczorem.", "We will meet in the evening."),
-  createCard("Czekam do rana.", "I am waiting until morning."),
-  createCard("Jest mi zimno.", "I am cold."),
-  createCard("Jest mi ciepło.", "I am warm."),
-  createCard("Jestem głodny.", "I am hungry - male."),
-  createCard("Jestem głodna.", "I am hungry - female."),
-  createCard("Chce mi się pić.", "I am thirsty."),
-  createCard("Jestem zmęczony.", "I am tired."),
-  createCard("Jestem szczęśliwy.", "I am happy."),
-  createCard("On jest smutny.", "He is sad."),
-  createCard("Boję się.", "I am afraid."),
-  createCard("Martwię się o ciebie.", "I worry about you."),
-
-
-  createCard("To jest moja rodzina.", "This is my family."),
-  createCard("Mam dużą rodzinę.", "I have a big family."),
-  createCard("To jest moja matka.", "This is my mother."),
-  createCard("Kocham moją matkę.", "I love my mother."),
-  createCard("To jest mój ojciec.", "This is my father."),
-  createCard("Rozmawiam z ojcem.", "I am talking with father."),
-  createCard("Mam brata.", "I have a brother."),
-  createCard("Nie mam siostry.", "I do not have a sister."),
-  createCard("To są moje dzieci.", "These are my children."),
-  createCard("Bawię się z dziećmi.", "I am playing with the children."),
-  createCard("To jest moja głowa.", "This is my head."),
-  createCard("Boli mnie głowa.", "My head hurts."),
-  createCard("Mam dwie ręce.", "I have two hands."),
-  createCard("Trzymam to w ręce.", "I am holding this in my hand."),
-  createCard("To jest twoje serce.", "This is your heart."),
-  createCard("Masz dobre serce.", "You have a good heart."),
-  createCard("Patrz pod nogi.", "Look under your feet."),
-  createCard("Boli mnie noga.", "My leg hurts."),
-  createCard("Otwórz oczy.", "Open your eyes."),
-  createCard("Jestem zdrowy.", "I am healthy."),
-
-
-  createCard("Co to jest?", "What is this?"),
-  createCard("Gdzie jesteś?", "Where are you?"),
-  createCard("Kiedy wrócisz?", "When will you return?"),
-  createCard("Kiedy masz czas?", "When do you have time?"),
-  createCard("Dlaczego pytasz?", "Why do you ask?"),
-  createCard("Dlaczego nie?", "Why not?"),
-  createCard("Jak się masz?", "How are you?"),
-  createCard("Jak to zrobić?", "How to do this?"),
-  createCard("Jeden raz.", "One time."),
-  createCard("Dwa razy.", "Two times."),
-  createCard("Mam dużo pracy.", "I have a lot of work."),
-  createCard("Masz mało czasu.", "You have little time."),
-  createCard("Daj mi trochę.", "Give me a little."),
-  createCard("To kosztuje dużo.", "This costs a lot."),
-  createCard("Kilka dni temu.", "A few days ago."),
-  createCard("Wszystko albo nic.", "Everything or nothing."),
-  createCard("Tylko jeden.", "Only one."),
-  createCard("Pierwszy raz.", "The first time."),
-
-
-  createCard("To jest mój dom.", "This is my home."),
-  createCard("Idę do pokoju.", "I am going to the room."),
-  createCard("Jestem w pokoju.", "I am in the room."),
-  createCard("To jest stół.", "This is a table."),
-  createCard("Połóż to na stole.", "Put this on the table."),
-  createCard("Gdzie jest klucz?", "Where is the key?"),
-  createCard("Nie mam klucza.", "I do not have the key."),
-  createCard("Otwórz drzwi.", "Open the door."),
-  createCard("Zamknij okno.", "Close the window."),
-  createCard("Gdzie jest mój telefon?", "Where is my phone?"),
-  createCard("Dzwonię do ciebie.", "I am calling you."),
-  createCard("Nie mam internetu.", "I do not have internet."),
-  createCard("Czytasz wiadomości?", "Are you reading the news/messages?"),
-  createCard("Napisz do mnie.", "Write to me."),
-  createCard("To jest zdjęcie.", "This is a photo."),
-  createCard("Robię zdjęcie.", "I am taking a photo."),
-  createCard("Oglądam film.", "I am watching a movie."),
-  createCard("Słucham radia.", "I am listening to the radio."),
-  createCard("Komputer nie działa.", "The computer is not working."),
-  createCard("Muszę się ubrać.", "I must get dressed."),
-  createCard("Masz ładne buty.", "You have nice shoes."),
-  createCard("Zdejmij buty.", "Take off your shoes."),
-  createCard("Gdzie jest moja kurtka?", "Where is my jacket?"),
-  createCard("Włóż płaszcz.", "Put on the coat."),
-  createCard("Lubię ten kolor.", "I like this color."),
-  createCard("To mi pasuje.", "This fits me."),
-  createCard("Kupuję nową koszulę.", "I am buying a new shirt."),
-  createCard("Jesteś gotowa do wyjścia?", "Are you ready to go out?"),
-  createCard("Wyglądasz pięknie.", "You look beautiful."),
-
-
-  createCard("To jest smaczne.", "This is tasty."),
-  createCard("To jest pyszne.", "This is delicious."),
-  createCard("Smacznego!", "Bon appétit!"),
-  createCard("Jem owoce.", "I am eating fruit."),
-  createCard("Lubię warzywa.", "I like vegetables."),
-  createCard("Kup chleb.", "Buy bread."),
-  createCard("Nie jem mięsa.", "I do not eat meat."),
-  createCard("Poproszę wodę.", "Please give me water."),
-  createCard("Daj mi sól.", "Give me the salt."),
-  createCard("Kolacja jest gotowa.", "Dinner is ready."),
-  createCard("Mam bilet.", "I have a ticket."),
-  createCard("Gdzie jest dworzec?", "Where is the station?"),
-  createCard("Pociąg jedzie.", "The train is coming."),
-  createCard("Wsiadam do pociągu.", "I am getting into the train."),
-  createCard("Wysiadam tutaj.", "I am getting off here."),
-  createCard("Spóźnię się.", "I will be late."),
-  createCard("Droga jest wolna.", "The road is clear."),
-  createCard("Jedziesz szybko.", "You are driving fast."),
-  createCard("Jedź wolniej.", "Drive slower."),
-  createCard("Szukam taksówki.", "I am looking for a taxi."),
-  createCard("Dzień dobry.", "Good day."),
-  createCard("Dobry wieczór.", "Good evening."),
-  createCard("Do widzenia.", "Goodbye."),
-  createCard("Miło mi.", "Nice to meet you."),
-  createCard("Przepraszam.", "I apologize/Excuse me."),
-  createCard("Bardzo dziękuję.", "Thank you very much."),
-  createCard("Proszę bardzo.", "You are welcome."),
-  createCard("Nie ma za co.", "You are welcome - informal."),
-  createCard("Jak masz na imię?", "What is your name?"),
-  createCard("Mam na imię...", "My name is...")
 ];
+
 ## src/features/deck/data/japaneseBeginnerDeck.ts
 import { Card } from '@/types';
 import { v4 as uuidv4 } from 'uuid';
@@ -4088,6 +3694,154 @@ export const useCardsQuery = (page = 0, pageSize = 50, searchTerm = '') => {
     placeholderData: keepPreviousData, // Keep previous data while fetching new page
   });
 };
+## src/features/deck/hooks/useDeckQueries.ts
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useSettings } from '@/contexts/SettingsContext';
+import {
+  getStats as fetchStats,
+  getTodayReviewStats,
+} from '@/services/db/repositories/statsRepository';
+import {
+  getHistory as fetchHistory,
+  incrementHistory,
+} from '@/services/db/repositories/historyRepository';
+import { getDueCards, saveCard } from '@/services/db/repositories/cardRepository';
+import { Card, Grade } from '@/types';
+import { getSRSDate } from '@/features/study/logic/srs';
+import { format } from 'date-fns';
+import { supabase } from '@/lib/supabase';
+import { useAuth } from '@/contexts/AuthContext';
+
+export const useDeckStatsQuery = () => {
+  const { settings } = useSettings();
+  return useQuery({
+    queryKey: ['deckStats', settings.language],
+    queryFn: () => fetchStats(settings.language),
+    staleTime: 60 * 1000,
+  });
+};
+
+export const useDueCardsQuery = () => {
+  const { settings } = useSettings();
+  return useQuery({
+    queryKey: ['dueCards', settings.language],
+    queryFn: () => getDueCards(new Date(), settings.language),
+    staleTime: 0, // Always fresh for study
+  });
+};
+
+export const useReviewsTodayQuery = () => {
+  const { settings } = useSettings();
+  return useQuery({
+    queryKey: ['reviewsToday', settings.language],
+    queryFn: () => getTodayReviewStats(settings.language),
+    staleTime: 60 * 1000,
+  });
+};
+
+export const useHistoryQuery = () => {
+  const { settings } = useSettings();
+  return useQuery({
+    queryKey: ['history', settings.language],
+    queryFn: () => fetchHistory(settings.language),
+    staleTime: 5 * 60 * 1000,
+  });
+};
+
+export const useRecordReviewMutation = () => {
+  const queryClient = useQueryClient();
+  const { settings } = useSettings();
+  const { user } = useAuth();
+
+  return useMutation({
+    mutationFn: async ({ card, grade }: { card: Card; grade: Grade }) => {
+      const today = format(getSRSDate(new Date()), 'yyyy-MM-dd');
+      
+      // 1. Increment history in DB
+      await incrementHistory(today, 1, card.language || settings.language);
+      
+      // 2. Award XP if user exists
+      if (user) {
+          const xpAmount =
+            card.status === 'new'
+              ? 50
+              : grade === 'Again'
+              ? 1
+              : grade === 'Hard'
+              ? 5
+              : 10;
+
+          await supabase
+            .from('activity_log')
+            .insert({
+              user_id: user.id,
+              activity_type: card.status === 'new' ? 'new_card' : 'review',
+              xp_awarded: xpAmount,
+              language: card.language || settings.language,
+            });
+      }
+      
+      return { card, grade, today };
+    },
+    onMutate: async ({ card }) => {
+      const today = format(getSRSDate(new Date()), 'yyyy-MM-dd');
+      
+      await queryClient.cancelQueries({ queryKey: ['history', settings.language] });
+      await queryClient.cancelQueries({ queryKey: ['reviewsToday', settings.language] });
+      
+      const previousHistory = queryClient.getQueryData(['history', settings.language]);
+      const previousReviewsToday = queryClient.getQueryData(['reviewsToday', settings.language]);
+      
+      // Optimistically update history
+      queryClient.setQueryData(['history', settings.language], (old: any) => {
+        if (!old) return { [today]: 1 };
+        return { ...old, [today]: (old[today] || 0) + 1 };
+      });
+      
+      // Optimistically update reviewsToday
+      queryClient.setQueryData(['reviewsToday', settings.language], (old: any) => {
+         if (!old) return { newCards: 0, reviewCards: 0 };
+         return {
+             newCards: card.status === 'new' ? old.newCards + 1 : old.newCards,
+             reviewCards: card.status !== 'new' ? old.reviewCards + 1 : old.reviewCards
+         };
+      });
+
+      return { previousHistory, previousReviewsToday };
+    },
+    onError: (err, newTodo, context) => {
+      queryClient.setQueryData(['history', settings.language], context?.previousHistory);
+      queryClient.setQueryData(['reviewsToday', settings.language], context?.previousReviewsToday);
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ['history', settings.language] });
+      queryClient.invalidateQueries({ queryKey: ['reviewsToday', settings.language] });
+      queryClient.invalidateQueries({ queryKey: ['deckStats', settings.language] });
+      queryClient.invalidateQueries({ queryKey: ['dueCards', settings.language] });
+    },
+  });
+};
+
+export const useUndoReviewMutation = () => {
+  const queryClient = useQueryClient();
+  const { settings } = useSettings();
+
+  return useMutation({
+    mutationFn: async ({ card, date }: { card: Card; date: string }) => {
+      await saveCard(card);
+      await incrementHistory(date, -1, card.language || settings.language);
+      return { card, date };
+    },
+    onSuccess: () => {
+       queryClient.invalidateQueries({ queryKey: ['cards'] });
+       queryClient.invalidateQueries({ queryKey: ['history', settings.language] });
+       queryClient.invalidateQueries({ queryKey: ['reviewsToday', settings.language] });
+       queryClient.invalidateQueries({ queryKey: ['deckStats', settings.language] });
+       queryClient.invalidateQueries({ queryKey: ['dueCards', settings.language] });
+    }
+  });
+};
+
 ## src/features/deck/services/ai.ts
 import { supabase } from '@/lib/supabase';
 
@@ -4244,9 +3998,10 @@ export const aiService = {
 };
 ## src/features/leaderboard/Leaderboard.tsx
 import React, { useEffect, useState } from 'react';
-import { Trophy } from 'lucide-react';
+import { Trophy, Info } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import clsx from 'clsx';
 
 interface Profile {
@@ -4304,9 +4059,25 @@ export const Leaderboard: React.FC = () => {
             <Trophy size={20} strokeWidth={1.5} />
             <span className="text-xs font-mono uppercase tracking-widest">Global Rankings</span>
         </div>
-        <h1 className="text-6xl md:text-9xl font-bold tracking-tighter text-foreground leading-[0.85]">
-          Top Miners
-        </h1>
+        
+        <div className="flex items-start gap-4">
+            <h1 className="text-6xl md:text-9xl font-bold tracking-tighter text-foreground leading-[0.85]">
+            Top Miners
+            </h1>
+            <TooltipProvider>
+                <Tooltip>
+                    <TooltipTrigger>
+                        <Info size={24} className="text-muted-foreground hover:text-foreground transition-colors mt-2" />
+                    </TooltipTrigger>
+                    <TooltipContent side="bottom" align="start" className="max-w-xs p-4">
+                        <div className="space-y-2">
+                            <p><span className="font-bold text-primary">XP (Experience):</span> Measures your lifetime learning progress. It determines your Rank and Level. It never decreases.</p>
+                            <p><span className="font-bold text-primary">Points:</span> A spendable currency earned alongside XP. Use Points in the Sabotage Store to mess with other learners.</p>
+                        </div>
+                    </TooltipContent>
+                </Tooltip>
+            </TooltipProvider>
+        </div>
       </header>
 
       {/* Table Header */}
@@ -4314,7 +4085,7 @@ export const Leaderboard: React.FC = () => {
         <div className="col-span-1 text-center">Rank</div>
         <div className="col-span-6">Miner</div>
         <div className="col-span-2">Level</div>
-        <div className="col-span-3 text-right">Total XP</div>
+        <div className="col-span-3 text-right">Lifetime XP</div>
       </div>
 
       {/* List */}
@@ -4381,7 +4152,7 @@ import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
-import { Skull, Type, EyeOff, RefreshCcw, Zap } from 'lucide-react';
+import { Skull, Type, EyeOff, RefreshCcw, Zap, Wallet } from 'lucide-react';
 
 interface Profile {
   id: string;
@@ -4435,6 +4206,12 @@ export const SabotageStore: React.FC<SabotageStoreProps> = ({ isOpen, onClose })
       return;
     }
 
+    // Client-side check (Server should also verify)
+    if ((profile?.points || 0) < cost) {
+        toast.error("Not enough points! Keep reviewing cards.");
+        return;
+    }
+
     setLoading(true);
 
     const { data, error } = await supabase.rpc('buy_curse', {
@@ -4467,8 +4244,13 @@ export const SabotageStore: React.FC<SabotageStoreProps> = ({ isOpen, onClose })
           <Skull /> The Sabotage Store
         </DialogTitle>
 
-        <div className="mb-4 p-2 bg-destructive/10 rounded border border-destructive/20 text-center">
-          Your Balance: <span className="font-mono font-bold text-xl">{profile?.xp ?? 0} XP</span>
+        <div className="mb-4 p-3 bg-destructive/5 rounded-lg border border-destructive/20 text-center flex flex-col items-center gap-1">
+          <span className="text-xs font-mono uppercase tracking-widest text-muted-foreground">Wallet Balance</span>
+          <div className="flex items-center gap-2 text-2xl font-bold">
+            <Wallet className="text-destructive" size={24} />
+            <span>{profile?.points ?? 0} pts</span>
+          </div>
+          <span className="text-[10px] text-muted-foreground">Lifetime XP: {profile?.xp} (Safe from spending)</span>
         </div>
 
         <div className="space-y-4">
@@ -4479,7 +4261,7 @@ export const SabotageStore: React.FC<SabotageStoreProps> = ({ isOpen, onClose })
                 <button
                   key={v.id}
                   onClick={() => setSelectedVictim(v.id)}
-                  className={`px-4 py-2 rounded-full border text-sm whitespace-nowrap transition-all ${
+                  className={`px-4 py-2 rounded-md border text-xs font-mono uppercase tracking-wider whitespace-nowrap transition-all ${
                     selectedVictim === v.id
                       ? 'bg-destructive text-destructive-foreground border-destructive'
                       : 'border-border hover:bg-secondary text-muted-foreground'
@@ -4497,7 +4279,7 @@ export const SabotageStore: React.FC<SabotageStoreProps> = ({ isOpen, onClose })
                 key={curse.id}
                 disabled={loading || !selectedVictim}
                 onClick={() => handlePurchase(curse.id, curse.cost)}
-                className="flex items-center gap-4 p-3 rounded-lg border border-border hover:border-destructive/50 hover:bg-destructive/5 transition-all disabled:opacity-50 text-left group"
+                className="flex items-center gap-4 p-3 rounded-md border border-border hover:border-destructive/50 hover:bg-destructive/5 transition-all disabled:opacity-50 text-left group"
               >
                 <div className="p-2 bg-secondary rounded group-hover:bg-destructive/20 transition-colors">
                   <curse.icon size={20} className="text-destructive" />
@@ -4506,7 +4288,7 @@ export const SabotageStore: React.FC<SabotageStoreProps> = ({ isOpen, onClose })
                   <div className="font-bold text-sm">{curse.name}</div>
                   <div className="text-xs text-muted-foreground">{curse.desc}</div>
                 </div>
-                <div className="font-mono text-destructive text-sm whitespace-nowrap">-{curse.cost} XP</div>
+                <div className="font-mono text-destructive text-sm whitespace-nowrap">-{curse.cost} pts</div>
               </button>
             ))}
           </div>
@@ -4796,17 +4578,41 @@ import { MetaLabel } from '@/components/form/MetaLabel';
 import { Switch } from '@/components/ui/switch';
 import { ColorPicker } from '@/components/ui/color-picker';
 import { useTheme } from '@/contexts/ThemeContext';
+import { Input } from '@/components/ui/input';
 
 interface GeneralSettingsProps {
   localSettings: UserSettings;
   setLocalSettings: React.Dispatch<React.SetStateAction<UserSettings>>;
+  username: string;
+  setUsername: (username: string) => void;
 }
 
-export const GeneralSettings: React.FC<GeneralSettingsProps> = ({ localSettings, setLocalSettings }) => {
+export const GeneralSettings: React.FC<GeneralSettingsProps> = ({ 
+  localSettings, 
+  setLocalSettings,
+  username,
+  setUsername
+}) => {
   const { theme, setTheme } = useTheme();
 
   return (
     <div className="space-y-10 max-w-lg animate-in fade-in slide-in-from-bottom-2 duration-500">
+      <section>
+        <MetaLabel>Profile</MetaLabel>
+        <div className="space-y-2">
+          <div className="text-sm font-medium">Username</div>
+          <Input 
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+            placeholder="Enter your username"
+            className="max-w-xs"
+          />
+          <p className="text-xs text-muted-foreground">
+            This is how you'll appear on the leaderboard.
+          </p>
+        </div>
+      </section>
+
       <section>
         <MetaLabel>Target Language</MetaLabel>
         <EditorialSelect
@@ -4900,10 +4706,11 @@ export const GeneralSettings: React.FC<GeneralSettingsProps> = ({ localSettings,
 };
 ## src/features/settings/components/SettingsModal.tsx
 import React, { useState, useRef, useEffect } from 'react';
-import { Check, AlertCircle, LogOut } from 'lucide-react';
+import { Check, AlertCircle, LogOut, Skull } from 'lucide-react';
 import clsx from 'clsx';
 import { toast } from 'sonner';
 import { v4 as uuidv4 } from 'uuid';
+import { useQueryClient } from '@tanstack/react-query';
 
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import { useSettings } from '@/contexts/SettingsContext';
@@ -5071,10 +4878,13 @@ const signatureForCard = (sentence: string, language: Language) =>
 export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
   const { settings, updateSettings } = useSettings();
     const { refreshDeckData } = useDeck();
-    const { signOut } = useAuth();
+    const { signOut, profile, updateUsername } = useAuth();
+    const queryClient = useQueryClient();
   const [localSettings, setLocalSettings] = useState(settings);
+  const [localUsername, setLocalUsername] = useState('');
   const [activeTab, setActiveTab] = useState<SettingsTab>('general');
   const [confirmResetDeck, setConfirmResetDeck] = useState(false);
+  const [confirmResetAccount, setConfirmResetAccount] = useState(false);
   const [availableVoices, setAvailableVoices] = useState<VoiceOption[]>([]);
   const csvInputRef = useRef<HTMLInputElement>(null);
     const [hasSyncedToCloud, setHasSyncedToCloud] = useState(() => readCloudSyncFlag());
@@ -5088,12 +4898,14 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
 
     if (isOpen) {
         setLocalSettings(settings);
+        setLocalUsername(profile?.username || '');
         setConfirmResetDeck(false);
+        setConfirmResetAccount(false);
         setActiveTab('general');
         loadVoices();
         setHasSyncedToCloud(readCloudSyncFlag());
     }
-  }, [isOpen, settings]);
+  }, [isOpen, settings, profile]);
 
   useEffect(() => {
       const loadVoices = async () => {
@@ -5108,9 +4920,19 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
       return () => clearTimeout(timer);
   }, [localSettings.language, localSettings.tts.provider, localSettings.tts.googleApiKey, localSettings.tts.azureApiKey]);
 
-  const handleSave = () => {
+  const handleSave = async () => {
     const languageChanged = localSettings.language !== settings.language;
     updateSettings(localSettings);
+
+    if (localUsername !== profile?.username) {
+        try {
+            await updateUsername(localUsername);
+        } catch (error) {
+            // Error is handled in updateUsername
+            return;
+        }
+    }
+
     toast.success(languageChanged ? "Language switched." : "Preferences saved.");
     onClose();
   };
@@ -5121,13 +4943,122 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
         return;
     }
     try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) throw new Error("No user found");
+
+        // 1. Fetch current profile stats
+        const { data: currentProfile } = await supabase
+            .from('profiles')
+            .select('xp, points, level')
+            .eq('id', user.id)
+            .single();
+
+        const oldXp = currentProfile?.xp || 0;
+
+        // 2. DELETE logs and history for this language FIRST
         await deleteCardsByLanguage(localSettings.language);
+        await supabase.from('study_history').delete().eq('user_id', user.id).eq('language', localSettings.language);
+        await supabase.from('activity_log').delete().eq('user_id', user.id).eq('language', localSettings.language);
+
+        // 3. Recalculate Total XP from REMAINING logs (Paginated to ensure accuracy)
+        let verifiedXp = 0;
+        let page = 0;
+        const pageSize = 1000;
+
+        while (true) {
+            const { data: logs, error } = await supabase
+                .from('activity_log')
+                .select('xp_awarded')
+                .eq('user_id', user.id)
+                .range(page * pageSize, (page + 1) * pageSize - 1);
+
+            if (error) {
+                console.error("Error fetching logs for recalculation", error);
+                break; // Fail safe, verifiedXp remains what we have so far
+            }
+            
+            if (!logs || logs.length === 0) break;
+
+            const chunkSum = logs.reduce((acc, curr) => acc + (curr.xp_awarded || 0), 0);
+            verifiedXp += chunkSum;
+
+            if (logs.length < pageSize) break;
+            page++;
+        }
+
+        // 4. Calculate Logic for Points (Currency)
+        // If we removed 1000 XP, we should remove 1000 Points.
+        // Delta = OldXP - NewVerifiedXP
+        const xpDelta = Math.max(0, oldXp - verifiedXp);
+        const newPoints = Math.max(0, (currentProfile?.points || 0) - xpDelta);
+        
+        // Simple level recalculation (fallback logic)
+        const newLevel = verifiedXp === 0 ? 1 : (currentProfile?.level || 1); 
+
+        // 5. Update Profile with Verified Values
+        await supabase
+            .from('profiles')
+            .update({ xp: verifiedXp, points: newPoints, level: newLevel })
+            .eq('id', user.id);
+
+        // 6. Re-seed Beginner Deck
         const rawDeck = localSettings.language === 'norwegian' ? NORWEGIAN_BEGINNER_DECK : (localSettings.language === 'japanese' ? JAPANESE_BEGINNER_DECK : BEGINNER_DECK);
         const deck = rawDeck.map(c => ({ ...c, id: uuidv4(), dueDate: new Date().toISOString() }));
         await saveAllCards(deck);
-        window.location.reload();
+        
+        toast.success("Deck reset successfully");
+        
+        // Clear query cache to prevent stale data
+        queryClient.clear();
+        
+        // Small delay to ensure DB writes propagate before reload
+        setTimeout(() => window.location.reload(), 500);
     } catch (e) {
+        console.error(e);
         toast.error("Failed to reset deck");
+    }
+  };
+
+  const handleResetAccount = async () => {
+    if (!confirmResetAccount) {
+        setConfirmResetAccount(true);
+        return;
+    }
+
+    try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) {
+             toast.error("User not found");
+             return;
+        }
+
+        // 1. Delete all cards for user
+        await supabase.from('cards').delete().eq('user_id', user.id);
+
+        // 2. Delete all study history
+        await supabase.from('study_history').delete().eq('user_id', user.id);
+
+        // 3. Delete all activity logs (This resets daily limits)
+        await supabase.from('activity_log').delete().eq('user_id', user.id);
+
+        // 4. Reset Profile Stats (XP, Points, Level)
+        await supabase.from('profiles').update({ xp: 0, points: 0, level: 1 }).eq('id', user.id);
+
+        // 5. Clear local storage settings & sync flags
+        localStorage.removeItem('language_mining_settings');
+        localStorage.removeItem(CLOUD_SYNC_FLAG);
+
+        toast.success("Account reset successfully. Restarting...");
+        
+        // FIX: Clear React Query Cache
+        queryClient.clear();
+
+        // Reload to apply clean state
+        setTimeout(() => window.location.reload(), 1500);
+
+    } catch (error: any) {
+        console.error("Account reset failed", error);
+        toast.error(`Reset failed: ${error.message}`);
     }
   };
 
@@ -5337,7 +5268,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                             key={item.id}
                             onClick={() => setActiveTab(item.id)}
                             className={clsx(
-                                "text-left px-3 py-2 rounded-md text-sm transition-all whitespace-nowrap",
+                                "text-left px-3 py-2 rounded-md text-xs font-mono uppercase tracking-wider transition-all whitespace-nowrap",
                                 activeTab === item.id 
                                     ? "bg-secondary text-foreground font-medium" 
                                     : "text-muted-foreground hover:text-foreground hover:bg-secondary/50"
@@ -5360,7 +5291,12 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
             <div className="flex-1 p-8 md:p-10 overflow-y-auto">
                 
                 {activeTab === 'general' && (
-                    <GeneralSettings localSettings={localSettings} setLocalSettings={setLocalSettings} />
+                    <GeneralSettings 
+                        localSettings={localSettings} 
+                        setLocalSettings={setLocalSettings}
+                        username={localUsername}
+                        setUsername={setLocalUsername}
+                    />
                 )}
 
                 {activeTab === 'audio' && (
@@ -5393,13 +5329,14 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
 
                 {activeTab === 'danger' && (
                     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-500">
-                        <div className="p-6 border border-destructive/20 bg-destructive/5 rounded-lg space-y-4">
+                        {/* Reset Deck */}
+                        <div className="p-6 border border-border bg-secondary/10 rounded-lg space-y-4">
                             <div className="flex items-start gap-3">
-                                <AlertCircle className="text-destructive shrink-0" size={20} />
+                                <AlertCircle className="text-orange-500 shrink-0" size={20} />
                                 <div>
-                                    <h4 className="text-sm font-bold text-destructive uppercase tracking-wide">Reset Deck</h4>
+                                    <h4 className="text-sm font-bold uppercase tracking-wide">Reset Current Deck</h4>
                                     <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
-                                        This will permanently delete all cards for <strong>{localSettings.language}</strong> and reload the beginner course. Review history will be preserved where possible, but card-specific metrics will be lost.
+                                        This will delete all cards, history, XP, and Points earned for <strong>{localSettings.language}</strong> and reload the beginner course.
                                     </p>
                                 </div>
                             </div>
@@ -5408,11 +5345,35 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                                 className={clsx(
                                     "w-full py-3 text-xs font-mono uppercase tracking-widest transition-all rounded",
                                     confirmResetDeck 
+                                        ? "bg-orange-600 text-white hover:bg-orange-700" 
+                                        : "bg-background border border-border hover:bg-secondary"
+                                )}
+                            >
+                                {confirmResetDeck ? "Are you sure? Click to confirm." : "Reset Deck & Progress"}
+                            </button>
+                        </div>
+
+                        {/* Hard Reset Account */}
+                        <div className="p-6 border border-destructive/20 bg-destructive/5 rounded-lg space-y-4">
+                            <div className="flex items-start gap-3">
+                                <Skull className="text-destructive shrink-0" size={20} />
+                                <div>
+                                    <h4 className="text-sm font-bold text-destructive uppercase tracking-wide">Hard Reset Account</h4>
+                                    <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
+                                        <span className="text-destructive font-medium">Warning:</span> This will permanently wipe <strong>ALL</strong> data associated with your user: Cards (all languages), History, XP, Points, and Settings. Your username will be kept.
+                                    </p>
+                                </div>
+                            </div>
+                            <button 
+                                onClick={handleResetAccount}
+                                className={clsx(
+                                    "w-full py-3 text-xs font-mono uppercase tracking-widest transition-all rounded",
+                                    confirmResetAccount 
                                         ? "bg-destructive text-destructive-foreground hover:bg-destructive/90" 
                                         : "bg-background border border-destructive/30 text-destructive hover:bg-destructive hover:text-destructive-foreground"
                                 )}
                             >
-                                {confirmResetDeck ? "Are you sure? Click to confirm." : "Reset Deck Data"}
+                                {confirmResetAccount ? "ABSOLUTELY SURE? CLICK TO WIPE." : "Hard Reset Account"}
                             </button>
                         </div>
                     </div>
@@ -5426,7 +5387,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                         onClose();
                         signOut();
                     }}
-                    className="text-sm text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/10 px-3 py-2 rounded-md transition-colors flex items-center gap-2"
+                    className="text-xs font-mono uppercase tracking-wider text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/10 px-3 py-2 rounded-md transition-colors flex items-center gap-2"
                 >
                     <LogOut size={16} />
                     <span className="hidden sm:inline">Log Out</span>
@@ -5434,13 +5395,13 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                 <div className="flex gap-4 ml-auto">
                     <button 
                         onClick={onClose} 
-                        className="text-sm text-muted-foreground hover:text-foreground px-4 py-2 transition-colors"
+                        className="text-xs font-mono uppercase tracking-wider text-muted-foreground hover:text-foreground px-4 py-2 transition-colors"
                     >
                         Cancel
                     </button>
                     <button 
                         onClick={handleSave} 
-                        className="bg-primary text-primary-foreground px-8 py-2 text-sm font-medium rounded-full hover:opacity-90 transition-all flex items-center gap-2"
+                        className="bg-primary/50 text-primary-foreground border border-primary px-8 py-2 text-xs font-mono uppercase tracking-wider rounded-md hover:bg-primary/70 transition-all flex items-center gap-2"
                     >
                         <Check size={16} /> Save Changes
                     </button>
@@ -5589,7 +5550,6 @@ import { escapeRegExp, parseFurigana } from '@/lib/utils';
 import { ttsService } from '@/services/tts';
 import { useSettings } from '@/contexts/SettingsContext';
 import { Play } from 'lucide-react';
-import { uwuify } from '@/lib/memeUtils';
 
 interface FlashcardProps {
   card: Card;
@@ -5649,8 +5609,8 @@ export const Flashcard: React.FC<FlashcardProps> = ({
         <div className={`${baseClasses} flex flex-wrap justify-center items-end gap-x-1`}>
           {segments.map((segment, i) => (
             segment.furigana ? (
-              <div key={i} className="flex flex-col items-center">
-                <span className="text-sm md:text-lg text-muted-foreground mb-1 select-none">{segment.furigana}</span>
+              <div key={i} className="group flex flex-col items-center">
+                <span className="text-sm md:text-lg text-muted-foreground mb-1 select-none opacity-0 group-hover:opacity-100 transition-opacity">{segment.furigana}</span>
                 <span className={card.targetWord === segment.text ? "text-primary" : ""}>{segment.text}</span>
               </div>
             ) : (
@@ -5678,45 +5638,78 @@ export const Flashcard: React.FC<FlashcardProps> = ({
   }, [displayedSentence, card.targetWord, card.furigana, isRevealed, language]);
 
   return (
-    <div className="w-full max-w-4xl mx-auto flex flex-col items-center justify-center min-h-[60vh] py-12">
-      {/* Audio Control */}
-      <button 
-          onClick={speak}
-          className="mb-12 text-muted-foreground hover:text-foreground transition-colors p-4 rounded-full hover:bg-secondary/50"
-      >
-            <Play size={24} fill="currentColor" className="opacity-50" />
-      </button>
-
+    <div className="w-full max-w-4xl mx-auto flex flex-col items-center justify-center h-full">
       {/* Main Content */}
-      <div className="w-full px-6">
+      <div className="w-full px-6 flex flex-col items-center gap-8">
         {RenderedSentence}
+        
+        {/* Audio Control */}
+        <button 
+            onClick={speak}
+            className="text-muted-foreground hover:text-foreground transition-colors p-4 rounded-full hover:bg-secondary/50"
+        >
+                <Play size={24} fill="currentColor" className="opacity-50" />
+        </button>
       </div>
 
       {/* Back Side / Answer */}
-      <div className={`mt-16 transition-all duration-500 flex flex-col items-center gap-4 ${isFlipped ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8 pointer-events-none'}`}>
-        <div className="h-px w-12 bg-border mb-4" />
-        {showTranslation && (
-            <p className="text-xl md:text-2xl text-muted-foreground font-light text-center max-w-2xl leading-relaxed">
-                {card.nativeTranslation}
-            </p>
-        )}
-        {card.notes && (
-            <p className="text-sm font-mono text-muted-foreground/60 mt-2 max-w-md text-center">
-                {card.notes}
-            </p>
-        )}
-      </div>
+      {/* Conditionally rendering allows the Question to be perfectly centered when answer is hidden */}
+      {isFlipped && (
+        <div className="mt-12 flex flex-col items-center gap-4 animate-in fade-in slide-in-from-bottom-8 duration-500 fill-mode-forwards">
+            <div className="h-px w-12 bg-border mb-4" />
+            {showTranslation && (
+                <p className="text-xl md:text-2xl text-muted-foreground font-light text-center max-w-2xl leading-relaxed">
+                    {card.nativeTranslation}
+                </p>
+            )}
+            {card.notes && (
+                <p className="text-sm font-mono text-muted-foreground/60 mt-2 max-w-md text-center">
+                    {card.notes}
+                </p>
+            )}
+        </div>
+      )}
     </div>
   );
 };
 
 ## src/features/study/components/StudySession.tsx
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { X, Undo2 } from 'lucide-react';
 import { Card, Grade } from '@/types';
 import { useSettings } from '@/contexts/SettingsContext';
 import { Flashcard } from './Flashcard';
 import { useStudySession } from '../hooks/useStudySession';
+import clsx from 'clsx';
+
+const getCardStatus = (card: Card) => {
+  // FSRS State: New=0, Learning=1, Review=2, Relearning=3
+  if (card.state === 0 || (card.state === undefined && card.status === 'new')) 
+    return { text: 'New', className: 'text-blue-500' };
+  if (card.state === 1 || (card.state === undefined && card.status === 'learning')) 
+    return { text: 'Learn', className: 'text-orange-500' };
+  if (card.state === 3) 
+    return { text: 'Relearn', className: 'text-red-500' };
+  return { text: 'Review', className: 'text-green-500' };
+};
+
+const getQueueCounts = (cards: Card[]) => {
+  return cards.reduce(
+    (acc, card) => {
+      if (card.state === 0 || (card.state === undefined && card.status === 'new')) {
+        acc.new++;
+      } else if (card.state === 1 || (card.state === undefined && card.status === 'learning')) {
+        acc.learn++;
+      } else if (card.state === 3) {
+        acc.relearn++;
+      } else {
+        acc.review++;
+      }
+      return acc;
+    },
+    { new: 0, learn: 0, relearn: 0, review: 0 }
+  );
+};
 
 interface StudySessionProps {
   dueCards: Card[];
@@ -5743,7 +5736,6 @@ export const StudySession: React.FC<StudySessionProps> = ({
     isFlipped,
     setIsFlipped,
     sessionComplete,
-    isCurrentCardDue,
     handleGrade,
     handleUndo,
     progress,
@@ -5756,108 +5748,98 @@ export const StudySession: React.FC<StudySessionProps> = ({
     onUndo,
   });
 
-  const stateRef = useRef({
-    sessionComplete,
-    currentCard,
-    isFlipped,
-    canUndo,
-    handleGrade,
-    handleUndo,
-    setIsFlipped
-  });
+  // Calculate remaining counts
+  const counts = useMemo(() => {
+    return getQueueCounts(sessionCards.slice(currentIndex));
+  }, [sessionCards, currentIndex]);
 
-  useEffect(() => {
-    stateRef.current = {
-      sessionComplete,
-      currentCard,
-      isFlipped,
-      canUndo,
-      handleGrade,
-      handleUndo,
-      setIsFlipped
-    };
-  }, [sessionComplete, currentCard, isFlipped, canUndo, handleGrade, handleUndo, setIsFlipped]);
-
+  // Keyboard shortcuts (same as before)
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      const {
-        sessionComplete,
-        currentCard,
-        isFlipped,
-        canUndo,
-        handleGrade,
-        handleUndo,
-        setIsFlipped
-      } = stateRef.current;
-
-      if (sessionComplete && e.key !== 'z') return; 
       if (!currentCard && !sessionComplete) return;
-
-      if (!isFlipped && !sessionComplete) {
-        if (e.code === 'Space') {
-          e.preventDefault();
-          setIsFlipped(true);
-        }
-      } else if (!sessionComplete) {
-        if (e.code === 'Space' || e.key === '2') {
-          e.preventDefault();
-          handleGrade('Good');
-        } else if (e.key === '1') {
-          e.preventDefault();
-          handleGrade('Again');
-        }
+      
+      if (!isFlipped && !sessionComplete && e.code === 'Space') {
+        e.preventDefault();
+        setIsFlipped(true);
+      } else if (isFlipped && !sessionComplete) {
+        if (e.code === 'Space' || e.key === '2') { e.preventDefault(); handleGrade('Good'); }
+        else if (e.key === '1') { e.preventDefault(); handleGrade('Again'); }
+        else if (e.key === '3') { e.preventDefault(); handleGrade('Easy'); }
+        else if (e.key === '4') { e.preventDefault(); handleGrade('Hard'); }
       }
 
-      if (e.key === 'z' && canUndo) {
+      if (e.key === 'z' && canUndo && onUndo) {
         e.preventDefault();
         handleUndo();
       }
+      if (e.key === 'Escape') onExit();
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, []);
-
+  }, [sessionComplete, currentCard, isFlipped, canUndo, handleGrade, handleUndo, setIsFlipped, onUndo, onExit]);
 
   if (sessionComplete) {
     return (
-      <div className="fixed inset-0 z-50 bg-background flex flex-col items-center justify-center">
-        <h2 className="text-3xl font-bold tracking-tight mb-4">Session Complete</h2>
-        <button onClick={onExit} className="text-sm text-muted-foreground hover:text-foreground underline underline-offset-4 transition-colors">
-          Back to Dashboard
-        </button>
+      <div className="fixed inset-0 bg-background flex flex-col items-center justify-center animate-in fade-in duration-500">
+        <h2 className="text-4xl md:text-6xl font-light tracking-tighter mb-8">Session Complete</h2>
+        <div className="flex gap-8">
+            <button onClick={onExit} className="text-sm font-mono uppercase tracking-widest hover:underline">Return Home</button>
+        </div>
       </div>
     );
   }
 
   if (!currentCard) return null;
-  if (!isCurrentCardDue)
-    return (
-      <div className="fixed inset-0 bg-background flex items-center justify-center text-muted-foreground animate-pulse">
-        Waiting for review step...
-      </div>
-    );
 
   return (
     <div className="fixed inset-0 z-50 bg-background flex flex-col">
-      {/* Top Bar */}
-      <div className="w-full h-16 flex justify-between items-center px-8">
-        <button onClick={onExit} className="p-2 -ml-2 text-muted-foreground hover:text-foreground transition-colors">
-          <X size={20} />
-        </button>
-        <div className="flex items-center gap-4">
-            <span className="font-mono text-xs text-muted-foreground tracking-widest">
-                {currentIndex + 1} / {sessionCards.length}
-            </span>
-            {canUndo && (
-                <button onClick={handleUndo} className="text-muted-foreground hover:text-foreground transition-colors">
-                    <Undo2 size={16} />
-                </button>
-            )}
-        </div>
+      {/* Minimal Progress Bar */}
+      <div className="h-1 w-full bg-secondary/30 shrink-0">
+        <div 
+            className="h-full bg-primary transition-all duration-300 ease-out" 
+            style={{ width: `${progress}%` }} 
+        />
       </div>
 
-      {/* Content Area */}
-      <div className="flex-1 flex items-center justify-center p-6">
+      {/* Controls Overlay (Top) */}
+      <div className="absolute top-0 left-0 right-0 p-6 flex justify-between items-start z-50 pointer-events-none">
+         <div className="flex items-center gap-4 font-mono text-xs pointer-events-auto">
+            {/* Dynamic Counters */}
+            <div className="flex gap-6 font-bold">
+                <span className="text-blue-500">{counts.new}</span>
+                <span className="text-red-500">{counts.relearn}</span>
+                <span className="text-orange-500">{counts.learn}</span>
+                <span className="text-green-500">{counts.review}</span>
+            </div>
+
+            {/* Separator */}
+            <span className="text-muted-foreground/30">|</span>
+
+            {/* Current Card Status Label */}
+            {(() => {
+                 const status = getCardStatus(currentCard);
+                 return (
+                     <span className={clsx("font-bold uppercase tracking-wider", status.className)}>
+                         {status.text}
+                     </span>
+                 );
+             })()}
+         </div>
+
+         <div className="flex gap-4 pointer-events-auto">
+            {canUndo && (
+                <button onClick={handleUndo} className="p-2 rounded-full hover:bg-secondary text-muted-foreground hover:text-foreground transition-colors">
+                    <Undo2 size={20} />
+                </button>
+            )}
+            <button onClick={onExit} className="p-2 rounded-full hover:bg-secondary text-muted-foreground hover:text-foreground transition-colors">
+                <X size={20} />
+            </button>
+         </div>
+      </div>
+
+      {/* Main Content - Flex-1 to take up all available space */}
+      <div className="flex-1 w-full flex flex-col items-center justify-center p-6 md:p-12 overflow-hidden relative">
          <Flashcard 
             card={currentCard} 
             isFlipped={isFlipped} 
@@ -5868,39 +5850,33 @@ export const StudySession: React.FC<StudySessionProps> = ({
           />
       </div>
 
-      {/* Bottom Controls (Large touch targets, minimal visuals) */}
-      <div className="h-24 w-full max-w-2xl mx-auto mb-8 px-6">
+      {/* Bottom Actions - Fixed Height */}
+      <div className="h-32 md:h-40 shrink-0 flex items-center justify-center px-6 pb-8">
         {!isFlipped ? (
              <button 
                 onClick={() => setIsFlipped(true)}
-                className="w-full h-full flex items-center justify-center border border-border rounded-xl text-sm font-mono uppercase tracking-widest text-muted-foreground hover:bg-secondary/50 transition-colors"
+                className="w-full max-w-md h-14 rounded-md border border-border/50 hover:border-foreground/50 hover:bg-secondary/50 transition-all text-xs font-mono uppercase tracking-widest text-muted-foreground hover:text-foreground"
              >
-                Reveal
+                Reveal Answer
              </button>
         ) : (
-            <div className="grid grid-cols-2 gap-4 h-full animate-in slide-in-from-bottom-2 fade-in duration-300">
+            <div className="grid grid-cols-2 gap-6 w-full max-w-lg animate-in slide-in-from-bottom-4 fade-in duration-300">
                 <button 
                     onClick={() => handleGrade('Again')}
-                    className="flex flex-col items-center justify-center bg-red-500/10 hover:bg-red-500/20 text-red-600 dark:text-red-400 rounded-xl transition-colors gap-1"
+                    className="group h-16 rounded-md border border-border/50 hover:border-red-500/50 hover:bg-red-500/5 transition-all flex flex-col items-center justify-center gap-1"
                 >
-                    <span className="font-semibold text-lg">Again</span>
-                    <span className="text-[10px] font-mono opacity-70">1</span>
+                    <span className="text-xs font-mono uppercase tracking-wider text-muted-foreground group-hover:text-red-500">Again</span>
+                    <span className="text-[10px] font-mono text-muted-foreground/50">1</span>
                 </button>
-
                 <button 
                     onClick={() => handleGrade('Good')}
-                    className="flex flex-col items-center justify-center bg-primary text-primary-foreground hover:opacity-90 rounded-xl transition-opacity gap-1"
+                    className="group h-16 rounded-md border border-primary/30 hover:border-primary hover:bg-primary/5 transition-all flex flex-col items-center justify-center gap-1"
                 >
-                    <span className="font-semibold text-lg">Good</span>
-                    <span className="text-[10px] font-mono opacity-70">Space</span>
+                    <span className="text-xs font-mono uppercase tracking-wider text-foreground group-hover:text-primary">Good</span>
+                    <span className="text-[10px] font-mono text-muted-foreground/50">Space</span>
                 </button>
             </div>
         )}
-      </div>
-      
-      {/* Progress Line at absolute bottom */}
-      <div className="h-1 w-full bg-secondary">
-        <div className="h-full bg-primary transition-all duration-500 ease-out" style={{ width: `${progress}%` }} />
       </div>
     </div>
   );
@@ -5931,7 +5907,6 @@ export const useStudySession = ({
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isFlipped, setIsFlipped] = useState(false);
   const [sessionComplete, setSessionComplete] = useState(dueCards.length === 0);
-  const [now] = useState(() => new Date());
   const [actionHistory, setActionHistory] = useState<{ addedCard: boolean }[]>([]);
 
   useEffect(() => {
@@ -5945,6 +5920,7 @@ export const useStudySession = ({
 
   const isCurrentCardDue = useMemo(() => {
     if (!currentCard) return false;
+    const now = new Date();
     let due = isCardDue(currentCard, now);
     if (
       currentCard &&
@@ -5957,7 +5933,7 @@ export const useStudySession = ({
       }
     }
     return due;
-  }, [currentCard, currentIndex, now, sessionCards, settings.ignoreLearningStepsWhenNoCards]);
+  }, [currentCard, currentIndex, sessionCards, settings.ignoreLearningStepsWhenNoCards]);
 
   const handleGrade = useCallback(
     (grade: Grade) => {
@@ -6079,6 +6055,13 @@ export const calculateNextReview = (card: Card, grade: Grade, settings?: UserSet
       else currentState = State.Review;
   }
 
+  const lastReviewDate = card.last_review ? new Date(card.last_review) : undefined;
+
+  // If somehow state is Review but no last_review exists, force New to prevent crash
+  if (currentState === State.Review && !lastReviewDate) {
+    currentState = State.New;
+  }
+
   const fsrsCard: FSRSCard = {
     due: new Date(card.dueDate),
     stability: card.stability || 0,
@@ -6088,7 +6071,7 @@ export const calculateNextReview = (card: Card, grade: Grade, settings?: UserSet
     reps: card.reps || 0,
     lapses: card.lapses || 0,
     state: currentState,
-    last_review: card.last_review ? new Date(card.last_review) : undefined
+    last_review: lastReviewDate
   } as FSRSCard;
 
   const rating = mapGradeToRating(grade);
@@ -6110,17 +6093,11 @@ export const calculateNextReview = (card: Card, grade: Grade, settings?: UserSet
     : tentativeStatus;
 
   // Leech Logic
-  const currentLeechCount = card.leechCount || 0;
-  let newLeechCount = 0;
+  const totalLapses = log.lapses;
   let isLeech = card.isLeech || false;
 
-  if (grade === 'Again') {
-    newLeechCount = currentLeechCount + 1;
-    if (newLeechCount > 5) {
-      isLeech = true;
-    }
-  } else {
-    newLeechCount = 0;
+  if (totalLapses > 8) {
+    isLeech = true;
   }
 
   return {
@@ -6138,7 +6115,7 @@ export const calculateNextReview = (card: Card, grade: Grade, settings?: UserSet
     status,
     interval: log.scheduled_days,
     learningStep: undefined, // Clean up legacy/custom field
-    leechCount: newLeechCount,
+    leechCount: totalLapses,
     isLeech
   };
 };
@@ -6195,98 +6172,6 @@ export const useChartColors = () => {
     };
   }, [theme, settings.language, settings.languageColors]);
 };
-## src/index.css
-@import "tailwindcss";
-
-@layer base {
-  :root {
-    --background: 0 0% 100%;
-    --foreground: 240 10% 3.9%;
-    --card: 0 0% 100%;
-    --card-foreground: 240 10% 3.9%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 240 10% 3.9%;
-    --primary: 240 5.9% 10%;
-    --primary-foreground: 0 0% 98%;
-    --secondary: 240 4.8% 95.9%;
-    --secondary-foreground: 240 5.9% 10%;
-    --muted: 240 4.8% 95.9%;
-    --muted-foreground: 240 3.8% 46.1%;
-    --accent: 240 4.8% 95.9%;
-    --accent-foreground: 240 5.9% 10%;
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 240 5.9% 90%;
-    --input: 240 5.9% 90%;
-    --ring: 240 10% 3.9%;
-    --radius: 0.75rem;
-  }
-
-  .dark {
-    --background: 240 10% 3.9%;
-    --foreground: 0 0% 98%;
-    --card: 240 10% 3.9%;
-    --card-foreground: 0 0% 98%;
-    --popover: 240 10% 3.9%;
-    --popover-foreground: 0 0% 98%;
-    --primary: 0 0% 98%;
-    --primary-foreground: 240 5.9% 10%;
-    --secondary: 240 3.7% 15.9%;
-    --secondary-foreground: 0 0% 98%;
-    --muted: 240 3.7% 15.9%;
-    --muted-foreground: 240 5% 64.9%;
-    --accent: 240 3.7% 15.9%;
-    --accent-foreground: 0 0% 98%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 240 3.7% 15.9%;
-    --input: 240 3.7% 15.9%;
-    --ring: 240 4.9% 83.9%;
-  }
-}
-
-@layer base {
-  * {
-    @apply border-border;
-  }
-  body {
-    @apply bg-background text-foreground antialiased;
-    font-feature-settings: "rlig" 1, "calt" 1;
-  }
-  /* Hide scrollbar for Chrome, Safari and Opera */
-  .no-scrollbar::-webkit-scrollbar {
-      display: none;
-  }
-  /* Hide scrollbar for IE, Edge and Firefox */
-  .no-scrollbar {
-      -ms-overflow-style: none;  /* IE and Edge */
-      scrollbar-width: none;  /* Firefox */
-  }
-}
-
-@theme {
-  --color-background: hsl(var(--background));
-  --color-foreground: hsl(var(--foreground));
-  --color-card: hsl(var(--card));
-  --color-card-foreground: hsl(var(--card-foreground));
-  --color-popover: hsl(var(--popover));
-  --color-popover-foreground: hsl(var(--popover-foreground));
-  --color-primary: hsl(var(--primary));
-  --color-primary-foreground: hsl(var(--primary-foreground));
-  --color-secondary: hsl(var(--secondary));
-  --color-secondary-foreground: hsl(var(--secondary-foreground));
-  --color-muted: hsl(var(--muted));
-  --color-muted-foreground: hsl(var(--muted-foreground));
-  --color-accent: hsl(var(--accent));
-  --color-accent-foreground: hsl(var(--accent-foreground));
-  --color-destructive: hsl(var(--destructive));
-  --color-destructive-foreground: hsl(var(--destructive-foreground));
-  --color-border: hsl(var(--border));
-  --color-input: hsl(var(--input));
-  --color-ring: hsl(var(--ring));
-  --radius-DEFAULT: var(--radius);
-}
-
 ## src/lib/memeUtils.ts
 export const uwuify = (text: string) => {
   return text
@@ -6510,31 +6395,29 @@ export const CardsRoute: React.FC = () => {
   };
 
   return (
-    <div className="flex flex-col gap-6 md:gap-8" style={{ height: 'calc(100vh - 120px)' }}>
-      <div className="flex items-center justify-between">
-        <h2 className="text-xl font-bold tracking-tight text-black dark:text-white">Index</h2>
-        
-        <div className="flex gap-3">
-            <button 
-                onClick={() => setIsGenerateModalOpen(true)} 
-                className="flex items-center gap-2 text-xs md:text-sm font-medium text-primary hover:opacity-80 transition-opacity px-3 py-1.5 rounded-full bg-primary/10"
-            >
-                <Sparkles size={14} /> 
-                <span>AI Generator</span>
-            </button>
+    <div className="flex flex-col gap-6 h-[calc(100vh-6rem)]">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 px-1">
+            <h1 className="text-3xl font-light tracking-tight">Index</h1>
+            <div className="flex gap-3">
+                <button onClick={() => setIsGenerateModalOpen(true)} className="text-xs font-mono uppercase tracking-widest border border-border hover:border-foreground px-4 py-2 rounded-md transition-colors">
+                    AI Gen
+                </button>
+                <button onClick={() => setIsAddModalOpen(true)} className="bg-foreground text-background px-4 py-2 rounded-md text-xs font-mono uppercase tracking-widest hover:opacity-90 transition-opacity">
+                    Add Entry
+                </button>
+            </div>
         </div>
-      </div>
-
-      <div className="relative">
-        <Search size={14} className="absolute left-0 top-1/2 -translate-y-1/2 text-gray-400" />
-        <input 
-            type="text"
-            placeholder="Filter entries..."
-            className="w-full bg-transparent border-b border-gray-200 dark:border-gray-800 py-2 pl-6 text-sm outline-none focus:border-black dark:focus:border-white transition-colors placeholder:text-gray-300"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-        />
-      </div>
+        
+        <div className="relative">
+            <Search size={16} className="absolute left-0 top-1/2 -translate-y-1/2 text-muted-foreground" />
+            <input 
+                type="text"
+                placeholder="Search your deck..."
+                className="w-full bg-transparent border-b border-border py-3 pl-8 text-base outline-none focus:border-foreground transition-colors placeholder:text-muted-foreground/50 font-light"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+            />
+        </div>
 
       {isLoading ? (
         <div className="flex-1 flex items-center justify-center">
@@ -6549,15 +6432,15 @@ export const CardsRoute: React.FC = () => {
             onDeleteCard={handleDeleteCard}
           />
           
-          <div className="flex items-center justify-between py-4 border-t border-gray-100 dark:border-gray-800">
-            <span className="text-xs text-gray-500">
+          <div className="flex items-center justify-between pt-4 pb-1 border-t border-border/40">
+            <span className="text-xs text-muted-foreground">
               Showing {cards.length > 0 ? page * pageSize + 1 : 0} - {Math.min((page + 1) * pageSize, totalCount)} of {totalCount}
             </span>
             <div className="flex gap-2">
               <button
                 onClick={() => setPage(p => Math.max(0, p - 1))}
                 disabled={page === 0}
-                className="p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-800 disabled:opacity-50"
+                className="p-1 rounded-md hover:bg-secondary disabled:opacity-50 transition-colors"
               >
                 <ChevronLeft size={16} />
               </button>
@@ -6568,7 +6451,7 @@ export const CardsRoute: React.FC = () => {
                   }
                 }}
                 disabled={isPlaceholderData || (page + 1) * pageSize >= totalCount}
-                className="p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-800 disabled:opacity-50"
+                className="p-1 rounded-md hover:bg-secondary disabled:opacity-50 transition-colors"
               >
                 <ChevronRight size={16} />
               </button>
@@ -6600,18 +6483,24 @@ import { Dashboard } from '@/features/dashboard/components/Dashboard';
 import { useDeck } from '@/contexts/DeckContext';
 import { useSettings } from '@/contexts/SettingsContext';
 import { getDashboardStats } from '@/services/db/repositories/statsRepository';
+import { getAllCardsByLanguage } from '@/services/db/repositories/cardRepository';
 
 export const DashboardRoute: React.FC = () => {
   const { history, stats } = useDeck();
   const { settings } = useSettings();
   const navigate = useNavigate();
 
-  const { data: dashboardStats, isLoading } = useQuery({
+  const { data: dashboardStats, isLoading: isStatsLoading } = useQuery({
     queryKey: ['dashboardStats', settings.language],
     queryFn: () => getDashboardStats(settings.language),
   });
 
-  if (isLoading || !dashboardStats) {
+  const { data: cards, isLoading: isCardsLoading } = useQuery({
+    queryKey: ['allCards', settings.language],
+    queryFn: () => getAllCardsByLanguage(settings.language),
+  });
+
+  if (isStatsLoading || isCardsLoading || !dashboardStats || !cards) {
     return (
       <div className="flex-1 flex items-center justify-center min-h-[50vh]">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
@@ -6626,6 +6515,7 @@ export const DashboardRoute: React.FC = () => {
       stats={stats}
       history={history}
       onStartSession={() => navigate('/study')}
+      cards={cards}
     />
   );
 };
@@ -6882,6 +6772,19 @@ export const getCards = async (): Promise<Card[]> => {
   return (data ?? []).map(mapToCard);
 };
 
+export const getAllCardsByLanguage = async (language: Language): Promise<Card[]> => {
+  const userId = await ensureUser();
+  const { data, error } = await supabase
+    .from('cards')
+    .select('*')
+    .eq('user_id', userId)
+    .eq('language', language)
+    .order('created_at', { ascending: true });
+
+  if (error) throw error;
+  return (data ?? []).map(mapToCard);
+};
+
 export const saveCard = async (card: Card) => {
   const userId = await ensureUser();
   const payload = mapToDB(card, userId);
@@ -6926,7 +6829,7 @@ export const getDueCards = async (now: Date = new Date(), language?: Language): 
     query = query.eq('language', language);
   }
 
-  const { data, error } = await query;
+  const { data, error } = await query.limit(1000);
   if (error) throw error;
   return (data ?? []).map(mapToCard);
 };
@@ -7129,7 +7032,7 @@ export const getDashboardStats = async (language?: string) => {
   const today = new Date();
   const forecast = new Array(daysToShow).fill(0).map((_, i) => ({ 
       day: format(addDays(today, i), 'd'),
-      fullDate: format(addDays(today, i), 'MMM d'),
+      fullDate: addDays(today, i).toISOString(),
       count: 0 
   }));
   
@@ -7701,47 +7604,6 @@ serve(async (req) => {
     )
   }
 })
-## tsconfig.json
-{
-  "compilerOptions": {
-    "target": "ES2022",
-    "experimentalDecorators": true,
-    "useDefineForClassFields": false,
-    "module": "ESNext",
-    "lib": [
-      "ES2022",
-      "DOM",
-      "DOM.Iterable"
-    ],
-    "skipLibCheck": true,
-    "types": [
-      "node"
-    ],
-    "moduleResolution": "bundler",
-    "isolatedModules": true,
-    "moduleDetection": "force",
-    "allowJs": true,
-    "esModuleInterop": true,
-    "jsx": "react-jsx",
-    "paths": {
-      "@/*": [
-        "./src/*"
-      ]
-    },
-    "allowImportingTsExtensions": true,
-    "noEmit": true
-  }
-}
-## vercel.json
-{
-  "rewrites": [
-    {
-      "source": "/(.*)",
-      "destination": "/index.html"
-    }
-  ]
-}
-
 ## vite.config.ts
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -7767,12 +7629,9 @@ export default defineConfig(({ mode }) => {
           '@': path.resolve(__dirname, './src'),
         },
       },
-      optimizeDeps: {
-        include: ['react-window'],
-      },
       build: {
         commonjsOptions: {
-          include: [/react-window/, /node_modules/],
+          include: [/node_modules/],
         },
       },
       test: {

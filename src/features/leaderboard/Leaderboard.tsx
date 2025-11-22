@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { Trophy } from 'lucide-react';
+import { Trophy, Info } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import clsx from 'clsx';
 
 interface Profile {
@@ -59,9 +60,25 @@ export const Leaderboard: React.FC = () => {
             <Trophy size={20} strokeWidth={1.5} />
             <span className="text-xs font-mono uppercase tracking-widest">Global Rankings</span>
         </div>
-        <h1 className="text-6xl md:text-9xl font-bold tracking-tighter text-foreground leading-[0.85]">
-          Top Miners
-        </h1>
+        
+        <div className="flex items-start gap-4">
+            <h1 className="text-6xl md:text-9xl font-bold tracking-tighter text-foreground leading-[0.85]">
+            Top Miners
+            </h1>
+            <TooltipProvider>
+                <Tooltip>
+                    <TooltipTrigger>
+                        <Info size={24} className="text-muted-foreground hover:text-foreground transition-colors mt-2" />
+                    </TooltipTrigger>
+                    <TooltipContent side="bottom" align="start" className="max-w-xs p-4">
+                        <div className="space-y-2">
+                            <p><span className="font-bold text-primary">XP (Experience):</span> Measures your lifetime learning progress. It determines your Rank and Level. It never decreases.</p>
+                            <p><span className="font-bold text-primary">Points:</span> A spendable currency earned alongside XP. Use Points in the Sabotage Store to mess with other learners.</p>
+                        </div>
+                    </TooltipContent>
+                </Tooltip>
+            </TooltipProvider>
+        </div>
       </header>
 
       {/* Table Header */}
@@ -69,7 +86,7 @@ export const Leaderboard: React.FC = () => {
         <div className="col-span-1 text-center">Rank</div>
         <div className="col-span-6">Miner</div>
         <div className="col-span-2">Level</div>
-        <div className="col-span-3 text-right">Total XP</div>
+        <div className="col-span-3 text-right">Lifetime XP</div>
       </div>
 
       {/* List */}

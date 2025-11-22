@@ -6,7 +6,8 @@ import { toast } from 'sonner';
 interface Profile {
   id: string;
   username: string | null;
-  xp: number;
+  xp: number;     // Lifetime accumulation for Ranking
+  points: number; // Spendable currency for Sabotage
   level: number;
   avatar_url?: string | null;
   updated_at?: string | null;
@@ -20,6 +21,7 @@ interface AuthContextType {
   signOut: () => Promise<void>;
   signInWithEmail: (email: string, password: string) => Promise<void>;
   signUpWithEmail: (email: string, password: string, username: string) => Promise<void>;
+  updateUsername: (username: string) => Promise<void>;
   loading: boolean;
 }
 
@@ -70,6 +72,32 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     };
   }, []);
 
+  // --- REALTIME LISTENER FOR POINTS/XP ---
+  useEffect(() => {
+    if (!user) return;
+
+    const channel = supabase
+      .channel('profile-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'profiles',
+          filter: `id=eq.${user.id}`,
+        },
+        (payload) => {
+          const newProfile = payload.new as Profile;
+          setProfile(newProfile);
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [user]);
+
   const fetchProfile = async (userId: string) => {
     const { data, error } = await supabase
       .from('profiles')
@@ -82,13 +110,21 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       return;
     }
 
-    setProfile(data as Profile);
+    // Ensure points exists, default to 0 if column is missing or null
+    const safeData = {
+        ...data,
+        points: data.points ?? 0
+    };
+
+    setProfile(safeData as Profile);
   };
 
   const signInWithGoogle = async () => {
+    const redirectTo = window.location.origin;
+    
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
-      options: { redirectTo: window.location.origin },
+      options: { redirectTo },
     });
 
     if (error) {
@@ -128,9 +164,24 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
+  const updateUsername = async (newUsername: string) => {
+    if (!user) return;
+
+    const { error } = await supabase
+      .from('profiles')
+      .update({ username: newUsername })
+      .eq('id', user.id);
+
+    if (error) {
+      toast.error('Failed to update username');
+      throw error;
+    }
+    // No need to manually setProfile here, the realtime subscription will catch it
+  };
+
   return (
     <AuthContext.Provider
-      value={{ session, user, profile, signInWithGoogle, signOut, signInWithEmail, signUpWithEmail, loading }}
+      value={{ session, user, profile, signInWithGoogle, signOut, signInWithEmail, signUpWithEmail, updateUsername, loading }}
     >
       {children}
     </AuthContext.Provider>

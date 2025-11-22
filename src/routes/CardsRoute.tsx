@@ -55,14 +55,14 @@ export const CardsRoute: React.FC = () => {
   };
 
   return (
-    <div className="flex flex-col gap-6 h-[calc(100vh-10rem)]">
+    <div className="flex flex-col gap-6 h-[calc(100vh-6rem)]">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 px-1">
             <h1 className="text-3xl font-light tracking-tight">Index</h1>
             <div className="flex gap-3">
-                <button onClick={() => setIsGenerateModalOpen(true)} className="text-xs font-mono uppercase tracking-widest border border-border hover:border-foreground px-4 py-2 rounded transition-colors">
+                <button onClick={() => setIsGenerateModalOpen(true)} className="text-xs font-mono uppercase tracking-widest border border-border hover:border-foreground px-4 py-2 rounded-md transition-colors">
                     AI Gen
                 </button>
-                <button onClick={() => setIsAddModalOpen(true)} className="bg-foreground text-background px-4 py-2 rounded text-xs font-mono uppercase tracking-widest hover:opacity-90 transition-opacity">
+                <button onClick={() => setIsAddModalOpen(true)} className="bg-foreground text-background px-4 py-2 rounded-md text-xs font-mono uppercase tracking-widest hover:opacity-90 transition-opacity">
                     Add Entry
                 </button>
             </div>
@@ -92,7 +92,7 @@ export const CardsRoute: React.FC = () => {
             onDeleteCard={handleDeleteCard}
           />
           
-          <div className="flex items-center justify-between py-4 border-t border-border/40">
+          <div className="flex items-center justify-between pt-4 pb-1 border-t border-border/40">
             <span className="text-xs text-muted-foreground">
               Showing {cards.length > 0 ? page * pageSize + 1 : 0} - {Math.min((page + 1) * pageSize, totalCount)} of {totalCount}
             </span>
@@ -100,7 +100,7 @@ export const CardsRoute: React.FC = () => {
               <button
                 onClick={() => setPage(p => Math.max(0, p - 1))}
                 disabled={page === 0}
-                className="p-1 rounded hover:bg-secondary disabled:opacity-50"
+                className="p-1 rounded-md hover:bg-secondary disabled:opacity-50 transition-colors"
               >
                 <ChevronLeft size={16} />
               </button>
@@ -111,7 +111,7 @@ export const CardsRoute: React.FC = () => {
                   }
                 }}
                 disabled={isPlaceholderData || (page + 1) * pageSize >= totalCount}
-                className="p-1 rounded hover:bg-secondary disabled:opacity-50"
+                className="p-1 rounded-md hover:bg-secondary disabled:opacity-50 transition-colors"
               >
                 <ChevronRight size={16} />
               </button>

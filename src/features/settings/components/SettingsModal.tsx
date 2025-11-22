@@ -1,8 +1,9 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Check, AlertCircle, LogOut } from 'lucide-react';
+import { Check, AlertCircle, LogOut, Skull } from 'lucide-react';
 import clsx from 'clsx';
 import { toast } from 'sonner';
 import { v4 as uuidv4 } from 'uuid';
+import { useQueryClient } from '@tanstack/react-query';
 
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import { useSettings } from '@/contexts/SettingsContext';
@@ -170,10 +171,13 @@ const signatureForCard = (sentence: string, language: Language) =>
 export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
   const { settings, updateSettings } = useSettings();
     const { refreshDeckData } = useDeck();
-    const { signOut } = useAuth();
+    const { signOut, profile, updateUsername } = useAuth();
+    const queryClient = useQueryClient();
   const [localSettings, setLocalSettings] = useState(settings);
+  const [localUsername, setLocalUsername] = useState('');
   const [activeTab, setActiveTab] = useState<SettingsTab>('general');
   const [confirmResetDeck, setConfirmResetDeck] = useState(false);
+  const [confirmResetAccount, setConfirmResetAccount] = useState(false);
   const [availableVoices, setAvailableVoices] = useState<VoiceOption[]>([]);
   const csvInputRef = useRef<HTMLInputElement>(null);
     const [hasSyncedToCloud, setHasSyncedToCloud] = useState(() => readCloudSyncFlag());
@@ -187,12 +191,14 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
 
     if (isOpen) {
         setLocalSettings(settings);
+        setLocalUsername(profile?.username || '');
         setConfirmResetDeck(false);
+        setConfirmResetAccount(false);
         setActiveTab('general');
         loadVoices();
         setHasSyncedToCloud(readCloudSyncFlag());
     }
-  }, [isOpen, settings]);
+  }, [isOpen, settings, profile]);
 
   useEffect(() => {
       const loadVoices = async () => {
@@ -207,9 +213,19 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
       return () => clearTimeout(timer);
   }, [localSettings.language, localSettings.tts.provider, localSettings.tts.googleApiKey, localSettings.tts.azureApiKey]);
 
-  const handleSave = () => {
+  const handleSave = async () => {
     const languageChanged = localSettings.language !== settings.language;
     updateSettings(localSettings);
+
+    if (localUsername !== profile?.username) {
+        try {
+            await updateUsername(localUsername);
+        } catch (error) {
+            // Error is handled in updateUsername
+            return;
+        }
+    }
+
     toast.success(languageChanged ? "Language switched." : "Preferences saved.");
     onClose();
   };
@@ -220,13 +236,122 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
         return;
     }
     try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) throw new Error("No user found");
+
+        // 1. Fetch current profile stats
+        const { data: currentProfile } = await supabase
+            .from('profiles')
+            .select('xp, points, level')
+            .eq('id', user.id)
+            .single();
+
+        const oldXp = currentProfile?.xp || 0;
+
+        // 2. DELETE logs and history for this language FIRST
         await deleteCardsByLanguage(localSettings.language);
+        await supabase.from('study_history').delete().eq('user_id', user.id).eq('language', localSettings.language);
+        await supabase.from('activity_log').delete().eq('user_id', user.id).eq('language', localSettings.language);
+
+        // 3. Recalculate Total XP from REMAINING logs (Paginated to ensure accuracy)
+        let verifiedXp = 0;
+        let page = 0;
+        const pageSize = 1000;
+
+        while (true) {
+            const { data: logs, error } = await supabase
+                .from('activity_log')
+                .select('xp_awarded')
+                .eq('user_id', user.id)
+                .range(page * pageSize, (page + 1) * pageSize - 1);
+
+            if (error) {
+                console.error("Error fetching logs for recalculation", error);
+                break; // Fail safe, verifiedXp remains what we have so far
+            }
+            
+            if (!logs || logs.length === 0) break;
+
+            const chunkSum = logs.reduce((acc, curr) => acc + (curr.xp_awarded || 0), 0);
+            verifiedXp += chunkSum;
+
+            if (logs.length < pageSize) break;
+            page++;
+        }
+
+        // 4. Calculate Logic for Points (Currency)
+        // If we removed 1000 XP, we should remove 1000 Points.
+        // Delta = OldXP - NewVerifiedXP
+        const xpDelta = Math.max(0, oldXp - verifiedXp);
+        const newPoints = Math.max(0, (currentProfile?.points || 0) - xpDelta);
+        
+        // Simple level recalculation (fallback logic)
+        const newLevel = verifiedXp === 0 ? 1 : (currentProfile?.level || 1); 
+
+        // 5. Update Profile with Verified Values
+        await supabase
+            .from('profiles')
+            .update({ xp: verifiedXp, points: newPoints, level: newLevel })
+            .eq('id', user.id);
+
+        // 6. Re-seed Beginner Deck
         const rawDeck = localSettings.language === 'norwegian' ? NORWEGIAN_BEGINNER_DECK : (localSettings.language === 'japanese' ? JAPANESE_BEGINNER_DECK : BEGINNER_DECK);
         const deck = rawDeck.map(c => ({ ...c, id: uuidv4(), dueDate: new Date().toISOString() }));
         await saveAllCards(deck);
-        window.location.reload();
+        
+        toast.success("Deck reset successfully");
+        
+        // Clear query cache to prevent stale data
+        queryClient.clear();
+        
+        // Small delay to ensure DB writes propagate before reload
+        setTimeout(() => window.location.reload(), 500);
     } catch (e) {
+        console.error(e);
         toast.error("Failed to reset deck");
+    }
+  };
+
+  const handleResetAccount = async () => {
+    if (!confirmResetAccount) {
+        setConfirmResetAccount(true);
+        return;
+    }
+
+    try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) {
+             toast.error("User not found");
+             return;
+        }
+
+        // 1. Delete all cards for user
+        await supabase.from('cards').delete().eq('user_id', user.id);
+
+        // 2. Delete all study history
+        await supabase.from('study_history').delete().eq('user_id', user.id);
+
+        // 3. Delete all activity logs (This resets daily limits)
+        await supabase.from('activity_log').delete().eq('user_id', user.id);
+
+        // 4. Reset Profile Stats (XP, Points, Level)
+        await supabase.from('profiles').update({ xp: 0, points: 0, level: 1 }).eq('id', user.id);
+
+        // 5. Clear local storage settings & sync flags
+        localStorage.removeItem('language_mining_settings');
+        localStorage.removeItem(CLOUD_SYNC_FLAG);
+
+        toast.success("Account reset successfully. Restarting...");
+        
+        // FIX: Clear React Query Cache
+        queryClient.clear();
+
+        // Reload to apply clean state
+        setTimeout(() => window.location.reload(), 1500);
+
+    } catch (error: any) {
+        console.error("Account reset failed", error);
+        toast.error(`Reset failed: ${error.message}`);
     }
   };
 
@@ -436,7 +561,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                             key={item.id}
                             onClick={() => setActiveTab(item.id)}
                             className={clsx(
-                                "text-left px-3 py-2 rounded-md text-sm transition-all whitespace-nowrap",
+                                "text-left px-3 py-2 rounded-md text-xs font-mono uppercase tracking-wider transition-all whitespace-nowrap",
                                 activeTab === item.id 
                                     ? "bg-secondary text-foreground font-medium" 
                                     : "text-muted-foreground hover:text-foreground hover:bg-secondary/50"
@@ -459,7 +584,12 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
             <div className="flex-1 p-8 md:p-10 overflow-y-auto">
                 
                 {activeTab === 'general' && (
-                    <GeneralSettings localSettings={localSettings} setLocalSettings={setLocalSettings} />
+                    <GeneralSettings 
+                        localSettings={localSettings} 
+                        setLocalSettings={setLocalSettings}
+                        username={localUsername}
+                        setUsername={setLocalUsername}
+                    />
                 )}
 
                 {activeTab === 'audio' && (
@@ -492,13 +622,14 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
 
                 {activeTab === 'danger' && (
                     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-500">
-                        <div className="p-6 border border-destructive/20 bg-destructive/5 rounded-lg space-y-4">
+                        {/* Reset Deck */}
+                        <div className="p-6 border border-border bg-secondary/10 rounded-lg space-y-4">
                             <div className="flex items-start gap-3">
-                                <AlertCircle className="text-destructive shrink-0" size={20} />
+                                <AlertCircle className="text-orange-500 shrink-0" size={20} />
                                 <div>
-                                    <h4 className="text-sm font-bold text-destructive uppercase tracking-wide">Reset Deck</h4>
+                                    <h4 className="text-sm font-bold uppercase tracking-wide">Reset Current Deck</h4>
                                     <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
-                                        This will permanently delete all cards for <strong>{localSettings.language}</strong> and reload the beginner course. Review history will be preserved where possible, but card-specific metrics will be lost.
+                                        This will delete all cards, history, XP, and Points earned for <strong>{localSettings.language}</strong> and reload the beginner course.
                                     </p>
                                 </div>
                             </div>
@@ -507,11 +638,35 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                                 className={clsx(
                                     "w-full py-3 text-xs font-mono uppercase tracking-widest transition-all rounded",
                                     confirmResetDeck 
+                                        ? "bg-orange-600 text-white hover:bg-orange-700" 
+                                        : "bg-background border border-border hover:bg-secondary"
+                                )}
+                            >
+                                {confirmResetDeck ? "Are you sure? Click to confirm." : "Reset Deck & Progress"}
+                            </button>
+                        </div>
+
+                        {/* Hard Reset Account */}
+                        <div className="p-6 border border-destructive/20 bg-destructive/5 rounded-lg space-y-4">
+                            <div className="flex items-start gap-3">
+                                <Skull className="text-destructive shrink-0" size={20} />
+                                <div>
+                                    <h4 className="text-sm font-bold text-destructive uppercase tracking-wide">Hard Reset Account</h4>
+                                    <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
+                                        <span className="text-destructive font-medium">Warning:</span> This will permanently wipe <strong>ALL</strong> data associated with your user: Cards (all languages), History, XP, Points, and Settings. Your username will be kept.
+                                    </p>
+                                </div>
+                            </div>
+                            <button 
+                                onClick={handleResetAccount}
+                                className={clsx(
+                                    "w-full py-3 text-xs font-mono uppercase tracking-widest transition-all rounded",
+                                    confirmResetAccount 
                                         ? "bg-destructive text-destructive-foreground hover:bg-destructive/90" 
                                         : "bg-background border border-destructive/30 text-destructive hover:bg-destructive hover:text-destructive-foreground"
                                 )}
                             >
-                                {confirmResetDeck ? "Are you sure? Click to confirm." : "Reset Deck Data"}
+                                {confirmResetAccount ? "ABSOLUTELY SURE? CLICK TO WIPE." : "Hard Reset Account"}
                             </button>
                         </div>
                     </div>
@@ -525,7 +680,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                         onClose();
                         signOut();
                     }}
-                    className="text-sm text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/10 px-3 py-2 rounded-md transition-colors flex items-center gap-2"
+                    className="text-xs font-mono uppercase tracking-wider text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/10 px-3 py-2 rounded-md transition-colors flex items-center gap-2"
                 >
                     <LogOut size={16} />
                     <span className="hidden sm:inline">Log Out</span>
@@ -533,13 +688,13 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                 <div className="flex gap-4 ml-auto">
                     <button 
                         onClick={onClose} 
-                        className="text-sm text-muted-foreground hover:text-foreground px-4 py-2 transition-colors"
+                        className="text-xs font-mono uppercase tracking-wider text-muted-foreground hover:text-foreground px-4 py-2 transition-colors"
                     >
                         Cancel
                     </button>
                     <button 
                         onClick={handleSave} 
-                        className="bg-primary text-primary-foreground px-8 py-2 text-sm font-medium rounded-full hover:opacity-90 transition-all flex items-center gap-2"
+                        className="bg-primary/50 text-primary-foreground border border-primary px-8 py-2 text-xs font-mono uppercase tracking-wider rounded-md hover:bg-primary/70 transition-all flex items-center gap-2"
                     >
                         <Check size={16} /> Save Changes
                     </button>

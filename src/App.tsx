@@ -4,6 +4,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { DeckProvider } from '@/contexts/DeckContext';
 import { SettingsProvider } from '@/contexts/SettingsContext';
 import { ThemeProvider } from '@/contexts/ThemeContext';
+import { SabotageProvider } from '@/contexts/SabotageContext';
 import { Toaster } from 'sonner';
 import { Layout } from '@/components/layout/Layout';
 import { ErrorBoundary } from '@/components/common/ErrorBoundary';
@@ -47,8 +48,10 @@ const App: React.FC = () => {
           <AuthProvider>
             <SettingsProvider>
               <DeckProvider>
-                <LinguaFlowApp />
-                <Toaster position="bottom-right" />
+                <SabotageProvider>
+                  <LinguaFlowApp />
+                  <Toaster position="bottom-right" />
+                </SabotageProvider>
               </DeckProvider>
             </SettingsProvider>
           </AuthProvider>

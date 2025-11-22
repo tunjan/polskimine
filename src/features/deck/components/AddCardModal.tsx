@@ -205,7 +205,7 @@ export const AddCardModal: React.FC<AddCardModalProps> = ({ isOpen, onClose, onA
             <div className="flex justify-end pt-6">
                 <button 
                     type="submit" 
-                    className="flex items-center gap-3 bg-primary text-primary-foreground px-8 py-3 rounded-full text-sm font-medium hover:opacity-90 transition-opacity"
+                    className="flex items-center gap-3 bg-primary text-primary-foreground px-8 py-3 rounded-md text-xs font-mono uppercase tracking-wider hover:opacity-90 transition-opacity"
                 >
                     Save <ArrowRight size={16} />
                 </button>

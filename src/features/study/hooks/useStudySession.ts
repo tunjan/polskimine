@@ -23,7 +23,6 @@ export const useStudySession = ({
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isFlipped, setIsFlipped] = useState(false);
   const [sessionComplete, setSessionComplete] = useState(dueCards.length === 0);
-  const [now] = useState(() => new Date());
   const [actionHistory, setActionHistory] = useState<{ addedCard: boolean }[]>([]);
 
   useEffect(() => {
@@ -37,6 +36,7 @@ export const useStudySession = ({
 
   const isCurrentCardDue = useMemo(() => {
     if (!currentCard) return false;
+    const now = new Date();
     let due = isCardDue(currentCard, now);
     if (
       currentCard &&
@@ -49,7 +49,7 @@ export const useStudySession = ({
       }
     }
     return due;
-  }, [currentCard, currentIndex, now, sessionCards, settings.ignoreLearningStepsWhenNoCards]);
+  }, [currentCard, currentIndex, sessionCards, settings.ignoreLearningStepsWhenNoCards]);
 
   const handleGrade = useCallback(
     (grade: Grade) => {

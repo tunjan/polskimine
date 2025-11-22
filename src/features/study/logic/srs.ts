@@ -61,6 +61,13 @@ export const calculateNextReview = (card: Card, grade: Grade, settings?: UserSet
       else currentState = State.Review;
   }
 
+  const lastReviewDate = card.last_review ? new Date(card.last_review) : undefined;
+
+  // If somehow state is Review but no last_review exists, force New to prevent crash
+  if (currentState === State.Review && !lastReviewDate) {
+    currentState = State.New;
+  }
+
   const fsrsCard: FSRSCard = {
     due: new Date(card.dueDate),
     stability: card.stability || 0,
@@ -70,7 +77,7 @@ export const calculateNextReview = (card: Card, grade: Grade, settings?: UserSet
     reps: card.reps || 0,
     lapses: card.lapses || 0,
     state: currentState,
-    last_review: card.last_review ? new Date(card.last_review) : undefined
+    last_review: lastReviewDate
   } as FSRSCard;
 
   const rating = mapGradeToRating(grade);
@@ -92,17 +99,11 @@ export const calculateNextReview = (card: Card, grade: Grade, settings?: UserSet
     : tentativeStatus;
 
   // Leech Logic
-  const currentLeechCount = card.leechCount || 0;
-  let newLeechCount = 0;
+  const totalLapses = log.lapses;
   let isLeech = card.isLeech || false;
 
-  if (grade === 'Again') {
-    newLeechCount = currentLeechCount + 1;
-    if (newLeechCount > 5) {
-      isLeech = true;
-    }
-  } else {
-    newLeechCount = 0;
+  if (totalLapses > 8) {
+    isLeech = true;
   }
 
   return {
@@ -120,7 +121,7 @@ export const calculateNextReview = (card: Card, grade: Grade, settings?: UserSet
     status,
     interval: log.scheduled_days,
     learningStep: undefined, // Clean up legacy/custom field
-    leechCount: newLeechCount,
+    leechCount: totalLapses,
     isLeech
   };
 };

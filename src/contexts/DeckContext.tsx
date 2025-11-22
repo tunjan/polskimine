@@ -4,6 +4,7 @@ import React, {
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
 } from 'react';
 import { format } from 'date-fns';
@@ -15,21 +16,17 @@ import { JAPANESE_BEGINNER_DECK } from '@/features/deck/data/japaneseBeginnerDec
 import { useSettings } from './SettingsContext';
 import { useAuth } from './AuthContext';
 import { getSRSDate } from '@/features/study/logic/srs';
-import {
-  saveAllCards,
-  saveCard,
-  getDueCards,
-} from '@/services/db/repositories/cardRepository';
-import {
-  getHistory as fetchHistory,
-  incrementHistory,
-} from '@/services/db/repositories/historyRepository';
-import {
-  getStats as fetchStats,
-  getTodayReviewStats,
-} from '@/services/db/repositories/statsRepository';
-import { supabase } from '@/lib/supabase';
+import { useQueryClient } from '@tanstack/react-query';
+import { saveAllCards } from '@/services/db/repositories/cardRepository';
 import { applyStudyLimits, isNewCard } from '@/services/studyLimits';
+import {
+  useDeckStatsQuery,
+  useDueCardsQuery,
+  useReviewsTodayQuery,
+  useHistoryQuery,
+  useRecordReviewMutation,
+  useUndoReviewMutation,
+} from '@/features/deck/hooks/useDeckQueries';
 
 interface DeckContextValue {
   history: ReviewHistory;
@@ -52,109 +49,58 @@ const languageLabel = (language: string) => {
 };
 
 export const DeckProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const queryClient = useQueryClient();
   const { settings } = useSettings();
   const { user } = useAuth();
-  const [history, setHistory] = useState<ReviewHistory>({});
-  const [stats, setStats] = useState<DeckStats>({
-    total: 0,
-    due: 0,
-    newDue: 0,
-    reviewDue: 0,
-    learned: 0,
-    streak: 0,
-    totalReviews: 0,
-    longestStreak: 0,
-  });
-  const [reviewsToday, setReviewsToday] = useState({ newCards: 0, reviewCards: 0 });
-  const [isLoading, setIsLoading] = useState(true);
-  const [dataVersion, setDataVersion] = useState(0);
+  
+  // Queries
+  const { data: dbStats, isLoading: statsLoading } = useDeckStatsQuery();
+  const { data: dueCards, isLoading: dueCardsLoading } = useDueCardsQuery();
+  const { data: reviewsToday, isLoading: reviewsLoading } = useReviewsTodayQuery();
+  const { data: history, isLoading: historyLoading } = useHistoryQuery();
+  
+  // Mutations
+  const recordReviewMutation = useRecordReviewMutation();
+  const undoReviewMutation = useUndoReviewMutation();
+
   const [lastReview, setLastReview] = useState<{ card: Card; date: string } | null>(null);
 
-  const refreshStats = useCallback(async () => {
-    try {
-      const [dbStats, dueCards, todayReviews] = await Promise.all([
-        fetchStats(settings.language),
-        getDueCards(new Date(), settings.language),
-        getTodayReviewStats(settings.language),
-      ]);
+  const isLoading = statsLoading || dueCardsLoading || reviewsLoading || historyLoading;
 
-      setReviewsToday(todayReviews);
+  // Prevent double loading of beginner deck
+  const isSeeding = useRef(false);
 
-      const limitedCards = applyStudyLimits(dueCards, {
-        dailyNewLimit: settings.dailyNewLimit,
-        dailyReviewLimit: settings.dailyReviewLimit,
-        reviewsToday: todayReviews,
-      });
-
-      const newDue = limitedCards.filter(isNewCard).length;
-      const reviewDue = limitedCards.length - newDue;
-
-      setStats((prev) => ({
-        ...prev,
-        total: dbStats.total,
-        learned: dbStats.learned,
-        due: limitedCards.length,
-        newDue,
-        reviewDue,
-      }));
-    } catch (error) {
-      console.error('Failed to refresh stats', error);
+  // Derived Stats
+  const stats = useMemo<DeckStats>(() => {
+    if (!dbStats || !dueCards || !reviewsToday) {
+      return {
+        total: 0,
+        due: 0,
+        newDue: 0,
+        reviewDue: 0,
+        learned: 0,
+        streak: 0,
+        totalReviews: 0,
+        longestStreak: 0,
+      };
     }
-  }, [settings.language, settings.dailyNewLimit, settings.dailyReviewLimit]);
 
-  const refreshDeckData = useCallback(() => {
-    setDataVersion((version) => version + 1);
-  }, []);
+    const limitedCards = applyStudyLimits(dueCards, {
+      dailyNewLimit: settings.dailyNewLimit,
+      dailyReviewLimit: settings.dailyReviewLimit,
+      reviewsToday: reviewsToday,
+    });
 
-  // Removed local card state management functions as we now use React Query
+    const newDue = limitedCards.filter(isNewCard).length;
+    const reviewDue = limitedCards.length - newDue;
 
-
-  useEffect(() => {
-    const loadData = async () => {
-      setIsLoading(true);
-      try {
-        const loadedHistory = await fetchHistory(settings.language);
-        setHistory(loadedHistory);
-        await refreshStats();
-        
-        // Check if deck is empty and load beginner deck if needed
-        if (user) {
-          const { count } = await supabase
-            .from('cards')
-            .select('*', { count: 'exact', head: true })
-            .eq('language', settings.language)
-            .eq('user_id', user.id);
-            
-          if (count === 0) {
-            const deck =
-              settings.language === 'norwegian'
-                ? NORWEGIAN_BEGINNER_DECK
-                : settings.language === 'japanese'
-                ? JAPANESE_BEGINNER_DECK
-                : BEGINNER_DECK;
-            await saveAllCards(deck);
-            toast.success(`Loaded Beginner ${languageLabel(settings.language)} course!`);
-            await refreshStats();
-          }
-        }
-      } catch (error) {
-        console.error('Failed to load data from DB', error);
-        toast.error('Failed to load your deck. Please refresh.');
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    loadData();
-  }, [refreshStats, settings.language, dataVersion]);
-
-  useEffect(() => {
-    const sortedDates = Object.keys(history).sort();
+    // Calculate streaks from history
+    const sortedDates = Object.keys(history || {}).sort();
     let currentStreak = 0;
     let longestStreak = 0;
     let tempStreak = 0;
 
-    const totalReviews = Object.values(history).reduce(
+    const totalReviews = Object.values(history || {}).reduce(
       (acc, val) => acc + (typeof val === 'number' ? val : 0),
       0
     );
@@ -165,7 +111,7 @@ export const DeckProvider: React.FC<{ children: React.ReactNode }> = ({ children
     srsYesterday.setDate(srsYesterday.getDate() - 1);
     const yesterdayStr = format(srsYesterday, 'yyyy-MM-dd');
 
-    if (history[todayStr]) {
+    if (history?.[todayStr]) {
       currentStreak = 1;
       const checkDate = new Date(srsYesterday);
       while (true) {
@@ -177,18 +123,18 @@ export const DeckProvider: React.FC<{ children: React.ReactNode }> = ({ children
           break;
         }
       }
-    } else if (history[yesterdayStr]) {
+    } else if (history?.[yesterdayStr]) {
       currentStreak = 0;
-      const checkDate = new Date(srsYesterday);
-      while (true) {
-        const dateStr = format(checkDate, 'yyyy-MM-dd');
-        if (history[dateStr]) {
-          currentStreak++;
-          checkDate.setDate(checkDate.getDate() - 1);
-        } else {
-          break;
-        }
-      }
+       const checkDate = new Date(srsYesterday);
+       while (true) {
+         const dateStr = format(checkDate, 'yyyy-MM-dd');
+         if (history[dateStr]) {
+           currentStreak++;
+           checkDate.setDate(checkDate.getDate() - 1);
+         } else {
+           break;
+         }
+       }
     }
 
     if (sortedDates.length > 0) {
@@ -209,115 +155,103 @@ export const DeckProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
     }
 
-    setStats((prev) => ({
-      ...prev,
+    return {
+      total: dbStats.total,
+      learned: dbStats.learned,
+      due: limitedCards.length,
+      newDue,
+      reviewDue,
       streak: currentStreak,
       totalReviews,
       longestStreak,
-    }));
-  }, [history]);
+    };
+  }, [dbStats, dueCards, reviewsToday, history, settings.dailyNewLimit, settings.dailyReviewLimit]);
 
-  const recordReview = useCallback(
-    async (oldCard: Card, grade: Grade) => {
-      const today = format(getSRSDate(new Date()), 'yyyy-MM-dd');
-      
-      setHistory((prev) => ({
-        ...prev,
-        [today]: (prev[today] || 0) + 1,
-      }));
-      
-      setStats((prev) => ({
-        ...prev,
-        due: Math.max(0, prev.due - 1),
-        newDue: oldCard.status === 'new' ? Math.max(0, prev.newDue - 1) : prev.newDue,
-        reviewDue: oldCard.status !== 'new' ? Math.max(0, prev.reviewDue - 1) : prev.reviewDue,
-        totalReviews: prev.totalReviews + 1,
-      }));
+  // Beginner Deck Loading
+  useEffect(() => {
+    const loadBeginnerDeck = async () => {
+      // Check if we are already seeding to prevent race conditions
+      if (isSeeding.current) return;
 
-      setLastReview({ card: oldCard, date: today });
-      try {
-        await incrementHistory(today, 1, oldCard.language || settings.language);
-        if (user) {
-          const xpAmount =
-            oldCard.status === 'new'
-              ? 50
-              : grade === 'Again'
-              ? 1
-              : grade === 'Hard'
-              ? 5
-              : 10;
+      if (!statsLoading && dbStats && dbStats.total === 0 && user) {
+         // Lock the process
+         isSeeding.current = true;
 
-          void supabase
-            .from('activity_log')
-            .insert({
-              user_id: user.id,
-              activity_type: oldCard.status === 'new' ? 'new_card' : 'review',
-              xp_awarded: xpAmount,
-              language: oldCard.language || settings.language,
-            })
-            .then(({ error }) => {
-              if (error) {
-                console.error('Failed to award XP', error);
-              }
-            });
-        }
-      } catch (error) {
-        console.error(error);
-        // Rollback
-        setHistory((prev) => ({ ...prev, [today]: Math.max(0, (prev[today] || 0) - 1) }));
-        setStats((prev) => ({
-          ...prev,
-          due: prev.due + 1,
-          newDue: oldCard.status === 'new' ? prev.newDue + 1 : prev.newDue,
-          reviewDue: oldCard.status !== 'new' ? prev.reviewDue + 1 : prev.reviewDue,
-          totalReviews: Math.max(0, prev.totalReviews - 1),
-        }));
-        toast.error("Failed to save review progress");
+         const deck =
+              settings.language === 'norwegian'
+                ? NORWEGIAN_BEGINNER_DECK
+                : settings.language === 'japanese'
+                ? JAPANESE_BEGINNER_DECK
+                : BEGINNER_DECK;
+            
+         try {
+            await saveAllCards(deck);
+            toast.success(`Loaded Beginner ${languageLabel(settings.language)} course!`);
+            // Invalidate queries to update UI
+            await Promise.all([
+              queryClient.invalidateQueries({ queryKey: ['deckStats', settings.language] }),
+              queryClient.invalidateQueries({ queryKey: ['dueCards', settings.language] }),
+              queryClient.invalidateQueries({ queryKey: ['cards'] })
+            ]);
+         } catch (e) {
+             console.error("Failed to load beginner deck", e);
+             // Optional: Unlock if failed so it can retry on refresh
+             // isSeeding.current = false; 
+         }
       }
-    },
-    [settings.language, user]
-  );
+    };
+    
+    loadBeginnerDeck();
+  }, [dbStats, statsLoading, user, settings.language, queryClient]);
+
+  const recordReview = useCallback(async (oldCard: Card, grade: Grade) => {
+      const today = format(getSRSDate(new Date()), 'yyyy-MM-dd');
+      setLastReview({ card: oldCard, date: today });
+      
+      try {
+        await recordReviewMutation.mutateAsync({ card: oldCard, grade });
+      } catch (error) {
+          console.error("Failed to record review", error);
+          toast.error("Failed to save review progress");
+          setLastReview(null); // Clear undo if failed
+      }
+  }, [recordReviewMutation]);
 
   const undoReview = useCallback(async () => {
-    if (!lastReview) return;
-    const { card, date } = lastReview;
-    
-    try {
-      await saveCard(card);
-      setHistory((prev) => ({
-        ...prev,
-        [date]: Math.max(0, (prev[date] || 0) - 1),
-      }));
+      if (!lastReview) return;
+      const { card, date } = lastReview;
       
-      setStats((prev) => ({
-        ...prev,
-        due: prev.due + 1,
-        newDue: card.status === 'new' ? prev.newDue + 1 : prev.newDue,
-        reviewDue: card.status !== 'new' ? prev.reviewDue + 1 : prev.reviewDue,
-        totalReviews: Math.max(0, prev.totalReviews - 1),
-      }));
+      try {
+          await undoReviewMutation.mutateAsync({ card, date });
+          setLastReview(null);
+          toast.success('Review undone');
+      } catch (error) {
+          console.error("Failed to undo review", error);
+          toast.error("Failed to undo review");
+      }
+  }, [lastReview, undoReviewMutation]);
 
-      await incrementHistory(date, -1, card.language || settings.language);
-      setLastReview(null);
-      toast.success('Review undone');
-    } catch (error) {
-      console.error(error);
-    }
-  }, [lastReview, settings.language]);
+  const refreshDeckData = useCallback(() => {
+      queryClient.invalidateQueries({ queryKey: ['deckStats'] });
+      queryClient.invalidateQueries({ queryKey: ['dueCards'] });
+      queryClient.invalidateQueries({ queryKey: ['reviewsToday'] });
+      queryClient.invalidateQueries({ queryKey: ['history'] });
+      queryClient.invalidateQueries({ queryKey: ['cards'] });
+  }, [queryClient]);
 
   const value = useMemo(
     () => ({
-      history,
+      history: history || {},
       stats,
-      reviewsToday,
+      reviewsToday: reviewsToday || { newCards: 0, reviewCards: 0 },
       isLoading,
-      dataVersion,
+      dataVersion: 0,
       recordReview,
       undoReview,
       canUndo: !!lastReview,
       refreshDeckData,
     }),
-    [history, stats, reviewsToday, isLoading, dataVersion, recordReview, undoReview, lastReview, refreshDeckData]
+    [history, stats, reviewsToday, isLoading, recordReview, undoReview, lastReview, refreshDeckData]
   );
 
   return <DeckContext.Provider value={value}>{children}</DeckContext.Provider>;

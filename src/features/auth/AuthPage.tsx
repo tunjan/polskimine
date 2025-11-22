@@ -92,10 +92,10 @@ export const AuthPage: React.FC = () => {
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-primary text-primary-foreground h-11 rounded-md font-medium hover:opacity-90 transition-all flex items-center justify-center gap-2 mt-6"
+              className="w-full bg-primary text-primary-foreground h-11 rounded-md text-xs font-mono uppercase tracking-wider hover:opacity-90 transition-all flex items-center justify-center gap-2 mt-6"
             >
               {loading ? (
-                <Loader2 className="animate-spin" size={18} />
+                <Loader2 className="animate-spin" size={16} />
               ) : (
                 <>
                   {isSignUp ? 'Sign Up' : 'Sign In'}
@@ -117,7 +117,7 @@ export const AuthPage: React.FC = () => {
           <button
             onClick={signInWithGoogle}
             type="button"
-            className="w-full border border-border h-11 rounded-md font-medium hover:bg-secondary/50 transition-colors flex items-center justify-center gap-2"
+            className="w-full border border-border h-11 rounded-md text-xs font-mono uppercase tracking-wider hover:bg-secondary/50 transition-colors flex items-center justify-center gap-2"
           >
             <svg
               className="w-4 h-4"

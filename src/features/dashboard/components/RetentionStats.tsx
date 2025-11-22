@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { Card } from '@/types';
 import {
   BarChart,
@@ -11,8 +11,9 @@ import {
   PieChart,
   Pie,
 } from 'recharts';
-import { differenceInCalendarDays, parseISO } from 'date-fns';
+import { differenceInCalendarDays, parseISO, format, addDays, addMonths, eachMonthOfInterval } from 'date-fns';
 import { useChartColors } from '@/hooks/useChartColors';
+import clsx from 'clsx';
 
 interface RetentionStatsProps {
   cards: Card[];
@@ -20,28 +21,64 @@ interface RetentionStatsProps {
 
 export const RetentionStats: React.FC<RetentionStatsProps> = ({ cards }) => {
   const colors = useChartColors();
+  const [forecastRange, setForecastRange] = useState<'7d' | '1m' | '1y'>('7d');
 
   const forecastData = useMemo(() => {
-    const daysToShow = 14;
-    const data = new Array(daysToShow).fill(0).map((_, i) => ({ day: i, count: 0, label: `+${i}d` }));
     const today = new Date();
+    let data: { label: string; count: number; fullDate?: Date }[] = [];
+
+    if (forecastRange === '7d') {
+      data = Array.from({ length: 7 }).map((_, i) => {
+        const date = addDays(today, i);
+        return {
+            label: format(date, 'EEE'),
+            count: 0,
+            fullDate: date
+        };
+      });
+    } else if (forecastRange === '1m') {
+       data = Array.from({ length: 30 }).map((_, i) => {
+        const date = addDays(today, i);
+        return {
+            label: format(date, 'd'),
+            count: 0,
+            fullDate: date
+        };
+      });
+    } else if (forecastRange === '1y') {
+        const months = eachMonthOfInterval({
+            start: today,
+            end: addMonths(today, 11)
+        });
+        data = months.map(date => ({
+            label: format(date, 'MMM'),
+            count: 0,
+            fullDate: date
+        }));
+    }
 
     cards.forEach(card => {
-      if (card.status === 'known' || card.status === 'new') return;
+      if (card.status === 'known' || card.status === 'new' || !card.dueDate) return;
       
       const dueDate = parseISO(card.dueDate);
-      const diff = differenceInCalendarDays(dueDate, today);
+      const diffDays = differenceInCalendarDays(dueDate, today);
       
-      if (diff >= 0 && diff < daysToShow) {
-        data[diff].count++;
+      if (diffDays < 0) return; 
+
+      if (forecastRange === '7d' && diffDays < 7) {
+        data[diffDays].count++;
+      } else if (forecastRange === '1m' && diffDays < 30) {
+        data[diffDays].count++;
+      } else if (forecastRange === '1y') {
+          const monthIndex = data.findIndex(d => d.fullDate && d.fullDate.getMonth() === dueDate.getMonth() && d.fullDate.getFullYear() === dueDate.getFullYear());
+          if (monthIndex !== -1) {
+              data[monthIndex].count++;
+          }
       }
     });
     
-    data[0].label = 'Today';
-    data[1].label = 'Tmrw';
-    
     return data;
-  }, [cards]);
+  }, [cards, forecastRange]);
 
   const stabilityData = useMemo(() => {
     const buckets = [
@@ -111,6 +148,53 @@ export const RetentionStats: React.FC<RetentionStatsProps> = ({ cards }) => {
 
   return (
     <div className="flex flex-col gap-6">
+        {/* Forecast Chart */}
+        <div className="bg-background p-6 rounded-2xl border border-border/50 flex flex-col">
+            <div className="flex items-center justify-between mb-6">
+                <div>
+                    <h3 className="text-sm font-medium">Upcoming Reviews</h3>
+                    <p className="text-xs text-muted-foreground mt-1">Projected workload</p>
+                </div>
+                <div className="flex bg-secondary/50 rounded-lg p-1 gap-1">
+                    {(['7d', '1m', '1y'] as const).map((range) => (
+                        <button
+                            key={range}
+                            onClick={() => setForecastRange(range)}
+                            className={clsx(
+                                "px-3 py-1 rounded-md text-[10px] font-medium transition-all uppercase tracking-wider",
+                                forecastRange === range 
+                                    ? "bg-background text-foreground shadow-sm" 
+                                    : "text-muted-foreground hover:text-foreground hover:bg-background/50"
+                            )}
+                        >
+                            {range}
+                        </button>
+                    ))}
+                </div>
+            </div>
+            <div className="h-64 w-full">
+                <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={forecastData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                        <XAxis 
+                            dataKey="label" 
+                            tick={{ fontSize: 10, fill: colors.muted }} 
+                            axisLine={false}
+                            tickLine={false}
+                            interval={forecastRange === '1m' ? 2 : 0}
+                            dy={10}
+                        />
+                        <YAxis 
+                            tick={{ fontSize: 10, fill: colors.muted }} 
+                            axisLine={false}
+                            tickLine={false}
+                        />
+                        <Tooltip content={<CustomTooltip />} cursor={{ fill: colors.muted, opacity: 0.2 }} />
+                        <Bar dataKey="count" fill={colors.foreground} radius={[4, 4, 4, 4]} barSize={forecastRange === '1m' ? 8 : 32} />
+                    </BarChart>
+                </ResponsiveContainer>
+            </div>
+        </div>
+
         {/* Status Distribution */}
         <div className="bg-background p-6 rounded-2xl border border-border/50 flex flex-col">
           <h3 className="text-sm font-medium mb-6">Card Status</h3>
