@@ -44,7 +44,7 @@ async function callGemini(prompt: string, apiKey: string): Promise<string> {
     throw new Error('Gemini API Key is missing. Please add it in Settings.');
   }
 
-  // FIX: Explicitly stringify body and set headers to prevent serialization issues
+  // UPDATED: Explicitly stringify body and set headers (required by Edge Function)
   const { data, error } = await supabase.functions.invoke('generate-card', {
     body: JSON.stringify({ prompt, apiKey }),
     headers: {
@@ -53,12 +53,15 @@ async function callGemini(prompt: string, apiKey: string): Promise<string> {
   });
 
   if (error) {
-    console.error("Edge Function Error:", error);
-    // Check specifically for 404 to give a helpful hint
-    if (error.code === 'FUNCTION_NOT_FOUND' || error.status === 404) {
-      throw new Error('AI Function not deployed. Run: supabase functions deploy generate-card');
+    console.error("AI Service Error:", error);
+    // Attempt to parse structured error from Response body
+    try {
+      const body = error instanceof Response ? await error.json() : null;
+      if (body?.error) throw new Error(body.error);
+    } catch (_) {
+      // Swallow JSON parse issues silently
     }
-    throw new Error(error.message || 'Failed to fetch from Gemini API');
+    throw new Error('AI Service failed. Check console for details.');
   }
   
   return data.text;

@@ -1,7 +1,5 @@
 // supabase/functions/generate-card/index.ts
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
-// Declare Deno for TypeScript type checking environment
-declare const Deno: any;
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -9,29 +7,37 @@ const corsHeaders = {
 }
 
 serve(async (req: Request) => {
-  // 1. Handle CORS preflight requests
+  // 1. Handle CORS preflight
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders })
   }
 
   try {
-    // Extract user-provided apiKey (optional) and prompt
-    const { prompt, apiKey: userApiKey } = await req.json()
-    // Fallback to server env key if user did not provide one
-    const apiKey = userApiKey || Deno.env.get('GEMINI_API_KEY')
-
-    if (!apiKey) {
-      throw new Error('No Gemini API Key provided. Please add one in Settings.')
+    // 2. Parse Body safely
+    let prompt, userApiKey;
+    try {
+      const body = await req.json();
+      prompt = body.prompt;
+      userApiKey = body.apiKey;
+    } catch (e) {
+      throw new Error("Invalid JSON body");
     }
 
-    // 3. Call Google Gemini API
+    // 3. Resolve API Key
+    const apiKey = userApiKey || Deno.env.get('GEMINI_API_KEY')
+    if (!apiKey) {
+      return new Response(
+        JSON.stringify({ error: 'Missing Gemini API Key' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
+    }
+
+    // 4. Call Gemini
     const response = await fetch(
       `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`,
       {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           contents: [{ parts: [{ text: prompt }] }],
         }),
@@ -40,28 +46,27 @@ serve(async (req: Request) => {
 
     const data = await response.json()
 
-    // 4. Parse the response
     if (!response.ok) {
       console.error('Gemini API Error:', data)
-      throw new Error(data.error?.message || 'Failed to generate content')
+      return new Response(
+        JSON.stringify({ error: data.error?.message || 'Gemini API Error' }),
+        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
     }
 
     const generatedText = data.candidates?.[0]?.content?.parts?.[0]?.text || ''
 
-    // 5. Return the text to your React app
     return new Response(
       JSON.stringify({ text: generatedText }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     )
 
   } catch (error: any) {
-    console.error('Function Error:', error)
+    // 5. CATCH-ALL: Ensure CORS headers are sent even on crash
+    console.error('Function Crash:', error)
     return new Response(
-      JSON.stringify({ error: error?.message || 'Unknown error' }),
-      { 
-        status: 500, 
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
-      }
+      JSON.stringify({ error: error.message }),
+      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     )
   }
 })

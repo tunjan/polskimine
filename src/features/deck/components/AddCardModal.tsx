@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo, useRef } from "react";
 import { ArrowRight } from "lucide-react";
-import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Card } from "@/types";
 import { v4 as uuidv4 } from "uuid";
 import { toast } from "sonner";
@@ -160,9 +160,10 @@ export const AddCardModal: React.FC<AddCardModalProps> = ({ isOpen, onClose, onA
       );
   }, [form.sentence, form.targetWord, settings.language, initialCard]);
 
-  return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-2xl p-12 bg-background border border-border shadow-2xl sm:rounded-xl gap-0">
+    return (
+        <Dialog open={isOpen} onOpenChange={onClose}>
+            <DialogContent className="sm:max-w-2xl p-12 bg-background border border-border shadow-2xl sm:rounded-xl gap-0">
+                <DialogDescription className="sr-only">Form to add or edit a flashcard</DialogDescription>
         <form onSubmit={handleSubmit} className="flex flex-col gap-10">
             {/* Header */}
             <div className="flex justify-between items-center">
