@@ -1,27 +1,31 @@
 import React, { useState } from 'react';
-import { Command, ArrowRight, Mail, Lock, User as UserIcon, Loader2 } from 'lucide-react';
+import { ArrowRight, Loader2, Command } from 'lucide-react';
 import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
+import clsx from 'clsx';
 
 export const AuthPage: React.FC = () => {
   const { signInWithGoogle, signInWithEmail, signUpWithEmail } = useAuth();
-  const [isSignUp, setIsSignUp] = useState(false);
+  const [mode, setMode] = useState<'signin' | 'signup'>('signin');
   const [loading, setLoading] = useState(false);
+  
+  // Form State
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [username, setUsername] = useState('');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (loading) return;
     setLoading(true);
 
     try {
-      if (isSignUp) {
+      if (mode === 'signup') {
         await signUpWithEmail(email, password, username);
-        toast.success('Account created! Please check your email to verify.');
+        toast.success('Account created. Please check your email.');
       } else {
         await signInWithEmail(email, password);
-        toast.success('Welcome back');
+        toast.success('Session established.');
       }
     } catch (error: any) {
       toast.error(error.message || 'Authentication failed');
@@ -31,122 +35,123 @@ export const AuthPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background p-6">
-      <div className="w-full max-w-md space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
-        <div className="text-center space-y-2">
-          <div className="mx-auto w-12 h-12 bg-primary text-background flex items-center justify-center rounded-full mb-6">
-            <Command size={24} strokeWidth={2.5} />
+    <div className="min-h-screen w-full bg-background flex flex-col items-center justify-center p-6 md:p-12 selection:bg-foreground selection:text-background">
+      
+      <div className="w-full max-w-[320px] flex flex-col gap-12 animate-in fade-in slide-in-from-bottom-4 duration-700">
+        
+        {/* Header */}
+        <div className="flex flex-col gap-6 items-start">
+          <div className="w-8 h-8 bg-foreground text-background flex items-center justify-center rounded-[2px]">
+            <Command size={16} strokeWidth={2} />
           </div>
-          <h1 className="text-3xl font-bold tracking-tight">
-            {isSignUp ? 'Create an account' : 'Welcome back'}
-          </h1>
-          <p className="text-muted-foreground">Enter your credentials to access LinguaFlow</p>
+          <div className="space-y-1">
+            <h1 className="text-2xl font-light tracking-tight text-foreground">
+              {mode === 'signin' ? 'Welcome back.' : 'Initialize account.'}
+            </h1>
+            <p className="text-xs font-mono text-muted-foreground">
+              {mode === 'signin' ? 'Enter credentials to continue.' : 'Begin your sequence.'}
+            </p>
+          </div>
         </div>
 
-        <div className="space-y-6">
-          <form onSubmit={handleSubmit} className="space-y-4">
-            {isSignUp && (
-              <div className="space-y-1">
-                <div className="relative">
-                  <UserIcon size={16} className="absolute left-0 top-3.5 text-muted-foreground" />
-                  <input
-                    className="w-full bg-transparent border-b border-border py-3 pl-6 text-base outline-none focus:border-foreground transition-colors placeholder:text-muted-foreground/50"
-                    placeholder="Username"
-                    value={username}
-                    onChange={(event) => setUsername(event.target.value)}
-                    required
-                  />
-                </div>
-              </div>
-            )}
-
-            <div className="space-y-1">
-              <div className="relative">
-                <Mail size={16} className="absolute left-0 top-3.5 text-muted-foreground" />
-                <input
-                  className="w-full bg-transparent border-b border-border py-3 pl-6 text-base outline-none focus:border-foreground transition-colors placeholder:text-muted-foreground/50"
-                  placeholder="Email address"
-                  type="email"
-                  value={email}
-                  onChange={(event) => setEmail(event.target.value)}
-                  required
-                />
-              </div>
+        {/* Form */}
+        <form onSubmit={handleSubmit} className="flex flex-col gap-8">
+          
+          {mode === 'signup' && (
+            <div className="group relative">
+              <label className="absolute -top-3 left-0 text-[9px] font-mono uppercase tracking-widest text-muted-foreground transition-colors group-focus-within:text-foreground">
+                Username
+              </label>
+              <input
+                className="w-full bg-transparent border-b border-border py-2 text-base outline-none transition-all focus:border-foreground placeholder:text-muted-foreground/20 rounded-none"
+                placeholder="User_01"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                required
+                autoComplete="username"
+              />
             </div>
+          )}
 
-            <div className="space-y-1">
-              <div className="relative">
-                <Lock size={16} className="absolute left-0 top-3.5 text-muted-foreground" />
-                <input
-                  className="w-full bg-transparent border-b border-border py-3 pl-6 text-base outline-none focus:border-foreground transition-colors placeholder:text-muted-foreground/50"
-                  placeholder="Password"
-                  type="password"
-                  value={password}
-                  onChange={(event) => setPassword(event.target.value)}
-                  required
-                  minLength={6}
-                />
-              </div>
-            </div>
+          <div className="group relative">
+            <label className="absolute -top-3 left-0 text-[9px] font-mono uppercase tracking-widest text-muted-foreground transition-colors group-focus-within:text-foreground">
+              Email Address
+            </label>
+            <input
+              className="w-full bg-transparent border-b border-border py-2 text-base outline-none transition-all focus:border-foreground placeholder:text-muted-foreground/20 rounded-none"
+              placeholder="user@example.com"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              autoComplete="email"
+            />
+          </div>
 
+          <div className="group relative">
+            <label className="absolute -top-3 left-0 text-[9px] font-mono uppercase tracking-widest text-muted-foreground transition-colors group-focus-within:text-foreground">
+              Password
+            </label>
+            <input
+              className="w-full bg-transparent border-b border-border py-2 text-base outline-none transition-all focus:border-foreground placeholder:text-muted-foreground/20 rounded-none"
+              placeholder="••••••••"
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              minLength={6}
+              autoComplete={mode === 'signin' ? 'current-password' : 'new-password'}
+            />
+          </div>
+
+          <div className="pt-4 flex flex-col gap-4">
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-primary text-primary-foreground h-11 rounded-md text-xs font-mono uppercase tracking-wider hover:opacity-90 transition-all flex items-center justify-center gap-2 mt-6"
+              className="w-full h-11 bg-foreground text-background text-xs font-mono uppercase tracking-widest hover:opacity-90 transition-opacity disabled:opacity-50 flex items-center justify-center gap-3 rounded-[2px]"
             >
               {loading ? (
-                <Loader2 className="animate-spin" size={16} />
+                <Loader2 size={14} className="animate-spin" />
               ) : (
                 <>
-                  {isSignUp ? 'Sign Up' : 'Sign In'}
-                  <ArrowRight size={16} />
+                  {mode === 'signin' ? 'Connect' : 'Register'}
+                  <ArrowRight size={14} />
                 </>
               )}
             </button>
-          </form>
 
-          <div className="relative">
-            <div className="absolute inset-0 flex items-center">
-              <span className="w-full border-t border-border" />
-            </div>
-            <div className="relative flex justify-center text-xs uppercase">
-              <span className="bg-background px-2 text-muted-foreground">Or continue with</span>
-            </div>
-          </div>
-
-          <button
-            onClick={signInWithGoogle}
-            type="button"
-            className="w-full border border-border h-11 rounded-md text-xs font-mono uppercase tracking-wider hover:bg-secondary/50 transition-colors flex items-center justify-center gap-2"
-          >
-            <svg
-              className="w-4 h-4"
-              aria-hidden="true"
-              focusable="false"
-              data-prefix="fab"
-              data-icon="google"
-              role="img"
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 488 512"
-            >
-              <path
-                fill="currentColor"
-                d="M488 261.8C488 403.3 391.1 504 248 504 110.8 504 0 393.2 0 256S110.8 8 248 8c66.8 0 123 24.5 166.3 64.9l-67.5 64.9C258.5 52.6 94.3 116.6 94.3 256c0 86.5 69.1 156.6 153.7 156.6 98.2 0 135-70.4 140.8-106.9H248v-85.3h236.1c2.3 12.7 3.9 24.9 3.9 41.4z"
-              ></path>
-            </svg>
-            Google
-          </button>
-
-          <p className="text-center text-sm text-muted-foreground">
-            {isSignUp ? 'Already have an account?' : "Don't have an account?"}{' '}
             <button
-              onClick={() => setIsSignUp((prev) => !prev)}
-              className="font-medium text-primary hover:underline underline-offset-4"
+              type="button"
+              onClick={signInWithGoogle}
+              className="w-full h-11 border border-border text-foreground text-xs font-mono uppercase tracking-widest hover:bg-secondary/30 transition-colors flex items-center justify-center gap-3 rounded-[2px]"
             >
-              {isSignUp ? 'Sign in' : 'Sign up'}
+              Google Auth
             </button>
-          </p>
+          </div>
+        </form>
+
+        {/* Footer / Toggle */}
+        <div className="flex justify-center">
+          <button
+            onClick={() => {
+                setMode(mode === 'signin' ? 'signup' : 'signin');
+                setEmail('');
+                setPassword('');
+            }}
+            className="text-xs text-muted-foreground hover:text-foreground transition-colors flex items-center gap-2 group"
+          >
+            <span>{mode === 'signin' ? 'No account?' : 'Have an account?'}</span>
+            <span className="border-b border-muted-foreground/30 group-hover:border-foreground pb-0.5">
+                {mode === 'signin' ? 'Create one' : 'Sign in'}
+            </span>
+          </button>
         </div>
+
+      </div>
+
+      {/* Version Tag */}
+      <div className="fixed bottom-6 left-6 text-[9px] font-mono text-muted-foreground/40 uppercase tracking-widest">
+        System v2.0
       </div>
     </div>
   );

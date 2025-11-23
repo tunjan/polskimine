@@ -22,7 +22,10 @@ const LinguaFlowApp: React.FC = () => {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
+        <div className="flex flex-col items-center gap-4">
+            <div className="animate-spin rounded-full h-4 w-4 border-b border-foreground" />
+            <span className="text-[9px] font-mono uppercase tracking-widest text-muted-foreground">Loading System</span>
+        </div>
       </div>
     );
   }
@@ -31,25 +34,21 @@ const LinguaFlowApp: React.FC = () => {
     return <AuthPage />;
   }
 
-
-
-
-  
-
+  // Handle case where user is auth'd but profile fetch failed or hasn't completed
   if (!profile) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
-      </div>
+        <div className="min-h-screen flex items-center justify-center bg-background">
+            <div className="flex flex-col items-center gap-4">
+                <div className="animate-spin rounded-full h-4 w-4 border-b border-foreground" />
+                <span className="text-[9px] font-mono uppercase tracking-widest text-muted-foreground">Loading Profile</span>
+            </div>
+        </div>
     );
   }
-
 
   if (!profile.username) {
     return <UsernameSetup />;
   }
-
-
 
   return (
     <BrowserRouter>
@@ -64,14 +63,17 @@ const LinguaFlowApp: React.FC = () => {
 const App: React.FC = () => {
   return (
     <QueryClientProvider client={queryClient}>
-      <ThemeProvider defaultTheme="system" storageKey="languagemine-theme">
+      <ThemeProvider defaultTheme="light" storageKey="languagemine-theme">
         <ErrorBoundary>
           <AuthProvider>
             <SettingsProvider>
               <DeckProvider>
                 <SabotageProvider>
                   <LinguaFlowApp />
-                  <Toaster position="bottom-right" />
+                  <Toaster position="bottom-right" toastOptions={{
+                    className: 'rounded-none border-border font-mono text-xs uppercase tracking-wide',
+                    style: { borderRadius: '2px' }
+                  }}/>
                 </SabotageProvider>
               </DeckProvider>
             </SettingsProvider>
