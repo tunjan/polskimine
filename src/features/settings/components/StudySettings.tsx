@@ -3,6 +3,7 @@ import { UserSettings } from '@/types';
 import { EditorialInput } from '@/components/form/EditorialInput';
 import { MetaLabel } from '@/components/form/MetaLabel';
 import { LANGUAGE_NAMES } from '@/constants';
+import { Switch } from '@/components/ui/switch';
 
 interface StudySettingsProps {
   localSettings: UserSettings;
@@ -52,6 +53,26 @@ export const StudySettings: React.FC<StudySettingsProps> = ({ localSettings, set
             }));
           }}
         />
+      </section>
+
+      <div className="w-full h-px bg-border/40" />
+
+      <section className="space-y-4">
+        <div className="flex items-center justify-between">
+          <div>
+            <div className="text-sm font-medium">Binary Mode</div>
+            <div className="text-xs text-muted-foreground">Pass/Fail only (Again vs Good).</div>
+          </div>
+          <Switch
+            checked={localSettings.binaryRatingMode}
+            onCheckedChange={(checked) =>
+              setLocalSettings((prev) => ({
+                ...prev,
+                binaryRatingMode: checked,
+              }))
+            }
+          />
+        </div>
       </section>
     </div>
   );

@@ -76,6 +76,7 @@ export interface UserSettings {
   blindMode: boolean; // New: Play audio before showing text
   showTranslationAfterFlip: boolean;
   ignoreLearningStepsWhenNoCards: boolean;
+  binaryRatingMode: boolean; // Pass/Fail only (Again vs Good)
   tts: TTSSettings;
   fsrs: {
     request_retention: number; // 0.8 to 0.99

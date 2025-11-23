@@ -24,6 +24,7 @@ export const DEFAULT_SETTINGS: UserSettings = {
   blindMode: false,
   showTranslationAfterFlip: true,
   ignoreLearningStepsWhenNoCards: false,
+  binaryRatingMode: false,
   geminiApiKey: '',
   tts: {
     provider: 'browser',

@@ -187,7 +187,7 @@ export const useClaimDailyBonusMutation = () => {
   const queryClient = useQueryClient();
   const { settings } = useSettings();
   const { user, incrementXPOptimistically } = useAuth();
-  const BONUS_AMOUNT = 300; // Big reward for finishing
+  const BONUS_AMOUNT = 20; // Big reward for finishing
 
   return useMutation({
     mutationFn: async () => {

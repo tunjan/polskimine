@@ -3,6 +3,7 @@ import { X, Undo2, Archive, Zap } from 'lucide-react';
 import { Card, Grade } from '@/types';
 import { useSettings } from '@/contexts/SettingsContext';
 import { Flashcard } from './Flashcard';
+import { StudyFeedback } from './StudyFeedback';
 import { useStudySession } from '../hooks/useStudySession';
 import clsx from 'clsx';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
@@ -18,32 +19,14 @@ const gradeToRatingMap: Record<Grade, CardRating> = {
 
 const mapGradeToRating = (grade: Grade): CardRating => gradeToRatingMap[grade];
 
-
-
-const getCardStatus = (card: Card) => {
-
-  if (card.state === 0 || (card.state === undefined && card.status === 'new')) 
-    return { text: 'Unseen', className: 'text-blue-500' };
-  if (card.state === 1 || (card.state === undefined && card.status === 'learning')) 
-    return { text: 'Learning', className: 'text-orange-500' };
-  if (card.state === 3) 
-    return { text: 'Lapse', className: 'text-red-500' };
-  return { text: 'Mature', className: 'text-green-500' };
-};
-
 const getQueueCounts = (cards: Card[]) => {
   return cards.reduce(
     (acc, card) => {
       const state = card.state;
-      if (state === 0 || (state === undefined && card.status === 'new')) {
-        acc.unseen++;
-      } else if (state === 1 || (state === undefined && card.status === 'learning')) {
-        acc.learning++;
-      } else if (state === 3) {
-        acc.lapse++;
-      } else {
-        acc.mature++;
-      }
+      if (state === 0 || (state === undefined && card.status === 'new')) acc.unseen++;
+      else if (state === 1 || (state === undefined && card.status === 'learning')) acc.learning++;
+      else if (state === 3) acc.lapse++;
+      else acc.mature++;
       return acc;
     },
     { unseen: 0, learning: 0, lapse: 0, mature: 0 }
@@ -52,7 +35,7 @@ const getQueueCounts = (cards: Card[]) => {
 
 interface StudySessionProps {
   dueCards: Card[];
-  reserveCards?: Card[]; // Added prop
+  reserveCards?: Card[];
   onUpdateCard: (card: Card) => void;
   onRecordReview: (oldCard: Card, grade: Grade, xpPayload?: CardXpPayload) => void;
   onExit: () => void;
@@ -60,11 +43,12 @@ interface StudySessionProps {
   onUndo?: () => void;
   canUndo?: boolean;
   isCramMode?: boolean;
+  dailyStreak: number;
 }
 
 export const StudySession: React.FC<StudySessionProps> = ({
   dueCards,
-  reserveCards = [], // Default empty
+  reserveCards = [],
   onUpdateCard,
   onRecordReview,
   onExit,
@@ -72,25 +56,24 @@ export const StudySession: React.FC<StudySessionProps> = ({
   onUndo,
   canUndo,
   isCramMode = false,
+  dailyStreak,
 }) => {
   const { settings } = useSettings();
-  const { sessionXp, sessionStreak, processCardResult } = useXpSession(isCramMode);
-  const getDisplayedBaseXp = (grade: Grade) => {
-    const rating = mapGradeToRating(grade);
-    if (isCramMode) {
-      return rating === 'again' ? 0 : XP_CONFIG.CRAM_CORRECT;
-    }
-    return XP_CONFIG.BASE[rating];
-  };
+  const { sessionXp, sessionStreak, multiplierInfo, feedback, processCardResult } = useXpSession(dailyStreak, isCramMode);
 
-  const enhancedRecordReview = useCallback(
-    (card: Card, grade: Grade) => {
+  const enhancedRecordReview = useCallback((card: Card, grade: Grade) => {
       const rating = mapGradeToRating(grade);
-      const reward = processCardResult(rating);
-      onRecordReview(card, grade, reward);
-    },
-    [onRecordReview, processCardResult]
-  );
+      const xpResult = processCardResult(rating); 
+      const payload: CardXpPayload = {
+        ...xpResult,
+        rating,
+        streakAfter: rating === 'again' ? 0 : sessionStreak + 1,
+        isCramMode,
+        dailyStreak,
+        multiplierLabel: multiplierInfo.label
+      };
+      onRecordReview(card, grade, payload);
+    }, [onRecordReview, processCardResult, sessionStreak, isCramMode, dailyStreak, multiplierInfo]);
 
   const {
     sessionCards,
@@ -106,7 +89,7 @@ export const StudySession: React.FC<StudySessionProps> = ({
     isProcessing,
   } = useStudySession({
     dueCards,
-    reserveCards, // Pass to hook
+    reserveCards,
     settings,
     onUpdateCard,
     onRecordReview: enhancedRecordReview,
@@ -114,79 +97,72 @@ export const StudySession: React.FC<StudySessionProps> = ({
     onUndo,
   });
 
-  const counts = useMemo(() => {
-    return getQueueCounts(sessionCards.slice(currentIndex));
-  }, [sessionCards, currentIndex]);
+  const counts = useMemo(() => getQueueCounts(sessionCards.slice(currentIndex)), [sessionCards, currentIndex]);
 
-  const stateRef = useRef({ 
-    isFlipped, 
-    sessionComplete, 
-    currentCard,
-    canUndo,
-    isProcessing,
-  });
+  const currentStatus = useMemo(() => {
+    if (!currentCard) return null;
+    if (isCramMode) return { label: 'CRAM', className: 'text-purple-500 border-purple-500/20 bg-purple-500/5' };
 
-  const handleGradeRef = useRef(handleGrade);
-  const handleMarkKnownRef = useRef(handleMarkKnown);
-  const handleUndoRef = useRef(handleUndo);
-  const onUndoRef = useRef(onUndo);
-  const onExitRef = useRef(onExit);
-
-  useEffect(() => {
-    stateRef.current = { isFlipped, sessionComplete, currentCard, canUndo, isProcessing };
-  }, [isFlipped, sessionComplete, currentCard, canUndo, isProcessing]);
-
-  useEffect(() => {
-    handleGradeRef.current = handleGrade;
-    handleMarkKnownRef.current = handleMarkKnown;
-    handleUndoRef.current = handleUndo;
-    onUndoRef.current = onUndo;
-    onExitRef.current = onExit;
-  }, [handleGrade, handleMarkKnown, handleUndo, onUndo, onExit]);
+    const s = currentCard.state;
+    // 0=New, 1=Learning, 2=Review, 3=Relearning
+    if (s === 0 || (s === undefined && currentCard.status === 'new')) {
+        return { label: 'NEW', className: 'text-blue-500 border-blue-500/20 bg-blue-500/5' };
+    }
+    if (s === 1 || (s === undefined && currentCard.status === 'learning')) {
+        return { label: 'LRN', className: 'text-orange-500 border-orange-500/20 bg-orange-500/5' };
+    }
+    if (s === 3) {
+        return { label: 'LAPSE', className: 'text-red-500 border-red-500/20 bg-red-500/5' };
+    }
+    return { label: 'REV', className: 'text-green-500 border-green-500/20 bg-green-500/5' };
+  }, [currentCard, isCramMode]);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      const state = stateRef.current;
-      if (!state.currentCard && !state.sessionComplete) return;
+      if (!currentCard && !sessionComplete) return;
       
-      if (!state.isFlipped && !state.sessionComplete && e.code === 'Space') {
-        e.preventDefault();
-        setIsFlipped(true);
-      } else if (state.isFlipped && !state.sessionComplete && !state.isProcessing) {
-        if (e.code === 'Space' || e.key === '2') { e.preventDefault(); handleGradeRef.current('Good'); }
-        else if (e.key === '1') { e.preventDefault(); handleGradeRef.current('Again'); }
-        else if (e.key === '3') { e.preventDefault(); handleGradeRef.current('Easy'); }
-        else if (e.key === '4') { e.preventDefault(); handleGradeRef.current('Hard'); }
+      // Flip Logic
+      if (!isFlipped && !sessionComplete && (e.code === 'Space' || e.code === 'Enter')) { 
+        e.preventDefault(); 
+        setIsFlipped(true); 
+      }
+      // Grade Logic
+      else if (isFlipped && !sessionComplete && !isProcessing) {
+        if (settings.binaryRatingMode) {
+            // Binary Mode: 1=Fail, Space/2/3/4=Pass
+            if (e.key === '1') { 
+                e.preventDefault(); 
+                handleGrade('Again'); 
+            } else if (['2', '3', '4', 'Space', 'Enter'].includes(e.key) || e.code === 'Space') { 
+                e.preventDefault(); 
+                handleGrade('Good'); 
+            }
+        } else {
+            // Standard Mode
+            if (e.code === 'Space' || e.key === '3') { e.preventDefault(); handleGrade('Good'); }
+            else if (e.key === '1') { e.preventDefault(); handleGrade('Again'); }
+            else if (e.key === '2') { e.preventDefault(); handleGrade('Hard'); }
+            else if (e.key === '4') { e.preventDefault(); handleGrade('Easy'); }
+        }
       }
 
-      if (e.code === 'KeyK' && !state.sessionComplete && !state.isProcessing) {
-        e.preventDefault();
-        handleMarkKnownRef.current();
-      }
-
-      if (e.key === 'z' && state.canUndo && onUndoRef.current) {
-        e.preventDefault();
-        handleUndoRef.current();
-      }
-      if (e.key === 'Escape') onExitRef.current();
+      if (e.key === 'z' && canUndo && onUndo) { e.preventDefault(); handleUndo(); }
+      if (e.key === 'Escape') onExit();
     };
-    
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, []);
+  }, [currentCard, sessionComplete, isFlipped, isProcessing, handleGrade, handleUndo, canUndo, onUndo, onExit, settings.binaryRatingMode]);
 
   if (sessionComplete) {
     return (
-      <div className="fixed inset-0 bg-background flex flex-col items-center justify-center animate-in fade-in duration-500">
-        <div className="text-center space-y-6">
-          <h2 className="text-4xl md:text-6xl font-light tracking-tighter">Session Complete</h2>
-          <p className="text-muted-foreground">Queue cleared for now.</p>
-          
-          <button 
-            onClick={() => onComplete ? onComplete() : onExit()}
-            className="bg-primary text-primary-foreground px-8 py-3 rounded-md text-sm font-mono uppercase tracking-widest hover:opacity-90 transition-all"
-          >
-            Finish & Claim Rewards
+      <div className="fixed inset-0 bg-background flex flex-col items-center justify-center animate-in fade-in duration-700">
+        <div className="text-center space-y-12">
+          <div className="space-y-4">
+             <h2 className="text-5xl md:text-8xl font-thin tracking-tighter">Session Clear</h2>
+             <p className="text-xs font-mono uppercase tracking-[0.3em] text-muted-foreground">All cards reviewed</p>
+          </div>
+          <button onClick={() => onComplete ? onComplete() : onExit()} className="group relative px-8 py-4 bg-transparent hover:bg-primary/5 border border-border hover:border-primary transition-all rounded text-sm font-mono uppercase tracking-widest">
+            <span className="relative z-10 group-hover:text-primary transition-colors">Finish & Claim</span>
           </button>
         </div>
       </div>
@@ -196,80 +172,76 @@ export const StudySession: React.FC<StudySessionProps> = ({
   if (!currentCard) return null;
 
   return (
-    <div className="fixed inset-0 z-50 bg-background flex flex-col">
-      {/* Minimal Progress Bar */}
-      <div className="h-1 w-full bg-secondary/30 shrink-0">
-        <div 
-            className="h-full bg-primary transition-all duration-300 ease-out" 
-            style={{ width: `${progress}%` }} 
-        />
+    <div className="fixed inset-0 z-50 bg-background flex flex-col overflow-hidden">
+      
+      {/* 1. Ultra-Minimal Progress Line */}
+      <div className="h-[2px] w-full bg-secondary/20">
+        <div className="h-full bg-primary transition-all duration-500 ease-out" style={{ width: `${progress}%` }} />
       </div>
 
-      {/* Controls Overlay (Top) */}
-      <div className="absolute top-0 left-0 right-0 p-4 md:p-6 flex justify-between items-start z-50 pointer-events-none">
-         <div className="flex items-center gap-2 md:gap-4 font-mono text-xs pointer-events-auto">
-            {/* Counters */}
-            <div className="flex gap-3 md:gap-6 font-bold bg-background/90 backdrop-blur border border-border/50 px-3 py-2 md:py-0 rounded-md md:rounded-none md:border-none md:bg-transparent shadow-sm md:shadow-none">
-              <span className="text-blue-500" title="Unseen">{counts.unseen}</span>
-              <span className="text-red-500" title="Lapse">{counts.lapse}</span>
-              <span className="text-orange-500" title="Learning">{counts.learning}</span>
-              <span className="text-green-500" title="Mature">{counts.mature}</span>
-            </div>
-
-            {/* Status Label */}
-            <div className="hidden sm:flex items-center gap-4">
-                <span className="text-muted-foreground/30">|</span>
-                {(() => {
-                     const status = getCardStatus(currentCard);
-                     return (
-                         <span className={clsx("font-bold uppercase tracking-wider", status.className)}>
-                             {status.text}
-                         </span>
-                     );
-                 })()}
-            </div>
-            <div className="hidden md:flex items-center gap-3 text-muted-foreground/80">
-              <span>Streak <span className="text-foreground">{sessionStreak}</span></span>
-              <span className="text-muted-foreground/30">|</span>
-              <span className="flex items-center gap-1 text-primary font-semibold">
-                <Zap size={14} className="text-primary" />
-                {sessionXp} XP
-              </span>
-            </div>
+      {/* 2. Heads-Up Display (HUD) */}
+      <header className="h-14 px-4 md:px-6 flex justify-between items-center select-none shrink-0">
+         
+         {/* Queue Stats (Left) */}
+         <div className="flex gap-3 md:gap-4 text-[10px] font-mono text-muted-foreground/40 uppercase tracking-widest items-center">
+            {/* Compact Labels on Mobile */}
+            <span title="New" className={clsx("transition-colors", counts.unseen > 0 && "text-blue-500/80")}>
+                <span className="hidden sm:inline">New </span><span className="sm:hidden">N:</span>{counts.unseen}
+            </span>
+            <span title="Learn" className={clsx("transition-colors", counts.learning > 0 && "text-orange-500/80")}>
+                <span className="hidden sm:inline">Lrn </span><span className="sm:hidden">L:</span>{counts.learning}
+            </span>
+            <span title="Review" className={clsx("transition-colors", counts.mature > 0 && "text-green-500/80")}>
+                <span className="hidden sm:inline">Rev </span><span className="sm:hidden">R:</span>{counts.mature}
+            </span>
          </div>
 
-         {/* Action Buttons */}
-         <div className="flex gap-2 md:gap-4 pointer-events-auto bg-background/90 backdrop-blur border border-border/50 p-1 rounded-md md:rounded-none md:border-none md:bg-transparent md:p-0 shadow-sm md:shadow-none">
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <button 
-                    onClick={handleMarkKnown} 
-                    disabled={isProcessing}
-                    className="p-2 rounded-md hover:bg-secondary text-muted-foreground hover:text-foreground transition-colors disabled:opacity-50"
-                  >
-                    <Archive size={18} className="md:w-5 md:h-5" />
-                  </button>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>Mark as Known (K)</p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-
-            {canUndo && (
-                <button onClick={handleUndo} className="p-2 rounded-md hover:bg-secondary text-muted-foreground hover:text-foreground transition-colors">
-                    <Undo2 size={18} className="md:w-5 md:h-5" />
+         {/* Meta & Tools (Right) */}
+         <div className="flex items-center gap-4 md:gap-6">
+            <div className="flex flex-col items-end">
+                <div className="flex items-center gap-2 text-xs font-medium tabular-nums text-muted-foreground">
+                    <span>{sessionXp} XP</span>
+                    {multiplierInfo.value > 1.0 && (
+                        <span className="text-[9px] text-primary hidden sm:inline">
+                            {multiplierInfo.value.toFixed(2)}x
+                        </span>
+                    )}
+                </div>
+            </div>
+            
+            <div className="flex items-center gap-1 text-muted-foreground/50">
+                <button onClick={handleMarkKnown} disabled={isProcessing} className="p-2 hover:text-foreground transition-colors" title="Archive (K)">
+                    <Archive size={14} strokeWidth={1.5} />
                 </button>
-            )}
-            <button onClick={onExit} className="p-2 rounded-md hover:bg-secondary text-muted-foreground hover:text-foreground transition-colors">
-                <X size={18} className="md:w-5 md:h-5" />
-            </button>
+                {canUndo && (
+                    <button onClick={handleUndo} className="p-2 hover:text-foreground transition-colors" title="Undo (Z)">
+                        <Undo2 size={14} strokeWidth={1.5} />
+                    </button>
+                )}
+                <button onClick={onExit} className="p-2 hover:text-destructive transition-colors" title="Exit (Esc)">
+                    <X size={14} strokeWidth={1.5} />
+                </button>
+            </div>
          </div>
-      </div>
+      </header>
 
-      {/* Main Content */}
-      <div className="flex-1 w-full flex flex-col items-center justify-center p-6 md:p-12 overflow-hidden relative">
+      {/* 3. The Stage (Flashcard) */}
+      <main className="flex-1 w-full relative flex flex-col">
+         
+         {/* Status Indicator - Moved inside Main to prevent overlap */}
+         <div className="w-full flex justify-center py-2 shrink-0 min-h-[30px]">
+            {currentStatus && (
+                <div className={clsx(
+                    "px-2 py-0.5 rounded-[2px] border text-[9px] font-mono uppercase tracking-[0.2em] transition-all duration-300 select-none",
+                    currentStatus.className
+                )}>
+                    {currentStatus.label}
+                </div>
+            )}
+         </div>
+
+         <StudyFeedback feedback={feedback} />
+         
          <Flashcard 
             card={currentCard} 
             isFlipped={isFlipped} 
@@ -278,46 +250,87 @@ export const StudySession: React.FC<StudySessionProps> = ({
             showTranslation={settings.showTranslationAfterFlip}
             language={settings.language}
           />
-      </div>
+      </main>
 
-      {/* Bottom Actions */}
-      <div className="h-32 md:h-40 shrink-0 flex flex-col items-center justify-center gap-2 px-4 md:px-6 pb-6 md:pb-8">
-        <div className="w-full max-w-lg flex items-center justify-between text-[11px] font-mono text-muted-foreground md:hidden">
-          <span>Streak <span className="text-foreground">{sessionStreak}</span></span>
-          <span className="flex items-center gap-1 text-primary font-semibold">
-            <Zap size={14} className="text-primary" />
-            {sessionXp} XP
-          </span>
-        </div>
+      {/* 4. Disciplined Controls (Bottom) */}
+      <footer className="h-24 md:h-32 shrink-0 border-t border-border/20 bg-background/50 backdrop-blur-sm">
         {!isFlipped ? (
              <button 
               onClick={() => setIsFlipped(true)}
               disabled={isProcessing}
-              className="w-full max-w-md h-14 rounded-md border border-border/50 hover:border-foreground/50 hover:bg-secondary/50 transition-all text-xs font-mono uppercase tracking-widest text-muted-foreground hover:text-foreground disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full h-full text-xs font-mono uppercase tracking-[0.2em] text-muted-foreground hover:text-foreground hover:bg-secondary/10 transition-colors"
              >
-              {isProcessing ? 'Processing...' : 'Reveal Answer'}
+              Tap to Reveal
              </button>
         ) : (
-            <div className="grid grid-cols-2 gap-4 md:gap-6 w-full max-w-lg animate-in slide-in-from-bottom-4 fade-in duration-300">
-              <button 
-                onClick={() => handleGrade('Again')}
-                disabled={isProcessing}
-                className="group h-16 rounded-md border border-border/50 hover:border-red-500/50 hover:bg-red-500/5 transition-all flex flex-col items-center justify-center gap-1 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                <span className="text-xs font-mono uppercase tracking-wider text-muted-foreground group-hover:text-red-500">Again</span>
-                <span className="text-[10px] font-mono text-muted-foreground/50">+{getDisplayedBaseXp('Again')} XP</span>
-              </button>
-              <button 
-                onClick={() => handleGrade('Good')}
-                disabled={isProcessing}
-                className="group h-16 rounded-md border border-primary/30 hover:border-primary hover:bg-primary/5 transition-all flex flex-col items-center justify-center gap-1 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                <span className="text-xs font-mono uppercase tracking-wider text-foreground group-hover:text-primary">Good</span>
-                <span className="text-[10px] font-mono text-muted-foreground/50">+{getDisplayedBaseXp('Good')} XP</span>
-              </button>
-            </div>
+            settings.binaryRatingMode ? (
+                // Binary Mode Layout
+                <div className="grid grid-cols-2 h-full w-full divide-x divide-border/20">
+                    <AnswerButton 
+                        label="Again" 
+                        sub="1" 
+                        colorClass="hover:bg-red-500/5 hover:text-red-500" 
+                        onClick={() => handleGrade('Again')} 
+                        disabled={isProcessing} 
+                    />
+                    <AnswerButton 
+                        label="Good" 
+                        sub="Space" 
+                        colorClass="hover:bg-green-500/5 hover:text-green-500" 
+                        onClick={() => handleGrade('Good')} 
+                        disabled={isProcessing} 
+                    />
+                </div>
+            ) : (
+                // Standard Mode Layout
+                <div className="grid grid-cols-4 h-full w-full divide-x divide-border/20">
+                    <AnswerButton 
+                        label="Again" 
+                        sub="1" 
+                        colorClass="hover:bg-red-500/5 hover:text-red-500" 
+                        onClick={() => handleGrade('Again')} 
+                        disabled={isProcessing} 
+                    />
+                    <AnswerButton 
+                        label="Hard" 
+                        sub="2" 
+                        colorClass="hover:bg-orange-500/5 hover:text-orange-500" 
+                        onClick={() => handleGrade('Hard')} 
+                        disabled={isProcessing} 
+                    />
+                    <AnswerButton 
+                        label="Good" 
+                        sub="3" 
+                        colorClass="hover:bg-green-500/5 hover:text-green-500" 
+                        onClick={() => handleGrade('Good')} 
+                        disabled={isProcessing} 
+                    />
+                    <AnswerButton 
+                        label="Easy" 
+                        sub="4" 
+                        colorClass="hover:bg-blue-500/5 hover:text-blue-500" 
+                        onClick={() => handleGrade('Easy')} 
+                        disabled={isProcessing} 
+                    />
+                </div>
+            )
         )}
-      </div>
+      </footer>
     </div>
   );
 };
+
+const AnswerButton = ({ label, sub, colorClass, onClick, disabled }: any) => (
+    <button 
+        onClick={onClick}
+        disabled={disabled}
+        className={clsx(
+            "flex flex-col items-center justify-center gap-1 transition-all duration-200 group relative overflow-hidden",
+            colorClass,
+            disabled && "opacity-50 cursor-not-allowed"
+        )}
+    >
+        <span className="text-xs font-mono uppercase tracking-widest z-10">{label}</span>
+        <span className="text-[9px] font-mono text-muted-foreground/30 absolute bottom-4 md:bottom-8 group-hover:opacity-0 transition-opacity">{sub}</span>
+    </button>
+);

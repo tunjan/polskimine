@@ -15,7 +15,7 @@ import { useClaimDailyBonusMutation } from '@/features/deck/hooks/useDeckQueries
 import { CardXpPayload } from '@/features/xp/xpUtils';
 
 export const StudyRoute: React.FC = () => {
-  const { recordReview, undoReview, canUndo } = useDeck();
+  const { recordReview, undoReview, canUndo, stats } = useDeck();
   const { updateCard } = useCardOperations();
   const { settings } = useSettings();
   const claimBonus = useClaimDailyBonusMutation();
@@ -127,6 +127,7 @@ export const StudyRoute: React.FC = () => {
       onUndo={isCramMode ? undefined : undoReview}
       canUndo={isCramMode ? false : canUndo}
       isCramMode={isCramMode}
+      dailyStreak={stats?.streak ?? 0}
     />
   );
 };

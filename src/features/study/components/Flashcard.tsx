@@ -5,7 +5,7 @@ import { ttsService } from '@/services/tts';
 import { useSettings } from '@/contexts/SettingsContext';
 import { useSabotage } from '@/contexts/SabotageContext';
 import { uwuify, FAKE_ANSWERS } from '@/lib/memeUtils';
-import { Play, Sparkles, Loader2, BookOpen, Quote } from 'lucide-react';
+import { Play, Sparkles, Loader2, Quote, Mic } from 'lucide-react';
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import { aiService } from '@/features/deck/services/ai';
 import { toast } from 'sonner';
@@ -30,17 +30,12 @@ export const Flashcard: React.FC<FlashcardProps> = ({
   const { settings } = useSettings(); 
   const { isCursedWith } = useSabotage();
   const [isRevealed, setIsRevealed] = useState(!blindMode);
-  
-
   const [playSlow, setPlaySlow] = useState(false);
-  
   const hasSpokenRef = React.useRef<string | null>(null);
-  
-
   const [displayedTranslation, setDisplayedTranslation] = useState(card.nativeTranslation);
   const [isGaslit, setIsGaslit] = useState(false);
 
-
+  // Analysis State
   const [selection, setSelection] = useState<{ text: string; top: number; left: number } | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [analysisResult, setAnalysisResult] = useState<{ originalText: string; definition: string; partOfSpeech: string; contextMeaning: string } | null>(null);
@@ -48,13 +43,12 @@ export const Flashcard: React.FC<FlashcardProps> = ({
 
   useEffect(() => { setIsRevealed(!blindMode); }, [card.id, blindMode]);
   useEffect(() => { if (isFlipped) setIsRevealed(true); }, [isFlipped]);
-  
 
   useEffect(() => {
     setSelection(null);
     setAnalysisResult(null);
     setIsAnalysisOpen(false);
-    setPlaySlow(false); // Reset to normal speed for new card
+    setPlaySlow(false);
   }, [card.id]);
 
   useEffect(() => {
@@ -68,25 +62,12 @@ export const Flashcard: React.FC<FlashcardProps> = ({
     }
   }, [card.id, isCursedWith]);
 
-  const processText = (text: string) => {
-      if (isCursedWith('uwu')) return uwuify(text);
-      return text;
-  };
+  const processText = (text: string) => isCursedWith('uwu') ? uwuify(text) : text;
   
   const speak = useCallback(() => {
-
-    const effectiveRate = playSlow 
-        ? Math.max(0.25, settings.tts.rate * 0.6) 
-        : settings.tts.rate;
-
-    const effectiveSettings = {
-        ...settings.tts,
-        rate: effectiveRate
-    };
-
+    const effectiveRate = playSlow ? Math.max(0.25, settings.tts.rate * 0.6) : settings.tts.rate;
+    const effectiveSettings = { ...settings.tts, rate: effectiveRate };
     ttsService.speak(card.targetSentence, language, effectiveSettings);
-    
-
     setPlaySlow(prev => !prev);
   }, [card.targetSentence, language, settings.tts, playSlow]);
 
@@ -94,17 +75,12 @@ export const Flashcard: React.FC<FlashcardProps> = ({
     if (hasSpokenRef.current !== card.id) {
       hasSpokenRef.current = null;
     }
-
     if (autoPlayAudio && hasSpokenRef.current !== card.id) {
       speak();
       hasSpokenRef.current = card.id;
     }
-    
-    return () => {
-      ttsService.stop();
-    };
+    return () => ttsService.stop();
   }, [card.id, autoPlayAudio, speak]);
-
 
   const handleMouseUp = useCallback(() => {
     const sel = window.getSelection();
@@ -112,21 +88,12 @@ export const Flashcard: React.FC<FlashcardProps> = ({
         setSelection(null);
         return;
     }
-
     const text = sel.toString().trim();
     if (!text) return;
-
     const range = sel.getRangeAt(0);
     const rect = range.getBoundingClientRect();
-    
-
-    setSelection({
-        text,
-        top: rect.top - 50, 
-        left: rect.left + (rect.width / 2)
-    });
+    setSelection({ text, top: rect.top - 60, left: rect.left + (rect.width / 2) });
   }, []);
-
 
   useEffect(() => {
     const clear = () => setSelection(null);
@@ -141,25 +108,19 @@ export const Flashcard: React.FC<FlashcardProps> = ({
   const handleAnalyze = async () => {
     if (!selection) return;
     if (!settings.geminiApiKey) {
-        toast.error("Please add your Gemini API Key in Settings to use this feature.");
+        toast.error("API Key required.");
         setSelection(null);
         return;
     }
-
     setIsAnalyzing(true);
     try {
-        const result = await aiService.analyzeWord(
-            selection.text, 
-            card.targetSentence, 
-            language, 
-            settings.geminiApiKey
-        );
+        const result = await aiService.analyzeWord(selection.text, card.targetSentence, language, settings.geminiApiKey);
         setAnalysisResult({ ...result, originalText: selection.text });
         setIsAnalysisOpen(true);
         setSelection(null);
         window.getSelection()?.removeAllRanges();
     } catch (e) {
-        toast.error("Failed to analyze text.");
+        toast.error("Analysis failed.");
     } finally {
         setIsAnalyzing(false);
     }
@@ -167,37 +128,32 @@ export const Flashcard: React.FC<FlashcardProps> = ({
 
   const displayedSentence = processText(card.targetSentence);
 
-
   const fontSizeClass = useMemo(() => {
-    const cleanLength = language === 'japanese' && card.furigana 
-        ? parseFurigana(card.furigana).reduce((acc, curr) => acc + curr.text.length, 0)
-        : displayedSentence.length;
-
-    if (cleanLength < 10) return "text-6xl md:text-8xl"; 
-    if (cleanLength < 20) return "text-5xl md:text-7xl"; 
-    if (cleanLength < 40) return "text-4xl md:text-6xl"; 
-    if (cleanLength < 80) return "text-3xl md:text-5xl"; 
-    return "text-2xl md:text-4xl"; 
-  }, [displayedSentence, language, card.furigana]);
+    const len = displayedSentence.length;
+    if (len < 6) return "text-7xl md:text-9xl tracking-tight"; 
+    if (len < 15) return "text-6xl md:text-8xl tracking-tight"; 
+    if (len < 30) return "text-5xl md:text-7xl tracking-tight"; 
+    if (len < 60) return "text-4xl md:text-6xl tracking-tight"; 
+    return "text-3xl md:text-5xl"; 
+  }, [displayedSentence]);
 
   const RenderedSentence = useMemo(() => {
     const baseClasses = cn(
-        "font-medium tracking-tight leading-tight text-center transition-all duration-500 text-balance max-w-5xl mx-auto",
+        "font-light text-center transition-all duration-700 text-balance select-text leading-[1.1]",
         fontSizeClass
     );
     
     if (!isRevealed) {
       return (
-        <div 
-          onClick={() => setIsRevealed(true)}
-          className="cursor-pointer group flex flex-col items-center gap-4"
-        >
-          <p className={cn(baseClasses, "blur-xl opacity-20 group-hover:opacity-30")}>
-            {displayedSentence}
-          </p>
-          <span className="text-xs font-mono uppercase tracking-widest text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity">
-            Click to Reveal
-          </span>
+        <div onClick={() => setIsRevealed(true)} className="cursor-pointer group flex flex-col items-center gap-6">
+            {blindMode && (
+                <button onClick={(e) => { e.stopPropagation(); speak(); }} className="p-4 rounded-full border border-foreground/10 hover:border-foreground/30 transition-colors mb-4">
+                    <Mic size={32} strokeWidth={1} />
+                </button>
+            )}
+            <p className={cn(baseClasses, "blur-2xl opacity-10 group-hover:opacity-20 scale-95 group-hover:scale-100 transition-transform duration-700")}>
+                {displayedSentence}
+            </p>
         </div>
       );
     }
@@ -205,49 +161,32 @@ export const Flashcard: React.FC<FlashcardProps> = ({
     if (language === 'japanese' && card.furigana) {
       const segments = parseFurigana(card.furigana);
       return (
-        <div className={cn(baseClasses, "flex flex-wrap justify-center items-end gap-x-[0.1em] leading-relaxed")}>
+        <div className={cn(baseClasses, "flex flex-wrap justify-center items-end gap-x-[0.2em]")}>
           {segments.map((segment, i) => {
-            const isPartOfTarget = card.targetWord && (
-              card.targetWord === segment.text || 
-              card.targetWord.includes(segment.text) ||
-              segment.text === card.targetWord
-            );
-            
+            const isTarget = card.targetWord && (card.targetWord === segment.text || card.targetWord.includes(segment.text));
             if (segment.furigana) {
               return (
                 <div key={i} className="group flex flex-col items-center justify-end">
-                  <span className="text-[0.5em] text-muted-foreground mb-[0.1em] select-none opacity-0 group-hover:opacity-100 transition-opacity leading-none">
+                  <span className="text-[0.4em] text-muted-foreground mb-[0.2em] select-none opacity-0 group-hover:opacity-100 transition-opacity leading-none font-mono">
                       {processText(segment.furigana)}
                   </span>
-                  <span className={isPartOfTarget ? "text-primary" : ""}>
-                      {processText(segment.text)}
-                  </span>
+                  <span className={isTarget ? "text-primary font-normal" : ""}>{processText(segment.text)}</span>
                 </div>
               );
             }
-            return (
-              <span key={i} className={isPartOfTarget ? "text-primary" : ""}>
-                  {processText(segment.text)}
-              </span>
-            );
+            return <span key={i} className={isTarget ? "text-primary font-normal" : ""}>{processText(segment.text)}</span>;
           })}
         </div>
       );
     }
 
     if (card.targetWord) {
-        const rawTarget = card.targetWord;
-        const parts = displayedSentence.split(new RegExp(`(${escapeRegExp(rawTarget)})`, 'gi'));
-        
-        if (parts.length === 1 && parts[0] === displayedSentence && isCursedWith('uwu')) {
-             return <p className={baseClasses}>{displayedSentence}</p>;
-        }
-
+        const parts = displayedSentence.split(new RegExp(`(${escapeRegExp(card.targetWord)})`, 'gi'));
         return (
             <p className={baseClasses}>
                 {parts.map((part, i) => 
-                    part.toLowerCase() === rawTarget.toLowerCase() 
-                    ? <span key={i} className="text-primary border-b-2 border-primary/30">{processText(part)}</span> 
+                    part.toLowerCase() === card.targetWord?.toLowerCase() 
+                    ? <span key={i} className="text-primary font-normal border-b border-primary/20 pb-1">{processText(part)}</span> 
                     : <span key={i}>{processText(part)}</span>
                 )}
             </p>
@@ -255,10 +194,10 @@ export const Flashcard: React.FC<FlashcardProps> = ({
     }
 
     return <p className={baseClasses}>{displayedSentence}</p>;
-  }, [displayedSentence, card.targetWord, card.furigana, isRevealed, language, isCursedWith, fontSizeClass]);
+  }, [displayedSentence, card.targetWord, card.furigana, isRevealed, language, isCursedWith, fontSizeClass, blindMode, speak]);
 
   const containerClasses = cn(
-      "w-full max-w-6xl mx-auto flex flex-col items-center justify-center h-full transition-all duration-700",
+      "relative w-full max-w-7xl mx-auto flex flex-col items-center justify-center h-full transition-all duration-700",
       isCursedWith('rotate') && "rotate-180",
       isCursedWith('comic_sans') && "font-['Comic_Sans_MS']",
       isCursedWith('blur') && "animate-pulse blur-[1px]"
@@ -266,54 +205,51 @@ export const Flashcard: React.FC<FlashcardProps> = ({
 
   return (
     <>
-        <div 
-            className={containerClasses} 
-            onMouseUp={handleMouseUp}
-            onTouchEnd={handleMouseUp}
-        >
-        {/* Main Content */}
-        <div className="w-full px-6 flex flex-col items-center gap-8">
-            {RenderedSentence}
-            
-            {/* Audio Control */}
-            <button 
-                onClick={speak}
-                className="text-muted-foreground hover:text-foreground transition-colors p-4 rounded-full hover:bg-secondary/50 relative group"
-            >
-                <Play size={24} fill="currentColor" className={cn("transition-opacity", playSlow ? "opacity-100 text-primary" : "opacity-50")} />
-                {playSlow && <span className="absolute -bottom-2 left-1/2 -translate-x-1/2 text-[8px] font-mono uppercase tracking-widest text-primary/70">Slow</span>}
-            </button>
-        </div>
-
-        {/* Back Side / Answer */}
-        {isFlipped && (
-            <div className="mt-12 flex flex-col items-center gap-4 animate-in fade-in slide-in-from-bottom-8 duration-500 fill-mode-forwards">
-                <div className="h-px w-12 bg-border mb-4" />
-                {showTranslation && (
-                    <div className="relative">
-                        <p className={cn(
-                            "text-xl md:text-2xl text-muted-foreground font-light text-center max-w-2xl leading-relaxed text-balance",
-                            isGaslit && "text-destructive animate-pulse"
-                        )}>
-                            {processText(displayedTranslation)}
-                        </p>
-                        {isGaslit && (
-                            <p className="absolute -right-16 top-0 text-[8px] uppercase tracking-widest text-destructive -rotate-12 opacity-50">
-                                Gaslit
-                            </p>
-                        )}
-                    </div>
-                )}
-                {card.notes && (
-                    <p className="text-sm font-mono text-muted-foreground/60 mt-2 max-w-md text-center">
-                        {processText(card.notes)}
-                    </p>
+        <div className={containerClasses} onMouseUp={handleMouseUp} onTouchEnd={handleMouseUp}>
+            {/* Question Block: Stays stationary because it's the only item in the flex flow */}
+            <div className="w-full px-6 flex flex-col items-center gap-12 z-10">
+                {RenderedSentence}
+                
+                {isRevealed && (
+                    <button 
+                        onClick={speak}
+                        className="group flex items-center gap-3 text-muted-foreground/30 hover:text-foreground transition-all"
+                    >
+                        <Play size={14} fill="currentColor" className={cn("transition-all", playSlow && "text-primary")} />
+                        <span className="text-[9px] font-mono uppercase tracking-[0.2em] opacity-0 group-hover:opacity-100 transition-opacity">
+                            {playSlow ? 'Slow' : 'Audio'}
+                        </span>
+                    </button>
                 )}
             </div>
-        )}
+
+            {/* Answer Reveal: Absolute positioning removes it from flex flow, preventing shift */}
+            {isFlipped && (
+                <div className="absolute top-1/2 left-0 right-0 pt-32 md:pt-44 flex flex-col items-center gap-6 animate-in fade-in slide-in-from-bottom-4 duration-700 z-0 pointer-events-none">
+                    <div className="w-8 h-px bg-border/50" />
+                    
+                    {showTranslation && (
+                        <div className="relative group pointer-events-auto">
+                            <p className={cn(
+                                "text-xl md:text-2xl text-muted-foreground font-light text-center max-w-2xl leading-relaxed text-balance transition-colors duration-300",
+                                isGaslit ? "text-destructive/80" : "group-hover:text-foreground/80"
+                            )}>
+                                {processText(displayedTranslation)}
+                            </p>
+                            {isGaslit && <span className="absolute -top-4 -right-8 text-[8px] font-mono uppercase text-destructive tracking-widest rotate-12">Sus</span>}
+                        </div>
+                    )}
+                    
+                    {card.notes && (
+                        <p className="text-xs font-mono text-muted-foreground/40 max-w-md text-center tracking-wide pointer-events-auto">
+                            {processText(card.notes)}
+                        </p>
+                    )}
+                </div>
+            )}
         </div>
 
-        {/* Floating Analyze Button */}
+        {/* Floating Context Menu */}
         {selection && (
             <div 
                 className="fixed z-50 -translate-x-1/2 animate-in fade-in zoom-in-95 duration-200"
@@ -323,59 +259,40 @@ export const Flashcard: React.FC<FlashcardProps> = ({
                 <button
                     onClick={handleAnalyze}
                     disabled={isAnalyzing}
-                    className="flex items-center gap-2 bg-foreground text-background px-4 py-2 rounded-full shadow-xl hover:scale-105 transition-transform text-xs font-mono uppercase tracking-wider"
+                    className="bg-foreground text-background px-4 py-2 rounded-full shadow-2xl hover:scale-105 transition-transform text-[10px] font-mono uppercase tracking-widest flex items-center gap-2"
                 >
-                    {isAnalyzing ? (
-                        <Loader2 size={12} className="animate-spin" />
-                    ) : (
-                        <Sparkles size={12} />
-                    )}
-                    {isAnalyzing ? 'Analyzing...' : 'Explain'}
+                    {isAnalyzing ? <Loader2 size={10} className="animate-spin" /> : <Sparkles size={10} />}
+                    Explain
                 </button>
-                <div className="w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-t-[6px] border-t-foreground absolute -bottom-1.5 left-1/2 -translate-x-1/2" />
             </div>
         )}
 
-        {/* Analysis Result Modal */}
+        {/* Analysis Modal */}
         <Dialog open={isAnalysisOpen} onOpenChange={setIsAnalysisOpen}>
-            <DialogContent className="sm:max-w-lg bg-background border border-border p-0 overflow-hidden gap-0">
-                <div className="p-6 md:p-8 border-b border-border/40 bg-secondary/5">
-                    <div className="flex items-center gap-2 mb-4">
-                        <div className="p-1.5 rounded-md bg-primary/10 text-primary flex items-center justify-center">
-                            <Sparkles size={14} />
-                        </div>
-                        <DialogTitle className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground">
-                            AI Analysis
-                        </DialogTitle>
+            <DialogContent className="sm:max-w-lg bg-background border border-border p-8 md:p-12 shadow-2xl">
+                <div className="space-y-8">
+                    <div className="space-y-2 border-b border-border pb-6">
+                         <div className="flex justify-between items-start">
+                             <h2 className="text-3xl font-light">{analysisResult?.originalText}</h2>
+                             <span className="text-[10px] font-mono uppercase border border-border px-2 py-1 rounded text-muted-foreground">
+                                {analysisResult?.partOfSpeech}
+                             </span>
+                         </div>
                     </div>
                     
-                    <div className="space-y-3">
-                        <h2 className="text-3xl md:text-4xl font-medium tracking-tight text-foreground leading-tight">
-                            {analysisResult?.originalText}
-                        </h2>
-                        <div className="inline-flex items-center px-2.5 py-1 rounded-full border border-border bg-background text-[11px] font-medium text-muted-foreground tracking-wide">
-                            {analysisResult?.partOfSpeech}
+                    <div className="space-y-6">
+                        <div>
+                            <span className="text-[9px] font-mono uppercase tracking-widest text-muted-foreground mb-2 block">Definition</span>
+                            <p className="text-lg font-light leading-relaxed">{analysisResult?.definition}</p>
                         </div>
-                    </div>
-                </div>
-
-                <div className="p-6 md:p-8 space-y-8">
-                    <div className="space-y-3">
-                        <span className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground flex items-center gap-2">
-                            <BookOpen size={12} /> Definition
-                        </span>
-                        <p className="text-base md:text-lg leading-relaxed text-foreground/90 font-light">
-                            {analysisResult?.definition}
-                        </p>
-                    </div>
-
-                    <div className="relative pl-4 border-l-2 border-primary/30 py-1">
-                         <span className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground mb-2 block flex items-center gap-2">
-                            <Quote size={10} /> Context Usage
-                        </span>
-                        <p className="text-sm md:text-base leading-relaxed text-muted-foreground italic">
-                            "{analysisResult?.contextMeaning}"
-                        </p>
+                        <div>
+                            <span className="text-[9px] font-mono uppercase tracking-widest text-muted-foreground mb-2 block flex items-center gap-2">
+                                <Quote size={10} /> In Context
+                            </span>
+                            <p className="text-sm text-muted-foreground font-light italic border-l-2 border-primary/20 pl-4 py-1">
+                                {analysisResult?.contextMeaning}
+                            </p>
+                        </div>
                     </div>
                 </div>
             </DialogContent>

@@ -1,53 +1,52 @@
-import { useState, useCallback } from 'react';
-import { toast } from 'sonner';
-import { calculateCardXp, CardRating, CardXpPayload } from '../xpUtils';
+import { useState, useCallback, useRef } from 'react';
+import { calculateCardXp, CardRating, getDailyStreakMultiplier, XpCalculationResult } from '../xpUtils';
 
-/**
- * Tracks XP accumulation for a single study session.
- */
-export const useXpSession = (isCramMode: boolean = false) => {
+// New type for UI feedback
+export interface XpFeedback {
+  id: number; // Unique ID to trigger animations
+  amount: number;
+  message: string;
+  isBonus: boolean;
+}
+
+export const useXpSession = (dailyStreak: number, isCramMode: boolean = false) => {
   const [sessionXp, setSessionXp] = useState(0);
   const [sessionStreak, setSessionStreak] = useState(0);
+  const [feedback, setFeedback] = useState<XpFeedback | null>(null);
+  
+  // Ref to ensure unique IDs for animations
+  const feedbackIdRef = useRef(0);
 
-  const processCardResult = useCallback(
-    (rating: CardRating): CardXpPayload => {
-      let computedStreak = 0;
-      setSessionStreak((prev) => {
-        const next = rating === 'again' ? 0 : prev + 1;
-        computedStreak = next;
-        return next;
-      });
+  const multiplierInfo = getDailyStreakMultiplier(dailyStreak);
 
-      const xpResult = calculateCardXp(rating, computedStreak, isCramMode);
-      setSessionXp((prevXp) => prevXp + xpResult.totalXp);
+  const processCardResult = useCallback((rating: CardRating): XpCalculationResult => {
+    let newStreak = sessionStreak;
+    
+    if (rating === 'again') {
+      newStreak = 0;
+    } else {
+      newStreak += 1;
+    }
+    setSessionStreak(newStreak);
 
-      if (xpResult.isStreakBonus && xpResult.bonusXp > 0) {
-        toast.success(`Combo! +${xpResult.bonusXp} Bonus XP`, {
-          duration: 1500,
-          position: 'bottom-center',
-          className: 'w-auto min-w-0 px-4 py-2 h-8 text-xs font-medium',
-        });
-      }
+    const result = calculateCardXp(rating, newStreak, dailyStreak, isCramMode);
+    setSessionXp(prev => prev + result.totalXp);
 
-      return {
-        rating,
-        streakAfter: computedStreak,
-        isCramMode,
-        ...xpResult,
-      };
-    },
-    [isCramMode]
-  );
+    return result; // FIXED: Returning full object instead of just totalXp number
+  }, [sessionStreak, dailyStreak, isCramMode]);
 
   const resetSession = useCallback(() => {
     setSessionXp(0);
     setSessionStreak(0);
+    setFeedback(null);
   }, []);
 
   return {
     sessionXp,
     sessionStreak,
+    multiplierInfo,
+    feedback, // <--- Expose this
     processCardResult,
-    resetSession,
+    resetSession
   };
 };
