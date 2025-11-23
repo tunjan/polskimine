@@ -15,6 +15,8 @@ export interface GameRoom {
   status: GameStatus;
   questions: GameQuestion[];
   current_question_index: number;
+  timer_duration: number;
+  max_players: number;
 }
 
 export interface GamePlayer {

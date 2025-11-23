@@ -71,22 +71,32 @@ export const GameArena: React.FC = () => {
     };
   }, [roomId, user]);
 
+  const roomRef = useRef(room);
+  useEffect(() => { roomRef.current = room; }, [room]);
+
   const handleNextQuestion = useCallback(async () => {
-    if (!room) return;
-    const nextIdx = room.current_question_index + 1;
-    if (nextIdx >= room.questions.length) {
-      await multiplayerService.endGame(room.id);
+    const r = roomRef.current;
+    if (!r) return;
+    const nextIdx = r.current_question_index + 1;
+    if (nextIdx >= r.questions.length) {
+      await multiplayerService.endGame(r.id);
       confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
     } else {
-      await multiplayerService.nextQuestion(room.id, nextIdx);
+      await multiplayerService.nextQuestion(r.id, nextIdx);
     }
-  }, [room]);
+  }, []);
 
+  // Reset timer when question changes
   useEffect(() => {
-    if (!room || room.status !== 'playing') return;
+    if (room?.status === 'playing') {
+      setTimeLeft(room.timer_duration || TIMER_SECONDS);
+      setSelectedAnswer(null);
+    }
+  }, [room?.current_question_index, room?.status, room?.timer_duration]);
 
-    setTimeLeft(TIMER_SECONDS);
-    setSelectedAnswer(null);
+  // Timer countdown
+  useEffect(() => {
+    if (room?.status !== 'playing') return;
 
     const interval = setInterval(() => {
       setTimeLeft((prev) => {
@@ -101,7 +111,7 @@ export const GameArena: React.FC = () => {
     }, 1000);
 
     return () => clearInterval(interval);
-  }, [room?.current_question_index, room?.status, isHost, handleNextQuestion]);
+  }, [room?.status, isHost, handleNextQuestion]);
 
   const handleStartGame = async () => {
     if (!room) return;
@@ -314,7 +324,7 @@ export const GameArena: React.FC = () => {
       <div className="h-1 bg-secondary mt-8 rounded-full overflow-hidden">
         <div
           className="h-full bg-primary transition-all duration-1000 ease-linear"
-          style={{ width: `${(timeLeft / TIMER_SECONDS) * 100}%` }}
+          style={{ width: `${(timeLeft / (room.timer_duration || TIMER_SECONDS)) * 100}%` }}
         />
       </div>
     </div>

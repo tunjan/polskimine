@@ -10,7 +10,6 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 import { useQuery } from '@tanstack/react-query';
 import { getRevlogStats } from '@/services/db/repositories/statsRepository';
 import { ReviewVolumeChart } from './ReviewVolumeChart';
-import { GradeDistributionChart } from './GradeDistributionChart';
 import { TrueRetentionChart } from './TrueRetentionChart';
 
 interface DashboardProps {
@@ -176,7 +175,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
                 <h2 className="text-sm font-medium tracking-tight">Performance Analytics</h2>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-12 md:gap-8 h-auto md:h-64">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-12 md:gap-8 h-auto md:h-64">
                 {/* 1. Volume */}
                 <div className="col-span-1">
                     <ReviewVolumeChart data={revlogStats.activity} />
@@ -188,11 +187,6 @@ export const Dashboard: React.FC<DashboardProps> = ({
                         data={revlogStats.retention} 
                         targetRetention={settings.fsrs.request_retention} 
                     />
-                </div>
-
-                {/* 3. Grades */}
-                <div className="col-span-1 border-t md:border-t-0 md:border-l border-border/50 pt-8 md:pt-0 md:pl-8">
-                    <GradeDistributionChart data={revlogStats.grades} />
                 </div>
             </div>
         </section>

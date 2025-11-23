@@ -28,6 +28,7 @@ import {
   useRecordReviewMutation,
   useUndoReviewMutation,
 } from '@/features/deck/hooks/useDeckQueries';
+import { CardXpPayload } from '@/features/xp/xpUtils';
 
 interface DeckContextValue {
   history: ReviewHistory;
@@ -35,7 +36,7 @@ interface DeckContextValue {
   reviewsToday: { newCards: number; reviewCards: number };
   isLoading: boolean;
   dataVersion: number;
-  recordReview: (card: Card, grade: Grade) => Promise<void>;
+  recordReview: (card: Card, grade: Grade, xpPayload?: CardXpPayload) => Promise<void>;
   undoReview: () => Promise<void>;
   canUndo: boolean;
   refreshDeckData: () => void;
@@ -236,12 +237,12 @@ export const DeckProvider: React.FC<{ children: React.ReactNode }> = ({ children
     loadBeginnerDeck();
   }, [dbStats, statsLoading, user, settings.language, queryClient]);
 
-  const recordReview = useCallback(async (oldCard: Card, grade: Grade) => {
+  const recordReview = useCallback(async (oldCard: Card, grade: Grade, xpPayload?: CardXpPayload) => {
       const today = getUTCDateString(getSRSDate(new Date()));
       setLastReview({ card: oldCard, date: today });
       
       try {
-        await recordReviewMutation.mutateAsync({ card: oldCard, grade });
+        await recordReviewMutation.mutateAsync({ card: oldCard, grade, xpPayload });
       } catch (error) {
           console.error("Failed to record review", error);
           toast.error("Failed to save review progress");

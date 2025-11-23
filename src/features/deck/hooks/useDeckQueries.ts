@@ -16,13 +16,7 @@ import { format, differenceInMinutes } from 'date-fns';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
-
-
-const calculateXP = (cardStatus: string, grade: Grade): number => {
-
-  if (cardStatus === 'new') return 50;
-  return 0;
-};
+import { CardXpPayload } from '@/features/xp/xpUtils';
 
 export const useDeckStatsQuery = () => {
   const { settings } = useSettings();
@@ -66,7 +60,7 @@ export const useRecordReviewMutation = () => {
   const { user, incrementXPOptimistically } = useAuth();
 
   return useMutation({
-    mutationFn: async ({ card, grade }: { card: Card; grade: Grade }) => {
+    mutationFn: async ({ card, grade, xpPayload }: { card: Card; grade: Grade; xpPayload?: CardXpPayload }) => {
       const today = format(getSRSDate(new Date()), 'yyyy-MM-dd');
       
       // 1. Calculate Metrics for Log
@@ -83,9 +77,7 @@ export const useRecordReviewMutation = () => {
       await addReviewLog(card, grade, elapsedDays, scheduledDays);
 
       // await incrementHistory(today, 1, card.language || settings.language);
-      
-
-      const xpAmount = calculateXP(card.status, grade);
+        const xpAmount = xpPayload?.totalXp ?? 0;
 
       if (user) {
 
@@ -94,7 +86,7 @@ export const useRecordReviewMutation = () => {
           .insert({
             user_id: user.id,
             activity_type: card.status === 'new' ? 'new_card' : 'review',
-            xp_awarded: xpAmount, // This will be 0 for reviews
+            xp_awarded: xpAmount,
             language: card.language || settings.language,
           });
 
@@ -109,7 +101,7 @@ export const useRecordReviewMutation = () => {
       
       return { card, grade, today, xpAmount };
     },
-    onMutate: async ({ card, grade }) => {
+    onMutate: async ({ card, grade, xpPayload }) => {
       const today = format(getSRSDate(new Date()), 'yyyy-MM-dd');
       
 
@@ -156,7 +148,7 @@ export const useRecordReviewMutation = () => {
 
 
       if (user) {
-        const xpAmount = calculateXP(card.status, grade);
+        const xpAmount = xpPayload?.totalXp ?? 0;
         incrementXPOptimistically(xpAmount);
 
 

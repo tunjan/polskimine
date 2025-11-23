@@ -5,12 +5,19 @@ import type { GameQuestion } from '@/types/multiplayer';
 const generateRoomCode = () => Math.random().toString(36).substring(2, 8).toUpperCase();
 
 export const multiplayerService = {
-  async createRoom(hostId: string, username: string, language: string, level: string) {
+  async createRoom(hostId: string, username: string, language: string, level: string, timerDuration: number, maxPlayers: number) {
     const code = generateRoomCode();
 
     const { data: room, error } = await supabase
       .from('game_rooms')
-      .insert({ code, host_id: hostId, language, level })
+      .insert({ 
+        code, 
+        host_id: hostId, 
+        language, 
+        level,
+        timer_duration: timerDuration,
+        max_players: maxPlayers
+      })
       .select('*')
       .single();
 

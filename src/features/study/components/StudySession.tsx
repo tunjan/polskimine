@@ -1,11 +1,22 @@
-import React, { useEffect, useMemo, useRef } from 'react';
-import { X, Undo2, Archive } from 'lucide-react';
+import React, { useEffect, useMemo, useRef, useCallback } from 'react';
+import { X, Undo2, Archive, Zap } from 'lucide-react';
 import { Card, Grade } from '@/types';
 import { useSettings } from '@/contexts/SettingsContext';
 import { Flashcard } from './Flashcard';
 import { useStudySession } from '../hooks/useStudySession';
 import clsx from 'clsx';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { useXpSession } from '@/features/xp/hooks/useXpSession';
+import { CardXpPayload, XP_CONFIG, CardRating } from '@/features/xp/xpUtils';
+
+const gradeToRatingMap: Record<Grade, CardRating> = {
+  Again: 'again',
+  Hard: 'hard',
+  Good: 'good',
+  Easy: 'easy',
+};
+
+const mapGradeToRating = (grade: Grade): CardRating => gradeToRatingMap[grade];
 
 
 
@@ -43,11 +54,12 @@ interface StudySessionProps {
   dueCards: Card[];
   reserveCards?: Card[]; // Added prop
   onUpdateCard: (card: Card) => void;
-  onRecordReview: (oldCard: Card, grade: Grade) => void;
+  onRecordReview: (oldCard: Card, grade: Grade, xpPayload?: CardXpPayload) => void;
   onExit: () => void;
   onComplete?: () => void;
   onUndo?: () => void;
   canUndo?: boolean;
+  isCramMode?: boolean;
 }
 
 export const StudySession: React.FC<StudySessionProps> = ({
@@ -59,8 +71,27 @@ export const StudySession: React.FC<StudySessionProps> = ({
   onComplete,
   onUndo,
   canUndo,
+  isCramMode = false,
 }) => {
   const { settings } = useSettings();
+  const { sessionXp, sessionStreak, processCardResult } = useXpSession(isCramMode);
+  const getDisplayedBaseXp = (grade: Grade) => {
+    const rating = mapGradeToRating(grade);
+    if (isCramMode) {
+      return rating === 'again' ? 0 : XP_CONFIG.CRAM_CORRECT;
+    }
+    return XP_CONFIG.BASE[rating];
+  };
+
+  const enhancedRecordReview = useCallback(
+    (card: Card, grade: Grade) => {
+      const rating = mapGradeToRating(grade);
+      const reward = processCardResult(rating);
+      onRecordReview(card, grade, reward);
+    },
+    [onRecordReview, processCardResult]
+  );
+
   const {
     sessionCards,
     currentCard,
@@ -78,7 +109,7 @@ export const StudySession: React.FC<StudySessionProps> = ({
     reserveCards, // Pass to hook
     settings,
     onUpdateCard,
-    onRecordReview,
+    onRecordReview: enhancedRecordReview,
     canUndo,
     onUndo,
   });
@@ -197,6 +228,14 @@ export const StudySession: React.FC<StudySessionProps> = ({
                      );
                  })()}
             </div>
+            <div className="hidden md:flex items-center gap-3 text-muted-foreground/80">
+              <span>Streak <span className="text-foreground">{sessionStreak}</span></span>
+              <span className="text-muted-foreground/30">|</span>
+              <span className="flex items-center gap-1 text-primary font-semibold">
+                <Zap size={14} className="text-primary" />
+                {sessionXp} XP
+              </span>
+            </div>
          </div>
 
          {/* Action Buttons */}
@@ -242,7 +281,14 @@ export const StudySession: React.FC<StudySessionProps> = ({
       </div>
 
       {/* Bottom Actions */}
-      <div className="h-32 md:h-40 shrink-0 flex items-center justify-center px-4 md:px-6 pb-6 md:pb-8">
+      <div className="h-32 md:h-40 shrink-0 flex flex-col items-center justify-center gap-2 px-4 md:px-6 pb-6 md:pb-8">
+        <div className="w-full max-w-lg flex items-center justify-between text-[11px] font-mono text-muted-foreground md:hidden">
+          <span>Streak <span className="text-foreground">{sessionStreak}</span></span>
+          <span className="flex items-center gap-1 text-primary font-semibold">
+            <Zap size={14} className="text-primary" />
+            {sessionXp} XP
+          </span>
+        </div>
         {!isFlipped ? (
              <button 
               onClick={() => setIsFlipped(true)}
@@ -259,7 +305,7 @@ export const StudySession: React.FC<StudySessionProps> = ({
                 className="group h-16 rounded-md border border-border/50 hover:border-red-500/50 hover:bg-red-500/5 transition-all flex flex-col items-center justify-center gap-1 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <span className="text-xs font-mono uppercase tracking-wider text-muted-foreground group-hover:text-red-500">Again</span>
-                <span className="text-[10px] font-mono text-muted-foreground/50">1</span>
+                <span className="text-[10px] font-mono text-muted-foreground/50">+{getDisplayedBaseXp('Again')} XP</span>
               </button>
               <button 
                 onClick={() => handleGrade('Good')}
@@ -267,7 +313,7 @@ export const StudySession: React.FC<StudySessionProps> = ({
                 className="group h-16 rounded-md border border-primary/30 hover:border-primary hover:bg-primary/5 transition-all flex flex-col items-center justify-center gap-1 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <span className="text-xs font-mono uppercase tracking-wider text-foreground group-hover:text-primary">Good</span>
-                <span className="text-[10px] font-mono text-muted-foreground/50">Space</span>
+                <span className="text-[10px] font-mono text-muted-foreground/50">+{getDisplayedBaseXp('Good')} XP</span>
               </button>
             </div>
         )}

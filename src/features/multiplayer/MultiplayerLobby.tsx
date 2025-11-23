@@ -16,6 +16,8 @@ export const MultiplayerLobby: React.FC = () => {
   const [isCreating, setIsCreating] = useState(false);
   const [level, setLevel] = useState('A1');
   const [language, setLanguage] = useState('polish');
+  const [timerDuration, setTimerDuration] = useState('10');
+  const [maxPlayers, setMaxPlayers] = useState('4');
 
   const handleCreate = async () => {
     if (!user || !profile?.username) {
@@ -25,7 +27,14 @@ export const MultiplayerLobby: React.FC = () => {
 
     setIsCreating(true);
     try {
-      const room = await multiplayerService.createRoom(user.id, profile.username, language, level);
+      const room = await multiplayerService.createRoom(
+        user.id, 
+        profile.username, 
+        language, 
+        level,
+        parseInt(timerDuration),
+        parseInt(maxPlayers)
+      );
       navigate(`/multiplayer/${room.id}`);
     } catch (error) {
       console.error(error);
@@ -127,6 +136,22 @@ export const MultiplayerLobby: React.FC = () => {
                 value={level}
                 onChange={setLevel}
                 options={['A1', 'A2', 'B1', 'B2', 'C1'].map((lvl) => ({ value: lvl, label: lvl }))}
+              />
+            </div>
+            <div>
+              <label className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground mb-2 block">Timer (Sec)</label>
+              <EditorialSelect
+                value={timerDuration}
+                onChange={setTimerDuration}
+                options={['10', '15', '20', '30', '60'].map((t) => ({ value: t, label: `${t}s` }))}
+              />
+            </div>
+            <div>
+              <label className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground mb-2 block">Max Players</label>
+              <EditorialSelect
+                value={maxPlayers}
+                onChange={setMaxPlayers}
+                options={['2', '4', '8', '16', '32'].map((p) => ({ value: p, label: p }))}
               />
             </div>
           </div>

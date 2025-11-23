@@ -7,6 +7,8 @@ import { Switch } from '@/components/ui/switch';
 import { ColorPicker } from '@/components/ui/color-picker';
 import { useTheme } from '@/contexts/ThemeContext';
 import { Input } from '@/components/ui/input';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { HelpCircle } from 'lucide-react';
 
 interface GeneralSettingsProps {
   localSettings: UserSettings;
@@ -44,7 +46,19 @@ export const GeneralSettings: React.FC<GeneralSettingsProps> = ({
       <section>
         <MetaLabel>AI Configuration</MetaLabel>
         <div className="space-y-2">
-          <div className="text-sm font-medium">Gemini API Key</div>
+          <div className="flex items-center gap-2">
+            <div className="text-sm font-medium">Gemini API Key</div>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <HelpCircle className="h-4 w-4 text-muted-foreground cursor-help" />
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Get your free API key from Google AI Studio</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          </div>
           <Input
             type="password"
             value={localSettings.geminiApiKey || ''}

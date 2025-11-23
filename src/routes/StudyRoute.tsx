@@ -12,6 +12,7 @@ import {
 } from '@/services/db/repositories/cardRepository';
 import { getTodayReviewStats } from '@/services/db/repositories/statsRepository';
 import { useClaimDailyBonusMutation } from '@/features/deck/hooks/useDeckQueries';
+import { CardXpPayload } from '@/features/xp/xpUtils';
 
 export const StudyRoute: React.FC = () => {
   const { recordReview, undoReview, canUndo } = useDeck();
@@ -94,9 +95,9 @@ export const StudyRoute: React.FC = () => {
     updateCard(card);
   };
 
-  const handleRecordReview = (card: Card, grade: Grade) => {
+  const handleRecordReview = (card: Card, grade: Grade, xpPayload?: CardXpPayload) => {
     if (!isCramMode) {
-      recordReview(card, grade);
+      recordReview(card, grade, xpPayload);
     }
   };
 
@@ -125,6 +126,7 @@ export const StudyRoute: React.FC = () => {
       onComplete={handleSessionComplete}
       onUndo={isCramMode ? undefined : undoReview}
       canUndo={isCramMode ? false : canUndo}
+      isCramMode={isCramMode}
     />
   );
 };
