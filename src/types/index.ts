@@ -69,7 +69,7 @@ export interface TTSSettings {
 export interface UserSettings {
   language: Language;
   languageColors?: Record<Language, string>; // HSL values e.g. "346 84% 45%"
-  // Per-language study limits (migrated from single number fields)
+
   dailyNewLimits: Record<Language, number>;
   dailyReviewLimits: Record<Language, number>;
   autoPlayAudio: boolean;
@@ -84,4 +84,16 @@ export interface UserSettings {
     enable_fuzzing?: boolean;
   }
   geminiApiKey: string; // Gemini API key for client-side AI calls
+}
+
+export interface ReviewLog {
+  id: string;
+  card_id: string;
+  grade: number; // 1 | 2 | 3 | 4
+  state: number; // 0 | 1 | 2 | 3
+  elapsed_days: number;
+  scheduled_days: number;
+  stability: number;
+  difficulty: number;
+  created_at: string;
 }

@@ -15,7 +15,7 @@ const createCard = (sentence: string, translation: string, targetWord?: string, 
 });
 
 export const NORWEGIAN_BEGINNER_DECK: Card[] = [
-  // --- GREETINGS & ESSENTIALS ---
+
   createCard("Hei, hvordan går det?", "Hi, how is it going?", "Hei", "Common informal greeting."),
   createCard("God morgen.", "Good morning.", "morgen", ""),
   createCard("Takk skal du ha.", "Thank you.", "Takk", "Literally: Thanks shall you have."),
@@ -27,7 +27,7 @@ export const NORWEGIAN_BEGINNER_DECK: Card[] = [
   createCard("Nei, takk.", "No, thanks.", "Nei", ""),
   createCard("Hva heter du?", "What is your name?", "heter", "Verb: å hete (to be called)."),
 
-  // --- TO BE (VÆRE) ---
+
   createCard("Jeg er trøtt.", "I am tired.", "er", "Verb: å være (to be)."),
   createCard("Det er kaldt i dag.", "It is cold today.", "er", ""),
   createCard("Hvor er toalettet?", "Where is the toilet?", "er", ""),
@@ -36,14 +36,14 @@ export const NORWEGIAN_BEGINNER_DECK: Card[] = [
   createCard("Det er min venn.", "That is my friend.", "er", ""),
   createCard("Er det sant?", "Is that true?", "Er", ""),
 
-  // --- TO HAVE (HA) ---
+
   createCard("Jeg har en bil.", "I have a car.", "har", "Verb: å ha (to have)."),
   createCard("Har du tid?", "Do you have time?", "Har", ""),
   createCard("Vi har ikke penger.", "We don't have money.", "har", ""),
   createCard("Hun har lyst på kaffe.", "She wants coffee.", "lyst", "Idiom: Ha lyst på (want/crave)."),
   createCard("Jeg har vondt i hodet.", "I have a headache.", "vondt", "Idiom: Ha vondt (have pain)."),
 
-  // --- COMMON VERBS ---
+
   createCard("Hva gjør du?", "What are you doing?", "gjør", "Verb: å gjøre (to do)."),
   createCard("Jeg går på jobb.", "I am going to work.", "går", "Verb: å gå (to go/walk)."),
   createCard("Kan du si det igjen?", "Can you say that again?", "si", "Verb: å si (to say)."),
@@ -58,7 +58,7 @@ export const NORWEGIAN_BEGINNER_DECK: Card[] = [
   createCard("Hører du meg?", "Do you hear me?", "Hører", "Verb: å høre (to hear)."),
   createCard("Jeg tror det.", "I think so / I believe so.", "tror", "Verb: å tro (to believe)."),
 
-  // --- PRONOUNS & QUESTIONS ---
+
   createCard("Hvem er det?", "Who is that?", "Hvem", ""),
   createCard("Hva er dette?", "What is this?", "Hva", ""),
   createCard("Hvor bor du?", "Where do you live?", "Hvor", ""),
@@ -67,7 +67,7 @@ export const NORWEGIAN_BEGINNER_DECK: Card[] = [
   createCard("Hvordan kommer jeg dit?", "How do I get there?", "Hvordan", ""),
   createCard("Hvilken liker du?", "Which one do you like?", "Hvilken", ""),
 
-  // --- SURVIVAL & COMMON PHRASES ---
+
   createCard("Hjelp!", "Help!", "Hjelp", ""),
   createCard("Jeg trenger en lege.", "I need a doctor.", "trenger", "Verb: å trenge (to need)."),
   createCard("Hvor mye koster det?", "How much does it cost?", "koster", ""),
@@ -77,7 +77,7 @@ export const NORWEGIAN_BEGINNER_DECK: Card[] = [
   createCard("Jeg er enig.", "I agree.", "enig", ""),
   createCard("Det går bra.", "It's going well / It's fine.", "går", ""),
 
-  // --- ADJECTIVES & DESCRIBING ---
+
   createCard("Norge er et vakkert land.", "Norway is a beautiful country.", "vakkert", ""),
   createCard("Det er veldig bra.", "That is very good.", "bra", ""),
   createCard("Jeg er glad.", "I am happy.", "glad", ""),
@@ -85,7 +85,7 @@ export const NORWEGIAN_BEGINNER_DECK: Card[] = [
   createCard("Maten er god.", "The food is good.", "god", ""),
   createCard("Jeg er opptatt.", "I am busy.", "opptatt", ""),
 
-  // --- TIME & PLACE ---
+
   createCard("Vi ses i morgen.", "See you tomorrow.", "morgen", ""),
   createCard("Nå eller aldri.", "Now or never.", "Nå", ""),
   createCard("Det er her.", "It is here.", "her", ""),

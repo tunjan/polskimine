@@ -1,6 +1,6 @@
 import { Language, TTSSettings, TTSProvider } from "@/types";
 
-// Map app language codes to BCP 47 language tags
+
 const LANG_CODE_MAP: Record<Language, string[]> = {
     polish: ['pl-PL', 'pl'],
     norwegian: ['nb-NO', 'no-NO', 'no'],
@@ -24,7 +24,7 @@ class TTSService {
 
     constructor() {
         if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
-            // Initialize voices
+
             this.updateVoices();
             window.speechSynthesis.onvoiceschanged = () => {
                 this.updateVoices();
@@ -109,7 +109,7 @@ class TTSService {
     }
 
     async speak(text: string, language: Language, settings: TTSSettings) {
-        // Abort any in-flight network request before starting new speak
+
         if (this.abortController) {
             this.abortController.abort();
         }
@@ -168,7 +168,7 @@ class TTSService {
 
             const data = await response.json();
             
-            // Check if this operation is still the latest active one
+
             if (this.currentOperationId !== opId) return;
             
             if (data.audioContent) {
@@ -210,7 +210,7 @@ class TTSService {
 
             if (!response.ok) throw new Error(await response.text());
 
-            // Check if this operation is still the latest active one
+
             if (this.currentOperationId !== opId) return;
 
             const blob = await response.blob();
@@ -241,7 +241,7 @@ class TTSService {
         try {
             const decodedBuffer = await this.audioContext.decodeAudioData(buffer);
             
-            // CRITICAL CHECK: Ensure we are still on the same operation
+
             if (this.currentOperationId !== opId) return;
 
             if (this.currentSource) {
@@ -251,12 +251,12 @@ class TTSService {
                         this.currentSource.buffer = decodedBuffer;
                         this.currentSource.connect(this.audioContext.destination);
                         this.currentSource.onended = () => {
-                            // Suspend the context when idle to conserve resources & avoid autoplay blocking policies
+
                             if (this.audioContext && this.audioContext.state === 'running') {
                                 this.audioContext.suspend().catch(() => {});
                             }
                         };
-                        // Resume if previously suspended (user initiated playback implied)
+
                         if (this.audioContext.state === 'suspended') {
                             try { await this.audioContext.resume(); } catch {}
                         }

@@ -73,7 +73,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     };
   }, []);
 
-  // --- REALTIME LISTENER FOR POINTS/XP ---
+
   useEffect(() => {
     if (!user) return;
 
@@ -89,11 +89,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         },
         (payload) => {
           const newProfile = payload.new as Profile;
-          // Prevent XP/Points downgrade during optimistic updates
-          // Only accept server updates if they are higher than current local state
+
+
           setProfile(prev => {
             if (!prev) return newProfile;
-            // Guard against race condition: don't downgrade XP if local is ahead
+
             if (prev.xp > newProfile.xp || prev.points > newProfile.points) {
               return prev;
             }
@@ -120,7 +120,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       return;
     }
 
-    // Ensure points exists, default to 0 if column is missing or null
+
     const safeData = {
         ...data,
         points: data.points ?? 0
@@ -186,7 +186,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       toast.error('Failed to update username');
       throw error;
     }
-    // No need to manually setProfile here, the realtime subscription will catch it
+
+    // Manually update local state to trigger re-render in App.tsx immediately
+    setProfile((prev) => prev ? { ...prev, username: newUsername } : null);
   };
 
   const incrementXPOptimistically = (amount: number) => {

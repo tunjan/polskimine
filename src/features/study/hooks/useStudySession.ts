@@ -31,10 +31,10 @@ export const useStudySession = ({
   const [isProcessing, setIsProcessing] = useState(false);
   const isInitialized = useRef(false);
   
-  // Synchronous ref to prevent race condition in keyboard event handler
+
   const isProcessingRef = useRef(false);
 
-  // Initialize session only once to prevent index resets when dueCards change during reviews
+
   useEffect(() => {
     if (!isInitialized.current && dueCards.length > 0) {
       setSessionCards(dueCards);
@@ -110,7 +110,7 @@ export const useStudySession = ({
 
       await Promise.resolve(onUpdateCard(updatedCard));
       
-      // --- REPLACEMENT LOGIC ---
+
       let replacementAdded = false;
       if (wasNew && reserveCards.length > 0) {
           const nextNew = reserveCards[0];
@@ -118,7 +118,7 @@ export const useStudySession = ({
           setReserveCards(prev => prev.slice(1));
           replacementAdded = true;
       }
-      // -------------------------
+
 
       setActionHistory((prev) => [...prev, { addedCard: replacementAdded }]);
 
@@ -145,8 +145,8 @@ export const useStudySession = ({
         const newHistory = prev.slice(0, -1);
         const lastAction = prev[prev.length - 1];
         
-        // If the last action added a card to the queue (learning status OR reserve replacement),
-        // remove that ghost card from the end of sessionCards
+
+
         if (lastAction?.addedCard) {
           setSessionCards((prevCards) => prevCards.slice(0, -1));
         }

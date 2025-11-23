@@ -26,7 +26,7 @@ export const ColorPicker: React.FC<ColorPickerProps> = ({ label, value, onChange
 
   const handleTextChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newHex = e.target.value;
-    // Allow typing, but only update if valid hex
+
     if (/^#[0-9A-Fa-f]{6}$/.test(newHex)) {
         const newHSL = hexToHSL(newHex);
         onChange(newHSL);

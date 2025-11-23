@@ -36,18 +36,20 @@ export const CramModal = ({ isOpen, onClose }: CramModalProps) => {
 
     return (
         <Dialog open={isOpen} onOpenChange={onClose}>
-            <DialogContent className="sm:max-w-md p-8 bg-background border border-border">
-                <div className="space-y-8">
-                    <div>
-                        <DialogTitle className="text-xl font-bold tracking-tight">Cram Session</DialogTitle>
-                        <DialogDescription className="text-xs text-muted-foreground mt-1">Practice without affecting SRS stats.</DialogDescription>
+            <DialogContent className="w-[95vw] max-w-md p-0 gap-0 bg-background border border-border shadow-xl overflow-hidden">
+                <div className="p-6 space-y-6">
+                    <div className="space-y-1">
+                        <DialogTitle className="text-lg font-semibold tracking-tight">Cram Session</DialogTitle>
+                        <DialogDescription className="text-sm text-muted-foreground">
+                            Review cards without affecting your long-term statistics.
+                        </DialogDescription>
                     </div>
                     
-                    <div className="space-y-6">
-                        <div className="space-y-2">
-                            <label className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground">Filter Tag</label>
+                    <div className="space-y-6 py-2">
+                        <div className="space-y-3">
+                            <label className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Filter by Tag</label>
                             <Select value={selectedTag} onValueChange={setSelectedTag}>
-                                <SelectTrigger className="w-full border-b border-border rounded-none px-0 py-2 h-auto focus:ring-0 text-sm">
+                                <SelectTrigger className="w-full h-10 px-3 bg-secondary/30 border-transparent hover:bg-secondary/50 transition-colors focus:ring-0 focus:ring-offset-0">
                                     <SelectValue placeholder="All Cards" />
                                 </SelectTrigger>
                                 <SelectContent>
@@ -60,9 +62,11 @@ export const CramModal = ({ isOpen, onClose }: CramModalProps) => {
                         </div>
                         
                         <div className="space-y-4">
-                            <div className="flex justify-between items-end">
-                                <label className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground">Card Limit</label>
-                                <span className="font-mono text-sm text-muted-foreground">{limit[0]}</span>
+                            <div className="flex justify-between items-center">
+                                <label className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Card Limit</label>
+                                <span className="text-sm font-mono font-medium bg-secondary px-2 py-0.5 rounded text-foreground">
+                                    {limit[0]} cards
+                                </span>
                             </div>
                             <Slider 
                                 min={10} max={200} step={10} 
@@ -70,17 +74,27 @@ export const CramModal = ({ isOpen, onClose }: CramModalProps) => {
                                 onValueChange={setLimit}
                                 className="py-2"
                             />
+                            <div className="flex justify-between text-[10px] text-muted-foreground font-mono uppercase">
+                                <span>10</span>
+                                <span>200</span>
+                            </div>
                         </div>
                     </div>
+                </div>
 
-                    <div className="pt-4 flex justify-end">
-                        <button 
-                            onClick={handleStart}
-                            className="flex items-center gap-2 bg-primary text-primary-foreground px-6 py-3 text-sm font-medium hover:opacity-90 transition-opacity rounded-md"
-                        >
-                            Start Cramming <ArrowRight size={16} />
-                        </button>
-                    </div>
+                <div className="p-4 bg-secondary/20 border-t border-border flex justify-end gap-3">
+                    <button 
+                        onClick={onClose}
+                        className="px-4 py-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+                    >
+                        Cancel
+                    </button>
+                    <button 
+                        onClick={handleStart}
+                        className="flex items-center gap-2 bg-primary text-primary-foreground px-5 py-2 text-sm font-medium hover:bg-primary/90 transition-colors rounded-md shadow-sm"
+                    >
+                        Start Session <ArrowRight size={14} />
+                    </button>
                 </div>
             </DialogContent>
         </Dialog>

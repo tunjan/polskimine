@@ -19,7 +19,7 @@ const DialogOverlay = React.forwardRef<
   <DialogPrimitive.Overlay
     ref={ref}
     className={cn(
-      // Changed: Darker background with backdrop blur for better contrast
+
       "fixed inset-0 z-50 bg-black/50 dark:bg-black/80 backdrop-blur-sm",
       className
     )}
@@ -37,7 +37,7 @@ const DialogContent = React.forwardRef<
     <DialogPrimitive.Content
       ref={ref}
       className={cn(
-        // Changed: w-[95vw] for mobile to ensure it fits but has margins
+
         "fixed left-[50%] top-[50%] z-50 grid w-[95vw] max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4 border border-border bg-background p-6 shadow-2xl rounded-lg sm:rounded-xl",
         className
       )}
@@ -88,7 +88,7 @@ const DialogTitle = React.forwardRef<
   <DialogPrimitive.Title
     ref={ref}
     className={cn(
-      // Changed: Added tracking-tight to match Dashboard headers
+
       "text-lg font-semibold leading-none tracking-tight",
       className
     )}
@@ -103,7 +103,7 @@ const DialogDescription = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <DialogPrimitive.Description
     ref={ref}
-    // Changed: Lighter gray for better hierarchy
+
     className={cn("text-sm text-muted-foreground", className)}
     {...props}
   />

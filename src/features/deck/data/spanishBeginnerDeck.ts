@@ -15,7 +15,7 @@ const createCard = (sentence: string, translation: string, targetWord?: string, 
 });
 
 export const SPANISH_BEGINNER_DECK: Card[] = [
-  // --- GREETINGS & BASICS ---
+
   createCard("Hola, ¿cómo estás?", "Hello, how are you?", "estás", "Informal 'you'."),
   createCard("Buenos días, mucho gusto.", "Good morning, nice to meet you.", "gusto", ""),
   createCard("Me llamo Sofía.", "My name is Sofia.", "llamo", "Reflexive: llamarse."),
@@ -27,7 +27,7 @@ export const SPANISH_BEGINNER_DECK: Card[] = [
   createCard("No hablo español.", "I don't speak Spanish.", "hablo", ""),
   createCard("¿Hablas inglés?", "Do you speak English?", "Hablas", ""),
 
-  // --- SER vs ESTAR ---
+
   createCard("Soy de España.", "I am from Spain.", "Soy", "Ser: Origin/Permanent."),
   createCard("Estoy cansado.", "I am tired.", "Estoy", "Estar: Condition/Temporary."),
   createCard("Ella es inteligente.", "She is intelligent.", "es", "Ser: Characteristic."),
@@ -36,7 +36,7 @@ export const SPANISH_BEGINNER_DECK: Card[] = [
   createCard("Estamos listos.", "We are ready.", "Estamos", "Estar: Condition."),
   createCard("Eres mi mejor amigo.", "You are my best friend.", "Eres", "Ser: Relationship."),
 
-  // --- COMMON VERBS ---
+
   createCard("No entiendo español.", "I don't understand Spanish.", "entiendo", "Verb: entender (stem changing)."),
   createCard("Quiero comer tacos.", "I want to eat tacos.", "Quiero", "Verb: querer."),
   createCard("¿Puedes hablar más despacio?", "Can you speak more slowly?", "Puedes", "Verb: poder."),
@@ -50,7 +50,7 @@ export const SPANISH_BEGINNER_DECK: Card[] = [
   createCard("Creo que sí.", "I think so.", "Creo", "Verb: creer."),
   createCard("Tomo un café.", "I take/drink a coffee.", "Tomo", "Verb: tomar."),
 
-  // --- QUESTIONS & PLACES ---
+
   createCard("¿Qué hora es?", "What time is it?", "hora", ""),
   createCard("¿Dónde está el baño?", "Where is the bathroom?", "baño", ""),
   createCard("¿Cuánto cuesta esto?", "How much does this cost?", "cuesta", ""),
@@ -61,7 +61,7 @@ export const SPANISH_BEGINNER_DECK: Card[] = [
   createCard("¿Cuándo llegas?", "When do you arrive?", "Cuándo", ""),
   createCard("¿Cómo te llamas?", "What is your name?", "llamas", ""),
 
-  // --- SURVIVAL & USEFUL PHRASES ---
+
   createCard("¡Ayuda!", "Help!", "Ayuda", ""),
   createCard("Necesito un médico.", "I need a doctor.", "Necesito", ""),
   createCard("Estoy perdido.", "I am lost (male).", "perdido", ""),
@@ -72,7 +72,7 @@ export const SPANISH_BEGINNER_DECK: Card[] = [
   createCard("Hace calor.", "It is hot.", "calor", "Literally: It makes heat."),
   createCard("Hace frío.", "It is cold.", "frío", "Literally: It makes cold."),
 
-  // --- ADJECTIVES & NOUNS ---
+
   createCard("Es muy bonito.", "It is very pretty.", "bonito", ""),
   createCard("Es difícil.", "It is difficult.", "difícil", ""),
   createCard("Es fácil.", "It is easy.", "fácil", ""),

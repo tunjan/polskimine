@@ -27,8 +27,8 @@ export const UsernameSetup: React.FC = () => {
     try {
       await updateUsername(username.trim());
       toast.success("Welcome, " + username + "!");
-      // The AuthContext realtime listener will automatically update the 'profile'
-      // state in App.tsx, causing this component to unmount and the app to load.
+
+
     } catch (error: any) {
       console.error(error);
       toast.error(error.message || "Failed to update username");

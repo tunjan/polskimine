@@ -65,7 +65,7 @@ describe('Constants', () => {
       const dates = Object.keys(MOCK_HISTORY);
       expect(dates.length).toBeGreaterThan(0);
       
-      // Check that dates are in the past
+
       dates.forEach(dateStr => {
         const date = new Date(dateStr);
         expect(date.getTime()).toBeLessThanOrEqual(Date.now());

@@ -15,7 +15,7 @@ const createCard = (sentence: string, translation: string, targetWord?: string, 
 });
 
 export const POLISH_BEGINNER_DECK: Card[] = [
-  // --- GREETINGS & ESSENTIALS ---
+
   createCard("Dzień dobry, poproszę kawę.", "Good morning, a coffee please.", "poproszę", "Polite way to ask for something."),
   createCard("Dziękuję bardzo.", "Thank you very much.", "Dziękuję", ""),
   createCard("Nie rozumiem.", "I don't understand.", "rozumiem", "Verb: rozumieć."),
@@ -28,7 +28,7 @@ export const POLISH_BEGINNER_DECK: Card[] = [
   createCard("Tak, poproszę.", "Yes, please.", "Tak", ""),
   createCard("Nie, dziękuję.", "No, thank you.", "Nie", ""),
 
-  // --- TO BE (BYĆ) ---
+
   createCard("Jestem zmęczony.", "I am tired (male).", "Jestem", ""),
   createCard("Ona jest bardzo miła.", "She is very nice.", "jest", ""),
   createCard("To jest mój dom.", "This is my house.", "To", "Used as a pointer here."),
@@ -37,14 +37,14 @@ export const POLISH_BEGINNER_DECK: Card[] = [
   createCard("Czy jesteś głodny?", "Are you hungry?", "jesteś", ""),
   createCard("Byłem tam wczoraj.", "I was there yesterday (male).", "Byłem", "Past tense."),
 
-  // --- TO HAVE (MIEĆ) ---
+
   createCard("Mam pytanie.", "I have a question.", "Mam", ""),
   createCard("Nie mam czasu.", "I don't have time.", "czasu", "Genitive case of 'czas' (negation)."),
   createCard("Masz ochotę na piwo?", "Do you feel like having a beer?", "ochotę", "Idiom: Mieć ochotę na..."),
   createCard("On nie ma pieniędzy.", "He doesn't have money.", "pieniędzy", "Genitive plural."),
   createCard("Mamy nowy samochód.", "We have a new car.", "Mamy", ""),
 
-  // --- COMMON VERBS ---
+
   createCard("Co robisz?", "What are you doing?", "robisz", ""),
   createCard("Idę do sklepu.", "I am going to the store.", "Idę", "Directional movement."),
   createCard("Chcę kupić chleb.", "I want to buy bread.", "Chcę", "Verb: chcieć + infinitive."),
@@ -60,7 +60,7 @@ export const POLISH_BEGINNER_DECK: Card[] = [
   createCard("Widzę cię.", "I see you.", "Widzę", ""),
   createCard("Słyszysz mnie?", "Do you hear me?", "Słyszysz", ""),
 
-  // --- PRONOUNS & QUESTIONS ---
+
   createCard("Kto to jest?", "Who is this?", "Kto", ""),
   createCard("Dlaczego płaczesz?", "Why are you crying?", "Dlaczego", ""),
   createCard("Kiedy wracasz?", "When are you coming back?", "Kiedy", ""),
@@ -69,7 +69,7 @@ export const POLISH_BEGINNER_DECK: Card[] = [
   createCard("Co to jest?", "What is this?", "Co", ""),
   createCard("Ile to kosztuje?", "How much does it cost?", "Ile", ""),
 
-  // --- SURVIVAL & COMMON PHRASES ---
+
   createCard("Wszystko w porządku?", "Is everything in order/okay?", "porządku", ""),
   createCard("Nic się nie stało.", "Nothing happened.", "Nic", "Double negation is standard."),
   createCard("Na zdrowie!", "Cheers! / Bless you!", "zdrowie", ""),
@@ -78,7 +78,7 @@ export const POLISH_BEGINNER_DECK: Card[] = [
   createCard("Zgubiłem się.", "I am lost (male).", "Zgubiłem", ""),
   createCard("Potrzebuję lekarza.", "I need a doctor.", "Potrzebuję", ""),
 
-  // --- ADJECTIVES & DESCRIBING ---
+
   createCard("Ten samochód jest szybki.", "This car is fast.", "szybki", ""),
   createCard("Pogoda jest dzisiaj ładna.", "The weather is nice today.", "ładna", ""),
   createCard("Jest mi zimno.", "I am cold.", "zimno", "Literally: 'It is cold to me'."),
@@ -86,7 +86,7 @@ export const POLISH_BEGINNER_DECK: Card[] = [
   createCard("Jestem szczęśliwy.", "I am happy (male).", "szczęśliwy", ""),
   createCard("To jest trudne.", "This is difficult.", "trudne", ""),
 
-  // --- TIME & PLACE ---
+
   createCard("Mieszkam w Polsce.", "I live in Poland.", "Polsce", "Locative case."),
   createCard("Widzimy się jutro.", "See you tomorrow.", "jutro", ""),
   createCard("Teraz czy później?", "Now or later?", "Teraz", ""),

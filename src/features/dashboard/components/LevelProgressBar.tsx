@@ -10,8 +10,8 @@ interface LevelProgressBarProps {
 
 export const LevelProgressBar: React.FC<LevelProgressBarProps> = ({ xp, level, className }) => {
   const progressData = useMemo(() => {
-    // Inverse of: level = Math.floor(Math.sqrt(xp / 100)) + 1
-    // Therefore: xp = 100 * (level - 1)^2
+
+
     const currentLevelStartXP = 100 * Math.pow(level - 1, 2);
     const nextLevelStartXP = 100 * Math.pow(level, 2);
 

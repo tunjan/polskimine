@@ -31,11 +31,11 @@ const LinguaFlowApp: React.FC = () => {
     return <AuthPage />;
   }
 
-  // ---------------------------------------------------------
-  // BLOCKING CHECK: If user exists but profile/username is missing
-  // ---------------------------------------------------------
+
+
+
   
-  // Case 1: Profile hasn't loaded yet (async fetch after auth)
+
   if (!profile) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
@@ -44,12 +44,12 @@ const LinguaFlowApp: React.FC = () => {
     );
   }
 
-  // Case 2: Profile loaded, but username is null (First time Google Login)
+
   if (!profile.username) {
     return <UsernameSetup />;
   }
 
-  // ---------------------------------------------------------
+
 
   return (
     <BrowserRouter>

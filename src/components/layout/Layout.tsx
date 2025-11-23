@@ -11,6 +11,7 @@ import {
   Zap,
   Skull,
   Trophy,
+  Swords,
   ChevronUp,
   Check,
   Command
@@ -34,7 +35,7 @@ import { PolishFlag, NorwegianFlag, JapaneseFlag, SpanishFlag } from '@/componen
 import { toast } from 'sonner';
 import clsx from 'clsx';
 
-// --- Utility Components for the Sidebar ---
+
 
 const NavLinkItem = ({ 
   to, 
@@ -173,6 +174,13 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
           isActive={location.pathname === '/leaderboard'} 
           onClick={handleMobileClick}
         />
+        <NavLinkItem 
+          to="/multiplayer" 
+          icon={Swords} 
+          label="Deck Wars" 
+          isActive={location.pathname.startsWith('/multiplayer')} 
+          onClick={handleMobileClick}
+        />
       </div>
 
       {/* 3. Utilities / Tools */}
@@ -206,7 +214,7 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
             <button className="w-full flex items-center justify-between px-3 py-2 rounded-md text-muted-foreground hover:text-foreground hover:bg-secondary/30 transition-all group">
                 <div className="flex items-center gap-3">
                     <div className="w-4 h-4 flex items-center justify-center grayscale group-hover:grayscale-0 transition-all">
-                        <currentLanguage.Flag className="w-full h-auto rounded-[2px]" />
+                        <currentLanguage.Flag className="w-full h-auto rounded-xs" />
                     </div>
                     <span className="text-sm font-medium">{currentLanguage.name}</span>
                 </div>
@@ -224,7 +232,7 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
                 }}
                 className="gap-3 py-2 text-xs font-medium"
                 >
-                <lang.Flag className="w-3.5 h-auto rounded-[2px]" />
+                <lang.Flag className="w-3.5 h-auto rounded-xs" />
                 <span className="flex-1">{lang.name}</span>
                 {settings.language === lang.code && <Check size={14} className="ml-auto" />}
                 </DropdownMenuItem>

@@ -9,16 +9,17 @@ import {
   incrementHistory,
 } from '@/services/db/repositories/historyRepository';
 import { getDueCards, saveCard } from '@/services/db/repositories/cardRepository';
+import { addReviewLog } from '@/services/db/repositories/revlogRepository';
 import { Card, Grade } from '@/types';
 import { getSRSDate } from '@/features/study/logic/srs';
-import { format } from 'date-fns';
+import { format, differenceInMinutes } from 'date-fns';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 
-// REWORKED: Only award XP for New cards. 0 for everything else.
+
 const calculateXP = (cardStatus: string, grade: Grade): number => {
-  // Only 'new' cards give immediate gratification
+
   if (cardStatus === 'new') return 50;
   return 0;
 };
@@ -68,14 +69,26 @@ export const useRecordReviewMutation = () => {
     mutationFn: async ({ card, grade }: { card: Card; grade: Grade }) => {
       const today = format(getSRSDate(new Date()), 'yyyy-MM-dd');
       
-      // 1. Increment history in DB
-      await incrementHistory(today, 1, card.language || settings.language);
+      // 1. Calculate Metrics for Log
+      const now = new Date();
+      const lastReview = card.last_review ? new Date(card.last_review) : now;
       
-      // 2. Award XP ONLY if it's a new card
+      // Calculate elapsed days with decimal precision (critical for FSRS)
+      const diffMinutes = differenceInMinutes(now, lastReview);
+      const elapsedDays = diffMinutes / 1440; // 1440 mins in a day
+
+      const scheduledDays = card.interval || 0;
+
+      // 2. Save Log (Fire and forget, or await if strict)
+      await addReviewLog(card, grade, elapsedDays, scheduledDays);
+
+      // await incrementHistory(today, 1, card.language || settings.language);
+      
+
       const xpAmount = calculateXP(card.status, grade);
 
       if (user) {
-        // Insert activity log
+
         await supabase
           .from('activity_log')
           .insert({
@@ -99,7 +112,7 @@ export const useRecordReviewMutation = () => {
     onMutate: async ({ card, grade }) => {
       const today = format(getSRSDate(new Date()), 'yyyy-MM-dd');
       
-      // 1. Cancel ALL relevant queries to prevent overwrites from background refetches
+
       await Promise.all([
         queryClient.cancelQueries({ queryKey: ['history', settings.language] }),
         queryClient.cancelQueries({ queryKey: ['reviewsToday', settings.language] }),
@@ -108,19 +121,19 @@ export const useRecordReviewMutation = () => {
         queryClient.cancelQueries({ queryKey: ['dashboardStats', settings.language] }) // Added: prevent overwrite of optimistic language XP
       ]);
       
-      // 2. Snapshot previous values for rollback
+
       const previousHistory = queryClient.getQueryData(['history', settings.language]);
       const previousReviewsToday = queryClient.getQueryData(['reviewsToday', settings.language]);
       const previousDueCards = queryClient.getQueryData(['dueCards', settings.language]);
       const previousDashboardStats = queryClient.getQueryData(['dashboardStats', settings.language]); // Added snapshot
       
-      // 3. Optimistically update history
+
       queryClient.setQueryData(['history', settings.language], (old: any) => {
         if (!old) return { [today]: 1 };
         return { ...old, [today]: (old[today] || 0) + 1 };
       });
       
-      // 4. Optimistically update reviewsToday
+
       queryClient.setQueryData(['reviewsToday', settings.language], (old: any) => {
          if (!old) return { newCards: 0, reviewCards: 0 };
          return {
@@ -129,24 +142,24 @@ export const useRecordReviewMutation = () => {
          };
       });
 
-      // 5. Optimistically update: REMOVE CARD FROM DUE QUEUE regardless of grade.
-      // If graded 'Again', it enters a short learning interval and should not count as currently due.
-      // The study session manages immediate re-queue locally.
+
+
+
       queryClient.setQueryData(['dueCards', settings.language], (old: Card[] | undefined) => {
         if (!old) return [];
         return old.filter(c => c.id !== card.id);
       });
 
-      // Note: We do NOT optimistically update deckStats.due here because DeckContext
-      // derives the due count from the dueCards array. Updating both causes desync.
-      // The invalidation on settlement will sync deckStats from the server.
 
-      // 7. Optimistically update Profile XP (Only if > 0)
+
+
+
+
       if (user) {
         const xpAmount = calculateXP(card.status, grade);
         incrementXPOptimistically(xpAmount);
 
-        // Update Dashboard Stats
+
         queryClient.setQueryData(['dashboardStats', settings.language], (old: any) => {
             if (!old) return old;
             return {
@@ -159,7 +172,7 @@ export const useRecordReviewMutation = () => {
       return { previousHistory, previousReviewsToday, previousDueCards, previousDashboardStats };
     },
     onError: (err, newTodo, context) => {
-      // Rollback EVERYTHING if it fails
+
       if (context) {
         queryClient.setQueryData(['history', settings.language], context.previousHistory);
         queryClient.setQueryData(['reviewsToday', settings.language], context.previousReviewsToday);
@@ -177,7 +190,7 @@ export const useRecordReviewMutation = () => {
   });
 };
 
-// NEW: Mutation to claim the daily completion bonus
+
 export const useClaimDailyBonusMutation = () => {
   const queryClient = useQueryClient();
   const { settings } = useSettings();
@@ -202,7 +215,7 @@ export const useClaimDailyBonusMutation = () => {
         toast.success(`Daily Goal Complete! +${BONUS_AMOUNT} XP`);
         incrementXPOptimistically(BONUS_AMOUNT);
         
-        // Update Dashboard Stats
+
         queryClient.setQueryData(['dashboardStats', settings.language], (old: any) => {
             if (!old) return old;
             return {

@@ -47,7 +47,7 @@ export const CardHistoryModal: React.FC<CardHistoryModalProps> = ({ card, isOpen
   const difficultyPercent = Math.min(100, Math.round(((card.difficulty || 0) / 10) * 100));
   const stability = card.stability ? parseFloat(card.stability.toFixed(2)) : 0;
 
-  // Determine FSRS label
+
   const getFsrsLabel = (state?: number) => {
       if (state === 0) return 'New';
       if (state === 1) return 'Learning';

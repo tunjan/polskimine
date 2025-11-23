@@ -29,7 +29,7 @@ export const AddCardModal: React.FC<AddCardModalProps> = ({ isOpen, onClose, onA
   const [isGenerating, setIsGenerating] = useState(false);
   const isMounted = React.useRef(false);
   
-  // Track previous open state to detect modal opening
+
   const wasOpen = useRef(false);
 
   useEffect(() => {
@@ -38,8 +38,8 @@ export const AddCardModal: React.FC<AddCardModalProps> = ({ isOpen, onClose, onA
   }, []);
 
   useEffect(() => {
-    // Only reset form when modal transitions from closed to open
-    // This prevents wiping user input when settings change while modal is open
+
+
     if (isOpen && !wasOpen.current) {
         if (initialCard) {
             const isJapanese = initialCard.language === 'japanese' || (!initialCard.language && settings.language === 'japanese');
@@ -104,10 +104,10 @@ export const AddCardModal: React.FC<AddCardModalProps> = ({ isOpen, onClose, onA
     let furigana = form.furigana || undefined;
 
     if (targetLanguage === 'japanese') {
-        // If Japanese, the input sentence might contain furigana brackets.
-        // We treat the input as the source of truth for furigana.
+
+
         furigana = form.sentence;
-        // Strip brackets for the clean target sentence
+
         targetSentence = parseFurigana(form.sentence).map(s => s.text).join("");
     }
 
@@ -125,7 +125,7 @@ export const AddCardModal: React.FC<AddCardModalProps> = ({ isOpen, onClose, onA
     onClose();
   };
 
-  // Subtle highlight preview
+
   const HighlightedPreview = useMemo(() => {
       if (!form.sentence) return null;
       

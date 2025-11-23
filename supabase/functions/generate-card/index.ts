@@ -6,26 +6,26 @@ const corsHeaders = {
 }
 
 serve(async (req: Request) => {
-  // 1. Handle CORS preflight requests
+
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders })
   }
 
   try {
-    // 2. Parse body
+
     const { prompt, apiKey: userApiKey } = await req.json()
     
-    // 3. Validate Key
-    // Use user key if provided (BYOK), otherwise fallback to env
+
+
     const apiKey = userApiKey || Deno.env.get('GEMINI_API_KEY')
 
     if (!apiKey) {
       throw new Error('No Gemini API Key provided. Please add one in Settings.')
     }
 
-    // 4. Call Google Gemini API
+
     const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`,
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent?key=${apiKey}`,
       {
         method: 'POST',
         headers: {
@@ -39,7 +39,7 @@ serve(async (req: Request) => {
 
     const data = await response.json()
 
-    // 5. Handle API Errors
+
     if (!response.ok) {
       console.error('Gemini API Error:', data)
       const errorMessage = data.error?.message || 'Failed to generate content from Gemini'
@@ -48,7 +48,7 @@ serve(async (req: Request) => {
 
     const generatedText = data.candidates?.[0]?.content?.parts?.[0]?.text || ''
 
-    // 6. Return Success
+
     return new Response(
       JSON.stringify({ text: generatedText }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }

@@ -108,7 +108,7 @@ export const getCardsForRetention = async (language: Language): Promise<Partial<
   return (data ?? []) as Partial<Card>[];
 };
 
-// Lightweight selection for dashboard retention & forecast computations
+
 export const getCardsForDashboard = async (language: Language): Promise<Array<{ id: string; due_date: string | null; status: string; stability: number | null; state: number | null }>> => {
   const userId = await ensureUser();
   const { data, error } = await supabase
@@ -137,7 +137,7 @@ export const saveAllCards = async (cards: Card[]) => {
   if (!cards.length) return;
   const userId = await ensureUser();
   const payload = cards.map((card) => mapToDB(card, userId));
-  // Batch to avoid oversized payloads for very large imports
+
   const BATCH_SIZE = 100;
   for (let i = 0; i < payload.length; i += BATCH_SIZE) {
     const chunk = payload.slice(i, i + BATCH_SIZE);
@@ -152,34 +152,31 @@ export const clearAllCards = async () => {
   if (error) throw error;
 };
 
-export const getDueCards = async (now: Date = new Date(), language?: Language): Promise<Card[]> => {
+export const getDueCards = async (now: Date, language: Language): Promise<Card[]> => {
   const userId = await ensureUser();
   const srsToday = getSRSDate(now);
   const cutoffDate = new Date(srsToday);
   cutoffDate.setDate(cutoffDate.getDate() + 1);
-  // FIX: Add cutoff hour to ensure we capture cards due late at night (00:00 - 04:00)
+
   cutoffDate.setHours(SRS_CONFIG.CUTOFF_HOUR);
 
-  let query = supabase
+  const { data, error } = await supabase
     .from('cards')
     .select('*')
     .eq('user_id', userId)
+    .eq('language', language)
     .neq('status', 'known')
     .lte('due_date', cutoffDate.toISOString())
-    .order('due_date', { ascending: true });
+    .order('due_date', { ascending: true })
+    .limit(1000);
 
-  if (language) {
-    query = query.eq('language', language);
-  }
-
-  const { data, error } = await query.limit(1000);
   if (error) throw error;
   return (data ?? []).map(mapToCard);
 };
 
 export const getCramCards = async (limit: number, tag?: string, language?: Language): Promise<Card[]> => {
   const userId = await ensureUser();
-  // Use server-side randomization via RPC to avoid fetching entire table into memory.
+
   const { data, error } = await supabase.rpc('get_random_cards', {
     p_user_id: userId,
     p_language: language || 'polish',

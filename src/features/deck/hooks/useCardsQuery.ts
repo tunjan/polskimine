@@ -17,7 +17,10 @@ export const useCardsQuery = (page = 0, pageSize = 50, searchTerm = '') => {
         .order('created_at', { ascending: false });
 
       if (searchTerm) {
-        query = query.or(`target_sentence.ilike.%${searchTerm}%,native_translation.ilike.%${searchTerm}%`);
+        query = query.textSearch('fts', searchTerm, { 
+          type: 'websearch',
+          config: 'simple' 
+        });
       }
       
       const { data, count, error } = await query.range(page * pageSize, (page + 1) * pageSize - 1);

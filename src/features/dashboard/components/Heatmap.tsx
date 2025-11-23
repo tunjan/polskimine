@@ -12,7 +12,7 @@ export const Heatmap: React.FC<HeatmapProps> = ({ history }) => {
   const calendarData = useMemo(() => {
     const today = startOfDay(new Date());
     const days = [];
-    // Show last 52 weeks (approx 1 year)
+
     let startDate = subDays(today, 364);
     const dayOfWeek = startDate.getDay(); // 0 is Sunday
     startDate = subDays(startDate, dayOfWeek); 

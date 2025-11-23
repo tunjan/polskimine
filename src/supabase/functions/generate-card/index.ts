@@ -1,4 +1,4 @@
-// supabase/functions/generate-card/index.ts
+
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 
 const corsHeaders = {
@@ -7,13 +7,13 @@ const corsHeaders = {
 }
 
 serve(async (req: Request) => {
-  // 1. Handle CORS preflight
+
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders })
   }
 
   try {
-    // 2. Parse Body safely
+
     let prompt, userApiKey;
     try {
       const body = await req.json();
@@ -23,7 +23,7 @@ serve(async (req: Request) => {
       throw new Error("Invalid JSON body");
     }
 
-    // 3. Resolve API Key
+
     const apiKey = userApiKey || Deno.env.get('GEMINI_API_KEY')
     if (!apiKey) {
       return new Response(
@@ -32,9 +32,9 @@ serve(async (req: Request) => {
       )
     }
 
-    // 4. Call Gemini
+
     const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`,
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent?key=${apiKey}`,
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -62,7 +62,7 @@ serve(async (req: Request) => {
     )
 
   } catch (error: any) {
-    // 5. CATCH-ALL: Ensure CORS headers are sent even on crash
+
     console.error('Function Crash:', error)
     return new Response(
       JSON.stringify({ error: error.message }),

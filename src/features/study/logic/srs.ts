@@ -53,7 +53,7 @@ export const calculateNextReview = (card: Card, grade: Grade, settings?: UserSet
   const f = getFSRS(settings);
   const now = new Date();
   
-  // Ensure we map the status back to a State if state is missing (e.g. imported cards)
+
   let currentState = card.state;
   if (currentState === undefined) {
       if (card.status === 'new') currentState = State.New;
@@ -63,7 +63,7 @@ export const calculateNextReview = (card: Card, grade: Grade, settings?: UserSet
 
   const lastReviewDate = card.last_review ? new Date(card.last_review) : undefined;
 
-  // If somehow state is Review but no last_review exists, force New to prevent crash
+
   if (currentState === State.Review && !lastReviewDate) {
     currentState = State.New;
   }
@@ -82,23 +82,23 @@ export const calculateNextReview = (card: Card, grade: Grade, settings?: UserSet
 
   const rating = mapGradeToRating(grade);
   
-  // FIX: Rely purely on FSRS for calculations to ensure S/D (Stability/Difficulty) are updated correctly.
+
   const schedulingCards = f.repeat(fsrsCard, now);
   const log = schedulingCards[rating].card;
   
   const isNew = currentState === State.New || (card.reps || 0) === 0;
   const tentativeStatus = mapStateToStatus(log.state);
   
-  // Optional: If you want to force a custom learning step for "Again" on Graduated cards
-  // (Relearning), FSRS handles this via State.Relearning.
+
+
   
-  // Sanity check to prevent graduating "Learning" cards immediately if FSRS settings are aggressive,
-  // though standard FSRS v5 is usually correct.
+
+
   const status = card.status === 'graduated' && tentativeStatus === 'learning' && grade !== 'Again'
     ? 'graduated'
     : tentativeStatus;
 
-  // Leech Logic
+
   const totalLapses = log.lapses;
   let isLeech = card.isLeech || false;
 
@@ -137,7 +137,7 @@ export const isCardDue = (card: Card, now: Date = new Date()): boolean => {
   }
 
   const srsToday = getSRSDate(now);
-  // Standard review cards are due if their date is before or equal to "Today" (4AM cutoff)
-  // OR if the specific time has passed (fallback for weird timezones/migrations)
+
+
   return isBefore(due, srsToday) || due <= now;
 };

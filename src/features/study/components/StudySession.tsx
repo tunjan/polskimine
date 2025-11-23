@@ -7,10 +7,10 @@ import { useStudySession } from '../hooks/useStudySession';
 import clsx from 'clsx';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
-// ... (getCardStatus and getQueueCounts helpers remain the same)
+
 
 const getCardStatus = (card: Card) => {
-  // FSRS State: New=0, Learning=1, Review=2, Relearning=3
+
   if (card.state === 0 || (card.state === undefined && card.status === 'new')) 
     return { text: 'Unseen', className: 'text-blue-500' };
   if (card.state === 1 || (card.state === undefined && card.status === 'learning')) 

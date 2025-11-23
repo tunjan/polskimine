@@ -20,7 +20,7 @@ export const RetentionStats: React.FC<RetentionStatsProps> = ({ cards }) => {
   const colors = useChartColors();
   const [forecastRange, setForecastRange] = useState<'7d' | '1m' | '1y'>('7d');
 
-  // --- DATA PREPARATION ---
+
   const forecastData = useMemo(() => {
     const today = new Date();
     let data: { label: string; count: number; fullDate?: Date }[] = [];
@@ -41,7 +41,7 @@ export const RetentionStats: React.FC<RetentionStatsProps> = ({ cards }) => {
     }
 
     cards.forEach(card => {
-      if (card.status === 'known' || card.status === 'new' || !card.dueDate) return;
+      if (card.status === 'known' || !card.dueDate) return;
       const dueDate = parseISO(card.dueDate);
       const diffDays = differenceInCalendarDays(dueDate, today);
       

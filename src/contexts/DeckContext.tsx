@@ -55,13 +55,13 @@ export const DeckProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const { settings } = useSettings();
   const { user } = useAuth();
   
-  // Queries
+
   const { data: dbStats, isLoading: statsLoading } = useDeckStatsQuery();
   const { data: dueCards, isLoading: dueCardsLoading } = useDueCardsQuery();
   const { data: reviewsToday, isLoading: reviewsLoading } = useReviewsTodayQuery();
   const { data: history, isLoading: historyLoading } = useHistoryQuery();
   
-  // Mutations
+
   const recordReviewMutation = useRecordReviewMutation();
   const undoReviewMutation = useUndoReviewMutation();
 
@@ -69,15 +69,15 @@ export const DeckProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const isLoading = statsLoading || dueCardsLoading || reviewsLoading || historyLoading;
 
-  // Prevent double loading of beginner deck
+
   const isSeeding = useRef(false);
-  // Track which languages have been successfully seeded
+
   const seededLanguages = useRef<Set<string>>(new Set());
 
-  // Memoize streak calculation separately with higher granularity control
-  // to prevent expensive recalculation on every review
+
+
   const streakStats = useMemo(() => {
-    // Calculate streaks from history
+
     const sortedDates = Object.keys(history || {}).sort();
     let currentStreak = 0;
     let longestStreak = 0;
@@ -88,7 +88,7 @@ export const DeckProvider: React.FC<{ children: React.ReactNode }> = ({ children
       0
     );
 
-    // Use UTC date strings consistently to prevent timezone mismatches
+
     const srsToday = getSRSDate(new Date());
     const todayStr = getUTCDateString(srsToday);
     const srsYesterday = new Date(srsToday);
@@ -142,14 +142,14 @@ export const DeckProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return { currentStreak, longestStreak, totalReviews };
   }, [history]); // Only recalculate when history object reference changes
 
-  // Derived Stats
-  // Performance note: This calculation now delegates expensive streak computation
-  // to a separate useMemo to reduce render cost during rapid reviews
-  // 
-  // IMPORTANT: The 'due' count is derived from limitedCards.length to ensure consistency.
-  // The optimistic update in useDeckQueries also updates deckStats.due, but this context
-  // uses the client-side array as the source of truth for the current session.
-  // This prevents desync between the mutation's filter logic and the context's applyStudyLimits.
+
+
+
+
+
+
+
+
   const stats = useMemo<DeckStats>(() => {
     if (!dbStats || !dueCards || !reviewsToday) {
       return {
@@ -188,14 +188,14 @@ export const DeckProvider: React.FC<{ children: React.ReactNode }> = ({ children
     };
   }, [dbStats, dueCards, reviewsToday, settings.dailyNewLimits, settings.dailyReviewLimits, settings.language, streakStats]);
 
-  // Beginner Deck Loading
+
   useEffect(() => {
     const loadBeginnerDeck = async () => {
-      // Abort if currently seeding or this language already seeded
+
       if (isSeeding.current || seededLanguages.current.has(settings.language)) return;
 
       if (!statsLoading && dbStats && dbStats.total === 0 && user) {
-         // Lock the process immediately
+
          isSeeding.current = true;
 
          const rawDeck =
@@ -207,7 +207,7 @@ export const DeckProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 ? SPANISH_BEGINNER_DECK
                 : POLISH_BEGINNER_DECK;
             
-         // FIX: Generate fresh UUIDs to prevent database collisions
+
          const deck = rawDeck.map(card => ({
            ...card,
            id: crypto.randomUUID(),
@@ -216,7 +216,7 @@ export const DeckProvider: React.FC<{ children: React.ReactNode }> = ({ children
             
         try {
           await saveAllCards(deck);
-          // Mark this language as seeded only after success
+
           seededLanguages.current.add(settings.language);
           toast.success(`Loaded Beginner ${languageLabel(settings.language)} course!`);
           await Promise.all([
@@ -227,7 +227,7 @@ export const DeckProvider: React.FC<{ children: React.ReactNode }> = ({ children
         } catch (e) {
           console.error("Failed to load beginner deck", e);
         } finally {
-          // Always unlock so retries (e.g. language switch) are possible
+
           isSeeding.current = false;
         }
       }
@@ -245,7 +245,7 @@ export const DeckProvider: React.FC<{ children: React.ReactNode }> = ({ children
       } catch (error) {
           console.error("Failed to record review", error);
           toast.error("Failed to save review progress");
-          // Only clear undo state if the failed card matches current lastReview
+
           setLastReview(prev => (prev?.card.id === oldCard.id ? null : prev));
       }
   }, [recordReviewMutation]);

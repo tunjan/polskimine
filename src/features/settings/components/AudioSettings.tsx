@@ -1,10 +1,16 @@
 import React from 'react';
-import { Volume2 } from 'lucide-react';
+import { Volume2, HelpCircle } from 'lucide-react';
 import { UserSettings } from '@/types';
 import { EditorialSelect } from '@/components/form/EditorialSelect';
 import { MetaLabel } from '@/components/form/MetaLabel';
 import { EditorialInput } from '@/components/form/EditorialInput';
 import { Slider } from '@/components/ui/slider';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 interface VoiceOption {
   id: string;
@@ -52,7 +58,25 @@ export const AudioSettings: React.FC<AudioSettingsProps> = ({
         <section className="space-y-6 p-6 bg-secondary/20 rounded-lg border border-border/50">
           {provider === 'google' && (
             <div>
-              <MetaLabel>API Key</MetaLabel>
+              <div className="flex items-center gap-2">
+                <MetaLabel>API Key</MetaLabel>
+                <TooltipProvider>
+                  <Tooltip delayDuration={300}>
+                    <TooltipTrigger asChild>
+                      <HelpCircle className="h-3 w-3 text-muted-foreground cursor-help mb-2 hover:text-primary transition-colors" />
+                    </TooltipTrigger>
+                    <TooltipContent className="max-w-[300px] p-4 bg-popover border-border text-popover-foreground">
+                      <p className="font-semibold mb-2 text-sm">How to get a Google Cloud API Key:</p>
+                      <ol className="list-decimal ml-4 space-y-1 text-xs text-muted-foreground">
+                        <li>Create a project in <a href="https://console.cloud.google.com/" target="_blank" rel="noreferrer" className="underline hover:text-primary">Google Cloud Console</a></li>
+                        <li>Enable <strong>"Cloud Text-to-Speech API"</strong></li>
+                        <li>Create an <strong>API Key</strong> in Credentials</li>
+                        <li>Paste the key here</li>
+                      </ol>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              </div>
               <EditorialInput
                 type="password"
                 placeholder="Google Cloud API Key"

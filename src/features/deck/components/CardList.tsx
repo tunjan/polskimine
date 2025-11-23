@@ -18,23 +18,13 @@ interface CardListProps {
   onToggleSelect: (id: string, index: number, isShift: boolean) => void;
 }
 
-const StatusDot = ({ status }: { status: string }) => {
-    const colorClass = 
-        status === 'new' ? 'bg-blue-500' :
-        status === 'learning' ? 'bg-amber-500' :
-        status === 'graduated' ? 'bg-emerald-500' : 
-        'bg-zinc-300 dark:bg-zinc-700';
-
-    return <div className={clsx("w-1.5 h-1.5 rounded-full shrink-0", colorClass)} />;
-};
-
 const DueDateLabel = ({ dateStr, status }: { dateStr: string, status: string }) => {
   if (status === 'new') return <span className="text-muted-foreground/40">-</span>;
   
   const date = parseISO(dateStr);
   if (!isValid(date)) return null;
 
-  // Check if it's prioritized (approx 1970)
+
   if (date.getFullYear() === 1970) {
       return <span className="text-primary font-bold tracking-wider text-[10px] uppercase">Next</span>;
   }
@@ -46,7 +36,7 @@ const DueDateLabel = ({ dateStr, status }: { dateStr: string, status: string }) 
   );
 };
 
-// Memoized Row Component
+
 const Row = React.memo(({ index, style, data }: ListChildComponentProps<any>) => {
   const { cards, onEditCard, onDeleteCard, onViewHistory, onPrioritizeCard, selectedIds, onToggleSelect } = data;
   const card = cards[index];
@@ -85,7 +75,6 @@ const Row = React.memo(({ index, style, data }: ListChildComponentProps<any>) =>
         onClick={() => onViewHistory(card)}
       >
           <div className="flex items-baseline gap-3 mb-1">
-             <StatusDot status={card.status} />
              <span className={clsx(
                  "text-lg font-light tracking-tight truncate transition-colors",
                  isSelected ? "text-primary" : "text-foreground group-hover:text-primary"
@@ -93,7 +82,7 @@ const Row = React.memo(({ index, style, data }: ListChildComponentProps<any>) =>
                 {card.targetSentence}
              </span>
           </div>
-          <div className="pl-4.5">
+          <div>
              <span className="text-sm text-muted-foreground/60 font-light truncate block">
                 {card.nativeTranslation}
              </span>

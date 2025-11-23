@@ -1,4 +1,5 @@
 import { supabase } from '@/lib/supabase';
+import type { GameQuestion } from '@/types/multiplayer';
 
 interface BatchGenerationOptions {
   difficulty: string;
@@ -8,13 +9,13 @@ interface BatchGenerationOptions {
 }
 
 function extractJSON(text: string): string {
-  // Try to find a JSON code block first (case-insensitive)
+
   const jsonBlockMatch = text.match(/```(?:json)?\s*([\s\S]*?)\s*```/i);
   if (jsonBlockMatch) {
     return jsonBlockMatch[1];
   }
   
-  // Fallback: Find the outermost curly braces or brackets
+
   const firstOpenBrace = text.indexOf('{');
   const firstOpenBracket = text.indexOf('[');
   
@@ -26,7 +27,7 @@ function extractJSON(text: string): string {
   }
 
   if (firstOpen !== -1) {
-    // Find the corresponding last close
+
     const lastCloseBrace = text.lastIndexOf('}');
     const lastCloseBracket = text.lastIndexOf(']');
     const lastClose = Math.max(lastCloseBrace, lastCloseBracket);
@@ -44,7 +45,7 @@ async function callGemini(prompt: string, apiKey: string): Promise<string> {
     throw new Error('Gemini API Key is missing. Please add it in Settings.');
   }
 
-  // UPDATED: Explicitly stringify body and set headers (required by Edge Function)
+
   const { data, error } = await supabase.functions.invoke('generate-card', {
     body: JSON.stringify({ prompt, apiKey }),
     headers: {
@@ -54,12 +55,12 @@ async function callGemini(prompt: string, apiKey: string): Promise<string> {
 
   if (error) {
     console.error("AI Service Error:", error);
-    // Attempt to parse structured error from Response body
+
     try {
       const body = error instanceof Response ? await error.json() : null;
       if (body?.error) throw new Error(body.error);
     } catch (_) {
-      // Swallow JSON parse issues silently
+
     }
     throw new Error('AI Service failed. Check console for details.');
   }
@@ -138,6 +139,18 @@ export const aiService = {
         translation: "",
         notes: ""
       };
+    }
+  },
+
+  async generateQuiz(prompt: string, apiKey: string): Promise<GameQuestion[]> {
+    const result = await callGemini(prompt, apiKey);
+    try {
+      const cleanResult = extractJSON(result);
+      const parsed = JSON.parse(cleanResult);
+      return Array.isArray(parsed) ? parsed : [];
+    } catch (e) {
+      console.error('Failed to parse quiz response', e);
+      return [];
     }
   },
 

@@ -84,7 +84,7 @@ export const useCardOperations = (): CardOperations => {
   const prioritizeCards = useCallback(
     async (ids: string[]) => {
       try {
-        // Set due_date to epoch (1970) to ensure they appear first in ascending sort
+
         const { error } = await supabase
           .from('cards')
           .update({ due_date: new Date(0).toISOString() })
@@ -93,7 +93,7 @@ export const useCardOperations = (): CardOperations => {
         if (error) throw error;
 
         await queryClient.invalidateQueries({ queryKey: ['cards'] });
-        // Also invalidate due cards so the study session picks them up immediately
+
         await queryClient.invalidateQueries({ queryKey: ['dueCards'] });
         refreshDeckData();
         toast.success(`${ids.length} card${ids.length === 1 ? '' : 's'} moved to top of queue`);

@@ -57,7 +57,7 @@ export const SabotageStore: React.FC<SabotageStoreProps> = ({ isOpen, onClose })
       return;
     }
 
-    // Client-side check (Server should also verify)
+
     if ((profile?.points || 0) < cost) {
         toast.error("Not enough points! Keep reviewing cards.");
         return;

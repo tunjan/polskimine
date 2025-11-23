@@ -2,7 +2,7 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import { UserSettings, Language } from '../types';
 import { FSRS_DEFAULTS } from '../constants';
 
-// Helper to create per-language limits objects
+
 const createLimits = (val: number): Record<Language, number> => ({
   polish: val,
   norwegian: val,
@@ -52,7 +52,7 @@ interface SettingsContextType {
 const SettingsContext = createContext<SettingsContextType | undefined>(undefined);
 
 export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  // Lazy initialization: read localStorage before first render to avoid overwriting saved settings
+
   const [settings, setSettings] = useState<UserSettings>(() => {
     if (typeof window === 'undefined') return DEFAULT_SETTINGS;
     try {
@@ -60,7 +60,7 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       if (saved) {
         const parsed = JSON.parse(saved);
 
-        // Migration: single numeric fields -> per-language objects
+
         let migratedDailyNewLimits = parsed.dailyNewLimits;
         if (typeof parsed.dailyNewLimit === 'number') {
           migratedDailyNewLimits = createLimits(parsed.dailyNewLimit);
@@ -99,9 +99,9 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     }));
   };
 
-  // Sync settings to localStorage whenever they change
-  // (separated from state updater to ensure pure reducer functions and prevent
-  // multiple writes in Strict Mode)
+
+
+
   useEffect(() => {
     localStorage.setItem('language_mining_settings', JSON.stringify(settings));
   }, [settings]);

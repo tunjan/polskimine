@@ -44,7 +44,7 @@ export const LanguageThemeManager: React.FC = () => {
       styleTag.innerHTML = '';
     }
 
-    // Cleanup on unmount to prevent theme leak
+
     return () => {
       root.removeAttribute('data-language');
       const existingStyleTag = document.getElementById(STYLE_TAG_ID);

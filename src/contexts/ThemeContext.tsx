@@ -20,7 +20,7 @@ export function ThemeProvider({
   defaultTheme = 'light',
   storageKey = 'vite-ui-theme',
 }: ThemeProviderProps) {
-  // Always force light theme
+
   const theme = 'light';
 
   useEffect(() => {

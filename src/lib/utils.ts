@@ -21,18 +21,18 @@ export function parseFurigana(text: string): FuriganaSegment[] {
   let match;
 
   while ((match = regex.exec(text)) !== null) {
-    // Text before the match
+
     if (match.index > lastIndex) {
       segments.push({ text: text.slice(lastIndex, match.index) });
     }
 
-    // The match itself
+
     segments.push({ text: match[1], furigana: match[2] });
 
     lastIndex = regex.lastIndex;
   }
 
-  // Remaining text
+
   if (lastIndex < text.length) {
     segments.push({ text: text.slice(lastIndex) });
   }

@@ -1,7 +1,7 @@
 import { getSRSDate } from '@/features/study/logic/srs';
 import { SRS_CONFIG } from '@/constants';
 import { supabase } from '@/lib/supabase';
-import { differenceInCalendarDays, parseISO, addDays, format } from 'date-fns';
+import { differenceInCalendarDays, parseISO, addDays, format, subDays, startOfDay, isSameDay } from 'date-fns';
 
 const ensureUser = async () => {
   const { data, error } = await supabase.auth.getUser();
@@ -15,9 +15,10 @@ const ensureUser = async () => {
 
 export const getDashboardStats = async (language?: string) => {
   const userId = await ensureUser();
+  // Added 'interval' to the selection
   let query = supabase
     .from('cards')
-    .select('status, due_date')
+    .select('status, due_date, interval')
     .eq('user_id', userId);
 
   if (language) {
@@ -29,7 +30,6 @@ export const getDashboardStats = async (language?: string) => {
 
   const cards = cardsData ?? [];
 
-  // Language specific XP via RPC (returns 0 if no language or no data)
   let languageXp = 0;
   if (language) {
     const { data: xpData, error: xpError } = await supabase.rpc('get_user_language_xp', {
@@ -40,16 +40,38 @@ export const getDashboardStats = async (language?: string) => {
     }
   }
 
-  // Metrics
+  // New Bucketing Logic
   const counts = { new: 0, learning: 0, graduated: 0, known: 0 };
+  
   cards.forEach((c: any) => {
-    const status = c.status as keyof typeof counts;
-    if (counts[status] !== undefined) {
-      counts[status]++;
+    // 1. Unseen: Not yet reviewed
+    if (c.status === 'new') {
+      counts.new++;
+      return;
+    }
+
+    // 2. Explicitly Known (Manually archived)
+    if (c.status === 'known') {
+      counts.known++;
+      return;
+    }
+
+    // 3. Bucket by Interval
+    const interval = c.interval || 0;
+
+    if (interval < 30) {
+      // Learning: < 30 days
+      counts.learning++;
+    } else if (interval < 180) {
+      // Mature: 30 - 180 days
+      // We map this to 'graduated' key which corresponds to 'Mature' label in UI
+      counts.graduated++;
+    } else {
+      // Known: > 180 days
+      counts.known++;
     }
   });
 
-  // Forecast
   const daysToShow = 14;
   const today = new Date();
   const forecast = new Array(daysToShow).fill(0).map((_, i) => ({
@@ -86,7 +108,7 @@ export const getStats = async (language?: string) => {
   const srsToday = getSRSDate(new Date());
   const cutoffDate = new Date(srsToday);
   cutoffDate.setDate(cutoffDate.getDate() + 1);
-  // FIX: Add cutoff hour here as well for consistency
+
   cutoffDate.setHours(SRS_CONFIG.CUTOFF_HOUR);
 
   const due = cards.filter(
@@ -101,7 +123,7 @@ export const getTodayReviewStats = async (language?: string) => {
   const userId = await ensureUser();
   const srsToday = getSRSDate(new Date());
   const rangeStart = new Date(srsToday);
-  // This was already correct (adds 4h to 00:00), but effectively ensures 4am start
+
   rangeStart.setHours(rangeStart.getHours() + SRS_CONFIG.CUTOFF_HOUR);
   const rangeEnd = new Date(rangeStart);
   rangeEnd.setDate(rangeEnd.getDate() + 1);
@@ -132,4 +154,73 @@ export const getTodayReviewStats = async (language?: string) => {
   });
 
   return { newCards, reviewCards };
+};
+
+export const getRevlogStats = async (language: string, days = 30) => {
+  const userId = await ensureUser();
+  const startDate = subDays(new Date(), days).toISOString();
+
+  // Join with cards to filter by language
+  const { data: logs, error } = await supabase
+    .from('revlog')
+    .select('created_at, grade, cards!inner(language)')
+    .eq('user_id', userId)
+    .eq('cards.language', language)
+    .gte('created_at', startDate)
+    .order('created_at', { ascending: true });
+
+  if (error) throw error;
+
+  // Process Data for Charts
+  const activityMap = new Map<string, { date: string; count: number; pass: number; fail: number }>();
+  const gradeCounts = { Again: 0, Hard: 0, Good: 0, Easy: 0 };
+  
+  // Initialize last 30 days with 0
+  for (let i = 0; i < days; i++) {
+    const d = subDays(new Date(), i);
+    const key = format(d, 'yyyy-MM-dd');
+    activityMap.set(key, { 
+      date: key, 
+      count: 0, 
+      pass: 0, 
+      fail: 0 
+    });
+  }
+
+  logs.forEach((log: any) => {
+    const dayKey = format(new Date(log.created_at), 'yyyy-MM-dd');
+    const entry = activityMap.get(dayKey);
+    
+    if (entry) {
+      entry.count++;
+      // Grade 1 = Fail, 2,3,4 = Pass
+      if (log.grade === 1) entry.fail++;
+      else entry.pass++;
+    }
+
+    if (log.grade === 1) gradeCounts.Again++;
+    else if (log.grade === 2) gradeCounts.Hard++;
+    else if (log.grade === 3) gradeCounts.Good++;
+    else if (log.grade === 4) gradeCounts.Easy++;
+  });
+
+  // Sort by date ascending
+  const activityData = Array.from(activityMap.values()).sort((a, b) => a.date.localeCompare(b.date));
+
+  // Calculate Retention Rate
+  const retentionData = activityData.map(day => ({
+    date: format(new Date(day.date), 'MMM d'),
+    rate: day.count > 0 ? (day.pass / day.count) * 100 : null
+  }));
+
+  return {
+    activity: activityData.map(d => ({ ...d, label: format(new Date(d.date), 'dd') })),
+    grades: [
+      { name: 'Again', value: gradeCounts.Again, color: '#ef4444' }, // red-500
+      { name: 'Hard', value: gradeCounts.Hard, color: '#f97316' },  // orange-500
+      { name: 'Good', value: gradeCounts.Good, color: '#22c55e' },  // green-500
+      { name: 'Easy', value: gradeCounts.Easy, color: '#3b82f6' },  // blue-500
+    ],
+    retention: retentionData
+  };
 };

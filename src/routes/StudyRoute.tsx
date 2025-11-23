@@ -44,7 +44,7 @@ export const StudyRoute: React.FC = () => {
           const dailyNewLimit = settings.dailyNewLimits?.[settings.language] ?? 20;
           const dailyReviewLimit = settings.dailyReviewLimits?.[settings.language] ?? 100;
           
-          // Manual Limit Logic to populate Reserve
+
           const active: Card[] = [];
           const reserve: Card[] = [];
           
@@ -55,7 +55,7 @@ export const StudyRoute: React.FC = () => {
 
           for (const card of due) {
             if (isNewCard(card)) {
-              // If limit exists and we met it, add to reserve
+
               if (hasLimit(dailyNewLimit) && newCount >= dailyNewLimit) {
                 reserve.push(card);
               } else {
@@ -63,7 +63,7 @@ export const StudyRoute: React.FC = () => {
                 if (hasLimit(dailyNewLimit)) newCount++;
               }
             } else {
-              // For reviews, we strictly cut off (no reserve needed usually)
+
               if (hasLimit(dailyReviewLimit) && reviewCount >= dailyReviewLimit) {
                  continue;
               }

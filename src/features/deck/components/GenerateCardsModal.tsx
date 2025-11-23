@@ -26,12 +26,12 @@ export const GenerateCardsModal: React.FC<GenerateCardsModalProps> = ({ isOpen, 
   const [step, setStep] = useState<'config' | 'preview'>('config');
   const [loading, setLoading] = useState(false);
   
-  // Config State
+
   const [topic, setTopic] = useState('');
   const [difficulty, setDifficulty] = useState<Difficulty>('A1');
   const [count, setCount] = useState([5]);
 
-  // Preview State
+
   const [generatedData, setGeneratedData] = useState<any[]>([]);
   const [selectedIndices, setSelectedIndices] = useState<Set<number>>(new Set());
 
@@ -56,7 +56,7 @@ export const GenerateCardsModal: React.FC<GenerateCardsModalProps> = ({ isOpen, 
       });
       
       setGeneratedData(results);
-      // Select all by default
+
       setSelectedIndices(new Set(results.map((_, i) => i)));
       setStep('preview');
     } catch (e) {
@@ -78,7 +78,7 @@ export const GenerateCardsModal: React.FC<GenerateCardsModalProps> = ({ isOpen, 
       .filter((_, i) => selectedIndices.has(i))
       .map(item => {
         let targetSentence = item.targetSentence;
-        // Clean Japanese sentence if furigana is provided separately in the raw sentence
+
         if (settings.language === 'japanese' && item.furigana) {
             targetSentence = parseFurigana(item.furigana).map(s => s.text).join("");
         }

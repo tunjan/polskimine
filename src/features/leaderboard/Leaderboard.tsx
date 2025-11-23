@@ -21,7 +21,7 @@ export const Leaderboard: React.FC = () => {
   const [profiles, setProfiles] = useState<LeaderboardEntry[]>([]);
   const [loading, setLoading] = useState(true);
   
-  // Filters
+
   const [timeRange, setTimeRange] = useState<TimeRange>('weekly');
   const [languageFilter, setLanguageFilter] = useState<LanguageFilter>('all');
 
@@ -30,7 +30,7 @@ export const Leaderboard: React.FC = () => {
       setLoading(true);
       
       try {
-        // Call the RPC function we created in Supabase
+
         const { data, error } = await supabase.rpc('get_leaderboard', {
           time_range: timeRange,
           language_filter: languageFilter
@@ -162,7 +162,7 @@ export const Leaderboard: React.FC = () => {
           profiles.map((profile, index) => {
             const rank = index + 1;
             const isCurrentUser = profile.id === user?.id;
-            // Calculate level dynamically from XP (per-language or global)
+
             const level = Math.floor(Math.sqrt(profile.xp / 100)) + 1;
 
             return (
