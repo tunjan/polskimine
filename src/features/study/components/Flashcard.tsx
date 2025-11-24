@@ -5,8 +5,8 @@ import { ttsService } from '@/services/tts';
 import { useSettings } from '@/contexts/SettingsContext';
 import { useSabotage } from '@/contexts/SabotageContext';
 import { uwuify, FAKE_ANSWERS } from '@/lib/memeUtils';
-import { Play, Sparkles, Loader2, Quote, Mic } from 'lucide-react';
-import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
+import { Play, Sparkles, Loader2, Quote, Mic, Volume2 } from 'lucide-react';
+import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { aiService } from '@/features/deck/services/ai';
 import { toast } from 'sonner';
 
@@ -19,7 +19,7 @@ interface FlashcardProps {
   language?: Language;
 }
 
-export const Flashcard: React.FC<FlashcardProps> = ({ 
+export const Flashcard = React.memo<FlashcardProps>(({ 
   card, 
   isFlipped, 
   autoPlayAudio = false, 
@@ -31,6 +31,7 @@ export const Flashcard: React.FC<FlashcardProps> = ({
   const { isCursedWith } = useSabotage();
   const [isRevealed, setIsRevealed] = useState(!blindMode);
   const [playSlow, setPlaySlow] = useState(false);
+  const playSlowRef = React.useRef(playSlow);
   const hasSpokenRef = React.useRef<string | null>(null);
   const [displayedTranslation, setDisplayedTranslation] = useState(card.nativeTranslation);
   const [isGaslit, setIsGaslit] = useState(false);
@@ -52,6 +53,10 @@ export const Flashcard: React.FC<FlashcardProps> = ({
   }, [card.id]);
 
   useEffect(() => {
+    playSlowRef.current = playSlow;
+  }, [playSlow]);
+
+  useEffect(() => {
     if (isCursedWith('gaslight') && Math.random() > 0.5) {
         const randomFake = FAKE_ANSWERS[Math.floor(Math.random() * FAKE_ANSWERS.length)];
         setDisplayedTranslation(randomFake);
@@ -65,12 +70,23 @@ export const Flashcard: React.FC<FlashcardProps> = ({
   const processText = (text: string) => isCursedWith('uwu') ? uwuify(text) : text;
   
   const speak = useCallback(() => {
-    const effectiveRate = playSlow ? Math.max(0.25, settings.tts.rate * 0.6) : settings.tts.rate;
+    const effectiveRate = playSlowRef.current ? Math.max(0.25, settings.tts.rate * 0.6) : settings.tts.rate;
     const effectiveSettings = { ...settings.tts, rate: effectiveRate };
     ttsService.speak(card.targetSentence, language, effectiveSettings);
     setPlaySlow(prev => !prev);
-  }, [card.targetSentence, language, settings.tts, playSlow]);
+  }, [card.targetSentence, language, settings.tts]);
 
+  // --- FIX START ---
+  // Split effects to prevent stopping audio when 'speak' identity changes due to playSlow toggle
+  
+  // 1. Cleanup Effect: Only stop audio when the card changes or component unmounts
+  useEffect(() => {
+    return () => {
+        ttsService.stop();
+    };
+  }, [card.id]);
+
+  // 2. AutoPlay Effect: Triggers audio but doesn't handle cleanup
   useEffect(() => {
     if (hasSpokenRef.current !== card.id) {
       hasSpokenRef.current = null;
@@ -79,8 +95,8 @@ export const Flashcard: React.FC<FlashcardProps> = ({
       speak();
       hasSpokenRef.current = card.id;
     }
-    return () => ttsService.stop();
   }, [card.id, autoPlayAudio, speak]);
+  // --- FIX END ---
 
   const handleMouseUp = useCallback(() => {
     const sel = window.getSelection();
@@ -130,16 +146,16 @@ export const Flashcard: React.FC<FlashcardProps> = ({
 
   const fontSizeClass = useMemo(() => {
     const len = displayedSentence.length;
-    if (len < 6) return "text-7xl md:text-9xl tracking-tight"; 
-    if (len < 15) return "text-6xl md:text-8xl tracking-tight"; 
-    if (len < 30) return "text-5xl md:text-7xl tracking-tight"; 
-    if (len < 60) return "text-4xl md:text-6xl tracking-tight"; 
-    return "text-3xl md:text-5xl"; 
+    if (len < 6) return "text-7xl md:text-9xl tracking-tighter font-medium"; 
+    if (len < 15) return "text-6xl md:text-8xl tracking-tighter font-medium"; 
+    if (len < 30) return "text-5xl md:text-7xl tracking-tight font-normal"; 
+    if (len < 60) return "text-4xl md:text-6xl tracking-tight font-light"; 
+    return "text-3xl md:text-5xl font-light"; 
   }, [displayedSentence]);
 
   const RenderedSentence = useMemo(() => {
     const baseClasses = cn(
-        "font-light text-center transition-all duration-700 text-balance select-text leading-[1.1]",
+        "text-center transition-all duration-700 text-balance select-text leading-[1.1] text-foreground font-sans",
         fontSizeClass
     );
     
@@ -170,11 +186,11 @@ export const Flashcard: React.FC<FlashcardProps> = ({
                   <span className="text-[0.4em] text-muted-foreground mb-[0.2em] select-none opacity-0 group-hover:opacity-100 transition-opacity leading-none font-mono">
                       {processText(segment.furigana)}
                   </span>
-                  <span className={isTarget ? "text-primary font-normal" : ""}>{processText(segment.text)}</span>
+                  <span className={isTarget ? "text-primary font-bold" : ""}>{processText(segment.text)}</span>
                 </div>
               );
             }
-            return <span key={i} className={isTarget ? "text-primary font-normal" : ""}>{processText(segment.text)}</span>;
+            return <span key={i} className={isTarget ? "text-primary font-bold" : ""}>{processText(segment.text)}</span>;
           })}
         </div>
       );
@@ -186,7 +202,7 @@ export const Flashcard: React.FC<FlashcardProps> = ({
             <p className={baseClasses}>
                 {parts.map((part, i) => 
                     part.toLowerCase() === card.targetWord?.toLowerCase() 
-                    ? <span key={i} className="text-primary font-normal border-b border-primary/20 pb-1">{processText(part)}</span> 
+                    ? <span key={i} className="text-primary font-bold">{processText(part)}</span> 
                     : <span key={i}>{processText(part)}</span>
                 )}
             </p>
@@ -207,32 +223,28 @@ export const Flashcard: React.FC<FlashcardProps> = ({
     <>
         <div className={containerClasses} onMouseUp={handleMouseUp} onTouchEnd={handleMouseUp}>
             {/* Question Block: Stays stationary because it's the only item in the flex flow */}
-            <div className="w-full px-6 flex flex-col items-center gap-12 z-10">
+            <div className="w-full px-6 flex flex-col items-center gap-8 z-10">
                 {RenderedSentence}
                 
                 {isRevealed && (
                     <button 
                         onClick={speak}
-                        className="group flex items-center gap-3 text-muted-foreground/30 hover:text-foreground transition-all"
+                        className="group flex items-center gap-2 text-muted-foreground/40 hover:text-foreground transition-all duration-300"
                     >
-                        <Play size={14} fill="currentColor" className={cn("transition-all", playSlow && "text-primary")} />
-                        <span className="text-[9px] font-mono uppercase tracking-[0.2em] opacity-0 group-hover:opacity-100 transition-opacity">
-                            {playSlow ? 'Slow' : 'Audio'}
-                        </span>
+                        <Volume2 size={24} className={cn("transition-all", playSlow && "text-primary")} />
                     </button>
                 )}
             </div>
 
             {/* Answer Reveal: Absolute positioning removes it from flex flow, preventing shift */}
             {isFlipped && (
-                <div className="absolute top-1/2 left-0 right-0 pt-32 md:pt-44 flex flex-col items-center gap-6 animate-in fade-in slide-in-from-bottom-4 duration-700 z-0 pointer-events-none">
-                    <div className="w-8 h-px bg-border/50" />
+                <div className="absolute top-1/2 left-0 right-0 pt-32 md:pt-40 flex flex-col items-center gap-4 animate-in fade-in slide-in-from-bottom-4 duration-700 z-0 pointer-events-none">
                     
                     {showTranslation && (
-                        <div className="relative group pointer-events-auto">
+                        <div className="relative group pointer-events-auto px-6">
                             <p className={cn(
-                                "text-xl md:text-2xl text-muted-foreground font-light text-center max-w-2xl leading-relaxed text-balance transition-colors duration-300",
-                                isGaslit ? "text-destructive/80" : "group-hover:text-foreground/80"
+                                "text-lg md:text-xl text-foreground/90 font-serif italic text-center max-w-2xl leading-relaxed text-balance transition-colors duration-300",
+                                isGaslit ? "text-destructive/80" : "group-hover:text-foreground"
                             )}>
                                 {processText(displayedTranslation)}
                             </p>
@@ -241,7 +253,7 @@ export const Flashcard: React.FC<FlashcardProps> = ({
                     )}
                     
                     {card.notes && (
-                        <p className="text-xs font-mono text-muted-foreground/40 max-w-md text-center tracking-wide pointer-events-auto">
+                        <p className="text-xs font-mono text-muted-foreground/70 max-w-md text-center tracking-widest uppercase pointer-events-auto mt-4">
                             {processText(card.notes)}
                         </p>
                     )}
@@ -286,7 +298,7 @@ export const Flashcard: React.FC<FlashcardProps> = ({
                             <p className="text-lg font-light leading-relaxed">{analysisResult?.definition}</p>
                         </div>
                         <div>
-                            <span className="text-[9px] font-mono uppercase tracking-widest text-muted-foreground mb-2 block flex items-center gap-2">
+                            <span className="text-[9px] font-mono uppercase tracking-widest text-muted-foreground mb-2 flex items-center gap-2">
                                 <Quote size={10} /> In Context
                             </span>
                             <p className="text-sm text-muted-foreground font-light italic border-l-2 border-primary/20 pl-4 py-1">
@@ -299,4 +311,4 @@ export const Flashcard: React.FC<FlashcardProps> = ({
         </Dialog>
     </>
   );
-};
+});

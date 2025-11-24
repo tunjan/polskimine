@@ -2,7 +2,8 @@ import React, { createContext, useContext, useEffect, useState } from 'react';
 import type { Session, User } from '@supabase/supabase-js';
 import { supabase } from '@/lib/supabase';
 import { toast } from 'sonner';
-
+import { Capacitor } from '@capacitor/core';
+import { Browser } from '@capacitor/browser';
 interface Profile {
   id: string;
   username: string | null;
@@ -129,16 +130,26 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setProfile(safeData as Profile);
   };
 
-  const signInWithGoogle = async () => {
-    const redirectTo = window.location.origin;
-    
-    const { error } = await supabase.auth.signInWithOAuth({
+const signInWithGoogle = async () => {
+    const redirectTo = Capacitor.isNativePlatform()
+      ? 'com.linguaflow.app://auth/callback' 
+      : window.location.origin;              
+
+    const { data, error } = await supabase.auth.signInWithOAuth({ // <--- Destructure 'data'
       provider: 'google',
-      options: { redirectTo },
+      options: { 
+        redirectTo,
+        skipBrowserRedirect: Capacitor.isNativePlatform() 
+      },
     });
 
     if (error) {
       toast.error(error.message);
+      return;
+    }
+
+    if (Capacitor.isNativePlatform() && data?.url) {
+      await Browser.open({ url: data.url, windowName: '_self' });
     }
   };
 

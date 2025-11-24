@@ -21,17 +21,14 @@ export function parseFurigana(text: string): FuriganaSegment[] {
   let match;
 
   while ((match = regex.exec(text)) !== null) {
-
     if (match.index > lastIndex) {
       segments.push({ text: text.slice(lastIndex, match.index) });
     }
-
 
     segments.push({ text: match[1], furigana: match[2] });
 
     lastIndex = regex.lastIndex;
   }
-
 
   if (lastIndex < text.length) {
     segments.push({ text: text.slice(lastIndex) });
@@ -40,8 +37,10 @@ export function parseFurigana(text: string): FuriganaSegment[] {
   return segments;
 }
 
-export function hexToHSL(hex: string): string {
-  let r = 0, g = 0, b = 0;
+export function hexToHSL(hex: string): { h: number; s: number; l: number } {
+  let r = 0,
+    g = 0,
+    b = 0;
   if (hex.length === 4) {
     r = parseInt("0x" + hex[1] + hex[1]);
     g = parseInt("0x" + hex[2] + hex[2]);
@@ -75,21 +74,53 @@ export function hexToHSL(hex: string): string {
   s = +(s * 100).toFixed(1);
   l = +(l * 100).toFixed(1);
 
-  return `${h} ${s}% ${l}%`;
+  return { h, s, l };
 }
 
-export function hslToHex(hslString: string): string {
-  const [hStr, sStr, lStr] = hslString.split(' ');
-  const h = parseFloat(hStr);
-  const s = parseFloat(sStr.replace('%', ''));
-  const l = parseFloat(lStr.replace('%', ''));
+export function hslToHex(h: number, s: number, l: number): string {
+  s /= 100;
+  l /= 100;
 
-  const lVal = l / 100;
-  const a = s * Math.min(lVal, 1 - lVal) / 100;
-  const f = (n: number) => {
-    const k = (n + h / 30) % 12;
-    const color = lVal - a * Math.max(Math.min(k - 3, 9 - k, 1), -1);
-    return Math.round(255 * color).toString(16).padStart(2, '0');
+  let c = (1 - Math.abs(2 * l - 1)) * s,
+    x = c * (1 - Math.abs(((h / 60) % 2) - 1)),
+    m = l - c / 2,
+    r = 0,
+    g = 0,
+    b = 0;
+
+  if (0 <= h && h < 60) {
+    r = c;
+    g = x;
+    b = 0;
+  } else if (60 <= h && h < 120) {
+    r = x;
+    g = c;
+    b = 0;
+  } else if (120 <= h && h < 180) {
+    r = 0;
+    g = c;
+    b = x;
+  } else if (180 <= h && h < 240) {
+    r = 0;
+    g = x;
+    b = c;
+  } else if (240 <= h && h < 300) {
+    r = x;
+    g = 0;
+    b = c;
+  } else if (300 <= h && h < 360) {
+    r = c;
+    g = 0;
+    b = x;
+  }
+  r = Math.round((r + m) * 255);
+  g = Math.round((g + m) * 255);
+  b = Math.round((b + m) * 255);
+
+  const toHex = (n: number) => {
+    const hex = n.toString(16);
+    return hex.length === 1 ? "0" + hex : hex;
   };
-  return `#${f(0)}${f(8)}${f(4)}`;
+
+  return `#${toHex(r)}${toHex(g)}${toHex(b)}`;
 }

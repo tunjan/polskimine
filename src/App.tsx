@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter } from 'react-router-dom';
+import { BrowserRouter, HashRouter } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { DeckProvider } from '@/contexts/DeckContext';
 import { SettingsProvider } from '@/contexts/SettingsContext';
@@ -13,8 +13,14 @@ import { AppRoutes } from '@/router';
 import { AuthProvider, useAuth } from '@/contexts/AuthContext';
 import { AuthPage } from '@/features/auth/AuthPage';
 import { UsernameSetup } from '@/features/auth/UsernameSetup';
+import { Capacitor } from '@capacitor/core'; 
+import { App as CapacitorApp } from '@capacitor/app'; 
+import { Browser } from '@capacitor/browser';
+import { supabase } from '@/lib/supabase';
 
 const queryClient = new QueryClient();
+
+const Router = Capacitor.isNativePlatform() ? HashRouter : BrowserRouter;
 
 const LinguaFlowApp: React.FC = () => {
   const { user, profile, loading } = useAuth();
@@ -51,16 +57,47 @@ const LinguaFlowApp: React.FC = () => {
   }
 
   return (
-    <BrowserRouter>
+    <Router>
       <LanguageThemeManager />
       <Layout>
         <AppRoutes />
       </Layout>
-    </BrowserRouter>
+    </Router>
   );
 };
 
 const App: React.FC = () => {
+ React.useEffect(() => {
+  if (Capacitor.isNativePlatform()) {
+    CapacitorApp.addListener('appUrlOpen', async ({ url }) => {
+      if (url.includes('auth/callback')) {
+        
+        // 1. Extract the hash/fragment from the URL
+        // URL looks like: com.linguaflow.app://auth/callback#access_token=...&refresh_token=...
+        const hashIndex = url.indexOf('#');
+        if (hashIndex !== -1) {
+          const params = new URLSearchParams(url.substring(hashIndex + 1));
+          const access_token = params.get('access_token');
+          const refresh_token = params.get('refresh_token');
+
+          // 2. Manually set the session in Supabase
+          if (access_token && refresh_token) {
+            const { error } = await supabase.auth.setSession({
+              access_token,
+              refresh_token,
+            });
+            
+            if (error) console.error("Error setting session:", error);
+          }
+        }
+
+        // 3. Close the browser only AFTER processing
+        await Browser.close();
+      }
+    });
+  }
+}, []);
+  // ---> END ADD EFFECT
   return (
     <QueryClientProvider client={queryClient}>
       <ThemeProvider defaultTheme="light" storageKey="languagemine-theme">

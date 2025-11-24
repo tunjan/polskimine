@@ -1,5 +1,8 @@
 import { Language, TTSSettings, TTSProvider } from "@/types";
-
+import { Capacitor } from '@capacitor/core';
+import { TextToSpeech } from '@capacitor-community/text-to-speech';
+import { supabase } from '@/lib/supabase';
+import { toast } from 'sonner';
 
 const LANG_CODE_MAP: Record<Language, string[]> = {
     polish: ['pl-PL', 'pl'],
@@ -24,7 +27,6 @@ class TTSService {
 
     constructor() {
         if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
-
             this.updateVoices();
             window.speechSynthesis.onvoiceschanged = () => {
                 this.updateVoices();
@@ -36,10 +38,6 @@ class TTSService {
         this.browserVoices = window.speechSynthesis.getVoices();
     }
     
-    /**
-     * Cleanup method to properly dispose of AudioContext and prevent memory leaks
-     * Call this when the service is being destroyed or on app unmount
-     */
     dispose() {
         this.stop();
         if (this.audioContext) {
@@ -48,12 +46,28 @@ class TTSService {
         }
     }
 
-    /**
-     * Get all available voices, optionally filtered by the app's target language
-     */
     async getAvailableVoices(language: Language, settings: TTSSettings): Promise<VoiceOption[]> {
         const validCodes = LANG_CODE_MAP[language];
         
+        // NATIVE: Plugin handles voices differently, usually we just let OS pick default for locale
+        // but we can query if needed. For now, we return browser voices for UI consistency
+        // or empty if strictly native.
+        if (Capacitor.isNativePlatform() && settings.provider === 'browser') {
+             try {
+                const { languages } = await TextToSpeech.getSupportedLanguages();
+                // We just return a generic "System Voice" for the native side to avoid UI confusion
+                // as mapping native voice IDs to the dropdown is complex across iOS/Android
+                return [{
+                    id: 'default',
+                    name: 'System Default',
+                    lang: validCodes[0],
+                    provider: 'browser'
+                }];
+             } catch (e) {
+                 return [];
+             }
+        }
+
         if (settings.provider === 'browser') {
             return this.browserVoices
                 .filter(v => validCodes.some(code => v.lang.toLowerCase().startsWith(code.toLowerCase())))
@@ -65,6 +79,7 @@ class TTSService {
                 }));
         }
 
+        // ... Google / Azure logic remains the same ...
         if (settings.provider === 'google' && settings.googleApiKey) {
             try {
                 const response = await fetch(`https://texttospeech.googleapis.com/v1/voices?key=${settings.googleApiKey}`);
@@ -109,7 +124,6 @@ class TTSService {
     }
 
     async speak(text: string, language: Language, settings: TTSSettings) {
-
         if (this.abortController) {
             this.abortController.abort();
         }
@@ -117,9 +131,8 @@ class TTSService {
         const opId = ++this.currentOperationId;
         this.abortController = new AbortController();
 
-        
         if (settings.provider === 'browser') {
-            this.speakBrowser(text, language, settings);
+            await this.speakBrowser(text, language, settings);
         } else if (settings.provider === 'google') {
             await this.speakGoogle(text, language, settings, opId);
         } else if (settings.provider === 'azure') {
@@ -127,7 +140,26 @@ class TTSService {
         }
     }
 
-    private speakBrowser(text: string, language: Language, settings: TTSSettings) {
+    private async speakBrowser(text: string, language: Language, settings: TTSSettings) {
+        // --- NATIVE MOBILE FIX ---
+        if (Capacitor.isNativePlatform()) {
+            try {
+                await TextToSpeech.speak({
+                    text,
+                    lang: LANG_CODE_MAP[language][0], // e.g. 'pl-PL'
+                    rate: settings.rate,
+                    pitch: settings.pitch,
+                    volume: settings.volume,
+                    category: 'ambient',
+                });
+            } catch (e) {
+                console.error("Native TTS failed", e);
+            }
+            return;
+        }
+        // -------------------------
+
+        // Web Fallback
         if (!('speechSynthesis' in window)) return;
 
         const utterance = new SpeechSynthesisUtterance(text);
@@ -136,7 +168,7 @@ class TTSService {
         utterance.pitch = settings.pitch;
         utterance.volume = settings.volume;
 
-        if (settings.voiceURI) {
+        if (settings.voiceURI && settings.voiceURI !== 'default') {
             const selectedVoice = this.browserVoices.find(v => v.voiceURI === settings.voiceURI);
             if (selectedVoice) {
                 utterance.voice = selectedVoice;
@@ -147,36 +179,39 @@ class TTSService {
     }
 
     private async speakGoogle(text: string, language: Language, settings: TTSSettings, opId: number) {
-        if (!settings.googleApiKey) return;
-
         try {
-            const response = await fetch(`https://texttospeech.googleapis.com/v1/text:synthesize?key=${settings.googleApiKey}`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                signal: this.abortController?.signal,
-                body: JSON.stringify({
-                    input: { text },
-                    voice: settings.voiceURI ? { name: settings.voiceURI, languageCode: LANG_CODE_MAP[language][0] } : { languageCode: LANG_CODE_MAP[language][0] },
-                    audioConfig: {
-                        audioEncoding: 'MP3',
-                        speakingRate: settings.rate,
-                        pitch: (settings.pitch - 1) * 20, // Google pitch is -20.0 to 20.0, app is 0 to 2
-                        volumeGainDb: (settings.volume - 1) * 16 // Approx mapping
-                    }
-                })
+            // Prepare the payload matching what Google expects
+            const payload = {
+                text,
+                apiKey: settings.googleApiKey, // If undefined, backend uses Deno.env.get('GOOGLE_TTS_API_KEY')
+                voice: settings.voiceURI 
+                    ? { name: settings.voiceURI, languageCode: LANG_CODE_MAP[language][0] } 
+                    : { languageCode: LANG_CODE_MAP[language][0] },
+                audioConfig: {
+                    audioEncoding: 'MP3',
+                    speakingRate: settings.rate,
+                    pitch: (settings.pitch - 1) * 20,
+                    volumeGainDb: (settings.volume - 1) * 16
+                }
+            };
+
+            // Call Supabase Edge Function instead of direct fetch
+            const { data, error } = await supabase.functions.invoke('text-to-speech', {
+                body: payload
             });
 
-            const data = await response.json();
+            if (error) throw error;
+            if (data.error) throw new Error(data.error);
             
-
             if (this.currentOperationId !== opId) return;
             
             if (data.audioContent) {
                 this.playAudioContent(data.audioContent, opId);
             }
         } catch (e: any) {
-            if (e?.name === 'AbortError') return; // Silently ignore aborted fetches
+            if (e?.name === 'AbortError') return;
             console.error("Google TTS error", e);
+            toast.error(`Google TTS Error: ${e.message}`);
         }
     }
 
@@ -184,7 +219,7 @@ class TTSService {
         if (!settings.azureApiKey || !settings.azureRegion) return;
 
         try {
-            const voiceName = settings.voiceURI || 'en-US-JennyNeural'; // Fallback needs to be smarter per lang, but voiceURI should be set
+            const voiceName = settings.voiceURI || 'en-US-JennyNeural'; 
             
             const ssml = `
                 <speak version='1.0' xml:lang='${LANG_CODE_MAP[language][0]}'>
@@ -209,8 +244,6 @@ class TTSService {
             });
 
             if (!response.ok) throw new Error(await response.text());
-
-
             if (this.currentOperationId !== opId) return;
 
             const blob = await response.blob();
@@ -240,38 +273,44 @@ class TTSService {
 
         try {
             const decodedBuffer = await this.audioContext.decodeAudioData(buffer);
-            
-
             if (this.currentOperationId !== opId) return;
 
             if (this.currentSource) {
                 this.currentSource.stop();
             }
-                        this.currentSource = this.audioContext.createBufferSource();
-                        this.currentSource.buffer = decodedBuffer;
-                        this.currentSource.connect(this.audioContext.destination);
-                        this.currentSource.onended = () => {
+            this.currentSource = this.audioContext.createBufferSource();
+            this.currentSource.buffer = decodedBuffer;
+            this.currentSource.connect(this.audioContext.destination);
+            this.currentSource.onended = () => {
+                if (this.audioContext && this.audioContext.state === 'running') {
+                    this.audioContext.suspend().catch(() => {});
+                }
+            };
 
-                            if (this.audioContext && this.audioContext.state === 'running') {
-                                this.audioContext.suspend().catch(() => {});
-                            }
-                        };
-
-                        if (this.audioContext.state === 'suspended') {
-                            try { await this.audioContext.resume(); } catch {}
-                        }
-                        this.currentSource.start(0);
+            if (this.audioContext.state === 'suspended') {
+                try { await this.audioContext.resume(); } catch {}
+            }
+            this.currentSource.start(0);
         } catch (e) {
             console.error("Audio playback error", e);
         }
     }
 
-    stop() {
-        this.currentOperationId++; // Invalidate any pending async operations
+    async stop() {
+        this.currentOperationId++;
         if (this.abortController) {
             this.abortController.abort();
             this.abortController = null;
         }
+
+        // Native Stop
+        if (Capacitor.isNativePlatform()) {
+            try {
+                await TextToSpeech.stop();
+            } catch (e) {}
+        }
+
+        // Web Stop
         if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
             window.speechSynthesis.cancel();
         }

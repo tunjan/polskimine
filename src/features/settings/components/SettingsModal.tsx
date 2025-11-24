@@ -507,13 +507,14 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
         }
     };
 
+  // ...existing code...
   const tabs: { id: SettingsTab; label: string }[] = [
     { id: 'general', label: 'General' },
-    { id: 'audio', label: 'Audio & TTS' },
+    { id: 'audio', label: 'Audio' },
     { id: 'study', label: 'Limits' },
-    { id: 'algorithm', label: 'FSRS v5' },
-    { id: 'data', label: 'Data Management' },
-    { id: 'danger', label: 'Danger Zone' },
+    { id: 'algorithm', label: 'FSRS' },
+    { id: 'data', label: 'Data' },
+    { id: 'danger', label: 'Danger' },
   ];
 
   return (
@@ -665,9 +666,9 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                     </button>
                     <button 
                         onClick={handleSave} 
-                        className="bg-primary/50 text-primary-foreground border border-primary px-8 py-2 text-xs font-mono uppercase tracking-wider rounded-md hover:bg-primary/70 transition-all flex items-center gap-2"
+                        className="bg-foreground text-background px-6 py-2 text-sm font-medium rounded hover:opacity-90 transition-opacity"
                     >
-                        <Check size={16} /> Save Changes
+                        Save
                     </button>
                 </div>
             </div>

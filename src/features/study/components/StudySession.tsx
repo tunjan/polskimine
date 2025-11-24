@@ -1,14 +1,13 @@
-import React, { useEffect, useMemo, useRef, useCallback } from 'react';
-import { X, Undo2, Archive, Zap } from 'lucide-react';
+import React, { useEffect, useMemo, useCallback } from 'react';
+import { X, Undo2, Archive } from 'lucide-react';
 import { Card, Grade } from '@/types';
 import { useSettings } from '@/contexts/SettingsContext';
 import { Flashcard } from './Flashcard';
 import { StudyFeedback } from './StudyFeedback';
 import { useStudySession } from '../hooks/useStudySession';
 import clsx from 'clsx';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { useXpSession } from '@/features/xp/hooks/useXpSession';
-import { CardXpPayload, XP_CONFIG, CardRating } from '@/features/xp/xpUtils';
+import { CardXpPayload, CardRating } from '@/features/xp/xpUtils';
 
 const gradeToRatingMap: Record<Grade, CardRating> = {
   Again: 'again',
@@ -98,6 +97,7 @@ export const StudySession: React.FC<StudySessionProps> = ({
   });
 
   const counts = useMemo(() => getQueueCounts(sessionCards.slice(currentIndex)), [sessionCards, currentIndex]);
+  const totalRemaining = counts.unseen + counts.learning + counts.lapse + counts.mature;
 
   const currentStatus = useMemo(() => {
     if (!currentCard) return null;
@@ -172,44 +172,54 @@ export const StudySession: React.FC<StudySessionProps> = ({
   if (!currentCard) return null;
 
   return (
-    <div className="fixed inset-0 z-50 bg-background flex flex-col overflow-hidden">
+    <div className="fixed inset-0 z-50 bg-background flex flex-col overflow-hidden font-sans selection:bg-primary/10">
       
       {/* 1. Ultra-Minimal Progress Line */}
-      <div className="h-[2px] w-full bg-secondary/20">
-        <div className="h-full bg-primary transition-all duration-500 ease-out" style={{ width: `${progress}%` }} />
+      <div className="h-px w-full bg-foreground/5">
+        <div className="h-full w-full bg-foreground transition-transform duration-500 ease-out origin-left" style={{ transform: `scaleX(${progress / 100})` }} />
       </div>
 
       {/* 2. Heads-Up Display (HUD) */}
-      <header className="h-14 px-4 md:px-6 flex justify-between items-center select-none shrink-0">
+      <header className="h-16 px-6 md:px-12 flex justify-between items-center select-none shrink-0 pt-[env(safe-area-inset-top)]">
          
          {/* Queue Stats (Left) */}
-         <div className="flex gap-3 md:gap-4 text-[10px] font-mono text-muted-foreground/40 uppercase tracking-widest items-center">
-            {/* Compact Labels on Mobile */}
-            <span title="New" className={clsx("transition-colors", counts.unseen > 0 && "text-blue-500/80")}>
-                <span className="hidden sm:inline">New </span><span className="sm:hidden">N:</span>{counts.unseen}
-            </span>
-            <span title="Learn" className={clsx("transition-colors", counts.learning > 0 && "text-orange-500/80")}>
-                <span className="hidden sm:inline">Lrn </span><span className="sm:hidden">L:</span>{counts.learning}
-            </span>
-            <span title="Review" className={clsx("transition-colors", counts.mature > 0 && "text-green-500/80")}>
-                <span className="hidden sm:inline">Rev </span><span className="sm:hidden">R:</span>{counts.mature}
-            </span>
+         <div className="flex items-center gap-3 md:gap-6 text-[10px] font-mono uppercase tracking-widest text-muted-foreground/60">
+            <div className={clsx("flex items-center gap-1.5 transition-all duration-300", currentStatus?.label === 'NEW' ? "text-blue-500 opacity-100 font-medium scale-105" : (counts.unseen > 0 ? "text-grey" : "text-muted-foreground/80 opacity-80"))}>
+                <span className={clsx("w-1 h-1 rounded-full bg-current", currentStatus?.label === 'NEW' && "animate-pulse")} />
+                <span className="hidden sm:inline">New</span>
+                <span>{counts.unseen}</span>
+            </div>
+            <div className={clsx("flex items-center gap-1.5 transition-all duration-300", currentStatus?.label === 'LRN' ? "text-orange-500 opacity-100 font-medium scale-105" : (counts.learning > 0 ? "text-grey" : "text-muted-foreground/80 opacity-80"))}>
+                <span className={clsx("w-1 h-1 rounded-full bg-current", currentStatus?.label === 'LRN' && "animate-pulse")} />
+                <span className="hidden sm:inline">Lrn</span>
+                <span>{counts.learning}</span>
+            </div>
+            <div className={clsx("flex items-center gap-1.5 transition-all duration-300", currentStatus?.label === 'LAPSE' ? "text-red-500 opacity-100 font-medium scale-105" : (counts.lapse > 0 ? "text-grey" : "text-muted-foreground/80 opacity-80"))}>
+                <span className={clsx("w-1 h-1 rounded-full bg-current", currentStatus?.label === 'LAPSE' && "animate-pulse")} />
+                <span className="hidden sm:inline">Lapse</span>
+                <span>{counts.lapse}</span>
+            </div>
+            <div className={clsx("flex items-center gap-1.5 transition-all duration-300", currentStatus?.label === 'REV' ? "text-green-500 opacity-100 font-medium scale-105" : (counts.mature > 0 ? "text-grey" : "text-muted-foreground/80 opacity-80"))}>
+                <span className={clsx("w-1 h-1 rounded-full bg-current", currentStatus?.label === 'REV' && "animate-pulse")} />
+                <span className="hidden sm:inline">Rev</span>
+                <span>{counts.mature}</span>
+            </div>
          </div>
 
          {/* Meta & Tools (Right) */}
-         <div className="flex items-center gap-4 md:gap-6">
+         <div className="flex items-center gap-6 md:gap-8">
             <div className="flex flex-col items-end">
-                <div className="flex items-center gap-2 text-xs font-medium tabular-nums text-muted-foreground">
+                <div className="flex items-center gap-2 text-xs font-mono tracking-widest text-muted-foreground">
                     <span>{sessionXp} XP</span>
                     {multiplierInfo.value > 1.0 && (
-                        <span className="text-[9px] text-primary hidden sm:inline">
-                            {multiplierInfo.value.toFixed(2)}x
+                        <span className="text-[9px] text-primary opacity-80">
+                            {multiplierInfo.value.toFixed(1)}x
                         </span>
                     )}
                 </div>
             </div>
             
-            <div className="flex items-center gap-1 text-muted-foreground/50">
+            <div className="flex items-center gap-2 text-muted-foreground/40">
                 <button onClick={handleMarkKnown} disabled={isProcessing} className="p-2 hover:text-foreground transition-colors" title="Archive (K)">
                     <Archive size={14} strokeWidth={1.5} />
                 </button>
@@ -226,19 +236,9 @@ export const StudySession: React.FC<StudySessionProps> = ({
       </header>
 
       {/* 3. The Stage (Flashcard) */}
-      <main className="flex-1 w-full relative flex flex-col">
+      <main className="flex-1 w-full relative flex flex-col items-center justify-center">
          
-         {/* Status Indicator - Moved inside Main to prevent overlap */}
-         <div className="w-full flex justify-center py-2 shrink-0 min-h-[30px]">
-            {currentStatus && (
-                <div className={clsx(
-                    "px-2 py-0.5 rounded-[2px] border text-[9px] font-mono uppercase tracking-[0.2em] transition-all duration-300 select-none",
-                    currentStatus.className
-                )}>
-                    {currentStatus.label}
-                </div>
-            )}
-         </div>
+         {/* Status Indicator Removed - Integrated into Header Stats */}
 
          <StudyFeedback feedback={feedback} />
          
@@ -253,84 +253,113 @@ export const StudySession: React.FC<StudySessionProps> = ({
       </main>
 
       {/* 4. Disciplined Controls (Bottom) */}
-      <footer className="h-24 md:h-32 shrink-0 border-t border-border/20 bg-background/50 backdrop-blur-sm">
-        {!isFlipped ? (
-             <button 
-              onClick={() => setIsFlipped(true)}
-              disabled={isProcessing}
-              className="w-full h-full text-xs font-mono uppercase tracking-[0.2em] text-muted-foreground hover:text-foreground hover:bg-secondary/10 transition-colors"
-             >
-              Tap to Reveal
-             </button>
-        ) : (
-            settings.binaryRatingMode ? (
-                // Binary Mode Layout
-                <div className="grid grid-cols-2 h-full w-full divide-x divide-border/20">
-                    <AnswerButton 
-                        label="Again" 
-                        sub="1" 
-                        colorClass="hover:bg-red-500/5 hover:text-red-500" 
-                        onClick={() => handleGrade('Again')} 
-                        disabled={isProcessing} 
-                    />
-                    <AnswerButton 
-                        label="Good" 
-                        sub="Space" 
-                        colorClass="hover:bg-green-500/5 hover:text-green-500" 
-                        onClick={() => handleGrade('Good')} 
-                        disabled={isProcessing} 
-                    />
-                </div>
-            ) : (
-                // Standard Mode Layout
-                <div className="grid grid-cols-4 h-full w-full divide-x divide-border/20">
-                    <AnswerButton 
-                        label="Again" 
-                        sub="1" 
-                        colorClass="hover:bg-red-500/5 hover:text-red-500" 
-                        onClick={() => handleGrade('Again')} 
-                        disabled={isProcessing} 
-                    />
-                    <AnswerButton 
-                        label="Hard" 
-                        sub="2" 
-                        colorClass="hover:bg-orange-500/5 hover:text-orange-500" 
-                        onClick={() => handleGrade('Hard')} 
-                        disabled={isProcessing} 
-                    />
-                    <AnswerButton 
-                        label="Good" 
-                        sub="3" 
-                        colorClass="hover:bg-green-500/5 hover:text-green-500" 
-                        onClick={() => handleGrade('Good')} 
-                        disabled={isProcessing} 
-                    />
-                    <AnswerButton 
-                        label="Easy" 
-                        sub="4" 
-                        colorClass="hover:bg-blue-500/5 hover:text-blue-500" 
-                        onClick={() => handleGrade('Easy')} 
-                        disabled={isProcessing} 
-                    />
-                </div>
-            )
-        )}
+      <footer className="shrink-0 pb-[env(safe-area-inset-bottom)]">
+        <div className="h-20 md:h-24 w-full max-w-3xl mx-auto px-6">
+          {!isFlipped ? (
+               <button 
+                onClick={() => setIsFlipped(true)}
+                disabled={isProcessing}
+                className="w-full h-full flex items-center justify-center group"
+               >
+                <span className="text-[10px] font-mono uppercase tracking-[0.3em] text-muted-foreground/30 group-hover:text-foreground/60 transition-colors duration-500">
+                    Tap to Reveal
+                </span>
+               </button>
+          ) : (
+              settings.binaryRatingMode ? (
+                  <div className="grid grid-cols-2 h-full w-full gap-4 md:gap-12 items-center">
+                      <AnswerButton 
+                          label="Again" 
+                          shortcut="1" 
+                          intent="danger"
+                          onClick={() => handleGrade('Again')} 
+                          disabled={isProcessing} 
+                      />
+                      <AnswerButton 
+                          label="Good" 
+                          shortcut="Spc" 
+                          intent="success"
+                          onClick={() => handleGrade('Good')} 
+                          disabled={isProcessing} 
+                      />
+                  </div>
+              ) : (
+                  <div className="grid grid-cols-4 h-full w-full gap-2 md:gap-4 items-center">
+                      <AnswerButton 
+                          label="Again" 
+                          shortcut="1" 
+                          intent="danger"
+                          onClick={() => handleGrade('Again')} 
+                          disabled={isProcessing} 
+                      />
+                      <AnswerButton 
+                          label="Hard" 
+                          shortcut="2" 
+                          intent="warning"
+                          onClick={() => handleGrade('Hard')} 
+                          disabled={isProcessing} 
+                      />
+                      <AnswerButton 
+                          label="Good" 
+                          shortcut="3" 
+                          intent="success"
+                          onClick={() => handleGrade('Good')} 
+                          disabled={isProcessing} 
+                      />
+                      <AnswerButton 
+                          label="Easy" 
+                          shortcut="4" 
+                          intent="info"
+                          onClick={() => handleGrade('Easy')} 
+                          disabled={isProcessing} 
+                      />
+                  </div>
+              )
+          )}
+        </div>
       </footer>
     </div>
   );
 };
 
-const AnswerButton = ({ label, sub, colorClass, onClick, disabled }: any) => (
-    <button 
-        onClick={onClick}
-        disabled={disabled}
-        className={clsx(
-            "flex flex-col items-center justify-center gap-1 transition-all duration-200 group relative overflow-hidden",
-            colorClass,
-            disabled && "opacity-50 cursor-not-allowed"
-        )}
-    >
-        <span className="text-xs font-mono uppercase tracking-widest z-10">{label}</span>
-        <span className="text-[9px] font-mono text-muted-foreground/30 absolute bottom-4 md:bottom-8 group-hover:opacity-0 transition-opacity">{sub}</span>
-    </button>
-);
+const AnswerButton = React.memo(({ label, shortcut, intent, onClick, disabled }: { 
+    label: string; 
+    shortcut: string; 
+    intent: 'danger' | 'warning' | 'success' | 'info'; 
+    onClick: () => void; 
+    disabled: boolean;
+}) => {
+    const colorMap = {
+        danger: 'text-red-500',
+        warning: 'text-orange-500',
+        success: 'text-emerald-500',
+        info: 'text-blue-500'
+    };
+    
+    const textColor = colorMap[intent];
+
+    return (
+        <button 
+            onClick={onClick}
+            disabled={disabled}
+            className={clsx(
+                "group relative flex flex-col items-center justify-center h-full w-full outline-none select-none transition-all duration-300",
+                disabled && "opacity-20 cursor-not-allowed"
+            )}
+        >
+            {/* Label */}
+            <span className={clsx(
+                "text-xs md:text-sm font-mono uppercase tracking-[0.25em] transition-all duration-300",
+                "text-muted-foreground group-hover:scale-110",
+                `group-hover:${textColor}`
+            )}>
+                {label}
+            </span>
+
+            {/* Shortcut Hint */}
+            <span className="absolute -bottom-4 text-[9px] font-mono text-muted-foreground/20 opacity-0 group-hover:opacity-100 transition-all duration-300 group-hover:bottom-2">
+                {shortcut}
+            </span>
+        </button>
+    );
+});

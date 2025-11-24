@@ -5,14 +5,20 @@ import { hexToHSL, hslToHex } from '@/lib/utils';
 
 interface ColorPickerProps {
   label: string;
-  value: string; // HSL string
+  value: string; // Expects format "H S% L%" e.g., "346 84% 45%"
   onChange: (value: string) => void;
 }
 
 export const ColorPicker: React.FC<ColorPickerProps> = ({ label, value, onChange }) => {
   const hexValue = React.useMemo(() => {
     try {
-      return hslToHex(value);
+      // FIX 1: Parse the string "H S% L%" into numbers before calling hslToHex
+      if (!value) return '#000000';
+      const [h, s, l] = value.split(' ').map(v => parseFloat(v));
+      
+      if (isNaN(h) || isNaN(s) || isNaN(l)) return '#000000';
+      
+      return hslToHex(h, s, l);
     } catch (e) {
       return '#000000';
     }
@@ -20,16 +26,18 @@ export const ColorPicker: React.FC<ColorPickerProps> = ({ label, value, onChange
 
   const handleColorChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newHex = e.target.value;
-    const newHSL = hexToHSL(newHex);
-    onChange(newHSL);
+    const { h, s, l } = hexToHSL(newHex);
+    // FIX 2: Format the object back into the CSS variable string format expected by SettingsContext
+    onChange(`${h} ${s}% ${l}%`);
   };
 
   const handleTextChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newHex = e.target.value;
 
     if (/^#[0-9A-Fa-f]{6}$/.test(newHex)) {
-        const newHSL = hexToHSL(newHex);
-        onChange(newHSL);
+        const { h, s, l } = hexToHSL(newHex);
+        // FIX 2: Same fix here
+        onChange(`${h} ${s}% ${l}%`);
     }
   };
 

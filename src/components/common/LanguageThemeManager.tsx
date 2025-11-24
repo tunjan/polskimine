@@ -26,7 +26,7 @@ export const LanguageThemeManager: React.FC = () => {
       document.head.appendChild(styleTag);
     }
 
-    if (customColor) {
+    if (customColor && typeof customColor === 'string') {
       const [h, s, l] = customColor.split(' ').map(v => parseFloat(v));
       const normalizedH = Number.isNaN(h) ? 0 : h;
       const normalizedS = Number.isNaN(s) ? 100 : s;
