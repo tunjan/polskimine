@@ -23,44 +23,60 @@ export const StudySettings: React.FC<StudySettingsProps> = ({ localSettings, set
       <div className="flex items-start gap-4 p-0">
         <div className="w-1 h-1 mt-2 bg-foreground rounded-full shrink-0" />
         <p className="text-[10px] text-muted-foreground font-mono leading-relaxed uppercase tracking-wide max-w-md">
-            Configuration for <span className="text-foreground font-medium">{currentLangName}</span> deck. Limits reset daily at 04:00.
+          Configuration for <span className="text-foreground font-medium">{currentLangName}</span> deck. Limits reset daily at 04:00.
         </p>
       </div>
 
       <section className="grid grid-cols-2 gap-16">
         <div className="space-y-4">
-            <MetaLabel className="text-xs">New Cards</MetaLabel>
-            <EditorialInput
-                type="number"
-                value={currentDailyNew}
-                className="text-5xl font-light h-auto py-2 border-b border-border/40 rounded-none px-0 focus-visible:ring-0 focus-visible:border-foreground tabular-nums bg-transparent"
-                onChange={(event) => {
-                    const val = parseInt(event.target.value, 10) || 0;
-                    setLocalSettings(prev => ({
-                    ...prev,
-                    dailyNewLimits: { ...prev.dailyNewLimits, [prev.language]: val }
-                    }));
-                }}
-            />
+          <MetaLabel className="text-xs">New Cards</MetaLabel>
+          <EditorialInput
+            type="number"
+            value={currentDailyNew}
+            className="text-5xl font-light h-auto py-2 border-b border-border/40 rounded-none px-0 focus-visible:ring-0 focus-visible:border-foreground tabular-nums bg-transparent"
+            onChange={(event) => {
+              const val = parseInt(event.target.value, 10) || 0;
+              setLocalSettings(prev => ({
+                ...prev,
+                dailyNewLimits: { ...prev.dailyNewLimits, [prev.language]: val }
+              }));
+            }}
+          />
         </div>
         <div className="space-y-4">
-            <MetaLabel className="text-xs">Review Limit</MetaLabel>
-            <EditorialInput
-                type="number"
-                value={currentDailyReview}
-                className="text-5xl font-light h-auto py-2 border-b border-border/40 rounded-none px-0 focus-visible:ring-0 focus-visible:border-foreground tabular-nums bg-transparent"
-                onChange={(event) => {
-                    const val = parseInt(event.target.value, 10) || 0;
-                    setLocalSettings(prev => ({
-                    ...prev,
-                    dailyReviewLimits: { ...prev.dailyReviewLimits, [prev.language]: val }
-                    }));
-                }}
-            />
+          <MetaLabel className="text-xs">Review Limit</MetaLabel>
+          <EditorialInput
+            type="number"
+            value={currentDailyReview}
+            className="text-5xl font-light h-auto py-2 border-b border-border/40 rounded-none px-0 focus-visible:ring-0 focus-visible:border-foreground tabular-nums bg-transparent"
+            onChange={(event) => {
+              const val = parseInt(event.target.value, 10) || 0;
+              setLocalSettings(prev => ({
+                ...prev,
+                dailyReviewLimits: { ...prev.dailyReviewLimits, [prev.language]: val }
+              }));
+            }}
+          />
         </div>
       </section>
 
       <section className="space-y-6 pt-4">
+        <div className="flex items-center justify-between group">
+          <div className="space-y-1">
+            <div className="text-sm font-medium font-mono uppercase tracking-wider text-muted-foreground group-hover:text-foreground transition-colors">Card Order</div>
+            <div className="text-[10px] text-muted-foreground/60 uppercase tracking-wider">Prioritize New or Reviews</div>
+          </div>
+          <select
+            value={localSettings.cardOrder || 'newFirst'}
+            onChange={(e) => setLocalSettings(prev => ({ ...prev, cardOrder: e.target.value as any }))}
+            className="bg-transparent border-b border-border/40 text-sm font-mono uppercase tracking-wider focus:outline-none focus:border-foreground transition-colors py-1 text-foreground"
+          >
+            <option value="newFirst" className="bg-background text-foreground">New First</option>
+            <option value="reviewFirst" className="bg-background text-foreground">Review First</option>
+            <option value="mixed" className="bg-background text-foreground">Mixed</option>
+          </select>
+        </div>
+
         <div className="flex items-center justify-between group">
           <div className="space-y-1">
             <div className="text-sm font-medium font-mono uppercase tracking-wider text-muted-foreground group-hover:text-foreground transition-colors">Binary Rating</div>
@@ -74,7 +90,7 @@ export const StudySettings: React.FC<StudySettingsProps> = ({ localSettings, set
           />
         </div>
         <p className="text-[10px] text-muted-foreground/60 leading-relaxed max-w-sm">
-            Reduces cognitive load by removing "Hard" and "Easy" options. Recommended for rapid review sessions.
+          Reduces cognitive load by removing "Hard" and "Easy" options. Recommended for rapid review sessions.
         </p>
       </section>
     </div>

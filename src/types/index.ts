@@ -14,12 +14,12 @@ export interface Card extends Omit<Partial<FSRSCard>, 'due' | 'last_review'> {
   tags?: string[]; // Optional tags for filtering
   language?: Language; // 'polish' | 'norwegian' | 'japanese'
   status: CardStatus;
-  
+
 
   interval: number; // Days
   easeFactor: number; // Default 2.5
   dueDate: string; // ISO Date string
-  
+
 
   stability?: number;
   difficulty?: number;
@@ -77,6 +77,7 @@ export interface UserSettings {
   showTranslationAfterFlip: boolean;
   ignoreLearningStepsWhenNoCards: boolean;
   binaryRatingMode: boolean; // Pass/Fail only (Again vs Good)
+  cardOrder: 'newFirst' | 'reviewFirst' | 'mixed'; // Preference for card ordering
   tts: TTSSettings;
   fsrs: {
     request_retention: number; // 0.8 to 0.99

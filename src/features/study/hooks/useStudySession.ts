@@ -30,21 +30,41 @@ export const useStudySession = ({
   const [actionHistory, setActionHistory] = useState<{ addedCard: boolean }[]>([]);
   const [isProcessing, setIsProcessing] = useState(false);
   const isInitialized = useRef(false);
-  
+
 
   const isProcessingRef = useRef(false);
 
 
   useEffect(() => {
     if (!isInitialized.current && dueCards.length > 0) {
-      setSessionCards(dueCards);
+      let sortedCards = [...dueCards];
+
+      if (settings.cardOrder === 'newFirst') {
+        sortedCards.sort((a, b) => {
+          const aIsNew = isNewCard(a);
+          const bIsNew = isNewCard(b);
+          if (aIsNew && !bIsNew) return -1;
+          if (!aIsNew && bIsNew) return 1;
+          return 0;
+        });
+      } else if (settings.cardOrder === 'reviewFirst') {
+        sortedCards.sort((a, b) => {
+          const aIsNew = isNewCard(a);
+          const bIsNew = isNewCard(b);
+          if (!aIsNew && bIsNew) return -1;
+          if (aIsNew && !bIsNew) return 1;
+          return 0;
+        });
+      }
+
+      setSessionCards(sortedCards);
       setReserveCards(initialReserve);
       setCurrentIndex(0);
       setSessionComplete(dueCards.length === 0);
       setActionHistory([]);
       isInitialized.current = true;
     }
-  }, [dueCards, initialReserve]);
+  }, [dueCards, initialReserve, settings.cardOrder]);
 
   const currentCard = sessionCards[currentIndex];
 
@@ -57,10 +77,10 @@ export const useStudySession = ({
   const handleGrade = useCallback(
     async (grade: Grade) => {
       if (!currentCard || isProcessingRef.current) return;
-      
+
       isProcessingRef.current = true;
       setIsProcessing(true);
-      
+
       try {
         const updatedCard = calculateNextReview(currentCard, grade, settings.fsrs);
         await Promise.resolve(onUpdateCard(updatedCard));
@@ -102,21 +122,21 @@ export const useStudySession = ({
 
     try {
       const wasNew = isNewCard(currentCard); // Check if card was new
-      
+
       const updatedCard: Card = {
         ...currentCard,
         status: 'known',
       };
 
       await Promise.resolve(onUpdateCard(updatedCard));
-      
+
 
       let replacementAdded = false;
       if (wasNew && reserveCards.length > 0) {
-          const nextNew = reserveCards[0];
-          setSessionCards(prev => [...prev, nextNew]);
-          setReserveCards(prev => prev.slice(1));
-          replacementAdded = true;
+        const nextNew = reserveCards[0];
+        setSessionCards(prev => [...prev, nextNew]);
+        setReserveCards(prev => prev.slice(1));
+        replacementAdded = true;
       }
 
 
@@ -139,21 +159,21 @@ export const useStudySession = ({
   const handleUndo = useCallback(() => {
     if (!canUndo || !onUndo) return;
     onUndo();
-    
+
     if (currentIndex > 0 || sessionComplete) {
       setActionHistory((prev) => {
         const newHistory = prev.slice(0, -1);
         const lastAction = prev[prev.length - 1];
-        
+
 
 
         if (lastAction?.addedCard) {
           setSessionCards((prevCards) => prevCards.slice(0, -1));
         }
-        
+
         return newHistory;
       });
-      
+
       setSessionComplete(false);
       setCurrentIndex((prev) => Math.max(0, prev - 1));
       setIsFlipped(true);

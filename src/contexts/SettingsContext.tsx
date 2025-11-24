@@ -25,6 +25,7 @@ export const DEFAULT_SETTINGS: UserSettings = {
   showTranslationAfterFlip: true,
   ignoreLearningStepsWhenNoCards: false,
   binaryRatingMode: false,
+  cardOrder: 'newFirst',
   geminiApiKey: '',
   tts: {
     provider: 'browser',
@@ -73,13 +74,13 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
         return {
           ...DEFAULT_SETTINGS,
-            ...parsed,
-            dailyNewLimits: migratedDailyNewLimits || DEFAULT_SETTINGS.dailyNewLimits,
-            dailyReviewLimits: migratedDailyReviewLimits || DEFAULT_SETTINGS.dailyReviewLimits,
-            fsrs: { ...DEFAULT_SETTINGS.fsrs, ...(parsed.fsrs || {}) },
-            tts: { ...DEFAULT_SETTINGS.tts, ...(parsed.tts || {}) },
-            languageColors: { ...DEFAULT_SETTINGS.languageColors, ...(parsed.languageColors || {}) },
-            geminiApiKey: parsed.geminiApiKey || DEFAULT_SETTINGS.geminiApiKey
+          ...parsed,
+          dailyNewLimits: migratedDailyNewLimits || DEFAULT_SETTINGS.dailyNewLimits,
+          dailyReviewLimits: migratedDailyReviewLimits || DEFAULT_SETTINGS.dailyReviewLimits,
+          fsrs: { ...DEFAULT_SETTINGS.fsrs, ...(parsed.fsrs || {}) },
+          tts: { ...DEFAULT_SETTINGS.tts, ...(parsed.tts || {}) },
+          languageColors: { ...DEFAULT_SETTINGS.languageColors, ...(parsed.languageColors || {}) },
+          geminiApiKey: parsed.geminiApiKey || DEFAULT_SETTINGS.geminiApiKey
         };
       }
     } catch (e) {
