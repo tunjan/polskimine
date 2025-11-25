@@ -13,6 +13,7 @@ import { AppRoutes } from '@/router';
 import { AuthProvider, useAuth } from '@/contexts/AuthContext';
 import { AuthPage } from '@/features/auth/AuthPage';
 import { UsernameSetup } from '@/features/auth/UsernameSetup';
+import { OnboardingFlow } from '@/features/auth/OnboardingFlow'; // Add this import
 import { Capacitor } from '@capacitor/core';
 import { App as CapacitorApp } from '@capacitor/app';
 import { Browser } from '@capacitor/browser';
@@ -55,6 +56,12 @@ const LinguaFlowApp: React.FC = () => {
   if (!profile.username) {
     return <UsernameSetup />;
   }
+
+  // --- NEW: Check if user has completed onboarding (Level + Deck) ---
+  if (!profile.initial_deck_generated) {
+    return <OnboardingFlow />;
+  }
+  // -----------------------------------------------------------------
 
   return (
     <Router>

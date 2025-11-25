@@ -146,28 +146,32 @@ export const Flashcard = React.memo<FlashcardProps>(({
 
   const fontSizeClass = useMemo(() => {
     const len = displayedSentence.length;
-    if (len < 6) return "text-7xl md:text-9xl tracking-tighter font-medium";
-    if (len < 15) return "text-6xl md:text-8xl tracking-tighter font-medium";
-    if (len < 30) return "text-5xl md:text-7xl tracking-tight font-normal";
-    if (len < 60) return "text-4xl md:text-6xl tracking-tight font-light";
-    return "text-3xl md:text-5xl font-light";
+    if (len < 6) return "text-7xl md:text-9xl tracking-tight font-light";
+    if (len < 15) return "text-6xl md:text-8xl tracking-tight font-light";
+    if (len < 30) return "text-5xl md:text-7xl tracking-tight font-extralight";
+    if (len < 60) return "text-4xl md:text-6xl tracking-normal font-extralight";
+    return "text-3xl md:text-5xl font-extralight tracking-normal";
   }, [displayedSentence]);
 
   const RenderedSentence = useMemo(() => {
     const baseClasses = cn(
-      "text-center text-balance select-text leading-[1.1] text-foreground font-sans",
+      "text-center text-balance select-text leading-[1.3] text-foreground",
+      "font-serif",
       fontSizeClass
     );
 
     if (!isRevealed) {
       return (
-        <div onClick={() => setIsRevealed(true)} className="cursor-pointer group flex flex-col items-center gap-6">
+        <div onClick={() => setIsRevealed(true)} className="cursor-pointer group flex flex-col items-center gap-8">
           {blindMode && (
-            <button onClick={(e) => { e.stopPropagation(); speak(); }} className="p-4 rounded-full border border-foreground/10 hover:border-foreground/30 transition-colors mb-4">
-              <Mic size={32} strokeWidth={1} />
+            <button 
+              onClick={(e) => { e.stopPropagation(); speak(); }} 
+              className="p-6 rounded-full bg-muted/30 hover:bg-muted/50 transition-all duration-500 mb-6"
+            >
+              <Mic size={28} strokeWidth={1} className="text-muted-foreground" />
             </button>
           )}
-          <p className={cn(baseClasses, "blur-2xl opacity-10 group-hover:opacity-20")}>
+          <p className={cn(baseClasses, "blur-3xl opacity-5 group-hover:opacity-10 transition-all duration-700")}>
             {displayedSentence}
           </p>
         </div>
@@ -177,20 +181,20 @@ export const Flashcard = React.memo<FlashcardProps>(({
     if (language === 'japanese' && card.furigana) {
       const segments = parseFurigana(card.furigana);
       return (
-        <div className={cn(baseClasses, "flex flex-wrap justify-center items-end gap-x-[0.2em]")}>
+        <div className={cn(baseClasses, "flex flex-wrap justify-center items-end gap-x-[0.25em]")}>
           {segments.map((segment, i) => {
             const isTarget = card.targetWord && (card.targetWord === segment.text || card.targetWord.includes(segment.text));
             if (segment.furigana) {
               return (
-                <div key={i} className="group flex flex-col items-center justify-end">
-                  <span className="text-[0.4em] text-muted-foreground mb-[0.2em] select-none opacity-0 group-hover:opacity-100 transition-opacity leading-none font-mono">
+                <div key={i} className="group/ruby flex flex-col items-center justify-end">
+                  <span className="text-[0.38em] text-muted-foreground/70 mb-[0.3em] select-none opacity-0 group-hover/ruby:opacity-100 transition-opacity duration-500 leading-none font-sans font-light tracking-wide">
                     {processText(segment.furigana)}
                   </span>
-                  <span className={isTarget ? "text-primary font-bold" : ""}>{processText(segment.text)}</span>
+                  <span className={isTarget ? "text-primary/90" : ""}>{processText(segment.text)}</span>
                 </div>
               );
             }
-            return <span key={i} className={isTarget ? "text-primary font-bold" : ""}>{processText(segment.text)}</span>;
+            return <span key={i} className={isTarget ? "text-primary/90" : ""}>{processText(segment.text)}</span>;
           })}
         </div>
       );
@@ -202,7 +206,7 @@ export const Flashcard = React.memo<FlashcardProps>(({
         <p className={baseClasses}>
           {parts.map((part, i) =>
             part.toLowerCase() === card.targetWord?.toLowerCase()
-              ? <span key={i} className="text-primary font-bold">{processText(part)}</span>
+              ? <span key={i} className="text-primary/90 font-normal">{processText(part)}</span>
               : <span key={i}>{processText(part)}</span>
           )}
         </p>
@@ -222,86 +226,101 @@ export const Flashcard = React.memo<FlashcardProps>(({
   return (
     <>
       <div className={containerClasses} onMouseUp={handleMouseUp} onTouchEnd={handleMouseUp}>
-        {/* Question Block: Stays stationary because it's the only item in the flex flow */}
-        <div className="w-full px-6 flex flex-col items-center gap-8 z-10">
+        {/* Main content with generous vertical spacing */}
+        <div className="w-full px-8 md:px-16 flex flex-col items-center gap-12 md:gap-16 z-10">
           {RenderedSentence}
 
           {isRevealed && (
             <button
               onClick={speak}
-              className="group flex items-center gap-2 text-muted-foreground/40 hover:text-foreground transition-all duration-300"
+              className="group flex items-center justify-center text-muted-foreground/50 hover:text-foreground/70 transition-all duration-500 mt-4"
             >
-              <Volume2 size={24} className={cn("transition-all", playSlow && "text-primary")} />
+              <div className="flex items-center gap-3">
+                <Volume2 size={20} strokeWidth={1.5} className={cn("transition-all duration-500", playSlow && "text-primary/70", "group-hover:-translate-x-8")} />
+                <span className="text-[9px] font-sans font-light uppercase tracking-[0.2em] opacity-0 group-hover:opacity-60 transition-all duration-500 absolute left-1/2 -translate-x-1/2 group-hover:translate-x-3">Listen</span>
+              </div>
             </button>
           )}
         </div>
 
-        {/* Answer Reveal: Absolute positioning removes it from flex flow, preventing shift */}
+        {/* Translation reveal with elegant fade-in */}
         {isFlipped && (
-          <div className="absolute top-1/2 left-0 right-0 pt-32 md:pt-40 flex flex-col items-center gap-4 z-0 pointer-events-none">
+          <div className="absolute top-1/2 left-0 right-0 pt-36 md:pt-48 flex flex-col items-center gap-6 z-0 pointer-events-none animate-in fade-in slide-in-from-bottom-4 duration-1000">
 
             {showTranslation && (
-              <div className="relative group pointer-events-auto px-6">
-                <p className={cn(
-                  "text-lg md:text-xl text-foreground/90 font-serif italic text-center max-w-2xl leading-relaxed text-balance transition-colors duration-300",
-                  isGaslit ? "text-destructive/80" : "group-hover:text-foreground"
-                )}>
-                  {processText(displayedTranslation)}
-                </p>
-                {isGaslit && <span className="absolute -top-4 -right-8 text-[8px] font-mono uppercase text-destructive tracking-widest rotate-12">Sus</span>}
+              <div className="relative group pointer-events-auto px-8 md:px-16">
+                <div className="max-w-3xl">
+                  <p className={cn(
+                    "text-xl md:text-2xl text-foreground/75 font-serif italic text-center leading-relaxed text-balance transition-colors duration-500",
+                    isGaslit ? "text-destructive/70" : "group-hover:text-foreground/85"
+                  )}>
+                    {processText(displayedTranslation)}
+                  </p>
+                </div>
+                {isGaslit && (
+                  <span className="absolute -top-5 -right-6 text-[8px] font-sans font-medium uppercase text-destructive/60 tracking-widest rotate-12 opacity-70">
+                    Suspicious
+                  </span>
+                )}
               </div>
             )}
 
             {card.notes && (
-              <p className="text-xs font-mono text-muted-foreground/70 max-w-md text-center tracking-widest uppercase pointer-events-auto mt-4">
-                {processText(card.notes)}
-              </p>
+              <div className="mt-8 px-8 md:px-16 pointer-events-auto">
+                <p className="text-xs font-sans font-light text-muted-foreground/60 max-w-xl text-center tracking-wide leading-relaxed">
+                  {processText(card.notes)}
+                </p>
+              </div>
             )}
           </div>
         )}
       </div>
 
-      {/* Floating Context Menu */}
+      {/* Floating selection menu - refined and minimal */}
       {selection && (
         <div
-          className="fixed z-50 -translate-x-1/2 animate-in fade-in zoom-in-95 duration-200"
+          className="fixed z-50 -translate-x-1/2 animate-in fade-in slide-in-from-bottom-2 duration-300"
           style={{ top: selection.top, left: selection.left }}
           onMouseDown={(e) => e.preventDefault()}
         >
           <button
             onClick={handleAnalyze}
             disabled={isAnalyzing}
-            className="bg-foreground text-background px-4 py-2 rounded-full shadow-2xl hover:scale-105 transition-transform text-[10px] font-mono uppercase tracking-widest flex items-center gap-2"
+            className="bg-foreground/95 text-background px-5 py-2.5 rounded-full shadow-2xl hover:shadow-3xl hover:scale-105 active:scale-95 transition-all duration-300 text-[10px] font-sans font-medium uppercase tracking-[0.15em] flex items-center gap-2.5 backdrop-blur-sm"
           >
-            {isAnalyzing ? <Loader2 size={10} className="animate-spin" /> : <Sparkles size={10} />}
-            Explain
+            {isAnalyzing ? <Loader2 size={11} strokeWidth={2} className="animate-spin" /> : <Sparkles size={11} strokeWidth={2} />}
+            <span>Analyze</span>
           </button>
         </div>
       )}
 
-      {/* Analysis Modal */}
+      {/* Analysis modal - editorial magazine style */}
       <Dialog open={isAnalysisOpen} onOpenChange={setIsAnalysisOpen}>
-        <DialogContent className="sm:max-w-lg bg-background border border-border p-8 md:p-12 shadow-2xl">
-          <div className="space-y-8">
-            <div className="space-y-2 border-b border-border pb-6">
-              <div className="flex justify-between items-start">
-                <h2 className="text-3xl font-light">{analysisResult?.originalText}</h2>
-                <span className="text-[10px] font-mono uppercase border border-border px-2 py-1 rounded text-muted-foreground">
+        <DialogContent className="sm:max-w-xl bg-background border border-border/50 p-10 md:p-14 shadow-2xl rounded-3xl">
+          <div className="space-y-10">
+            {/* Header */}
+            <div className="space-y-3 border-b border-border/40 pb-7">
+              <div className="flex justify-between items-start gap-6">
+                <h2 className="text-4xl md:text-5xl font-serif font-light tracking-tight">{analysisResult?.originalText}</h2>
+                <span className="text-[9px] font-sans font-medium uppercase border border-border/60 px-3 py-1.5 rounded-full text-muted-foreground/80 tracking-[0.15em] whitespace-nowrap mt-2">
                   {analysisResult?.partOfSpeech}
                 </span>
               </div>
             </div>
 
-            <div className="space-y-6">
+            {/* Content sections */}
+            <div className="space-y-8">
               <div>
-                <span className="text-[9px] font-mono uppercase tracking-widest text-muted-foreground mb-2 block">Definition</span>
-                <p className="text-lg font-light leading-relaxed">{analysisResult?.definition}</p>
+                <span className="text-[8px] font-sans font-medium uppercase tracking-[0.25em] text-muted-foreground/60 mb-3 block">Definition</span>
+                <p className="text-lg md:text-xl font-serif font-light leading-relaxed text-foreground/90">{analysisResult?.definition}</p>
               </div>
-              <div>
-                <span className="text-[9px] font-mono uppercase tracking-widest text-muted-foreground mb-2 flex items-center gap-2">
-                  <Quote size={10} /> In Context
-                </span>
-                <p className="text-sm text-muted-foreground font-light italic border-l-2 border-primary/20 pl-4 py-1">
+              
+              <div className="pt-4">
+                <div className="flex items-center gap-2.5 mb-3">
+                  <Quote size={11} strokeWidth={1.5} className="text-muted-foreground/50" />
+                  <span className="text-[8px] font-sans font-medium uppercase tracking-[0.25em] text-muted-foreground/60">In This Context</span>
+                </div>
+                <p className="text-base font-serif italic text-muted-foreground/75 border-l-2 border-primary/20 pl-5 py-2 leading-relaxed">
                   {analysisResult?.contextMeaning}
                 </p>
               </div>

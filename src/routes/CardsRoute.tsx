@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { ChevronLeft, ChevronRight, Search, X } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Search, X, Plus, Sparkles, ChevronUp, ChevronDown } from 'lucide-react';
 import { useDeck } from '@/contexts/DeckContext';
 import { useSettings } from '@/contexts/SettingsContext';
 import { Card } from '@/types';
@@ -20,6 +20,7 @@ export const CardsRoute: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
   const [page, setPage] = useState(0);
+  const [isHeaderExpanded, setIsHeaderExpanded] = useState(true);
   const pageSize = 50;
   
   const { data, isLoading, isPlaceholderData } = useCardsQuery(page, pageSize, debouncedSearch);
@@ -82,85 +83,269 @@ export const CardsRoute: React.FC = () => {
 
   const handleBatchDelete = async () => {
     if (selectedIds.size === 0) return;
-    if (confirm(`Irreversibly delete ${selectedIds.size} cards?`)) {
+    if (confirm(`Are you sure you want to delete ${selectedIds.size} card${selectedIds.size === 1 ? '' : 's'}? This action cannot be undone.`)) {
         const ids = Array.from(selectedIds);
         for (const id of ids) await deleteCard(id);
         setSelectedIds(new Set());
-        toast.success("Deleted selected cards");
+        toast.success(`Deleted ${ids.length} card${ids.length === 1 ? '' : 's'}`);
     }
   };
 
+  const totalPages = Math.ceil(totalCount / pageSize);
+
   return (
-    <div className="flex flex-col h-[calc(100dvh-5rem)] md:h-screen w-full bg-background text-foreground animate-in fade-in duration-700">
+    <div 
+      className="flex flex-col h-[calc(100dvh-5rem)] md:h-screen w-full bg-background text-foreground"
+      style={{ fontFamily: 'var(--font-serif)' }}
+    >
         
-        {/* --- Header: The Command Center --- */}
-        <header className="px-6 md:px-12 pt-8 md:pt-12 pb-6 shrink-0 flex flex-col gap-8 bg-background z-20">
+        {/* --- Warm, Editorial Header (Collapsible) --- */}
+        <header className="px-8 md:px-16 lg:px-24 shrink-0 border-b border-border/30 bg-background z-20 transition-all duration-500 ease-out relative">
             
-            {/* Top Row: Title & System Info */}
-            <div className="flex flex-col md:flex-row md:items-baseline justify-between gap-4">
-                <div className="space-y-1">
-                    <h1 className="text-3xl md:text-4xl font-light tracking-tight text-foreground">
-                        Index <span className="text-zinc-300 dark:text-zinc-700 font-extralight">/</span> {settings.language}
-                    </h1>
-                </div>
+            {/* Collapsed Header - Compact View */}
+            {!isHeaderExpanded && (
+              <div className="py-4">
+                {/* Mobile Layout - Stacked */}
+                <div className="md:hidden space-y-4">
+                  <div className="flex items-center justify-between gap-4">
+                    <div className="flex-1 min-w-0">
+                      <h1 className="text-lg font-light tracking-tight text-foreground truncate" style={{ fontFamily: 'var(--font-serif)' }}>
+                        Your Collection
+                      </h1>
+                      <div className="flex items-center gap-3 text-xs text-muted-foreground font-light mt-1" style={{ fontFamily: 'var(--font-sans)' }}>
+                        <span className="tabular-nums">{stats.total} cards</span>
+                        <span>•</span>
+                        <span className="tabular-nums">{stats.learned} mastered</span>
+                      </div>
+                    </div>
+                    
+                    {/* Mobile Actions */}
+                    <div className="flex items-center gap-2">
+                      <button 
+                        onClick={() => setIsGenerateModalOpen(true)} 
+                        className="p-2 rounded-full text-muted-foreground hover:text-foreground hover:bg-muted/30 transition-all duration-300"
+                        title="Generate cards"
+                      >
+                        <Sparkles size={18} strokeWidth={1.5} />
+                      </button>
+                      <button 
+                        onClick={() => setIsAddModalOpen(true)} 
+                        className="p-2 rounded-full text-[oklch(0.99_0.005_85)] bg-[oklch(0.52_0.12_35)] hover:bg-[oklch(0.48_0.12_35)] transition-all duration-300 shadow-sm"
+                        title="Add card"
+                      >
+                        <Plus size={18} strokeWidth={2} />
+                      </button>
+                      <button
+                        onClick={() => setIsHeaderExpanded(true)}
+                        className="p-2 rounded-full text-muted-foreground/60 hover:text-foreground hover:bg-muted/30 transition-all duration-300"
+                        aria-label="Expand header"
+                      >
+                        <ChevronDown size={18} strokeWidth={1.5} />
+                      </button>
+                    </div>
+                  </div>
 
-                {/* Minimalist Data Display */}
-                <div className="flex items-center gap-4 text-[10px] font-mono uppercase tracking-widest text-muted-foreground">
-                    <span>CNT: <strong className="text-foreground font-medium">{stats.total}</strong></span>
-                    <span className="text-zinc-300">|</span>
-                    <span>MST: <strong className="text-foreground font-medium">{stats.learned}</strong></span>
-                    <span className="text-zinc-300">|</span>
-                    <span>ACT: <strong className="text-foreground font-medium">{stats.total - stats.learned}</strong></span>
-                </div>
-            </div>
-
-            {/* Controls Row: Inputs over Actions */}
-            <div className="flex flex-col md:flex-row justify-between items-end gap-6">
-                {/* Search: Underlined, no box */}
-                <div className="relative w-full md:max-w-md group">
-                    <Search size={14} className="absolute left-0 top-1/2 -translate-y-1/2 text-zinc-400 group-focus-within:text-foreground transition-colors" />
+                  {/* Mobile Search - Full Width */}
+                  <div className="relative w-full group">
+                    <Search 
+                      size={16} 
+                      className="absolute left-0 top-1/2 -translate-y-1/2 text-muted-foreground/40 group-focus-within:text-muted-foreground transition-colors" 
+                      strokeWidth={1.5}
+                    />
                     <input 
+                      type="text"
+                      placeholder="Search..."
+                      className="w-full bg-transparent border-b border-border py-2 pl-6 pr-8 text-sm font-light outline-none placeholder:text-muted-foreground/40 focus:border-foreground/40 transition-colors"
+                      style={{ fontFamily: 'var(--font-sans)' }}
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                    />
+                    {searchTerm && (
+                      <button
+                        onClick={() => setSearchTerm('')}
+                        className="absolute right-0 top-1/2 -translate-y-1/2 text-muted-foreground/40 hover:text-foreground transition-colors"
+                      >
+                        <X size={16} strokeWidth={1.5} />
+                      </button>
+                    )}
+                  </div>
+                </div>
+
+                {/* Desktop Layout - Single Row */}
+                <div className="hidden md:flex items-center justify-between gap-6">
+                  <div className="flex items-center gap-6">
+                    <h1 className="text-xl font-light tracking-tight text-foreground" style={{ fontFamily: 'var(--font-serif)' }}>
+                      Your Collection
+                    </h1>
+                    <div className="flex items-center gap-4 text-xs text-muted-foreground font-light" style={{ fontFamily: 'var(--font-sans)' }}>
+                      <span className="tabular-nums">{stats.total} cards</span>
+                      <div className="w-px h-3 bg-border" />
+                      <span className="tabular-nums">{stats.learned} mastered</span>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-4">
+                    {/* Search - Compact */}
+                    <div className="relative w-full max-w-xs group">
+                      <Search 
+                        size={16} 
+                        className="absolute left-0 top-1/2 -translate-y-1/2 text-muted-foreground/40 group-focus-within:text-muted-foreground transition-colors" 
+                        strokeWidth={1.5}
+                      />
+                      <input 
                         type="text"
-                        placeholder="FILTER DATABASE..."
-                        className="w-full bg-transparent border-b border-zinc-200 dark:border-zinc-800 py-3 pl-6 pr-4 text-sm font-mono outline-none placeholder:text-zinc-300 dark:placeholder:text-zinc-700 placeholder:text-[10px] placeholder:tracking-widest focus:border-foreground transition-colors rounded-none"
+                        placeholder="Search..."
+                        className="w-full bg-transparent border-b border-border py-2 pl-6 pr-8 text-sm font-light outline-none placeholder:text-muted-foreground/40 focus:border-foreground/40 transition-colors"
+                        style={{ fontFamily: 'var(--font-sans)' }}
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
-                    />
+                      />
+                      {searchTerm && (
+                        <button
+                          onClick={() => setSearchTerm('')}
+                          className="absolute right-0 top-1/2 -translate-y-1/2 text-muted-foreground/40 hover:text-foreground transition-colors"
+                        >
+                          <X size={16} strokeWidth={1.5} />
+                        </button>
+                      )}
+                    </div>
+
+                    {/* Compact Actions */}
+                    <button 
+                      onClick={() => setIsGenerateModalOpen(true)} 
+                      className="p-2 rounded-full text-muted-foreground hover:text-foreground hover:bg-muted/30 transition-all duration-300"
+                      title="Generate cards"
+                    >
+                      <Sparkles size={18} strokeWidth={1.5} />
+                    </button>
+                    <button 
+                      onClick={() => setIsAddModalOpen(true)} 
+                      className="p-2 rounded-full text-[oklch(0.99_0.005_85)] bg-[oklch(0.52_0.12_35)] hover:bg-[oklch(0.48_0.12_35)] transition-all duration-300 shadow-sm"
+                      title="Add card"
+                    >
+                      <Plus size={18} strokeWidth={2} />
+                    </button>
+
+                    {/* Expand Button */}
+                    <button
+                      onClick={() => setIsHeaderExpanded(true)}
+                      className="p-2 rounded-full text-muted-foreground/60 hover:text-foreground hover:bg-muted/30 transition-all duration-300"
+                      aria-label="Expand header"
+                    >
+                      <ChevronDown size={18} strokeWidth={1.5} />
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Expanded Header - Full View */}
+            {isHeaderExpanded && (
+              <div className="pt-12 md:pt-16 pb-8">
+                {/* Title Section - Literary Feel */}
+                <div className="mb-12">
+                  <div className="flex flex-col md:flex-row md:items-baseline justify-between gap-6 mb-4">
+                    <h1 className="text-4xl md:text-5xl font-light tracking-tight text-foreground leading-tight">
+                      Your Collection
+                    </h1>
+                    
+                    {/* Elegant Stats Summary */}
+                    <div className="flex items-center gap-6 text-sm text-muted-foreground font-light" style={{ fontFamily: 'var(--font-sans)' }}>
+                      <div className="flex items-baseline gap-2">
+                        <span className="text-2xl text-foreground font-light tabular-nums">{stats.total}</span>
+                        <span>cards</span>
+                      </div>
+                      <div className="w-px h-4 bg-border" />
+                      <div className="flex items-baseline gap-2">
+                        <span className="text-2xl text-foreground font-light tabular-nums">{stats.learned}</span>
+                        <span>mastered</span>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <p className="text-base md:text-lg text-muted-foreground font-light leading-relaxed max-w-2xl" style={{ fontFamily: 'var(--font-sans)' }}>
+                    Studying {settings.language}
+                  </p>
                 </div>
 
-                {/* Actions: Text Links */}
-                <div className="flex items-center gap-8 w-full md:w-auto justify-end pb-2">
+                {/* Controls - Refined and Spacious */}
+                <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+                  
+                  {/* Search - Clean, Underlined */}
+                  <div className="relative w-full md:max-w-md group">
+                    <Search 
+                      size={18} 
+                      className="absolute left-0 top-1/2 -translate-y-1/2 text-muted-foreground/40 group-focus-within:text-muted-foreground transition-colors" 
+                      strokeWidth={1.5}
+                    />
+                    <input 
+                      type="text"
+                      placeholder="Search your cards..."
+                      className="w-full bg-transparent border-b border-border py-3.5 pl-8 pr-10 text-base font-light outline-none placeholder:text-muted-foreground/40 focus:border-foreground/40 transition-colors"
+                      style={{ fontFamily: 'var(--font-sans)' }}
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                    />
+                    {searchTerm && (
+                      <button
+                        onClick={() => setSearchTerm('')}
+                        className="absolute right-0 top-1/2 -translate-y-1/2 text-muted-foreground/40 hover:text-foreground transition-colors"
+                      >
+                        <X size={18} strokeWidth={1.5} />
+                      </button>
+                    )}
+                  </div>
+
+                  {/* Action Buttons - Soft, Rounded */}
+                  <div className="flex items-center gap-4 w-full md:w-auto justify-end">
                     <button 
-                        onClick={() => setIsGenerateModalOpen(true)} 
-                        className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground hover:text-foreground transition-colors"
+                      onClick={() => setIsGenerateModalOpen(true)} 
+                      className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-light tracking-wide text-muted-foreground border border-border hover:border-muted-foreground/40 hover:text-foreground transition-all duration-300"
+                      style={{ fontFamily: 'var(--font-sans)' }}
                     >
-                        Generate
+                      <Sparkles size={16} strokeWidth={1.5} />
+                      Generate
                     </button>
                     <button 
-                        onClick={() => setIsAddModalOpen(true)} 
-                        className="text-[10px] font-mono uppercase tracking-widest text-foreground border border-foreground px-4 py-2 hover:bg-foreground hover:text-background transition-colors"
+                      onClick={() => setIsAddModalOpen(true)} 
+                      className="inline-flex items-center gap-2 px-6 py-2.5 rounded-full text-sm font-medium tracking-wide text-[oklch(0.99_0.005_85)] border border-[oklch(0.52_0.12_35)] bg-[oklch(0.52_0.12_35)] hover:bg-[oklch(0.48_0.12_35)] transition-all duration-300 shadow-sm"
+                      style={{ fontFamily: 'var(--font-sans)' }}
                     >
-                        Add Entry
+                      <Plus size={16} strokeWidth={2} />
+                      Add Card
                     </button>
+                  </div>
                 </div>
-            </div>
+              </div>
+            )}
+
+            {/* Collapse Toggle Button - Centered at bottom of expanded header */}
+            {isHeaderExpanded && (
+              <div className="absolute -bottom-4 left-1/2 -translate-x-1/2">
+                <button
+                  onClick={() => setIsHeaderExpanded(false)}
+                  className="p-1.5 rounded-full bg-background border border-border text-muted-foreground/60 hover:text-foreground hover:border-muted-foreground/40 transition-all duration-300 shadow-sm"
+                  aria-label="Collapse header"
+                >
+                  <ChevronUp size={16} strokeWidth={1.5} />
+                </button>
+              </div>
+            )}
         </header>
 
-        {/* --- List Header (Sticky) --- */}
-        <div className="hidden md:flex items-center px-6 md:px-12 py-2 border-b border-zinc-100 dark:border-zinc-800 shrink-0 bg-background/95 backdrop-blur-sm z-10">
-            <div className="w-10"></div> {/* Checkbox spacer */}
-            <div className="flex-1 text-[9px] font-mono uppercase tracking-widest text-zinc-400">Content</div>
-            <div className="w-32 px-4 text-[9px] font-mono uppercase tracking-widest text-zinc-400">Status</div>
-            <div className="w-20 px-4 text-right text-[9px] font-mono uppercase tracking-widest text-zinc-400">Reps</div>
-            <div className="w-32 px-4 text-right text-[9px] font-mono uppercase tracking-widest text-zinc-400">Schedule</div>
-            <div className="w-12"></div> {/* Action spacer */}
-        </div>
-
-        {/* --- Main Content --- */}
-        <div className="flex-1 min-h-0 flex flex-col relative px-0 md:px-12 bg-background">
+        {/* --- Main Content Area --- */}
+        <div className="flex-1 min-h-0 flex flex-col relative bg-background">
              {isLoading ? (
                 <div className="flex-1 flex items-center justify-center">
-                    <span className="text-[10px] font-mono uppercase tracking-widest text-zinc-300 animate-pulse">Loading Index</span>
+                  <div className="text-center space-y-4">
+                    <div className="w-px h-16 bg-border/30 mx-auto" />
+                    <span 
+                      className="text-base font-light text-muted-foreground/60 tracking-tight animate-pulse"
+                      style={{ fontFamily: 'var(--font-serif)' }}
+                    >
+                      Loading your collection...
+                    </span>
+                  </div>
                 </div>
              ) : (
                 <CardList
@@ -176,83 +361,111 @@ export const CardsRoute: React.FC = () => {
              )}
         </div>
 
-        {/* --- Footer / Pagination --- */}
-        <div className="px-6 md:px-12 py-4 flex items-center justify-between border-t border-zinc-100 dark:border-zinc-800 shrink-0 bg-background z-10">
-            <span className="text-[9px] font-mono uppercase tracking-widest text-zinc-400">
-                {page + 1} <span className="text-zinc-200 dark:text-zinc-700">/</span> {Math.ceil(totalCount / pageSize)}
+        {/* --- Refined Footer with Pagination --- */}
+        <div className="px-8 md:px-16 lg:px-24 py-6 flex flex-col md:flex-row items-center justify-between border-t border-border/30 shrink-0 bg-background z-10 gap-4">
+          <div className="flex items-baseline gap-3" style={{ fontFamily: 'var(--font-sans)' }}>
+            <span className="text-sm text-muted-foreground font-light">
+              Page
             </span>
-            
-            <div className="flex gap-4">
-                <button
-                    onClick={() => setPage(p => Math.max(0, p - 1))}
-                    disabled={page === 0}
-                    className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground hover:text-foreground disabled:opacity-20 transition-colors"
-                >
-                    Prev
-                </button>
-                <button
-                    onClick={() => {
-                        if (!isPlaceholderData && (page + 1) * pageSize < totalCount) {
-                            setPage(p => p + 1);
-                        }
-                    }}
-                    disabled={isPlaceholderData || (page + 1) * pageSize >= totalCount}
-                    className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground hover:text-foreground disabled:opacity-20 transition-colors"
-                >
-                    Next
-                </button>
-            </div>
+            <span className="text-lg font-light text-foreground tabular-nums" style={{ fontFamily: 'var(--font-serif)' }}>
+              {page + 1}
+            </span>
+            <span className="text-sm text-muted-foreground/40 font-light">
+              of {totalPages}
+            </span>
+          </div>
+          
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => setPage(p => Math.max(0, p - 1))}
+              disabled={page === 0}
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-light tracking-wide text-muted-foreground hover:text-foreground border border-border hover:border-muted-foreground/40 disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:border-border disabled:hover:text-muted-foreground transition-all duration-300"
+              style={{ fontFamily: 'var(--font-sans)' }}
+            >
+              <ChevronLeft size={16} strokeWidth={1.5} />
+              Previous
+            </button>
+            <button
+              onClick={() => {
+                if (!isPlaceholderData && (page + 1) * pageSize < totalCount) {
+                  setPage(p => p + 1);
+                }
+              }}
+              disabled={isPlaceholderData || (page + 1) * pageSize >= totalCount}
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-light tracking-wide text-muted-foreground hover:text-foreground border border-border hover:border-muted-foreground/40 disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:border-border disabled:hover:text-muted-foreground transition-all duration-300"
+              style={{ fontFamily: 'var(--font-sans)' }}
+            >
+              Next
+              <ChevronRight size={16} strokeWidth={1.5} />
+            </button>
+          </div>
         </div>
 
-        {/* --- Floating Action Bar (Batch Operations) --- */}
+        {/* --- Floating Selection Actions - Warm & Elegant --- */}
         <div className={clsx(
-            "fixed bottom-8 left-1/2 -translate-x-1/2 z-50 transition-all duration-500 ease-out",
-            selectedIds.size > 0 ? "translate-y-0 opacity-100" : "translate-y-8 opacity-0 pointer-events-none"
+          "fixed bottom-8 left-1/2 -translate-x-1/2 z-50 transition-all duration-500 ease-out",
+          selectedIds.size > 0 ? "translate-y-0 opacity-100" : "translate-y-8 opacity-0 pointer-events-none"
         )}>
-            <div className="bg-zinc-900 dark:bg-zinc-50 text-zinc-50 dark:text-zinc-900 px-6 py-3 shadow-2xl flex items-center gap-8">
-                <span className="text-[10px] font-mono uppercase tracking-widest">
-                    {selectedIds.size} Selected
-                </span>
-                
-                <div className="flex items-center gap-6 h-full border-l border-zinc-700 dark:border-zinc-200 pl-6">
-                    <button 
-                        onClick={handleBatchPrioritize}
-                        className="text-[10px] font-mono uppercase tracking-widest hover:text-white dark:hover:text-black transition-colors"
-                    >
-                        Prioritize
-                    </button>
-                    <button 
-                        onClick={handleBatchDelete}
-                        className="text-[10px] font-mono uppercase tracking-widest text-red-400 hover:text-red-300 transition-colors"
-                    >
-                        Delete
-                    </button>
-                    <button 
-                        onClick={() => setSelectedIds(new Set())}
-                        className="opacity-50 hover:opacity-100 transition-opacity"
-                    >
-                        <X size={12} />
-                    </button>
-                </div>
+          <div 
+            className="bg-card border border-border rounded-3xl shadow-2xl px-8 py-5 flex items-center gap-8"
+            style={{ 
+              backdropFilter: 'blur(20px)',
+              backgroundColor: 'oklch(0.99 0.005 85 / 0.95)'
+            }}
+          >
+            <div className="flex items-baseline gap-2" style={{ fontFamily: 'var(--font-sans)' }}>
+              <span className="text-2xl font-light text-foreground tabular-nums" style={{ fontFamily: 'var(--font-serif)' }}>
+                {selectedIds.size}
+              </span>
+              <span className="text-sm text-muted-foreground font-light">
+                selected
+              </span>
             </div>
+            
+            <div className="w-px h-8 bg-border/40" />
+            
+            <div className="flex items-center gap-4">
+              <button 
+                onClick={handleBatchPrioritize}
+                className="text-sm font-light tracking-wide text-foreground hover:text-[oklch(0.52_0.12_35)] transition-colors"
+                style={{ fontFamily: 'var(--font-sans)' }}
+              >
+                Prioritize all
+              </button>
+              <button 
+                onClick={handleBatchDelete}
+                className="text-sm font-light tracking-wide text-destructive hover:text-destructive/80 transition-colors"
+                style={{ fontFamily: 'var(--font-sans)' }}
+              >
+                Delete all
+              </button>
+              <button 
+                onClick={() => setSelectedIds(new Set())}
+                className="ml-2 text-muted-foreground/60 hover:text-foreground transition-colors"
+                aria-label="Clear selection"
+              >
+                <X size={18} strokeWidth={1.5} />
+              </button>
+            </div>
+          </div>
         </div>
 
         {/* Global Modals */}
         <AddCardModal 
-            isOpen={isAddModalOpen}
-            onClose={() => { setIsAddModalOpen(false); setSelectedCard(undefined); }}
-            onAdd={(card) => addCard(card)}
-            initialCard={selectedCard}
+          isOpen={isAddModalOpen}
+          onClose={() => { setIsAddModalOpen(false); setSelectedCard(undefined); }}
+          onAdd={(card) => addCard(card)}
+          initialCard={selectedCard}
         />
         <GenerateCardsModal 
-            isOpen={isGenerateModalOpen}
-            onClose={() => setIsGenerateModalOpen(false)}
-            onAddCards={(cards) => addCardsBatch(cards)}
+          isOpen={isGenerateModalOpen}
+          onClose={() => setIsGenerateModalOpen(false)}
+          onAddCards={(cards) => addCardsBatch(cards)}
         />
         <CardHistoryModal 
-            isOpen={isHistoryModalOpen}
-            onClose={() => { setIsHistoryModalOpen(false); setSelectedCard(undefined); }}
-            card={selectedCard}
+          isOpen={isHistoryModalOpen}
+          onClose={() => { setIsHistoryModalOpen(false); setSelectedCard(undefined); }}
+          card={selectedCard}
         />
     </div>
   );

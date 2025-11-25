@@ -95,26 +95,24 @@ const AppSidebar: React.FC<NavActionProps> = ({
 
   return (
     <Sidebar collapsible="icon">
-      <SidebarHeader>
-        <div className="flex items-center justify-between px-1 group-data-[collapsible=icon]:justify-center">
-          <div className="flex items-center gap-2 overflow-hidden transition-all duration-300 group-data-[collapsible=icon]:w-0 group-data-[collapsible=icon]:opacity-0">
-            <div className="w-5 h-5 bg-foreground text-background rounded-[4px] flex items-center justify-center shrink-0">
-              <Command size={12} strokeWidth={3} />
-            </div>
-            <span className="font-semibold tracking-tight text-sm whitespace-nowrap">LinguaFlow</span>
+      <SidebarHeader className="pt-8 pb-6">
+        <div className="flex items-center justify-between px-4 group-data-[collapsible=icon]:justify-center">
+          <div className="flex items-center gap-3 overflow-hidden transition-all duration-300 group-data-[collapsible=icon]:w-0 group-data-[collapsible=icon]:opacity-0">
+            <div className="w-1.5 h-1.5 bg-terracotta rounded-full shrink-0" />
+            <span className="font-serif text-[22px] font-light tracking-tight whitespace-nowrap text-foreground/90">LinguaFlow</span>
           </div>
-          <SidebarTrigger className="ml-auto group-data-[collapsible=icon]:ml-0" />
+          <SidebarTrigger className="ml-auto group-data-[collapsible=icon]:ml-0 hover:bg-transparent hover:text-foreground/70" />
         </div>
       </SidebarHeader>
 
-      <SidebarContent>
+      <SidebarContent className="px-2">
         {/* Primary Nav */}
-        <SidebarGroup>
-          <SidebarGroupLabel className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground/50">
-            Menu
+        <SidebarGroup className="px-0 py-4">
+          <SidebarGroupLabel className="text-[9px] font-mono uppercase tracking-[0.15em] text-muted-foreground/40 px-4 mb-3 font-normal">
+            Navigation
           </SidebarGroupLabel>
           <SidebarGroupContent>
-            <SidebarMenu>
+            <SidebarMenu className="gap-0.5">
               {mainNavItems.map((item) => {
                 const isActive = item.to === '/multiplayer'
                   ? location.pathname.startsWith(item.to)
@@ -126,10 +124,19 @@ const AppSidebar: React.FC<NavActionProps> = ({
                       asChild
                       isActive={isActive}
                       onClick={onCloseMobileMenu}
+                      className={clsx(
+                        "h-11 px-4 rounded-sm transition-all duration-200 relative group/item font-serif text-[15px] font-light tracking-wide",
+                        isActive 
+                          ? "text-foreground bg-terracotta/8 dark:bg-terracotta/12" 
+                          : "text-muted-foreground/80 hover:text-foreground hover:bg-background/60"
+                      )}
                     >
-                      <Link to={item.to}>
-                        <item.icon size={18} strokeWidth={isActive ? 2 : 1.5} />
-                        <span>{item.label}</span>
+                      <Link to={item.to} className="flex items-center gap-4 w-full">
+                        <item.icon size={18} strokeWidth={isActive ? 1.8 : 1.3} className="shrink-0" />
+                        <span className="tracking-wide">{item.label}</span>
+                        {isActive && (
+                          <div className="absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-6 bg-terracotta rounded-r-full" />
+                        )}
                       </Link>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
@@ -139,18 +146,24 @@ const AppSidebar: React.FC<NavActionProps> = ({
           </SidebarGroupContent>
         </SidebarGroup>
 
+        {/* Elegant Separator */}
+        <div className="h-px bg-linear-to-r from-transparent via-border/50 to-transparent my-6 mx-4" />
+
         {/* Tools Section */}
-        <SidebarGroup>
-          <SidebarGroupLabel className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground/50">
-            Tools
+        <SidebarGroup className="px-0 py-2">
+          <SidebarGroupLabel className="text-[9px] font-mono uppercase tracking-[0.15em] text-muted-foreground/40 px-4 mb-3 font-normal">
+            Quick Actions
           </SidebarGroupLabel>
           <SidebarGroupContent>
-            <SidebarMenu>
+            <SidebarMenu className="gap-0.5">
               {toolItems.map((item) => (
                 <SidebarMenuItem key={item.label}>
-                  <SidebarMenuButton onClick={item.onClick}>
-                    <item.icon size={18} strokeWidth={1.5} />
-                    <span>{item.label}</span>
+                  <SidebarMenuButton 
+                    onClick={item.onClick}
+                    className="h-11 px-4 rounded-sm transition-all duration-200 text-muted-foreground/70 hover:text-foreground hover:bg-background/60 font-serif text-[15px] font-light tracking-wide"
+                  >
+                    <item.icon size={18} strokeWidth={1.3} className="shrink-0" />
+                    <span className="tracking-wide">{item.label}</span>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}
@@ -159,21 +172,23 @@ const AppSidebar: React.FC<NavActionProps> = ({
         </SidebarGroup>
       </SidebarContent>
 
-      <SidebarFooter className="group-data-[collapsible=icon]:hidden">
-        <SidebarMenu>
+      <SidebarFooter className="group-data-[collapsible=icon]:hidden px-2 pb-6 pt-4">
+        <div className="h-px bg-linear-to-r from-transparent via-border/50 to-transparent mb-6" />
+        
+        <SidebarMenu className="gap-0.5">
           {/* Language Selector */}
           <SidebarMenuItem>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <SidebarMenuButton>
-                  <div className="w-4 h-4 flex items-center justify-center ">
+                <SidebarMenuButton className="h-11 px-4 rounded-sm text-muted-foreground/70 hover:text-foreground hover:bg-background/60 font-serif text-[15px] font-light tracking-wide">
+                  <div className="w-4 h-4 flex items-center justify-center shrink-0">
                     <currentLanguage.Flag className="w-full h-auto rounded-xs" />
                   </div>
-                  <span>{currentLanguage.name}</span>
-                  <ChevronUp className="ml-auto" size={14} />
+                  <span className="tracking-wide">{currentLanguage.name}</span>
+                  <ChevronUp className="ml-auto opacity-40" size={14} strokeWidth={1.5} />
                 </SidebarMenuButton>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="start" className="w-52 p-1 bg-background border-border">
+              <DropdownMenuContent align="start" className="w-56 p-1.5 bg-background/95 backdrop-blur-sm border-border/40 rounded-lg shadow-lg">
                 {languages.map((lang) => (
                   <DropdownMenuItem
                     key={lang.code}
@@ -182,11 +197,11 @@ const AppSidebar: React.FC<NavActionProps> = ({
                       toast.success(`Switched to ${lang.name}`);
                       onCloseMobileMenu?.();
                     }}
-                    className="gap-3 py-2 text-xs font-medium"
+                    className="gap-3 py-2.5 px-3 text-sm font-serif font-light rounded-sm"
                   >
-                    <lang.Flag className="w-3.5 h-auto rounded-xs" />
-                    <span className="flex-1">{lang.name}</span>
-                    {settings.language === lang.code && <Check size={14} className="ml-auto" />}
+                    <lang.Flag className="w-4 h-auto rounded-xs" />
+                    <span className="flex-1 tracking-wide">{lang.name}</span>
+                    {settings.language === lang.code && <Check size={14} className="ml-auto text-terracotta" strokeWidth={2} />}
                   </DropdownMenuItem>
                 ))}
               </DropdownMenuContent>
@@ -195,32 +210,37 @@ const AppSidebar: React.FC<NavActionProps> = ({
 
           {/* Settings */}
           <SidebarMenuItem>
-            <SidebarMenuButton onClick={() => { onOpenSettings(); onCloseMobileMenu?.(); }}>
-              <Settings size={18} strokeWidth={1.5} />
-              <span>Settings</span>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-
-          {/* Logout */}
-          <SidebarMenuItem>
-            <SidebarMenuButton
-              onClick={() => { signOut(); onCloseMobileMenu?.(); }}
-              className="text-muted-foreground hover:text-destructive hover:bg-destructive/10"
+            <SidebarMenuButton 
+              onClick={() => { onOpenSettings(); onCloseMobileMenu?.(); }}
+              className="h-11 px-4 rounded-sm text-muted-foreground/70 hover:text-foreground hover:bg-background/60 font-serif text-[15px] font-light tracking-wide"
             >
-              <LogOut size={18} strokeWidth={1.5} />
-              <span>Log out</span>
+              <Settings size={18} strokeWidth={1.3} />
+              <span className="tracking-wide">Settings</span>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
 
-        {/* User Email */}
+        {/* User Info - Editorial style */}
         {user && (
-          <div className="px-3 pt-2 group-data-[collapsible=icon]:hidden">
-            <p className="text-[10px] font-mono text-muted-foreground/40 truncate">
+          <div className="px-4 pt-6 pb-2 group-data-[collapsible=icon]:hidden border-t border-border/30 mt-4">
+            <p className="text-[10px] font-mono uppercase tracking-[0.12em] text-muted-foreground/35 truncate">
               {user.email}
             </p>
           </div>
         )}
+        
+        {/* Logout - Refined placement */}
+        <SidebarMenu className="gap-0.5 mt-2">
+          <SidebarMenuItem>
+            <SidebarMenuButton
+              onClick={() => { signOut(); onCloseMobileMenu?.(); }}
+              className="h-10 px-4 rounded-sm text-red-600/60 dark:text-red-400/60 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50/50 dark:hover:bg-red-950/20 font-serif text-sm font-light tracking-wide transition-colors"
+            >
+              <LogOut size={16} strokeWidth={1.3} />
+              <span className="tracking-wide">Sign Out</span>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+        </SidebarMenu>
       </SidebarFooter>
     </Sidebar>
   );
@@ -237,7 +257,7 @@ const MobileBottomNav: React.FC = () => {
   ];
 
   return (
-    <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 border-t border-border/40 bg-background/80 backdrop-blur-xl pb-[env(safe-area-inset-bottom)]">
+    <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 border-t border-border/30 bg-background/95 backdrop-blur-xl pb-[env(safe-area-inset-bottom)] shadow-[0_-2px_16px_rgba(0,0,0,0.04)] dark:shadow-[0_-2px_16px_rgba(0,0,0,0.2)]">
       <div className="flex items-center justify-between h-16 px-6 max-w-md mx-auto relative">
 
         {/* Left Items */}
@@ -251,23 +271,23 @@ const MobileBottomNav: React.FC = () => {
             >
               <item.icon
                 size={20}
-                strokeWidth={isActive ? 2.5 : 1.5}
+                strokeWidth={isActive ? 1.8 : 1.3}
                 className={clsx(
                   "transition-all duration-200",
-                  isActive ? "text-primary -translate-y-0.5" : "text-muted-foreground group-hover:text-foreground"
+                  isActive ? "text-terracotta -translate-y-0.5" : "text-muted-foreground/70 group-hover:text-foreground"
                 )}
               />
             </Link>
           );
         })}
 
-        {/* Center FAB (Study) */}
+        {/* Center FAB (Study) - Warm terracotta */}
         <div className="absolute left-1/2 -translate-x-1/2 -top-6">
           <Link
             to="/study"
-            className="flex items-center justify-center w-14 h-14 rounded-full bg-primary text-primary-foreground shadow-lg shadow-primary/20 hover:scale-105 active:scale-95 transition-all duration-300 border-4 border-background"
+            className="flex items-center justify-center w-14 h-14 rounded-full bg-terracotta text-white shadow-lg shadow-terracotta/20 hover:shadow-terracotta/30 hover:scale-105 active:scale-95 transition-all duration-300 border-4 border-background"
           >
-            <GraduationCap size={24} strokeWidth={2} className="ml-0.5" />
+            <GraduationCap size={24} strokeWidth={1.8} className="ml-0.5" />
           </Link>
         </div>
 
@@ -278,16 +298,16 @@ const MobileBottomNav: React.FC = () => {
         >
           <Trophy
             size={20}
-            strokeWidth={location.pathname === '/leaderboard' ? 2.5 : 1.5}
+            strokeWidth={location.pathname === '/leaderboard' ? 1.8 : 1.3}
             className={clsx(
               "transition-all duration-200",
-              location.pathname === '/leaderboard' ? "text-primary -translate-y-0.5" : "text-muted-foreground group-hover:text-foreground"
+              location.pathname === '/leaderboard' ? "text-terracotta -translate-y-0.5" : "text-muted-foreground/70 group-hover:text-foreground"
             )}
           />
         </Link>
 
         {/* Menu Trigger using SidebarTrigger */}
-        <SidebarTrigger className="flex flex-col items-center justify-center w-12 gap-1" />
+        <SidebarTrigger className="flex flex-col items-center justify-center w-12 gap-1 hover:bg-transparent" />
       </div>
     </nav>
   );
@@ -340,20 +360,9 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
 
         {/* Main Content */}
         <div className="flex-1 flex flex-col">
-          {/* Mobile Top Bar */}
-          <div className="md:hidden fixed top-0 left-0 right-0 h-14 border-b border-border/40 bg-background/80 backdrop-blur-md z-40 flex items-center justify-between px-4">
-            <div className="flex items-center gap-2">
-              <SidebarTrigger className="md:hidden" />
-              <div className="w-5 h-5 bg-foreground text-background rounded-[4px] flex items-center justify-center">
-                <Command size={12} strokeWidth={3} />
-              </div>
-              <span className="font-semibold tracking-tight text-sm">LinguaFlow</span>
-            </div>
-          </div>
-
           {/* Main Content Area */}
-          <main className="flex-1 pt-14 md:pt-0 pb-20 md:pb-0">
-            <div className="w-full h-full mx-auto max-w-7xl p-4 md:p-12">
+          <main className="flex-1 pb-20 md:pb-0">
+            <div className="w-full h-full mx-auto max-w-7xl px-3 py-4 md:p-12">
               {children}
               <SabotageNotification />
             </div>

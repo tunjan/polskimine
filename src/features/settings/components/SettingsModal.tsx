@@ -519,41 +519,53 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      {/* UPDATED: Responsive height and padding */}
-      <DialogContent className="w-[95vw] max-w-[95vw] sm:max-w-4xl h-[90vh] md:h-[600px] p-0 gap-0 overflow-hidden flex flex-col md:flex-row bg-background border border-border shadow-2xl rounded-xl">
+      <DialogContent className="w-[95vw] max-w-5xl h-[92vh] md:h-[85vh] p-0 gap-0 overflow-hidden flex flex-col md:flex-row bg-cream dark:bg-background border-0 shadow-[0_8px_40px_rgba(0,0,0,0.08)] dark:shadow-[0_8px_40px_rgba(0,0,0,0.4)] rounded-2xl">
         
-        {/* Sidebar */}
-        <div className="w-full md:w-64 bg-secondary border-b md:border-b-0 md:border-r border-border p-4 md:p-6 flex flex-col justify-between shrink-0">
-            <div>
-                <DialogTitle className="font-bold tracking-tight text-lg mb-4 md:mb-8 flex items-center gap-2">
-                    Settings
+        {/* Refined Sidebar with warm tones */}
+        <div className="w-full md:w-72 bg-linear-to-b from-background/40 to-background/20 dark:from-background/60 dark:to-background/30 backdrop-blur-sm border-b md:border-b-0 md:border-r border-border/30 p-6 md:p-8 flex flex-col justify-between shrink-0">
+            <div className="space-y-8">
+                <DialogTitle className="font-serif text-2xl font-light tracking-tight text-foreground/90 mb-10 flex items-center gap-3">
+                    <span className="w-1 h-1 rounded-full bg-terracotta"></span>
+                    Preferences
                 </DialogTitle>
-                <nav className="flex flex-row md:flex-col gap-1 overflow-x-auto md:overflow-visible no-scrollbar pb-2 md:pb-0">
+                <nav className="flex flex-row md:flex-col gap-2 overflow-x-auto md:overflow-visible no-scrollbar pb-2 md:pb-0">
                     {tabs.map((item) => (
                         <button
                             key={item.id}
                             onClick={() => setActiveTab(item.id)}
                             className={clsx(
-                                "text-left px-3 py-2 rounded-md text-xs font-mono uppercase tracking-wider transition-all whitespace-nowrap",
+                                "text-left px-4 py-3 transition-all duration-200 whitespace-nowrap group relative",
                                 activeTab === item.id 
-                                    ? "bg-secondary text-foreground font-medium" 
-                                    : "text-muted-foreground hover:text-foreground hover:bg-secondary/50"
+                                    ? "text-foreground" 
+                                    : "text-muted-foreground/70 hover:text-foreground"
                             )}
                         >
-                            {item.label}
+                            <span className="font-serif text-[15px] font-light tracking-wide relative z-10">
+                                {item.label}
+                            </span>
+                            {activeTab === item.id && (
+                                <div className="absolute inset-0 bg-terracotta/8 dark:bg-terracotta/12 -mx-2 rounded-sm" />
+                            )}
+                            <div className={clsx(
+                                "absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-0 bg-terracotta transition-all duration-200",
+                                activeTab === item.id ? "h-8" : "h-0 group-hover:h-4"
+                            )} />
                         </button>
                     ))}
                 </nav>
             </div>
             
-            <div className="hidden md:block text-[10px] font-mono text-muted-foreground/60">
-                ID: {settings.language.toUpperCase()}_V1
+            <div className="hidden md:block">
+                <div className="h-px bg-linear-to-r from-transparent via-border/50 to-transparent mb-4" />
+                <div className="text-[9px] font-mono uppercase tracking-[0.15em] text-muted-foreground/40">
+                    Deck: {settings.language}
+                </div>
             </div>
         </div>
 
-        {/* Content Area */}
-        <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
-            <div className="flex-1 p-4 md:p-10 overflow-y-auto">
+        {/* Spacious Content Area with generous margins */}
+        <div className="flex-1 flex flex-col min-w-0 overflow-hidden bg-background/30 dark:bg-background/10">
+            <div className="flex-1 px-6 py-8 md:px-16 md:py-12 overflow-y-auto">
                 
                 {activeTab === 'general' && (
                     <GeneralSettings 
@@ -593,82 +605,90 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                 )}
 
                 {activeTab === 'danger' && (
-                    <div className="space-y-6 md:space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-500">
-                        {/* Reset Deck */}
-                        <div className="p-4 md:p-6 border border-border bg-secondary/10 rounded-lg space-y-4">
-                            <div className="flex items-start gap-3">
-                                <AlertCircle className="text-orange-500 shrink-0" size={20} />
-                                <div>
-                                    <h4 className="text-sm font-bold uppercase tracking-wide">Reset Current Deck</h4>
-                                    <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
-                                        This will delete all cards, history, XP, and Points earned for <strong>{localSettings.language}</strong> and reload the beginner course.
+                    <div className="space-y-12 max-w-2xl animate-in fade-in slide-in-from-bottom-2 duration-500">
+                        {/* Reset Deck - Warm, editorial warning */}
+                        <div className="space-y-6">
+                            <div className="flex items-start gap-4 pb-6 border-b border-border/30">
+                                <div className="mt-1">
+                                    <div className="w-10 h-10 rounded-full bg-orange-100 dark:bg-orange-950/30 flex items-center justify-center">
+                                        <AlertCircle className="text-orange-600 dark:text-orange-400" size={18} strokeWidth={1.5} />
+                                    </div>
+                                </div>
+                                <div className="flex-1 space-y-3">
+                                    <h4 className="font-serif text-lg font-normal tracking-tight text-foreground/90">Reset Current Deck</h4>
+                                    <p className="text-sm leading-relaxed text-muted-foreground/80 font-light">
+                                        This will delete all cards, history, experience, and progress for <em className="text-foreground font-normal">{localSettings.language}</em>, restoring the beginner course.
                                     </p>
                                 </div>
                             </div>
                             <button 
                                 onClick={handleResetDeck}
                                 className={clsx(
-                                    "w-full py-3 text-xs font-mono uppercase tracking-widest transition-all rounded",
+                                    "w-full py-4 text-sm font-serif tracking-wide transition-all duration-200",
                                     confirmResetDeck 
-                                        ? "bg-orange-600 text-white hover:bg-orange-700" 
-                                        : "bg-background border border-border hover:bg-secondary"
+                                        ? "bg-orange-600 dark:bg-orange-700 text-white hover:bg-orange-700 dark:hover:bg-orange-800 shadow-sm" 
+                                        : "bg-background/60 border border-border/40 hover:border-orange-400/60 hover:bg-orange-50/50 dark:hover:bg-orange-950/20 text-foreground/70 hover:text-foreground"
                                 )}
                             >
-                                {confirmResetDeck ? "Are you sure? Click to confirm." : "Reset Deck & Progress"}
+                                {confirmResetDeck ? "Confirm Reset" : "Reset Deck"}
                             </button>
                         </div>
 
-                        {/* Hard Reset Account */}
-                        <div className="p-4 md:p-6 border border-destructive/20 bg-destructive/5 rounded-lg space-y-4">
-                            <div className="flex items-start gap-3">
-                                <Skull className="text-destructive shrink-0" size={20} />
-                                <div>
-                                    <h4 className="text-sm font-bold text-destructive uppercase tracking-wide">Hard Reset Account</h4>
-                                    <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
-                                        <span className="text-destructive font-medium">Warning:</span> This will permanently wipe <strong>ALL</strong> data associated with your user: Cards (all languages), History, XP, Points, and Settings. Your username will be kept.
+                        {/* Hard Reset - Refined, serious tone */}
+                        <div className="space-y-6 pt-8">
+                            <div className="flex items-start gap-4 pb-6 border-b border-destructive/20">
+                                <div className="mt-1">
+                                    <div className="w-10 h-10 rounded-full bg-red-100 dark:bg-red-950/30 flex items-center justify-center">
+                                        <Skull className="text-red-700 dark:text-red-400" size={18} strokeWidth={1.5} />
+                                    </div>
+                                </div>
+                                <div className="flex-1 space-y-3">
+                                    <h4 className="font-serif text-lg font-normal tracking-tight text-destructive">Complete Account Reset</h4>
+                                    <p className="text-sm leading-relaxed text-muted-foreground/80 font-light">
+                                        This permanently removes all data: cards across all languages, study history, experience points, and settings. Your username remains unchanged. <strong className="text-foreground/90">This cannot be undone.</strong>
                                     </p>
                                 </div>
                             </div>
                             <button 
                                 onClick={handleResetAccount}
                                 className={clsx(
-                                    "w-full py-3 text-xs font-mono uppercase tracking-widest transition-all rounded",
+                                    "w-full py-4 text-sm font-serif tracking-wide transition-all duration-200",
                                     confirmResetAccount 
-                                        ? "bg-destructive text-destructive-foreground hover:bg-destructive/90" 
-                                        : "bg-background border border-destructive/30 text-destructive hover:bg-destructive hover:text-destructive-foreground"
+                                        ? "bg-destructive text-destructive-foreground hover:bg-destructive/90 shadow-sm" 
+                                        : "bg-background/60 border border-destructive/30 text-destructive/80 hover:bg-red-50/50 dark:hover:bg-red-950/20 hover:border-destructive/60 hover:text-destructive"
                                 )}
                             >
-                                {confirmResetAccount ? "ABSOLUTELY SURE? CLICK TO WIPE." : "Hard Reset Account"}
+                                {confirmResetAccount ? "Confirm Complete Reset" : "Reset Everything"}
                             </button>
                         </div>
                     </div>
                 )}
             </div>
 
-            {/* Footer Actions */}
-            <div className="p-4 md:p-6 border-t border-border bg-background flex justify-between items-center gap-4 shrink-0 flex-wrap">
+            {/* Refined Footer */}
+            <div className="px-6 py-5 md:px-16 md:py-6 border-t border-border/30 bg-linear-to-t from-background/40 to-transparent flex justify-between items-center gap-4 shrink-0 flex-wrap backdrop-blur-sm">
                 <button 
                     onClick={() => {
                         onClose();
                         signOut();
                     }}
-                    className="text-xs font-mono uppercase tracking-wider text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/10 px-3 py-2 rounded-md transition-colors flex items-center gap-2"
+                    className="text-xs font-serif tracking-wide text-red-600/70 dark:text-red-400/70 hover:text-red-600 dark:hover:text-red-400 px-3 py-2 transition-colors flex items-center gap-2 group"
                 >
-                    <LogOut size={16} />
-                    <span className="hidden sm:inline">Log Out</span>
+                    <LogOut size={14} strokeWidth={1.5} className="group-hover:-translate-x-0.5 transition-transform" />
+                    <span className="hidden sm:inline">Sign Out</span>
                 </button>
-                <div className="flex gap-4 ml-auto">
+                <div className="flex gap-3 ml-auto">
                     <button 
                         onClick={onClose} 
-                        className="text-xs font-mono uppercase tracking-wider text-muted-foreground hover:text-foreground px-4 py-2 transition-colors"
+                        className="text-sm font-serif tracking-wide text-muted-foreground/70 hover:text-foreground px-5 py-2.5 transition-colors"
                     >
                         Cancel
                     </button>
                     <button 
                         onClick={handleSave} 
-                        className="bg-foreground text-background px-6 py-2 text-sm font-medium rounded hover:opacity-90 transition-opacity"
+                        className="bg-terracotta/90 hover:bg-terracotta text-white px-8 py-2.5 text-sm rounded-sm font-light tracking-wide transition-all"
                     >
-                        Save
+                        Save Changes
                     </button>
                 </div>
             </div>

@@ -1,18 +1,5 @@
-import { supabase } from '@/lib/supabase';
+import { aiService } from '@/features/deck/services/ai';
 import { Card, Difficulty, Language } from '@/types';
-
-interface GeneratedCard {
-    targetSentence: string;
-    nativeTranslation: string;
-    targetWord: string;
-    notes: string;
-    furigana?: string;
-    language: Language;
-    status: string;
-    interval: number;
-    easeFactor: number;
-    tags: string[];
-}
 
 export interface GenerateInitialDeckOptions {
     language: Language;
@@ -21,29 +8,35 @@ export interface GenerateInitialDeckOptions {
 }
 
 /**
- * Generate a personalized initial deck of 50 cards using Gemini AI
+ * Generate a personalized initial deck using Gemini AI via aiService
+ * Uses client-side logic to call the 'generate-card' function indirectly
  */
 export async function generateInitialDeck(options: GenerateInitialDeckOptions): Promise<Card[]> {
+    if (!options.apiKey) {
+        throw new Error('API Key is required for AI deck generation');
+    }
+
     try {
-        const { data, error } = await supabase.functions.invoke('generate-initial-deck', {
-            body: {
-                language: options.language,
-                proficiencyLevel: options.proficiencyLevel,
-                apiKey: options.apiKey,
-            },
+        // Use aiService.generateBatchCards which uses the existing 'generate-card' edge function
+        // We define a broad topic suitable for the user's level
+        const topic = `Essential daily life phrases, greetings, and basic survival vocabulary for ${options.proficiencyLevel} level`;
+
+        // We request 20 cards to ensure the AI response fits within timeouts/token limits
+        // (50 cards often causes JSON parsing errors due to length)
+        const generatedData = await aiService.generateBatchCards({
+            language: options.language,
+            difficulty: options.proficiencyLevel,
+            topic: topic,
+            count: 20, 
+            apiKey: options.apiKey,
         });
 
-        if (error) {
-            console.error('Error generating initial deck:', error);
-            throw new Error('Failed to generate deck. Please check your API key and try again.');
+        if (!generatedData || !Array.isArray(generatedData)) {
+            throw new Error('Invalid response format from AI service');
         }
 
-        if (!data.cards || !Array.isArray(data.cards)) {
-            throw new Error('Invalid response from deck generation service');
-        }
-
-        // Convert generated cards to full Card objects
-        const cards: Card[] = data.cards.map((card: GeneratedCard) => ({
+        // Convert raw AI response to full Card objects
+        const cards: Card[] = generatedData.map((card: any) => ({
             id: crypto.randomUUID(),
             targetSentence: card.targetSentence,
             nativeTranslation: card.nativeTranslation,
@@ -55,12 +48,12 @@ export async function generateInitialDeck(options: GenerateInitialDeckOptions): 
             interval: 0,
             easeFactor: 2.5,
             dueDate: new Date().toISOString(),
-            tags: [options.proficiencyLevel],
+            tags: [options.proficiencyLevel, 'Starter', 'AI-Gen'],
         }));
 
         return cards;
     } catch (error: any) {
         console.error('Failed to generate initial deck:', error);
-        throw error;
+        throw new Error(error.message || 'Failed to generate deck via AI service');
     }
 }

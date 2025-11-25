@@ -1,7 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { Dashboard } from '@/features/dashboard/components/Dashboard';
+import { Dashboard }from '@/features/dashboard/components/Dashboard';
 import { useDeck } from '@/contexts/DeckContext';
 import { useSettings } from '@/contexts/SettingsContext';
 import { getDashboardStats } from '@/services/db/repositories/statsRepository';
@@ -30,15 +30,31 @@ export const DashboardRoute: React.FC = () => {
     );
   }
 
+  // Transform counts to include total and rename graduated to reviewing
+  const metrics = {
+    total: dashboardStats.counts.new + dashboardStats.counts.learning + dashboardStats.counts.graduated + dashboardStats.counts.known,
+    new: dashboardStats.counts.new,
+    learning: dashboardStats.counts.learning,
+    reviewing: dashboardStats.counts.graduated, // Graduated is the reviewing state
+    known: dashboardStats.counts.known,
+  };
+
+  // Calculate level from XP (100 * (level - 1)^2)
+  const xp = dashboardStats.languageXp;
+  const level = Math.floor(Math.sqrt(xp / 100)) + 1;
+
+  // Get forecast for today (first item in forecast array)
+  const forecastToday = dashboardStats.forecast[0]?.count || 0;
+
   return (
     <Dashboard 
-      metrics={dashboardStats.counts}
-      forecast={dashboardStats.forecast}
-      languageXp={dashboardStats.languageXp}
+      metrics={metrics}
+      forecast={forecastToday}
+      languageXp={{ xp, level }}
       stats={stats}
       history={history}
       onStartSession={() => navigate('/study')}
-      cards={cards}
+      cards={cards as any} // Type assertion for now since cards query needs proper typing
     />
   );
 };

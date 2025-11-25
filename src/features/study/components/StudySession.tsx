@@ -155,14 +155,17 @@ export const StudySession: React.FC<StudySessionProps> = ({
 
   if (sessionComplete) {
     return (
-      <div className="fixed inset-0 bg-background flex flex-col items-center justify-center animate-in fade-in duration-700">
-        <div className="text-center space-y-12">
-          <div className="space-y-4">
-             <h2 className="text-5xl md:text-8xl font-thin tracking-tighter">Session Clear</h2>
-             <p className="text-xs font-mono uppercase tracking-[0.3em] text-muted-foreground">All cards reviewed</p>
+      <div className="fixed inset-0 bg-background flex flex-col items-center justify-center animate-in fade-in duration-1000">
+        <div className="text-center space-y-16 px-6">
+          <div className="space-y-6">
+             <h2 className="text-6xl md:text-8xl font-serif font-extralight tracking-tight text-foreground/90">Session Complete</h2>
+             <p className="text-xs font-sans font-light uppercase tracking-[0.25em] text-muted-foreground/60">All cards reviewed</p>
           </div>
-          <button onClick={() => onComplete ? onComplete() : onExit()} className="group relative px-8 py-4 bg-transparent hover:bg-primary/5 border border-border hover:border-primary transition-all rounded text-sm font-mono uppercase tracking-widest">
-            <span className="relative z-10 group-hover:text-primary transition-colors">Finish & Claim</span>
+          <button 
+            onClick={() => onComplete ? onComplete() : onExit()} 
+            className="group relative px-10 py-5 bg-transparent hover:bg-primary/5 border border-border/60 hover:border-primary/40 transition-all duration-500 rounded-2xl"
+          >
+            <span className="relative z-10 text-sm font-sans font-light uppercase tracking-[0.2em] text-foreground/70 group-hover:text-primary/90 transition-colors duration-500">Continue</span>
           </button>
         </div>
       </div>
@@ -172,74 +175,119 @@ export const StudySession: React.FC<StudySessionProps> = ({
   if (!currentCard) return null;
 
   return (
-    <div className="fixed inset-0 z-50 bg-background flex flex-col overflow-hidden font-sans selection:bg-primary/10">
+    <div className="fixed inset-0 z-50 bg-background flex flex-col overflow-hidden selection:bg-primary/10">
       
-      {/* 1. Ultra-Minimal Progress Line */}
-      <div className="h-px w-full bg-foreground/5">
-        <div className="h-full w-full bg-foreground transition-transform duration-500 ease-out origin-left" style={{ transform: `scaleX(${progress / 100})` }} />
+      {/* Elegant progress indicator */}
+      <div className="h-0.5 w-full bg-muted/30">
+        <div 
+          className="h-full w-full bg-linear-to-r from-primary/60 via-primary/80 to-primary/60 transition-all duration-700 ease-out origin-left shadow-sm" 
+          style={{ transform: `scaleX(${progress / 100})` }} 
+        />
       </div>
 
-      {/* 2. Heads-Up Display (HUD) */}
-      <header className="h-16 px-6 md:px-12 flex justify-between items-center select-none shrink-0 pt-[env(safe-area-inset-top)]">
+      {/* Minimal header with refined typography */}
+      <header className="h-16 md:h-20 px-4 md:px-16 flex justify-between items-center select-none shrink-0 pt-[env(safe-area-inset-top)] gap-2">
          
-         {/* Queue Stats (Left) */}
-         <div className="flex items-center gap-3 md:gap-6 text-[10px] font-mono uppercase tracking-widest text-muted-foreground/60">
-            <div className={clsx("flex items-center gap-1.5 transition-all duration-300", currentStatus?.label === 'NEW' ? "text-blue-500 opacity-100 font-medium scale-105" : (counts.unseen > 0 ? "text-grey" : "text-muted-foreground/80 opacity-80"))}>
-                <span className={clsx("w-1 h-1 rounded-full bg-current", currentStatus?.label === 'NEW' && "animate-pulse")} />
+         {/* Queue statistics - refined presentation */}
+         <div className="flex items-center gap-2 sm:gap-3 md:gap-8 text-[9px] font-sans font-light uppercase tracking-[0.2em] text-muted-foreground/70">
+            <div className={clsx(
+              "flex items-center gap-1.5 sm:gap-2 transition-all duration-500",
+              currentStatus?.label === 'NEW' 
+                ? "text-blue-500/90 opacity-100 font-normal scale-105" 
+                : (counts.unseen > 0 ? "text-muted-foreground/80" : "opacity-60")
+            )}>
+                <span className={clsx(
+                  "w-1.5 h-1.5 rounded-full bg-current",
+                  currentStatus?.label === 'NEW' && "animate-pulse shadow-sm shadow-current"
+                )} />
                 <span className="hidden sm:inline">New</span>
-                <span>{counts.unseen}</span>
+                <span className="font-medium">{counts.unseen}</span>
             </div>
-            <div className={clsx("flex items-center gap-1.5 transition-all duration-300", currentStatus?.label === 'LRN' ? "text-orange-500 opacity-100 font-medium scale-105" : (counts.learning > 0 ? "text-grey" : "text-muted-foreground/80 opacity-80"))}>
-                <span className={clsx("w-1 h-1 rounded-full bg-current", currentStatus?.label === 'LRN' && "animate-pulse")} />
-                <span className="hidden sm:inline">Lrn</span>
-                <span>{counts.learning}</span>
+            <div className={clsx(
+              "flex items-center gap-1.5 sm:gap-2 transition-all duration-500",
+              currentStatus?.label === 'LRN' 
+                ? "text-orange-500/90 opacity-100 font-normal scale-105" 
+                : (counts.learning > 0 ? "text-muted-foreground/80" : "opacity-60")
+            )}>
+                <span className={clsx(
+                  "w-1.5 h-1.5 rounded-full bg-current",
+                  currentStatus?.label === 'LRN' && "animate-pulse shadow-sm shadow-current"
+                )} />
+                <span className="hidden sm:inline">Learning</span>
+                <span className="font-medium">{counts.learning}</span>
             </div>
-            <div className={clsx("flex items-center gap-1.5 transition-all duration-300", currentStatus?.label === 'LAPSE' ? "text-red-500 opacity-100 font-medium scale-105" : (counts.lapse > 0 ? "text-grey" : "text-muted-foreground/80 opacity-80"))}>
-                <span className={clsx("w-1 h-1 rounded-full bg-current", currentStatus?.label === 'LAPSE' && "animate-pulse")} />
-                <span className="hidden sm:inline">Lapse</span>
-                <span>{counts.lapse}</span>
+            <div className={clsx(
+              "flex items-center gap-1.5 sm:gap-2 transition-all duration-500",
+              currentStatus?.label === 'LAPSE' 
+                ? "text-red-500/90 opacity-100 font-normal scale-105" 
+                : (counts.lapse > 0 ? "text-muted-foreground/80" : "opacity-60")
+            )}>
+                <span className={clsx(
+                  "w-1.5 h-1.5 rounded-full bg-current",
+                  currentStatus?.label === 'LAPSE' && "animate-pulse shadow-sm shadow-current"
+                )} />
+                <span className="hidden sm:inline">Review</span>
+                <span className="font-medium">{counts.lapse}</span>
             </div>
-            <div className={clsx("flex items-center gap-1.5 transition-all duration-300", currentStatus?.label === 'REV' ? "text-green-500 opacity-100 font-medium scale-105" : (counts.mature > 0 ? "text-grey" : "text-muted-foreground/80 opacity-80"))}>
-                <span className={clsx("w-1 h-1 rounded-full bg-current", currentStatus?.label === 'REV' && "animate-pulse")} />
-                <span className="hidden sm:inline">Rev</span>
-                <span>{counts.mature}</span>
+            <div className={clsx(
+              "flex items-center gap-1.5 sm:gap-2 transition-all duration-500",
+              currentStatus?.label === 'REV' 
+                ? "text-green-500/90 opacity-100 font-normal scale-105" 
+                : (counts.mature > 0 ? "text-muted-foreground/80" : "opacity-60")
+            )}>
+                <span className={clsx(
+                  "w-1.5 h-1.5 rounded-full bg-current",
+                  currentStatus?.label === 'REV' && "animate-pulse shadow-sm shadow-current"
+                )} />
+                <span className="hidden sm:inline">Mature</span>
+                <span className="font-medium">{counts.mature}</span>
             </div>
          </div>
 
-         {/* Meta & Tools (Right) */}
-         <div className="flex items-center gap-6 md:gap-8">
-            <div className="flex flex-col items-end">
-                <div className="flex items-center gap-2 text-xs font-mono tracking-widest text-muted-foreground">
-                    <span>{sessionXp} XP</span>
+         {/* Meta info and controls - minimal and refined */}
+         <div className="flex items-center gap-2 sm:gap-4 md:gap-10">
+            <div className="hidden sm:flex flex-col items-end">
+                <div className="flex items-center gap-2.5 text-xs font-sans font-light tracking-wide text-muted-foreground/85">
+                    <span>{sessionXp} <span className="text-[10px] uppercase tracking-wider">XP</span></span>
                     {multiplierInfo.value > 1.0 && (
-                        <span className="text-[9px] text-primary opacity-80">
-                            {multiplierInfo.value.toFixed(1)}x
+                        <span className="text-[9px] text-primary/85 font-medium">
+                            ×{multiplierInfo.value.toFixed(1)}
                         </span>
                     )}
                 </div>
             </div>
             
-            <div className="flex items-center gap-2 text-muted-foreground/40">
-                <button onClick={handleMarkKnown} disabled={isProcessing} className="p-2 hover:text-foreground transition-colors" title="Archive (K)">
-                    <Archive size={14} strokeWidth={1.5} />
+            <div className="flex items-center gap-1 sm:gap-2 md:gap-3 text-muted-foreground/50">
+                <button 
+                  onClick={handleMarkKnown} 
+                  disabled={isProcessing} 
+                  className="p-1.5 sm:p-2.5 hover:text-foreground/80 transition-all duration-500 rounded-lg hover:bg-muted/30" 
+                  title="Archive"
+                >
+                    <Archive size={14} className="sm:w-[15px] sm:h-[15px]" strokeWidth={1.5} />
                 </button>
                 {canUndo && (
-                    <button onClick={handleUndo} className="p-2 hover:text-foreground transition-colors" title="Undo (Z)">
-                        <Undo2 size={14} strokeWidth={1.5} />
+                    <button 
+                      onClick={handleUndo} 
+                      className="p-1.5 sm:p-2.5 hover:text-foreground/80 transition-all duration-500 rounded-lg hover:bg-muted/30" 
+                      title="Undo (Z)"
+                    >
+                        <Undo2 size={14} className="sm:w-[15px] sm:h-[15px]" strokeWidth={1.5} />
                     </button>
                 )}
-                <button onClick={onExit} className="p-2 hover:text-destructive transition-colors" title="Exit (Esc)">
-                    <X size={14} strokeWidth={1.5} />
+                <button 
+                  onClick={onExit} 
+                  className="p-1.5 sm:p-2.5 hover:text-destructive/70 transition-all duration-500 rounded-lg hover:bg-destructive/5" 
+                  title="Exit (Esc)"
+                >
+                    <X size={14} className="sm:w-[15px] sm:h-[15px]" strokeWidth={1.5} />
                 </button>
             </div>
          </div>
       </header>
 
-      {/* 3. The Stage (Flashcard) */}
-      <main className="flex-1 w-full relative flex flex-col items-center justify-center">
-         
-         {/* Status Indicator Removed - Integrated into Header Stats */}
-
+      {/* Central focus area - generous whitespace */}
+      <main className="flex-1 w-full relative flex flex-col items-center justify-center py-8">
          <StudyFeedback feedback={feedback} />
          
          <Flashcard 
@@ -252,22 +300,22 @@ export const StudySession: React.FC<StudySessionProps> = ({
           />
       </main>
 
-      {/* 4. Disciplined Controls (Bottom) */}
+      {/* Refined answer controls */}
       <footer className="shrink-0 pb-[env(safe-area-inset-bottom)]">
-        <div className="h-20 md:h-24 w-full max-w-3xl mx-auto px-6">
+        <div className="h-24 md:h-28 w-full max-w-4xl mx-auto px-8 md:px-16">
           {!isFlipped ? (
                <button 
                 onClick={() => setIsFlipped(true)}
                 disabled={isProcessing}
                 className="w-full h-full flex items-center justify-center group"
                >
-                <span className="text-[10px] font-mono uppercase tracking-[0.3em] text-muted-foreground/30 group-hover:text-foreground/60 transition-colors duration-500">
-                    Tap to Reveal
+                <span className="text-[10px] font-sans font-light uppercase tracking-[0.25em] text-muted-foreground/30 group-hover:text-foreground/50 transition-colors duration-700">
+                    Show Answer
                 </span>
                </button>
           ) : (
               settings.binaryRatingMode ? (
-                  <div className="grid grid-cols-2 h-full w-full gap-4 md:gap-12 items-center">
+                  <div className="grid grid-cols-2 h-full w-full gap-6 md:gap-16 items-center">
                       <AnswerButton 
                           label="Again" 
                           shortcut="1" 
@@ -277,14 +325,14 @@ export const StudySession: React.FC<StudySessionProps> = ({
                       />
                       <AnswerButton 
                           label="Good" 
-                          shortcut="Spc" 
+                          shortcut="Space" 
                           intent="success"
                           onClick={() => handleGrade('Good')} 
                           disabled={isProcessing} 
                       />
                   </div>
               ) : (
-                  <div className="grid grid-cols-4 h-full w-full gap-2 md:gap-4 items-center">
+                  <div className="grid grid-cols-4 h-full w-full gap-3 md:gap-6 items-center">
                       <AnswerButton 
                           label="Again" 
                           shortcut="1" 
@@ -330,34 +378,44 @@ const AnswerButton = React.memo(({ label, shortcut, intent, onClick, disabled }:
     disabled: boolean;
 }) => {
     const colorMap = {
-        danger: 'text-red-500',
-        warning: 'text-orange-500',
-        success: 'text-emerald-500',
-        info: 'text-blue-500'
+        danger: 'text-red-500/70',
+        warning: 'text-orange-500/70',
+        success: 'text-emerald-500/70',
+        info: 'text-blue-500/70'
+    };
+    
+    const hoverColorMap = {
+        danger: 'group-hover:text-red-500',
+        warning: 'group-hover:text-orange-500',
+        success: 'group-hover:text-emerald-500',
+        info: 'group-hover:text-blue-500'
     };
     
     const textColor = colorMap[intent];
+    const hoverColor = hoverColorMap[intent];
 
     return (
         <button 
             onClick={onClick}
             disabled={disabled}
             className={clsx(
-                "group relative flex flex-col items-center justify-center h-full w-full outline-none select-none transition-all duration-300",
+                "group relative flex flex-col items-center justify-center h-full w-full outline-none select-none transition-all duration-500",
+                "rounded-2xl hover:bg-muted/20",
                 disabled && "opacity-20 cursor-not-allowed"
             )}
         >
             {/* Label */}
             <span className={clsx(
-                "text-xs md:text-sm font-mono uppercase tracking-[0.25em] transition-all duration-300",
-                "text-muted-foreground group-hover:scale-110",
-                `group-hover:${textColor}`
+                "text-sm md:text-base font-sans font-light uppercase tracking-[0.2em] transition-all duration-500",
+                textColor,
+                hoverColor,
+                "group-hover:scale-110"
             )}>
                 {label}
             </span>
 
-            {/* Shortcut Hint */}
-            <span className="absolute -bottom-4 text-[9px] font-mono text-muted-foreground/20 opacity-0 group-hover:opacity-100 transition-all duration-300 group-hover:bottom-2">
+            {/* Shortcut hint */}
+            <span className="absolute bottom-0 text-[8px] font-sans font-light text-muted-foreground/20 opacity-0 group-hover:opacity-60 transition-all duration-500 group-hover:bottom-3 tracking-wider">
                 {shortcut}
             </span>
         </button>

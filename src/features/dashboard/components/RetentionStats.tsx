@@ -80,8 +80,9 @@ export const RetentionStats: React.FC<RetentionStatsProps> = ({ cards }) => {
   const CustomTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
       return (
-        <div className="bg-foreground text-background text-[10px] font-mono uppercase tracking-wider px-3 py-2 shadow-xl border-none">
-          <span className="opacity-70">{label}:</span> <span className="font-bold">{payload[0].value}</span>
+        <div className="bg-foreground text-background px-4 py-3">
+          <div className="text-[9px] font-mono uppercase tracking-[0.2em] opacity-50">{label}</div>
+          <div className="text-sm font-normal tabular-nums mt-1">{payload[0].value}</div>
         </div>
       );
     }
@@ -89,25 +90,25 @@ export const RetentionStats: React.FC<RetentionStatsProps> = ({ cards }) => {
   };
 
   if (!cards || cards.length === 0) {
-    return <div className="text-xs font-mono text-muted-foreground uppercase tracking-widest">No data available</div>;
+    return <div className="text-[9px] font-mono text-muted-foreground/50 uppercase tracking-[0.25em]">No data available</div>;
   }
 
   return (
     <>
         {/* Forecast Chart */}
-        <div className="flex flex-col h-64">
-            <div className="flex items-baseline justify-between mb-8">
-                <h3 className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground">Workload Forecast</h3>
-                <div className="flex gap-4">
+        <div className="flex flex-col h-56 md:h-64 min-w-0 w-full">
+            <div className="flex items-baseline justify-between mb-8 md:mb-10 min-w-0 gap-2">
+                <h3 className="text-[9px] font-mono uppercase tracking-[0.25em] text-muted-foreground/50 truncate">Workload Forecast</h3>
+                <div className="flex gap-4 md:gap-6 shrink-0">
                     {(['7d', '1m', '1y'] as const).map((range) => (
                         <button
                             key={range}
                             onClick={() => setForecastRange(range)}
                             className={clsx(
-                                "text-[10px] font-mono uppercase tracking-widest transition-colors",
+                                "text-[9px] font-mono uppercase tracking-[0.2em] transition-all pb-1",
                                 forecastRange === range 
-                                    ? "text-foreground border-b border-foreground" 
-                                    : "text-muted-foreground hover:text-foreground"
+                                    ? "text-foreground border-b-2 border-foreground" 
+                                    : "text-muted-foreground/40 hover:text-muted-foreground"
                             )}
                         >
                             {range}
@@ -116,21 +117,21 @@ export const RetentionStats: React.FC<RetentionStatsProps> = ({ cards }) => {
                 </div>
             </div>
             
-            <div className="flex-1 w-full">
+            <div className="flex-1 w-full min-w-0 overflow-hidden">
                 <ResponsiveContainer width="100%" height="100%">
                     <BarChart data={forecastData} margin={{ top: 0, right: 0, left: -20, bottom: 0 }}>
                         <XAxis 
                             dataKey="label" 
-                            tick={{ fontSize: 10, fill: colors.mutedForeground, fontFamily: 'monospace' }} 
+                            tick={{ fontSize: 9, fill: colors.mutedForeground, fontFamily: 'monospace', opacity: 0.5 }} 
                             axisLine={false}
                             tickLine={false}
                             interval={forecastRange === '1m' ? 2 : 0}
-                            dy={10}
+                            dy={12}
                         />
-                        <Tooltip content={<CustomTooltip />} cursor={{ fill: colors.muted, opacity: 0.1 }} />
-                        <Bar dataKey="count" radius={[0, 0, 0, 0]}>
+                        <Tooltip content={<CustomTooltip />} cursor={{ fill: colors.foreground, opacity: 0.05 }} />
+                        <Bar dataKey="count" radius={[0, 0, 0, 0]} maxBarSize={28}>
                             {forecastData.map((entry, index) => (
-                                <Cell key={`cell-${index}`} fill={colors.foreground} fillOpacity={0.8} />
+                                <Cell key={`cell-${index}`} fill={colors.foreground} fillOpacity={0.7} />
                             ))}
                         </Bar>
                     </BarChart>
@@ -139,29 +140,29 @@ export const RetentionStats: React.FC<RetentionStatsProps> = ({ cards }) => {
         </div>
 
         {/* Stability Chart */}
-        <div className="flex flex-col h-64">
-            <div className="flex items-baseline justify-between mb-8">
-                <h3 className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground">Memory Stability</h3>
-                <div className="text-[10px] font-mono text-muted-foreground uppercase tracking-widest">
+        <div className="flex flex-col h-56 md:h-64 min-w-0 w-full">
+            <div className="flex flex-col sm:flex-row items-start sm:items-baseline justify-between mb-8 md:mb-10 min-w-0 gap-2">
+                <h3 className="text-[9px] font-mono uppercase tracking-[0.25em] text-muted-foreground/50 truncate">Memory Stability</h3>
+                <div className="text-[9px] font-mono text-muted-foreground/40 uppercase tracking-[0.2em] shrink-0">
                     Retention Interval
                 </div>
             </div>
             
-            <div className="flex-1 w-full">
+            <div className="flex-1 w-full min-w-0 overflow-hidden">
                 <ResponsiveContainer width="100%" height="100%">
                     <BarChart data={stabilityData} margin={{ top: 0, right: 0, left: -20, bottom: 0 }}>
                         <XAxis 
                             dataKey="label" 
-                            tick={{ fontSize: 10, fill: colors.mutedForeground, fontFamily: 'monospace' }} 
+                            tick={{ fontSize: 9, fill: colors.mutedForeground, fontFamily: 'monospace', opacity: 0.5 }} 
                             axisLine={false}
                             tickLine={false}
                             interval={0}
-                            dy={10}
+                            dy={12}
                         />
-                        <Tooltip content={<CustomTooltip />} cursor={{ fill: colors.muted, opacity: 0.1 }} />
-                        <Bar dataKey="count" radius={[0, 0, 0, 0]}>
+                        <Tooltip content={<CustomTooltip />} cursor={{ fill: colors.foreground, opacity: 0.05 }} />
+                        <Bar dataKey="count" radius={[0, 0, 0, 0]} maxBarSize={28}>
                              {stabilityData.map((entry, index) => (
-                                <Cell key={`cell-${index}`} fill={colors.foreground} fillOpacity={0.5 + (index * 0.05)} />
+                                <Cell key={`cell-${index}`} fill={colors.foreground} fillOpacity={0.4 + (index * 0.07)} />
                             ))}
                         </Bar>
                     </BarChart>

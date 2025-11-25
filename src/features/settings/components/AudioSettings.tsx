@@ -17,7 +17,6 @@ interface AudioSettingsProps {
   onTestAudio: () => void;
 }
 
-// ...existing code...
 export const AudioSettings: React.FC<AudioSettingsProps> = ({
   localSettings,
   setLocalSettings,
@@ -28,88 +27,100 @@ export const AudioSettings: React.FC<AudioSettingsProps> = ({
     setLocalSettings((prev) => ({ ...prev, tts: { ...prev.tts, ...partial } }));
 
   return (
-    <div className="space-y-16 max-w-xl">
-      <section className="space-y-8">
-        <div className="space-y-4">
-            <MetaLabel className="text-xs">Provider</MetaLabel>
+    <div className="space-y-20 max-w-2xl">
+      <section className="space-y-6">
+        <div className="pb-4 border-b border-border/20">
+            <h3 className="font-serif text-xl font-light tracking-tight text-foreground/90">Speech Provider</h3>
+        </div>
+        <div className="space-y-3 pl-1">
             <EditorialSelect
                 value={localSettings.tts.provider}
                 onChange={(value) => updateTts({ provider: value as any, voiceURI: null })}
                 options={[
                     { value: 'browser', label: 'Browser Native' },
-                    { value: 'google', label: 'Google Cloud' },
+                    { value: 'google', label: 'Google Cloud TTS' },
                     { value: 'azure', label: 'Microsoft Azure' },
                 ]}
-                className="border-x-0 border-t-0 border-b border-border/40 rounded-none px-0 py-3 h-auto font-mono text-sm"
+                className="border-0 border-b border-border/30 rounded-none px-0 py-3 h-auto font-serif text-base bg-transparent focus-visible:border-terracotta/60 font-light"
             />
         </div>
 
         {localSettings.tts.provider !== 'browser' && (
-            <div className="space-y-4 animate-in fade-in slide-in-from-top-2 duration-300">
-                <MetaLabel className="text-xs">API Credentials</MetaLabel>
-                <EditorialInput
-                    type="password"
-                    placeholder={localSettings.tts.provider === 'google' ? "GOOGLE API KEY" : "AZURE KEY"}
-                    value={localSettings.tts.provider === 'google' ? localSettings.tts.googleApiKey : localSettings.tts.azureApiKey}
-                    onChange={(e) => updateTts(localSettings.tts.provider === 'google' ? { googleApiKey: e.target.value } : { azureApiKey: e.target.value })}
-                    className="font-mono text-xs bg-transparent border-x-0 border-t-0 border-b border-border/40 rounded-none px-0 py-3 placeholder:text-muted-foreground/20"
-                />
-                {localSettings.tts.provider === 'azure' && (
-                     <EditorialInput
-                        placeholder="REGION (e.g. eastus)"
-                        value={localSettings.tts.azureRegion}
-                        onChange={(e) => updateTts({ azureRegion: e.target.value })}
-                        className="font-mono text-xs bg-transparent border-x-0 border-t-0 border-b border-border/40 rounded-none px-0 py-3 placeholder:text-muted-foreground/20"
+            <div className="space-y-6 pl-1 pt-4 animate-in fade-in slide-in-from-top-2 duration-300">
+                <div className="space-y-3">
+                    <label className="text-sm font-serif text-muted-foreground/80 font-light">API Credentials</label>
+                    <EditorialInput
+                        type="password"
+                        placeholder={localSettings.tts.provider === 'google' ? "Google Cloud API key" : "Azure subscription key"}
+                        value={localSettings.tts.provider === 'google' ? localSettings.tts.googleApiKey : localSettings.tts.azureApiKey}
+                        onChange={(e) => updateTts(localSettings.tts.provider === 'google' ? { googleApiKey: e.target.value } : { azureApiKey: e.target.value })}
+                        className="font-mono text-sm bg-transparent border-0 border-b border-border/30 rounded-none px-0 py-3 placeholder:text-muted-foreground/30 focus-visible:border-terracotta/60"
                     />
+                </div>
+                {localSettings.tts.provider === 'azure' && (
+                     <div className="space-y-3">
+                        <label className="text-sm font-serif text-muted-foreground/80 font-light">Region</label>
+                        <EditorialInput
+                            placeholder="e.g., eastus, westeurope"
+                            value={localSettings.tts.azureRegion}
+                            onChange={(e) => updateTts({ azureRegion: e.target.value })}
+                            className="font-mono text-sm bg-transparent border-0 border-b border-border/30 rounded-none px-0 py-3 placeholder:text-muted-foreground/30 focus-visible:border-terracotta/60"
+                        />
+                    </div>
                 )}
             </div>
         )}
       </section>
 
-      <section className="space-y-8">
-        <div className="space-y-4">
-            <div className="flex justify-between items-baseline">
-                <MetaLabel className="mb-0 text-xs">Voice Model</MetaLabel>
-                <Button 
-                    variant="ghost" 
-                    size="sm"
-                    onClick={onTestAudio}
-                    className="text-[10px] font-mono uppercase tracking-widest text-foreground/60 hover:text-foreground h-auto px-2 py-1 hover:bg-transparent"
-                >
-                    <Volume2 size={12} className="mr-2" /> Test
-                </Button>
-            </div>
+      <section className="space-y-6">
+        <div className="flex items-baseline justify-between pb-4 border-b border-border/20">
+            <h3 className="font-serif text-xl font-light tracking-tight text-foreground/90">Voice Selection</h3>
+            <Button 
+                variant="ghost" 
+                size="sm"
+                onClick={onTestAudio}
+                className="text-xs font-serif tracking-wide text-terracotta/70 hover:text-terracotta h-auto px-3 py-1.5 hover:bg-terracotta/5 transition-colors"
+            >
+                <Volume2 size={14} strokeWidth={1.5} className="mr-2" /> Test Voice
+            </Button>
+        </div>
+        <div className="space-y-3 pl-1">
             <EditorialSelect
                 value={localSettings.tts.voiceURI || 'default'}
                 onChange={(value) => updateTts({ voiceURI: value === 'default' ? null : value })}
                 options={[{ value: 'default', label: 'System Default' }, ...availableVoices.map(v => ({ value: v.id, label: v.name }))]}
-                className="border-x-0 border-t-0 border-b border-border/40 rounded-none px-0 py-3 h-auto font-mono text-sm"
+                className="border-0 border-b border-border/30 rounded-none px-0 py-3 h-auto font-serif text-base bg-transparent focus-visible:border-terracotta/60 font-light"
             />
         </div>
+      </section>
 
-        <div className="grid grid-cols-2 gap-16 pt-4">
-            <div className="space-y-6">
-                <div className="flex justify-between">
-                    <MetaLabel className="mb-0 text-xs">Speed</MetaLabel>
-                    <span className="text-xs font-mono text-muted-foreground">{localSettings.tts.rate.toFixed(1)}x</span>
+      <section className="space-y-8">
+        <div className="pb-4 border-b border-border/20">
+            <h3 className="font-serif text-xl font-light tracking-tight text-foreground/90">Playback</h3>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-12 pl-1">
+            <div className="space-y-5">
+                <div className="flex justify-between items-baseline">
+                    <label className="text-sm font-serif text-muted-foreground/80 font-light">Speed</label>
+                    <span className="text-2xl font-serif font-light tabular-nums text-foreground/70">{localSettings.tts.rate.toFixed(1)}<span className="text-sm text-muted-foreground/40">×</span></span>
                 </div>
                 <Slider
                     min={0.5} max={2} step={0.1}
                     value={[localSettings.tts.rate]}
                     onValueChange={([v]) => updateTts({ rate: v })}
-                    className="py-2"
+                    className="py-3"
                 />
             </div>
-            <div className="space-y-6">
-                <div className="flex justify-between">
-                    <MetaLabel className="mb-0 text-xs">Volume</MetaLabel>
-                    <span className="text-xs font-mono text-muted-foreground">{Math.round(localSettings.tts.volume * 100)}%</span>
+            <div className="space-y-5">
+                <div className="flex justify-between items-baseline">
+                    <label className="text-sm font-serif text-muted-foreground/80 font-light">Volume</label>
+                    <span className="text-2xl font-serif font-light tabular-nums text-foreground/70">{Math.round(localSettings.tts.volume * 100)}<span className="text-sm text-muted-foreground/40">%</span></span>
                 </div>
                 <Slider
                     min={0} max={1} step={0.1}
                     value={[localSettings.tts.volume]}
                     onValueChange={([v]) => updateTts({ volume: v })}
-                    className="py-2"
+                    className="py-3"
                 />
             </div>
         </div>

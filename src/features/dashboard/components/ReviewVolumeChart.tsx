@@ -12,10 +12,10 @@ export const ReviewVolumeChart: React.FC<ReviewVolumeChartProps> = ({ data }) =>
   const CustomTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
       return (
-        <div className="bg-background border border-border px-3 py-2 shadow-xl">
-          <div className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground mb-1">{payload[0].payload.date}</div>
-          <div className="text-sm font-medium">
-            <span className="font-mono">{payload[0].value}</span> reviews
+        <div className="bg-foreground text-background px-4 py-3">
+          <div className="text-[9px] font-mono uppercase tracking-[0.2em] opacity-50 mb-1">{payload[0].payload.date}</div>
+          <div className="text-sm font-normal tabular-nums">
+            {payload[0].value} reviews
           </div>
         </div>
       );
@@ -25,27 +25,27 @@ export const ReviewVolumeChart: React.FC<ReviewVolumeChartProps> = ({ data }) =>
 
   return (
     <div className="h-full w-full flex flex-col">
-      <div className="flex justify-between items-end mb-6">
-        <h3 className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground">30 Day Volume</h3>
+      <div className="flex justify-between items-end mb-8">
+        <h3 className="text-[9px] font-mono uppercase tracking-[0.25em] text-muted-foreground/50">30 Day Volume</h3>
       </div>
       <div className="flex-1 min-h-[150px]">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={data} margin={{ top: 0, right: 0, left: -20, bottom: 0 }}>
             <XAxis 
               dataKey="label" 
-              tick={{ fontSize: 9, fill: colors.mutedForeground, fontFamily: 'monospace' }} 
+              tick={{ fontSize: 9, fill: colors.mutedForeground, fontFamily: 'monospace', opacity: 0.5 }} 
               axisLine={false}
               tickLine={false}
               interval={2}
-              dy={10}
+              dy={12}
             />
-            <Tooltip content={<CustomTooltip />} cursor={{ fill: colors.muted, opacity: 0.2 }} />
-            <Bar dataKey="count" radius={[2, 2, 0, 0]} maxBarSize={40}>
+            <Tooltip content={<CustomTooltip />} cursor={{ fill: colors.foreground, opacity: 0.05 }} />
+            <Bar dataKey="count" radius={[0, 0, 0, 0]} maxBarSize={32}>
               {data.map((entry, index) => (
                 <Cell 
                   key={`cell-${index}`} 
                   fill={colors.foreground} 
-                  fillOpacity={entry.count === 0 ? 0.1 : 0.8}
+                  fillOpacity={entry.count === 0 ? 0.05 : 0.7}
                 />
               ))}
             </Bar>

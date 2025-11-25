@@ -24,103 +24,114 @@ export const GeneralSettings: React.FC<GeneralSettingsProps> = ({
   setUsername
 }) => {
   return (
-    <div className="space-y-16 max-w-xl">
-      {/* Profile Section */}
-      <section className="space-y-8">
-        <div className="space-y-4">
-            <div className="flex justify-between items-baseline">
-                <MetaLabel className="mb-0 text-xs">Identity</MetaLabel>
-                <span className="text-[10px] text-muted-foreground font-mono tracking-widest uppercase">Public</span>
-            </div>
-            <div className="space-y-2">
-                <Input 
-                    value={username}
-                    onChange={(e) => setUsername(e.target.value)}
-                    placeholder="USERNAME"
-                    className="font-mono text-sm bg-transparent border-x-0 border-t-0 border-b border-border/40 rounded-none px-0 focus-visible:ring-0 focus-visible:border-foreground h-auto py-3 placeholder:text-muted-foreground/20 transition-colors"
+    <div className="space-y-20 max-w-2xl">
+      {/* Profile Section - Editorial style */}
+      <section className="space-y-6">
+        <div className="flex items-baseline gap-4 pb-4 border-b border-border/20">
+            <h3 className="font-serif text-xl font-light tracking-tight text-foreground/90 flex-1">Identity</h3>
+            <span className="text-[10px] font-mono uppercase tracking-[0.15em] text-terracotta/60">Public</span>
+        </div>
+        <div className="space-y-3 pl-1">
+            <Input 
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                placeholder="Enter your display name"
+                className="font-serif text-base bg-transparent border-0 border-b border-border/30 rounded-none px-0 focus-visible:ring-0 focus-visible:border-terracotta/60 h-auto py-3 placeholder:text-muted-foreground/30 transition-colors font-light"
+            />
+            <p className="text-xs text-muted-foreground/60 leading-relaxed font-light pl-0.5">
+                Displayed on global leaderboards and achievements.
+            </p>
+        </div>
+      </section>
+
+      {/* Language Section - Warm and inviting */}
+      <section className="space-y-6">
+        <div className="flex items-baseline gap-4 pb-4 border-b border-border/20">
+            <h3 className="font-serif text-xl font-light tracking-tight text-foreground/90">Language</h3>
+        </div>
+        <div className="space-y-8 pl-1">
+            <div className="space-y-3">
+                <label className="text-sm font-serif text-muted-foreground/80 font-light">Active Course</label>
+                <EditorialSelect
+                    value={localSettings.language}
+                    onChange={(value) =>
+                        setLocalSettings((prev) => ({
+                        ...prev,
+                        language: value as UserSettings['language'],
+                        }))
+                    }
+                    options={Object.entries(LANGUAGE_NAMES).map(([key, label]) => ({
+                        value: key,
+                        label: label,
+                    }))}
+                    className="border-0 border-b border-border/30 rounded-none px-0 focus:ring-0 py-3 h-auto font-serif text-base bg-transparent focus-visible:border-terracotta/60 font-light"
                 />
-                <p className="text-[10px] text-muted-foreground/60">Visible on global leaderboards.</p>
             </div>
-        </div>
-      </section>
 
-      {/* Language Section */}
-      <section className="space-y-8">
-        <div className="space-y-4">
-            <MetaLabel className="text-xs">Active Course</MetaLabel>
-            <EditorialSelect
-                value={localSettings.language}
-                onChange={(value) =>
+            <div className="space-y-3">
+                 <ColorPicker
+                    label="Theme Accent"
+                    value={localSettings.languageColors?.[localSettings.language] || '0 0% 0%'}
+                    onChange={(newColor) =>
                     setLocalSettings((prev) => ({
-                    ...prev,
-                    language: value as UserSettings['language'],
+                        ...prev,
+                        languageColors: {
+                        ...(prev.languageColors || {}),
+                        [prev.language]: newColor,
+                        } as any,
                     }))
-                }
-                options={Object.entries(LANGUAGE_NAMES).map(([key, label]) => ({
-                    value: key,
-                    label: label,
-                }))}
-                className="border-x-0 border-t-0 border-b border-border/40 rounded-none px-0 focus:ring-0 py-3 h-auto font-mono text-sm"
-            />
-        </div>
-
-        <div className="space-y-4">
-             <ColorPicker
-                label="THEME ACCENT"
-                value={localSettings.languageColors?.[localSettings.language] || '0 0% 0%'}
-                onChange={(newColor) =>
-                setLocalSettings((prev) => ({
-                    ...prev,
-                    languageColors: {
-                    ...(prev.languageColors || {}),
-                    [prev.language]: newColor,
-                    } as any,
-                }))
-                }
-            />
+                    }
+                />
+            </div>
         </div>
       </section>
 
-      {/* API Section */}
-      <section className="space-y-8">
-         <div className="space-y-4">
-            <div className="flex justify-between items-baseline">
-                <MetaLabel className="mb-0 text-xs">Intelligence</MetaLabel>
-                <span className="text-[10px] text-muted-foreground font-mono tracking-widest uppercase">Gemini API</span>
-            </div>
+      {/* API Section - Professional and clean */}
+      <section className="space-y-6">
+        <div className="flex items-baseline gap-4 pb-4 border-b border-border/20">
+            <h3 className="font-serif text-xl font-light tracking-tight text-foreground/90 flex-1">AI Integration</h3>
+            <span className="text-[10px] font-mono uppercase tracking-[0.15em] text-muted-foreground/40">Gemini</span>
+        </div>
+        <div className="space-y-3 pl-1">
             <Input
                 type="password"
                 value={localSettings.geminiApiKey || ''}
                 onChange={(e) => setLocalSettings(prev => ({ ...prev, geminiApiKey: e.target.value }))}
-                placeholder="ENTER API KEY"
-                className="font-mono text-xs bg-transparent border-x-0 border-t-0 border-b border-border/40 rounded-none px-0 focus-visible:ring-0 focus-visible:border-foreground h-auto py-3 placeholder:text-muted-foreground/20 transition-colors"
+                placeholder="API key for content generation"
+                className="font-mono text-sm bg-transparent border-0 border-b border-border/30 rounded-none px-0 focus-visible:ring-0 focus-visible:border-terracotta/60 h-auto py-3 placeholder:text-muted-foreground/30 transition-colors"
             />
-            <p className="text-[10px] text-muted-foreground/60 leading-relaxed">
-                Required for sentence generation and linguistic analysis.
+            <p className="text-xs text-muted-foreground/60 leading-relaxed font-light pl-0.5">
+                Powers sentence generation and linguistic analysis features.
             </p>
          </div>
       </section>
 
-      {/* Toggles */}
+      {/* Toggles - Calm and spacious */}
       <section className="space-y-8 pt-4">
-        {[
-            { label: 'Auto-play Audio', desc: 'Trigger TTS on reveal', key: 'autoPlayAudio' },
-            { label: 'Blind Mode', desc: 'Hide text until audio plays', key: 'blindMode' },
-            { label: 'Show Translation', desc: 'Display native meaning', key: 'showTranslationAfterFlip' }
-        ].map((item) => (
-            <div key={item.key} className="flex items-center justify-between group">
-                <div className="space-y-1">
-                    <div className="text-sm font-medium group-hover:text-foreground transition-colors font-mono uppercase tracking-wider text-muted-foreground">{item.label}</div>
-                    <div className="text-[10px] text-muted-foreground/60">{item.desc}</div>
+        <div className="pb-4 border-b border-border/20">
+            <h3 className="font-serif text-xl font-light tracking-tight text-foreground/90">Behavior</h3>
+        </div>
+        <div className="space-y-8 pl-1">
+            {[
+                { label: 'Automatic Audio', desc: 'Play pronunciation when card is revealed', key: 'autoPlayAudio' },
+                { label: 'Listening Mode', desc: 'Hide text until audio completes', key: 'blindMode' },
+                { label: 'Show Translation', desc: 'Display native language meaning', key: 'showTranslationAfterFlip' }
+            ].map((item) => (
+                <div key={item.key} className="flex items-start justify-between gap-8 group py-2">
+                    <div className="space-y-1.5 flex-1">
+                        <div className="font-serif text-[15px] font-light group-hover:text-foreground transition-colors text-foreground/80">{item.label}</div>
+                        <div className="text-xs text-muted-foreground/60 leading-relaxed font-light">{item.desc}</div>
+                    </div>
+                    <Switch
+                        checked={(localSettings as any)[item.key]}
+                        onCheckedChange={(checked) =>
+                            setLocalSettings((prev) => ({ ...prev, [item.key]: checked }))
+                        }
+                        className="mt-1"
+                    />
                 </div>
-                <Switch
-                    checked={(localSettings as any)[item.key]}
-                    onCheckedChange={(checked) =>
-                        setLocalSettings((prev) => ({ ...prev, [item.key]: checked }))
-                    }
-                />
-            </div>
-        ))}
+            ))}
+        </div>
       </section>
     </div>
   );

@@ -14,11 +14,11 @@ export const TrueRetentionChart: React.FC<TrueRetentionChartProps> = ({ data, ta
   const CustomTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
       return (
-        <div className="bg-background border border-border px-3 py-2 shadow-xl">
-          <div className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground mb-1">{label}</div>
+        <div className="bg-foreground text-background px-4 py-3">
+          <div className="text-[9px] font-mono uppercase tracking-[0.2em] opacity-50 mb-1">{label}</div>
           <div className="flex items-center gap-2">
-             <span className="text-sm font-medium font-mono">{payload[0].value.toFixed(1)}%</span>
-             <span className="text-[10px] text-muted-foreground">Pass Rate</span>
+             <span className="text-sm font-normal tabular-nums">{payload[0].value.toFixed(1)}%</span>
+             <span className="text-[9px] font-mono uppercase tracking-[0.2em] opacity-50">Pass Rate</span>
           </div>
         </div>
       );
@@ -28,11 +28,11 @@ export const TrueRetentionChart: React.FC<TrueRetentionChartProps> = ({ data, ta
 
   return (
     <div className="h-full w-full flex flex-col">
-      <div className="flex justify-between items-end mb-6">
-        <h3 className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground">True Retention (30d)</h3>
-        <div className="flex items-center gap-2">
-            <div className="w-2 h-px bg-muted-foreground/50" />
-            <span className="text-[9px] font-mono uppercase text-muted-foreground">Target: {targetPercent}%</span>
+      <div className="flex justify-between items-end mb-8">
+        <h3 className="text-[9px] font-mono uppercase tracking-[0.25em] text-muted-foreground/50">True Retention (30d)</h3>
+        <div className="flex items-center gap-3">
+            <div className="w-3 h-px bg-muted-foreground/30" />
+            <span className="text-[9px] font-mono uppercase tracking-[0.2em] text-muted-foreground/40">Target: {targetPercent}%</span>
         </div>
       </div>
       <div className="flex-1 min-h-[150px]">
@@ -40,27 +40,27 @@ export const TrueRetentionChart: React.FC<TrueRetentionChartProps> = ({ data, ta
           <LineChart data={data} margin={{ top: 5, right: 5, left: -25, bottom: 0 }}>
             <XAxis 
               dataKey="date" 
-              tick={{ fontSize: 9, fill: colors.mutedForeground, fontFamily: 'monospace' }} 
+              tick={{ fontSize: 9, fill: colors.mutedForeground, fontFamily: 'monospace', opacity: 0.5 }} 
               axisLine={false}
               tickLine={false}
               interval={4}
-              dy={10}
+              dy={12}
             />
             <YAxis 
                 domain={[60, 100]} 
-                tick={{ fontSize: 9, fill: colors.mutedForeground, fontFamily: 'monospace' }}
+                tick={{ fontSize: 9, fill: colors.mutedForeground, fontFamily: 'monospace', opacity: 0.5 }}
                 axisLine={false}
                 tickLine={false}
             />
-            <Tooltip content={<CustomTooltip />} cursor={{ stroke: colors.muted, strokeWidth: 1 }} />
-            <ReferenceLine y={targetPercent} stroke={colors.mutedForeground} strokeDasharray="3 3" opacity={0.5} />
+            <Tooltip content={<CustomTooltip />} cursor={{ stroke: colors.foreground, strokeWidth: 1, opacity: 0.1 }} />
+            <ReferenceLine y={targetPercent} stroke={colors.mutedForeground} strokeDasharray="4 4" opacity={0.3} strokeWidth={1} />
             <Line 
                 type="monotone" 
                 dataKey="rate" 
                 stroke={colors.foreground} 
-                strokeWidth={1.5}
-                dot={{ r: 2, fill: colors.background, strokeWidth: 1.5 }}
-                activeDot={{ r: 4, fill: colors.primary }}
+                strokeWidth={2}
+                dot={{ r: 0 }}
+                activeDot={{ r: 4, fill: colors.foreground, strokeWidth: 0 }}
                 connectNulls
             />
           </LineChart>

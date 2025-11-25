@@ -2,25 +2,19 @@ import React, {
   createContext,
   useCallback,
   useContext,
-  useEffect,
   useMemo,
-  useRef,
   useState,
 } from 'react';
 import { toast } from 'sonner';
 import { Card, DeckStats, Grade, ReviewHistory } from '@/types';
 import { getUTCDateString } from '@/constants';
-import { POLISH_BEGINNER_DECK } from '@/features/deck/data/polishBeginnerDeck';
-import { NORWEGIAN_BEGINNER_DECK } from '@/features/deck/data/norwegianBeginnerDeck';
-import { JAPANESE_BEGINNER_DECK } from '@/features/deck/data/japaneseBeginnerDeck';
-import { SPANISH_BEGINNER_DECK } from '@/features/deck/data/spanishBeginnerDeck';
+// Remove the Deck Imports (POLISH_BEGINNER_DECK etc) if they are no longer used here.
+// They are now used in OnboardingFlow.tsx and SettingsModal.tsx.
 import { useSettings } from './SettingsContext';
 import { useAuth } from './AuthContext';
 import { getSRSDate } from '@/features/study/logic/srs';
 import { useQueryClient } from '@tanstack/react-query';
-import { saveAllCards } from '@/services/db/repositories/cardRepository';
 import { applyStudyLimits, isNewCard } from '@/services/studyLimits';
-import { supabase } from '@/lib/supabase';
 import {
   useDeckStatsQuery,
   useDueCardsQuery,
@@ -45,24 +39,16 @@ interface DeckContextValue {
 
 const DeckContext = createContext<DeckContextValue | undefined>(undefined);
 
-const languageLabel = (language: string) => {
-  if (language === 'norwegian') return 'Norwegian';
-  if (language === 'japanese') return 'Japanese';
-  if (language === 'spanish') return 'Spanish';
-  return 'Polish';
-};
-
 export const DeckProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const queryClient = useQueryClient();
   const { settings } = useSettings();
-  const { user } = useAuth();
-
+  // User is available but we no longer trigger auto-seeding
+  const { user } = useAuth(); 
 
   const { data: dbStats, isLoading: statsLoading } = useDeckStatsQuery();
   const { data: dueCards, isLoading: dueCardsLoading } = useDueCardsQuery();
   const { data: reviewsToday, isLoading: reviewsLoading } = useReviewsTodayQuery();
   const { data: history, isLoading: historyLoading } = useHistoryQuery();
-
 
   const recordReviewMutation = useRecordReviewMutation();
   const undoReviewMutation = useUndoReviewMutation();
@@ -71,15 +57,13 @@ export const DeckProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const isLoading = statsLoading || dueCardsLoading || reviewsLoading || historyLoading;
 
-
-  const isSeeding = useRef(false);
-
-  const seededLanguages = useRef<Set<string>>(new Set());
-
-
+  // --- REMOVED AUTO-SEEDING LOGIC ---
+  // We rely on OnboardingFlow (for new users) or manual "Add/Generate" (for existing users/new languages)
+  // to populate the deck. This prevents race conditions where default cards appear while the user
+  // is trying to select "AI Deck".
+  // ----------------------------------
 
   const streakStats = useMemo(() => {
-
     const sortedDates = Object.keys(history || {}).sort();
     let currentStreak = 0;
     let longestStreak = 0;
@@ -89,7 +73,6 @@ export const DeckProvider: React.FC<{ children: React.ReactNode }> = ({ children
       (acc, val) => acc + (typeof val === 'number' ? val : 0),
       0
     );
-
 
     const srsToday = getSRSDate(new Date());
     const todayStr = getUTCDateString(srsToday);
@@ -110,7 +93,7 @@ export const DeckProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
       }
     } else if (history?.[yesterdayStr]) {
-      currentStreak = 0;
+      currentStreak = 0; // Streak continues if they review today
       const checkDate = new Date(srsYesterday);
       while (true) {
         const dateStr = getUTCDateString(checkDate);
@@ -142,15 +125,7 @@ export const DeckProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
 
     return { currentStreak, longestStreak, totalReviews };
-  }, [history]); // Only recalculate when history object reference changes
-
-
-
-
-
-
-
-
+  }, [history]);
 
   const stats = useMemo<DeckStats>(() => {
     if (!dbStats || !dueCards || !reviewsToday) {
@@ -181,7 +156,7 @@ export const DeckProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return {
       total: dbStats.total,
       learned: dbStats.learned,
-      due: limitedCards.length, // Source of truth: client-side filtered array
+      due: limitedCards.length,
       newDue,
       reviewDue,
       streak: streakStats.currentStreak,
@@ -189,67 +164,6 @@ export const DeckProvider: React.FC<{ children: React.ReactNode }> = ({ children
       longestStreak: streakStats.longestStreak,
     };
   }, [dbStats, dueCards, reviewsToday, settings.dailyNewLimits, settings.dailyReviewLimits, settings.language, streakStats]);
-
-
-  useEffect(() => {
-    const loadBeginnerDeck = async () => {
-
-      if (isSeeding.current || seededLanguages.current.has(settings.language)) return;
-
-      if (!statsLoading && dbStats && dbStats.total === 0 && user) {
-        // Skip auto-loading if user already went through enhanced signup
-        // which would have set initial_deck_generated = true
-        const { data: profileData } = await supabase
-          .from('profiles')
-          .select('initial_deck_generated')
-          .eq('id', user.id)
-          .single();
-
-        if (profileData?.initial_deck_generated) {
-          // User already completed initial deck setup (AI or manual)
-          seededLanguages.current.add(settings.language);
-          return;
-        }
-
-        isSeeding.current = true;
-
-        const rawDeck =
-          settings.language === 'norwegian'
-            ? NORWEGIAN_BEGINNER_DECK
-            : settings.language === 'japanese'
-              ? JAPANESE_BEGINNER_DECK
-              : settings.language === 'spanish'
-                ? SPANISH_BEGINNER_DECK
-                : POLISH_BEGINNER_DECK;
-
-
-        const deck = rawDeck.map(card => ({
-          ...card,
-          id: crypto.randomUUID(),
-          dueDate: new Date().toISOString()
-        }));
-
-        try {
-          await saveAllCards(deck);
-
-          seededLanguages.current.add(settings.language);
-          toast.success(`Loaded Beginner ${languageLabel(settings.language)} course!`);
-          await Promise.all([
-            queryClient.invalidateQueries({ queryKey: ['deckStats', settings.language] }),
-            queryClient.invalidateQueries({ queryKey: ['dueCards', settings.language] }),
-            queryClient.invalidateQueries({ queryKey: ['cards'] })
-          ]);
-        } catch (e) {
-          console.error("Failed to load beginner deck", e);
-        } finally {
-
-          isSeeding.current = false;
-        }
-      }
-    };
-
-    loadBeginnerDeck();
-  }, [dbStats, statsLoading, user, settings.language, queryClient]);
 
   const recordReview = useCallback(async (oldCard: Card, grade: Grade, xpPayload?: CardXpPayload) => {
     const today = getUTCDateString(getSRSDate(new Date()));
@@ -260,7 +174,6 @@ export const DeckProvider: React.FC<{ children: React.ReactNode }> = ({ children
     } catch (error) {
       console.error("Failed to record review", error);
       toast.error("Failed to save review progress");
-
       setLastReview(prev => (prev?.card.id === oldCard.id ? null : prev));
     }
   }, [recordReviewMutation]);

@@ -52,48 +52,53 @@ export const AlgorithmSettings: React.FC<AlgorithmSettingsProps> = ({
   };
 
   return (
-    <div className="space-y-16 max-w-xl">
+    <div className="space-y-20 max-w-2xl">
       <section className="space-y-8">
-        <div className="flex justify-between items-end">
-            <MetaLabel className="mb-0 text-xs">Request Retention</MetaLabel>
-            <span className="text-5xl font-light tabular-nums">
-                {Math.round(localSettings.fsrs.request_retention * 100)}<span className="text-lg text-muted-foreground/40 ml-1">%</span>
-            </span>
+        <div className="pb-4 border-b border-border/20">
+            <h3 className="font-serif text-xl font-light tracking-tight text-foreground/90">Retention Target</h3>
         </div>
         
-        <div className="space-y-4">
-            <Slider
-                min={0.7} max={0.99} step={0.01}
-                value={[localSettings.fsrs.request_retention]}
-                onValueChange={([value]) =>
-                    setLocalSettings((prev) => ({
-                    ...prev, fsrs: { ...prev.fsrs, request_retention: value },
-                    }))
-                }
-                className="py-2"
-            />
-            <div className="flex justify-between text-[9px] font-mono uppercase text-muted-foreground/40 tracking-widest">
-                <span>Efficiency (0.70)</span>
-                <span>Precision (0.99)</span>
+        <div className="space-y-8 pl-1">
+            <div className="flex justify-between items-baseline">
+                <span className="text-6xl font-serif font-extralight tabular-nums text-foreground/80">
+                    {Math.round(localSettings.fsrs.request_retention * 100)}<span className="text-2xl text-muted-foreground/40">%</span>
+                </span>
+            </div>
+            
+            <div className="space-y-6">
+                <Slider
+                    min={0.7} max={0.99} step={0.01}
+                    value={[localSettings.fsrs.request_retention]}
+                    onValueChange={([value]) =>
+                        setLocalSettings((prev) => ({
+                        ...prev, fsrs: { ...prev.fsrs, request_retention: value },
+                        }))
+                    }
+                    className="py-3"
+                />
+                <div className="flex justify-between text-[10px] font-serif text-muted-foreground/50 tracking-wide">
+                    <span>Faster Reviews</span>
+                    <span>Higher Accuracy</span>
+                </div>
             </div>
         </div>
       </section>
 
-      <section className="space-y-6 pt-4">
-        <div className="flex justify-between items-baseline">
-            <MetaLabel className="mb-0 text-xs">Parameter Optimization</MetaLabel>
-            {report && <span className="text-[10px] font-mono text-green-600 uppercase tracking-wider">Optimized</span>}
+      <section className="space-y-6">
+        <div className="flex justify-between items-baseline pb-4 border-b border-border/20">
+            <h3 className="font-serif text-xl font-light tracking-tight text-foreground/90">Optimization</h3>
+            {report && <span className="text-[10px] font-mono uppercase tracking-[0.15em] text-emerald-600/80">Complete</span>}
         </div>
         
-        <p className="text-[10px] text-muted-foreground/60 leading-relaxed max-w-md">
-            Analyzes {report ? report.reviews : 'your'} review history to calculate custom weights for the FSRS algorithm.
+        <p className="text-sm text-muted-foreground/70 leading-relaxed font-light pl-1">
+            Analyzes {report ? `${report.reviews} review records` : 'your review history'} to calculate personalized algorithm parameters for optimal retention.
         </p>
 
         {isOptimizing ? (
-            <div className="space-y-2">
-                <Progress value={progress} className="h-0.5 rounded-none bg-secondary" />
-                <div className="flex justify-between text-[9px] font-mono uppercase text-muted-foreground">
-                    <span>Processing...</span>
+            <div className="space-y-3 pl-1">
+                <Progress value={progress} className="h-0.5 bg-secondary" />
+                <div className="flex justify-between text-[10px] font-mono uppercase text-muted-foreground/60 tracking-wider">
+                    <span>Processing</span>
                     <span>{Math.round(progress)}%</span>
                 </div>
             </div>
@@ -101,48 +106,55 @@ export const AlgorithmSettings: React.FC<AlgorithmSettingsProps> = ({
             <Button 
                 onClick={handleOptimize}
                 variant="outline"
-                className="w-full h-12 text-[10px] font-mono uppercase tracking-widest border-border/40 hover:bg-foreground hover:text-background hover:border-foreground transition-all rounded-none"
+                className="w-full py-6 text-sm font-serif tracking-wide border-border/40 hover:bg-terracotta/5 hover:text-terracotta hover:border-terracotta/60 transition-all"
             >
-                <Wand2 size={12} className="mr-2" /> Run Optimizer
+                <Wand2 size={14} strokeWidth={1.5} className="mr-2" /> Optimize Parameters
             </Button>
         )}
       </section>
 
-      <section className="space-y-8 pt-4">
-        <div className="space-y-4">
-            <MetaLabel className="text-xs">Max Interval (Days)</MetaLabel>
-            <EditorialInput
-                type="number"
-                className="font-mono text-sm bg-transparent border-x-0 border-t-0 border-b border-border/40 rounded-none px-0 py-3 placeholder:text-muted-foreground/20"
-                value={localSettings.fsrs.maximum_interval}
-                onChange={(e) =>
-                    setLocalSettings((prev) => ({
-                        ...prev, fsrs: { ...prev.fsrs, maximum_interval: parseInt(e.target.value) || 36500 },
-                    }))
-                }
-            />
+      <section className="space-y-8">
+        <div className="pb-4 border-b border-border/20">
+            <h3 className="font-serif text-xl font-light tracking-tight text-foreground/90">Advanced</h3>
         </div>
-
-        <div className="flex items-center justify-between group">
-            <div className="space-y-1">
-                <div className="text-sm font-medium font-mono uppercase tracking-wider text-muted-foreground group-hover:text-foreground transition-colors">Fuzzing</div>
-                <div className="text-[10px] text-muted-foreground/60 uppercase tracking-wider">Avoid Due Date Clustering</div>
+        
+        <div className="space-y-8 pl-1">
+            <div className="space-y-3">
+                <label className="text-sm font-serif text-muted-foreground/80 font-light">Maximum Interval (days)</label>
+                <EditorialInput
+                    type="number"
+                    className="font-mono text-sm bg-transparent border-0 border-b border-border/30 rounded-none px-0 py-3 placeholder:text-muted-foreground/30 focus-visible:border-terracotta/60"
+                    value={localSettings.fsrs.maximum_interval}
+                    onChange={(e) =>
+                        setLocalSettings((prev) => ({
+                            ...prev, fsrs: { ...prev.fsrs, maximum_interval: parseInt(e.target.value) || 36500 },
+                        }))
+                    }
+                />
             </div>
-            <Switch
-                checked={localSettings.fsrs.enable_fuzzing}
-                onCheckedChange={(checked) =>
-                    setLocalSettings((prev) => ({ ...prev, fsrs: { ...prev.fsrs, enable_fuzzing: checked } }))
-                }
-            />
+
+            <div className="flex items-start justify-between gap-8 group py-2">
+                <div className="space-y-1.5 flex-1">
+                    <div className="font-serif text-[15px] font-light group-hover:text-foreground transition-colors text-foreground/80">Enable Fuzzing</div>
+                    <div className="text-xs text-muted-foreground/60 leading-relaxed font-light">Prevents clustering of due dates by adding randomness to scheduling</div>
+                </div>
+                <Switch
+                    checked={localSettings.fsrs.enable_fuzzing}
+                    onCheckedChange={(checked) =>
+                        setLocalSettings((prev) => ({ ...prev, fsrs: { ...prev.fsrs, enable_fuzzing: checked } }))
+                    }
+                    className="mt-1"
+                />
+            </div>
         </div>
       </section>
 
-      <div className="pt-8">
+      <div className="pt-4 pl-1">
         <button 
             onClick={() => setLocalSettings(prev => ({ ...prev, fsrs: { ...prev.fsrs, w: FSRS_DEFAULTS.w } }))}
-            className="text-[9px] font-mono uppercase tracking-widest text-muted-foreground/40 hover:text-red-500 transition-colors flex items-center gap-2"
+            className="text-xs font-serif text-muted-foreground/40 hover:text-red-500/70 transition-colors flex items-center gap-2"
         >
-            <RefreshCw size={10} /> Reset Weights
+            <RefreshCw size={11} strokeWidth={1.5} /> Reset to Default Parameters
         </button>
       </div>
     </div>
