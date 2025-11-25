@@ -1,6 +1,9 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { UserSettings, Language } from '../types';
 import { FSRS_DEFAULTS } from '../constants';
+import { useAuth } from './AuthContext';
+import { getUserSettings, updateUserSettings, migrateLocalSettingsToDatabase, UserApiKeys } from '@/services/db/repositories/settingsRepository';
+import { toast } from 'sonner';
 
 
 const createLimits = (val: number): Record<Language, number> => ({
@@ -49,11 +52,15 @@ interface SettingsContextType {
   settings: UserSettings;
   updateSettings: (newSettings: Partial<UserSettings>) => void;
   resetSettings: () => void;
+  settingsLoading: boolean;
+  saveApiKeys: (apiKeys: UserApiKeys) => Promise<void>;
 }
 
 const SettingsContext = createContext<SettingsContextType | undefined>(undefined);
 
 export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const { user } = useAuth();
+  const [settingsLoading, setSettingsLoading] = useState(false);
 
   const [settings, setSettings] = useState<UserSettings>(() => {
     if (typeof window === 'undefined') return DEFAULT_SETTINGS;
@@ -61,7 +68,6 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       const saved = localStorage.getItem('language_mining_settings');
       if (saved) {
         const parsed = JSON.parse(saved);
-
 
         let migratedDailyNewLimits = parsed.dailyNewLimits;
         if (typeof parsed.dailyNewLimit === 'number') {
@@ -80,7 +86,8 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
           fsrs: { ...DEFAULT_SETTINGS.fsrs, ...(parsed.fsrs || {}) },
           tts: { ...DEFAULT_SETTINGS.tts, ...(parsed.tts || {}) },
           languageColors: { ...DEFAULT_SETTINGS.languageColors, ...(parsed.languageColors || {}) },
-          geminiApiKey: parsed.geminiApiKey || DEFAULT_SETTINGS.geminiApiKey
+          // API keys will be loaded from database, keep empty for now
+          geminiApiKey: '',
         };
       }
     } catch (e) {
@@ -88,6 +95,43 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     }
     return DEFAULT_SETTINGS;
   });
+
+  // Load API keys from database on mount
+  useEffect(() => {
+    const loadCloudSettings = async () => {
+      if (!user) return;
+
+      setSettingsLoading(true);
+      try {
+        // First, try to migrate from localStorage
+        const migrated = await migrateLocalSettingsToDatabase(user.id);
+        if (migrated) {
+          toast.success('Settings migrated to cloud');
+        }
+
+        // Then load from database
+        const cloudSettings = await getUserSettings(user.id);
+        if (cloudSettings) {
+          setSettings(prev => ({
+            ...prev,
+            geminiApiKey: cloudSettings.geminiApiKey || '',
+            tts: {
+              ...prev.tts,
+              googleApiKey: cloudSettings.googleTtsApiKey || '',
+              azureApiKey: cloudSettings.azureTtsApiKey || '',
+              azureRegion: cloudSettings.azureRegion || 'eastus',
+            }
+          }));
+        }
+      } catch (error) {
+        console.error('Failed to load cloud settings:', error);
+      } finally {
+        setSettingsLoading(false);
+      }
+    };
+
+    loadCloudSettings();
+  }, [user]);
 
   const updateSettings = (newSettings: Partial<UserSettings>) => {
     setSettings(prev => ({
@@ -101,11 +145,51 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     }));
   };
 
+  // Save API keys to database
+  const saveApiKeys = async (apiKeys: UserApiKeys) => {
+    if (!user) {
+      throw new Error('User not authenticated');
+    }
 
+    try {
+      setSettingsLoading(true);
+      await updateUserSettings(user.id, apiKeys);
 
+      // Update local state
+      setSettings(prev => ({
+        ...prev,
+        geminiApiKey: apiKeys.geminiApiKey || '',
+        tts: {
+          ...prev.tts,
+          googleApiKey: apiKeys.googleTtsApiKey || '',
+          azureApiKey: apiKeys.azureTtsApiKey || '',
+          azureRegion: apiKeys.azureRegion || 'eastus',
+        }
+      }));
 
+      toast.success('API keys synced to cloud');
+    } catch (error) {
+      console.error('Failed to save API keys:', error);
+      toast.error('Failed to sync API keys');
+      throw error;
+    } finally {
+      setSettingsLoading(false);
+    }
+  };
+
+  // Save local settings (non-API keys) to localStorage
   useEffect(() => {
-    localStorage.setItem('language_mining_settings', JSON.stringify(settings));
+    const localSettings = {
+      ...settings,
+      // Don't save API keys to localStorage anymore
+      geminiApiKey: '',
+      tts: {
+        ...settings.tts,
+        googleApiKey: '',
+        azureApiKey: '',
+      }
+    };
+    localStorage.setItem('language_mining_settings', JSON.stringify(localSettings));
   }, [settings]);
 
   const resetSettings = () => {
@@ -113,7 +197,7 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   };
 
   return (
-    <SettingsContext.Provider value={{ settings, updateSettings, resetSettings }}>
+    <SettingsContext.Provider value={{ settings, updateSettings, resetSettings, settingsLoading, saveApiKeys }}>
       {children}
     </SettingsContext.Provider>
   );

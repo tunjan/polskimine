@@ -59,12 +59,12 @@ interface NavActionProps {
 
 // --- Shadcn Sidebar Component ---
 
-const AppSidebar: React.FC<NavActionProps> = ({ 
-  onOpenAdd, 
-  onOpenCram, 
-  onOpenSabotage, 
+const AppSidebar: React.FC<NavActionProps> = ({
+  onOpenAdd,
+  onOpenCram,
+  onOpenSabotage,
   onOpenSettings,
-  onCloseMobileMenu 
+  onCloseMobileMenu
 }) => {
   const location = useLocation();
   const { settings, updateSettings } = useSettings();
@@ -116,14 +116,14 @@ const AppSidebar: React.FC<NavActionProps> = ({
           <SidebarGroupContent>
             <SidebarMenu>
               {mainNavItems.map((item) => {
-                const isActive = item.to === '/multiplayer' 
+                const isActive = item.to === '/multiplayer'
                   ? location.pathname.startsWith(item.to)
                   : location.pathname === item.to;
-                
+
                 return (
                   <SidebarMenuItem key={item.to}>
-                    <SidebarMenuButton 
-                      asChild 
+                    <SidebarMenuButton
+                      asChild
                       isActive={isActive}
                       onClick={onCloseMobileMenu}
                     >
@@ -203,7 +203,7 @@ const AppSidebar: React.FC<NavActionProps> = ({
 
           {/* Logout */}
           <SidebarMenuItem>
-            <SidebarMenuButton 
+            <SidebarMenuButton
               onClick={() => { signOut(); onCloseMobileMenu?.(); }}
               className="text-muted-foreground hover:text-destructive hover:bg-destructive/10"
             >
@@ -239,23 +239,23 @@ const MobileBottomNav: React.FC = () => {
   return (
     <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 border-t border-border/40 bg-background/80 backdrop-blur-xl pb-[env(safe-area-inset-bottom)]">
       <div className="flex items-center justify-between h-16 px-6 max-w-md mx-auto relative">
-        
+
         {/* Left Items */}
         {navItems.map((item) => {
           const isActive = location.pathname === item.to;
           return (
-            <Link 
-              key={item.to} 
-              to={item.to} 
+            <Link
+              key={item.to}
+              to={item.to}
               className="flex flex-col items-center justify-center w-12 gap-1 group"
             >
-              <item.icon 
-                size={20} 
-                strokeWidth={isActive ? 2.5 : 1.5} 
+              <item.icon
+                size={20}
+                strokeWidth={isActive ? 2.5 : 1.5}
                 className={clsx(
-                  "transition-all duration-200", 
+                  "transition-all duration-200",
                   isActive ? "text-primary -translate-y-0.5" : "text-muted-foreground group-hover:text-foreground"
-                )} 
+                )}
               />
             </Link>
           );
@@ -263,7 +263,7 @@ const MobileBottomNav: React.FC = () => {
 
         {/* Center FAB (Study) */}
         <div className="absolute left-1/2 -translate-x-1/2 -top-6">
-          <Link 
+          <Link
             to="/study"
             className="flex items-center justify-center w-14 h-14 rounded-full bg-primary text-primary-foreground shadow-lg shadow-primary/20 hover:scale-105 active:scale-95 transition-all duration-300 border-4 border-background"
           >
@@ -272,17 +272,17 @@ const MobileBottomNav: React.FC = () => {
         </div>
 
         {/* Right Items */}
-        <Link 
-          to="/leaderboard" 
+        <Link
+          to="/leaderboard"
           className="flex flex-col items-center justify-center w-12 gap-1 group"
         >
-          <Trophy 
-            size={20} 
-            strokeWidth={location.pathname === '/leaderboard' ? 2.5 : 1.5} 
+          <Trophy
+            size={20}
+            strokeWidth={location.pathname === '/leaderboard' ? 2.5 : 1.5}
             className={clsx(
-              "transition-all duration-200", 
+              "transition-all duration-200",
               location.pathname === '/leaderboard' ? "text-primary -translate-y-0.5" : "text-muted-foreground group-hover:text-foreground"
-            )} 
+            )}
           />
         </Link>
 
@@ -298,7 +298,7 @@ const MobileBottomNav: React.FC = () => {
 export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { addCard } = useCardOperations();
   const location = useLocation();
-  
+
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isCramModalOpen, setIsCramModalOpen] = useState(false);
@@ -334,7 +334,7 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
   return (
     <SidebarProvider>
       <div className="min-h-screen bg-background text-foreground font-sans selection:bg-primary/20 selection:text-foreground flex w-full">
-        
+
         {/* Desktop Sidebar */}
         <AppSidebar {...sidebarProps} />
 

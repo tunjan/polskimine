@@ -12,6 +12,8 @@ interface Profile {
   level: number;
   avatar_url?: string | null;
   updated_at?: string | null;
+  language_level?: string | null; // User's proficiency level (A1, A2, B1, B2, C1, C2)
+  initial_deck_generated?: boolean; // Whether user completed initial deck setup
 }
 
 interface AuthContextType {
@@ -21,8 +23,9 @@ interface AuthContextType {
   signInWithGoogle: () => Promise<void>;
   signOut: () => Promise<void>;
   signInWithEmail: (email: string, password: string) => Promise<void>;
-  signUpWithEmail: (email: string, password: string, username: string) => Promise<void>;
+  signUpWithEmail: (email: string, password: string, username: string, languageLevel?: string) => Promise<any>;
   updateUsername: (username: string) => Promise<void>;
+  markInitialDeckGenerated: () => Promise<void>;
   loading: boolean;
   incrementXPOptimistically: (amount: number) => void;
 }
@@ -123,23 +126,23 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
 
     const safeData = {
-        ...data,
-        points: data.points ?? 0
+      ...data,
+      points: data.points ?? 0
     };
 
     setProfile(safeData as Profile);
   };
 
-const signInWithGoogle = async () => {
+  const signInWithGoogle = async () => {
     const redirectTo = Capacitor.isNativePlatform()
-      ? 'com.linguaflow.app://auth/callback' 
-      : window.location.origin;              
+      ? 'com.linguaflow.app://auth/callback'
+      : window.location.origin;
 
     const { data, error } = await supabase.auth.signInWithOAuth({ // <--- Destructure 'data'
       provider: 'google',
-      options: { 
+      options: {
         redirectTo,
-        skipBrowserRedirect: Capacitor.isNativePlatform() 
+        skipBrowserRedirect: Capacitor.isNativePlatform()
       },
     });
 
@@ -170,12 +173,12 @@ const signInWithGoogle = async () => {
     }
   };
 
-  const signUpWithEmail = async (email: string, password: string, username: string) => {
-    const { error } = await supabase.auth.signUp({
+  const signUpWithEmail = async (email: string, password: string, username: string, languageLevel?: string) => {
+    const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: {
-        data: { username },
+        data: { username, language_level: languageLevel },
       },
     });
 
@@ -183,6 +186,8 @@ const signInWithGoogle = async () => {
       toast.error(error.message);
       throw error;
     }
+
+    return data;
   };
 
   const updateUsername = async (newUsername: string) => {
@@ -204,7 +209,7 @@ const signInWithGoogle = async () => {
 
   const incrementXPOptimistically = (amount: number) => {
     if (!profile) return;
-    
+
     setProfile(prev => {
       if (!prev) return null;
       return {
@@ -216,9 +221,25 @@ const signInWithGoogle = async () => {
     });
   };
 
+  const markInitialDeckGenerated = async () => {
+    if (!user) return;
+
+    const { error } = await supabase
+      .from('profiles')
+      .update({ initial_deck_generated: true })
+      .eq('id', user.id);
+
+    if (error) {
+      console.error('Failed to mark initial deck as generated:', error);
+      return;
+    }
+
+    setProfile((prev) => prev ? { ...prev, initial_deck_generated: true } : null);
+  };
+
   return (
     <AuthContext.Provider
-      value={{ session, user, profile, signInWithGoogle, signOut, signInWithEmail, signUpWithEmail, updateUsername, loading, incrementXPOptimistically }}
+      value={{ session, user, profile, signInWithGoogle, signOut, signInWithEmail, signUpWithEmail, updateUsername, loading, incrementXPOptimistically, markInitialDeckGenerated }}
     >
       {children}
     </AuthContext.Provider>

@@ -20,6 +20,7 @@ import { getSRSDate } from '@/features/study/logic/srs';
 import { useQueryClient } from '@tanstack/react-query';
 import { saveAllCards } from '@/services/db/repositories/cardRepository';
 import { applyStudyLimits, isNewCard } from '@/services/studyLimits';
+import { supabase } from '@/lib/supabase';
 import {
   useDeckStatsQuery,
   useDueCardsQuery,
@@ -55,13 +56,13 @@ export const DeckProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const queryClient = useQueryClient();
   const { settings } = useSettings();
   const { user } = useAuth();
-  
+
 
   const { data: dbStats, isLoading: statsLoading } = useDeckStatsQuery();
   const { data: dueCards, isLoading: dueCardsLoading } = useDueCardsQuery();
   const { data: reviewsToday, isLoading: reviewsLoading } = useReviewsTodayQuery();
   const { data: history, isLoading: historyLoading } = useHistoryQuery();
-  
+
 
   const recordReviewMutation = useRecordReviewMutation();
   const undoReviewMutation = useUndoReviewMutation();
@@ -110,16 +111,16 @@ export const DeckProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
     } else if (history?.[yesterdayStr]) {
       currentStreak = 0;
-       const checkDate = new Date(srsYesterday);
-       while (true) {
-         const dateStr = getUTCDateString(checkDate);
-         if (history[dateStr]) {
-           currentStreak++;
-           checkDate.setDate(checkDate.getDate() - 1);
-         } else {
-           break;
-         }
-       }
+      const checkDate = new Date(srsYesterday);
+      while (true) {
+        const dateStr = getUTCDateString(checkDate);
+        if (history[dateStr]) {
+          currentStreak++;
+          checkDate.setDate(checkDate.getDate() - 1);
+        } else {
+          break;
+        }
+      }
     }
 
     if (sortedDates.length > 0) {
@@ -196,25 +197,38 @@ export const DeckProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (isSeeding.current || seededLanguages.current.has(settings.language)) return;
 
       if (!statsLoading && dbStats && dbStats.total === 0 && user) {
+        // Skip auto-loading if user already went through enhanced signup
+        // which would have set initial_deck_generated = true
+        const { data: profileData } = await supabase
+          .from('profiles')
+          .select('initial_deck_generated')
+          .eq('id', user.id)
+          .single();
 
-         isSeeding.current = true;
+        if (profileData?.initial_deck_generated) {
+          // User already completed initial deck setup (AI or manual)
+          seededLanguages.current.add(settings.language);
+          return;
+        }
 
-         const rawDeck =
-              settings.language === 'norwegian'
-                ? NORWEGIAN_BEGINNER_DECK
-                : settings.language === 'japanese'
-                ? JAPANESE_BEGINNER_DECK
-                : settings.language === 'spanish'
+        isSeeding.current = true;
+
+        const rawDeck =
+          settings.language === 'norwegian'
+            ? NORWEGIAN_BEGINNER_DECK
+            : settings.language === 'japanese'
+              ? JAPANESE_BEGINNER_DECK
+              : settings.language === 'spanish'
                 ? SPANISH_BEGINNER_DECK
                 : POLISH_BEGINNER_DECK;
-            
 
-         const deck = rawDeck.map(card => ({
-           ...card,
-           id: crypto.randomUUID(),
-           dueDate: new Date().toISOString()
-         }));
-            
+
+        const deck = rawDeck.map(card => ({
+          ...card,
+          id: crypto.randomUUID(),
+          dueDate: new Date().toISOString()
+        }));
+
         try {
           await saveAllCards(deck);
 
@@ -233,44 +247,44 @@ export const DeckProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
       }
     };
-    
+
     loadBeginnerDeck();
   }, [dbStats, statsLoading, user, settings.language, queryClient]);
 
   const recordReview = useCallback(async (oldCard: Card, grade: Grade, xpPayload?: CardXpPayload) => {
-      const today = getUTCDateString(getSRSDate(new Date()));
-      setLastReview({ card: oldCard, date: today });
-      
-      try {
-        await recordReviewMutation.mutateAsync({ card: oldCard, grade, xpPayload });
-      } catch (error) {
-          console.error("Failed to record review", error);
-          toast.error("Failed to save review progress");
+    const today = getUTCDateString(getSRSDate(new Date()));
+    setLastReview({ card: oldCard, date: today });
 
-          setLastReview(prev => (prev?.card.id === oldCard.id ? null : prev));
-      }
+    try {
+      await recordReviewMutation.mutateAsync({ card: oldCard, grade, xpPayload });
+    } catch (error) {
+      console.error("Failed to record review", error);
+      toast.error("Failed to save review progress");
+
+      setLastReview(prev => (prev?.card.id === oldCard.id ? null : prev));
+    }
   }, [recordReviewMutation]);
 
   const undoReview = useCallback(async () => {
-      if (!lastReview) return;
-      const { card, date } = lastReview;
-      
-      try {
-          await undoReviewMutation.mutateAsync({ card, date });
-          setLastReview(null);
-          toast.success('Review undone');
-      } catch (error) {
-          console.error("Failed to undo review", error);
-          toast.error("Failed to undo review");
-      }
+    if (!lastReview) return;
+    const { card, date } = lastReview;
+
+    try {
+      await undoReviewMutation.mutateAsync({ card, date });
+      setLastReview(null);
+      toast.success('Review undone');
+    } catch (error) {
+      console.error("Failed to undo review", error);
+      toast.error("Failed to undo review");
+    }
   }, [lastReview, undoReviewMutation]);
 
   const refreshDeckData = useCallback(() => {
-      queryClient.invalidateQueries({ queryKey: ['deckStats'] });
-      queryClient.invalidateQueries({ queryKey: ['dueCards'] });
-      queryClient.invalidateQueries({ queryKey: ['reviewsToday'] });
-      queryClient.invalidateQueries({ queryKey: ['history'] });
-      queryClient.invalidateQueries({ queryKey: ['cards'] });
+    queryClient.invalidateQueries({ queryKey: ['deckStats'] });
+    queryClient.invalidateQueries({ queryKey: ['dueCards'] });
+    queryClient.invalidateQueries({ queryKey: ['reviewsToday'] });
+    queryClient.invalidateQueries({ queryKey: ['history'] });
+    queryClient.invalidateQueries({ queryKey: ['cards'] });
   }, [queryClient]);
 
   const value = useMemo(
