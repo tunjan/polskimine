@@ -58,7 +58,7 @@ export const CardHistoryModal: React.FC<CardHistoryModalProps> = ({ card, isOpen
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-2xl bg-background border border-border shadow-2xl sm:rounded-xl p-0 gap-0 overflow-hidden">
+      <DialogContent className="sm:max-w-2xl bg-background border border-border  sm:rounded-xl p-0 gap-0 overflow-hidden">
         
         {/* Header: Clean, Spaced out */}
         <div className="p-8 md:p-10 border-b border-border/40">

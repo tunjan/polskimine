@@ -2,8 +2,7 @@ import { supabase } from '@/lib/supabase';
 import type { GameQuestion } from '@/types/multiplayer';
 
 interface BatchGenerationOptions {
-  difficulty: string;
-  topic: string;
+  instructions: string;
   count: number;
   language: 'polish' | 'norwegian' | 'japanese' | 'spanish';
 }
@@ -154,15 +153,15 @@ export const aiService = {
     }
   },
 
-  async generateBatchCards({ difficulty, topic, count, language, apiKey }: BatchGenerationOptions & { apiKey: string }): Promise<any[]> {
+  async generateBatchCards({ instructions, count, language, apiKey }: BatchGenerationOptions & { apiKey: string }): Promise<any[]> {
     const langName = language === 'norwegian' ? 'Norwegian' : (language === 'japanese' ? 'Japanese' : (language === 'spanish' ? 'Spanish' : 'Polish'));
     
     let prompt = `
-      Generate ${count} flashcards for a ${difficulty} level ${langName} learner.
-      The topic is: "${topic}".
+      Generate ${count} flashcards for a ${langName} learner.
+      Instructions: "${instructions}".
       
       Return a JSON ARRAY of objects. Each object must have:
-      - targetSentence: A sentence in ${langName} appropriate for ${difficulty} level.
+      - targetSentence: A sentence in ${langName} appropriate for the requested level/topic.
       - nativeTranslation: English translation.
       - targetWord: The key vocabulary word being taught in the sentence.
       - notes: Brief grammar explanation or context (max 1 sentence).

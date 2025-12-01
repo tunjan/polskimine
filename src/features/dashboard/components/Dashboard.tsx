@@ -131,7 +131,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
                   size="lg" 
                   onClick={onStartSession}
                   disabled={stats.due === 0}
-                  className=" text-foreground h-14 text-sm uppercase tracking-[0.15em] font-medium rounded-2xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="text-foreground h-14 text-sm uppercase tracking-[0.15em] font-medium rounded-sm border border-terracotta bg-transparent hover:bg-terracotta/10 transition-colors disabled:opacity-50 disabled:cursor-not-allowed disabled:border-muted"
                   style={{ 
                     fontFamily: 'var(--font-sans)',
                     backgroundColor: '',
@@ -177,7 +177,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
                   </div>
                   <div className="h-2 bg-muted rounded-full overflow-hidden">
                     <div 
-                      className="h-full bg-primary rounded-full transition-all duration-700 ease-out"
+                      className="h-full bg-foreground rounded-full transition-all duration-700 ease-out"
                       style={{ width: `${levelProgress}%` }}
                     />
                   </div>

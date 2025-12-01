@@ -48,7 +48,7 @@ export const GradeDistributionChart: React.FC<GradeDistributionChartProps> = ({ 
                     content={({ active, payload }) => {
                         if (active && payload && payload.length) {
                         return (
-                            <div className="bg-background border border-border px-2 py-1 text-xs font-mono shadow-xl">
+                            <div className="bg-background border border-border px-2 py-1 text-xs font-mono ">
                                 {payload[0].name}: {payload[0].value}
                             </div>
                         );

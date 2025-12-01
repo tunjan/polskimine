@@ -133,6 +133,12 @@ export const deleteCard = async (id: string) => {
   if (error) throw error;
 };
 
+export const deleteCardsBatch = async (ids: string[]) => {
+  if (!ids.length) return;
+  const { error } = await supabase.from('cards').delete().in('id', ids);
+  if (error) throw error;
+};
+
 export const saveAllCards = async (cards: Card[]) => {
   if (!cards.length) return;
   const userId = await ensureUser();

@@ -212,7 +212,7 @@ const Row = memo(({ index, style, data }: ListChildComponentProps<any>) => {
             </DropdownMenuTrigger>
             <DropdownMenuContent 
               align="end" 
-              className="w-52 rounded-2xl border-border bg-card shadow-lg p-2"
+              className="w-52 rounded-2xl border-border bg-card  p-2"
             >
               <DropdownMenuItem 
                 onClick={() => onPrioritizeCard(card.id)} 

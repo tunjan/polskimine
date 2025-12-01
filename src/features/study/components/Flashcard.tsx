@@ -146,11 +146,11 @@ export const Flashcard = React.memo<FlashcardProps>(({
 
   const fontSizeClass = useMemo(() => {
     const len = displayedSentence.length;
-    if (len < 6) return "text-7xl md:text-9xl tracking-tight font-light";
-    if (len < 15) return "text-6xl md:text-8xl tracking-tight font-light";
-    if (len < 30) return "text-5xl md:text-7xl tracking-tight font-extralight";
-    if (len < 60) return "text-4xl md:text-6xl tracking-normal font-extralight";
-    return "text-3xl md:text-5xl font-extralight tracking-normal";
+    if (len < 6) return "text-5xl md:text-7xl tracking-tight font-light";
+    if (len < 15) return "text-4xl md:text-6xl tracking-tight font-light";
+    if (len < 30) return "text-3xl md:text-5xl tracking-tight font-extralight";
+    if (len < 60) return "text-2xl md:text-4xl tracking-normal font-extralight";
+    return "text-xl md:text-3xl font-extralight tracking-normal";
   }, [displayedSentence]);
 
   const RenderedSentence = useMemo(() => {
@@ -181,17 +181,17 @@ export const Flashcard = React.memo<FlashcardProps>(({
     if (language === 'japanese' && card.furigana) {
       const segments = parseFurigana(card.furigana);
       return (
-        <div className={cn(baseClasses, "flex flex-wrap justify-center items-end gap-x-[0.25em]")}>
+        <div className={cn(baseClasses, "leading-[1.6]")}>
           {segments.map((segment, i) => {
             const isTarget = card.targetWord && (card.targetWord === segment.text || card.targetWord.includes(segment.text));
             if (segment.furigana) {
               return (
-                <div key={i} className="group/ruby flex flex-col items-center justify-end">
-                  <span className="text-[0.38em] text-muted-foreground/70 mb-[0.3em] select-none opacity-0 group-hover/ruby:opacity-100 transition-opacity duration-500 leading-none font-sans font-light tracking-wide">
-                    {processText(segment.furigana)}
-                  </span>
+                <ruby key={i} className="group/ruby" style={{ rubyAlign: 'center' }}>
                   <span className={isTarget ? "text-primary/90" : ""}>{processText(segment.text)}</span>
-                </div>
+                  <rt className="text-[0.5em] text-muted-foreground/70 select-none opacity-0 group-hover/ruby:opacity-100 transition-opacity duration-500 font-sans font-light tracking-wide text-center" style={{ textAlign: 'center' }}>
+                    {processText(segment.furigana)}
+                  </rt>
+                </ruby>
               );
             }
             return <span key={i} className={isTarget ? "text-primary/90" : ""}>{processText(segment.text)}</span>;
@@ -206,7 +206,7 @@ export const Flashcard = React.memo<FlashcardProps>(({
         <p className={baseClasses}>
           {parts.map((part, i) =>
             part.toLowerCase() === card.targetWord?.toLowerCase()
-              ? <span key={i} className="text-primary/90 font-normal">{processText(part)}</span>
+              ? <span key={i} className="text-primary/90 font-bold">{processText(part)}</span>
               : <span key={i}>{processText(part)}</span>
           )}
         </p>
@@ -235,10 +235,7 @@ export const Flashcard = React.memo<FlashcardProps>(({
               onClick={speak}
               className="group flex items-center justify-center text-muted-foreground/50 hover:text-foreground/70 transition-all duration-500 mt-4"
             >
-              <div className="flex items-center gap-3">
-                <Volume2 size={20} strokeWidth={1.5} className={cn("transition-all duration-500", playSlow && "text-primary/70", "group-hover:-translate-x-8")} />
-                <span className="text-[9px] font-sans font-light uppercase tracking-[0.2em] opacity-0 group-hover:opacity-60 transition-all duration-500 absolute left-1/2 -translate-x-1/2 group-hover:translate-x-3">Listen</span>
-              </div>
+              <Volume2 size={20} strokeWidth={1.5} className={cn("transition-all duration-500", playSlow && "text-primary/70")} />
             </button>
           )}
         </div>
@@ -286,7 +283,7 @@ export const Flashcard = React.memo<FlashcardProps>(({
           <button
             onClick={handleAnalyze}
             disabled={isAnalyzing}
-            className="bg-foreground/95 text-background px-5 py-2.5 rounded-full shadow-2xl hover:shadow-3xl hover:scale-105 active:scale-95 transition-all duration-300 text-[10px] font-sans font-medium uppercase tracking-[0.15em] flex items-center gap-2.5 backdrop-blur-sm"
+            className="bg-foreground/95 text-background px-5 py-2.5 rounded-full  hover: hover:scale-105 active:scale-95 transition-all duration-300 text-[10px] font-sans font-medium uppercase tracking-[0.15em] flex items-center gap-2.5 backdrop-blur-sm"
           >
             {isAnalyzing ? <Loader2 size={11} strokeWidth={2} className="animate-spin" /> : <Sparkles size={11} strokeWidth={2} />}
             <span>Analyze</span>
@@ -296,7 +293,7 @@ export const Flashcard = React.memo<FlashcardProps>(({
 
       {/* Analysis modal - editorial magazine style */}
       <Dialog open={isAnalysisOpen} onOpenChange={setIsAnalysisOpen}>
-        <DialogContent className="sm:max-w-xl bg-background border border-border/50 p-10 md:p-14 shadow-2xl rounded-3xl">
+        <DialogContent className="sm:max-w-xl bg-background border border-border/50 p-10 md:p-14  rounded-3xl">
           <div className="space-y-10">
             {/* Header */}
             <div className="space-y-3 border-b border-border/40 pb-7">

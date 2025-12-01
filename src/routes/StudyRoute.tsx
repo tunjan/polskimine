@@ -16,7 +16,7 @@ import { CardXpPayload } from '@/features/xp/xpUtils';
 
 export const StudyRoute: React.FC = () => {
   const { recordReview, undoReview, canUndo, stats } = useDeck();
-  const { updateCard } = useCardOperations();
+  const { updateCard, deleteCard } = useCardOperations();
   const { settings } = useSettings();
   const claimBonus = useClaimDailyBonusMutation();
   
@@ -95,6 +95,13 @@ export const StudyRoute: React.FC = () => {
     updateCard(card);
   };
 
+  const handleDeleteCard = async (id: string) => {
+    await deleteCard(id);
+    // Remove from session if needed, but useCardOperations usually invalidates queries
+    // However, local state sessionCards might need update if we want immediate feedback without refetch
+    setSessionCards(prev => prev.filter(c => c.id !== id));
+  };
+
   const handleRecordReview = (card: Card, grade: Grade, xpPayload?: CardXpPayload) => {
     if (!isCramMode) {
       recordReview(card, grade, xpPayload);
@@ -121,6 +128,7 @@ export const StudyRoute: React.FC = () => {
       dueCards={sessionCards}
       reserveCards={reserveCards} // Pass reserve
       onUpdateCard={handleUpdateCard}
+      onDeleteCard={handleDeleteCard}
       onRecordReview={handleRecordReview}
       onExit={() => navigate('/')}
       onComplete={handleSessionComplete}

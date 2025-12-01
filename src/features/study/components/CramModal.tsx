@@ -36,7 +36,7 @@ export const CramModal = ({ isOpen, onClose }: CramModalProps) => {
 
     return (
         <Dialog open={isOpen} onOpenChange={onClose}>
-            <DialogContent className="w-[95vw] max-w-md p-0 gap-0 bg-background border border-border shadow-xl overflow-hidden">
+            <DialogContent className="w-[95vw] max-w-md p-0 gap-0 bg-background border border-border  overflow-hidden">
                 <div className="p-6 space-y-6">
                     <div className="space-y-1">
                         <DialogTitle className="text-lg font-semibold tracking-tight">Cram Session</DialogTitle>
@@ -91,7 +91,7 @@ export const CramModal = ({ isOpen, onClose }: CramModalProps) => {
                     </button>
                     <button 
                         onClick={handleStart}
-                        className="flex items-center gap-2 bg-primary text-primary-foreground px-5 py-2 text-sm font-medium hover:bg-primary/90 transition-colors rounded-md shadow-sm"
+                        className="flex items-center gap-2 bg-primary text-primary-foreground px-5 py-2 text-sm font-medium hover:bg-primary/90 transition-colors rounded-md "
                     >
                         Start Session <ArrowRight size={14} />
                     </button>

@@ -1,5 +1,5 @@
-import React, { useEffect, useMemo, useCallback } from 'react';
-import { X, Undo2, Archive } from 'lucide-react';
+import React, { useEffect, useMemo, useCallback, useState } from 'react';
+import { X, Undo2, Archive, Pencil, Trash2 } from 'lucide-react';
 import { Card, Grade } from '@/types';
 import { useSettings } from '@/contexts/SettingsContext';
 import { Flashcard } from './Flashcard';
@@ -8,6 +8,7 @@ import { useStudySession } from '../hooks/useStudySession';
 import clsx from 'clsx';
 import { useXpSession } from '@/features/xp/hooks/useXpSession';
 import { CardXpPayload, CardRating } from '@/features/xp/xpUtils';
+import { AddCardModal } from '@/features/deck/components/AddCardModal';
 
 const gradeToRatingMap: Record<Grade, CardRating> = {
   Again: 'again',
@@ -36,6 +37,7 @@ interface StudySessionProps {
   dueCards: Card[];
   reserveCards?: Card[];
   onUpdateCard: (card: Card) => void;
+  onDeleteCard: (id: string) => void;
   onRecordReview: (oldCard: Card, grade: Grade, xpPayload?: CardXpPayload) => void;
   onExit: () => void;
   onComplete?: () => void;
@@ -49,6 +51,7 @@ export const StudySession: React.FC<StudySessionProps> = ({
   dueCards,
   reserveCards = [],
   onUpdateCard,
+  onDeleteCard,
   onRecordReview,
   onExit,
   onComplete,
@@ -58,6 +61,7 @@ export const StudySession: React.FC<StudySessionProps> = ({
   dailyStreak,
 }) => {
   const { settings } = useSettings();
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const { sessionXp, sessionStreak, multiplierInfo, feedback, processCardResult } = useXpSession(dailyStreak, isCramMode);
 
   const enhancedRecordReview = useCallback((card: Card, grade: Grade) => {
@@ -180,7 +184,7 @@ export const StudySession: React.FC<StudySessionProps> = ({
       {/* Elegant progress indicator */}
       <div className="h-0.5 w-full bg-muted/30">
         <div 
-          className="h-full w-full bg-linear-to-r from-primary/60 via-primary/80 to-primary/60 transition-all duration-700 ease-out origin-left shadow-sm" 
+          className="h-full w-full bg-linear-to-r from-primary/60 via-primary/80 to-primary/60 transition-all duration-700 ease-out origin-left " 
           style={{ transform: `scaleX(${progress / 100})` }} 
         />
       </div>
@@ -198,7 +202,7 @@ export const StudySession: React.FC<StudySessionProps> = ({
             )}>
                 <span className={clsx(
                   "w-1.5 h-1.5 rounded-full bg-current",
-                  currentStatus?.label === 'NEW' && "animate-pulse shadow-sm shadow-current"
+                  currentStatus?.label === 'NEW' && "animate-pulse  "
                 )} />
                 <span className="hidden sm:inline">New</span>
                 <span className="font-medium">{counts.unseen}</span>
@@ -211,7 +215,7 @@ export const StudySession: React.FC<StudySessionProps> = ({
             )}>
                 <span className={clsx(
                   "w-1.5 h-1.5 rounded-full bg-current",
-                  currentStatus?.label === 'LRN' && "animate-pulse shadow-sm shadow-current"
+                  currentStatus?.label === 'LRN' && "animate-pulse  "
                 )} />
                 <span className="hidden sm:inline">Learning</span>
                 <span className="font-medium">{counts.learning}</span>
@@ -224,7 +228,7 @@ export const StudySession: React.FC<StudySessionProps> = ({
             )}>
                 <span className={clsx(
                   "w-1.5 h-1.5 rounded-full bg-current",
-                  currentStatus?.label === 'LAPSE' && "animate-pulse shadow-sm shadow-current"
+                  currentStatus?.label === 'LAPSE' && "animate-pulse  "
                 )} />
                 <span className="hidden sm:inline">Review</span>
                 <span className="font-medium">{counts.lapse}</span>
@@ -237,7 +241,7 @@ export const StudySession: React.FC<StudySessionProps> = ({
             )}>
                 <span className={clsx(
                   "w-1.5 h-1.5 rounded-full bg-current",
-                  currentStatus?.label === 'REV' && "animate-pulse shadow-sm shadow-current"
+                  currentStatus?.label === 'REV' && "animate-pulse  "
                 )} />
                 <span className="hidden sm:inline">Mature</span>
                 <span className="font-medium">{counts.mature}</span>
@@ -258,6 +262,26 @@ export const StudySession: React.FC<StudySessionProps> = ({
             </div>
             
             <div className="flex items-center gap-1 sm:gap-2 md:gap-3 text-muted-foreground/50">
+                <button 
+                  onClick={() => setIsEditModalOpen(true)} 
+                  disabled={isProcessing} 
+                  className="p-1.5 sm:p-2.5 hover:text-foreground/80 transition-all duration-500 rounded-lg hover:bg-muted/30" 
+                  title="Edit Card"
+                >
+                    <Pencil size={14} className="sm:w-[15px] sm:h-[15px]" strokeWidth={1.5} />
+                </button>
+                <button 
+                  onClick={() => {
+                    if (confirm('Are you sure you want to delete this card?')) {
+                        onDeleteCard(currentCard.id);
+                    }
+                  }} 
+                  disabled={isProcessing} 
+                  className="p-1.5 sm:p-2.5 hover:text-destructive/80 transition-all duration-500 rounded-lg hover:bg-destructive/5" 
+                  title="Delete Card"
+                >
+                    <Trash2 size={14} className="sm:w-[15px] sm:h-[15px]" strokeWidth={1.5} />
+                </button>
                 <button 
                   onClick={handleMarkKnown} 
                   disabled={isProcessing} 
@@ -366,6 +390,16 @@ export const StudySession: React.FC<StudySessionProps> = ({
           )}
         </div>
       </footer>
+
+      <AddCardModal 
+        isOpen={isEditModalOpen}
+        onClose={() => setIsEditModalOpen(false)}
+        onAdd={(updatedCard) => {
+            onUpdateCard(updatedCard);
+            setIsEditModalOpen(false);
+        }}
+        initialCard={currentCard}
+      />
     </div>
   );
 };

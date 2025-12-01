@@ -4,6 +4,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { Card } from '@/types';
 import {
   deleteCard as deleteCardFromRepo,
+  deleteCardsBatch as deleteCardsBatchFromRepo,
   saveCard,
   saveAllCards,
 } from '@/services/db/repositories/cardRepository';
@@ -15,6 +16,7 @@ interface CardOperations {
   addCardsBatch: (cards: Card[]) => Promise<void>;
   updateCard: (card: Card) => Promise<void>;
   deleteCard: (id: string) => Promise<void>;
+  deleteCardsBatch: (ids: string[]) => Promise<void>;
   prioritizeCards: (ids: string[]) => Promise<void>;
 }
 
@@ -81,6 +83,21 @@ export const useCardOperations = (): CardOperations => {
     [queryClient, refreshDeckData]
   );
 
+  const deleteCardsBatch = useCallback(
+    async (ids: string[]) => {
+      try {
+        await deleteCardsBatchFromRepo(ids);
+        await queryClient.invalidateQueries({ queryKey: ['cards'] });
+        refreshDeckData();
+        toast.success(`${ids.length} cards deleted`);
+      } catch (error) {
+        console.error(error);
+        toast.error('Failed to delete cards');
+      }
+    },
+    [queryClient, refreshDeckData]
+  );
+
   const prioritizeCards = useCallback(
     async (ids: string[]) => {
       try {
@@ -105,5 +122,5 @@ export const useCardOperations = (): CardOperations => {
     [queryClient, refreshDeckData]
   );
 
-  return { addCard, addCardsBatch, updateCard, deleteCard, prioritizeCards };
+  return { addCard, addCardsBatch, updateCard, deleteCard, deleteCardsBatch, prioritizeCards };
 };

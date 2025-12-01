@@ -45,7 +45,7 @@ export const ColorPicker: React.FC<ColorPickerProps> = ({ label, value, onChange
     <div className="flex items-center justify-between">
       <Label>{label}</Label>
       <div className="flex items-center gap-2">
-        <div className="relative w-10 h-10 rounded-md overflow-hidden border border-input shadow-sm">
+        <div className="relative w-10 h-10 rounded-full overflow-hidden border-none  hover:scale-110 transition-transform">
           <input
             type="color"
             value={hexValue}
@@ -57,7 +57,7 @@ export const ColorPicker: React.FC<ColorPickerProps> = ({ label, value, onChange
             defaultValue={hexValue}
             key={hexValue} // Force re-render on external change
             onBlur={handleTextChange}
-            className="w-24 font-mono uppercase"
+            className="w-24 font-mono uppercase rounded-xl border-transparent bg-secondary/30"
             maxLength={7}
         />
       </div>

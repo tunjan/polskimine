@@ -38,14 +38,14 @@ export const SabotageNotification: React.FC = () => {
     <Dialog open={isOpen} onOpenChange={(open) => !open && dismissNotification()}>
       <DialogContent
         className={cn(
-          'sm:max-w-md border-destructive/50 bg-destructive/10 backdrop-blur-xl shadow-[0_0_50px_-12px_rgba(239,68,68,0.5)]',
+          'sm:max-w-md border-destructive/50 bg-destructive/10 backdrop-blur-xl [0_0_50px_-12px_rgba(239,68,68,0.5)]',
           shake && 'animate-shake'
         )}
       >
         <div className="flex flex-col items-center text-center space-y-6 py-6">
           <div className="relative">
             <div className="absolute inset-0 bg-destructive blur-2xl opacity-20 animate-pulse rounded-full" />
-            <div className="relative bg-background p-4 rounded-full border-2 border-destructive shadow-xl">
+            <div className="relative bg-background p-4 rounded-full border-2 border-destructive ">
               <Skull size={48} className="text-destructive animate-[wiggle_1s_ease-in-out_infinite]" />
             </div>
           </div>

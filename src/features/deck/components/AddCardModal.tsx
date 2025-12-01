@@ -1,14 +1,12 @@
 import React, { useState, useEffect, useMemo, useRef } from "react";
-import { ArrowRight } from "lucide-react";
-import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { ArrowRight, Sparkles, X } from "lucide-react";
+import { Dialog, DialogContent, DialogTitle, DialogDescription, DialogClose } from "@/components/ui/dialog";
 import { Card } from "@/types";
 import { v4 as uuidv4 } from "uuid";
 import { toast } from "sonner";
 import { aiService } from "@/features/deck/services/ai";
-import { escapeRegExp, parseFurigana } from "@/lib/utils";
+import { escapeRegExp, parseFurigana, cn } from "@/lib/utils";
 import { useSettings } from "@/contexts/SettingsContext";
-import { EditorialInput } from "@/components/form/EditorialInput";
-import { EditorialTextarea } from "@/components/form/EditorialTextarea";
 
 interface AddCardModalProps {
   isOpen: boolean;
@@ -28,7 +26,7 @@ export const AddCardModal: React.FC<AddCardModalProps> = ({ isOpen, onClose, onA
   });
   const [isGenerating, setIsGenerating] = useState(false);
   const isMounted = React.useRef(false);
-  
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const wasOpen = useRef(false);
 
@@ -38,8 +36,6 @@ export const AddCardModal: React.FC<AddCardModalProps> = ({ isOpen, onClose, onA
   }, []);
 
   useEffect(() => {
-
-
     if (isOpen && !wasOpen.current) {
         if (initialCard) {
             const isJapanese = initialCard.language === 'japanese' || (!initialCard.language && settings.language === 'japanese');
@@ -53,6 +49,13 @@ export const AddCardModal: React.FC<AddCardModalProps> = ({ isOpen, onClose, onA
         } else {
             setForm({ sentence: "", targetWord: "", translation: "", notes: "", furigana: "" });
         }
+        // Auto-focus logic
+        setTimeout(() => {
+            if (textareaRef.current) {
+                textareaRef.current.focus();
+                textareaRef.current.setSelectionRange(textareaRef.current.value.length, textareaRef.current.value.length);
+            }
+        }, 100);
     }
     wasOpen.current = isOpen;
   }, [isOpen, initialCard, settings.language]);
@@ -104,10 +107,7 @@ export const AddCardModal: React.FC<AddCardModalProps> = ({ isOpen, onClose, onA
     let furigana = form.furigana || undefined;
 
     if (targetLanguage === 'japanese') {
-
-
         furigana = form.sentence;
-
         targetSentence = parseFurigana(form.sentence).map(s => s.text).join("");
     }
 
@@ -134,18 +134,18 @@ export const AddCardModal: React.FC<AddCardModalProps> = ({ isOpen, onClose, onA
       if (targetLanguage === 'japanese') {
           const segments = parseFurigana(form.sentence);
           return (
-            <div className="mt-6 text-2xl font-light text-muted-foreground select-none">
+            <div className="mt-4 text-xl font-light text-muted-foreground/60 select-none font-serif">
                 {segments.map((segment, i) => {
                     const isTarget = form.targetWord && segment.text === form.targetWord;
                     if (segment.furigana) {
                         return (
-                            <ruby key={i} className="group mr-1">
-                                <span className={isTarget ? "text-foreground font-normal border-b border-foreground pb-0.5" : "text-foreground"}>{segment.text}</span>
-                                <rt className="text-sm text-muted-foreground font-normal select-none">{segment.furigana}</rt>
+                            <ruby key={i} className="group mr-1" style={{ rubyAlign: 'center' }}>
+                                <span className={isTarget ? "text-foreground font-normal border-b border-foreground/30 pb-0.5" : "text-foreground"}>{segment.text}</span>
+                                <rt className="text-xs text-muted-foreground/50 font-normal select-none font-sans tracking-wide text-center" style={{ textAlign: 'center' }}>{segment.furigana}</rt>
                             </ruby>
                         );
                     }
-                    return <span key={i} className={isTarget ? "text-foreground font-normal border-b border-foreground pb-0.5" : ""}>{segment.text}</span>;
+                    return <span key={i} className={isTarget ? "text-foreground font-normal border-b border-foreground/30 pb-0.5" : ""}>{segment.text}</span>;
                 })}
             </div>
           );
@@ -154,83 +154,104 @@ export const AddCardModal: React.FC<AddCardModalProps> = ({ isOpen, onClose, onA
       if (!form.targetWord) return null;
       const parts = form.sentence.split(new RegExp(`(${escapeRegExp(form.targetWord)})`, "gi"));
       return (
-        <div className="mt-6 text-2xl font-light text-muted-foreground select-none">
-            {parts.map((part, i) => part.toLowerCase() === form.targetWord.toLowerCase() ? <span key={i} className="text-foreground font-normal border-b border-foreground pb-0.5">{part}</span> : <span key={i}>{part}</span>)}
+        <div className="mt-4 text-xl font-light text-muted-foreground/60 select-none font-serif">
+            {parts.map((part, i) => part.toLowerCase() === form.targetWord.toLowerCase() ? <span key={i} className="text-foreground font-normal border-b border-foreground/30 pb-0.5">{part}</span> : <span key={i}>{part}</span>)}
         </div>
       );
   }, [form.sentence, form.targetWord, settings.language, initialCard]);
 
     return (
         <Dialog open={isOpen} onOpenChange={onClose}>
-            <DialogContent className="sm:max-w-2xl p-12 bg-background border border-border shadow-2xl sm:rounded-xl gap-0">
+            <DialogContent className="sm:max-w-3xl p-0 bg-background border-none  sm:rounded-3xl gap-0 overflow-hidden">
                 <DialogDescription className="sr-only">Form to add or edit a flashcard</DialogDescription>
-        <form onSubmit={handleSubmit} className="flex flex-col gap-10">
-            {/* Header */}
-            <div className="flex justify-between items-center">
-                <DialogTitle className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground">
-                    {initialCard ? "Edit" : "New"} Entry
-                </DialogTitle>
-                <button 
-                    type="button"
-                    onClick={handleAutoFill}
-                    disabled={isGenerating || !form.sentence}
-                    className="text-[10px] font-mono uppercase tracking-widest text-primary hover:underline disabled:opacity-30"
-                >
-                    {isGenerating ? "Analyzing..." : "AI Auto-Fill"}
-                </button>
-            </div>
+                
+                <form onSubmit={handleSubmit} className="flex flex-col h-full">
+                    
+                    {/* Top Section: Sentence Input */}
+                    <div className="px-10 pt-12 pb-8 bg-muted/10 relative">
+                        <div className="flex justify-between items-center mb-8">
+                            <DialogTitle className="text-[11px] font-sans font-medium uppercase tracking-[0.2em] text-muted-foreground/60">
+                                {initialCard ? "Edit Entry" : "New Entry"}
+                            </DialogTitle>
+                            <button 
+                                type="button"
+                                onClick={handleAutoFill}
+                                disabled={isGenerating || !form.sentence}
+                                className={cn(
+                                    "flex items-center gap-2 text-[10px] font-sans font-medium uppercase tracking-[0.15em] transition-all duration-300",
+                                    isGenerating ? "text-primary animate-pulse" : "text-primary/80 hover:text-primary"
+                                )}
+                            >
+                                <Sparkles size={12} strokeWidth={2} />
+                                {isGenerating ? "Analyzing..." : "Auto-Fill"}
+                            </button>
+                        </div>
 
-            {/* Hero Input */}
-            <div className="space-y-2">
-                <textarea
-                    placeholder="Enter target sentence..."
-                    className="w-full text-3xl md:text-4xl font-light bg-transparent border-none outline-none placeholder:text-muted-foreground/20 resize-none overflow-hidden p-0 leading-tight tracking-tight text-foreground"
-                    value={form.sentence}
-                    onChange={e => setForm({...form, sentence: e.target.value})}
-                    rows={2}
-                    autoFocus
-                />
-                {HighlightedPreview}
-            </div>
+                        <div className="relative">
+                            <textarea
+                                ref={textareaRef}
+                                placeholder="Type your sentence here..."
+                                className="w-full text-3xl md:text-4xl font-serif font-light bg-transparent border-none outline-none placeholder:text-muted-foreground/20 resize-none overflow-hidden p-0 leading-tight tracking-tight text-foreground min-h-[120px]"
+                                value={form.sentence}
+                                onChange={e => setForm({...form, sentence: e.target.value})}
+                                rows={1}
+                                style={{ fieldSizing: 'content' } as any}
+                            />
+                            {HighlightedPreview}
+                        </div>
+                    </div>
 
-            {/* Grid inputs */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-8">
-                <div>
-                    <label className="block text-[10px] font-mono uppercase tracking-widest text-muted-foreground mb-2">Translation</label>
-                    <EditorialInput 
-                        value={form.translation}
-                        onChange={e => setForm({...form, translation: e.target.value})}
-                        placeholder="e.g., This is a house."
-                    />
-                </div>
-                <div>
-                    <label className="block text-[10px] font-mono uppercase tracking-widest text-muted-foreground mb-2">Target Word (Match)</label>
-                    <EditorialInput 
-                        value={form.targetWord}
-                        onChange={e => setForm({...form, targetWord: e.target.value})}
-                        placeholder="e.g., house"
-                    />
-                </div>
-            </div>
+                    {/* Bottom Section: Details */}
+                    <div className="px-10 py-10 space-y-10 bg-background">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-10">
+                            <div className="space-y-3 group">
+                                <label className="block text-[10px] font-sans font-medium uppercase tracking-[0.2em] text-muted-foreground/50 group-focus-within:text-primary/70 transition-colors">
+                                    Translation
+                                </label>
+                                <input 
+                                    value={form.translation}
+                                    onChange={e => setForm({...form, translation: e.target.value})}
+                                    placeholder="e.g., This is a house."
+                                    className="w-full bg-transparent border-b border-border/40 py-2 text-lg font-serif font-light text-foreground placeholder:text-muted-foreground/20 focus:outline-none focus:border-primary/30 transition-colors"
+                                />
+                            </div>
+                            <div className="space-y-3 group">
+                                <label className="block text-[10px] font-sans font-medium uppercase tracking-[0.2em] text-muted-foreground/50 group-focus-within:text-primary/70 transition-colors">
+                                    Target Word
+                                </label>
+                                <input 
+                                    value={form.targetWord}
+                                    onChange={e => setForm({...form, targetWord: e.target.value})}
+                                    placeholder="e.g., house"
+                                    className="w-full bg-transparent border-b border-border/40 py-2 text-lg font-serif font-light text-foreground placeholder:text-muted-foreground/20 focus:outline-none focus:border-primary/30 transition-colors"
+                                />
+                            </div>
+                        </div>
 
-            <div>
-                <label className="block text-[10px] font-mono uppercase tracking-widest text-muted-foreground mb-2">Context Notes</label>
-                <EditorialTextarea 
-                    value={form.notes}
-                    onChange={e => setForm({...form, notes: e.target.value})}
-                />
-            </div>
+                        <div className="space-y-3 group">
+                            <label className="block text-[10px] font-sans font-medium uppercase tracking-[0.2em] text-muted-foreground/50 group-focus-within:text-primary/70 transition-colors">
+                                Context Notes
+                            </label>
+                            <textarea 
+                                value={form.notes}
+                                onChange={e => setForm({...form, notes: e.target.value})}
+                                placeholder="Add any usage notes or context..."
+                                className="w-full bg-transparent border-b border-border/40 py-2 text-base font-serif font-light text-foreground placeholder:text-muted-foreground/20 focus:outline-none focus:border-primary/30 transition-colors resize-none min-h-[60px]"
+                            />
+                        </div>
 
-            <div className="flex justify-end pt-6">
-                <button 
-                    type="submit" 
-                    className="flex items-center gap-3 bg-primary text-primary-foreground px-8 py-3 rounded-md text-xs font-mono uppercase tracking-wider hover:opacity-90 transition-opacity"
-                >
-                    Save <ArrowRight size={16} />
-                </button>
-            </div>
-        </form>
-      </DialogContent>
-    </Dialog>
+                        <div className="flex justify-end pt-4">
+                            <button 
+                                type="submit" 
+                                className="group relative inline-flex items-center gap-3 bg-foreground text-background px-8 py-3.5 rounded-full text-[11px] font-sans font-medium uppercase tracking-[0.2em] hover:bg-foreground/90 transition-all duration-300  hover: hover:-translate-y-0.5"
+                            >
+                                <span>Save Entry</span>
+                                <ArrowRight size={14} className="transition-transform duration-300 group-hover:translate-x-1" />
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </DialogContent>
+        </Dialog>
   );
 };

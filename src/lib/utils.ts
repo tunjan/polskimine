@@ -15,23 +15,49 @@ export interface FuriganaSegment {
 }
 
 export function parseFurigana(text: string): FuriganaSegment[] {
-  const regex = /([^\s\[]+)\[([^\]]+)\]/g;
+  const regex = /([^\s\[\]]+)\[([^\]]+)\]/g;
   const segments: FuriganaSegment[] = [];
   let lastIndex = 0;
   let match;
 
   while ((match = regex.exec(text)) !== null) {
+    // Add any text between the last match and this match
     if (match.index > lastIndex) {
-      segments.push({ text: text.slice(lastIndex, match.index) });
+      const betweenText = text.slice(lastIndex, match.index);
+      // Split by spaces and add each part as a segment
+      betweenText.split(/(\s+)/).forEach(part => {
+        if (part) {
+          segments.push({ text: part });
+        }
+      });
     }
 
-    segments.push({ text: match[1], furigana: match[2] });
+    // Check for leading hiragana to fix spatial displacement
+    const kanjiText = match[1];
+    const furigana = match[2];
+    const hiraganaRegex = /^([\u3040-\u309f]+)(.*)/;
+    const hiraganaMatch = kanjiText.match(hiraganaRegex);
+
+    if (hiraganaMatch && hiraganaMatch[2]) {
+      // If there's leading hiragana and remaining text (kanji/katakana/etc),
+      // split it so the hiragana is outside the ruby tag
+      segments.push({ text: hiraganaMatch[1] });
+      segments.push({ text: hiraganaMatch[2], furigana: furigana });
+    } else {
+      segments.push({ text: kanjiText, furigana: furigana });
+    }
 
     lastIndex = regex.lastIndex;
   }
 
+  // Add any remaining text after the last match
   if (lastIndex < text.length) {
-    segments.push({ text: text.slice(lastIndex) });
+    const remainingText = text.slice(lastIndex);
+    remainingText.split(/(\s+)/).forEach(part => {
+      if (part) {
+        segments.push({ text: part });
+      }
+    });
   }
 
   return segments;

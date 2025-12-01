@@ -8,7 +8,7 @@ export const LoginScreen: React.FC = () => {
   return (
     <div className="min-h-screen flex flex-col items-center justify-center gap-8 bg-background px-6 text-center text-foreground">
       <div className="flex flex-col items-center gap-4">
-        <div className="w-16 h-16 rounded-full bg-primary text-primary-foreground flex items-center justify-center shadow-lg">
+        <div className="w-16 h-16 rounded-full bg-primary text-primary-foreground flex items-center justify-center ">
           <Command size={32} />
         </div>
         <div>
@@ -21,7 +21,7 @@ export const LoginScreen: React.FC = () => {
       <button
         onClick={signInWithGoogle}
         disabled={loading}
-        className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-primary text-primary-foreground hover:opacity-90 transition disabled:opacity-50 font-medium shadow-sm"
+        className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-primary text-primary-foreground hover:opacity-90 transition disabled:opacity-50 font-medium "
       >
         <LogIn size={18} />
         Continue with Google

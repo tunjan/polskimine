@@ -114,10 +114,39 @@ const App: React.FC = () => {
               <DeckProvider>
                 <SabotageProvider>
                   <LinguaFlowApp />
-                  <Toaster position="bottom-right" toastOptions={{
-                    className: 'rounded-none border-border font-mono text-xs uppercase tracking-wide',
-                    style: { borderRadius: '2px' }
-                  }} />
+                  <Toaster 
+                    position="bottom-right" 
+                    toastOptions={{
+                      className: 'bg-card/95 backdrop-blur-sm text-foreground border border-border/40  rounded-3xl font-serif px-6 py-4 gap-3',
+                      style: {
+                        fontFamily: 'var(--font-serif)',
+                        fontSize: '1rem',
+                        fontWeight: 400,
+                        letterSpacing: '-0.01em',
+                      },
+                      descriptionClassName: 'text-muted-foreground/80 font-sans font-light text-sm tracking-wide',
+                      actionButtonStyle: {
+                        backgroundColor: 'var(--primary)',
+                        color: 'var(--primary-foreground)',
+                        fontFamily: 'var(--font-sans)',
+                        borderRadius: '9999px',
+                        fontSize: '0.75rem',
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.1em',
+                        padding: '0.5rem 1rem',
+                      },
+                      cancelButtonStyle: {
+                        backgroundColor: 'var(--muted)',
+                        color: 'var(--muted-foreground)',
+                        fontFamily: 'var(--font-sans)',
+                        borderRadius: '9999px',
+                        fontSize: '0.75rem',
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.1em',
+                        padding: '0.5rem 1rem',
+                      }
+                    }} 
+                  />
                 </SabotageProvider>
               </DeckProvider>
             </SettingsProvider>

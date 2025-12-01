@@ -188,7 +188,7 @@ const AppSidebar: React.FC<NavActionProps> = ({
                   <ChevronUp className="ml-auto opacity-40" size={14} strokeWidth={1.5} />
                 </SidebarMenuButton>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="start" className="w-56 p-1.5 bg-background/95 backdrop-blur-sm border-border/40 rounded-lg shadow-lg">
+              <DropdownMenuContent align="start" className="w-56 p-1.5 bg-background/95 backdrop-blur-sm border-border/40 rounded-lg ">
                 {languages.map((lang) => (
                   <DropdownMenuItem
                     key={lang.code}
@@ -257,7 +257,7 @@ const MobileBottomNav: React.FC = () => {
   ];
 
   return (
-    <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 border-t border-border/30 bg-background/95 backdrop-blur-xl pb-[env(safe-area-inset-bottom)] shadow-[0_-2px_16px_rgba(0,0,0,0.04)] dark:shadow-[0_-2px_16px_rgba(0,0,0,0.2)]">
+    <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 border-t border-border/30 bg-background/95 backdrop-blur-xl pb-[env(safe-area-inset-bottom)] [0_-2px_16px_rgba(0,0,0,0.04)] dark:[0_-2px_16px_rgba(0,0,0,0.2)]">
       <div className="flex items-center justify-between h-16 px-6 max-w-md mx-auto relative">
 
         {/* Left Items */}
@@ -285,7 +285,7 @@ const MobileBottomNav: React.FC = () => {
         <div className="absolute left-1/2 -translate-x-1/2 -top-6">
           <Link
             to="/study"
-            className="flex items-center justify-center w-14 h-14 rounded-full bg-terracotta text-white shadow-lg shadow-terracotta/20 hover:shadow-terracotta/30 hover:scale-105 active:scale-95 transition-all duration-300 border-4 border-background"
+            className="flex items-center justify-center w-14 h-14 rounded-full bg-terracotta text-white  /20 hover:/30 hover:scale-105 active:scale-95 transition-all duration-300 border-4 border-background"
           >
             <GraduationCap size={24} strokeWidth={1.8} className="ml-0.5" />
           </Link>

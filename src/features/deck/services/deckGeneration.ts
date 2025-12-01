@@ -19,14 +19,13 @@ export async function generateInitialDeck(options: GenerateInitialDeckOptions): 
     try {
         // Use aiService.generateBatchCards which uses the existing 'generate-card' edge function
         // We define a broad topic suitable for the user's level
-        const topic = `Essential daily life phrases, greetings, and basic survival vocabulary for ${options.proficiencyLevel} level`;
+        const instructions = `Generate content for ${options.proficiencyLevel} level. Topic: Essential daily life phrases, greetings, and basic survival vocabulary.`;
 
         // We request 20 cards to ensure the AI response fits within timeouts/token limits
         // (50 cards often causes JSON parsing errors due to length)
         const generatedData = await aiService.generateBatchCards({
             language: options.language,
-            difficulty: options.proficiencyLevel,
-            topic: topic,
+            instructions: instructions,
             count: 20, 
             apiKey: options.apiKey,
         });

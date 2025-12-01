@@ -30,9 +30,8 @@ export const DataSettings: React.FC<DataSettingsProps> = ({
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 pl-1">
             <Button 
-                variant="outline"
+                variant="default"
                 onClick={onExport}
-                className="flex flex-col items-start justify-between gap-6 h-48 border-border/30 hover:border-terracotta/60 hover:bg-terracotta/5 group p-6 transition-all"
             >
                 <Download className="text-muted-foreground/50 group-hover:text-terracotta/80 transition-colors" strokeWidth={1} size={28} />
                 <div className="text-left space-y-2 w-full">
@@ -42,9 +41,8 @@ export const DataSettings: React.FC<DataSettingsProps> = ({
             </Button>
 
             <Button 
-                variant="outline"
+                variant="default"
                 onClick={() => csvInputRef.current?.click()}
-                className="flex flex-col items-start justify-between gap-6 h-48 border-border/30 hover:border-terracotta/60 hover:bg-terracotta/5 group p-6 transition-all"
             >
                 <Upload className="text-muted-foreground/50 group-hover:text-terracotta/80 transition-colors" strokeWidth={1} size={28} />
                 <div className="text-left space-y-2 w-full">
@@ -61,10 +59,9 @@ export const DataSettings: React.FC<DataSettingsProps> = ({
         </div>
         <div className="pl-1">
             <Button
-                variant={syncComplete ? "default" : "outline"}
+                variant="default"
                 onClick={onSyncToCloud}
                 disabled={isSyncingToCloud || syncComplete}
-                className="flex flex-col items-start justify-between gap-6 h-48 w-full border-border/30 hover:border-terracotta/60 hover:bg-terracotta/5 group p-6 transition-all disabled:opacity-60 disabled:cursor-not-allowed"
             >
                 {syncComplete ? (
                     <Check className="text-emerald-600 transition-colors" strokeWidth={1} size={28} />

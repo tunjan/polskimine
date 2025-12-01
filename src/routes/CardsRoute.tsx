@@ -15,7 +15,7 @@ import clsx from 'clsx';
 export const CardsRoute: React.FC = () => {
   const { settings } = useSettings();
   const { stats } = useDeck();
-  const { addCard, addCardsBatch, deleteCard, prioritizeCards } = useCardOperations();
+  const { addCard, addCardsBatch, deleteCard, deleteCardsBatch, prioritizeCards } = useCardOperations();
   
   const [searchTerm, setSearchTerm] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
@@ -85,9 +85,8 @@ export const CardsRoute: React.FC = () => {
     if (selectedIds.size === 0) return;
     if (confirm(`Are you sure you want to delete ${selectedIds.size} card${selectedIds.size === 1 ? '' : 's'}? This action cannot be undone.`)) {
         const ids = Array.from(selectedIds);
-        for (const id of ids) await deleteCard(id);
+        await deleteCardsBatch(ids);
         setSelectedIds(new Set());
-        toast.success(`Deleted ${ids.length} card${ids.length === 1 ? '' : 's'}`);
     }
   };
 
@@ -130,7 +129,7 @@ export const CardsRoute: React.FC = () => {
                       </button>
                       <button 
                         onClick={() => setIsAddModalOpen(true)} 
-                        className="p-2 rounded-full text-[oklch(0.99_0.005_85)] bg-[oklch(0.52_0.12_35)] hover:bg-[oklch(0.48_0.12_35)] transition-all duration-300 shadow-sm"
+                        className="p-2 rounded-full text-[oklch(0.99_0.005_85)] bg-[oklch(0.52_0.12_35)] hover:bg-[oklch(0.48_0.12_35)] transition-all duration-300 "
                         title="Add card"
                       >
                         <Plus size={18} strokeWidth={2} />
@@ -220,7 +219,7 @@ export const CardsRoute: React.FC = () => {
                     </button>
                     <button 
                       onClick={() => setIsAddModalOpen(true)} 
-                      className="p-2 rounded-full text-[oklch(0.99_0.005_85)] bg-[oklch(0.52_0.12_35)] hover:bg-[oklch(0.48_0.12_35)] transition-all duration-300 shadow-sm"
+                      className="p-2 rounded-full text-[oklch(0.99_0.005_85)] bg-[oklch(0.52_0.12_35)] hover:bg-[oklch(0.48_0.12_35)] transition-all duration-300 "
                       title="Add card"
                     >
                       <Plus size={18} strokeWidth={2} />
@@ -308,7 +307,7 @@ export const CardsRoute: React.FC = () => {
                     </button>
                     <button 
                       onClick={() => setIsAddModalOpen(true)} 
-                      className="inline-flex items-center gap-2 px-6 py-2.5 rounded-full text-sm font-medium tracking-wide text-[oklch(0.99_0.005_85)] border border-[oklch(0.52_0.12_35)] bg-[oklch(0.52_0.12_35)] hover:bg-[oklch(0.48_0.12_35)] transition-all duration-300 shadow-sm"
+                      className="inline-flex items-center gap-2 px-6 py-2.5 rounded-full text-sm font-medium tracking-wide text-[oklch(0.99_0.005_85)] border border-[oklch(0.52_0.12_35)] bg-[oklch(0.52_0.12_35)] hover:bg-[oklch(0.48_0.12_35)] transition-all duration-300 "
                       style={{ fontFamily: 'var(--font-sans)' }}
                     >
                       <Plus size={16} strokeWidth={2} />
@@ -324,7 +323,7 @@ export const CardsRoute: React.FC = () => {
               <div className="absolute -bottom-4 left-1/2 -translate-x-1/2">
                 <button
                   onClick={() => setIsHeaderExpanded(false)}
-                  className="p-1.5 rounded-full bg-background border border-border text-muted-foreground/60 hover:text-foreground hover:border-muted-foreground/40 transition-all duration-300 shadow-sm"
+                  className="p-1.5 rounded-full bg-background border border-border text-muted-foreground/60 hover:text-foreground hover:border-muted-foreground/40 transition-all duration-300 "
                   aria-label="Collapse header"
                 >
                   <ChevronUp size={16} strokeWidth={1.5} />
@@ -407,7 +406,7 @@ export const CardsRoute: React.FC = () => {
           selectedIds.size > 0 ? "translate-y-0 opacity-100" : "translate-y-8 opacity-0 pointer-events-none"
         )}>
           <div 
-            className="bg-card border border-border rounded-3xl shadow-2xl px-8 py-5 flex items-center gap-8"
+            className="bg-card border border-border rounded-3xl  px-8 py-5 flex items-center gap-8"
             style={{ 
               backdropFilter: 'blur(20px)',
               backgroundColor: 'oklch(0.99 0.005 85 / 0.95)'

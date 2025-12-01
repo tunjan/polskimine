@@ -193,7 +193,7 @@ const signatureForCard = (sentence: string, language: Language) =>
     `${language}::${sentence.trim().toLowerCase()}`;
 
 export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
-  const { settings, updateSettings } = useSettings();
+  const { settings, updateSettings, saveApiKeys } = useSettings();
     const { refreshDeckData } = useDeck();
     const { signOut, profile, updateUsername } = useAuth();
     const queryClient = useQueryClient();
@@ -240,6 +240,19 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
   const handleSave = async () => {
     const languageChanged = localSettings.language !== settings.language;
     updateSettings(localSettings);
+
+    // Save API keys to database
+    try {
+        await saveApiKeys({
+            geminiApiKey: localSettings.geminiApiKey,
+            googleTtsApiKey: localSettings.tts.googleApiKey,
+            azureTtsApiKey: localSettings.tts.azureApiKey,
+            azureRegion: localSettings.tts.azureRegion,
+        });
+    } catch (error) {
+        console.error('Failed to save API keys:', error);
+        // Don't return - continue with other saves
+    }
 
     if (localUsername !== profile?.username) {
         try {
@@ -519,7 +532,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="w-[95vw] max-w-5xl h-[92vh] md:h-[85vh] p-0 gap-0 overflow-hidden flex flex-col md:flex-row bg-cream dark:bg-background border-0 shadow-[0_8px_40px_rgba(0,0,0,0.08)] dark:shadow-[0_8px_40px_rgba(0,0,0,0.4)] rounded-2xl">
+      <DialogContent className="w-[95vw] max-w-5xl h-[92vh] md:h-[85vh] p-0 gap-0 overflow-hidden flex flex-col md:flex-row bg-cream dark:bg-background border-0 [0_8px_40px_rgba(0,0,0,0.08)] dark:[0_8px_40px_rgba(0,0,0,0.4)] rounded-2xl">
         
         {/* Refined Sidebar with warm tones */}
         <div className="w-full md:w-72 bg-linear-to-b from-background/40 to-background/20 dark:from-background/60 dark:to-background/30 backdrop-blur-sm border-b md:border-b-0 md:border-r border-border/30 p-6 md:p-8 flex flex-col justify-between shrink-0">
@@ -626,7 +639,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                                 className={clsx(
                                     "w-full py-4 text-sm font-serif tracking-wide transition-all duration-200",
                                     confirmResetDeck 
-                                        ? "bg-orange-600 dark:bg-orange-700 text-white hover:bg-orange-700 dark:hover:bg-orange-800 shadow-sm" 
+                                        ? "bg-orange-600 dark:bg-orange-700 text-white hover:bg-orange-700 dark:hover:bg-orange-800 " 
                                         : "bg-background/60 border border-border/40 hover:border-orange-400/60 hover:bg-orange-50/50 dark:hover:bg-orange-950/20 text-foreground/70 hover:text-foreground"
                                 )}
                             >
@@ -654,7 +667,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                                 className={clsx(
                                     "w-full py-4 text-sm font-serif tracking-wide transition-all duration-200",
                                     confirmResetAccount 
-                                        ? "bg-destructive text-destructive-foreground hover:bg-destructive/90 shadow-sm" 
+                                        ? "bg-destructive text-destructive-foreground hover:bg-destructive/90 " 
                                         : "bg-background/60 border border-destructive/30 text-destructive/80 hover:bg-red-50/50 dark:hover:bg-red-950/20 hover:border-destructive/60 hover:text-destructive"
                                 )}
                             >

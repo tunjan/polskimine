@@ -579,7 +579,7 @@ const MobileBottomNav: React.FC = () => {
         <div className="absolute left-1/2 -translate-x-1/2 -top-6">
           <Link
             to="/study"
-            className="flex items-center justify-center w-14 h-14 rounded-full bg-primary text-primary-foreground shadow-lg shadow-primary/20 hover:scale-105 active:scale-95 transition-all duration-300 border-4 border-background"
+            className="flex items-center justify-center w-14 h-14 rounded-full bg-primary text-primary-foreground  /20 hover:scale-105 active:scale-95 transition-all duration-300 border-4 border-background"
           >
             <GraduationCap size={24} strokeWidth={2} className="ml-0.5" />
           </Link>
@@ -698,11 +698,11 @@ const badgeVariants = cva(
     variants: {
       variant: {
         default:
-          "border-transparent bg-primary text-primary-foreground shadow hover:bg-primary/80",
+          "border-transparent bg-primary text-primary-foreground  hover:bg-primary/80",
         secondary:
           "border-transparent bg-secondary text-secondary-foreground hover:bg-secondary/80",
         destructive:
-          "border-transparent bg-destructive text-destructive-foreground shadow hover:bg-destructive/80",
+          "border-transparent bg-destructive text-destructive-foreground  hover:bg-destructive/80",
         outline: "text-foreground",
       },
     },
@@ -736,13 +736,13 @@ const buttonVariants = cva(
     variants: {
       variant: {
         default:
-          "bg-primary text-primary-foreground shadow-sm hover:bg-primary/90 border border-transparent",
+          "bg-primary text-primary-foreground  hover:bg-primary/90 border border-transparent",
         destructive:
-          "bg-destructive text-destructive-foreground shadow-sm hover:bg-destructive/90",
+          "bg-destructive text-destructive-foreground  hover:bg-destructive/90",
         outline:
-          "border border-input bg-background shadow-sm hover:bg-accent hover:text-accent-foreground",
+          "border border-input bg-background  hover:bg-accent hover:text-accent-foreground",
         secondary:
-          "bg-secondary text-secondary-foreground shadow-sm hover:bg-secondary/80",
+          "bg-secondary text-secondary-foreground  hover:bg-secondary/80",
         ghost: "hover:bg-accent hover:text-accent-foreground",
         link: "text-primary underline-offset-4 hover:underline",
       },
@@ -793,7 +793,7 @@ const Card = React.forwardRef<
   <div
     ref={ref}
     className={cn(
-      "rounded-xl border bg-card text-card-foreground shadow",
+      "rounded-xl border bg-card text-card-foreground ",
       className
     )}
     {...props}
@@ -935,7 +935,7 @@ export const ColorPicker: React.FC<ColorPickerProps> = ({ label, value, onChange
     <div className="flex items-center justify-between">
       <Label>{label}</Label>
       <div className="flex items-center gap-2">
-        <div className="relative w-10 h-10 rounded-md overflow-hidden border border-input shadow-sm">
+        <div className="relative w-10 h-10 rounded-md overflow-hidden border border-input ">
           <input
             type="color"
             value={hexValue}
@@ -995,7 +995,7 @@ const DialogContent = React.forwardRef<
       ref={ref}
       className={cn(
 
-        "fixed left-[50%] top-[50%] z-50 grid w-[95vw] max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4 border border-border bg-background p-6 shadow-2xl rounded-lg sm:rounded-xl",
+        "fixed left-[50%] top-[50%] z-50 grid w-[95vw] max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4 border border-border bg-background p-6  rounded-lg sm:rounded-xl",
         className
       )}
       {...props}
@@ -1127,7 +1127,7 @@ const DropdownMenuSubContent = React.forwardRef<
   <DropdownMenuPrimitive.SubContent
     ref={ref}
     className={cn(
-      "z-50 min-w-[8rem] overflow-hidden rounded-md border bg-popover p-1 text-popover-foreground shadow-lg data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 origin-[--radix-dropdown-menu-content-transform-origin]",
+      "z-50 min-w-[8rem] overflow-hidden rounded-md border bg-popover p-1 text-popover-foreground  data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 origin-[--radix-dropdown-menu-content-transform-origin]",
       className
     )}
     {...props}
@@ -1145,7 +1145,7 @@ const DropdownMenuContent = React.forwardRef<
       ref={ref}
       sideOffset={sideOffset}
       className={cn(
-        "z-50 max-h-[var(--radix-dropdown-menu-content-available-height)] min-w-[8rem] overflow-y-auto overflow-x-hidden rounded-md border bg-popover p-1 text-popover-foreground shadow-md",
+        "z-50 max-h-[var(--radix-dropdown-menu-content-available-height)] min-w-[8rem] overflow-y-auto overflow-x-hidden rounded-md border bg-popover p-1 text-popover-foreground ",
         "data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 origin-[--radix-dropdown-menu-content-transform-origin]",
         className
       )}
@@ -1326,7 +1326,7 @@ function Input({ className, type, ...props }: React.ComponentProps<"input">) {
       type={type}
       data-slot="input"
       className={cn(
-        "file:text-foreground placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground dark:bg-input/30 border-input h-9 w-full min-w-0 rounded-md border bg-transparent px-3 py-1 text-base shadow-xs transition-[color,box-shadow] outline-none file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm",
+        "file:text-foreground placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground dark:bg-input/30 border-input h-9 w-full min-w-0 rounded-md border bg-transparent px-3 py-1 text-base  transition-[color,box-] outline-none file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm",
         "focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px]",
         "aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive",
         className
@@ -1470,7 +1470,7 @@ const SelectContent = React.forwardRef<
     <SelectPrimitive.Content
       ref={ref}
       className={cn(
-        "relative z-50 max-h-[--radix-select-content-available-height] min-w-[8rem] overflow-y-auto overflow-x-hidden rounded-md border bg-popover text-popover-foreground shadow-md data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 origin-[--radix-select-content-transform-origin]",
+        "relative z-50 max-h-[--radix-select-content-available-height] min-w-[8rem] overflow-y-auto overflow-x-hidden rounded-md border bg-popover text-popover-foreground  data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 origin-[--radix-select-content-transform-origin]",
         position === "popper" &&
           "data-[side=bottom]:translate-y-1 data-[side=left]:-translate-x-1 data-[side=right]:translate-x-1 data-[side=top]:-translate-y-1",
         className
@@ -1641,7 +1641,7 @@ function SheetContent({
       <SheetPrimitive.Content
         data-slot="sheet-content"
         className={cn(
-          "bg-background data-[state=open]:animate-in data-[state=closed]:animate-out fixed z-50 flex flex-col gap-4 shadow-lg transition ease-in-out data-[state=closed]:duration-300 data-[state=open]:duration-500",
+          "bg-background data-[state=open]:animate-in data-[state=closed]:animate-out fixed z-50 flex flex-col gap-4  transition ease-in-out data-[state=closed]:duration-300 data-[state=open]:duration-500",
           side === "right" &&
             "data-[state=closed]:slide-out-to-right data-[state=open]:slide-in-from-right inset-y-0 right-0 h-full w-3/4 border-l sm:max-w-sm",
           side === "left" &&
@@ -2034,7 +2034,7 @@ function SidebarInset({ className, ...props }: React.ComponentProps<"main">) {
       data-slot="sidebar-inset"
       className={cn(
         "bg-background relative flex w-full flex-1 flex-col",
-        "md:peer-data-[variant=inset]:m-2 md:peer-data-[variant=inset]:ml-0 md:peer-data-[variant=inset]:rounded-xl md:peer-data-[variant=inset]:shadow-sm md:peer-data-[variant=inset]:peer-data-[state=collapsed]:ml-2",
+        "md:peer-data-[variant=inset]:m-2 md:peer-data-[variant=inset]:ml-0 md:peer-data-[variant=inset]:rounded-xl md:peer-data-[variant=inset]: md:peer-data-[variant=inset]:peer-data-[state=collapsed]:ml-2",
         className
       )}
       {...props}
@@ -2050,7 +2050,7 @@ function SidebarInput({
     <Input
       data-slot="sidebar-input"
       data-sidebar="input"
-      className={cn("bg-background h-8 w-full shadow-none", className)}
+      className={cn("bg-background h-8 w-full ", className)}
       {...props}
     />
   )
@@ -2204,7 +2204,7 @@ const sidebarMenuButtonVariants = cva(
       variant: {
         default: "hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
         outline:
-          "bg-background shadow-[0_0_0_1px_hsl(var(--sidebar-border))] hover:bg-sidebar-accent hover:text-sidebar-accent-foreground hover:shadow-[0_0_0_1px_hsl(var(--sidebar-accent))]",
+          "bg-background [0_0_0_1px_hsl(var(--sidebar-border))] hover:bg-sidebar-accent hover:text-sidebar-accent-foreground hover:[0_0_0_1px_hsl(var(--sidebar-accent))]",
       },
       size: {
         default: "h-8 text-sm",
@@ -2487,7 +2487,7 @@ const Slider = React.forwardRef<
     <SliderPrimitive.Track className="relative h-1.5 w-full grow overflow-hidden rounded-full bg-primary/20">
       <SliderPrimitive.Range className="absolute h-full bg-primary" />
     </SliderPrimitive.Track>
-    <SliderPrimitive.Thumb className="block h-4 w-4 rounded-full border border-primary/50 bg-background shadow transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50" />
+    <SliderPrimitive.Thumb className="block h-4 w-4 rounded-full border border-primary/50 bg-background  transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50" />
   </SliderPrimitive.Root>
 ))
 Slider.displayName = SliderPrimitive.Root.displayName
@@ -2505,7 +2505,7 @@ const Switch = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <SwitchPrimitives.Root
     className={cn(
-      "peer inline-flex h-5 w-9 shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:bg-primary data-[state=unchecked]:bg-input",
+      "peer inline-flex h-5 w-9 shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent  transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:bg-primary data-[state=unchecked]:bg-input",
       className
     )}
     {...props}
@@ -2513,7 +2513,7 @@ const Switch = React.forwardRef<
   >
     <SwitchPrimitives.Thumb
       className={cn(
-        "pointer-events-none block h-4 w-4 rounded-full bg-background shadow-lg ring-0 transition-transform data-[state=checked]:translate-x-4 data-[state=unchecked]:translate-x-0"
+        "pointer-events-none block h-4 w-4 rounded-full bg-background  ring-0 transition-transform data-[state=checked]:translate-x-4 data-[state=unchecked]:translate-x-0"
       )}
     />
   </SwitchPrimitives.Root>
@@ -2668,7 +2668,7 @@ const TabsTrigger = React.forwardRef<
   <TabsPrimitive.Trigger
     ref={ref}
     className={cn(
-      "inline-flex items-center justify-center whitespace-nowrap rounded-sm px-3 py-1.5 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm",
+      "inline-flex items-center justify-center whitespace-nowrap rounded-sm px-3 py-1.5 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:",
       className
     )}
     {...props}
@@ -4502,7 +4502,7 @@ export const LoginScreen: React.FC = () => {
   return (
     <div className="min-h-screen flex flex-col items-center justify-center gap-8 bg-background px-6 text-center text-foreground">
       <div className="flex flex-col items-center gap-4">
-        <div className="w-16 h-16 rounded-full bg-primary text-primary-foreground flex items-center justify-center shadow-lg">
+        <div className="w-16 h-16 rounded-full bg-primary text-primary-foreground flex items-center justify-center ">
           <Command size={32} />
         </div>
         <div>
@@ -4515,7 +4515,7 @@ export const LoginScreen: React.FC = () => {
       <button
         onClick={signInWithGoogle}
         disabled={loading}
-        className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-primary text-primary-foreground hover:opacity-90 transition disabled:opacity-50 font-medium shadow-sm"
+        className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-primary text-primary-foreground hover:opacity-90 transition disabled:opacity-50 font-medium "
       >
         <LogIn size={18} />
         Continue with Google
@@ -5006,7 +5006,7 @@ export const GradeDistributionChart: React.FC<GradeDistributionChartProps> = ({ 
                     content={({ active, payload }) => {
                         if (active && payload && payload.length) {
                         return (
-                            <div className="bg-background border border-border px-2 py-1 text-xs font-mono shadow-xl">
+                            <div className="bg-background border border-border px-2 py-1 text-xs font-mono ">
                                 {payload[0].name}: {payload[0].value}
                             </div>
                         );
@@ -5235,7 +5235,7 @@ export const RetentionStats: React.FC<RetentionStatsProps> = ({ cards }) => {
   const CustomTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
       return (
-        <div className="bg-foreground text-background text-[10px] font-mono uppercase tracking-wider px-3 py-2 shadow-xl border-none">
+        <div className="bg-foreground text-background text-[10px] font-mono uppercase tracking-wider px-3 py-2  border-none">
           <span className="opacity-70">{label}:</span> <span className="font-bold">{payload[0].value}</span>
         </div>
       );
@@ -5341,7 +5341,7 @@ export const ReviewVolumeChart: React.FC<ReviewVolumeChartProps> = ({ data }) =>
   const CustomTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
       return (
-        <div className="bg-background border border-border px-3 py-2 shadow-xl">
+        <div className="bg-background border border-border px-3 py-2 ">
           <div className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground mb-1">{payload[0].payload.date}</div>
           <div className="text-sm font-medium">
             <span className="font-mono">{payload[0].value}</span> reviews
@@ -5402,7 +5402,7 @@ export const TrueRetentionChart: React.FC<TrueRetentionChartProps> = ({ data, ta
   const CustomTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
       return (
-        <div className="bg-background border border-border px-3 py-2 shadow-xl">
+        <div className="bg-background border border-border px-3 py-2 ">
           <div className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground mb-1">{label}</div>
           <div className="flex items-center gap-2">
              <span className="text-sm font-medium font-mono">{payload[0].value.toFixed(1)}%</span>
@@ -5623,7 +5623,7 @@ export const AddCardModal: React.FC<AddCardModalProps> = ({ isOpen, onClose, onA
 
     return (
         <Dialog open={isOpen} onOpenChange={onClose}>
-            <DialogContent className="sm:max-w-2xl p-12 bg-background border border-border shadow-2xl sm:rounded-xl gap-0">
+            <DialogContent className="sm:max-w-2xl p-12 bg-background border border-border  sm:rounded-xl gap-0">
                 <DialogDescription className="sr-only">Form to add or edit a flashcard</DialogDescription>
         <form onSubmit={handleSubmit} className="flex flex-col gap-10">
             {/* Header */}
@@ -5756,7 +5756,7 @@ export const CardHistoryModal: React.FC<CardHistoryModalProps> = ({ card, isOpen
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-2xl bg-background border border-border shadow-2xl sm:rounded-xl p-0 gap-0 overflow-hidden">
+      <DialogContent className="sm:max-w-2xl bg-background border border-border  sm:rounded-xl p-0 gap-0 overflow-hidden">
         
         {/* Header: Clean, Spaced out */}
         <div className="p-8 md:p-10 border-b border-border/40">
@@ -5967,7 +5967,7 @@ const Row = memo(({ index, style, data }: ListChildComponentProps<any>) => {
             <DropdownMenuTrigger className="w-8 h-8 flex items-center justify-center text-zinc-300 hover:text-foreground transition-colors outline-none opacity-0 group-hover:opacity-100 focus:opacity-100">
                 <MoreHorizontal size={16} strokeWidth={1.5} />
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-48 rounded-none border-border p-1 bg-background shadow-none border">
+            <DropdownMenuContent align="end" className="w-48 rounded-none border-border p-1 bg-background  border">
                 <DropdownMenuItem onClick={() => onPrioritizeCard(card.id)} className="rounded-none text-xs font-mono uppercase tracking-wider cursor-pointer">
                     <Zap size={12} className="mr-3" /> Prioritize
                 </DropdownMenuItem>
@@ -6137,7 +6137,7 @@ export const GenerateCardsModal: React.FC<GenerateCardsModalProps> = ({ isOpen, 
 
   return (
     <Dialog open={isOpen} onOpenChange={resetAndClose}>
-      <DialogContent className="sm:max-w-3xl p-12 bg-white dark:bg-black border border-border shadow-2xl sm:rounded-xl gap-0">
+      <DialogContent className="sm:max-w-3xl p-12 bg-white dark:bg-black border border-border  sm:rounded-xl gap-0">
         
         <div className="flex justify-between items-start mb-10">
           <div>
@@ -8047,14 +8047,14 @@ export const SabotageNotification: React.FC = () => {
     <Dialog open={isOpen} onOpenChange={(open) => !open && dismissNotification()}>
       <DialogContent
         className={cn(
-          'sm:max-w-md border-destructive/50 bg-destructive/10 backdrop-blur-xl shadow-[0_0_50px_-12px_rgba(239,68,68,0.5)]',
+          'sm:max-w-md border-destructive/50 bg-destructive/10 backdrop-blur-xl [0_0_50px_-12px_rgba(239,68,68,0.5)]',
           shake && 'animate-shake'
         )}
       >
         <div className="flex flex-col items-center text-center space-y-6 py-6">
           <div className="relative">
             <div className="absolute inset-0 bg-destructive blur-2xl opacity-20 animate-pulse rounded-full" />
-            <div className="relative bg-background p-4 rounded-full border-2 border-destructive shadow-xl">
+            <div className="relative bg-background p-4 rounded-full border-2 border-destructive ">
               <Skull size={48} className="text-destructive animate-[wiggle_1s_ease-in-out_infinite]" />
             </div>
           </div>
@@ -9248,7 +9248,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       {/* UPDATED: Responsive height and padding */}
-      <DialogContent className="w-[95vw] max-w-[95vw] sm:max-w-4xl h-[90vh] md:h-[600px] p-0 gap-0 overflow-hidden flex flex-col md:flex-row bg-background border border-border shadow-2xl rounded-xl">
+      <DialogContent className="w-[95vw] max-w-[95vw] sm:max-w-4xl h-[90vh] md:h-[600px] p-0 gap-0 overflow-hidden flex flex-col md:flex-row bg-background border border-border  rounded-xl">
         
         {/* Sidebar */}
         <div className="w-full md:w-64 bg-secondary border-b md:border-b-0 md:border-r border-border p-4 md:p-6 flex flex-col justify-between shrink-0">
@@ -9545,7 +9545,7 @@ export const CramModal = ({ isOpen, onClose }: CramModalProps) => {
 
     return (
         <Dialog open={isOpen} onOpenChange={onClose}>
-            <DialogContent className="w-[95vw] max-w-md p-0 gap-0 bg-background border border-border shadow-xl overflow-hidden">
+            <DialogContent className="w-[95vw] max-w-md p-0 gap-0 bg-background border border-border  overflow-hidden">
                 <div className="p-6 space-y-6">
                     <div className="space-y-1">
                         <DialogTitle className="text-lg font-semibold tracking-tight">Cram Session</DialogTitle>
@@ -9600,7 +9600,7 @@ export const CramModal = ({ isOpen, onClose }: CramModalProps) => {
                     </button>
                     <button 
                         onClick={handleStart}
-                        className="flex items-center gap-2 bg-primary text-primary-foreground px-5 py-2 text-sm font-medium hover:bg-primary/90 transition-colors rounded-md shadow-sm"
+                        className="flex items-center gap-2 bg-primary text-primary-foreground px-5 py-2 text-sm font-medium hover:bg-primary/90 transition-colors rounded-md "
                     >
                         Start Session <ArrowRight size={14} />
                     </button>
@@ -9883,7 +9883,7 @@ export const Flashcard = React.memo<FlashcardProps>(({
           <button
             onClick={handleAnalyze}
             disabled={isAnalyzing}
-            className="bg-foreground text-background px-4 py-2 rounded-full shadow-2xl hover:scale-105 transition-transform text-[10px] font-mono uppercase tracking-widest flex items-center gap-2"
+            className="bg-foreground text-background px-4 py-2 rounded-full  hover:scale-105 transition-transform text-[10px] font-mono uppercase tracking-widest flex items-center gap-2"
           >
             {isAnalyzing ? <Loader2 size={10} className="animate-spin" /> : <Sparkles size={10} />}
             Explain
@@ -9893,7 +9893,7 @@ export const Flashcard = React.memo<FlashcardProps>(({
 
       {/* Analysis Modal */}
       <Dialog open={isAnalysisOpen} onOpenChange={setIsAnalysisOpen}>
-        <DialogContent className="sm:max-w-lg bg-background border border-border p-8 md:p-12 shadow-2xl">
+        <DialogContent className="sm:max-w-lg bg-background border border-border p-8 md:p-12 ">
           <div className="space-y-8">
             <div className="space-y-2 border-b border-border pb-6">
               <div className="flex justify-between items-start">
@@ -11472,7 +11472,7 @@ export const CardsRoute: React.FC = () => {
             "fixed bottom-8 left-1/2 -translate-x-1/2 z-50 transition-all duration-500 ease-out",
             selectedIds.size > 0 ? "translate-y-0 opacity-100" : "translate-y-8 opacity-0 pointer-events-none"
         )}>
-            <div className="bg-zinc-900 dark:bg-zinc-50 text-zinc-50 dark:text-zinc-900 px-6 py-3 shadow-2xl flex items-center gap-8">
+            <div className="bg-zinc-900 dark:bg-zinc-50 text-zinc-50 dark:text-zinc-900 px-6 py-3  flex items-center gap-8">
                 <span className="text-[10px] font-mono uppercase tracking-widest">
                     {selectedIds.size} Selected
                 </span>
