@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { Loader2, Sparkles, BookOpen } from 'lucide-react';
+import { Sparkles, BookOpen } from 'lucide-react';
+import { ButtonLoader } from '@/components/ui/game-ui';
 import { Difficulty, Language } from '@/types';
 import clsx from 'clsx';
 
@@ -152,7 +153,7 @@ export const DeckGenerationStep: React.FC<DeckGenerationStepProps> = ({
             >
                 {loading ? (
                     <>
-                        <Loader2 size={14} className="animate-spin" />
+                        <ButtonLoader />
                         {selectedOption === 'ai' ? 'Generating...' : 'Setting up...'}
                     </>
                 ) : (

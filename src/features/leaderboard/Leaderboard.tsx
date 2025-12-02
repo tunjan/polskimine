@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { Trophy, Flame, Sparkles } from 'lucide-react';
+import { Trophy, Flame, Sparkles, Crown, Medal, Award, Star } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
 import { getDailyStreakMultiplier } from '@/features/xp/xpUtils';
+import { GamePanel, GameSectionHeader, GameDivider } from '@/components/ui/game-ui';
+import { cn } from '@/lib/utils';
 import clsx from 'clsx';
 
 interface LeaderboardEntry {
@@ -18,55 +20,74 @@ type TimeRange = 'weekly' | 'monthly' | 'yearly' | 'lifetime';
 type LanguageFilter = 'all' | 'polish' | 'norwegian' | 'japanese' | 'spanish';
 
 const RankBadge = ({ rank }: { rank: number }) => {
-  // Warm, editorial styling for ranks
+  // Game-style ranking with Genshin-inspired design
   if (rank === 1) {
     return (
-      <div className="flex items-center justify-center w-12 h-12 rounded-full bg-linear-to-br from-amber-100 to-yellow-50 dark:from-amber-900/30 dark:to-yellow-900/20 border border-amber-200/50 dark:border-amber-700/30">
-        <span className="text-lg font-serif font-semibold text-amber-700 dark:text-amber-400">1</span>
+      <div className="relative group">
+        <div className="flex items-center justify-center w-12 h-12 bg-linear-to-br from-amber-500/20 to-yellow-500/10 border border-amber-400/50 transition-all duration-300 group-hover:border-amber-400/80 group-hover:shadow-[0_0_15px_-3px_rgba(245,158,11,0.4)]">
+          {/* Corner accents */}
+          <span className="absolute -top-px -left-px w-2 h-2 border-l-2 border-t-2 border-amber-400" />
+          <span className="absolute -top-px -right-px w-2 h-2 border-r-2 border-t-2 border-amber-400" />
+          <span className="absolute -bottom-px -left-px w-2 h-2 border-l-2 border-b-2 border-amber-400" />
+          <span className="absolute -bottom-px -right-px w-2 h-2 border-r-2 border-b-2 border-amber-400" />
+          <Crown className="w-5 h-5 text-amber-400" strokeWidth={1.5} />
+        </div>
       </div>
     );
   }
   if (rank === 2) {
     return (
-      <div className="flex items-center justify-center w-11 h-11 rounded-full bg-linear-to-br from-stone-100 to-gray-50 dark:from-stone-800/30 dark:to-gray-800/20 border border-stone-200/50 dark:border-stone-700/30">
-        <span className="text-base font-serif font-medium text-stone-600 dark:text-stone-400">2</span>
+      <div className="relative group">
+        <div className="flex items-center justify-center w-11 h-11 bg-linear-to-br from-slate-400/15 to-slate-300/10 border border-slate-400/40 transition-all duration-300 group-hover:border-slate-400/70">
+          <span className="absolute -top-px -left-px w-1.5 h-1.5 border-l border-t border-slate-400" />
+          <span className="absolute -top-px -right-px w-1.5 h-1.5 border-r border-t border-slate-400" />
+          <span className="absolute -bottom-px -left-px w-1.5 h-1.5 border-l border-b border-slate-400" />
+          <span className="absolute -bottom-px -right-px w-1.5 h-1.5 border-r border-b border-slate-400" />
+          <Medal className="w-4 h-4 text-slate-400" strokeWidth={1.5} />
+        </div>
       </div>
     );
   }
   if (rank === 3) {
     return (
-      <div className="flex items-center justify-center w-10 h-10 rounded-full bg-linear-to-br from-orange-100 to-amber-50 dark:from-orange-900/30 dark:to-amber-900/20 border border-orange-200/50 dark:border-orange-700/30">
-        <span className="text-sm font-serif font-medium text-orange-700 dark:text-orange-400">3</span>
+      <div className="relative group">
+        <div className="flex items-center justify-center w-10 h-10 bg-linear-to-br from-orange-500/15 to-amber-500/10 border border-orange-400/40 transition-all duration-300 group-hover:border-orange-400/70">
+          <span className="absolute -top-px -left-px w-1.5 h-1.5 border-l border-t border-orange-400" />
+          <span className="absolute -top-px -right-px w-1.5 h-1.5 border-r border-t border-orange-400" />
+          <span className="absolute -bottom-px -left-px w-1.5 h-1.5 border-l border-b border-orange-400" />
+          <span className="absolute -bottom-px -right-px w-1.5 h-1.5 border-r border-b border-orange-400" />
+          <Award className="w-4 h-4 text-orange-400" strokeWidth={1.5} />
+        </div>
       </div>
     );
   }
   return (
-    <div className="flex items-center justify-center w-9 h-9">
-      <span className="text-sm font-serif text-warm-gray dark:text-warm-gray/70">{rank}</span>
+    <div className="flex items-center justify-center w-9 h-9 bg-card/60 border border-border/50">
+      <span className="text-sm font-light text-muted-foreground tabular-nums">{rank}</span>
     </div>
   );
 };
 
 const StreakIndicator = ({ days }: { days: number }) => {
-  if (!days) return <span className="text-xs text-muted-foreground/30 font-serif italic">—</span>;
+  if (!days) return <span className="text-xs text-muted-foreground/30 font-ui">—</span>;
 
   const { value } = getDailyStreakMultiplier(days);
   const intensity = Math.min(Math.max(value - 1, 0), 1);
 
-  // Warm, muted color progression
+  // Game-style color progression
   const colorClass =
     intensity > 0.9
-      ? 'text-terracotta dark:text-terracotta-light'
+      ? 'text-orange-500'
       : intensity > 0.6
-      ? 'text-amber-600 dark:text-amber-500'
+      ? 'text-amber-500'
       : intensity > 0.3
-      ? 'text-orange-700 dark:text-orange-400'
-      : 'text-warm-gray dark:text-warm-gray/80';
+      ? 'text-yellow-600'
+      : 'text-muted-foreground';
 
   return (
-    <div className="flex items-center gap-1.5">
-      <Flame size={14} className={clsx('opacity-70', colorClass)} fill="currentColor" />
-      <span className={clsx('text-sm font-serif tabular-nums', colorClass)}>{days}</span>
+    <div className="flex items-center gap-1.5 px-2 py-1 bg-card/60 border border-border/40">
+      <Flame size={14} className={cn('opacity-80', colorClass)} fill="currentColor" />
+      <span className={cn('text-sm font-light tabular-nums', colorClass)}>{days}</span>
     </div>
   );
 };
@@ -126,74 +147,99 @@ export const Leaderboard: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Editorial Header - Generous whitespace, serif typography */}
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 pt-12 sm:pt-16 pb-8 sm:pb-12 space-y-8 sm:space-y-12">
-        {/* Hero Section */}
-        <div className="space-y-6 sm:space-y-8">
-          <div className="flex items-center gap-2 sm:gap-3 text-terracotta dark:text-terracotta-light">
-            <Trophy size={16} className="sm:w-[18px] sm:h-[18px]" strokeWidth={1.5} />
-            <span className="text-[10px] sm:text-xs font-sans uppercase tracking-[0.2em] sm:tracking-[0.25em] font-light">Leaderboard</span>
+    <div className="min-h-screen bg-background px-4 md:px-6 lg:px-8 py-4 md:py-6 max-w-[1100px] mx-auto">
+      
+      {/* Game-style Header */}
+      <section className="mb-8 md:mb-10">
+        <GamePanel variant="highlight" size="lg" glowOnHover className="mb-6">
+          <div className="flex items-center gap-4 mb-6">
+            <div className="w-12 h-12 bg-primary/10 border border-primary/30 flex items-center justify-center relative">
+              <Trophy className="w-5 h-5 text-primary" strokeWidth={1.5} />
+              <span className="absolute -top-px -left-px w-2 h-2 border-l border-t border-primary" />
+              <span className="absolute -top-px -right-px w-2 h-2 border-r border-t border-primary" />
+              <span className="absolute -bottom-px -left-px w-2 h-2 border-l border-b border-primary" />
+              <span className="absolute -bottom-px -right-px w-2 h-2 border-r border-b border-primary" />
+            </div>
+            <div>
+              <p className="text-[10px] text-muted-foreground uppercase tracking-[0.2em] font-ui mb-1">Global Rankings</p>
+              <h1 className="text-2xl md:text-3xl font-light text-foreground tracking-tight">
+                Leaderboard
+              </h1>
+            </div>
           </div>
+          
+          <p className="text-sm text-muted-foreground font-light leading-relaxed max-w-2xl">
+            A celebration of dedication, consistency, and the pursuit of mastery.
+          </p>
+        </GamePanel>
 
-          <div className="space-y-4 sm:space-y-6">
-            <h1 className="text-4xl sm:text-5xl md:text-7xl font-serif font-light tracking-tight text-foreground leading-[1.1]">
-              Global Rankings
-            </h1>
-            <p className="text-base sm:text-lg md:text-xl font-serif text-muted-foreground leading-relaxed max-w-2xl font-light">
-              A celebration of dedication, consistency, and the quiet pursuit of mastery.
-            </p>
-          </div>
-        </div>
-
-        {/* Minimal Filter Controls */}
-        <div className="flex flex-col sm:flex-row flex-wrap gap-4 sm:gap-6 items-start sm:items-center pt-2 sm:pt-4">
-          <div className="flex items-center gap-4 sm:gap-6 text-xs sm:text-sm overflow-x-auto w-full sm:w-auto pb-2 sm:pb-0 -mx-4 px-4 sm:mx-0 sm:px-0">
+        {/* Filters - Game Style */}
+        <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 items-start sm:items-center">
+          <div className="flex items-center gap-2 overflow-x-auto w-full sm:w-auto pb-2 sm:pb-0 -mx-4 px-4 sm:mx-0 sm:px-0">
             {(['weekly', 'monthly', 'yearly', 'lifetime'] as TimeRange[]).map((range) => (
               <button
                 key={range}
                 onClick={() => setTimeRange(range)}
-                className={clsx(
-                  'font-serif transition-all pb-1 whitespace-nowrap min-w-fit',
+                className={cn(
+                  'relative px-4 py-2 text-xs uppercase tracking-widest font-ui transition-all duration-200 whitespace-nowrap border',
                   timeRange === range
-                    ? 'text-foreground border-b-2 border-terracotta dark:border-terracotta-light font-medium'
-                    : 'text-muted-foreground hover:text-foreground active:text-foreground'
+                    ? 'text-foreground bg-card border-primary/50 shadow-[0_0_10px_-3px_hsl(var(--primary)/0.3)]'
+                    : 'text-muted-foreground bg-transparent border-border/40 hover:border-border hover:text-foreground'
                 )}
               >
+                {timeRange === range && (
+                  <>
+                    <span className="absolute -top-px -left-px w-1.5 h-1.5 border-l border-t border-primary" />
+                    <span className="absolute -top-px -right-px w-1.5 h-1.5 border-r border-t border-primary" />
+                    <span className="absolute -bottom-px -left-px w-1.5 h-1.5 border-l border-b border-primary" />
+                    <span className="absolute -bottom-px -right-px w-1.5 h-1.5 border-r border-b border-primary" />
+                  </>
+                )}
                 {timeRangeLabels[range]}
               </button>
             ))}
           </div>
 
           <div className="w-full sm:w-auto sm:ml-auto">
-            <select
-              value={languageFilter}
-              onChange={(e) => setLanguageFilter(e.target.value as LanguageFilter)}
-              className="w-full sm:w-auto bg-transparent border-b border-border pb-1 text-xs sm:text-sm font-serif text-foreground outline-none focus:border-terracotta dark:focus:border-terracotta-light transition-colors cursor-pointer"
-            >
-              {Object.entries(languageLabels).map(([value, label]) => (
-                <option key={value} value={value}>
-                  {label}
-                </option>
-              ))}
-            </select>
+            <div className="relative">
+              <select
+                value={languageFilter}
+                onChange={(e) => setLanguageFilter(e.target.value as LanguageFilter)}
+                className="w-full sm:w-auto appearance-none bg-card border border-border/50 px-4 py-2 pr-8 text-xs font-ui text-foreground uppercase tracking-widest outline-none focus:border-primary/50 transition-colors cursor-pointer"
+              >
+                {Object.entries(languageLabels).map(([value, label]) => (
+                  <option key={value} value={value}>
+                    {label}
+                  </option>
+                ))}
+              </select>
+              <span className="absolute right-3 top-1/2 -translate-y-1/2 w-1.5 h-1.5 rotate-45 border-r border-b border-muted-foreground pointer-events-none" />
+            </div>
           </div>
         </div>
-      </div>
+      </section>
 
-      {/* Refined Leaderboard Table */}
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 pb-16 sm:pb-24">
+      <GameDivider />
+
+      {/* Leaderboard List */}
+      <section className="pb-16 sm:pb-24">
         {loading ? (
-          <div className="py-20 sm:py-32 flex flex-col items-center justify-center gap-4 sm:gap-6 text-muted-foreground">
-            <div className="w-6 h-6 sm:w-8 sm:h-8 border-2 border-terracotta/30 border-t-terracotta rounded-full animate-spin" />
-            <span className="font-serif text-xs sm:text-sm font-light tracking-wide">Loading rankings...</span>
-          </div>
+          <GamePanel className="py-20 flex flex-col items-center justify-center gap-4 border-dashed">
+            <div className="relative">
+              <div className="w-10 h-10 border-2 border-primary/30 border-t-primary animate-spin" />
+              <span className="absolute -top-px -left-px w-2 h-2 border-l border-t border-primary/50" />
+              <span className="absolute -top-px -right-px w-2 h-2 border-r border-t border-primary/50" />
+              <span className="absolute -bottom-px -left-px w-2 h-2 border-l border-b border-primary/50" />
+              <span className="absolute -bottom-px -right-px w-2 h-2 border-r border-b border-primary/50" />
+            </div>
+            <span className="text-xs text-muted-foreground font-ui uppercase tracking-[0.15em]">Loading rankings...</span>
+          </GamePanel>
         ) : profiles.length === 0 ? (
-          <div className="py-20 sm:py-32 text-center px-4">
-            <p className="font-serif text-muted-foreground text-base sm:text-lg font-light">No rankings available for this period.</p>
-          </div>
+          <GamePanel className="py-20 text-center border-dashed">
+            <p className="text-muted-foreground font-light">No rankings available for this period.</p>
+          </GamePanel>
         ) : (
-          <div className="space-y-0.5 sm:space-y-1">
+          <div className="space-y-2">
             {profiles.map((profile, index) => {
               const rank = index + 1;
               const isCurrentUser = profile.id === user?.id;
@@ -201,13 +247,14 @@ export const Leaderboard: React.FC = () => {
               const streak = profile.streak ?? 0;
 
               return (
-                <div
+                <GamePanel
                   key={profile.id}
-                  className={clsx(
-                    'group relative flex items-center gap-3 sm:gap-4 md:gap-6 px-3 sm:px-4 md:px-6 py-4 sm:py-5 md:py-6 rounded-xl sm:rounded-2xl transition-all duration-300 active:scale-[0.99] sm:active:scale-100',
-                    isCurrentUser
-                      ? 'bg-terracotta/5 dark:bg-terracotta/10 hover:bg-terracotta/10 dark:hover:bg-terracotta/15'
-                      : 'hover:bg-muted/30 active:bg-muted/40'
+                  variant={isCurrentUser ? 'highlight' : 'default'}
+                  size="sm"
+                  glowOnHover
+                  className={cn(
+                    'group flex items-center gap-3 sm:gap-4 md:gap-6 transition-all duration-300',
+                    isCurrentUser && 'border-primary/40'
                   )}
                 >
                   {/* Rank Badge */}
@@ -216,24 +263,27 @@ export const Leaderboard: React.FC = () => {
                   </div>
 
                   {/* User Info */}
-                  <div className="flex-1 min-w-0 space-y-0.5 sm:space-y-1">
+                  <div className="flex-1 min-w-0 space-y-0.5">
                     <div className="flex items-baseline gap-2 sm:gap-3">
                       <h3
-                        className={clsx(
-                          'font-serif text-base sm:text-lg md:text-xl font-medium truncate',
-                          isCurrentUser ? 'text-terracotta dark:text-terracotta-light' : 'text-foreground'
+                        className={cn(
+                          'text-base sm:text-lg font-light truncate',
+                          isCurrentUser ? 'text-primary' : 'text-foreground'
                         )}
                       >
                         {profile.username || 'Anonymous'}
                       </h3>
                       {isCurrentUser && (
-                        <span className="hidden xs:inline text-[10px] sm:text-xs font-sans text-terracotta/70 dark:text-terracotta-light/70 uppercase tracking-wider">
+                        <span className="hidden xs:inline px-2 py-0.5 bg-primary/10 text-primary text-[10px] font-ui uppercase tracking-wider">
                           You
                         </span>
                       )}
                     </div>
                     <div className="flex items-center gap-3">
-                      <p className="text-xs sm:text-sm font-serif text-muted-foreground font-light">Level {level}</p>
+                      <div className="flex items-center gap-1.5">
+                        <Star className="w-3 h-3 text-muted-foreground/50" strokeWidth={1.5} />
+                        <p className="text-xs text-muted-foreground font-light font-ui">Level {level}</p>
+                      </div>
                       {/* Show streak inline on mobile */}
                       <div className="flex sm:hidden items-center gap-1">
                         <StreakIndicator days={streak} />
@@ -242,32 +292,36 @@ export const Leaderboard: React.FC = () => {
                   </div>
 
                   {/* Streak - Hidden on mobile, shown on sm+ */}
-                  <div className="hidden sm:flex items-center gap-2">
+                  <div className="hidden sm:block">
                     <StreakIndicator days={streak} />
                   </div>
 
-                  {/* XP */}
-                  <div className="text-right space-y-0.5 shrink-0">
-                    <div className="flex items-baseline gap-1">
-                      <span className="text-xl sm:text-2xl md:text-3xl font-serif font-light tabular-nums text-foreground">
-                        {profile.xp.toLocaleString()}
-                      </span>
-                      <span className="text-[10px] sm:text-xs font-sans text-muted-foreground uppercase tracking-wider">xp</span>
+                  {/* XP Display */}
+                  <div className="text-right shrink-0">
+                    <div className="relative px-3 py-2 bg-card/80 border border-border/50 group-hover:border-primary/30 transition-colors">
+                      <span className="absolute -top-px -left-px w-1.5 h-1.5 border-l border-t border-primary/40 group-hover:border-primary/70 transition-colors" />
+                      <span className="absolute -bottom-px -right-px w-1.5 h-1.5 border-r border-b border-primary/40 group-hover:border-primary/70 transition-colors" />
+                      <div className="flex items-baseline gap-1">
+                        <span className="text-xl sm:text-2xl font-light tabular-nums text-foreground">
+                          {profile.xp.toLocaleString()}
+                        </span>
+                        <span className="text-[10px] text-muted-foreground uppercase tracking-wider font-ui">xp</span>
+                      </div>
                     </div>
                   </div>
 
-                  {/* Subtle accent for top 3 */}
+                  {/* Sparkle for top 3 */}
                   {rank <= 3 && (
-                    <div className="absolute right-3 sm:right-4 top-3 sm:top-4 opacity-0 group-hover:opacity-100 transition-opacity hidden sm:block">
-                      <Sparkles size={14} className="sm:w-4 sm:h-4 text-terracotta/30 dark:text-terracotta-light/30" />
+                    <div className="absolute right-3 top-3 opacity-0 group-hover:opacity-100 transition-opacity hidden sm:block">
+                      <Sparkles size={14} className="text-primary/40" />
                     </div>
                   )}
-                </div>
+                </GamePanel>
               );
             })}
           </div>
         )}
-      </div>
+      </section>
     </div>
   );
 };

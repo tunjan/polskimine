@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { ArrowRight, Loader2, User } from 'lucide-react';
+import { ArrowRight, User } from 'lucide-react';
+import { ButtonLoader } from '@/components/ui/game-ui';
 import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
 
@@ -73,7 +74,7 @@ export const UsernameSetup: React.FC = () => {
             >
               {isSubmitting ? 'Processing' : 'Confirm'}
               {isSubmitting ? (
-                <Loader2 size={16} className="animate-spin" />
+                <ButtonLoader />
               ) : (
                 <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
               )}

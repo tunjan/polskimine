@@ -6,6 +6,7 @@ import { useDeck } from '@/contexts/DeckContext';
 import { useSettings } from '@/contexts/SettingsContext';
 import { getDashboardStats } from '@/services/db/repositories/statsRepository';
 import { getCardsForDashboard } from '@/services/db/repositories/cardRepository';
+import { GameLoader } from '@/components/ui/game-ui';
 
 export const DashboardRoute: React.FC = () => {
   const { history, stats } = useDeck();
@@ -25,7 +26,7 @@ export const DashboardRoute: React.FC = () => {
   if (isStatsLoading || isCardsLoading || !dashboardStats || !cards) {
     return (
       <div className="flex-1 flex items-center justify-center min-h-[50vh]">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
+        <GameLoader size="md" text="Loading" />
       </div>
     );
   }

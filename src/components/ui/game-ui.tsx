@@ -416,3 +416,82 @@ export function GameDivider({ className }: { className?: string }) {
     </div>
   )
 }
+
+/**
+ * Game-style loading spinner with diamond animation
+ */
+interface GameLoaderProps {
+  size?: 'sm' | 'md' | 'lg'
+  text?: string
+  className?: string
+}
+
+export function GameLoader({ size = 'md', text, className }: GameLoaderProps) {
+  const sizeConfig = {
+    sm: { container: 'w-10 h-10', inner: 'inset-1', innermost: 'inset-2', diamond: 'w-1 h-1' },
+    md: { container: 'w-16 h-16', inner: 'inset-2', innermost: 'inset-4', diamond: 'w-2 h-2' },
+    lg: { container: 'w-24 h-24', inner: 'inset-3', innermost: 'inset-6', diamond: 'w-3 h-3' }
+  }
+
+  const config = sizeConfig[size]
+
+  return (
+    <div className={cn("flex flex-col items-center justify-center gap-4", className)}>
+      <div className={cn("relative", config.container)}>
+        {/* Outer rotating diamond - spins slowly clockwise */}
+        <div 
+          className="absolute inset-0 border border-border/50 rotate-45 animate-spin"
+          style={{ animationDuration: '3s' }}
+        />
+        {/* Middle rotating diamond - spins counter-clockwise */}
+        <div 
+          className={cn("absolute border border-primary/40 rotate-45", config.inner)}
+          style={{ animation: 'spin 2s linear infinite reverse' }}
+        />
+        {/* Inner rotating diamond - spins faster clockwise */}
+        <div 
+          className={cn("absolute border border-primary/60 rotate-45 animate-spin", config.innermost)}
+          style={{ animationDuration: '1.5s' }}
+        />
+        {/* Center diamond dot - pulses */}
+        <span 
+          className={cn(
+            "absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-primary rotate-45 animate-pulse",
+            config.diamond
+          )} 
+        />
+        {/* Rotating accent lines */}
+        <div className="absolute inset-0 animate-spin" style={{ animationDuration: '2s' }}>
+          <span className="absolute top-0 left-1/2 -translate-x-1/2 w-0.5 h-1.5 bg-primary/60" />
+          <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-0.5 h-1.5 bg-primary/60" />
+          <span className="absolute left-0 top-1/2 -translate-y-1/2 h-0.5 w-1.5 bg-primary/60" />
+          <span className="absolute right-0 top-1/2 -translate-y-1/2 h-0.5 w-1.5 bg-primary/60" />
+        </div>
+      </div>
+      
+      {text && (
+        <div className="flex items-center justify-center gap-3">
+          <span className="w-6 h-px bg-gradient-to-r from-transparent via-border to-transparent" />
+          <span className="text-xs font-light text-muted-foreground/60 tracking-[0.15em] uppercase font-ui animate-pulse">
+            {text}
+          </span>
+          <span className="w-6 h-px bg-gradient-to-r from-transparent via-border to-transparent" />
+        </div>
+      )}
+    </div>
+  )
+}
+
+/**
+ * Compact inline button loader with spinning diamond
+ */
+export function ButtonLoader({ className }: { className?: string }) {
+  return (
+    <span 
+      className={cn("inline-flex items-center justify-center w-4 h-4 animate-spin", className)}
+      style={{ animationDuration: '0.8s' }}
+    >
+      <span className="w-2 h-2 bg-current rotate-45 opacity-70" />
+    </span>
+  )
+}

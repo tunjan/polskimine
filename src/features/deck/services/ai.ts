@@ -104,6 +104,48 @@ export const aiService = {
     }
   },
 
+  async generateSentenceForWord(targetWord: string, language: 'polish' | 'norwegian' | 'japanese' | 'spanish' = 'polish', apiKey: string): Promise<{
+    targetSentence: string;
+    nativeTranslation: string;
+    targetWordTranslation: string;
+    targetWordPartOfSpeech: string;
+    notes: string;
+    furigana?: string;
+  }> {
+    const langName = language === 'norwegian' ? 'Norwegian' : (language === 'japanese' ? 'Japanese' : (language === 'spanish' ? 'Spanish' : 'Polish'));
+    
+    let prompt = `
+      Generate a natural, practical ${langName} sentence that uses the word "${targetWord}".
+      The sentence should be useful for a language learner and demonstrate common usage of the word.
+      
+      Return a JSON object with:
+      - targetSentence: A natural ${langName} sentence containing the word "${targetWord}".
+      - nativeTranslation: The English translation of the sentence.
+      - targetWordTranslation: English translation of the target word "${targetWord}".
+      - targetWordPartOfSpeech: The part of speech (must be exactly one of: "noun", "verb", "adjective", "adverb", or "pronoun").
+      - notes: Brief grammar notes about the word's usage in this sentence (max 1-2 sentences).
+    `;
+
+    if (language === 'japanese') {
+      prompt += `
+      - furigana: The sentence with furigana in the format "Kanji[reading]". Example: "私[わたし]は..."
+      `;
+    }
+
+    prompt += `
+      Return ONLY the JSON object, no markdown formatting.
+    `;
+
+    const result = await callGemini(prompt, apiKey);
+    try {
+      const cleanResult = extractJSON(result);
+      return JSON.parse(cleanResult);
+    } catch (e) {
+      console.error("Failed to parse AI response", e);
+      throw new Error("Failed to generate sentence for word");
+    }
+  },
+
   async generateCardContent(sentence: string, language: 'polish' | 'norwegian' | 'japanese' | 'spanish' = 'polish', apiKey: string): Promise<{
     translation: string;
     targetWord?: string;

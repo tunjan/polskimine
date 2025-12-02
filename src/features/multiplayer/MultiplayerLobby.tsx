@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Loader2, Sparkles } from 'lucide-react';
+import { Sparkles } from 'lucide-react';
+import { ButtonLoader } from '@/components/ui/game-ui';
 import { toast } from 'sonner';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
@@ -121,7 +122,7 @@ export const MultiplayerLobby: React.FC = () => {
                     : 'bg-terracotta dark:bg-terracotta-light text-white hover:opacity-90'
                 )}
               >
-                {isJoining ? <Loader2 className="animate-spin" size={20} /> : 'Join'}
+                {isJoining ? <ButtonLoader /> : 'Join'}
               </button>
             </div>
           </div>
@@ -221,7 +222,7 @@ export const MultiplayerLobby: React.FC = () => {
           >
             {isCreating ? (
               <span className="flex items-center justify-center gap-3">
-                <Loader2 className="animate-spin" size={20} />
+                <ButtonLoader />
                 Creating...
               </span>
             ) : (

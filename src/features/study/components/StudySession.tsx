@@ -45,6 +45,7 @@ interface StudySessionProps {
   canUndo?: boolean;
   isCramMode?: boolean;
   dailyStreak: number;
+  onAddCard?: (card: Card) => void;
 }
 
 export const StudySession: React.FC<StudySessionProps> = ({
@@ -59,6 +60,7 @@ export const StudySession: React.FC<StudySessionProps> = ({
   canUndo,
   isCramMode = false,
   dailyStreak,
+  onAddCard,
 }) => {
   const { settings } = useSettings();
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -339,6 +341,7 @@ export const StudySession: React.FC<StudySessionProps> = ({
             blindMode={settings.blindMode}
             showTranslation={settings.showTranslationAfterFlip}
             language={settings.language}
+            onAddCard={onAddCard}
           />
       </main>
 

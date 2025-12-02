@@ -13,10 +13,11 @@ import {
 import { getTodayReviewStats } from '@/services/db/repositories/statsRepository';
 import { useClaimDailyBonusMutation } from '@/features/deck/hooks/useDeckQueries';
 import { CardXpPayload } from '@/features/xp/xpUtils';
+import { GameLoader } from '@/components/ui/game-ui';
 
 export const StudyRoute: React.FC = () => {
   const { recordReview, undoReview, canUndo, stats } = useDeck();
-  const { updateCard, deleteCard } = useCardOperations();
+  const { updateCard, deleteCard, addCard } = useCardOperations();
   const { settings } = useSettings();
   const claimBonus = useClaimDailyBonusMutation();
   
@@ -118,7 +119,7 @@ export const StudyRoute: React.FC = () => {
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
+        <GameLoader size="lg" text="Preparing session" />
       </div>
     );
   }
@@ -136,6 +137,7 @@ export const StudyRoute: React.FC = () => {
       canUndo={isCramMode ? false : canUndo}
       isCramMode={isCramMode}
       dailyStreak={stats?.streak ?? 0}
+      onAddCard={addCard}
     />
   );
 };

@@ -5,10 +5,12 @@ import { ttsService } from '@/services/tts';
 import { useSettings } from '@/contexts/SettingsContext';
 import { useSabotage } from '@/contexts/SabotageContext';
 import { uwuify, FAKE_ANSWERS } from '@/lib/memeUtils';
-import { Play, Sparkles, Loader2, Quote, Mic, Volume2 } from 'lucide-react';
+import { Play, Sparkles, Quote, Mic, Volume2, Plus } from 'lucide-react';
+import { ButtonLoader } from '@/components/ui/game-ui';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { aiService } from '@/features/deck/services/ai';
 import { toast } from 'sonner';
+import { v4 as uuidv4 } from 'uuid';
 
 interface FlashcardProps {
   card: Card;
@@ -17,6 +19,7 @@ interface FlashcardProps {
   blindMode?: boolean;
   showTranslation?: boolean;
   language?: Language;
+  onAddCard?: (card: Card) => void;
 }
 
 export const Flashcard = React.memo<FlashcardProps>(({
@@ -25,7 +28,8 @@ export const Flashcard = React.memo<FlashcardProps>(({
   autoPlayAudio = false,
   blindMode = false,
   showTranslation = true,
-  language = 'polish'
+  language = 'polish',
+  onAddCard
 }) => {
   const { settings } = useSettings();
   const { isCursedWith } = useSabotage();
@@ -41,6 +45,9 @@ export const Flashcard = React.memo<FlashcardProps>(({
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [analysisResult, setAnalysisResult] = useState<{ originalText: string; definition: string; partOfSpeech: string; contextMeaning: string } | null>(null);
   const [isAnalysisOpen, setIsAnalysisOpen] = useState(false);
+  
+  // Generate Card State
+  const [isGeneratingCard, setIsGeneratingCard] = useState(false);
 
   useEffect(() => { setIsRevealed(!blindMode); }, [card.id, blindMode]);
   useEffect(() => { if (isFlipped) setIsRevealed(true); }, [isFlipped]);
@@ -139,6 +146,57 @@ export const Flashcard = React.memo<FlashcardProps>(({
       toast.error("Analysis failed.");
     } finally {
       setIsAnalyzing(false);
+    }
+  };
+
+  const handleGenerateCard = async () => {
+    if (!selection) return;
+    if (!settings.geminiApiKey) {
+      toast.error("API Key required.");
+      setSelection(null);
+      return;
+    }
+    if (!onAddCard) {
+      toast.error("Cannot add card from here.");
+      setSelection(null);
+      return;
+    }
+    setIsGeneratingCard(true);
+    try {
+      const result = await aiService.generateSentenceForWord(selection.text, language, settings.geminiApiKey);
+      
+      let targetSentence = result.targetSentence;
+      if (language === 'japanese' && result.furigana) {
+        targetSentence = parseFurigana(result.furigana).map(s => s.text).join("");
+      }
+
+      const newCard: Card = {
+        id: uuidv4(),
+        targetSentence,
+        targetWord: selection.text,
+        targetWordTranslation: result.targetWordTranslation,
+        targetWordPartOfSpeech: result.targetWordPartOfSpeech,
+        nativeTranslation: result.nativeTranslation,
+        notes: result.notes,
+        furigana: result.furigana,
+        language,
+        status: 'new',
+        interval: 0,
+        easeFactor: 2.5,
+        dueDate: new Date().toISOString(),
+        reps: 0,
+        lapses: 0,
+        tags: ['AI-Gen', 'From-Study']
+      };
+
+      onAddCard(newCard);
+      toast.success(`Card created for "${selection.text}"`);
+      setSelection(null);
+      window.getSelection()?.removeAllRanges();
+    } catch (e) {
+      toast.error("Failed to generate card.");
+    } finally {
+      setIsGeneratingCard(false);
     }
   };
 
@@ -286,36 +344,36 @@ export const Flashcard = React.memo<FlashcardProps>(({
 
         {/* Translation reveal with game-styled animation */}
         {isFlipped && (
-          <div className="absolute top-1/2 left-0 right-0 bottom-4 pt-20 md:pt-28 flex flex-col items-center gap-4 z-0 pointer-events-none animate-in fade-in slide-in-from-bottom-4 duration-700 overflow-hidden">
+          <div className="absolute top-1/2 left-0 right-0 bottom-4 pt-12 md:pt-16 flex flex-col items-center gap-3 z-0 pointer-events-none animate-in fade-in slide-in-from-bottom-4 duration-700 overflow-y-auto">
 
             {/* Decorative divider */}
-            <div className="flex items-center gap-3 mb-2 shrink-0">
+            <div className="flex items-center gap-3 mb-1 shrink-0">
               <span className="w-8 h-px bg-gradient-to-r from-transparent to-border/40" />
               <span className="w-1.5 h-1.5 rotate-45 bg-primary/30" />
               <span className="w-8 h-px bg-gradient-to-l from-transparent to-border/40" />
             </div>
 
             {showTranslation && (
-              <div className="relative group pointer-events-auto px-8 md:px-16 shrink-0 flex flex-col items-center gap-2">
+              <div className="relative group pointer-events-auto px-8 md:px-16 shrink-0 flex flex-col items-center gap-1">
                 {card.targetWord && (
-                  <div className="flex flex-col items-center gap-1 mb-2">
+                  <div className="flex flex-col items-center gap-0.5 mb-1">
                     <div className="flex items-center gap-2">
-                      <span className="text-2xl md:text-3xl font-light text-primary/90">{processText(card.targetWord)}</span>
+                      <span className="text-xl md:text-2xl font-light text-primary/90">{processText(card.targetWord)}</span>
                       {card.targetWordPartOfSpeech && (
-                        <span className="text-[10px] font-ui font-medium uppercase border border-border/60 px-2 py-0.5 text-muted-foreground/80 tracking-widest">
+                        <span className="text-[9px] font-ui font-medium uppercase border border-border/60 px-1.5 py-0.5 text-muted-foreground/80 tracking-widest">
                           {card.targetWordPartOfSpeech}
                         </span>
                       )}
                     </div>
                     {card.targetWordTranslation && (
-                      <span className="text-lg text-muted-foreground/80 font-light italic">{card.targetWordTranslation}</span>
+                      <span className="text-base text-muted-foreground/80 font-light italic">{card.targetWordTranslation}</span>
                     )}
                   </div>
                 )}
 
                 <div className="max-w-3xl">
                   <p className={cn(
-                    "text-lg md:text-xl text-foreground/70 font-light italic text-center leading-relaxed text-balance transition-colors duration-300",
+                    "text-base md:text-lg text-foreground/70 font-light italic text-center leading-relaxed text-balance transition-colors duration-300",
                     isGaslit ? "text-destructive/70" : "group-hover:text-foreground/85"
                   )}>
                     {processText(displayedTranslation)}
@@ -330,7 +388,7 @@ export const Flashcard = React.memo<FlashcardProps>(({
             )}
 
             {card.notes && (
-              <div className="mt-4 px-8 md:px-16 pointer-events-auto overflow-y-auto max-h-20">
+              <div className="mt-2 px-8 md:px-16 pointer-events-auto shrink-0">
                 <p className="text-xs font-ui font-light text-muted-foreground/50 max-w-xl text-center tracking-wide leading-relaxed">
                   {processText(card.notes)}
                 </p>
@@ -343,13 +401,13 @@ export const Flashcard = React.memo<FlashcardProps>(({
       {/* Game-styled floating selection menu */}
       {selection && (
         <div
-          className="fixed z-50 -translate-x-1/2 animate-in fade-in slide-in-from-bottom-2 duration-300"
+          className="fixed z-50 -translate-x-1/2 animate-in fade-in slide-in-from-bottom-2 duration-300 flex gap-1"
           style={{ top: selection.top, left: selection.left }}
           onMouseDown={(e) => e.preventDefault()}
         >
           <button
             onClick={handleAnalyze}
-            disabled={isAnalyzing}
+            disabled={isAnalyzing || isGeneratingCard}
             className="relative bg-card text-foreground px-5 py-2.5 border border-primary/30 hover:border-primary/50 hover:bg-primary/5 transition-all duration-200 text-[10px] font-ui font-medium uppercase tracking-[0.15em] flex items-center gap-2.5"
           >
             {/* Corner accents */}
@@ -361,9 +419,28 @@ export const Flashcard = React.memo<FlashcardProps>(({
               <span className="absolute bottom-0 right-0 w-full h-px bg-primary" />
               <span className="absolute bottom-0 right-0 h-full w-px bg-primary" />
             </span>
-            {isAnalyzing ? <Loader2 size={11} strokeWidth={2} className="animate-spin" /> : <Sparkles size={11} strokeWidth={2} className="text-primary" />}
+            {isAnalyzing ? <ButtonLoader /> : <Sparkles size={11} strokeWidth={2} className="text-primary" />}
             <span>Analyze</span>
           </button>
+          {onAddCard && (
+            <button
+              onClick={handleGenerateCard}
+              disabled={isAnalyzing || isGeneratingCard}
+              className="relative bg-card text-foreground px-5 py-2.5 border border-primary/30 hover:border-primary/50 hover:bg-primary/5 transition-all duration-200 text-[10px] font-ui font-medium uppercase tracking-[0.15em] flex items-center gap-2.5"
+            >
+              {/* Corner accents */}
+              <span className="absolute -top-px -left-px w-2 h-2">
+                <span className="absolute top-0 left-0 w-full h-px bg-primary" />
+                <span className="absolute top-0 left-0 h-full w-px bg-primary" />
+              </span>
+              <span className="absolute -bottom-px -right-px w-2 h-2">
+                <span className="absolute bottom-0 right-0 w-full h-px bg-primary" />
+                <span className="absolute bottom-0 right-0 h-full w-px bg-primary" />
+              </span>
+              {isGeneratingCard ? <ButtonLoader /> : <Plus size={11} strokeWidth={2} className="text-primary" />}
+              <span>Create Card</span>
+            </button>
+          )}
         </div>
       )}
 

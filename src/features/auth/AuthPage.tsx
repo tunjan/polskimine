@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { ArrowRight, Loader2, Command, ArrowLeft } from 'lucide-react';
+import { ArrowRight, Command, ArrowLeft } from 'lucide-react';
+import { ButtonLoader } from '@/components/ui/game-ui';
 import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
 import { useSettings } from '@/contexts/SettingsContext';
@@ -193,7 +194,7 @@ export const AuthPage: React.FC = () => {
                 className="w-full h-11 bg-foreground text-background text-xs font-mono uppercase tracking-widest hover:opacity-90 transition-opacity disabled:opacity-50 flex items-center justify-center gap-3 rounded-[2px]"
               >
                 {loading ? (
-                  <Loader2 size={14} className="animate-spin" />
+                  <ButtonLoader />
                 ) : (
                   <>
                     Connect

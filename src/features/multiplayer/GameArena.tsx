@@ -1,7 +1,8 @@
 import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import type { RealtimeChannel } from '@supabase/supabase-js';
-import { Loader2, Trophy, Copy, Crown } from 'lucide-react';
+import { Trophy, Copy, Crown } from 'lucide-react';
+import { GameLoader, ButtonLoader } from '@/components/ui/game-ui';
 import { toast } from 'sonner';
 import clsx from 'clsx';
 import confetti from 'canvas-confetti';
@@ -175,7 +176,7 @@ export const GameArena: React.FC = () => {
   if (!room) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <Loader2 className="animate-spin" />
+        <GameLoader text="Loading arena..." />
       </div>
     );
   }
@@ -270,7 +271,7 @@ export const GameArena: React.FC = () => {
               >
                 {isGenerating ? (
                   <span className="flex items-center justify-center gap-3">
-                    <Loader2 className="animate-spin" size={20} />
+                    <ButtonLoader />
                     Preparing questions...
                   </span>
                 ) : players.length < 2 ? (
