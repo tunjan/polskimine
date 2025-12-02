@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { ChevronLeft, ChevronRight, Search, X, Plus, Sparkles, ChevronUp, ChevronDown } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Search, X, Plus, Sparkles, ChevronUp, ChevronDown, List, LayoutList } from 'lucide-react';
 import { useDeck } from '@/contexts/DeckContext';
 import { useSettings } from '@/contexts/SettingsContext';
 import { Card } from '@/types';
@@ -21,6 +21,7 @@ export const CardsRoute: React.FC = () => {
   const [debouncedSearch, setDebouncedSearch] = useState('');
   const [page, setPage] = useState(0);
   const [isHeaderExpanded, setIsHeaderExpanded] = useState(true);
+  const [compactView, setCompactView] = useState(false);
   const pageSize = 50;
   
   const { data, isLoading, isPlaceholderData } = useCardsQuery(page, pageSize, debouncedSearch);
@@ -121,6 +122,13 @@ export const CardsRoute: React.FC = () => {
                     {/* Mobile Actions */}
                     <div className="flex items-center gap-2">
                       <button 
+                        onClick={() => setCompactView(!compactView)}
+                        className="p-2 rounded-full text-muted-foreground hover:text-foreground hover:bg-muted/30 transition-all duration-300"
+                        title={compactView ? "Expanded view" : "Compact view"}
+                      >
+                        {compactView ? <LayoutList size={18} strokeWidth={1.5} /> : <List size={18} strokeWidth={1.5} />}
+                      </button>
+                      <button 
                         onClick={() => setIsGenerateModalOpen(true)} 
                         className="p-2 rounded-full text-muted-foreground hover:text-foreground hover:bg-muted/30 transition-all duration-300"
                         title="Generate cards"
@@ -211,6 +219,13 @@ export const CardsRoute: React.FC = () => {
 
                     {/* Compact Actions */}
                     <button 
+                      onClick={() => setCompactView(!compactView)}
+                      className="p-2 rounded-full text-muted-foreground hover:text-foreground hover:bg-muted/30 transition-all duration-300"
+                      title={compactView ? "Expanded view" : "Compact view"}
+                    >
+                      {compactView ? <LayoutList size={18} strokeWidth={1.5} /> : <List size={18} strokeWidth={1.5} />}
+                    </button>
+                    <button 
                       onClick={() => setIsGenerateModalOpen(true)} 
                       className="p-2 rounded-full text-muted-foreground hover:text-foreground hover:bg-muted/30 transition-all duration-300"
                       title="Generate cards"
@@ -298,6 +313,15 @@ export const CardsRoute: React.FC = () => {
                   {/* Action Buttons - Soft, Rounded */}
                   <div className="flex items-center gap-4 w-full md:w-auto justify-end">
                     <button 
+                      onClick={() => setCompactView(!compactView)}
+                      className="inline-flex items-center gap-2 px-4 py-2.5 rounded-full text-sm font-light tracking-wide text-muted-foreground border border-border hover:border-muted-foreground/40 hover:text-foreground transition-all duration-300"
+                      style={{ fontFamily: 'var(--font-sans)' }}
+                      title={compactView ? "Expanded view" : "Compact view"}
+                    >
+                      {compactView ? <LayoutList size={16} strokeWidth={1.5} /> : <List size={16} strokeWidth={1.5} />}
+                      <span className="hidden sm:inline">{compactView ? "Expanded" : "Compact"}</span>
+                    </button>
+                    <button 
                       onClick={() => setIsGenerateModalOpen(true)} 
                       className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-light tracking-wide text-muted-foreground border border-border hover:border-muted-foreground/40 hover:text-foreground transition-all duration-300"
                       style={{ fontFamily: 'var(--font-sans)' }}
@@ -307,11 +331,11 @@ export const CardsRoute: React.FC = () => {
                     </button>
                     <button 
                       onClick={() => setIsAddModalOpen(true)} 
-                      className="inline-flex items-center gap-2 px-6 py-2.5 rounded-full text-sm font-medium tracking-wide text-[oklch(0.99_0.005_85)] border border-[oklch(0.52_0.12_35)] bg-[oklch(0.52_0.12_35)] hover:bg-[oklch(0.48_0.12_35)] transition-all duration-300 "
+                      className="inline-flex items-center gap-2 p-2 rounded-full text-sm font-medium tracking-wide text-[oklch(0.99_0.005_85)] border border-[oklch(0.52_0.12_35)] bg-[oklch(0.52_0.12_35)] hover:bg-[oklch(0.48_0.12_35)] transition-all duration-300 "
                       style={{ fontFamily: 'var(--font-sans)' }}
                     >
                       <Plus size={16} strokeWidth={2} />
-                      Add Card
+                     
                     </button>
                   </div>
                 </div>
@@ -356,6 +380,7 @@ export const CardsRoute: React.FC = () => {
                     onPrioritizeCard={(id) => prioritizeCards([id])}
                     selectedIds={selectedIds}
                     onToggleSelect={handleToggleSelect}
+                    compactView={compactView}
                 />
              )}
         </div>

@@ -6,13 +6,18 @@ interface ReviewVolumeChartProps {
   data: { date: string; count: number; label: string }[];
 }
 
+interface CustomTooltipProps {
+  active?: boolean;
+  payload?: Array<{ value: number; payload: { date: string; count: number } }>;
+}
+
 export const ReviewVolumeChart: React.FC<ReviewVolumeChartProps> = ({ data }) => {
   const colors = useChartColors();
 
-  const CustomTooltip = ({ active, payload, label }: any) => {
+  const CustomTooltip = ({ active, payload }: CustomTooltipProps) => {
     if (active && payload && payload.length) {
       return (
-        <div className="bg-foreground text-background px-4 py-3">
+        <div className="bg-foreground text-background px-4 py-3 rounded-md">
           <div className="text-[9px] font-mono uppercase tracking-[0.2em] opacity-50 mb-1">{payload[0].payload.date}</div>
           <div className="text-sm font-normal tabular-nums">
             {payload[0].value} reviews

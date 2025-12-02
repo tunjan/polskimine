@@ -16,6 +16,18 @@ interface RetentionStatsProps {
   cards: Card[];
 }
 
+interface ChartDataItem {
+  label: string;
+  count: number;
+  fullDate?: Date;
+}
+
+interface CustomTooltipProps {
+  active?: boolean;
+  payload?: Array<{ value: number; payload: ChartDataItem }>;
+  label?: string;
+}
+
 export const RetentionStats: React.FC<RetentionStatsProps> = ({ cards }) => {
   const colors = useChartColors();
   const [forecastRange, setForecastRange] = useState<'7d' | '1m' | '1y'>('7d');
@@ -77,10 +89,10 @@ export const RetentionStats: React.FC<RetentionStatsProps> = ({ cards }) => {
     return buckets;
   }, [cards]);
 
-  const CustomTooltip = ({ active, payload, label }: any) => {
+  const CustomTooltip = ({ active, payload, label }: CustomTooltipProps) => {
     if (active && payload && payload.length) {
       return (
-        <div className="bg-foreground text-background px-4 py-3">
+        <div className="bg-foreground text-background px-4 py-3 rounded-md">
           <div className="text-[9px] font-mono uppercase tracking-[0.2em] opacity-50">{label}</div>
           <div className="text-sm font-normal tabular-nums mt-1">{payload[0].value}</div>
         </div>
@@ -90,16 +102,20 @@ export const RetentionStats: React.FC<RetentionStatsProps> = ({ cards }) => {
   };
 
   if (!cards || cards.length === 0) {
-    return <div className="text-[9px] font-mono text-muted-foreground/50 uppercase tracking-[0.25em]">No data available</div>;
+    return (
+      <div className="flex items-center justify-center h-32 text-xs text-muted-foreground font-light font-ui">
+        No data available
+      </div>
+    );
   }
 
   return (
     <>
         {/* Forecast Chart */}
-        <div className="flex flex-col h-56 md:h-64 min-w-0 w-full">
-            <div className="flex items-baseline justify-between mb-8 md:mb-10 min-w-0 gap-2">
+        <div className="flex flex-col h-48 md:h-56 min-w-0 w-full">
+            <div className="flex items-baseline justify-between mb-6 md:mb-8 min-w-0 gap-2">
                 <h3 className="text-[9px] font-mono uppercase tracking-[0.25em] text-muted-foreground/50 truncate">Workload Forecast</h3>
-                <div className="flex gap-4 md:gap-6 shrink-0">
+                <div className="flex gap-3 md:gap-6 shrink-0">
                     {(['7d', '1m', '1y'] as const).map((range) => (
                         <button
                             key={range}
@@ -107,7 +123,7 @@ export const RetentionStats: React.FC<RetentionStatsProps> = ({ cards }) => {
                             className={clsx(
                                 "text-[9px] font-mono uppercase tracking-[0.2em] transition-all pb-1",
                                 forecastRange === range 
-                                    ? "text-foreground border-b-2 border-foreground" 
+                                    ? "text-foreground border-b-2 border-primary" 
                                     : "text-muted-foreground/40 hover:text-muted-foreground"
                             )}
                         >
@@ -140,8 +156,8 @@ export const RetentionStats: React.FC<RetentionStatsProps> = ({ cards }) => {
         </div>
 
         {/* Stability Chart */}
-        <div className="flex flex-col h-56 md:h-64 min-w-0 w-full">
-            <div className="flex flex-col sm:flex-row items-start sm:items-baseline justify-between mb-8 md:mb-10 min-w-0 gap-2">
+        <div className="flex flex-col h-48 md:h-56 min-w-0 w-full mt-8">
+            <div className="flex flex-col sm:flex-row items-start sm:items-baseline justify-between mb-6 md:mb-8 min-w-0 gap-2">
                 <h3 className="text-[9px] font-mono uppercase tracking-[0.25em] text-muted-foreground/50 truncate">Memory Stability</h3>
                 <div className="text-[9px] font-mono text-muted-foreground/40 uppercase tracking-[0.2em] shrink-0">
                     Retention Interval

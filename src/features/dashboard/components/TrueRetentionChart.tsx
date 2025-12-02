@@ -7,14 +7,20 @@ interface TrueRetentionChartProps {
   targetRetention: number;
 }
 
+interface CustomTooltipProps {
+  active?: boolean;
+  payload?: Array<{ value: number }>;
+  label?: string;
+}
+
 export const TrueRetentionChart: React.FC<TrueRetentionChartProps> = ({ data, targetRetention }) => {
   const colors = useChartColors();
   const targetPercent = targetRetention * 100;
 
-  const CustomTooltip = ({ active, payload, label }: any) => {
-    if (active && payload && payload.length) {
+  const CustomTooltip = ({ active, payload, label }: CustomTooltipProps) => {
+    if (active && payload && payload.length && payload[0].value != null) {
       return (
-        <div className="bg-foreground text-background px-4 py-3">
+        <div className="bg-foreground text-background px-4 py-3 rounded-md">
           <div className="text-[9px] font-mono uppercase tracking-[0.2em] opacity-50 mb-1">{label}</div>
           <div className="flex items-center gap-2">
              <span className="text-sm font-normal tabular-nums">{payload[0].value.toFixed(1)}%</span>

@@ -44,6 +44,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { PolishFlag, NorwegianFlag, JapaneseFlag, SpanishFlag } from '@/components/ui/flags';
+import { GameMenuItemChevron } from '@/components/ui/game-menu-item';
 import { toast } from 'sonner';
 import clsx from 'clsx';
 
@@ -95,24 +96,23 @@ const AppSidebar: React.FC<NavActionProps> = ({
 
   return (
     <Sidebar collapsible="icon">
-      <SidebarHeader className="pt-8 pb-6">
-        <div className="flex items-center justify-between px-4 group-data-[collapsible=icon]:justify-center">
-          <div className="flex items-center gap-3 overflow-hidden transition-all duration-300 group-data-[collapsible=icon]:w-0 group-data-[collapsible=icon]:opacity-0">
-            <div className="w-1.5 h-1.5 bg-terracotta rounded-full shrink-0" />
-            <span className="font-serif text-[22px] font-light tracking-tight whitespace-nowrap text-foreground/90">LinguaFlow</span>
+      <SidebarHeader className="pt-4 pb-3">
+        <div className="flex items-center justify-between group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-0">
+          <div className="flex items-center gap-2 overflow-hidden transition-all group-data-[collapsible=icon]:w-0 group-data-[collapsible=icon]:opacity-0">
+            <span className="text-sm font-medium tracking-tight whitespace-nowrap text-foreground" style={{ fontFamily: 'var(--font-sans)' }}>LinguaFlow</span>
           </div>
-          <SidebarTrigger className="ml-auto group-data-[collapsible=icon]:ml-0 hover:bg-transparent hover:text-foreground/70" />
+          <SidebarTrigger className="ml-auto group-data-[collapsible=icon]:ml-0 hover:bg-transparent hover:text-foreground/60 h-7 w-7" />
         </div>
       </SidebarHeader>
 
-      <SidebarContent className="px-2">
+      <SidebarContent className="px-2 group-data-[collapsible=icon]:px-2">
         {/* Primary Nav */}
-        <SidebarGroup className="px-0 py-4">
-          <SidebarGroupLabel className="text-[9px] font-mono uppercase tracking-[0.15em] text-muted-foreground/40 px-4 mb-3 font-normal">
+        <SidebarGroup className="px-0 py-2 group-data-[collapsible=icon]:py-2">
+          <SidebarGroupLabel className="text-[10px] uppercase tracking-[0.15em] text-muted-foreground px-2 mb-2 font-light group-data-[collapsible=icon]:hidden" style={{ fontFamily: 'var(--font-sans)' }}>
             Navigation
           </SidebarGroupLabel>
           <SidebarGroupContent>
-            <SidebarMenu className="gap-0.5">
+            <SidebarMenu className="gap-2 group-data-[collapsible=icon]:gap-1">
               {mainNavItems.map((item) => {
                 const isActive = item.to === '/multiplayer'
                   ? location.pathname.startsWith(item.to)
@@ -120,25 +120,25 @@ const AppSidebar: React.FC<NavActionProps> = ({
 
                 return (
                   <SidebarMenuItem key={item.to}>
-                    <SidebarMenuButton
-                      asChild
-                      isActive={isActive}
-                      onClick={onCloseMobileMenu}
-                      className={clsx(
-                        "h-11 px-4 rounded-sm transition-all duration-200 relative group/item font-serif text-[15px] font-light tracking-wide",
-                        isActive 
-                          ? "text-foreground bg-terracotta/8 dark:bg-terracotta/12" 
-                          : "text-muted-foreground/80 hover:text-foreground hover:bg-background/60"
-                      )}
-                    >
-                      <Link to={item.to} className="flex items-center gap-4 w-full">
-                        <item.icon size={18} strokeWidth={isActive ? 1.8 : 1.3} className="shrink-0" />
-                        <span className="tracking-wide">{item.label}</span>
-                        {isActive && (
-                          <div className="absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-6 bg-terracotta rounded-r-full" />
+                    <GameMenuItemChevron isActive={isActive}>
+                      <SidebarMenuButton
+                        asChild
+                        isActive={isActive}
+                        onClick={onCloseMobileMenu}
+                        className={clsx(
+                          "h-9 px-2 rounded-none transition-colors relative text-sm font-light group-data-[collapsible=icon]:px-0 group-data-[collapsible=icon]:justify-center",
+                          isActive 
+                            ? "text-foreground bg-card/80" 
+                            : "text-muted-foreground hover:text-foreground hover:bg-card/30"
                         )}
-                      </Link>
-                    </SidebarMenuButton>
+                        style={{ fontFamily: 'var(--font-sans)' }}
+                      >
+                        <Link to={item.to} className="flex items-center gap-2.5 w-full">
+                          <item.icon size={14} strokeWidth={isActive ? 1.8 : 1.5} className="shrink-0" />
+                          <span className="group-data-[collapsible=icon]:hidden">{item.label}</span>
+                        </Link>
+                      </SidebarMenuButton>
+                    </GameMenuItemChevron>
                   </SidebarMenuItem>
                 );
               })}
@@ -146,25 +146,28 @@ const AppSidebar: React.FC<NavActionProps> = ({
           </SidebarGroupContent>
         </SidebarGroup>
 
-        {/* Elegant Separator */}
-        <div className="h-px bg-linear-to-r from-transparent via-border/50 to-transparent my-6 mx-4" />
+        {/* Separator */}
+        <div className="h-px bg-border/50 my-3 mx-2 group-data-[collapsible=icon]:hidden" />
 
         {/* Tools Section */}
-        <SidebarGroup className="px-0 py-2">
-          <SidebarGroupLabel className="text-[9px] font-mono uppercase tracking-[0.15em] text-muted-foreground/40 px-4 mb-3 font-normal">
+        <SidebarGroup className="px-0 py-2 group-data-[collapsible=icon]:py-2">
+          <SidebarGroupLabel className="text-[10px] uppercase tracking-[0.15em] text-muted-foreground px-2 mb-2 font-light group-data-[collapsible=icon]:hidden" style={{ fontFamily: 'var(--font-sans)' }}>
             Quick Actions
           </SidebarGroupLabel>
           <SidebarGroupContent>
-            <SidebarMenu className="gap-0.5">
+            <SidebarMenu className="gap-0.5 group-data-[collapsible=icon]:gap-1">
               {toolItems.map((item) => (
                 <SidebarMenuItem key={item.label}>
-                  <SidebarMenuButton 
-                    onClick={item.onClick}
-                    className="h-11 px-4 rounded-sm transition-all duration-200 text-muted-foreground/70 hover:text-foreground hover:bg-background/60 font-serif text-[15px] font-light tracking-wide"
-                  >
-                    <item.icon size={18} strokeWidth={1.3} className="shrink-0" />
-                    <span className="tracking-wide">{item.label}</span>
-                  </SidebarMenuButton>
+                  <GameMenuItemChevron>
+                    <SidebarMenuButton 
+                      onClick={item.onClick}
+                      className="h-9 px-2 rounded-none transition-colors text-muted-foreground hover:text-foreground hover:bg-card/30 text-sm font-light group-data-[collapsible=icon]:px-0 group-data-[collapsible=icon]:justify-center"
+                      style={{ fontFamily: 'var(--font-sans)' }}
+                    >
+                      <item.icon size={14} strokeWidth={1.5} className="shrink-0" />
+                      <span className="group-data-[collapsible=icon]:hidden">{item.label}</span>
+                    </SidebarMenuButton>
+                  </GameMenuItemChevron>
                 </SidebarMenuItem>
               ))}
             </SidebarMenu>
@@ -172,23 +175,25 @@ const AppSidebar: React.FC<NavActionProps> = ({
         </SidebarGroup>
       </SidebarContent>
 
-      <SidebarFooter className="group-data-[collapsible=icon]:hidden px-2 pb-6 pt-4">
-        <div className="h-px bg-linear-to-r from-transparent via-border/50 to-transparent mb-6" />
+      <SidebarFooter className="group-data-[collapsible=icon]:hidden px-2 pb-4 pt-2">
         
         <SidebarMenu className="gap-0.5">
           {/* Language Selector */}
           <SidebarMenuItem>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <SidebarMenuButton className="h-11 px-4 rounded-sm text-muted-foreground/70 hover:text-foreground hover:bg-background/60 font-serif text-[15px] font-light tracking-wide">
+                <SidebarMenuButton 
+                  className="h-9 px-2 rounded-md text-muted-foreground hover:text-foreground hover:bg-card/50 text-sm font-light"
+                  style={{ fontFamily: 'var(--font-sans)' }}
+                >
                   <div className="w-4 h-4 flex items-center justify-center shrink-0">
-                    <currentLanguage.Flag className="w-full h-auto rounded-xs" />
+                    <currentLanguage.Flag className="w-full h-auto rounded-sm" />
                   </div>
-                  <span className="tracking-wide">{currentLanguage.name}</span>
-                  <ChevronUp className="ml-auto opacity-40" size={14} strokeWidth={1.5} />
+                  <span>{currentLanguage.name}</span>
+                  <ChevronUp className="ml-auto opacity-40" size={12} strokeWidth={1.5} />
                 </SidebarMenuButton>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="start" className="w-56 p-1.5 bg-background/95 backdrop-blur-sm border-border/40 rounded-lg ">
+              <DropdownMenuContent align="start" className="p-1">
                 {languages.map((lang) => (
                   <DropdownMenuItem
                     key={lang.code}
@@ -197,11 +202,12 @@ const AppSidebar: React.FC<NavActionProps> = ({
                       toast.success(`Switched to ${lang.name}`);
                       onCloseMobileMenu?.();
                     }}
-                    className="gap-3 py-2.5 px-3 text-sm font-serif font-light rounded-sm"
+                    className="gap-2.5 py-2 px-2.5 text-sm font-light rounded-md"
+                    style={{ fontFamily: 'var(--font-sans)' }}
                   >
-                    <lang.Flag className="w-4 h-auto rounded-xs" />
-                    <span className="flex-1 tracking-wide">{lang.name}</span>
-                    {settings.language === lang.code && <Check size={14} className="ml-auto text-terracotta" strokeWidth={2} />}
+                    <lang.Flag className="w-4 h-auto rounded-sm" />
+                    <span className="flex-1">{lang.name}</span>
+                    {settings.language === lang.code && <Check size={14} className="ml-auto text-foreground" strokeWidth={2} />}
                   </DropdownMenuItem>
                 ))}
               </DropdownMenuContent>
@@ -212,32 +218,34 @@ const AppSidebar: React.FC<NavActionProps> = ({
           <SidebarMenuItem>
             <SidebarMenuButton 
               onClick={() => { onOpenSettings(); onCloseMobileMenu?.(); }}
-              className="h-11 px-4 rounded-sm text-muted-foreground/70 hover:text-foreground hover:bg-background/60 font-serif text-[15px] font-light tracking-wide"
+              className="h-9 px-2 rounded-md text-muted-foreground hover:text-foreground hover:bg-card/50 text-sm font-light"
+              style={{ fontFamily: 'var(--font-sans)' }}
             >
-              <Settings size={18} strokeWidth={1.3} />
-              <span className="tracking-wide">Settings</span>
+              <Settings size={14} strokeWidth={1.5} />
+              <span>Settings</span>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
 
-        {/* User Info - Editorial style */}
+        {/* User Info */}
         {user && (
-          <div className="px-4 pt-6 pb-2 group-data-[collapsible=icon]:hidden border-t border-border/30 mt-4">
-            <p className="text-[10px] font-mono uppercase tracking-[0.12em] text-muted-foreground/35 truncate">
+          <div className="px-2 pt-3 pb-1 group-data-[collapsible=icon]:hidden border-t border-border/30 mt-3">
+            <p className="text-[10px] tracking-[0.1em] text-muted-foreground/60 truncate" style={{ fontFamily: 'var(--font-sans)' }}>
               {user.email}
             </p>
           </div>
         )}
         
-        {/* Logout - Refined placement */}
+        {/* Logout */}
         <SidebarMenu className="gap-0.5 mt-2">
           <SidebarMenuItem>
             <SidebarMenuButton
               onClick={() => { signOut(); onCloseMobileMenu?.(); }}
-              className="h-10 px-4 rounded-sm text-red-600/60 dark:text-red-400/60 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50/50 dark:hover:bg-red-950/20 font-serif text-sm font-light tracking-wide transition-colors"
+              className="h-9 px-2 rounded-md text-muted-foreground hover:text-destructive hover:bg-destructive/5 text-sm font-light transition-colors"
+              style={{ fontFamily: 'var(--font-sans)' }}
             >
-              <LogOut size={16} strokeWidth={1.3} />
-              <span className="tracking-wide">Sign Out</span>
+              <LogOut size={14} strokeWidth={1.5} />
+              <span>Sign Out</span>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
@@ -257,8 +265,8 @@ const MobileBottomNav: React.FC = () => {
   ];
 
   return (
-    <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 border-t border-border/30 bg-background/95 backdrop-blur-xl pb-[env(safe-area-inset-bottom)] [0_-2px_16px_rgba(0,0,0,0.04)] dark:[0_-2px_16px_rgba(0,0,0,0.2)]">
-      <div className="flex items-center justify-between h-16 px-6 max-w-md mx-auto relative">
+    <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 border-t border-border bg-background pb-[env(safe-area-inset-bottom)]">
+      <div className="flex items-center justify-between h-14 px-6 max-w-md mx-auto relative">
 
         {/* Left Items */}
         {navItems.map((item) => {
@@ -270,24 +278,24 @@ const MobileBottomNav: React.FC = () => {
               className="flex flex-col items-center justify-center w-12 gap-1 group"
             >
               <item.icon
-                size={20}
+                size={18}
                 strokeWidth={isActive ? 1.8 : 1.3}
                 className={clsx(
-                  "transition-all duration-200",
-                  isActive ? "text-terracotta -translate-y-0.5" : "text-muted-foreground/70 group-hover:text-foreground"
+                  "transition-colors",
+                  isActive ? "text-foreground" : "text-muted-foreground group-hover:text-foreground"
                 )}
               />
             </Link>
           );
         })}
 
-        {/* Center FAB (Study) - Warm terracotta */}
-        <div className="absolute left-1/2 -translate-x-1/2 -top-6">
+        {/* Center FAB (Study) */}
+        <div className="absolute left-1/2 -translate-x-1/2 -top-5">
           <Link
             to="/study"
-            className="flex items-center justify-center w-14 h-14 rounded-full bg-terracotta text-white  /20 hover:/30 hover:scale-105 active:scale-95 transition-all duration-300 border-4 border-background"
+            className="flex items-center justify-center w-12 h-12 rounded-full bg-foreground text-background hover:bg-foreground/90 active:scale-95 transition-all border-4 border-background"
           >
-            <GraduationCap size={24} strokeWidth={1.8} className="ml-0.5" />
+            <GraduationCap size={20} strokeWidth={1.8} />
           </Link>
         </div>
 
@@ -297,11 +305,11 @@ const MobileBottomNav: React.FC = () => {
           className="flex flex-col items-center justify-center w-12 gap-1 group"
         >
           <Trophy
-            size={20}
+            size={18}
             strokeWidth={location.pathname === '/leaderboard' ? 1.8 : 1.3}
             className={clsx(
-              "transition-all duration-200",
-              location.pathname === '/leaderboard' ? "text-terracotta -translate-y-0.5" : "text-muted-foreground/70 group-hover:text-foreground"
+              "transition-colors",
+              location.pathname === '/leaderboard' ? "text-foreground" : "text-muted-foreground group-hover:text-foreground"
             )}
           />
         </Link>
@@ -336,7 +344,7 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
   // For study mode, don't render the sidebar at all
   if (isStudyMode) {
     return (
-      <div className="min-h-screen bg-background text-foreground font-sans selection:bg-primary/20 selection:text-foreground">
+      <div className="min-h-screen bg-background text-foreground font-sans">
         <main className="min-h-screen p-0">
           {children}
           <SabotageNotification />
@@ -353,7 +361,7 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
 
   return (
     <SidebarProvider>
-      <div className="min-h-screen bg-background text-foreground font-sans selection:bg-primary/20 selection:text-foreground flex w-full">
+      <div className="min-h-screen bg-background text-foreground font-sans flex w-full">
 
         {/* Desktop Sidebar */}
         <AppSidebar {...sidebarProps} />
@@ -361,8 +369,8 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
         {/* Main Content */}
         <div className="flex-1 flex flex-col">
           {/* Main Content Area */}
-          <main className="flex-1 pb-20 md:pb-0">
-            <div className="w-full h-full mx-auto max-w-7xl px-3 py-4 md:p-12">
+          <main className="flex-1 pb-16 md:pb-0">
+            <div className="w-full h-full mx-auto max-w-6xl px-4 py-4 md:p-8">
               {children}
               <SabotageNotification />
             </div>

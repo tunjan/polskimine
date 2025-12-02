@@ -22,6 +22,7 @@ interface CardListProps {
   onPrioritizeCard: (id: string) => void;
   selectedIds: Set<string>;
   onToggleSelect: (id: string, index: number, isShift: boolean) => void;
+  compactView?: boolean;
 }
 
 // --- Refined, Editorial Components ---
@@ -109,6 +110,146 @@ const ScheduleDisplay = ({ dateStr, status, interval }: { dateStr: string, statu
     </div>
   );
 };
+
+// Compact Row Component
+const CompactRow = memo(({ index, style, data }: ListChildComponentProps<any>) => {
+  const { cards, onEditCard, onDeleteCard, onViewHistory, onPrioritizeCard, selectedIds, onToggleSelect } = data;
+  const card = cards[index];
+  if (!card) return null;
+
+  const isSelected = selectedIds.has(card.id);
+
+  const statusColors: Record<string, string> = {
+    new: 'bg-[oklch(0.48_0.08_85)]',
+    learning: 'bg-[oklch(0.52_0.12_35)]',
+    graduated: 'bg-[oklch(0.50_0.10_150)]',
+    known: 'bg-muted-foreground/40',
+  };
+
+  return (
+    <div 
+      style={style} 
+      className={clsx(
+        "group px-4 md:px-8 transition-all duration-200",
+        isSelected 
+          ? "bg-[oklch(0.96_0.015_75)]" 
+          : "hover:bg-[oklch(0.98_0.005_85)]"
+      )}
+    >
+      <div className="flex items-center gap-3 py-2 border-b border-border/20">
+        
+        {/* Selection Indicator - Compact */}
+        <div 
+          className="shrink-0 cursor-pointer"
+          onClick={(e) => {
+            e.stopPropagation();
+            onToggleSelect(card.id, index, e.shiftKey);
+          }}
+        >
+          <div className={clsx(
+            "w-4 h-4 rounded-full border transition-all duration-200 flex items-center justify-center",
+            isSelected 
+              ? "border-[oklch(0.52_0.12_35)] bg-[oklch(0.52_0.12_35)]" 
+              : "border-border/50 group-hover:border-muted-foreground/40"
+          )}>
+            {isSelected && (
+              <div className="w-1.5 h-1.5 rounded-full bg-background" />
+            )}
+          </div>
+        </div>
+
+        {/* Status Dot */}
+        <div className={clsx(
+          "w-2 h-2 rounded-full shrink-0",
+          statusColors[card.status] || statusColors.new
+        )} />
+
+        {/* Main Content - Single Line */}
+        <div 
+          className="flex-1 min-w-0 cursor-pointer flex items-center gap-4"
+          onClick={() => onViewHistory(card)}
+        >
+          <span 
+            className={clsx(
+              "text-sm font-normal truncate flex-1",
+              isSelected ? "text-foreground" : "text-foreground/90"
+            )}
+            style={{ fontFamily: 'var(--font-serif)' }}
+          >
+            {card.targetSentence}
+          </span>
+          
+          <span 
+            className="text-xs text-muted-foreground/50 truncate max-w-[200px] hidden sm:block"
+            style={{ fontFamily: 'var(--font-sans)' }}
+          >
+            {card.nativeTranslation}
+          </span>
+        </div>
+
+        {/* Compact Actions */}
+        <div className="flex items-center gap-2 shrink-0">
+          <span 
+            className="text-[10px] text-muted-foreground/40 tabular-nums hidden md:block"
+            style={{ fontFamily: 'var(--font-sans)' }}
+          >
+            {card.reps}×
+          </span>
+          
+          <DropdownMenu>
+            <DropdownMenuTrigger 
+              className={clsx(
+                "w-7 h-7 rounded-full flex items-center justify-center transition-all duration-200 outline-none",
+                "text-muted-foreground/30 hover:text-foreground hover:bg-muted/50",
+                "opacity-0 group-hover:opacity-100 focus:opacity-100"
+              )}
+            >
+              <MoreHorizontal size={14} strokeWidth={1.5} />
+            </DropdownMenuTrigger>
+            <DropdownMenuContent 
+              align="end" 
+              className="w-44 rounded-xl border-border bg-card p-1.5"
+            >
+              <DropdownMenuItem 
+                onClick={() => onPrioritizeCard(card.id)} 
+                className="rounded-lg text-xs font-light cursor-pointer py-2 px-2.5"
+                style={{ fontFamily: 'var(--font-sans)' }}
+              >
+                <Zap size={14} className="mr-2 opacity-60" strokeWidth={1.5} /> 
+                Priority
+              </DropdownMenuItem>
+              <DropdownMenuItem 
+                onClick={() => onViewHistory(card)} 
+                className="rounded-lg text-xs font-light cursor-pointer py-2 px-2.5"
+                style={{ fontFamily: 'var(--font-sans)' }}
+              >
+                <History size={14} className="mr-2 opacity-60" strokeWidth={1.5} /> 
+                History
+              </DropdownMenuItem>
+              <DropdownMenuItem 
+                onClick={() => onEditCard(card)} 
+                className="rounded-lg text-xs font-light cursor-pointer py-2 px-2.5"
+                style={{ fontFamily: 'var(--font-sans)' }}
+              >
+                <Pencil size={14} className="mr-2 opacity-60" strokeWidth={1.5} /> 
+                Edit
+              </DropdownMenuItem>
+              <DropdownMenuSeparator className="my-1 bg-border/40" />
+              <DropdownMenuItem 
+                onClick={() => onDeleteCard(card.id)} 
+                className="rounded-lg text-xs font-light cursor-pointer py-2 px-2.5 text-destructive focus:text-destructive"
+                style={{ fontFamily: 'var(--font-sans)' }}
+              >
+                <Trash2 size={14} className="mr-2 opacity-60" strokeWidth={1.5} /> 
+                Delete
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+      </div>
+    </div>
+  );
+}, areEqual);
 
 const Row = memo(({ index, style, data }: ListChildComponentProps<any>) => {
   const { cards, onEditCard, onDeleteCard, onViewHistory, onPrioritizeCard, selectedIds, onToggleSelect } = data;
@@ -257,6 +398,8 @@ const Row = memo(({ index, style, data }: ListChildComponentProps<any>) => {
 }, areEqual);
 
 export const CardList: React.FC<CardListProps> = (props) => {
+  const { compactView = false } = props;
+  
   if (props.cards.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center h-[60vh] space-y-8">
@@ -279,6 +422,9 @@ export const CardList: React.FC<CardListProps> = (props) => {
     );
   }
 
+  const itemSize = compactView ? 44 : 160;
+  const RowComponent = compactView ? CompactRow : Row;
+
   return (
     <div className="flex-1 h-full w-full">
       <AutoSizer>
@@ -287,12 +433,12 @@ export const CardList: React.FC<CardListProps> = (props) => {
             height={height}
             width={width}
             itemCount={props.cards.length}
-            itemSize={160} // Generous spacing for airy feel
+            itemSize={itemSize}
             itemData={props}
             className="no-scrollbar"
-            overscanCount={3}
+            overscanCount={compactView ? 10 : 3}
           >
-            {Row}
+            {RowComponent}
           </List>
         )}
       </AutoSizer>

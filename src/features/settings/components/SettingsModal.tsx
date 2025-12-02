@@ -1,11 +1,12 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Check, AlertCircle, LogOut, Skull } from 'lucide-react';
+import { Check, AlertCircle, LogOut, Skull, Settings, Volume2, Target, Sliders, Database, ChevronRight } from 'lucide-react';
 import clsx from 'clsx';
 import { toast } from 'sonner';
 import { v4 as uuidv4 } from 'uuid';
 import { useQueryClient } from '@tanstack/react-query';
 
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
+import { GamePanel, GameButton, GameDivider } from '@/components/ui/game-ui';
 import { useSettings } from '@/contexts/SettingsContext';
 import { useDeck } from '@/contexts/DeckContext';
 import { useAuth } from '@/contexts/AuthContext';
@@ -530,55 +531,85 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
     { id: 'danger', label: 'Danger' },
   ];
 
+  const tabIcons: Record<SettingsTab, React.ReactNode> = {
+    general: <Settings className="w-4 h-4" strokeWidth={1.5} />,
+    audio: <Volume2 className="w-4 h-4" strokeWidth={1.5} />,
+    study: <Target className="w-4 h-4" strokeWidth={1.5} />,
+    algorithm: <Sliders className="w-4 h-4" strokeWidth={1.5} />,
+    data: <Database className="w-4 h-4" strokeWidth={1.5} />,
+    danger: <Skull className="w-4 h-4" strokeWidth={1.5} />,
+  };
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="w-[95vw] max-w-5xl h-[92vh] md:h-[85vh] p-0 gap-0 overflow-hidden flex flex-col md:flex-row bg-cream dark:bg-background border-0 [0_8px_40px_rgba(0,0,0,0.08)] dark:[0_8px_40px_rgba(0,0,0,0.4)] rounded-2xl">
+      <DialogContent className="w-[95vw] max-w-5xl h-[92vh] md:h-[85vh] p-0 gap-0 overflow-hidden flex flex-col md:flex-row bg-card border border-border rounded-none">
         
-        {/* Refined Sidebar with warm tones */}
-        <div className="w-full md:w-72 bg-linear-to-b from-background/40 to-background/20 dark:from-background/60 dark:to-background/30 backdrop-blur-sm border-b md:border-b-0 md:border-r border-border/30 p-6 md:p-8 flex flex-col justify-between shrink-0">
-            <div className="space-y-8">
-                <DialogTitle className="font-serif text-2xl font-light tracking-tight text-foreground/90 mb-10 flex items-center gap-3">
-                    <span className="w-1 h-1 rounded-full bg-terracotta"></span>
-                    Preferences
+        {/* Game-styled Sidebar */}
+        <div className="relative w-full md:w-72 bg-card border-b md:border-b-0 md:border-r border-border p-4 md:p-6 flex flex-col justify-between shrink-0">
+            {/* Corner decorations */}
+            <span className="absolute -top-px -left-px w-4 h-4 pointer-events-none">
+              <span className="absolute top-0 left-0 w-full h-0.5 bg-primary" />
+              <span className="absolute top-0 left-0 h-full w-0.5 bg-primary" />
+            </span>
+            <span className="absolute -bottom-px -left-px w-4 h-4 pointer-events-none hidden md:block">
+              <span className="absolute bottom-0 left-0 w-full h-0.5 bg-primary" />
+              <span className="absolute bottom-0 left-0 h-full w-0.5 bg-primary" />
+            </span>
+
+            <div className="space-y-6">
+                <DialogTitle className="flex items-center gap-3 mb-8">
+                    <span className="w-2 h-2 rotate-45 bg-primary/60" />
+                    <span className="text-lg md:text-xl font-medium text-foreground tracking-tight font-ui">Settings</span>
                 </DialogTitle>
-                <nav className="flex flex-row md:flex-col gap-2 overflow-x-auto md:overflow-visible no-scrollbar pb-2 md:pb-0">
+                <nav className="flex flex-row md:flex-col gap-1 overflow-x-auto md:overflow-visible no-scrollbar pb-2 md:pb-0">
                     {tabs.map((item) => (
                         <button
                             key={item.id}
                             onClick={() => setActiveTab(item.id)}
                             className={clsx(
-                                "text-left px-4 py-3 transition-all duration-200 whitespace-nowrap group relative",
+                                "relative group flex items-center gap-3 text-left px-3 py-3 transition-all duration-200 whitespace-nowrap",
                                 activeTab === item.id 
-                                    ? "text-foreground" 
-                                    : "text-muted-foreground/70 hover:text-foreground"
+                                    ? "text-foreground bg-card/80" 
+                                    : "text-muted-foreground hover:text-foreground hover:bg-card/50"
                             )}
                         >
-                            <span className="font-serif text-[15px] font-light tracking-wide relative z-10">
+                            {/* Left accent line */}
+                            <span className={clsx(
+                                "absolute left-0 top-1/4 bottom-1/4 w-[2px] transition-all duration-200",
+                                activeTab === item.id ? "bg-primary" : "bg-transparent group-hover:bg-primary/40"
+                            )} />
+                            
+                            <span className={clsx(
+                                "transition-colors",
+                                activeTab === item.id ? "text-primary" : "text-muted-foreground/60 group-hover:text-primary/70"
+                            )}>
+                                {tabIcons[item.id]}
+                            </span>
+                            <span className="text-sm font-light font-ui tracking-wide relative z-10">
                                 {item.label}
                             </span>
                             {activeTab === item.id && (
-                                <div className="absolute inset-0 bg-terracotta/8 dark:bg-terracotta/12 -mx-2 rounded-sm" />
+                                <ChevronRight className="w-3 h-3 ml-auto text-primary/60 hidden md:block" strokeWidth={2} />
                             )}
-                            <div className={clsx(
-                                "absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-0 bg-terracotta transition-all duration-200",
-                                activeTab === item.id ? "h-8" : "h-0 group-hover:h-4"
-                            )} />
                         </button>
                     ))}
                 </nav>
             </div>
             
             <div className="hidden md:block">
-                <div className="h-px bg-linear-to-r from-transparent via-border/50 to-transparent mb-4" />
-                <div className="text-[9px] font-mono uppercase tracking-[0.15em] text-muted-foreground/40">
-                    Deck: {settings.language}
+                <GameDivider className="my-4" />
+                <div className="flex items-center gap-2">
+                    <span className="w-1.5 h-1.5 rotate-45 bg-primary/40" />
+                    <span className="text-[10px] font-ui uppercase tracking-[0.15em] text-muted-foreground/50">
+                        Deck: {settings.language}
+                    </span>
                 </div>
             </div>
         </div>
 
-        {/* Spacious Content Area with generous margins */}
-        <div className="flex-1 flex flex-col min-w-0 overflow-hidden bg-background/30 dark:bg-background/10">
-            <div className="flex-1 px-6 py-8 md:px-16 md:py-12 overflow-y-auto">
+        {/* Game-styled Content Area */}
+        <div className="flex-1 flex flex-col min-w-0 overflow-hidden bg-background">
+            <div className="flex-1 px-6 py-6 md:px-12 md:py-8 overflow-y-auto">
                 
                 {activeTab === 'general' && (
                     <GeneralSettings 
@@ -618,91 +649,106 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                 )}
 
                 {activeTab === 'danger' && (
-                    <div className="space-y-12 max-w-2xl animate-in fade-in slide-in-from-bottom-2 duration-500">
-                        {/* Reset Deck - Warm, editorial warning */}
-                        <div className="space-y-6">
-                            <div className="flex items-start gap-4 pb-6 border-b border-border/30">
-                                <div className="mt-1">
-                                    <div className="w-10 h-10 rounded-full bg-orange-100 dark:bg-orange-950/30 flex items-center justify-center">
-                                        <AlertCircle className="text-orange-600 dark:text-orange-400" size={18} strokeWidth={1.5} />
-                                    </div>
-                                </div>
-                                <div className="flex-1 space-y-3">
-                                    <h4 className="font-serif text-lg font-normal tracking-tight text-foreground/90">Reset Current Deck</h4>
-                                    <p className="text-sm leading-relaxed text-muted-foreground/80 font-light">
-                                        This will delete all cards, history, experience, and progress for <em className="text-foreground font-normal">{localSettings.language}</em>, restoring the beginner course.
-                                    </p>
-                                </div>
-                            </div>
-                            <button 
-                                onClick={handleResetDeck}
-                                className={clsx(
-                                    "w-full py-4 text-sm font-serif tracking-wide transition-all duration-200",
-                                    confirmResetDeck 
-                                        ? "bg-orange-600 dark:bg-orange-700 text-white hover:bg-orange-700 dark:hover:bg-orange-800 " 
-                                        : "bg-background/60 border border-border/40 hover:border-orange-400/60 hover:bg-orange-50/50 dark:hover:bg-orange-950/20 text-foreground/70 hover:text-foreground"
-                                )}
-                            >
-                                {confirmResetDeck ? "Confirm Reset" : "Reset Deck"}
-                            </button>
+                    <div className="space-y-8 max-w-2xl animate-in fade-in slide-in-from-bottom-2 duration-500">
+                        {/* Section Header */}
+                        <div className="flex items-center gap-3 mb-6">
+                            <span className="w-2 h-2 rotate-45 bg-destructive/60" />
+                            <h2 className="text-lg font-medium text-foreground tracking-tight font-ui">Danger Zone</h2>
+                            <span className="flex-1 h-px bg-gradient-to-r from-destructive/30 via-border/30 to-transparent" />
                         </div>
 
-                        {/* Hard Reset - Refined, serious tone */}
-                        <div className="space-y-6 pt-8">
-                            <div className="flex items-start gap-4 pb-6 border-b border-destructive/20">
-                                <div className="mt-1">
-                                    <div className="w-10 h-10 rounded-full bg-red-100 dark:bg-red-950/30 flex items-center justify-center">
-                                        <Skull className="text-red-700 dark:text-red-400" size={18} strokeWidth={1.5} />
+                        {/* Reset Deck - Game Panel Style */}
+                        <GamePanel variant="default" size="md" className="border-orange-500/30 hover:border-orange-500/50 transition-colors">
+                            <div className="space-y-4">
+                                <div className="flex items-start gap-4">
+                                    <div className="w-10 h-10 bg-orange-500/10 flex items-center justify-center">
+                                        <AlertCircle className="text-orange-500" size={18} strokeWidth={1.5} />
+                                    </div>
+                                    <div className="flex-1 space-y-2">
+                                        <h4 className="text-sm font-medium text-foreground font-ui tracking-wide">Reset Current Deck</h4>
+                                        <p className="text-xs text-muted-foreground font-light leading-relaxed">
+                                            Delete all cards, history, and progress for <span className="text-foreground">{localSettings.language}</span>. Restores beginner course.
+                                        </p>
                                     </div>
                                 </div>
-                                <div className="flex-1 space-y-3">
-                                    <h4 className="font-serif text-lg font-normal tracking-tight text-destructive">Complete Account Reset</h4>
-                                    <p className="text-sm leading-relaxed text-muted-foreground/80 font-light">
-                                        This permanently removes all data: cards across all languages, study history, experience points, and settings. Your username remains unchanged. <strong className="text-foreground/90">This cannot be undone.</strong>
-                                    </p>
-                                </div>
+                                <GameButton
+                                    onClick={handleResetDeck}
+                                    variant={confirmResetDeck ? 'primary' : 'secondary'}
+                                    className={clsx(
+                                        "w-full",
+                                        confirmResetDeck && "bg-orange-500 hover:bg-orange-600"
+                                    )}
+                                >
+                                    {confirmResetDeck ? "Confirm Reset" : "Reset Deck"}
+                                </GameButton>
                             </div>
-                            <button 
-                                onClick={handleResetAccount}
-                                className={clsx(
-                                    "w-full py-4 text-sm font-serif tracking-wide transition-all duration-200",
-                                    confirmResetAccount 
-                                        ? "bg-destructive text-destructive-foreground hover:bg-destructive/90 " 
-                                        : "bg-background/60 border border-destructive/30 text-destructive/80 hover:bg-red-50/50 dark:hover:bg-red-950/20 hover:border-destructive/60 hover:text-destructive"
-                                )}
-                            >
-                                {confirmResetAccount ? "Confirm Complete Reset" : "Reset Everything"}
-                            </button>
-                        </div>
+                        </GamePanel>
+
+                        <GameDivider />
+
+                        {/* Hard Reset - Game Panel Style */}
+                        <GamePanel variant="default" size="md" className="border-destructive/30 hover:border-destructive/50 transition-colors">
+                            <div className="space-y-4">
+                                <div className="flex items-start gap-4">
+                                    <div className="w-10 h-10 bg-destructive/10 flex items-center justify-center">
+                                        <Skull className="text-destructive" size={18} strokeWidth={1.5} />
+                                    </div>
+                                    <div className="flex-1 space-y-2">
+                                        <h4 className="text-sm font-medium text-destructive font-ui tracking-wide">Complete Account Reset</h4>
+                                        <p className="text-xs text-muted-foreground font-light leading-relaxed">
+                                            Permanently removes all data across all languages. <span className="text-foreground font-medium">This cannot be undone.</span>
+                                        </p>
+                                    </div>
+                                </div>
+                                <GameButton
+                                    onClick={handleResetAccount}
+                                    variant={confirmResetAccount ? 'primary' : 'secondary'}
+                                    className={clsx(
+                                        "w-full",
+                                        confirmResetAccount && "bg-destructive hover:bg-destructive/90"
+                                    )}
+                                >
+                                    {confirmResetAccount ? "Confirm Complete Reset" : "Reset Everything"}
+                                </GameButton>
+                            </div>
+                        </GamePanel>
                     </div>
                 )}
             </div>
 
-            {/* Refined Footer */}
-            <div className="px-6 py-5 md:px-16 md:py-6 border-t border-border/30 bg-linear-to-t from-background/40 to-transparent flex justify-between items-center gap-4 shrink-0 flex-wrap backdrop-blur-sm">
+            {/* Game-styled Footer */}
+            <div className="relative px-6 py-4 md:px-12 md:py-5 border-t border-border bg-card/50 flex justify-between items-center gap-4 shrink-0 flex-wrap">
+                {/* Corner accents */}
+                <span className="absolute -bottom-px -right-px w-4 h-4 pointer-events-none hidden md:block">
+                  <span className="absolute bottom-0 right-0 w-full h-0.5 bg-primary" />
+                  <span className="absolute bottom-0 right-0 h-full w-0.5 bg-primary" />
+                </span>
+                
                 <button 
                     onClick={() => {
                         onClose();
                         signOut();
                     }}
-                    className="text-xs font-serif tracking-wide text-red-600/70 dark:text-red-400/70 hover:text-red-600 dark:hover:text-red-400 px-3 py-2 transition-colors flex items-center gap-2 group"
+                    className="group flex items-center gap-2 text-xs font-ui uppercase tracking-[0.1em] text-destructive/70 hover:text-destructive px-3 py-2 transition-colors"
                 >
                     <LogOut size={14} strokeWidth={1.5} className="group-hover:-translate-x-0.5 transition-transform" />
                     <span className="hidden sm:inline">Sign Out</span>
                 </button>
                 <div className="flex gap-3 ml-auto">
-                    <button 
+                    <GameButton 
                         onClick={onClose} 
-                        className="text-sm font-serif tracking-wide text-muted-foreground/70 hover:text-foreground px-5 py-2.5 transition-colors"
+                        variant="ghost"
+                        size="md"
                     >
                         Cancel
-                    </button>
-                    <button 
-                        onClick={handleSave} 
-                        className="bg-terracotta/90 hover:bg-terracotta text-white px-8 py-2.5 text-sm rounded-sm font-light tracking-wide transition-all"
+                    </GameButton>
+                    <GameButton 
+                        onClick={handleSave}
+                        variant="primary"
+                        size="md"
                     >
                         Save Changes
-                    </button>
+                    </GameButton>
                 </div>
             </div>
         </div>

@@ -150,3 +150,48 @@ export function hslToHex(h: number, s: number, l: number): string {
 
   return `#${toHex(r)}${toHex(g)}${toHex(b)}`;
 }
+
+/**
+ * Calculate level from XP using formula: XP = 100 * (level - 1)^2
+ * @param xp - The experience points
+ * @returns The calculated level (minimum 1)
+ */
+export function calculateLevel(xp: number): number {
+  return Math.floor(Math.sqrt(xp / 100)) + 1;
+}
+
+/**
+ * Calculate XP required for a given level
+ * @param level - The target level
+ * @returns XP required to reach this level
+ */
+export function getXpForLevel(level: number): number {
+  return (level - 1) * (level - 1) * 100;
+}
+
+/**
+ * Calculate level progress percentage
+ * @param xp - Current XP
+ * @returns Object with current level, progress percentage, and XP to next level
+ */
+export function getLevelProgress(xp: number): {
+  level: number;
+  progressPercent: number;
+  xpToNextLevel: number;
+  currentLevelXp: number;
+  nextLevelXp: number;
+} {
+  const level = calculateLevel(xp);
+  const currentLevelXp = getXpForLevel(level);
+  const nextLevelXp = getXpForLevel(level + 1);
+  const progressPercent = ((xp - currentLevelXp) / (nextLevelXp - currentLevelXp)) * 100;
+  const xpToNextLevel = nextLevelXp - xp;
+  
+  return {
+    level,
+    progressPercent,
+    xpToNextLevel,
+    currentLevelXp,
+    nextLevelXp,
+  };
+}

@@ -1,12 +1,14 @@
 import React from 'react';
-import { Button } from '@/components/ui/button';
-import { Progress } from '@/components/ui/progress';
 import { 
   Play, 
   Activity, 
   Zap, 
   Trophy,
-  TrendingUp
+  BookOpen,
+  Sparkles,
+  Target,
+  Flame,
+  Star
 } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 
@@ -17,8 +19,20 @@ import { DeckStats, ReviewHistory, Card as CardType } from '@/types';
 import { useSettings } from '@/contexts/SettingsContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { getRevlogStats } from '@/services/db/repositories/statsRepository';
+import { getLevelProgress } from '@/lib/utils';
 
-// Child Components (Assuming these accept className or style props)
+// Game UI Components
+import { 
+  GamePanel, 
+  GameStat, 
+  GameSectionHeader, 
+  GameProgressBar,
+  GameButton,
+  GameMetricRow,
+  GameDivider
+} from '@/components/ui/game-ui';
+
+// Child Components
 import { Heatmap } from './Heatmap';
 import { RetentionStats } from './RetentionStats';
 import { ReviewVolumeChart } from './ReviewVolumeChart';
@@ -32,15 +46,12 @@ interface DashboardProps {
     reviewing: number;
     known: number;
   };
-  forecast: number;
   languageXp: { xp: number; level: number };
   stats: DeckStats;
   history: ReviewHistory;
   onStartSession: () => void;
   cards: CardType[];
 }
-
-const calculateLevel = (xp: number) => Math.floor(Math.sqrt(xp / 100)) + 1;
 
 
 export const Dashboard: React.FC<DashboardProps> = ({
@@ -53,260 +64,314 @@ export const Dashboard: React.FC<DashboardProps> = ({
 }) => {
   const { settings } = useSettings();
   const { profile } = useAuth();
-  const currentLevel = calculateLevel(languageXp.xp);
+  
+  const levelData = getLevelProgress(languageXp.xp);
 
-  const { data: revlogStats } = useQuery({
+  const { data: revlogStats, isLoading: isRevlogLoading } = useQuery({
     queryKey: ['revlogStats', settings.language],
     queryFn: () => getRevlogStats(settings.language),
   });
 
-  // Calculate progress to next level for the Progress Bar
-  const currentLevelXp = (currentLevel - 1) * (currentLevel - 1) * 100;
-  const nextLevelXp = currentLevel * currentLevel * 100;
-  const levelProgress = ((languageXp.xp - currentLevelXp) / (nextLevelXp - currentLevelXp)) * 100;
+  const hasNoCards = metrics.total === 0;
+  const hasNoActivity = stats.totalReviews === 0;
 
   return (
-    <div 
-      className="min-h-screen bg-background px-8 md:px-16 lg:px-24 py-6 md:py-8 max-w-[1400px] mx-auto"
-      style={{ fontFamily: 'var(--font-serif)' }}
-    >
+    <div className="min-h-screen bg-background px-4 md:px-6 lg:px-8 py-4 md:py-6 max-w-[1100px] mx-auto font-editorial">
       
-      {/* --- HERO SECTION WITH GENEROUS WHITESPACE --- */}
-      <section className="mb-32 md:mb-40">
-        
-        {/* Warm Welcome */}
-        <div className="mb-20">
-          <h1 className="text-5xl md:text-6xl lg:text-7xl font-light text-foreground mb-6 tracking-tight leading-[1.1]">
-            Good {new Date().getHours() < 12 ? 'morning' : new Date().getHours() < 18 ? 'afternoon' : 'evening'}
-          </h1>
-          <p className="text-lg md:text-xl text-muted-foreground font-light leading-relaxed max-w-2xl">
-            {stats.due > 0 
-              ? `You have ${stats.due} card${stats.due === 1 ? '' : 's'} waiting for review. Let's continue your journey.`
-              : 'All caught up! Your dedication is admirable.'}
-          </p>
-        </div>
-
-        {/* Main Stats in Minimalist Layout */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-24">
+      {/* --- HERO SECTION --- */}
+      <section className="mb-10 md:mb-12">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8">
           
-          {/* Primary Action Card */}
-          <div className="space-y-12">
-            <div className="">
-              <div className="space-y-12">
-                <div>
-                  <p className="text-sm text-muted-foreground uppercase tracking-[0.2em] mb-4 font-light" style={{ fontFamily: 'var(--font-sans)' }}>
-                    Due Today
-                  </p>
-                  <div className="flex items-baseline gap-4">
-                    <span className="text-8xl md:text-9xl font-light text-foreground tracking-tight tabular-nums">
-                      {stats.due}
-                    </span>
-                    <span className="text-2xl text-muted-foreground font-light">
-                      card{stats.due === 1 ? '' : 's'}
-                    </span>
+          {/* Primary Action Card - Today's Mission */}
+          <GamePanel variant="highlight" size="lg" glowOnHover className="flex flex-col justify-between min-h-[260px]">
+            {/* Header */}
+            <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
+                  <Target className="w-4 h-4 text-primary" strokeWidth={2} />
+                </div>
+                <p className="text-xs text-foreground/80 uppercase tracking-[0.2em] font-medium font-ui">
+                  Today's Mission
+                </p>
+              </div>
+              {stats.due > 0 && (
+                <span className="px-2 py-0.5 bg-primary/10 text-primary text-[10px] font-medium uppercase tracking-wider rounded-full">
+                  Ready
+                </span>
+              )}
+            </div>
+            
+            {/* Main Stats */}
+            <div className="flex-1 flex flex-col justify-center">
+              <div className="text-center mb-6">
+                <span className="text-6xl md:text-7xl font-light text-foreground tracking-tight tabular-nums">
+                  {stats.due}
+                </span>
+                <p className="text-sm text-muted-foreground font-light mt-1">
+                  card{stats.due === 1 ? '' : 's'} waiting for you
+                </p>
+              </div>
+              
+              {/* Breakdown */}
+              <div className="flex items-center justify-center gap-8">
+                <div className="text-center">
+                  <div className="flex items-center justify-center gap-1.5 mb-1">
+                    <Star className="w-3.5 h-3.5 text-amber-500" strokeWidth={2} fill="currentColor" />
+                    <span className="text-[10px] text-muted-foreground uppercase tracking-wider font-ui">New</span>
                   </div>
+                  <p className="text-2xl font-light text-foreground tabular-nums">{stats.newDue}</p>
                 </div>
                 
-                <div className="flex gap-8 pt-4">
-                  <div className="flex-1">
-                    <p className="text-xs text-muted-foreground uppercase tracking-[0.15em] mb-3 font-light" style={{ fontFamily: 'var(--font-sans)' }}>
-                      New
-                    </p>
-                    <p className="text-3xl md:text-4xl font-light text-foreground tabular-nums">
-                      {stats.newDue}
-                    </p>
+                <div className="h-8 w-px bg-border" />
+                
+                <div className="text-center">
+                  <div className="flex items-center justify-center gap-1.5 mb-1">
+                    <Activity className="w-3.5 h-3.5 text-sky-500" strokeWidth={2} />
+                    <span className="text-[10px] text-muted-foreground uppercase tracking-wider font-ui">Review</span>
                   </div>
-                  <div className="w-px bg-border" />
-                  <div className="flex-1">
-                    <p className="text-xs text-muted-foreground uppercase tracking-[0.15em] mb-3 font-light" style={{ fontFamily: 'var(--font-sans)' }}>
-                      Review
-                    </p>
-                    <p className="text-3xl md:text-4xl font-light text-foreground tabular-nums">
-                      {stats.reviewDue}
-                    </p>
-                  </div>
+                  <p className="text-2xl font-light text-foreground tabular-nums">{stats.reviewDue}</p>
                 </div>
-
-                <Button 
-                  size="lg" 
-                  onClick={onStartSession}
-                  disabled={stats.due === 0}
-                  className="text-foreground h-14 text-sm uppercase tracking-[0.15em] font-medium rounded-sm border border-terracotta bg-transparent hover:bg-terracotta/10 transition-colors disabled:opacity-50 disabled:cursor-not-allowed disabled:border-muted"
-                  style={{ 
-                    fontFamily: 'var(--font-sans)',
-                    backgroundColor: '',
-                    color: ''
-                  }}
-                >
-                  <Play className="w-4 h-4 mr-3 fill-current" /> 
-                  Begin Review
-                </Button>
               </div>
             </div>
-          </div>
+
+            {/* Action Button */}
+            <GameButton 
+              size="lg" 
+              onClick={onStartSession}
+              disabled={stats.due === 0}
+              className="w-full mt-6"
+              variant={stats.due > 0 ? 'primary' : 'ghost'}
+            >
+              <Play className="w-4 h-4 fill-current" /> 
+              {stats.due > 0 ? 'Start Session' : 'All Caught Up'}
+            </GameButton>
+          </GamePanel>
 
           {/* Progress & Stats */}
-          <div className="space-y-8">
+          <div className="space-y-4">
             
             {/* Level Progress */}
-            <div className="bg-card rounded-3xl p-10 md:p-12 border border-border">
-              <div className="space-y-6">
+            <GamePanel size="md" glowOnHover>
+              <div className="space-y-4">
                 <div className="flex items-baseline justify-between">
                   <div>
-                    <p className="text-xs text-muted-foreground uppercase tracking-[0.15em] mb-2 font-light" style={{ fontFamily: 'var(--font-sans)' }}>
-                      Level
-                    </p>
-                    <p className="text-5xl font-light text-foreground tabular-nums">
-                      {currentLevel}
+                    <div className="flex items-center gap-1.5 mb-1">
+                      <span className="w-1.5 h-1.5 rotate-45 bg-primary/60" />
+                      <p className="text-[10px] text-muted-foreground uppercase tracking-[0.15em] font-light font-ui">
+                        Level
+                      </p>
+                    </div>
+                    <p className="text-3xl font-light text-foreground tabular-nums">
+                      {levelData.level}
                     </p>
                   </div>
                   <div className="text-right">
-                    <p className="text-xs text-muted-foreground uppercase tracking-[0.15em] mb-2 font-light" style={{ fontFamily: 'var(--font-sans)' }}>
-                      Experience
-                    </p>
-                    <p className="text-2xl font-light text-foreground tabular-nums">
-                      {languageXp.xp.toLocaleString()}
+                    <div className="flex items-center gap-1.5 mb-1 justify-end">
+                      <Sparkles className="w-3 h-3 text-primary/60" strokeWidth={1.5} />
+                      <p className="text-[10px] text-muted-foreground uppercase tracking-[0.15em] font-light font-ui">
+                        Experience
+                      </p>
+                    </div>
+                    <p className="text-lg font-light text-foreground tabular-nums">
+                      {languageXp.xp.toLocaleString()} XP
                     </p>
                   </div>
                 </div>
                 
-                <div className="space-y-3">
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground font-light">Progress to Level {currentLevel + 1}</span>
-                    <span className="text-foreground font-medium tabular-nums">{Math.round(levelProgress)}%</span>
-                  </div>
-                  <div className="h-2 bg-muted rounded-full overflow-hidden">
-                    <div 
-                      className="h-full bg-foreground rounded-full transition-all duration-700 ease-out"
-                      style={{ width: `${levelProgress}%` }}
-                    />
-                  </div>
-                </div>
+                <GameProgressBar
+                  value={levelData.progressPercent}
+                  variant="xp"
+                  label={`${levelData.xpToNextLevel.toLocaleString()} XP to Level ${levelData.level + 1}`}
+                />
               </div>
-            </div>
+            </GamePanel>
 
             {/* Quick Metrics */}
-            <div className="grid grid-cols-1 gap-4">
-              <MetricRow icon={Zap} label="Current Streak" value={stats.streak} unit="days" />
-              <MetricRow icon={Activity} label="Total Reviews" value={stats.totalReviews.toLocaleString()} />
-              <MetricRow icon={Trophy} label="Points Earned" value={profile?.points?.toLocaleString() ?? '0'} />
+            <div className="grid grid-cols-1 gap-2">
+              <GameMetricRow 
+                icon={<Flame className="w-4 h-4" strokeWidth={1.5} />} 
+                label="Current Streak" 
+                value={stats.streak} 
+                unit="days" 
+              />
+              <GameMetricRow 
+                icon={<Activity className="w-4 h-4" strokeWidth={1.5} />} 
+                label="Total Reviews" 
+                value={stats.totalReviews.toLocaleString()} 
+              />
+              <GameMetricRow 
+                icon={<Trophy className="w-4 h-4" strokeWidth={1.5} />} 
+                label="Points Earned" 
+                value={profile?.points?.toLocaleString() ?? '0'} 
+              />
             </div>
           </div>
         </div>
       </section>
 
+      <GameDivider />
+
       {/* --- COLLECTION OVERVIEW --- */}
-      <section className="mb-32 md:mb-40">
-        <SectionHeader title="Your Collection" subtitle="A snapshot of your learning progress" />
+      <section className="mb-10 md:mb-12">
+        <GameSectionHeader 
+          title="Your Collection" 
+          subtitle="A snapshot of your learning progress" 
+          icon={<BookOpen className="w-4 h-4" strokeWidth={1.5} />}
+        />
         
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8">
-          <StatCard label="Unseen" value={metrics.new} />
-          <StatCard label="Learning" value={metrics.learning} />
-          <StatCard label="Mature" value={metrics.reviewing} />
-          <StatCard label="Known" value={metrics.known} />
-        </div>
+        {hasNoCards ? (
+          <EmptyState 
+            icon={BookOpen}
+            title="No cards yet"
+            description="Start by adding some cards to your deck to begin learning."
+          />
+        ) : (
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
+            <GameStat label="New" value={metrics.new} sublabel="Unseen cards" />
+            <GameStat label="Learning" value={metrics.learning} sublabel="Currently studying" />
+            <GameStat label="Reviewing" value={metrics.reviewing} sublabel="Mature cards" />
+            <GameStat label="Mastered" value={metrics.known} sublabel="Fully learned" />
+          </div>
+        )}
       </section>
 
       {/* --- ACTIVITY PATTERNS --- */}
-      <section className="mb-32 md:mb-40">
-        <SectionHeader title="Activity Patterns" subtitle="Your study history at a glance" />
+      <section className="mb-10 md:mb-12">
+        <GameSectionHeader 
+          title="Activity Patterns" 
+          subtitle="Your study history at a glance"
+          icon={<Activity className="w-4 h-4" strokeWidth={1.5} />}
+        />
         
-        <div className="bg-card rounded-3xl p-6 md:p-8 border border-border hidden md:block">
-          <Heatmap history={history} />
-        </div>
+        {hasNoActivity ? (
+          <EmptyState 
+            icon={Activity}
+            title="No activity yet"
+            description="Complete your first review session to see your activity patterns."
+          />
+        ) : (
+          <GamePanel size="md">
+            <Heatmap history={history} />
+          </GamePanel>
+        )}
       </section>
 
       {/* --- PERFORMANCE INSIGHTS --- */}
-      <section className="mb-32 md:mb-40">
-        <SectionHeader title="Performance Insights" subtitle="Understanding your progress over time" />
+      <section className="mb-10 md:mb-12">
+        <GameSectionHeader 
+          title="Performance Insights" 
+          subtitle="Understanding your progress over time"
+          icon={<Sparkles className="w-4 h-4" strokeWidth={1.5} />}
+        />
         
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-12">
-          <div className="bg-card rounded-3xl p-10 md:p-12 border border-border">
-            <h4 className="text-lg font-normal text-foreground mb-8 tracking-tight">Review Volume</h4>
-            <div className="min-h-[280px]">
-              {revlogStats && <ReviewVolumeChart data={revlogStats.activity} />}
-            </div>
-          </div>
+        {hasNoActivity ? (
+          <EmptyState 
+            icon={Sparkles}
+            title="No data available"
+            description="Review some cards to unlock performance insights."
+          />
+        ) : (
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-5">
+            <GamePanel size="md">
+              <h4 className="text-sm font-medium text-foreground mb-4 tracking-tight font-ui flex items-center gap-2">
+                <span className="w-1 h-1 rotate-45 bg-primary/60" />
+                Review Volume
+              </h4>
+              <div className="min-h-[180px] md:min-h-[200px]">
+                {isRevlogLoading ? (
+                  <ChartSkeleton />
+                ) : revlogStats ? (
+                  <ReviewVolumeChart data={revlogStats.activity} />
+                ) : (
+                  <ChartEmpty />
+                )}
+              </div>
+            </GamePanel>
 
-          <div className="bg-card rounded-3xl p-10 md:p-12 border border-border">
-            <h4 className="text-lg font-normal text-foreground mb-8 tracking-tight">Retention Rate</h4>
-            <div className="min-h-[280px]">
-              {revlogStats && (
-                <TrueRetentionChart 
-                  data={revlogStats.retention} 
-                  targetRetention={settings.fsrs.request_retention} 
-                />
-              )}
-            </div>
+            <GamePanel size="md">
+              <h4 className="text-sm font-medium text-foreground mb-4 tracking-tight font-ui flex items-center gap-2">
+                <span className="w-1 h-1 rotate-45 bg-primary/60" />
+                Retention Rate
+              </h4>
+              <div className="min-h-[180px] md:min-h-[200px]">
+                {isRevlogLoading ? (
+                  <ChartSkeleton />
+                ) : revlogStats ? (
+                  <TrueRetentionChart 
+                    data={revlogStats.retention} 
+                    targetRetention={settings.fsrs.request_retention} 
+                  />
+                ) : (
+                  <ChartEmpty />
+                )}
+              </div>
+            </GamePanel>
           </div>
-        </div>
+        )}
       </section>
 
       {/* --- DECK HEALTH --- */}
-      <section className="mb-20">
-        <SectionHeader title="Deck Health" subtitle="Overall retention and card stability metrics" />
+      <section className="mb-8">
+        <GameSectionHeader 
+          title="Deck Health" 
+          subtitle="Overall retention and card stability metrics"
+          icon={<Zap className="w-4 h-4" strokeWidth={1.5} />}
+        />
         
-        <div className="bg-card rounded-3xl p-10 md:p-14 border border-border">
-          <RetentionStats cards={cards} />
-        </div>
+        {hasNoCards ? (
+          <EmptyState 
+            icon={Activity}
+            title="No cards to analyze"
+            description="Add cards to your deck to see health metrics."
+          />
+        ) : (
+          <GamePanel size="md">
+            <RetentionStats cards={cards} />
+          </GamePanel>
+        )}
       </section>
     </div>
   );
 };
 
-// Helper Components for Clean, Minimal Design
+// Helper Components
 
-const SectionHeader = ({ title, subtitle }: { title: string; subtitle?: string }) => (
-  <div className="mb-12 md:mb-16">
-    <h2 className="text-3xl md:text-4xl font-light text-foreground mb-3 tracking-tight">
-      {title}
-    </h2>
-    {subtitle && (
-      <p className="text-base md:text-lg text-muted-foreground font-light leading-relaxed">
-        {subtitle}
-      </p>
-    )}
-  </div>
-);
-
-const StatCard = ({ label, value }: { label: string; value: number }) => (
-  <div className="bg-card rounded-2xl p-8 md:p-10 border border-border hover:border-muted-foreground/30 transition-colors duration-300">
-    <p className="text-xs text-muted-foreground uppercase tracking-[0.15em] mb-4 font-light" style={{ fontFamily: 'var(--font-sans)' }}>
-      {label}
-    </p>
-    <p className="text-4xl md:text-5xl font-light text-foreground tabular-nums tracking-tight">
-      {value.toLocaleString()}
-    </p>
-  </div>
-);
-
-const MetricRow = ({ 
-  icon: Icon, 
-  label, 
-  value, 
-  unit 
-}: { 
+const EmptyState: React.FC<{ 
   icon: React.ElementType; 
-  label: string; 
-  value: string | number; 
-  unit?: string;
-}) => (
-  <div className="bg-card rounded-2xl p-6 md:p-7 border border-border flex items-center justify-between hover:border-muted-foreground/30 transition-colors duration-300">
-    <div className="flex items-center gap-4">
-      <Icon className="w-5 h-5 text-muted-foreground/60" strokeWidth={1.5} />
-      <span className="text-sm text-muted-foreground font-light tracking-wide" style={{ fontFamily: 'var(--font-sans)' }}>
-        {label}
-      </span>
+  title: string; 
+  description: string;
+}> = ({ icon: Icon, title, description }) => (
+  <GamePanel className="p-8 md:p-12 border-dashed flex flex-col items-center justify-center text-center">
+    <div className="relative mb-4">
+      {/* Decorative ring */}
+      <div className="w-14 h-14 rounded-full border-2 border-dashed border-border/50 flex items-center justify-center">
+        <Icon className="w-5 h-5 text-muted-foreground/60" strokeWidth={1.5} />
+      </div>
+      {/* Corner accents */}
+      <span className="absolute -top-1 -left-1 w-2 h-2 border-l border-t border-primary/30" />
+      <span className="absolute -top-1 -right-1 w-2 h-2 border-r border-t border-primary/30" />
+      <span className="absolute -bottom-1 -left-1 w-2 h-2 border-l border-b border-primary/30" />
+      <span className="absolute -bottom-1 -right-1 w-2 h-2 border-r border-b border-primary/30" />
     </div>
-    <div className="flex items-baseline gap-2">
-      <span className="text-2xl md:text-3xl font-light text-foreground tabular-nums">
-        {value}
-      </span>
-      {unit && (
-        <span className="text-sm text-muted-foreground font-light">
-          {unit}
-        </span>
-      )}
-    </div>
+    <h3 className="text-sm font-medium text-foreground mb-1 font-ui">{title}</h3>
+    <p className="text-xs text-muted-foreground font-light max-w-60">{description}</p>
+  </GamePanel>
+);
+
+const ChartSkeleton: React.FC = () => (
+  <div className="h-full w-full flex items-end gap-1 animate-pulse">
+    {Array.from({ length: 12 }).map((_, i) => (
+      <div 
+        key={i} 
+        className="flex-1 bg-muted/50 rounded-sm" 
+        style={{ height: `${20 + Math.random() * 60}%` }}
+      />
+    ))}
+  </div>
+);
+
+const ChartEmpty: React.FC = () => (
+  <div className="h-full w-full flex items-center justify-center">
+    <p className="text-xs text-muted-foreground font-light font-ui">No data available</p>
   </div>
 );

@@ -155,8 +155,7 @@ export const Flashcard = React.memo<FlashcardProps>(({
 
   const RenderedSentence = useMemo(() => {
     const baseClasses = cn(
-      "text-center text-balance select-text leading-[1.3] text-foreground",
-      "font-serif",
+      "text-center text-balance select-text leading-[1.3] text-foreground font-light",
       fontSizeClass
     );
 
@@ -166,12 +165,21 @@ export const Flashcard = React.memo<FlashcardProps>(({
           {blindMode && (
             <button 
               onClick={(e) => { e.stopPropagation(); speak(); }} 
-              className="p-6 rounded-full bg-muted/30 hover:bg-muted/50 transition-all duration-500 mb-6"
+              className="relative p-6 bg-card/50 border border-border/30 hover:border-primary/40 hover:bg-primary/5 transition-all duration-300 group/btn"
             >
-              <Mic size={28} strokeWidth={1} className="text-muted-foreground" />
+              {/* Corner accents */}
+              <span className="absolute -top-px -left-px w-2 h-2">
+                <span className="absolute top-0 left-0 w-full h-px bg-primary/30 group-hover/btn:bg-primary/60 transition-colors" />
+                <span className="absolute top-0 left-0 h-full w-px bg-primary/30 group-hover/btn:bg-primary/60 transition-colors" />
+              </span>
+              <span className="absolute -bottom-px -right-px w-2 h-2">
+                <span className="absolute bottom-0 right-0 w-full h-px bg-primary/30 group-hover/btn:bg-primary/60 transition-colors" />
+                <span className="absolute bottom-0 right-0 h-full w-px bg-primary/30 group-hover/btn:bg-primary/60 transition-colors" />
+              </span>
+              <Mic size={28} strokeWidth={1} className="text-muted-foreground group-hover/btn:text-primary transition-colors" />
             </button>
           )}
-          <p className={cn(baseClasses, "blur-3xl opacity-5 group-hover:opacity-10 transition-all duration-700")}>
+          <p className={cn(baseClasses, "blur-3xl opacity-5 group-hover:opacity-10 transition-all duration-500")}>
             {displayedSentence}
           </p>
         </div>
@@ -226,36 +234,73 @@ export const Flashcard = React.memo<FlashcardProps>(({
   return (
     <>
       <div className={containerClasses} onMouseUp={handleMouseUp} onTouchEnd={handleMouseUp}>
-        {/* Main content with generous vertical spacing */}
+        {/* Game-styled decorative frame */}
+        <div className="absolute inset-8 md:inset-16 pointer-events-none">
+          {/* Corner accents */}
+          <span className="absolute top-0 left-0 w-6 h-6">
+            <span className="absolute top-0 left-0 w-full h-px bg-border/20" />
+            <span className="absolute top-0 left-0 h-full w-px bg-border/20" />
+          </span>
+          <span className="absolute top-0 right-0 w-6 h-6">
+            <span className="absolute top-0 right-0 w-full h-px bg-border/20" />
+            <span className="absolute top-0 right-0 h-full w-px bg-border/20" />
+          </span>
+          <span className="absolute bottom-0 left-0 w-6 h-6">
+            <span className="absolute bottom-0 left-0 w-full h-px bg-border/20" />
+            <span className="absolute bottom-0 left-0 h-full w-px bg-border/20" />
+          </span>
+          <span className="absolute bottom-0 right-0 w-6 h-6">
+            <span className="absolute bottom-0 right-0 w-full h-px bg-border/20" />
+            <span className="absolute bottom-0 right-0 h-full w-px bg-border/20" />
+          </span>
+        </div>
+        
+        {/* Main content */}
         <div className="w-full px-8 md:px-16 flex flex-col items-center gap-12 md:gap-16 z-10">
           {RenderedSentence}
 
           {isRevealed && (
             <button
               onClick={speak}
-              className="group flex items-center justify-center text-muted-foreground/50 hover:text-foreground/70 transition-all duration-500 mt-4"
+              className="group relative flex items-center justify-center text-muted-foreground/40 hover:text-primary/70 transition-all duration-300 mt-4 p-3 border border-transparent hover:border-primary/20 hover:bg-primary/5"
             >
-              <Volume2 size={20} strokeWidth={1.5} className={cn("transition-all duration-500", playSlow && "text-primary/70")} />
+              {/* Corner accents on hover */}
+              <span className="absolute -top-px -left-px w-1.5 h-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                <span className="absolute top-0 left-0 w-full h-px bg-primary/40" />
+                <span className="absolute top-0 left-0 h-full w-px bg-primary/40" />
+              </span>
+              <span className="absolute -bottom-px -right-px w-1.5 h-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                <span className="absolute bottom-0 right-0 w-full h-px bg-primary/40" />
+                <span className="absolute bottom-0 right-0 h-full w-px bg-primary/40" />
+              </span>
+              <Volume2 size={20} strokeWidth={1.5} className={cn("transition-all duration-300", playSlow && "text-primary")} />
             </button>
           )}
         </div>
 
-        {/* Translation reveal with elegant fade-in */}
+        {/* Translation reveal with game-styled animation */}
         {isFlipped && (
-          <div className="absolute top-1/2 left-0 right-0 pt-36 md:pt-48 flex flex-col items-center gap-6 z-0 pointer-events-none animate-in fade-in slide-in-from-bottom-4 duration-1000">
+          <div className="absolute top-1/2 left-0 right-0 bottom-4 pt-20 md:pt-28 flex flex-col items-center gap-4 z-0 pointer-events-none animate-in fade-in slide-in-from-bottom-4 duration-700 overflow-hidden">
+            
+            {/* Decorative divider */}
+            <div className="flex items-center gap-3 mb-2 shrink-0">
+              <span className="w-8 h-px bg-gradient-to-r from-transparent to-border/40" />
+              <span className="w-1.5 h-1.5 rotate-45 bg-primary/30" />
+              <span className="w-8 h-px bg-gradient-to-l from-transparent to-border/40" />
+            </div>
 
             {showTranslation && (
-              <div className="relative group pointer-events-auto px-8 md:px-16">
+              <div className="relative group pointer-events-auto px-8 md:px-16 shrink-0">
                 <div className="max-w-3xl">
                   <p className={cn(
-                    "text-xl md:text-2xl text-foreground/75 font-serif italic text-center leading-relaxed text-balance transition-colors duration-500",
+                    "text-lg md:text-xl text-foreground/70 font-light italic text-center leading-relaxed text-balance transition-colors duration-300",
                     isGaslit ? "text-destructive/70" : "group-hover:text-foreground/85"
                   )}>
                     {processText(displayedTranslation)}
                   </p>
                 </div>
                 {isGaslit && (
-                  <span className="absolute -top-5 -right-6 text-[8px] font-sans font-medium uppercase text-destructive/60 tracking-widest rotate-12 opacity-70">
+                  <span className="absolute -top-5 -right-6 text-[8px] font-ui font-medium uppercase text-destructive/60 tracking-widest rotate-12 opacity-70">
                     Suspicious
                   </span>
                 )}
@@ -263,8 +308,8 @@ export const Flashcard = React.memo<FlashcardProps>(({
             )}
 
             {card.notes && (
-              <div className="mt-8 px-8 md:px-16 pointer-events-auto">
-                <p className="text-xs font-sans font-light text-muted-foreground/60 max-w-xl text-center tracking-wide leading-relaxed">
+              <div className="mt-4 px-8 md:px-16 pointer-events-auto overflow-y-auto max-h-20">
+                <p className="text-xs font-ui font-light text-muted-foreground/50 max-w-xl text-center tracking-wide leading-relaxed">
                   {processText(card.notes)}
                 </p>
               </div>
@@ -273,7 +318,7 @@ export const Flashcard = React.memo<FlashcardProps>(({
         )}
       </div>
 
-      {/* Floating selection menu - refined and minimal */}
+      {/* Game-styled floating selection menu */}
       {selection && (
         <div
           className="fixed z-50 -translate-x-1/2 animate-in fade-in slide-in-from-bottom-2 duration-300"
@@ -283,43 +328,78 @@ export const Flashcard = React.memo<FlashcardProps>(({
           <button
             onClick={handleAnalyze}
             disabled={isAnalyzing}
-            className="bg-foreground/95 text-background px-5 py-2.5 rounded-full  hover: hover:scale-105 active:scale-95 transition-all duration-300 text-[10px] font-sans font-medium uppercase tracking-[0.15em] flex items-center gap-2.5 backdrop-blur-sm"
+            className="relative bg-card text-foreground px-5 py-2.5 border border-primary/30 hover:border-primary/50 hover:bg-primary/5 transition-all duration-200 text-[10px] font-ui font-medium uppercase tracking-[0.15em] flex items-center gap-2.5"
           >
-            {isAnalyzing ? <Loader2 size={11} strokeWidth={2} className="animate-spin" /> : <Sparkles size={11} strokeWidth={2} />}
+            {/* Corner accents */}
+            <span className="absolute -top-px -left-px w-2 h-2">
+              <span className="absolute top-0 left-0 w-full h-px bg-primary" />
+              <span className="absolute top-0 left-0 h-full w-px bg-primary" />
+            </span>
+            <span className="absolute -bottom-px -right-px w-2 h-2">
+              <span className="absolute bottom-0 right-0 w-full h-px bg-primary" />
+              <span className="absolute bottom-0 right-0 h-full w-px bg-primary" />
+            </span>
+            {isAnalyzing ? <Loader2 size={11} strokeWidth={2} className="animate-spin" /> : <Sparkles size={11} strokeWidth={2} className="text-primary" />}
             <span>Analyze</span>
           </button>
         </div>
       )}
 
-      {/* Analysis modal - editorial magazine style */}
+      {/* Game-styled analysis modal */}
       <Dialog open={isAnalysisOpen} onOpenChange={setIsAnalysisOpen}>
-        <DialogContent className="sm:max-w-xl bg-background border border-border/50 p-10 md:p-14  rounded-3xl">
-          <div className="space-y-10">
+        <DialogContent className="sm:max-w-xl bg-card border border-border p-0 overflow-hidden">
+          {/* Corner accents */}
+          <span className="absolute top-0 left-0 w-4 h-4 pointer-events-none">
+            <span className="absolute top-0 left-0 w-full h-0.5 bg-primary" />
+            <span className="absolute top-0 left-0 h-full w-0.5 bg-primary" />
+          </span>
+          <span className="absolute top-0 right-0 w-4 h-4 pointer-events-none">
+            <span className="absolute top-0 right-0 w-full h-0.5 bg-primary" />
+            <span className="absolute top-0 right-0 h-full w-0.5 bg-primary" />
+          </span>
+          <span className="absolute bottom-0 left-0 w-4 h-4 pointer-events-none">
+            <span className="absolute bottom-0 left-0 w-full h-0.5 bg-primary" />
+            <span className="absolute bottom-0 left-0 h-full w-0.5 bg-primary" />
+          </span>
+          <span className="absolute bottom-0 right-0 w-4 h-4 pointer-events-none">
+            <span className="absolute bottom-0 right-0 w-full h-0.5 bg-primary" />
+            <span className="absolute bottom-0 right-0 h-full w-0.5 bg-primary" />
+          </span>
+          
+          <div className="p-8 md:p-10 space-y-8">
             {/* Header */}
-            <div className="space-y-3 border-b border-border/40 pb-7">
+            <div className="space-y-3 border-b border-border/40 pb-6">
               <div className="flex justify-between items-start gap-6">
-                <h2 className="text-4xl md:text-5xl font-serif font-light tracking-tight">{analysisResult?.originalText}</h2>
-                <span className="text-[9px] font-sans font-medium uppercase border border-border/60 px-3 py-1.5 rounded-full text-muted-foreground/80 tracking-[0.15em] whitespace-nowrap mt-2">
+                <div className="flex items-center gap-3">
+                  <span className="w-2 h-2 rotate-45 bg-primary/60" />
+                  <h2 className="text-3xl md:text-4xl font-light tracking-tight">{analysisResult?.originalText}</h2>
+                </div>
+                <span className="text-[9px] font-ui font-medium uppercase border border-border/60 px-3 py-1.5 text-muted-foreground/80 tracking-[0.15em] whitespace-nowrap">
                   {analysisResult?.partOfSpeech}
                 </span>
               </div>
             </div>
 
             {/* Content sections */}
-            <div className="space-y-8">
+            <div className="space-y-6">
               <div>
-                <span className="text-[8px] font-sans font-medium uppercase tracking-[0.25em] text-muted-foreground/60 mb-3 block">Definition</span>
-                <p className="text-lg md:text-xl font-serif font-light leading-relaxed text-foreground/90">{analysisResult?.definition}</p>
+                <div className="flex items-center gap-2 mb-3">
+                  <span className="w-1 h-1 rotate-45 bg-primary/40" />
+                  <span className="text-[9px] font-ui font-medium uppercase tracking-[0.2em] text-muted-foreground/60">Definition</span>
+                </div>
+                <p className="text-lg font-light leading-relaxed text-foreground/90">{analysisResult?.definition}</p>
               </div>
               
               <div className="pt-4">
-                <div className="flex items-center gap-2.5 mb-3">
+                <div className="flex items-center gap-2 mb-3">
                   <Quote size={11} strokeWidth={1.5} className="text-muted-foreground/50" />
-                  <span className="text-[8px] font-sans font-medium uppercase tracking-[0.25em] text-muted-foreground/60">In This Context</span>
+                  <span className="text-[9px] font-ui font-medium uppercase tracking-[0.2em] text-muted-foreground/60">In This Context</span>
                 </div>
-                <p className="text-base font-serif italic text-muted-foreground/75 border-l-2 border-primary/20 pl-5 py-2 leading-relaxed">
-                  {analysisResult?.contextMeaning}
-                </p>
+                <div className="relative pl-4 border-l-2 border-primary/20">
+                  <p className="text-base italic text-muted-foreground/75 leading-relaxed">
+                    {analysisResult?.contextMeaning}
+                  </p>
+                </div>
               </div>
             </div>
           </div>

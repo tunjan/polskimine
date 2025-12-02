@@ -162,6 +162,11 @@ class TTSService {
         // Web Fallback
         if (!('speechSynthesis' in window)) return;
 
+        // --- CHROME BUG FIX ---
+        // Chrome has a bug where speechSynthesis stops working after ~4-5 utterances
+        // due to a queue overflow. Canceling and adding a small delay helps reset the queue.
+        window.speechSynthesis.cancel();
+        
         const utterance = new SpeechSynthesisUtterance(text);
         utterance.lang = LANG_CODE_MAP[language][0];
         utterance.rate = settings.rate;
@@ -173,9 +178,39 @@ class TTSService {
             if (selectedVoice) {
                 utterance.voice = selectedVoice;
             }
-        } 
+        }
 
-        window.speechSynthesis.speak(utterance);
+        // Chrome workaround: Resume speech synthesis if it gets paused/stuck
+        // This handles another Chrome bug where synth pauses itself after ~15s
+        let resumeInterval: ReturnType<typeof setInterval> | null = null;
+        
+        utterance.onstart = () => {
+            resumeInterval = setInterval(() => {
+                if (!window.speechSynthesis.speaking) {
+                    if (resumeInterval) clearInterval(resumeInterval);
+                } else if (window.speechSynthesis.paused) {
+                    window.speechSynthesis.resume();
+                }
+            }, 10000);
+        };
+
+        utterance.onend = () => {
+            if (resumeInterval) clearInterval(resumeInterval);
+        };
+
+        utterance.onerror = (event) => {
+            if (resumeInterval) clearInterval(resumeInterval);
+            // Don't log 'interrupted' errors as they're expected when canceling
+            if (event.error !== 'interrupted') {
+                console.error("Speech synthesis error:", event.error);
+            }
+        };
+
+        // Small timeout to ensure cancel() completes before speak()
+        // This is a workaround for Chrome's speechSynthesis bug
+        setTimeout(() => {
+            window.speechSynthesis.speak(utterance);
+        }, 50);
     }
 
     private async speakGoogle(text: string, language: Language, settings: TTSSettings, opId: number) {

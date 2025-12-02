@@ -32,44 +32,119 @@ export const Heatmap: React.FC<HeatmapProps> = ({ history }) => {
     return days;
   }, [history]);
 
-  const getColorClass = (count: number) => {
-    if (count === 0) return 'bg-border/60';
-    if (count <= 2) return 'bg-[oklch(0.75_0.08_35)]';
-    if (count <= 5) return 'bg-[oklch(0.62_0.10_35)]';
-    if (count <= 9) return 'bg-[oklch(0.52_0.12_35)]';
-    return 'bg-[oklch(0.42_0.14_35)]';
+  // Color intensity: more reviews = more saturated/darker
+  // Using green shades similar to GitHub's contribution graph
+  const getColorStyle = (count: number): string => {
+    if (count === 0) return 'bg-muted/30';
+    if (count <= 2) return 'bg-emerald-200 dark:bg-emerald-900';
+    if (count <= 5) return 'bg-emerald-400 dark:bg-emerald-700';
+    if (count <= 9) return 'bg-emerald-500 dark:bg-emerald-500';
+    return 'bg-emerald-600 dark:bg-emerald-400';
   };
+
+  // Calculate stats for mobile summary
+  const stats = useMemo(() => {
+    const today = startOfDay(new Date());
+    const last7Days = Array.from({ length: 7 }).map((_, i) => {
+      const date = subDays(today, i);
+      const dateKey = format(date, 'yyyy-MM-dd');
+      return history[dateKey] || 0;
+    });
+    
+    const weekTotal = last7Days.reduce((sum, count) => sum + count, 0);
+    const activeDays = last7Days.filter(count => count > 0).length;
+    
+    return { weekTotal, activeDays, last7Days: last7Days.reverse() };
+  }, [history]);
 
   return (
     <TooltipProvider>
-      <div className="w-full overflow-x-auto overflow-y-hidden lg:overflow-x-visible" style={{ WebkitOverflowScrolling: 'touch' }}>
-          <div className="inline-block min-w-max py-2 lg:w-full">
-              <div className="grid grid-rows-7 grid-flow-col gap-1 lg:gap-1">
-              {calendarData.map((day) => (
-                  <Tooltip key={day.dateKey} delayDuration={0}>
-                      <TooltipTrigger asChild>
-                          <div
-                              className={clsx(
-                                  "w-3 h-3 sm:w-3.5 sm:h-3.5 lg:w-[12px] lg:h-[12px] rounded transition-all duration-200 hover:scale-110",
-                                  day.inFuture ? 'opacity-0 pointer-events-none' : getColorClass(day.count)
-                              )}
-                          />
-                      </TooltipTrigger>
-                      <TooltipContent 
-                        className="bg-card text-foreground px-4 py-2.5 rounded-xl border border-border"
-                        style={{ fontFamily: 'var(--font-sans)' }}
-                      >
-                          <div className="text-[10px] uppercase tracking-[0.15em] text-muted-foreground mb-1">
-                            {format(day.date, 'MMM d, yyyy')}
-                          </div>
-                          <div className="text-sm font-light tabular-nums">
-                            {day.count} review{day.count === 1 ? '' : 's'}
-                          </div>
-                      </TooltipContent>
-                  </Tooltip>
-              ))}
-              </div>
+      {/* Mobile Summary View */}
+      <div className="md:hidden">
+        <div className="flex items-center justify-between mb-4">
+          <div>
+            <p className="text-[10px] text-muted-foreground uppercase tracking-[0.15em] font-light font-ui">
+              This Week
+            </p>
+            <p className="text-2xl font-light text-foreground tabular-nums">
+              {stats.weekTotal} <span className="text-sm text-muted-foreground">reviews</span>
+            </p>
           </div>
+          <div className="text-right">
+            <p className="text-[10px] text-muted-foreground uppercase tracking-[0.15em] font-light font-ui">
+              Active Days
+            </p>
+            <p className="text-2xl font-light text-foreground tabular-nums">
+              {stats.activeDays}<span className="text-sm text-muted-foreground">/7</span>
+            </p>
+          </div>
+        </div>
+        
+        {/* Mini week view for mobile */}
+        <div className="flex gap-1.5 justify-between">
+          {stats.last7Days.map((count, i) => {
+            const date = subDays(new Date(), 6 - i);
+            return (
+              <div key={i} className="flex-1 flex flex-col items-center gap-1">
+                <span className="text-[9px] text-muted-foreground font-ui">
+                  {format(date, 'EEE').charAt(0)}
+                </span>
+                <div 
+                  className={clsx(
+                    "w-full aspect-square rounded-sm transition-colors",
+                    getColorStyle(count)
+                  )}
+                />
+                <span className="text-[9px] text-muted-foreground tabular-nums">
+                  {count}
+                </span>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Desktop Full Heatmap */}
+      <div className="hidden md:block w-full overflow-x-auto overflow-y-hidden lg:overflow-x-visible" style={{ WebkitOverflowScrolling: 'touch' }}>
+        <div className="inline-block min-w-max py-2 lg:w-full">
+          <div className="grid grid-rows-7 grid-flow-col gap-1 lg:gap-1">
+            {calendarData.map((day) => (
+              <Tooltip key={day.dateKey} delayDuration={0}>
+                <TooltipTrigger asChild>
+                  <div
+                    className={clsx(
+                      "w-3 h-3 sm:w-3.5 sm:h-3.5 lg:w-3 lg:h-3 rounded-sm transition-all duration-200 hover:scale-110 hover:ring-1 hover:ring-emerald-500/50",
+                      day.inFuture ? 'opacity-0 pointer-events-none' : getColorStyle(day.count)
+                    )}
+                  />
+                </TooltipTrigger>
+                <TooltipContent 
+                  className="bg-card text-foreground px-4 py-2.5 rounded-xl border border-border"
+                >
+                  <div className="text-[10px] uppercase tracking-[0.15em] text-muted-foreground mb-1 font-ui">
+                    {format(day.date, 'MMM d, yyyy')}
+                  </div>
+                  <div className="text-sm font-light tabular-nums">
+                    {day.count} review{day.count === 1 ? '' : 's'}
+                  </div>
+                </TooltipContent>
+              </Tooltip>
+            ))}
+          </div>
+        </div>
+        
+        {/* Legend */}
+        <div className="flex items-center justify-end gap-2 mt-3 text-[9px] text-muted-foreground font-ui">
+          <span>Less</span>
+          <div className="flex gap-0.5">
+            <div className="w-2.5 h-2.5 rounded-sm bg-muted/30" />
+            <div className="w-2.5 h-2.5 rounded-sm bg-emerald-200 dark:bg-emerald-900" />
+            <div className="w-2.5 h-2.5 rounded-sm bg-emerald-400 dark:bg-emerald-700" />
+            <div className="w-2.5 h-2.5 rounded-sm bg-emerald-500 dark:bg-emerald-500" />
+            <div className="w-2.5 h-2.5 rounded-sm bg-emerald-600 dark:bg-emerald-400" />
+          </div>
+          <span>More</span>
+        </div>
       </div>
     </TooltipProvider>
   );

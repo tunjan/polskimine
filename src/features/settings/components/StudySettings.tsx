@@ -1,11 +1,10 @@
 import React from 'react';
+import { Target, ListOrdered, ToggleLeft } from 'lucide-react';
 import { UserSettings } from '@/types';
 import { EditorialInput } from '@/components/form/EditorialInput';
-import { MetaLabel } from '@/components/form/MetaLabel';
 import { LANGUAGE_NAMES } from '@/constants';
 import { Switch } from '@/components/ui/switch';
-import { Card } from '@/components/ui/card';
-import { Separator } from '@/components/ui/separator';
+import { GamePanel, GameSectionHeader, GameDivider } from '@/components/ui/game-ui';
 
 interface StudySettingsProps {
   localSettings: UserSettings;
@@ -18,88 +17,121 @@ export const StudySettings: React.FC<StudySettingsProps> = ({ localSettings, set
   const currentDailyReview = localSettings.dailyReviewLimits?.[localSettings.language] ?? 0;
 
   return (
-    <div className="space-y-20 max-w-2xl">
-      <div className="flex items-start gap-3 px-1">
-        <div className="w-1 h-1 mt-2 bg-terracotta/60 rounded-full shrink-0" />
-        <p className="text-sm text-muted-foreground/70 font-light leading-relaxed max-w-lg">
-          Daily study configuration for <em className="text-foreground font-normal">{currentLangName}</em>. Limits automatically reset at 4:00 AM.
-        </p>
+    <div className="space-y-8 max-w-2xl">
+      {/* Info Banner */}
+      <GamePanel variant="stat" size="sm" className="border-primary/20">
+        <div className="flex items-center gap-3">
+          <span className="w-1.5 h-1.5 rotate-45 bg-primary/60" />
+          <p className="text-sm text-muted-foreground font-light leading-relaxed">
+            Daily study configuration for <span className="text-foreground font-medium">{currentLangName}</span>. Limits reset at 4:00 AM.
+          </p>
+        </div>
+      </GamePanel>
+
+      {/* Daily Limits Section */}
+      <GameSectionHeader 
+        title="Daily Limits" 
+        subtitle="Maximum cards per day"
+        icon={<Target className="w-4 h-4" strokeWidth={1.5} />}
+      />
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <GamePanel variant="highlight" size="md" glowOnHover>
+          <div className="space-y-4 text-center">
+            <div className="flex items-center justify-center gap-2">
+              <span className="w-1.5 h-1.5 rotate-45 bg-amber-500/60" />
+              <label className="text-[10px] text-muted-foreground uppercase tracking-[0.15em] font-light font-ui">
+                New Cards
+              </label>
+            </div>
+            <EditorialInput
+              type="number"
+              value={currentDailyNew}
+              className="text-5xl md:text-6xl font-light h-auto py-2 border-0 border-b border-border/30 rounded-none px-0 focus-visible:ring-0 focus-visible:border-primary/60 tabular-nums bg-transparent transition-colors text-center"
+              onChange={(event) => {
+                const val = parseInt(event.target.value, 10) || 0;
+                setLocalSettings(prev => ({
+                  ...prev,
+                  dailyNewLimits: { ...prev.dailyNewLimits, [prev.language]: val }
+                }));
+              }}
+            />
+            <p className="text-xs text-muted-foreground/60 font-light">Unseen vocabulary</p>
+          </div>
+        </GamePanel>
+
+        <GamePanel variant="highlight" size="md" glowOnHover>
+          <div className="space-y-4 text-center">
+            <div className="flex items-center justify-center gap-2">
+              <span className="w-1.5 h-1.5 rotate-45 bg-sky-500/60" />
+              <label className="text-[10px] text-muted-foreground uppercase tracking-[0.15em] font-light font-ui">
+                Review Cards
+              </label>
+            </div>
+            <EditorialInput
+              type="number"
+              value={currentDailyReview}
+              className="text-5xl md:text-6xl font-light h-auto py-2 border-0 border-b border-border/30 rounded-none px-0 focus-visible:ring-0 focus-visible:border-primary/60 tabular-nums bg-transparent transition-colors text-center"
+              onChange={(event) => {
+                const val = parseInt(event.target.value, 10) || 0;
+                setLocalSettings(prev => ({
+                  ...prev,
+                  dailyReviewLimits: { ...prev.dailyReviewLimits, [prev.language]: val }
+                }));
+              }}
+            />
+            <p className="text-xs text-muted-foreground/60 font-light">Due for review</p>
+          </div>
+        </GamePanel>
       </div>
 
-      <section className="space-y-8">
-        <div className="pb-4 border-b border-border/20">
-            <h3 className="font-serif text-xl font-light tracking-tight text-foreground/90">Daily Limits</h3>
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-12 pl-1">
-            <div className="space-y-5">
-                <label className="text-sm font-serif text-muted-foreground/80 font-light">New Cards</label>
-                <EditorialInput
-                    type="number"
-                    value={currentDailyNew}
-                    className="text-6xl font-serif font-extralight h-auto py-3 border-0 border-b border-border/30 rounded-none px-0 focus-visible:ring-0 focus-visible:border-terracotta/60 tabular-nums bg-transparent transition-colors"
-                    onChange={(event) => {
-                      const val = parseInt(event.target.value, 10) || 0;
-                      setLocalSettings(prev => ({
-                        ...prev,
-                        dailyNewLimits: { ...prev.dailyNewLimits, [prev.language]: val }
-                      }));
-                    }}
-                />
-            </div>
-            <div className="space-y-5">
-                <label className="text-sm font-serif text-muted-foreground/80 font-light">Review Cards</label>
-                <EditorialInput
-                    type="number"
-                    value={currentDailyReview}
-                    className="text-6xl font-serif font-extralight h-auto py-3 border-0 border-b border-border/30 rounded-none px-0 focus-visible:ring-0 focus-visible:border-terracotta/60 tabular-nums bg-transparent transition-colors"
-                    onChange={(event) => {
-                      const val = parseInt(event.target.value, 10) || 0;
-                      setLocalSettings(prev => ({
-                        ...prev,
-                        dailyReviewLimits: { ...prev.dailyReviewLimits, [prev.language]: val }
-                      }));
-                    }}
-                />
-            </div>
-        </div>
-      </section>
+      <GameDivider />
 
-      <section className="space-y-8">
-        <div className="pb-4 border-b border-border/20">
-            <h3 className="font-serif text-xl font-light tracking-tight text-foreground/90">Study Preferences</h3>
-        </div>
-        <div className="space-y-8 pl-1">
-            <div className="flex items-start justify-between gap-8 group py-2">
-              <div className="space-y-1.5 flex-1">
-                <div className="font-serif text-[15px] font-light group-hover:text-foreground transition-colors text-foreground/80">Card Order</div>
-                <div className="text-xs text-muted-foreground/60 leading-relaxed font-light">Choose presentation priority</div>
+      {/* Study Preferences Section */}
+      <GameSectionHeader 
+        title="Study Preferences" 
+        subtitle="Session behavior options"
+        icon={<ToggleLeft className="w-4 h-4" strokeWidth={1.5} />}
+      />
+      <div className="space-y-3">
+        <GamePanel variant="stat" size="sm" className="hover:border-primary/40 transition-colors">
+          <div className="flex items-center justify-between gap-6">
+            <div className="flex-1">
+              <div className="flex items-center gap-2 mb-1">
+                <ListOrdered className="w-4 h-4 text-muted-foreground/60" strokeWidth={1.5} />
+                <span className="text-sm font-light text-foreground font-ui">Card Order</span>
               </div>
-              <select
-                value={localSettings.cardOrder || 'newFirst'}
-                onChange={(e) => setLocalSettings(prev => ({ ...prev, cardOrder: e.target.value as any }))}
-                className="bg-transparent border-0 border-b border-border/30 text-sm font-serif focus:outline-none focus:border-terracotta/60 transition-colors py-1.5 text-foreground/80 font-light mt-0.5"
-              >
-                <option value="newFirst" className="bg-background text-foreground">New First</option>
-                <option value="reviewFirst" className="bg-background text-foreground">Review First</option>
-                <option value="mixed" className="bg-background text-foreground">Mixed</option>
-              </select>
+              <p className="text-xs text-muted-foreground/60 font-light pl-6">Choose presentation priority</p>
             </div>
+            <select
+              value={localSettings.cardOrder || 'newFirst'}
+              onChange={(e) => setLocalSettings(prev => ({ ...prev, cardOrder: e.target.value as any }))}
+              className="bg-transparent border border-border/30 text-sm font-ui focus:outline-none focus:border-primary/60 transition-colors py-2 px-3 text-foreground font-light"
+            >
+              <option value="newFirst" className="bg-background text-foreground">New First</option>
+              <option value="reviewFirst" className="bg-background text-foreground">Review First</option>
+              <option value="mixed" className="bg-background text-foreground">Mixed</option>
+            </select>
+          </div>
+        </GamePanel>
 
-            <div className="flex items-start justify-between gap-8 group py-2">
-              <div className="space-y-1.5 flex-1">
-                <div className="font-serif text-[15px] font-light group-hover:text-foreground transition-colors text-foreground/80">Binary Rating</div>
-                <div className="text-xs text-muted-foreground/60 leading-relaxed font-light">Simplified pass/fail grading reduces decision fatigue during intensive review sessions</div>
+        <GamePanel variant="stat" size="sm" className="hover:border-primary/40 transition-colors">
+          <div className="flex items-center justify-between gap-6">
+            <div className="flex-1">
+              <div className="flex items-center gap-2 mb-1">
+                <span className="w-1 h-1 rotate-45 bg-primary/40" />
+                <span className="text-sm font-light text-foreground font-ui">Binary Rating</span>
               </div>
-              <Switch
-                checked={localSettings.binaryRatingMode}
-                onCheckedChange={(checked) =>
-                  setLocalSettings((prev) => ({ ...prev, binaryRatingMode: checked }))
-                }
-                className="mt-1"
-              />
+              <p className="text-xs text-muted-foreground/60 font-light pl-3">Simplified pass/fail grading reduces decision fatigue</p>
             </div>
-        </div>
-      </section>
+            <Switch
+              checked={localSettings.binaryRatingMode}
+              onCheckedChange={(checked) =>
+                setLocalSettings((prev) => ({ ...prev, binaryRatingMode: checked }))
+              }
+            />
+          </div>
+        </GamePanel>
+      </div>
     </div>
   );
 };

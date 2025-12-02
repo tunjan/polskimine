@@ -43,13 +43,9 @@ export const DashboardRoute: React.FC = () => {
   const xp = dashboardStats.languageXp;
   const level = Math.floor(Math.sqrt(xp / 100)) + 1;
 
-  // Get forecast for today (first item in forecast array)
-  const forecastToday = dashboardStats.forecast[0]?.count || 0;
-
   return (
     <Dashboard 
       metrics={metrics}
-      forecast={forecastToday}
       languageXp={{ xp, level }}
       stats={stats}
       history={history}
