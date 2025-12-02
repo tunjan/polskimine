@@ -163,8 +163,8 @@ export const Flashcard = React.memo<FlashcardProps>(({
       return (
         <div onClick={() => setIsRevealed(true)} className="cursor-pointer group flex flex-col items-center gap-8">
           {blindMode && (
-            <button 
-              onClick={(e) => { e.stopPropagation(); speak(); }} 
+            <button
+              onClick={(e) => { e.stopPropagation(); speak(); }}
               className="relative p-6 bg-card/50 border border-border/30 hover:border-primary/40 hover:bg-primary/5 transition-all duration-300 group/btn"
             >
               {/* Corner accents */}
@@ -180,12 +180,18 @@ export const Flashcard = React.memo<FlashcardProps>(({
             </button>
           )}
           <p className={cn(baseClasses, "blur-3xl opacity-5 group-hover:opacity-10 transition-all duration-500")}>
-            {displayedSentence}
+            {card.targetWord ? processText(card.targetWord) : displayedSentence}
           </p>
         </div>
       );
     }
 
+    // If not flipped (Front), show target word if available
+    if (!isFlipped && card.targetWord) {
+      return <p className={baseClasses}>{processText(card.targetWord)}</p>;
+    }
+
+    // If flipped (Back) or no target word, show sentence
     if (language === 'japanese' && card.furigana) {
       const segments = parseFurigana(card.furigana);
       return (
@@ -222,7 +228,7 @@ export const Flashcard = React.memo<FlashcardProps>(({
     }
 
     return <p className={baseClasses}>{displayedSentence}</p>;
-  }, [displayedSentence, card.targetWord, card.furigana, isRevealed, language, isCursedWith, fontSizeClass, blindMode, speak]);
+  }, [displayedSentence, card.targetWord, card.furigana, isRevealed, language, isCursedWith, fontSizeClass, blindMode, speak, isFlipped]);
 
   const containerClasses = cn(
     "relative w-full max-w-7xl mx-auto flex flex-col items-center justify-center h-full",
@@ -254,7 +260,7 @@ export const Flashcard = React.memo<FlashcardProps>(({
             <span className="absolute bottom-0 right-0 h-full w-px bg-border/20" />
           </span>
         </div>
-        
+
         {/* Main content */}
         <div className="w-full px-8 md:px-16 flex flex-col items-center gap-12 md:gap-16 z-10">
           {RenderedSentence}
@@ -281,7 +287,7 @@ export const Flashcard = React.memo<FlashcardProps>(({
         {/* Translation reveal with game-styled animation */}
         {isFlipped && (
           <div className="absolute top-1/2 left-0 right-0 bottom-4 pt-20 md:pt-28 flex flex-col items-center gap-4 z-0 pointer-events-none animate-in fade-in slide-in-from-bottom-4 duration-700 overflow-hidden">
-            
+
             {/* Decorative divider */}
             <div className="flex items-center gap-3 mb-2 shrink-0">
               <span className="w-8 h-px bg-gradient-to-r from-transparent to-border/40" />
@@ -290,7 +296,23 @@ export const Flashcard = React.memo<FlashcardProps>(({
             </div>
 
             {showTranslation && (
-              <div className="relative group pointer-events-auto px-8 md:px-16 shrink-0">
+              <div className="relative group pointer-events-auto px-8 md:px-16 shrink-0 flex flex-col items-center gap-2">
+                {card.targetWord && (
+                  <div className="flex flex-col items-center gap-1 mb-2">
+                    <div className="flex items-center gap-2">
+                      <span className="text-2xl md:text-3xl font-light text-primary/90">{processText(card.targetWord)}</span>
+                      {card.targetWordPartOfSpeech && (
+                        <span className="text-[10px] font-ui font-medium uppercase border border-border/60 px-2 py-0.5 text-muted-foreground/80 tracking-widest">
+                          {card.targetWordPartOfSpeech}
+                        </span>
+                      )}
+                    </div>
+                    {card.targetWordTranslation && (
+                      <span className="text-lg text-muted-foreground/80 font-light italic">{card.targetWordTranslation}</span>
+                    )}
+                  </div>
+                )}
+
                 <div className="max-w-3xl">
                   <p className={cn(
                     "text-lg md:text-xl text-foreground/70 font-light italic text-center leading-relaxed text-balance transition-colors duration-300",
@@ -365,7 +387,7 @@ export const Flashcard = React.memo<FlashcardProps>(({
             <span className="absolute bottom-0 right-0 w-full h-0.5 bg-primary" />
             <span className="absolute bottom-0 right-0 h-full w-0.5 bg-primary" />
           </span>
-          
+
           <div className="p-8 md:p-10 space-y-8">
             {/* Header */}
             <div className="space-y-3 border-b border-border/40 pb-6">
@@ -389,7 +411,7 @@ export const Flashcard = React.memo<FlashcardProps>(({
                 </div>
                 <p className="text-lg font-light leading-relaxed text-foreground/90">{analysisResult?.definition}</p>
               </div>
-              
+
               <div className="pt-4">
                 <div className="flex items-center gap-2 mb-3">
                   <Quote size={11} strokeWidth={1.5} className="text-muted-foreground/50" />

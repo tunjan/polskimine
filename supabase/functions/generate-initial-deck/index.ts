@@ -87,6 +87,7 @@ serve(async (req) => {
 
 Level description: ${levelDescription}
 
+
 Requirements:
 - Cover essential vocabulary and grammar for ${proficiencyLevel} level
 - Mix everyday situations: greetings, food, travel, work, hobbies, weather
@@ -94,11 +95,23 @@ Requirements:
 - Focus on practical, useful sentences
 - Include common verbs, adjectives, and nouns for this level
 
-Return a JSON array of exactly 50 objects. Each object must have:
+Return a JSON array of exactly 50 objects. Each object MUST have ALL of these fields:
 - targetSentence: A sentence in ${languageName}
 - nativeTranslation: English translation
-- targetWord: The key vocabulary word being taught
+- targetWord: The key vocabulary word being taught. MUST be one of: noun, verb, adjective, adverb, or pronoun.
+- targetWordTranslation: English translation of ONLY the target word (not the sentence)
+- targetWordPartOfSpeech: The part of speech of the target word (must be exactly one of: "noun", "verb", "adjective", "adverb", or "pronoun")
 - notes: Brief grammar note (1 sentence, keep it simple)
+
+EXAMPLE FORMAT:
+{
+  "targetSentence": "Kot śpi na krześle.",
+  "nativeTranslation": "The cat is sleeping on the chair.",
+  "targetWord": "kot",
+  "targetWordTranslation": "cat",
+  "targetWordPartOfSpeech": "noun",
+  "notes": "Nominative case masculine animate noun."
+}
 `;
 
         if (language === 'japanese') {
@@ -158,6 +171,8 @@ Return a JSON array of exactly 50 objects. Each object must have:
             targetSentence: card.targetSentence || '',
             nativeTranslation: card.nativeTranslation || '',
             targetWord: card.targetWord || '',
+            targetWordTranslation: card.targetWordTranslation || '',
+            targetWordPartOfSpeech: card.targetWordPartOfSpeech || '',
             notes: card.notes || '',
             furigana: language === 'japanese' ? (card.furigana || '') : undefined,
             language,

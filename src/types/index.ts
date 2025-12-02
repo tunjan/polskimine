@@ -8,6 +8,8 @@ export interface Card extends Omit<Partial<FSRSCard>, 'due' | 'last_review'> {
   id: string;
   targetSentence: string; // "Ten samochód jest szybki"
   targetWord?: string; // Optional: "samochód". If empty, whole sentence is the target.
+  targetWordTranslation?: string;
+  targetWordPartOfSpeech?: string;
   nativeTranslation: string; // "This car is fast"
   furigana?: string; // Optional: Furigana for Japanese text (e.g., "私[わたし]は...")
   notes: string; // "Masc. sing. nominative"

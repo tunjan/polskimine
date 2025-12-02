@@ -19,6 +19,8 @@ export const mapToCard = (data: any): Card => ({
   id: data.id,
   targetSentence: data.target_sentence,
   targetWord: data.target_word || undefined,
+  targetWordTranslation: data.target_word_translation || undefined,
+  targetWordPartOfSpeech: data.target_word_part_of_speech || undefined,
   nativeTranslation: data.native_translation,
   furigana: data.furigana || undefined,
   notes: data.notes ?? '',
@@ -47,6 +49,8 @@ const mapToDB = (card: Card, userId: string) => ({
   user_id: userId,
   target_sentence: card.targetSentence,
   target_word: card.targetWord ?? null,
+  target_word_translation: card.targetWordTranslation ?? null,
+  target_word_part_of_speech: card.targetWordPartOfSpeech ?? null,
   native_translation: card.nativeTranslation,
   furigana: card.furigana ?? null,
   notes: card.notes ?? '',
@@ -219,7 +223,7 @@ export const getCardSignatures = async (language: Language): Promise<Array<{ tar
 export const getTags = async (language?: Language): Promise<string[]> => {
   const userId = await ensureUser();
   let query = supabase.from('cards').select('tags').eq('user_id', userId);
-  
+
   if (language) {
     query = query.eq('language', language);
   }

@@ -26,7 +26,7 @@ export async function generateInitialDeck(options: GenerateInitialDeckOptions): 
         const generatedData = await aiService.generateBatchCards({
             language: options.language,
             instructions: instructions,
-            count: 20, 
+            count: 20,
             apiKey: options.apiKey,
         });
 
@@ -40,6 +40,8 @@ export async function generateInitialDeck(options: GenerateInitialDeckOptions): 
             targetSentence: card.targetSentence,
             nativeTranslation: card.nativeTranslation,
             targetWord: card.targetWord,
+            targetWordTranslation: card.targetWordTranslation,
+            targetWordPartOfSpeech: card.targetWordPartOfSpeech,
             notes: card.notes,
             furigana: card.furigana,
             language: options.language,

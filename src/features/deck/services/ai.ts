@@ -13,11 +13,11 @@ function extractJSON(text: string): string {
   if (jsonBlockMatch) {
     return jsonBlockMatch[1];
   }
-  
+
 
   const firstOpenBrace = text.indexOf('{');
   const firstOpenBracket = text.indexOf('[');
-  
+
   let firstOpen = -1;
   if (firstOpenBrace !== -1 && firstOpenBracket !== -1) {
     firstOpen = Math.min(firstOpenBrace, firstOpenBracket);
@@ -30,7 +30,7 @@ function extractJSON(text: string): string {
     const lastCloseBrace = text.lastIndexOf('}');
     const lastCloseBracket = text.lastIndexOf(']');
     const lastClose = Math.max(lastCloseBrace, lastCloseBracket);
-    
+
     if (lastClose > firstOpen) {
       return text.substring(firstOpen, lastClose + 1);
     }
@@ -63,7 +63,7 @@ async function callGemini(prompt: string, apiKey: string): Promise<string> {
     }
     throw new Error('AI Service failed. Check console for details.');
   }
-  
+
   return data.text;
 }
 
@@ -89,7 +89,7 @@ export const aiService = {
       
       Return ONLY the JSON object, no markdown formatting.
     `;
-    
+
     const result = await callGemini(prompt, apiKey);
     try {
       const cleanResult = extractJSON(result);
@@ -106,15 +106,21 @@ export const aiService = {
 
   async generateCardContent(sentence: string, language: 'polish' | 'norwegian' | 'japanese' | 'spanish' = 'polish', apiKey: string): Promise<{
     translation: string;
+    targetWord?: string;
+    targetWordTranslation?: string;
+    targetWordPartOfSpeech?: string;
     notes: string;
     furigana?: string;
   }> {
     const langName = language === 'norwegian' ? 'Norwegian' : (language === 'japanese' ? 'Japanese' : (language === 'spanish' ? 'Spanish' : 'Polish'));
-    
+
     let prompt = `
       Analyze the following ${langName} sentence for a flashcard: "${sentence}".
       Return a JSON object with:
       - translation: The natural English translation.
+      - targetWord: The key vocabulary word being taught in the sentence. MUST be one of: noun, verb, adjective, adverb, or pronoun.
+      - targetWordTranslation: English translation of the target word.
+      - targetWordPartOfSpeech: The part of speech of the target word (noun, verb, adjective, adverb, or pronoun).
       - notes: Brief grammar notes, explaining any interesting cases, conjugations, or idioms used in the sentence. Keep it concise (max 2-3 sentences).
     `;
 
@@ -155,16 +161,28 @@ export const aiService = {
 
   async generateBatchCards({ instructions, count, language, apiKey }: BatchGenerationOptions & { apiKey: string }): Promise<any[]> {
     const langName = language === 'norwegian' ? 'Norwegian' : (language === 'japanese' ? 'Japanese' : (language === 'spanish' ? 'Spanish' : 'Polish'));
-    
+
     let prompt = `
       Generate ${count} flashcards for a ${langName} learner.
       Instructions: "${instructions}".
       
-      Return a JSON ARRAY of objects. Each object must have:
+      Return a JSON ARRAY of objects. Each object MUST have ALL of these fields:
       - targetSentence: A sentence in ${langName} appropriate for the requested level/topic.
-      - nativeTranslation: English translation.
-      - targetWord: The key vocabulary word being taught in the sentence.
+      - nativeTranslation: English translation of the sentence.
+      - targetWord: The key vocabulary word being taught in the sentence. MUST be one of: noun, verb, adjective, adverb, or pronoun.
+      - targetWordTranslation: English translation of ONLY the target word (not the sentence).
+      - targetWordPartOfSpeech: The part of speech of the target word (must be exactly one of: "noun", "verb", "adjective", "adverb", or "pronoun").
       - notes: Brief grammar explanation or context (max 1 sentence).
+      
+      EXAMPLE FORMAT:
+      {
+        "targetSentence": "Kot śpi na krześle.",
+        "nativeTranslation": "The cat is sleeping on the chair.",
+        "targetWord": "kot",
+        "targetWordTranslation": "cat",
+        "targetWordPartOfSpeech": "noun",
+        "notes": "Nominative case, masculine animate noun."
+      }
     `;
 
     if (language === 'japanese') {
@@ -178,7 +196,7 @@ export const aiService = {
     `;
 
     const result = await callGemini(prompt, apiKey);
-    
+
     try {
       const cleanResult = extractJSON(result);
       const parsed = JSON.parse(cleanResult);
