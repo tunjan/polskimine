@@ -1,5 +1,6 @@
 import { supabase } from '@/lib/supabase';
 import { ReviewHistory } from '@/types';
+import { format } from 'date-fns';
 
 type Language = keyof ReviewHistory | string;
 
@@ -7,24 +8,40 @@ export const getHistory = async (language?: Language): Promise<ReviewHistory> =>
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return {};
 
-  let query = supabase
-    .from('study_history')
-    .select('date, count, language')
-    .eq('user_id', user.id);
-
+  // 1. Get card IDs for the language if specified
+  let cardIds: Set<string> | null = null;
   if (language) {
-    query = query.eq('language', language);
+    const { data: cardsData, error: cardsError } = await supabase
+      .from('cards')
+      .select('id')
+      .eq('user_id', user.id)
+      .eq('language', language);
+    
+    if (!cardsError && cardsData) {
+      cardIds = new Set(cardsData.map(c => c.id));
+    }
   }
 
-  const { data, error } = await query;
+  // 2. Get all revlogs for user
+  const { data, error } = await supabase
+    .from('revlog')
+    .select('created_at, card_id')
+    .eq('user_id', user.id);
   
   if (error) {
     console.error('Failed to fetch history', error);
     return {};
   }
 
+  // 3. Filter and aggregate
   return (data || []).reduce<ReviewHistory>((acc, entry) => {
-    acc[entry.date] = (acc[entry.date] || 0) + entry.count;
+    // If language is specified, check if card_id is in the set
+    if (cardIds && !cardIds.has(entry.card_id)) {
+      return acc;
+    }
+
+    const dateKey = format(new Date(entry.created_at), 'yyyy-MM-dd');
+    acc[dateKey] = (acc[dateKey] || 0) + 1;
     return acc;
   }, {});
 };

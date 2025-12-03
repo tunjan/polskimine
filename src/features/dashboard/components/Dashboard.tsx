@@ -8,7 +8,10 @@ import {
   Sparkles,
   Target,
   Flame,
-  Star
+  Star,
+  Circle,
+  Clock,
+  CheckCircle2
 } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 
@@ -83,7 +86,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8">
           
           {/* Primary Action Card - Today's Mission */}
-          <GamePanel variant="highlight" size="lg" glowOnHover className="flex flex-col justify-between min-h-[260px]">
+          <GamePanel variant="highlight" size="lg" glowOnHover className="flex flex-col justify-between min-h-[260px] bg-gradient-to-br from-card to-primary/5">
             {/* Header */}
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center gap-2.5">
@@ -151,7 +154,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
           <div className="space-y-4">
             
             {/* Level Progress */}
-            <GamePanel size="md" glowOnHover>
+            <GamePanel size="md" glowOnHover className="bg-gradient-to-br from-card to-primary/5">
               <div className="space-y-4">
                 <div className="flex items-baseline justify-between">
                   <div>
@@ -227,10 +230,34 @@ export const Dashboard: React.FC<DashboardProps> = ({
           />
         ) : (
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
-            <GameStat label="New" value={metrics.new} sublabel="Unseen cards" />
-            <GameStat label="Learning" value={metrics.learning} sublabel="Currently studying" />
-            <GameStat label="Reviewing" value={metrics.reviewing} sublabel="Mature cards" />
-            <GameStat label="Mastered" value={metrics.known} sublabel="Fully learned" />
+            <GameStat 
+              label="New" 
+              value={metrics.new} 
+              sublabel="Unseen cards" 
+              icon={<Circle className="w-3.5 h-3.5" />}
+              color="sky"
+            />
+            <GameStat 
+              label="Learning" 
+              value={metrics.learning} 
+              sublabel="Currently studying" 
+              icon={<Clock className="w-3.5 h-3.5" />}
+              color="amber"
+            />
+            <GameStat 
+              label="Reviewing" 
+              value={metrics.reviewing} 
+              sublabel="Mature cards" 
+              icon={<Activity className="w-3.5 h-3.5" />}
+              color="violet"
+            />
+            <GameStat 
+              label="Mastered" 
+              value={metrics.known} 
+              sublabel="Fully learned" 
+              icon={<CheckCircle2 className="w-3.5 h-3.5" />}
+              color="emerald"
+            />
           </div>
         )}
       </section>

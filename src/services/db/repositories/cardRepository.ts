@@ -113,7 +113,7 @@ export const getCardsForRetention = async (language: Language): Promise<Partial<
 };
 
 
-export const getCardsForDashboard = async (language: Language): Promise<Array<{ id: string; due_date: string | null; status: string; stability: number | null; state: number | null }>> => {
+export const getCardsForDashboard = async (language: Language): Promise<Array<{ id: string; dueDate: string | null; status: string; stability: number | null; state: number | null }>> => {
   const userId = await ensureUser();
   const { data, error } = await supabase
     .from('cards')
@@ -122,7 +122,14 @@ export const getCardsForDashboard = async (language: Language): Promise<Array<{ 
     .eq('language', language)
     .order('created_at', { ascending: true });
   if (error) throw error;
-  return (data ?? []) as Array<{ id: string; due_date: string | null; status: string; stability: number | null; state: number | null }>;
+  
+  return (data ?? []).map((item: any) => ({
+    id: item.id,
+    dueDate: item.due_date,
+    status: item.status,
+    stability: item.stability,
+    state: item.state
+  }));
 };
 
 export const saveCard = async (card: Card) => {
@@ -239,4 +246,23 @@ export const getTags = async (language?: Language): Promise<string[]> => {
   });
 
   return Array.from(uniqueTags).sort();
+};
+
+export const getLearnedWords = async (language: Language): Promise<string[]> => {
+  const userId = await ensureUser();
+  const { data, error } = await supabase
+    .from('cards')
+    .select('target_word')
+    .eq('user_id', userId)
+    .eq('language', language)
+    .neq('status', 'new')
+    .not('target_word', 'is', null);
+
+  if (error) throw error;
+  
+  const words = (data ?? [])
+    .map((row: any) => row.target_word)
+    .filter((word: string | null) => word !== null) as string[];
+    
+  return [...new Set(words)];
 };

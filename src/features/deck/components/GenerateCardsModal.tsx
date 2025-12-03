@@ -1,9 +1,12 @@
 import React, { useState } from 'react';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Slider } from '@/components/ui/slider';
+import { Switch } from '@/components/ui/switch';
+import { Label } from '@/components/ui/label';
 import { Sparkles, Check, X as XIcon, ArrowRight, BookOpen } from 'lucide-react';
 import { aiService } from '@/features/deck/services/ai';
 import { useSettings } from '@/contexts/SettingsContext';
+import { getLearnedWords } from '@/services/db/repositories/cardRepository';
 import { Card } from '@/types';
 import { v4 as uuidv4 } from 'uuid';
 import { toast } from 'sonner';
@@ -32,6 +35,7 @@ export const GenerateCardsModal: React.FC<GenerateCardsModalProps> = ({ isOpen, 
 
     const [instructions, setInstructions] = useState('');
     const [count, setCount] = useState([5]);
+    const [useLearnedWords, setUseLearnedWords] = useState(false);
 
     const [generatedData, setGeneratedData] = useState<any[]>([]);
     const [selectedIndices, setSelectedIndices] = useState<Set<number>>(new Set());
@@ -48,11 +52,21 @@ export const GenerateCardsModal: React.FC<GenerateCardsModalProps> = ({ isOpen, 
 
         setLoading(true);
         try {
+            let learnedWords: string[] = [];
+            if (useLearnedWords) {
+                try {
+                    learnedWords = await getLearnedWords(settings.language);
+                } catch (e) {
+                    console.error("Failed to fetch learned words", e);
+                }
+            }
+
             const results = await aiService.generateBatchCards({
                 instructions,
                 count: count[0],
                 language: settings.language,
-                apiKey: settings.geminiApiKey
+                apiKey: settings.geminiApiKey,
+                learnedWords
             });
 
             console.log('AI Generated Cards:', results);
@@ -182,6 +196,17 @@ export const GenerateCardsModal: React.FC<GenerateCardsModalProps> = ({ isOpen, 
                                             step={1}
                                             className="py-2"
                                         />
+                                        
+                                        <div className="mt-6 flex items-center space-x-2">
+                                            <Switch 
+                                                id="learned-words" 
+                                                checked={useLearnedWords}
+                                                onCheckedChange={setUseLearnedWords}
+                                            />
+                                            <Label htmlFor="learned-words" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-muted-foreground">
+                                                Use Learned Words (i+1)
+                                            </Label>
+                                        </div>
                                     </div>
                                 )}
 

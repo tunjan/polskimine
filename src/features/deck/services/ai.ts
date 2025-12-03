@@ -5,6 +5,7 @@ interface BatchGenerationOptions {
   instructions: string;
   count: number;
   language: 'polish' | 'norwegian' | 'japanese' | 'spanish';
+  learnedWords?: string[];
 }
 
 function extractJSON(text: string): string {
@@ -201,13 +202,29 @@ export const aiService = {
     }
   },
 
-  async generateBatchCards({ instructions, count, language, apiKey }: BatchGenerationOptions & { apiKey: string }): Promise<any[]> {
+  async generateBatchCards({ instructions, count, language, apiKey, learnedWords }: BatchGenerationOptions & { apiKey: string }): Promise<any[]> {
     const langName = language === 'norwegian' ? 'Norwegian' : (language === 'japanese' ? 'Japanese' : (language === 'spanish' ? 'Spanish' : 'Polish'));
 
     let prompt = `
       Generate ${count} flashcards for a ${langName} learner.
       Instructions: "${instructions}".
       
+      IMPORTANT: Ensure variety in sentence structure. Do NOT use repetitive patterns like "I [verb]" or "He [verb]" for all sentences. Mix different subjects, tenses, and sentence types (questions, statements, negations).
+    `;
+
+    if (learnedWords && learnedWords.length > 0) {
+      const learnedWordsStr = learnedWords.slice(0, 100).join(", ");
+      prompt += `
+      
+      PROGRESSIVE LEARNING (i+1):
+      The user has already learned the following words: ${learnedWordsStr}.
+      Please try to use these known words in the sentences to reinforce them, while introducing ONE new key concept/word per sentence (the targetWord).
+      The goal is to build upon foundational knowledge. Start with simple sentences if the user is a beginner, and progress to more complex ones using the known vocabulary.
+      Focus on high-frequency words and concepts (Pareto principle).
+      `;
+    }
+
+    prompt += `
       Return a JSON ARRAY of objects. Each object MUST have ALL of these fields:
       - targetSentence: A sentence in ${langName} appropriate for the requested level/topic.
       - nativeTranslation: English translation of the sentence.

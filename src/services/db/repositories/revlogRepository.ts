@@ -39,22 +39,34 @@ export const getAllReviewLogs = async (language?: string): Promise<ReviewLog[]> 
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return [];
 
-  // We need to filter by language. 
-  // Since revlog doesn't have a language column (normalization), 
-  // we join with cards.
-  
-  let query = supabase
-    .from('revlog')
-    .select('*, cards!inner(language)')
-    .eq('user_id', user.id)
-    .order('created_at', { ascending: true }); // Time-series order is crucial
-
+  // 1. Get card IDs for the language if specified
+  let cardIds: Set<string> | null = null;
   if (language) {
-    query = query.eq('cards.language', language);
+    const { data: cardsData, error: cardsError } = await supabase
+      .from('cards')
+      .select('id')
+      .eq('user_id', user.id)
+      .eq('language', language);
+    
+    if (!cardsError && cardsData) {
+      cardIds = new Set(cardsData.map(c => c.id));
+    }
   }
 
-  const { data, error } = await query;
+  // 2. Get all revlogs
+  const { data, error } = await supabase
+    .from('revlog')
+    .select('*')
+    .eq('user_id', user.id)
+    .order('created_at', { ascending: true });
+
   if (error) throw error;
+
+  // 3. Filter in memory
+  const logs = (data || []).filter(log => {
+    if (cardIds && !cardIds.has(log.card_id)) return false;
+    return true;
+  });
   
-  return data as unknown as ReviewLog[];
+  return logs as unknown as ReviewLog[];
 };

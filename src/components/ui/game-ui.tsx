@@ -85,6 +85,7 @@ interface GameStatProps extends React.HTMLAttributes<HTMLDivElement> {
   icon?: React.ReactNode
   trend?: 'up' | 'down' | 'neutral'
   size?: 'sm' | 'md' | 'lg'
+  color?: 'default' | 'blue' | 'green' | 'amber' | 'rose' | 'purple' | 'sky' | 'emerald' | 'violet'
 }
 
 export function GameStat({ 
@@ -95,15 +96,31 @@ export function GameStat({
   trend,
   size = 'md',
   className,
+  color = 'default',
   ...props 
 }: GameStatProps) {
+  const colorStyles = {
+    default: { bg: "bg-primary/40", text: "text-primary/70", border: "hover:border-primary/40" },
+    blue: { bg: "bg-blue-500/40", text: "text-blue-500/70", border: "hover:border-blue-500/40" },
+    sky: { bg: "bg-sky-500/40", text: "text-sky-500/70", border: "hover:border-sky-500/40" },
+    green: { bg: "bg-green-500/40", text: "text-green-500/70", border: "hover:border-green-500/40" },
+    emerald: { bg: "bg-emerald-500/40", text: "text-emerald-500/70", border: "hover:border-emerald-500/40" },
+    amber: { bg: "bg-amber-500/40", text: "text-amber-500/70", border: "hover:border-amber-500/40" },
+    rose: { bg: "bg-rose-500/40", text: "text-rose-500/70", border: "hover:border-rose-500/40" },
+    purple: { bg: "bg-purple-500/40", text: "text-purple-500/70", border: "hover:border-purple-500/40" },
+    violet: { bg: "bg-violet-500/40", text: "text-violet-500/70", border: "hover:border-violet-500/40" },
+  };
+
+  const styles = colorStyles[color] || colorStyles.default;
+
   return (
     <GamePanel 
       variant="stat" 
       size="sm" 
       className={cn(
         "group/stat transition-all duration-200",
-        "hover:border-primary/40 hover:bg-card",
+        "hover:bg-card",
+        styles.border,
         className
       )}
       glowOnHover
@@ -111,12 +128,19 @@ export function GameStat({
     >
       <div className="relative">
         {/* Diamond accent */}
-        <span className="absolute -top-1 -left-1 w-1.5 h-1.5 rotate-45 bg-primary/40 group-hover/stat:bg-primary/70 transition-colors" />
+        <span className={cn(
+          "absolute -top-1 -right-1 w-1.5 h-1.5 rotate-45 transition-colors",
+          styles.bg,
+          `group-hover/stat:${styles.bg.replace('/40', '/70')}`
+        )} />
         
         {/* Label with optional icon */}
         <div className="flex items-center gap-1.5 mb-2">
           {icon && (
-            <span className="text-muted-foreground/70 group-hover/stat:text-primary/70 transition-colors">
+            <span className={cn(
+              "text-muted-foreground/70 transition-colors",
+              `group-hover/stat:${styles.text}`
+            )}>
               {icon}
             </span>
           )}

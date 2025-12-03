@@ -22,6 +22,38 @@ interface FlashcardProps {
   onAddCard?: (card: Card) => void;
 }
 
+// Helper to render text with furigana support (shows furigana on hover)
+const FuriganaText: React.FC<{
+  text: string;
+  className?: string;
+  processText?: (text: string) => string;
+}> = ({ text, className = '', processText = (t) => t }) => {
+  const segments = parseFurigana(text);
+  const hasFurigana = segments.some(s => s.furigana);
+  
+  if (!hasFurigana) {
+    return <span className={className}>{processText(text)}</span>;
+  }
+  
+  return (
+    <span className={cn(className, "leading-[1.6]")}>
+      {segments.map((segment, i) => {
+        if (segment.furigana) {
+          return (
+            <ruby key={i} className="group/ruby" style={{ rubyAlign: 'center' }}>
+              <span>{processText(segment.text)}</span>
+              <rt className="text-[0.5em] text-muted-foreground/70 select-none opacity-0 group-hover/ruby:opacity-100 transition-opacity duration-500 font-sans font-light tracking-wide text-center" style={{ textAlign: 'center' }}>
+                {processText(segment.furigana)}
+              </rt>
+            </ruby>
+          );
+        }
+        return <span key={i}>{processText(segment.text)}</span>;
+      })}
+    </span>
+  );
+};
+
 export const Flashcard = React.memo<FlashcardProps>(({
   card,
   isFlipped,
@@ -76,24 +108,25 @@ export const Flashcard = React.memo<FlashcardProps>(({
 
   const processText = (text: string) => isCursedWith('uwu') ? uwuify(text) : text;
 
+  const getPlainTextForTTS = useCallback((text: string): string => {
+    const segments = parseFurigana(text);
+    return segments.map(s => s.text).join('');
+  }, []);
+
   const speak = useCallback(() => {
     const effectiveRate = playSlowRef.current ? Math.max(0.25, settings.tts.rate * 0.6) : settings.tts.rate;
     const effectiveSettings = { ...settings.tts, rate: effectiveRate };
-    ttsService.speak(card.targetSentence, language, effectiveSettings);
+    const plainText = getPlainTextForTTS(card.targetSentence);
+    ttsService.speak(plainText, language, effectiveSettings);
     setPlaySlow(prev => !prev);
-  }, [card.targetSentence, language, settings.tts]);
+  }, [card.targetSentence, language, settings.tts, getPlainTextForTTS]);
 
-  // --- FIX START ---
-  // Split effects to prevent stopping audio when 'speak' identity changes due to playSlow toggle
-
-  // 1. Cleanup Effect: Only stop audio when the card changes or component unmounts
   useEffect(() => {
     return () => {
       ttsService.stop();
     };
   }, [card.id]);
 
-  // 2. AutoPlay Effect: Triggers audio but doesn't handle cleanup
   useEffect(() => {
     if (hasSpokenRef.current !== card.id) {
       hasSpokenRef.current = null;
@@ -103,7 +136,6 @@ export const Flashcard = React.memo<FlashcardProps>(({
       hasSpokenRef.current = card.id;
     }
   }, [card.id, autoPlayAudio, speak]);
-  // --- FIX END ---
 
   const handleMouseUp = useCallback(() => {
     const sel = window.getSelection();
@@ -246,38 +278,63 @@ export const Flashcard = React.memo<FlashcardProps>(({
 
     // If not flipped (Front), show target word if available
     if (!isFlipped && card.targetWord) {
+      // For Japanese, parse furigana from the targetWord (it may contain furigana markup)
+      if (language === 'japanese') {
+        const segments = parseFurigana(card.targetWord);
+        const hasFurigana = segments.some(s => s.furigana);
+        if (hasFurigana) {
+          return (
+            <FuriganaText 
+              text={card.targetWord} 
+              className={baseClasses}
+              processText={processText}
+            />
+          );
+        }
+      }
       return <p className={baseClasses}>{processText(card.targetWord)}</p>;
     }
 
-    // If flipped (Back) or no target word, show sentence
-    if (language === 'japanese' && card.furigana) {
-      const segments = parseFurigana(card.furigana);
-      return (
-        <div className={cn(baseClasses, "leading-[1.6]")}>
-          {segments.map((segment, i) => {
-            const isTarget = card.targetWord && (card.targetWord === segment.text || card.targetWord.includes(segment.text));
-            if (segment.furigana) {
-              return (
-                <ruby key={i} className="group/ruby" style={{ rubyAlign: 'center' }}>
-                  <span className={isTarget ? "text-primary/90" : ""}>{processText(segment.text)}</span>
-                  <rt className="text-[0.5em] text-muted-foreground/70 select-none opacity-0 group-hover/ruby:opacity-100 transition-opacity duration-500 font-sans font-light tracking-wide text-center" style={{ textAlign: 'center' }}>
-                    {processText(segment.furigana)}
-                  </rt>
-                </ruby>
-              );
-            }
-            return <span key={i} className={isTarget ? "text-primary/90" : ""}>{processText(segment.text)}</span>;
-          })}
-        </div>
-      );
+    const furiganaSource = card.furigana || card.targetSentence;
+    if (language === 'japanese' && furiganaSource) {
+      const segments = parseFurigana(furiganaSource);
+      const hasFurigana = segments.some(s => s.furigana);
+      
+      if (hasFurigana) {
+        // Extract plain text from targetWord for comparison (remove furigana markup)
+        const targetWordPlain = card.targetWord 
+          ? parseFurigana(card.targetWord).map(s => s.text).join('')
+          : null;
+        
+        return (
+          <div className={cn(baseClasses, "leading-[1.6]")}>
+            {segments.map((segment, i) => {
+              const isTarget = targetWordPlain && (targetWordPlain === segment.text || targetWordPlain.includes(segment.text) || segment.text.includes(targetWordPlain));
+              if (segment.furigana) {
+                return (
+                  <ruby key={i} className="group/ruby" style={{ rubyAlign: 'center' }}>
+                    <span className={isTarget ? "text-primary/90" : ""}>{processText(segment.text)}</span>
+                    <rt className="text-[0.5em] text-muted-foreground/70 select-none opacity-0 group-hover/ruby:opacity-100 transition-opacity duration-500 font-sans font-light tracking-wide text-center" style={{ textAlign: 'center' }}>
+                      {processText(segment.furigana)}
+                    </rt>
+                  </ruby>
+                );
+              }
+              return <span key={i} className={isTarget ? "text-primary/90" : ""}>{processText(segment.text)}</span>;
+            })}
+          </div>
+        );
+      }
     }
 
     if (card.targetWord) {
-      const parts = displayedSentence.split(new RegExp(`(${escapeRegExp(card.targetWord)})`, 'gi'));
+      // Extract plain text from targetWord for comparison (remove furigana markup)
+      const targetWordPlain = parseFurigana(card.targetWord).map(s => s.text).join('');
+      const parts = displayedSentence.split(new RegExp(`(${escapeRegExp(targetWordPlain)})`, 'gi'));
       return (
         <p className={baseClasses}>
           {parts.map((part, i) =>
-            part.toLowerCase() === card.targetWord?.toLowerCase()
+            part.toLowerCase() === targetWordPlain.toLowerCase()
               ? <span key={i} className="text-primary/90 font-bold">{processText(part)}</span>
               : <span key={i}>{processText(part)}</span>
           )}
@@ -320,7 +377,7 @@ export const Flashcard = React.memo<FlashcardProps>(({
         </div>
 
         {/* Main content */}
-        <div className="w-full px-8 md:px-16 flex flex-col items-center gap-12 md:gap-16 z-10">
+        <div className="w-full px-8 md:px-16 flex flex-col items-center gap-6 md:gap-6 z-10">
           {RenderedSentence}
 
           {isRevealed && (
@@ -346,19 +403,17 @@ export const Flashcard = React.memo<FlashcardProps>(({
         {isFlipped && (
           <div className="absolute top-1/2 left-0 right-0 bottom-4 pt-12 md:pt-16 flex flex-col items-center gap-3 z-0 pointer-events-none animate-in fade-in slide-in-from-bottom-4 duration-700 overflow-y-auto">
 
-            {/* Decorative divider */}
-            <div className="flex items-center gap-3 mb-1 shrink-0">
-              <span className="w-8 h-px bg-gradient-to-r from-transparent to-border/40" />
-              <span className="w-1.5 h-1.5 rotate-45 bg-primary/30" />
-              <span className="w-8 h-px bg-gradient-to-l from-transparent to-border/40" />
-            </div>
 
             {showTranslation && (
               <div className="relative group pointer-events-auto px-8 md:px-16 shrink-0 flex flex-col items-center gap-1">
                 {card.targetWord && (
                   <div className="flex flex-col items-center gap-0.5 mb-1">
                     <div className="flex items-center gap-2">
-                      <span className="text-xl md:text-2xl font-light text-primary/90">{processText(card.targetWord)}</span>
+                      <FuriganaText 
+                        text={card.targetWord}
+                        className="text-xl md:text-2xl font-light text-primary/90"
+                        processText={processText}
+                      />
                       {card.targetWordPartOfSpeech && (
                         <span className="text-[9px] font-ui font-medium uppercase border border-border/60 px-1.5 py-0.5 text-muted-foreground/80 tracking-widest">
                           {card.targetWordPartOfSpeech}
@@ -373,7 +428,7 @@ export const Flashcard = React.memo<FlashcardProps>(({
 
                 <div className="max-w-3xl">
                   <p className={cn(
-                    "text-base md:text-lg text-foreground/70 font-light italic text-center leading-relaxed text-balance transition-colors duration-300",
+                    "text-base md:text-xl text-foreground/70 font-light italic text-center leading-relaxed text-balance transition-colors duration-300",
                     isGaslit ? "text-destructive/70" : "group-hover:text-foreground/85"
                   )}>
                     {processText(displayedTranslation)}
@@ -388,10 +443,12 @@ export const Flashcard = React.memo<FlashcardProps>(({
             )}
 
             {card.notes && (
-              <div className="mt-2 px-8 md:px-16 pointer-events-auto shrink-0">
-                <p className="text-xs font-ui font-light text-muted-foreground/50 max-w-xl text-center tracking-wide leading-relaxed">
-                  {processText(card.notes)}
-                </p>
+              <div className="mt-2 pointer-events-auto shrink-0">
+                <FuriganaText 
+                  text={card.notes}
+                  className="text-xs font-ui font-light text-foreground text-center tracking-wide leading-relaxed block"
+                  processText={processText}
+                />
               </div>
             )}
           </div>

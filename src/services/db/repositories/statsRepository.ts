@@ -1,7 +1,7 @@
 import { getSRSDate } from '@/features/study/logic/srs';
 import { SRS_CONFIG } from '@/constants';
 import { supabase } from '@/lib/supabase';
-import { differenceInCalendarDays, parseISO, addDays, format, subDays, startOfDay, isSameDay } from 'date-fns';
+import { differenceInCalendarDays, parseISO, addDays, format, subDays, startOfDay, isSameDay, parse } from 'date-fns';
 
 const ensureUser = async () => {
   const { data, error } = await supabase.auth.getUser();
@@ -158,18 +158,31 @@ export const getTodayReviewStats = async (language?: string) => {
 
 export const getRevlogStats = async (language: string, days = 30) => {
   const userId = await ensureUser();
-  const startDate = subDays(new Date(), days).toISOString();
+  const startDate = startOfDay(subDays(new Date(), days - 1)).toISOString();
 
-  // Join with cards to filter by language
-  const { data: logs, error } = await supabase
-    .from('revlog')
-    .select('created_at, grade, cards!inner(language)')
+  // 1. Get card IDs for the language to filter logs manually
+  // This avoids issues with inner joins if the foreign key relationship is not perfectly inferred
+  const { data: cardsData, error: cardsError } = await supabase
+    .from('cards')
+    .select('id')
     .eq('user_id', userId)
-    .eq('cards.language', language)
+    .eq('language', language);
+
+  if (cardsError) throw cardsError;
+  const cardIds = new Set((cardsData ?? []).map(c => c.id));
+
+  // 2. Get logs for the user in date range
+  const { data: logsData, error } = await supabase
+    .from('revlog')
+    .select('created_at, grade, card_id')
+    .eq('user_id', userId)
     .gte('created_at', startDate)
     .order('created_at', { ascending: true });
 
   if (error) throw error;
+
+  // 3. Filter logs in memory
+  const logs = (logsData ?? []).filter(log => cardIds.has(log.card_id));
 
   // Process Data for Charts
   const activityMap = new Map<string, { date: string; count: number; pass: number; fail: number }>();
@@ -208,13 +221,19 @@ export const getRevlogStats = async (language: string, days = 30) => {
   const activityData = Array.from(activityMap.values()).sort((a, b) => a.date.localeCompare(b.date));
 
   // Calculate Retention Rate
-  const retentionData = activityData.map(day => ({
-    date: format(new Date(day.date), 'MMM d'),
-    rate: day.count > 0 ? (day.pass / day.count) * 100 : null
-  }));
+  const retentionData = activityData.map(day => {
+    const dateObj = parse(day.date, 'yyyy-MM-dd', new Date());
+    return {
+      date: format(dateObj, 'MMM d'),
+      rate: day.count > 0 ? (day.pass / day.count) * 100 : null
+    };
+  });
 
   return {
-    activity: activityData.map(d => ({ ...d, label: format(new Date(d.date), 'dd') })),
+    activity: activityData.map(d => {
+      const dateObj = parse(d.date, 'yyyy-MM-dd', new Date());
+      return { ...d, label: format(dateObj, 'dd') };
+    }),
     grades: [
       { name: 'Again', value: gradeCounts.Again, color: '#ef4444' }, // red-500
       { name: 'Hard', value: gradeCounts.Hard, color: '#f97316' },  // orange-500
