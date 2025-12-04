@@ -131,6 +131,24 @@ export const StudySettings: React.FC<StudySettingsProps> = ({ localSettings, set
             />
           </div>
         </GamePanel>
+
+        <GamePanel variant="stat" size="sm" className="hover:border-primary/40 transition-colors">
+          <div className="flex items-center justify-between gap-6">
+            <div className="flex-1">
+              <div className="flex items-center gap-2 mb-1">
+                <span className="w-1 h-1 rotate-45 bg-primary/40" />
+                <span className="text-sm font-light text-foreground font-ui">Full Sentence Front</span>
+              </div>
+              <p className="text-xs text-muted-foreground/60 font-light pl-3">Show the full sentence on the front of the card instead of just the target word</p>
+            </div>
+            <Switch
+              checked={localSettings.showWholeSentenceOnFront || false}
+              onCheckedChange={(checked) =>
+                setLocalSettings((prev) => ({ ...prev, showWholeSentenceOnFront: checked }))
+              }
+            />
+          </div>
+        </GamePanel>
       </div>
     </div>
   );

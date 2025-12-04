@@ -15,7 +15,7 @@ const ensureUser = async () => {
 
 export const getDashboardStats = async (language?: string) => {
   const userId = await ensureUser();
-  // Added 'interval' to the selection
+  
   let query = supabase
     .from('cards')
     .select('status, due_date, interval')
@@ -40,34 +40,34 @@ export const getDashboardStats = async (language?: string) => {
     }
   }
 
-  // New Bucketing Logic
+  
   const counts = { new: 0, learning: 0, graduated: 0, known: 0 };
   
   cards.forEach((c: any) => {
-    // 1. Unseen: Not yet reviewed
+    
     if (c.status === 'new') {
       counts.new++;
       return;
     }
 
-    // 2. Explicitly Known (Manually archived)
+    
     if (c.status === 'known') {
       counts.known++;
       return;
     }
 
-    // 3. Bucket by Interval
+    
     const interval = c.interval || 0;
 
     if (interval < 30) {
-      // Learning: < 30 days
+      
       counts.learning++;
     } else if (interval < 180) {
-      // Mature: 30 - 180 days
-      // We map this to 'graduated' key which corresponds to 'Mature' label in UI
+      
+      
       counts.graduated++;
     } else {
-      // Known: > 180 days
+      
       counts.known++;
     }
   });
@@ -160,8 +160,8 @@ export const getRevlogStats = async (language: string, days = 30) => {
   const userId = await ensureUser();
   const startDate = startOfDay(subDays(new Date(), days - 1)).toISOString();
 
-  // 1. Get card IDs for the language to filter logs manually
-  // This avoids issues with inner joins if the foreign key relationship is not perfectly inferred
+  
+  
   const { data: cardsData, error: cardsError } = await supabase
     .from('cards')
     .select('id')
@@ -171,7 +171,7 @@ export const getRevlogStats = async (language: string, days = 30) => {
   if (cardsError) throw cardsError;
   const cardIds = new Set((cardsData ?? []).map(c => c.id));
 
-  // 2. Get logs for the user in date range
+  
   const { data: logsData, error } = await supabase
     .from('revlog')
     .select('created_at, grade, card_id')
@@ -181,14 +181,14 @@ export const getRevlogStats = async (language: string, days = 30) => {
 
   if (error) throw error;
 
-  // 3. Filter logs in memory
+  
   const logs = (logsData ?? []).filter(log => cardIds.has(log.card_id));
 
-  // Process Data for Charts
+  
   const activityMap = new Map<string, { date: string; count: number; pass: number; fail: number }>();
   const gradeCounts = { Again: 0, Hard: 0, Good: 0, Easy: 0 };
   
-  // Initialize last 30 days with 0
+  
   for (let i = 0; i < days; i++) {
     const d = subDays(new Date(), i);
     const key = format(d, 'yyyy-MM-dd');
@@ -206,7 +206,7 @@ export const getRevlogStats = async (language: string, days = 30) => {
     
     if (entry) {
       entry.count++;
-      // Grade 1 = Fail, 2,3,4 = Pass
+      
       if (log.grade === 1) entry.fail++;
       else entry.pass++;
     }
@@ -217,10 +217,10 @@ export const getRevlogStats = async (language: string, days = 30) => {
     else if (log.grade === 4) gradeCounts.Easy++;
   });
 
-  // Sort by date ascending
+  
   const activityData = Array.from(activityMap.values()).sort((a, b) => a.date.localeCompare(b.date));
 
-  // Calculate Retention Rate
+  
   const retentionData = activityData.map(day => {
     const dateObj = parse(day.date, 'yyyy-MM-dd', new Date());
     return {
@@ -235,10 +235,10 @@ export const getRevlogStats = async (language: string, days = 30) => {
       return { ...d, label: format(dateObj, 'dd') };
     }),
     grades: [
-      { name: 'Again', value: gradeCounts.Again, color: '#ef4444' }, // red-500
-      { name: 'Hard', value: gradeCounts.Hard, color: '#f97316' },  // orange-500
-      { name: 'Good', value: gradeCounts.Good, color: '#22c55e' },  // green-500
-      { name: 'Easy', value: gradeCounts.Easy, color: '#3b82f6' },  // blue-500
+      { name: 'Again', value: gradeCounts.Again, color: '#ef4444' }, 
+      { name: 'Hard', value: gradeCounts.Hard, color: '#f97316' },  
+      { name: 'Good', value: gradeCounts.Good, color: '#22c55e' },  
+      { name: 'Easy', value: gradeCounts.Easy, color: '#3b82f6' },  
     ],
     retention: retentionData
   };

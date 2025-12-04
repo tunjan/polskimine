@@ -13,7 +13,7 @@ import { AppRoutes } from '@/router';
 import { AuthProvider, useAuth } from '@/contexts/AuthContext';
 import { AuthPage } from '@/features/auth/AuthPage';
 import { UsernameSetup } from '@/features/auth/UsernameSetup';
-import { OnboardingFlow } from '@/features/auth/OnboardingFlow'; // Add this import
+import { OnboardingFlow } from '@/features/auth/OnboardingFlow'; 
 import { Capacitor } from '@capacitor/core';
 import { App as CapacitorApp } from '@capacitor/app';
 import { Browser } from '@capacitor/browser';
@@ -41,7 +41,7 @@ const LinguaFlowApp: React.FC = () => {
     return <AuthPage />;
   }
 
-  // Handle case where user is auth'd but profile fetch failed or hasn't completed
+  
   if (!profile) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
@@ -57,11 +57,11 @@ const LinguaFlowApp: React.FC = () => {
     return <UsernameSetup />;
   }
 
-  // --- NEW: Check if user has completed onboarding (Level + Deck) ---
+  
   if (!profile.initial_deck_generated) {
     return <OnboardingFlow />;
   }
-  // -----------------------------------------------------------------
+  
 
   return (
     <Router>
@@ -79,15 +79,15 @@ const App: React.FC = () => {
       CapacitorApp.addListener('appUrlOpen', async ({ url }) => {
         if (url.includes('auth/callback')) {
 
-          // 1. Extract the hash/fragment from the URL
-          // URL looks like: com.linguaflow.app://auth/callback#access_token=...&refresh_token=...
+          
+          
           const hashIndex = url.indexOf('#');
           if (hashIndex !== -1) {
             const params = new URLSearchParams(url.substring(hashIndex + 1));
             const access_token = params.get('access_token');
             const refresh_token = params.get('refresh_token');
 
-            // 2. Manually set the session in Supabase
+            
             if (access_token && refresh_token) {
               const { error } = await supabase.auth.setSession({
                 access_token,
@@ -98,13 +98,13 @@ const App: React.FC = () => {
             }
           }
 
-          // 3. Close the browser only AFTER processing
+          
           await Browser.close();
         }
       });
     }
   }, []);
-  // ---> END ADD EFFECT
+  
   return (
     <QueryClientProvider client={queryClient}>
       <ThemeProvider defaultTheme="light" storageKey="languagemine-theme">

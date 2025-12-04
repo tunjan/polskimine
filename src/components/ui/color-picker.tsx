@@ -5,14 +5,14 @@ import { hexToHSL, hslToHex } from '@/lib/utils';
 
 interface ColorPickerProps {
   label: string;
-  value: string; // Expects format "H S% L%" e.g., "346 84% 45%"
+  value: string; 
   onChange: (value: string) => void;
 }
 
 export const ColorPicker: React.FC<ColorPickerProps> = ({ label, value, onChange }) => {
   const hexValue = React.useMemo(() => {
     try {
-      // FIX 1: Parse the string "H S% L%" into numbers before calling hslToHex
+      
       if (!value) return '#000000';
       const [h, s, l] = value.split(' ').map(v => parseFloat(v));
       
@@ -27,7 +27,7 @@ export const ColorPicker: React.FC<ColorPickerProps> = ({ label, value, onChange
   const handleColorChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newHex = e.target.value;
     const { h, s, l } = hexToHSL(newHex);
-    // FIX 2: Format the object back into the CSS variable string format expected by SettingsContext
+    
     onChange(`${h} ${s}% ${l}%`);
   };
 
@@ -36,7 +36,7 @@ export const ColorPicker: React.FC<ColorPickerProps> = ({ label, value, onChange
 
     if (/^#[0-9A-Fa-f]{6}$/.test(newHex)) {
         const { h, s, l } = hexToHSL(newHex);
-        // FIX 2: Same fix here
+        
         onChange(`${h} ${s}% ${l}%`);
     }
   };
@@ -55,7 +55,7 @@ export const ColorPicker: React.FC<ColorPickerProps> = ({ label, value, onChange
         </div>
         <Input 
             defaultValue={hexValue}
-            key={hexValue} // Force re-render on external change
+            key={hexValue} 
             onBlur={handleTextChange}
             className="w-24 font-mono uppercase rounded-xl border-transparent bg-secondary/30"
             maxLength={7}

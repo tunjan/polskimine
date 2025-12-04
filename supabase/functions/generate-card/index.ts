@@ -33,6 +33,9 @@ serve(async (req: Request) => {
         },
         body: JSON.stringify({
           contents: [{ parts: [{ text: prompt }] }],
+          generationConfig: {
+            response_mime_type: "application/json"
+          }
         }),
       }
     )

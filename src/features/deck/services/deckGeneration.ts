@@ -21,21 +21,29 @@ export async function generateInitialDeck(options: GenerateInitialDeckOptions): 
         // We define a broad topic suitable for the user's level
         const instructions = `Generate content for ${options.proficiencyLevel} level. Topic: Essential daily life phrases, greetings, and basic survival vocabulary.`;
 
-        // We request 20 cards to ensure the AI response fits within timeouts/token limits
-        // (50 cards often causes JSON parsing errors due to length)
-        const generatedData = await aiService.generateBatchCards({
-            language: options.language,
-            instructions: instructions,
-            count: 20,
-            apiKey: options.apiKey,
-        });
+        // We request 5 batches of 10 cards to ensure variety and avoid timeouts
+        const batchCount = 5;
+        const cardsPerBatch = 10;
+        
+        const batchPromises = Array.from({ length: batchCount }).map(() => 
+            aiService.generateBatchCards({
+                language: options.language,
+                instructions: instructions,
+                count: cardsPerBatch,
+                apiKey: options.apiKey!,
+            })
+        );
+
+        const results = await Promise.all(batchPromises);
+        const generatedData = results.flat();
 
         if (!generatedData || !Array.isArray(generatedData)) {
             throw new Error('Invalid response format from AI service');
         }
 
         // Convert raw AI response to full Card objects
-        const cards: Card[] = generatedData.map((card: any) => ({
+        const now = Date.now();
+        const cards: Card[] = generatedData.map((card: any, index: number) => ({
             id: crypto.randomUUID(),
             targetSentence: card.targetSentence,
             nativeTranslation: card.nativeTranslation,
@@ -48,7 +56,8 @@ export async function generateInitialDeck(options: GenerateInitialDeckOptions): 
             status: 'new' as const,
             interval: 0,
             easeFactor: 2.5,
-            dueDate: new Date().toISOString(),
+            // Stagger due dates by 1 second to ensure they are reviewed in the generated order
+            dueDate: new Date(now + index * 1000).toISOString(),
             tags: [options.proficiencyLevel, 'Starter', 'AI-Gen'],
         }));
 

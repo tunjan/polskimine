@@ -120,7 +120,7 @@ export const calculateNextReview = (card: Card, grade: Grade, settings?: UserSet
     first_review: card.first_review || (isNew ? now.toISOString() : undefined),
     status,
     interval: log.scheduled_days,
-    learningStep: undefined, // Clean up legacy/custom field
+    learningStep: undefined, 
     leechCount: totalLapses,
     isLeech
   };

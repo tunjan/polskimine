@@ -31,16 +31,16 @@ export const DashboardRoute: React.FC = () => {
     );
   }
 
-  // Transform counts to include total and rename graduated to reviewing
+  
   const metrics = {
     total: dashboardStats.counts.new + dashboardStats.counts.learning + dashboardStats.counts.graduated + dashboardStats.counts.known,
     new: dashboardStats.counts.new,
     learning: dashboardStats.counts.learning,
-    reviewing: dashboardStats.counts.graduated, // Graduated is the reviewing state
+    reviewing: dashboardStats.counts.graduated, 
     known: dashboardStats.counts.known,
   };
 
-  // Calculate level from XP (100 * (level - 1)^2)
+  
   const xp = dashboardStats.languageXp;
   const level = Math.floor(Math.sqrt(xp / 100)) + 1;
 
@@ -51,7 +51,7 @@ export const DashboardRoute: React.FC = () => {
       stats={stats}
       history={history}
       onStartSession={() => navigate('/study')}
-      cards={cards as any} // Type assertion for now since cards query needs proper typing
+      cards={cards as any} 
     />
   );
 };

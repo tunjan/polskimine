@@ -48,7 +48,7 @@ import { GameMenuItemChevron } from '@/components/ui/game-menu-item';
 import { toast } from 'sonner';
 import clsx from 'clsx';
 
-// --- Types ---
+
 
 interface NavActionProps {
   onOpenAdd: () => void;
@@ -58,7 +58,7 @@ interface NavActionProps {
   onCloseMobileMenu?: () => void;
 }
 
-// --- Shadcn Sidebar Component ---
+
 
 const AppSidebar: React.FC<NavActionProps> = ({
   onOpenAdd,
@@ -175,7 +175,7 @@ const AppSidebar: React.FC<NavActionProps> = ({
         </SidebarGroup>
       </SidebarContent>
 
-      <SidebarFooter className="group-data-[collapsible=icon]:hidden px-2 pb-4 pt-2">
+      <SidebarFooter className="">
         
         <SidebarMenu className="gap-0.5">
           {/* Language Selector */}
@@ -183,11 +183,11 @@ const AppSidebar: React.FC<NavActionProps> = ({
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <SidebarMenuButton 
-                  className="h-9 px-2 rounded-md text-muted-foreground hover:text-foreground hover:bg-card/50 text-sm font-light"
+                  className=""
                   style={{ fontFamily: 'var(--font-sans)' }}
                 >
-                  <div className="w-4 h-4 flex items-center justify-center shrink-0">
-                    <currentLanguage.Flag className="w-full h-auto rounded-sm" />
+                  <div className="w-4 h-4 ">
+                    <currentLanguage.Flag className="" />
                   </div>
                   <span>{currentLanguage.name}</span>
                   <ChevronUp className="ml-auto opacity-40" size={12} strokeWidth={1.5} />
@@ -254,7 +254,7 @@ const AppSidebar: React.FC<NavActionProps> = ({
   );
 };
 
-// --- Extracted Mobile Nav Component ---
+
 
 const MobileBottomNav: React.FC = () => {
   const location = useLocation();
@@ -321,7 +321,7 @@ const MobileBottomNav: React.FC = () => {
   );
 };
 
-// --- Main Layout Component ---
+
 
 export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { addCard } = useCardOperations();
@@ -341,7 +341,7 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
     onOpenSettings: () => setIsSettingsOpen(true),
   };
 
-  // For study mode, don't render the sidebar at all
+  
   if (isStudyMode) {
     return (
       <div className="min-h-screen bg-background text-foreground font-sans">

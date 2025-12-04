@@ -8,7 +8,7 @@ export const getHistory = async (language?: Language): Promise<ReviewHistory> =>
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return {};
 
-  // 1. Get card IDs for the language if specified
+  
   let cardIds: Set<string> | null = null;
   if (language) {
     const { data: cardsData, error: cardsError } = await supabase
@@ -22,7 +22,7 @@ export const getHistory = async (language?: Language): Promise<ReviewHistory> =>
     }
   }
 
-  // 2. Get all revlogs for user
+  
   const { data, error } = await supabase
     .from('revlog')
     .select('created_at, card_id')
@@ -33,9 +33,9 @@ export const getHistory = async (language?: Language): Promise<ReviewHistory> =>
     return {};
   }
 
-  // 3. Filter and aggregate
+  
   return (data || []).reduce<ReviewHistory>((acc, entry) => {
-    // If language is specified, check if card_id is in the set
+    
     if (cardIds && !cardIds.has(entry.card_id)) {
       return acc;
     }

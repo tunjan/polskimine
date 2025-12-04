@@ -15,16 +15,16 @@ import {
 } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 
-// Type Imports
+
 import { DeckStats, ReviewHistory, Card as CardType } from '@/types';
 
-// Contexts & Services
+
 import { useSettings } from '@/contexts/SettingsContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { getRevlogStats } from '@/services/db/repositories/statsRepository';
 import { getLevelProgress } from '@/lib/utils';
 
-// Game UI Components
+
 import { 
   GamePanel, 
   GameStat, 
@@ -35,7 +35,7 @@ import {
   GameDivider
 } from '@/components/ui/game-ui';
 
-// Child Components
+
 import { Heatmap } from './Heatmap';
 import { RetentionStats } from './RetentionStats';
 import { ReviewVolumeChart } from './ReviewVolumeChart';
@@ -192,18 +192,18 @@ export const Dashboard: React.FC<DashboardProps> = ({
             {/* Quick Metrics */}
             <div className="grid grid-cols-1 gap-2">
               <GameMetricRow 
-                icon={<Flame className="w-4 h-4" strokeWidth={1.5} />} 
+                icon={<Flame className="w-4 h-4 text-orange-500" strokeWidth={1.5} />} 
                 label="Current Streak" 
                 value={stats.streak} 
                 unit="days" 
               />
               <GameMetricRow 
-                icon={<Activity className="w-4 h-4" strokeWidth={1.5} />} 
+                icon={<Activity className="w-4 h-4 text-sky-500" strokeWidth={1.5} />} 
                 label="Total Reviews" 
                 value={stats.totalReviews.toLocaleString()} 
               />
               <GameMetricRow 
-                icon={<Trophy className="w-4 h-4" strokeWidth={1.5} />} 
+                icon={<Trophy className="w-4 h-4 text-yellow-500" strokeWidth={1.5} />} 
                 label="Points Earned" 
                 value={profile?.points?.toLocaleString() ?? '0'} 
               />
@@ -361,7 +361,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
   );
 };
 
-// Helper Components
+
 
 const EmptyState: React.FC<{ 
   icon: React.ElementType; 

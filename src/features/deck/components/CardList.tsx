@@ -26,7 +26,7 @@ interface CardListProps {
   compactView?: boolean;
 }
 
-// --- Game-Styled Components (Genshin-Inspired) ---
+
 
 const StatusBadge = ({ status }: { status: string }) => {
   const statusConfig: Record<string, { label: string; icon: React.ReactNode; borderColor: string; bgColor: string; textColor: string; accentColor: string }> = {
@@ -118,7 +118,7 @@ const ScheduleDisplay = ({ dateStr, status, interval }: { dateStr: string, statu
   const date = parseISO(dateStr);
   if (!isValid(date)) return null;
 
-  // Priority check
+  
   if (date.getFullYear() === 1970) {
     return (
       <div className="relative inline-flex items-center gap-2 px-4 py-2.5 bg-amber-500/10 border border-amber-500/50 text-amber-600 dark:text-amber-400">
@@ -167,7 +167,7 @@ const ScheduleDisplay = ({ dateStr, status, interval }: { dateStr: string, statu
   );
 };
 
-// Compact Row Component - Game Style
+
 const CompactRow = memo(({ index, style, data }: ListChildComponentProps<any>) => {
   const { cards, onEditCard, onDeleteCard, onViewHistory, onPrioritizeCard, selectedIds, onToggleSelect } = data;
   const card = cards[index];

@@ -87,7 +87,7 @@ export const GameArena: React.FC = () => {
     }
   }, []);
 
-  // Reset timer when question changes
+  
   useEffect(() => {
     if (room?.status === 'playing') {
       setTimeLeft(room.timer_duration || TIMER_SECONDS);
@@ -95,7 +95,7 @@ export const GameArena: React.FC = () => {
     }
   }, [room?.current_question_index, room?.status, room?.timer_duration]);
 
-  // Timer countdown
+  
   useEffect(() => {
     if (room?.status !== 'playing') return;
 

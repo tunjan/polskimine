@@ -1,5 +1,6 @@
 import React from 'react';
-import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, ReferenceLine } from 'recharts';
+import { LineChart, Line, XAxis, YAxis, ReferenceLine } from 'recharts';
+import { ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
 import { useChartColors } from '@/hooks/useChartColors';
 
 interface TrueRetentionChartProps {
@@ -7,30 +8,16 @@ interface TrueRetentionChartProps {
   targetRetention: number;
 }
 
-interface CustomTooltipProps {
-  active?: boolean;
-  payload?: Array<{ value: number }>;
-  label?: string;
-}
-
 export const TrueRetentionChart: React.FC<TrueRetentionChartProps> = ({ data, targetRetention }) => {
   const colors = useChartColors();
   const targetPercent = targetRetention * 100;
 
-  const CustomTooltip = ({ active, payload, label }: CustomTooltipProps) => {
-    if (active && payload && payload.length && payload[0].value != null) {
-      return (
-        <div className="bg-foreground text-background px-4 py-3 rounded-md">
-          <div className="text-[9px] font-mono uppercase tracking-[0.2em] opacity-50 mb-1">{label}</div>
-          <div className="flex items-center gap-2">
-             <span className="text-sm font-normal tabular-nums">{payload[0].value.toFixed(1)}%</span>
-             <span className="text-[9px] font-mono uppercase tracking-[0.2em] opacity-50">Pass Rate</span>
-          </div>
-        </div>
-      );
-    }
-    return null;
-  };
+  const chartConfig = {
+    rate: {
+      label: "Pass Rate",
+      color: "hsl(var(--foreground))",
+    },
+  } satisfies ChartConfig
 
   return (
     <div className="h-full w-full flex flex-col">
@@ -42,7 +29,7 @@ export const TrueRetentionChart: React.FC<TrueRetentionChartProps> = ({ data, ta
         </div>
       </div>
       <div className="flex-1 min-h-[150px]">
-        <ResponsiveContainer width="100%" height="100%">
+        <ChartContainer config={chartConfig} className="h-full w-full">
           <LineChart data={data} margin={{ top: 5, right: 5, left: -25, bottom: 0 }}>
             <XAxis 
               dataKey="date" 
@@ -58,19 +45,42 @@ export const TrueRetentionChart: React.FC<TrueRetentionChartProps> = ({ data, ta
                 axisLine={false}
                 tickLine={false}
             />
-            <Tooltip content={<CustomTooltip />} cursor={{ stroke: colors.foreground, strokeWidth: 1, opacity: 0.1 }} />
+            <ChartTooltip 
+              cursor={{ stroke: colors.foreground, strokeWidth: 1, opacity: 0.1 }}
+              content={
+                <ChartTooltipContent 
+                  hideLabel 
+                  className="w-[150px]"
+                  formatter={(value, name, item, index) => (
+                    <>
+                      <div className="text-[9px] font-mono uppercase tracking-[0.2em] opacity-50 mb-1 text-muted-foreground">
+                        {item.payload.date}
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm font-normal tabular-nums text-foreground">
+                          {Number(value).toFixed(1)}%
+                        </span>
+                        <span className="text-[9px] font-mono uppercase tracking-[0.2em] opacity-50 text-muted-foreground">
+                          Pass Rate
+                        </span>
+                      </div>
+                    </>
+                  )}
+                />
+              }
+            />
             <ReferenceLine y={targetPercent} stroke={colors.mutedForeground} strokeDasharray="4 4" opacity={0.3} strokeWidth={1} />
             <Line 
                 type="monotone" 
                 dataKey="rate" 
-                stroke={colors.foreground} 
+                stroke="var(--color-rate)"
                 strokeWidth={2}
                 dot={{ r: 0 }}
-                activeDot={{ r: 4, fill: colors.foreground, strokeWidth: 0 }}
+                activeDot={{ r: 4, fill: "var(--color-rate)", strokeWidth: 0 }}
                 connectNulls
             />
           </LineChart>
-        </ResponsiveContainer>
+        </ChartContainer>
       </div>
     </div>
   );

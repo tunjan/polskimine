@@ -24,7 +24,7 @@ export const addReviewLog = async (
     user_id: user.id,
     card_id: card.id,
     grade: mapGradeToNumber(grade),
-    state: card.state ?? State.New, // State BEFORE review
+    state: card.state ?? State.New, 
     elapsed_days: elapsedDays,
     scheduled_days: scheduledDays,
     stability: card.stability ?? 0,
@@ -39,7 +39,7 @@ export const getAllReviewLogs = async (language?: string): Promise<ReviewLog[]> 
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return [];
 
-  // 1. Get card IDs for the language if specified
+  
   let cardIds: Set<string> | null = null;
   if (language) {
     const { data: cardsData, error: cardsError } = await supabase
@@ -53,7 +53,7 @@ export const getAllReviewLogs = async (language?: string): Promise<ReviewLog[]> 
     }
   }
 
-  // 2. Get all revlogs
+  
   const { data, error } = await supabase
     .from('revlog')
     .select('*')
@@ -62,7 +62,7 @@ export const getAllReviewLogs = async (language?: string): Promise<ReviewLog[]> 
 
   if (error) throw error;
 
-  // 3. Filter in memory
+  
   const logs = (data || []).filter(log => {
     if (cardIds && !cardIds.has(log.card_id)) return false;
     return true;

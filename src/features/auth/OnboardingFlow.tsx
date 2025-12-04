@@ -30,12 +30,12 @@ export const OnboardingFlow: React.FC = () => {
     if (!user || !selectedLevel) return;
 
     try {
-      // 1. If AI is chosen, save the API Key first
+      
       if (useAI && apiKey) {
         await updateUserSettings(user.id, { geminiApiKey: apiKey });
       }
 
-      // 2. Generate or Load Deck
+      
       let cards: Card[] = [];
 
       if (useAI && apiKey) {
@@ -45,7 +45,7 @@ export const OnboardingFlow: React.FC = () => {
           apiKey,
         });
       } else {
-        // Load Default Beginner Deck based on language
+        
         const rawDeck = 
           settings.language === 'norwegian' ? NORWEGIAN_BEGINNER_DECK : 
           (settings.language === 'japanese' ? JAPANESE_BEGINNER_DECK : 
@@ -55,24 +55,24 @@ export const OnboardingFlow: React.FC = () => {
           ...c,
           id: uuidv4(),
           dueDate: new Date().toISOString(),
-          // Add tag for the selected level even on default deck
+          
           tags: [...(c.tags || []), selectedLevel]
         }));
       }
 
-      // 3. Save Cards to DB
+      
       if (cards.length > 0) {
         await saveAllCards(cards);
         toast.success(`Loaded ${cards.length} cards into your deck.`);
       }
 
-      // 4. Mark flow as complete (triggers App.tsx to render main router)
+      
       await markInitialDeckGenerated();
 
     } catch (error: any) {
       console.error('Onboarding failed:', error);
       toast.error(error.message || 'Setup failed. Please try again.');
-      throw error; // Re-throw to let the child component handle loading state reset if needed
+      throw error; 
     }
   };
 

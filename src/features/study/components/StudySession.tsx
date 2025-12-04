@@ -110,7 +110,7 @@ export const StudySession: React.FC<StudySessionProps> = ({
     if (isCramMode) return { label: 'CRAM', className: 'text-purple-500 border-purple-500/20 bg-purple-500/5' };
 
     const s = currentCard.state;
-    // 0=New, 1=Learning, 2=Review, 3=Relearning
+    
     if (s === 0 || (s === undefined && currentCard.status === 'new')) {
         return { label: 'NEW', className: 'text-blue-500 border-blue-500/20 bg-blue-500/5' };
     }
@@ -127,15 +127,15 @@ export const StudySession: React.FC<StudySessionProps> = ({
     const handleKeyDown = (e: KeyboardEvent) => {
       if (!currentCard && !sessionComplete) return;
       
-      // Flip Logic
+      
       if (!isFlipped && !sessionComplete && (e.code === 'Space' || e.code === 'Enter')) { 
         e.preventDefault(); 
         setIsFlipped(true); 
       }
-      // Grade Logic
+      
       else if (isFlipped && !sessionComplete && !isProcessing) {
         if (settings.binaryRatingMode) {
-            // Binary Mode: 1=Fail, Space/2/3/4=Pass
+            
             if (e.key === '1') { 
                 e.preventDefault(); 
                 handleGrade('Again'); 
@@ -144,7 +144,7 @@ export const StudySession: React.FC<StudySessionProps> = ({
                 handleGrade('Good'); 
             }
         } else {
-            // Standard Mode
+            
             if (e.code === 'Space' || e.key === '3') { e.preventDefault(); handleGrade('Good'); }
             else if (e.key === '1') { e.preventDefault(); handleGrade('Again'); }
             else if (e.key === '2') { e.preventDefault(); handleGrade('Hard'); }
@@ -437,7 +437,7 @@ export const StudySession: React.FC<StudySessionProps> = ({
   );
 };
 
-// Game-styled Queue Stat component
+
 const GameQueueStat = React.memo(({ label, count, isActive, color }: {
   label: string;
   count: number;
@@ -469,7 +469,7 @@ const GameQueueStat = React.memo(({ label, count, isActive, color }: {
   );
 });
 
-// Game-styled Action Button component
+
 const GameActionButton = React.memo(({ icon, onClick, disabled, title, variant = 'default' }: {
   icon: React.ReactNode;
   onClick: () => void;
@@ -493,7 +493,7 @@ const GameActionButton = React.memo(({ icon, onClick, disabled, title, variant =
   </button>
 ));
 
-// Game-styled Answer Button component
+
 const GameAnswerButton = React.memo(({ label, shortcut, intent, onClick, disabled }: { 
     label: string; 
     shortcut: string; 

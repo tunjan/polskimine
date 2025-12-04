@@ -242,7 +242,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
     const languageChanged = localSettings.language !== settings.language;
     updateSettings(localSettings);
 
-    // Save API keys to database
+    
     try {
         await saveApiKeys({
             geminiApiKey: localSettings.geminiApiKey,
@@ -252,7 +252,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
         });
     } catch (error) {
         console.error('Failed to save API keys:', error);
-        // Don't return - continue with other saves
+        
     }
 
     if (localUsername !== profile?.username) {
@@ -521,7 +521,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
         }
     };
 
-  // ...existing code...
+  
   const tabs: { id: SettingsTab; label: string }[] = [
     { id: 'general', label: 'General' },
     { id: 'audio', label: 'Audio' },

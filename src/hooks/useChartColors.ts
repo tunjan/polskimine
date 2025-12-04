@@ -11,9 +11,9 @@ const normalizeColor = (value: string, fallback: string) => {
   if (!value) return fallback;
   const candidate = value.trim();
   if (!candidate) return fallback;
-  // If it's a color function (rgb, hsl, oklch, etc) or hex, return as is
+  
   if (/^(#|rgb|hsl|oklch|var)/i.test(candidate)) return candidate;
-  // If it's space separated numbers (shadcn HSL convention), wrap in hsl()
+  
   if (candidate.includes(' ')) return `hsl(${candidate})`;
   return candidate;
 };

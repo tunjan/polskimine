@@ -31,7 +31,7 @@ export function ThemeProvider({
 
   const value: ThemeContextState = {
     theme,
-    setTheme: () => {}, // No-op
+    setTheme: () => {}, 
   };
 
   return (

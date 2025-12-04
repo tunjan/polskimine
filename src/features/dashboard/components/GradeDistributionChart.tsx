@@ -1,6 +1,6 @@
 import React from 'react';
-import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from 'recharts';
-import clsx from 'clsx';
+import { PieChart, Pie, Cell, Label } from 'recharts';
+import { ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
 
 interface GradeDistributionChartProps {
   data: { name: string; value: number; color: string }[];
@@ -8,6 +8,17 @@ interface GradeDistributionChartProps {
 
 export const GradeDistributionChart: React.FC<GradeDistributionChartProps> = ({ data }) => {
   const total = data.reduce((acc, curr) => acc + curr.value, 0);
+
+  const chartConfig = React.useMemo(() => {
+    const config: ChartConfig = {};
+    data.forEach((item) => {
+      config[item.name] = {
+        label: item.name,
+        color: item.color,
+      };
+    });
+    return config;
+  }, [data]);
 
   if (total === 0) {
     return (
@@ -25,39 +36,53 @@ export const GradeDistributionChart: React.FC<GradeDistributionChartProps> = ({ 
       
       <div className="flex-1 flex items-center gap-8">
         <div className="h-[160px] w-[160px] shrink-0 relative">
-            {/* Center Text */}
-            <div className="absolute inset-0 flex items-center justify-center flex-col pointer-events-none">
-                <span className="text-2xl font-light tracking-tighter">{total}</span>
-                <span className="text-[9px] font-mono uppercase text-muted-foreground">Reviews</span>
-            </div>
-            <ResponsiveContainer width="100%" height="100%">
+            <ChartContainer config={chartConfig} className="h-full w-full">
             <PieChart>
+                <ChartTooltip cursor={false} content={<ChartTooltipContent hideLabel />} />
                 <Pie
                 data={data}
                 innerRadius={60}
                 outerRadius={75}
                 paddingAngle={2}
                 dataKey="value"
+                nameKey="name"
                 stroke="none"
                 >
                 {data.map((entry, index) => (
                     <Cell key={`cell-${index}`} fill={entry.color} />
                 ))}
-                </Pie>
-                <Tooltip 
-                    content={({ active, payload }) => {
-                        if (active && payload && payload.length) {
+                  <Label
+                    content={({ viewBox }) => {
+                      if (viewBox && "cx" in viewBox && "cy" in viewBox) {
                         return (
-                            <div className="bg-background border border-border px-2 py-1 text-xs font-mono ">
-                                {payload[0].name}: {payload[0].value}
-                            </div>
-                        );
-                        }
-                        return null;
+                          <text
+                            x={viewBox.cx}
+                            y={viewBox.cy}
+                            textAnchor="middle"
+                            dominantBaseline="middle"
+                          >
+                            <tspan
+                              x={viewBox.cx}
+                              y={viewBox.cy}
+                              className="fill-foreground text-2xl font-light tracking-tighter"
+                            >
+                              {total.toLocaleString()}
+                            </tspan>
+                            <tspan
+                              x={viewBox.cx}
+                              y={(viewBox.cy || 0) + 16}
+                              className="fill-muted-foreground text-[9px] font-mono uppercase"
+                            >
+                              Reviews
+                            </tspan>
+                          </text>
+                        )
+                      }
                     }}
-                />
+                  />
+                </Pie>
             </PieChart>
-            </ResponsiveContainer>
+            </ChartContainer>
         </div>
 
         {/* Custom Legend */}

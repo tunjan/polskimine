@@ -53,7 +53,7 @@ export const AddCardModal: React.FC<AddCardModalProps> = ({ isOpen, onClose, onA
             } else {
                 setForm({ sentence: "", targetWord: "", targetWordTranslation: "", targetWordPartOfSpeech: "", translation: "", notes: "", furigana: "" });
             }
-            // Auto-focus logic
+            
             setTimeout(() => {
                 if (textareaRef.current) {
                     textareaRef.current.focus();

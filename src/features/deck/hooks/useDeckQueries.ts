@@ -32,7 +32,7 @@ export const useDueCardsQuery = () => {
   return useQuery({
     queryKey: ['dueCards', settings.language],
     queryFn: () => getDueCards(new Date(), settings.language),
-    staleTime: 60 * 1000, // Cache for 1 minute to reduce refetch thrashing
+    staleTime: 60 * 1000, 
   });
 };
 
@@ -63,20 +63,20 @@ export const useRecordReviewMutation = () => {
     mutationFn: async ({ card, grade, xpPayload }: { card: Card; grade: Grade; xpPayload?: CardXpPayload }) => {
       const today = format(getSRSDate(new Date()), 'yyyy-MM-dd');
       
-      // 1. Calculate Metrics for Log
+      
       const now = new Date();
       const lastReview = card.last_review ? new Date(card.last_review) : now;
       
-      // Calculate elapsed days with decimal precision (critical for FSRS)
+      
       const diffMinutes = differenceInMinutes(now, lastReview);
-      const elapsedDays = diffMinutes / 1440; // 1440 mins in a day
+      const elapsedDays = diffMinutes / 1440; 
 
       const scheduledDays = card.interval || 0;
 
-      // 2. Save Log (Fire and forget, or await if strict)
+      
       await addReviewLog(card, grade, elapsedDays, scheduledDays);
 
-      // await incrementHistory(today, 1, card.language || settings.language);
+      
         const xpAmount = xpPayload?.totalXp ?? 0;
 
       if (user) {
@@ -110,14 +110,14 @@ export const useRecordReviewMutation = () => {
         queryClient.cancelQueries({ queryKey: ['reviewsToday', settings.language] }),
         queryClient.cancelQueries({ queryKey: ['dueCards', settings.language] }),
         queryClient.cancelQueries({ queryKey: ['deckStats', settings.language] }),
-        queryClient.cancelQueries({ queryKey: ['dashboardStats', settings.language] }) // Added: prevent overwrite of optimistic language XP
+        queryClient.cancelQueries({ queryKey: ['dashboardStats', settings.language] }) 
       ]);
       
 
       const previousHistory = queryClient.getQueryData(['history', settings.language]);
       const previousReviewsToday = queryClient.getQueryData(['reviewsToday', settings.language]);
       const previousDueCards = queryClient.getQueryData(['dueCards', settings.language]);
-      const previousDashboardStats = queryClient.getQueryData(['dashboardStats', settings.language]); // Added snapshot
+      const previousDashboardStats = queryClient.getQueryData(['dashboardStats', settings.language]); 
       
 
       queryClient.setQueryData(['history', settings.language], (old: any) => {
@@ -187,7 +187,7 @@ export const useClaimDailyBonusMutation = () => {
   const queryClient = useQueryClient();
   const { settings } = useSettings();
   const { user, incrementXPOptimistically } = useAuth();
-  const BONUS_AMOUNT = 20; // Big reward for finishing
+  const BONUS_AMOUNT = 20; 
 
   return useMutation({
     mutationFn: async () => {

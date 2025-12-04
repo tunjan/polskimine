@@ -20,7 +20,7 @@ type TimeRange = 'weekly' | 'monthly' | 'yearly' | 'lifetime';
 type LanguageFilter = 'all' | 'polish' | 'norwegian' | 'japanese' | 'spanish';
 
 const RankBadge = ({ rank }: { rank: number }) => {
-  // Game-style ranking with Genshin-inspired design
+  
   if (rank === 1) {
     return (
       <div className="relative group">
@@ -74,7 +74,7 @@ const StreakIndicator = ({ days }: { days: number }) => {
   const { value } = getDailyStreakMultiplier(days);
   const intensity = Math.min(Math.max(value - 1, 0), 1);
 
-  // Game-style color progression
+  
   const colorClass =
     intensity > 0.9
       ? 'text-orange-500'

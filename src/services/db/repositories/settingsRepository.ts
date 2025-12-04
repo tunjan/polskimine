@@ -30,7 +30,7 @@ export async function getUserSettings(userId: string): Promise<UserApiKeys | nul
             .single();
 
         if (error) {
-            // If no settings found, return null (will be created on first save)
+            
             if (error.code === 'PGRST116') {
                 return null;
             }
@@ -80,22 +80,22 @@ export async function updateUserSettings(userId: string, settings: UserApiKeys):
  */
 export async function migrateLocalSettingsToDatabase(userId: string): Promise<boolean> {
     try {
-        // Check if already migrated
+        
         const migrationFlag = localStorage.getItem('api_keys_migrated');
         if (migrationFlag === 'true') {
-            return false; // Already migrated
+            return false; 
         }
 
-        // Get settings from localStorage
+        
         const localSettingsStr = localStorage.getItem('language_mining_settings');
         if (!localSettingsStr) {
             localStorage.setItem('api_keys_migrated', 'true');
-            return false; // Nothing to migrate
+            return false; 
         }
 
         const localSettings = JSON.parse(localSettingsStr);
 
-        // Extract API keys
+        
         const apiKeys: UserApiKeys = {
             geminiApiKey: localSettings.geminiApiKey || undefined,
             googleTtsApiKey: localSettings.tts?.googleApiKey || undefined,
@@ -103,16 +103,16 @@ export async function migrateLocalSettingsToDatabase(userId: string): Promise<bo
             azureRegion: localSettings.tts?.azureRegion || undefined,
         };
 
-        // Only migrate if there are actual API keys to migrate
+        
         const hasKeys = apiKeys.geminiApiKey || apiKeys.googleTtsApiKey || apiKeys.azureTtsApiKey;
 
         if (hasKeys) {
             await updateUserSettings(userId, apiKeys);
             localStorage.setItem('api_keys_migrated', 'true');
-            return true; // Migration performed
+            return true; 
         } else {
             localStorage.setItem('api_keys_migrated', 'true');
-            return false; // No keys to migrate
+            return false; 
         }
     } catch (error) {
         console.error('Migration failed:', error);

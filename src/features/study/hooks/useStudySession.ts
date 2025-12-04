@@ -1,11 +1,11 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Card, Grade, UserSettings } from '@/types';
 import { calculateNextReview, isCardDue } from '@/features/study/logic/srs';
-import { isNewCard } from '@/services/studyLimits'; // Make sure to import this!
+import { isNewCard } from '@/services/studyLimits'; 
 
 interface UseStudySessionParams {
   dueCards: Card[];
-  reserveCards?: Card[]; // Accept reserve cards
+  reserveCards?: Card[]; 
   settings: UserSettings;
   onUpdateCard: (card: Card) => void;
   onRecordReview: (card: Card, grade: Grade) => void;
@@ -15,7 +15,7 @@ interface UseStudySessionParams {
 
 export const useStudySession = ({
   dueCards,
-  reserveCards: initialReserve = [], // Default
+  reserveCards: initialReserve = [], 
   settings,
   onUpdateCard,
   onRecordReview,
@@ -23,7 +23,7 @@ export const useStudySession = ({
   onUndo,
 }: UseStudySessionParams) => {
   const [sessionCards, setSessionCards] = useState<Card[]>(dueCards);
-  const [reserveCards, setReserveCards] = useState<Card[]>(initialReserve); // Local state for reserve
+  const [reserveCards, setReserveCards] = useState<Card[]>(initialReserve); 
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isFlipped, setIsFlipped] = useState(false);
   const [sessionComplete, setSessionComplete] = useState(dueCards.length === 0);
@@ -121,7 +121,7 @@ export const useStudySession = ({
     setIsProcessing(true);
 
     try {
-      const wasNew = isNewCard(currentCard); // Check if card was new
+      const wasNew = isNewCard(currentCard); 
 
       const updatedCard: Card = {
         ...currentCard,

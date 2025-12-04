@@ -6,7 +6,7 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 export function escapeRegExp(string: string) {
-  return string.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"); // $& means the whole matched string
+  return string.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"); 
 }
 
 export interface FuriganaSegment {
@@ -20,14 +20,14 @@ export function parseFurigana(text: string): FuriganaSegment[] {
   let lastIndex = 0;
   let match;
 
-  // Common Japanese/general punctuation to separate from kanji
+  
   const punctuationRegex = /^([、。！？「」『』（）\(\),.!?:;""''—\-–]+)(.*)/;
 
   while ((match = regex.exec(text)) !== null) {
-    // Add any text between the last match and this match
+    
     if (match.index > lastIndex) {
       const betweenText = text.slice(lastIndex, match.index);
-      // Split by spaces and add each part as a segment
+      
       betweenText.split(/(\s+)/).forEach(part => {
         if (part) {
           segments.push({ text: part });
@@ -39,7 +39,7 @@ export function parseFurigana(text: string): FuriganaSegment[] {
     const furigana = match[2];
 
     while (true) {
-      // Check for leading punctuation and separate it
+      
       const punctuationMatch = kanjiText.match(punctuationRegex);
       if (punctuationMatch && punctuationMatch[2]) {
         segments.push({ text: punctuationMatch[1] });
@@ -47,14 +47,14 @@ export function parseFurigana(text: string): FuriganaSegment[] {
         continue;
       }
 
-      // Check for leading hiragana or katakana to fix spatial displacement
-      // Includes Hiragana (3040-309f) and Katakana (30a0-30ff)
+      
+      
       const kanaRegex = /^([\u3040-\u30ff]+)(.*)/;
       const kanaMatch = kanjiText.match(kanaRegex);
 
       if (kanaMatch && kanaMatch[2]) {
-        // If there's leading kana and remaining text (kanji/etc),
-        // split it so the kana is outside the ruby tag
+        
+        
         segments.push({ text: kanaMatch[1] });
         kanjiText = kanaMatch[2];
         continue;
@@ -68,7 +68,7 @@ export function parseFurigana(text: string): FuriganaSegment[] {
     lastIndex = regex.lastIndex;
   }
 
-  // Add any remaining text after the last match
+  
   if (lastIndex < text.length) {
     const remainingText = text.slice(lastIndex);
     remainingText.split(/(\s+)/).forEach(part => {

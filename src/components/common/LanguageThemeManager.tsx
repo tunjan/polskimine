@@ -36,8 +36,12 @@ export const LanguageThemeManager: React.FC = () => {
 
       styleTag.innerHTML = `
         :root[data-language="${settings.language}"] {
-          --primary: ${customColor};
-          --ring: ${customColor};
+          --primary: hsl(${customColor});
+          --ring: hsl(${customColor});
+        }
+        :root[data-language="${settings.language}"].dark {
+          --primary: hsl(${darkColor});
+          --ring: hsl(${darkColor});
         }
       `;
     } else {

@@ -16,7 +16,7 @@ interface AlgorithmSettingsProps {
   setLocalSettings: React.Dispatch<React.SetStateAction<UserSettings>>;
 }
 
-// ...existing code...
+
 export const AlgorithmSettings: React.FC<AlgorithmSettingsProps> = ({
   localSettings,
   setLocalSettings,

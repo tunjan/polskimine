@@ -17,7 +17,7 @@ export const getDailyStreakMultiplier = (
   if (days <= 0) return { value: 1.0, label: 'Standard (1.00x)' };
 
   const rawCurve = Math.tanh(days / XP_CONFIG.ASYMPTOTE_SCALE);
-  // Round to exactly 2 decimal places to ensure calculation consistency
+  
   const value = Math.round((1 + rawCurve) * 100) / 100;
 
   let tier = 'Rookie';
@@ -76,7 +76,7 @@ export const calculateCardXp = (
   const { value: multiplier } = getDailyStreakMultiplier(dailyStreak);
   const preMultiplied = baseXp + bonusXp;
   
-  // Calculation now uses the clean 2-decimal multiplier
+  
   const totalXp = Math.round(preMultiplied * multiplier);
 
   return {

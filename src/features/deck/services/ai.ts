@@ -205,43 +205,41 @@ export const aiService = {
   async generateBatchCards({ instructions, count, language, apiKey, learnedWords }: BatchGenerationOptions & { apiKey: string }): Promise<any[]> {
     const langName = language === 'norwegian' ? 'Norwegian' : (language === 'japanese' ? 'Japanese' : (language === 'spanish' ? 'Spanish' : 'Polish'));
 
+    const learnedWordsStr = learnedWords && learnedWords.length > 0 ? learnedWords.join(", ") : "";
+
     let prompt = `
-      Generate ${count} flashcards for a ${langName} learner.
-      Instructions: "${instructions}".
+      Role: You are an expert ${langName} linguist and teacher.
+      Task: Generate ${count} flashcards for a student.
       
-      IMPORTANT: Ensure variety in sentence structure. Do NOT use repetitive patterns like "I [verb]" or "He [verb]" for all sentences. Mix different subjects, tenses, and sentence types (questions, statements, negations).
-    `;
-
-    if (learnedWords && learnedWords.length > 0) {
-      const learnedWordsStr = learnedWords.slice(0, 100).join(", ");
-      prompt += `
+      Topic/Context: "${instructions}"
       
-      PROGRESSIVE LEARNING (i+1):
-      The user has already learned the following words: ${learnedWordsStr}.
-      Please try to use these known words in the sentences to reinforce them, while introducing ONE new key concept/word per sentence (the targetWord).
-      The goal is to build upon foundational knowledge. Start with simple sentences if the user is a beginner, and progress to more complex ones using the known vocabulary.
-      Focus on high-frequency words and concepts (Pareto principle).
-      `;
-    }
-
-    prompt += `
-      Return a JSON ARRAY of objects. Each object MUST have ALL of these fields:
-      - targetSentence: A sentence in ${langName} appropriate for the requested level/topic.
-      - nativeTranslation: English translation of the sentence.
-      - targetWord: The key vocabulary word being taught in the sentence. MUST be one of: noun, verb, adjective, adverb, or pronoun.
-      - targetWordTranslation: English translation of ONLY the target word (not the sentence).
-      - targetWordPartOfSpeech: The part of speech of the target word (must be exactly one of: "noun", "verb", "adjective", "adverb", or "pronoun").
-      - notes: Brief grammar explanation or context (max 1 sentence).
+      Constraints:
+      1. VARIETY: No two sentences may start with the same word. Mix statements, questions, and exclamations.
+      2. LENGTH: Sentences must be between 4 and 12 words long.
+      3. RELEVANCE: Sentences must be practical for daily life (no abstract poetry).
+      4. NEGATIVE CONSTRAINTS: Do NOT use repetitive patterns like "I [verb]" or "He [verb]". Do NOT use the word 'very' more than once.
       
-      EXAMPLE FORMAT:
-      {
-        "targetSentence": "Kot śpi na krześle.",
-        "nativeTranslation": "The cat is sleeping on the chair.",
-        "targetWord": "kot",
-        "targetWordTranslation": "cat",
-        "targetWordPartOfSpeech": "noun",
-        "notes": "Nominative case, masculine animate noun."
-      }
+      Input Data (User's Known Vocabulary):
+      [${learnedWordsStr}]
+      
+      Instruction for "i+1" Learning:
+      - Construct sentences primarily using the "Input Data" above.
+      - Introduce EXACTLY ONE new word (the "targetWord") per sentence.
+      - The "targetWord" must be the most difficult word in the sentence.
+      
+      Output Format (JSON Array):
+      [
+        {
+          "targetSentence": "...",
+          "nativeTranslation": "...",
+          "targetWord": "...",
+          "targetWordTranslation": "...",
+          "targetWordPartOfSpeech": "noun|verb|adjective|adverb|pronoun",
+          "grammaticalCase": "nominative|genitive|...", 
+          "gender": "masculine|feminine|neuter",
+          "notes": "Explain the grammar of the target word in this specific context."
+        }
+      ]
     `;
 
     if (language === 'japanese') {

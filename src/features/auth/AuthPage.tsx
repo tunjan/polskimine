@@ -20,12 +20,12 @@ export const AuthPage: React.FC = () => {
   const [mode, setMode] = useState<'signin' | 'signup'>('signin');
   const [loading, setLoading] = useState(false);
 
-  // Form State
+  
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [username, setUsername] = useState('');
 
-  // Signup flow state
+  
   const [signupStep, setSignupStep] = useState<SignupStep>('credentials');
   const [selectedLevel, setSelectedLevel] = useState<Difficulty | null>(null);
 
@@ -48,7 +48,7 @@ export const AuthPage: React.FC = () => {
     e.preventDefault();
     if (loading) return;
 
-    // Move to level selection
+    
     setSignupStep('level');
   };
 
@@ -65,7 +65,7 @@ export const AuthPage: React.FC = () => {
     setLoading(true);
 
     try {
-      // First, create the account
+      
       const authData = await signUpWithEmail(email, password, username, selectedLevel);
 
       if (!authData.user) {
@@ -74,34 +74,34 @@ export const AuthPage: React.FC = () => {
 
       const userId = authData.user.id;
 
-      // If using AI, save API key and generate deck
+      
       if (useAI && apiKey) {
-        // Save API key to database
+        
         await updateUserSettings(userId, { geminiApiKey: apiKey });
 
-        // Generate AI deck
+        
         const cards = await generateInitialDeck({
           language: settings.language,
           proficiencyLevel: selectedLevel,
           apiKey,
         });
 
-        // Save cards to database
+        
         await saveAllCards(cards);
         toast.success(`Generated ${cards.length} personalized cards!`);
       } else {
-        // Default deck will be auto-loaded by DeckContext
+        
         toast.success('Account created! Loading beginner course...');
       }
 
-      // Mark initial deck as generated
+      
       await markInitialDeckGenerated();
 
-      // Success toast already shown above
+      
     } catch (error: any) {
       console.error('Signup error:', error);
       toast.error(error.message || 'Setup failed');
-      throw error; // Re-throw so DeckGenerationStep can handle it
+      throw error; 
     } finally {
       setLoading(false);
     }

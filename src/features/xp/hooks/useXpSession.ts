@@ -1,9 +1,9 @@
 import { useState, useCallback, useRef } from 'react';
 import { calculateCardXp, CardRating, getDailyStreakMultiplier, XpCalculationResult } from '../xpUtils';
 
-// New type for UI feedback
+
 export interface XpFeedback {
-  id: number; // Unique ID to trigger animations
+  id: number; 
   amount: number;
   message: string;
   isBonus: boolean;
@@ -14,7 +14,7 @@ export const useXpSession = (dailyStreak: number, isCramMode: boolean = false) =
   const [sessionStreak, setSessionStreak] = useState(0);
   const [feedback, setFeedback] = useState<XpFeedback | null>(null);
   
-  // Ref to ensure unique IDs for animations
+  
   const feedbackIdRef = useRef(0);
 
   const multiplierInfo = getDailyStreakMultiplier(dailyStreak);
@@ -32,7 +32,7 @@ export const useXpSession = (dailyStreak: number, isCramMode: boolean = false) =
     const result = calculateCardXp(rating, newStreak, dailyStreak, isCramMode);
     setSessionXp(prev => prev + result.totalXp);
 
-    return result; // FIXED: Returning full object instead of just totalXp number
+    return result; 
   }, [sessionStreak, dailyStreak, isCramMode]);
 
   const resetSession = useCallback(() => {
@@ -45,7 +45,7 @@ export const useXpSession = (dailyStreak: number, isCramMode: boolean = false) =
     sessionXp,
     sessionStreak,
     multiplierInfo,
-    feedback, // <--- Expose this
+    feedback, 
     processCardResult,
     resetSession
   };

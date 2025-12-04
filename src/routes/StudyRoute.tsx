@@ -5,7 +5,7 @@ import { StudySession } from '@/features/study/components/StudySession';
 import { useDeck } from '@/contexts/DeckContext';
 import { useSettings } from '@/contexts/SettingsContext';
 import { useCardOperations } from '@/features/deck/hooks/useCardOperations';
-import { isNewCard } from '@/services/studyLimits'; // Import helper
+import { isNewCard } from '@/services/studyLimits'; 
 import {
   getCramCards,
   getDueCards,
@@ -24,7 +24,7 @@ export const StudyRoute: React.FC = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const [sessionCards, setSessionCards] = useState<Card[]>([]);
-  const [reserveCards, setReserveCards] = useState<Card[]>([]); // New State
+  const [reserveCards, setReserveCards] = useState<Card[]>([]); 
   const [isLoading, setIsLoading] = useState(true);
 
   const mode = searchParams.get('mode');
@@ -98,8 +98,8 @@ export const StudyRoute: React.FC = () => {
 
   const handleDeleteCard = async (id: string) => {
     await deleteCard(id);
-    // Remove from session if needed, but useCardOperations usually invalidates queries
-    // However, local state sessionCards might need update if we want immediate feedback without refetch
+    
+    
     setSessionCards(prev => prev.filter(c => c.id !== id));
   };
 
@@ -127,7 +127,7 @@ export const StudyRoute: React.FC = () => {
   return (
     <StudySession 
       dueCards={sessionCards}
-      reserveCards={reserveCards} // Pass reserve
+      reserveCards={reserveCards} 
       onUpdateCard={handleUpdateCard}
       onDeleteCard={handleDeleteCard}
       onRecordReview={handleRecordReview}

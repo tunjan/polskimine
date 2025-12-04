@@ -32,6 +32,6 @@ export const useCardsQuery = (page = 0, pageSize = 50, searchTerm = '') => {
         count: count ?? 0
       };
     },
-    placeholderData: keepPreviousData, // Keep previous data while fetching new page
+    placeholderData: keepPreviousData, 
   });
 };

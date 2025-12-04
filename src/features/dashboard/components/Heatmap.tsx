@@ -14,7 +14,7 @@ export const Heatmap: React.FC<HeatmapProps> = ({ history }) => {
     const days = [];
 
     let startDate = subDays(today, 364);
-    const dayOfWeek = startDate.getDay(); // 0 is Sunday
+    const dayOfWeek = startDate.getDay(); 
     startDate = subDays(startDate, dayOfWeek); 
     
     const totalDays = 53 * 7;
@@ -32,8 +32,8 @@ export const Heatmap: React.FC<HeatmapProps> = ({ history }) => {
     return days;
   }, [history]);
 
-  // Color intensity: more reviews = more saturated/darker
-  // Using green shades similar to GitHub's contribution graph
+  
+  
   const getColorStyle = (count: number): string => {
     if (count === 0) return 'bg-muted/30';
     if (count <= 2) return 'bg-emerald-200 dark:bg-emerald-900';
@@ -42,7 +42,7 @@ export const Heatmap: React.FC<HeatmapProps> = ({ history }) => {
     return 'bg-emerald-600 dark:bg-emerald-400';
   };
 
-  // Calculate stats for mobile summary
+  
   const stats = useMemo(() => {
     const today = startOfDay(new Date());
     const last7Days = Array.from({ length: 7 }).map((_, i) => {

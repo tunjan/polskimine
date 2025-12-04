@@ -8,8 +8,8 @@ import React, {
 import { toast } from 'sonner';
 import { Card, DeckStats, Grade, ReviewHistory } from '@/types';
 import { getUTCDateString } from '@/constants';
-// Remove the Deck Imports (POLISH_BEGINNER_DECK etc) if they are no longer used here.
-// They are now used in OnboardingFlow.tsx and SettingsModal.tsx.
+
+
 import { useSettings } from './SettingsContext';
 import { useAuth } from './AuthContext';
 import { getSRSDate } from '@/features/study/logic/srs';
@@ -42,7 +42,7 @@ const DeckContext = createContext<DeckContextValue | undefined>(undefined);
 export const DeckProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const queryClient = useQueryClient();
   const { settings } = useSettings();
-  // User is available but we no longer trigger auto-seeding
+  
   const { user } = useAuth(); 
 
   const { data: dbStats, isLoading: statsLoading } = useDeckStatsQuery();
@@ -57,11 +57,11 @@ export const DeckProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const isLoading = statsLoading || dueCardsLoading || reviewsLoading || historyLoading;
 
-  // --- REMOVED AUTO-SEEDING LOGIC ---
-  // We rely on OnboardingFlow (for new users) or manual "Add/Generate" (for existing users/new languages)
-  // to populate the deck. This prevents race conditions where default cards appear while the user
-  // is trying to select "AI Deck".
-  // ----------------------------------
+  
+  
+  
+  
+  
 
   const streakStats = useMemo(() => {
     const sortedDates = Object.keys(history || {}).sort();
@@ -93,7 +93,7 @@ export const DeckProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
       }
     } else if (history?.[yesterdayStr]) {
-      currentStreak = 0; // Streak continues if they review today
+      currentStreak = 0; 
       const checkDate = new Date(srsYesterday);
       while (true) {
         const dateStr = getUTCDateString(checkDate);

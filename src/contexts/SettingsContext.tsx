@@ -19,13 +19,14 @@ export const DEFAULT_SETTINGS: UserSettings = {
     polish: '346 84% 45%',
     norwegian: '200 90% 40%',
     japanese: '330 85% 65%',
-    spanish: '45 100% 50%', // Yellow/Goldish
+    spanish: '45 100% 50%', 
   },
   dailyNewLimits: createLimits(20),
   dailyReviewLimits: createLimits(100),
   autoPlayAudio: false,
   blindMode: false,
   showTranslationAfterFlip: true,
+  showWholeSentenceOnFront: false,
   ignoreLearningStepsWhenNoCards: false,
   binaryRatingMode: false,
   cardOrder: 'newFirst',
@@ -86,7 +87,7 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
           fsrs: { ...DEFAULT_SETTINGS.fsrs, ...(parsed.fsrs || {}) },
           tts: { ...DEFAULT_SETTINGS.tts, ...(parsed.tts || {}) },
           languageColors: { ...DEFAULT_SETTINGS.languageColors, ...(parsed.languageColors || {}) },
-          // API keys will be loaded from database, keep empty for now
+          
           geminiApiKey: '',
         };
       }
@@ -96,20 +97,20 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     return DEFAULT_SETTINGS;
   });
 
-  // Load API keys from database on mount
+  
   useEffect(() => {
     const loadCloudSettings = async () => {
       if (!user) return;
 
       setSettingsLoading(true);
       try {
-        // First, try to migrate from localStorage
+        
         const migrated = await migrateLocalSettingsToDatabase(user.id);
         if (migrated) {
           toast.success('Settings migrated to cloud');
         }
 
-        // Then load from database
+        
         const cloudSettings = await getUserSettings(user.id);
         if (cloudSettings) {
           setSettings(prev => ({
@@ -145,7 +146,7 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     }));
   };
 
-  // Save API keys to database
+  
   const saveApiKeys = async (apiKeys: UserApiKeys) => {
     if (!user) {
       throw new Error('User not authenticated');
@@ -155,7 +156,7 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       setSettingsLoading(true);
       await updateUserSettings(user.id, apiKeys);
 
-      // Update local state
+      
       setSettings(prev => ({
         ...prev,
         geminiApiKey: apiKeys.geminiApiKey || '',
@@ -177,11 +178,11 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     }
   };
 
-  // Save local settings (non-API keys) to localStorage
+  
   useEffect(() => {
     const localSettings = {
       ...settings,
-      // Don't save API keys to localStorage anymore
+      
       geminiApiKey: '',
       tts: {
         ...settings.tts,

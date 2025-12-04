@@ -10,9 +10,9 @@ const Switch = React.forwardRef<
   <SwitchPrimitives.Root
     className={cn(
       "peer relative inline-flex h-6 w-11 shrink-0 cursor-pointer items-center border border-border/50 transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:cursor-not-allowed disabled:opacity-50",
-      // Unchecked state
+      
       "data-[state=unchecked]:bg-card data-[state=unchecked]:border-border/50",
-      // Checked state - game accent
+      
       "data-[state=checked]:bg-primary/20 data-[state=checked]:border-primary/50",
       className
     )}

@@ -6,21 +6,21 @@ export type CardStatus = 'new' | 'learning' | 'graduated' | 'known';
 
 export interface Card extends Omit<Partial<FSRSCard>, 'due' | 'last_review'> {
   id: string;
-  targetSentence: string; // "Ten samochód jest szybki"
-  targetWord?: string; // Optional: "samochód". If empty, whole sentence is the target.
+  targetSentence: string; 
+  targetWord?: string; 
   targetWordTranslation?: string;
   targetWordPartOfSpeech?: string;
-  nativeTranslation: string; // "This car is fast"
-  furigana?: string; // Optional: Furigana for Japanese text (e.g., "私[わたし]は...")
-  notes: string; // "Masc. sing. nominative"
-  tags?: string[]; // Optional tags for filtering
-  language?: Language; // 'polish' | 'norwegian' | 'japanese'
+  nativeTranslation: string; 
+  furigana?: string; 
+  notes: string; 
+  tags?: string[]; 
+  language?: Language; 
   status: CardStatus;
 
 
-  interval: number; // Days
-  easeFactor: number; // Default 2.5
-  dueDate: string; // ISO Date string
+  interval: number; 
+  easeFactor: number; 
+  dueDate: string; 
 
 
   stability?: number;
@@ -30,17 +30,17 @@ export interface Card extends Omit<Partial<FSRSCard>, 'due' | 'last_review'> {
   reps?: number;
   lapses?: number;
   state?: FSRSState;
-  due?: string; // ISO Date string (overrides FSRSCard's Date type)
-  last_review?: string; // ISO Date string (overrides FSRSCard's Date type)
-  first_review?: string; // ISO Date string
-  learningStep?: number; // 1 = waiting for 10m review
-  leechCount?: number; // Number of times answered "Again" consecutively or totally (depending on logic)
-  isLeech?: boolean; // Flag for leech status
+  due?: string; 
+  last_review?: string; 
+  first_review?: string; 
+  learningStep?: number; 
+  leechCount?: number; 
+  isLeech?: boolean; 
 }
 
 export type Grade = 'Again' | 'Hard' | 'Good' | 'Easy';
 
-export type ReviewHistory = Record<string, number>; // 'YYYY-MM-DD': count
+export type ReviewHistory = Record<string, number>; 
 
 export interface DeckStats {
   total: number;
@@ -60,9 +60,9 @@ export type TTSProvider = 'browser' | 'google' | 'azure';
 export interface TTSSettings {
   provider: TTSProvider;
   voiceURI: string | null;
-  volume: number; // 0 to 1
-  rate: number; // 0.5 to 2
-  pitch: number; // 0 to 2
+  volume: number; 
+  rate: number; 
+  pitch: number; 
   googleApiKey?: string;
   azureApiKey?: string;
   azureRegion?: string;
@@ -70,31 +70,32 @@ export interface TTSSettings {
 
 export interface UserSettings {
   language: Language;
-  languageColors?: Record<Language, string>; // HSL values e.g. "346 84% 45%"
+  languageColors?: Record<Language, string>; 
 
   dailyNewLimits: Record<Language, number>;
   dailyReviewLimits: Record<Language, number>;
   autoPlayAudio: boolean;
-  blindMode: boolean; // New: Play audio before showing text
+  blindMode: boolean; 
   showTranslationAfterFlip: boolean;
+  showWholeSentenceOnFront?: boolean;
   ignoreLearningStepsWhenNoCards: boolean;
-  binaryRatingMode: boolean; // Pass/Fail only (Again vs Good)
-  cardOrder: 'newFirst' | 'reviewFirst' | 'mixed'; // Preference for card ordering
+  binaryRatingMode: boolean; 
+  cardOrder: 'newFirst' | 'reviewFirst' | 'mixed'; 
   tts: TTSSettings;
   fsrs: {
-    request_retention: number; // 0.8 to 0.99
-    maximum_interval: number; // Days
-    w?: number[]; // Weights
+    request_retention: number; 
+    maximum_interval: number; 
+    w?: number[]; 
     enable_fuzzing?: boolean;
   }
-  geminiApiKey: string; // Gemini API key for client-side AI calls
+  geminiApiKey: string; 
 }
 
 export interface ReviewLog {
   id: string;
   card_id: string;
-  grade: number; // 1 | 2 | 3 | 4
-  state: number; // 0 | 1 | 2 | 3
+  grade: number; 
+  state: number; 
   elapsed_days: number;
   scheduled_days: number;
   stability: number;

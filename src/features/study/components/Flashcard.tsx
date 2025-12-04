@@ -22,7 +22,7 @@ interface FlashcardProps {
   onAddCard?: (card: Card) => void;
 }
 
-// Helper to render text with furigana support (shows furigana on hover)
+
 const FuriganaText: React.FC<{
   text: string;
   className?: string;
@@ -72,13 +72,13 @@ export const Flashcard = React.memo<FlashcardProps>(({
   const [displayedTranslation, setDisplayedTranslation] = useState(card.nativeTranslation);
   const [isGaslit, setIsGaslit] = useState(false);
 
-  // Analysis State
+  
   const [selection, setSelection] = useState<{ text: string; top: number; left: number } | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [analysisResult, setAnalysisResult] = useState<{ originalText: string; definition: string; partOfSpeech: string; contextMeaning: string } | null>(null);
   const [isAnalysisOpen, setIsAnalysisOpen] = useState(false);
   
-  // Generate Card State
+  
   const [isGeneratingCard, setIsGeneratingCard] = useState(false);
 
   useEffect(() => { setIsRevealed(!blindMode); }, [card.id, blindMode]);
@@ -270,15 +270,15 @@ export const Flashcard = React.memo<FlashcardProps>(({
             </button>
           )}
           <p className={cn(baseClasses, "blur-3xl opacity-5 group-hover:opacity-10 transition-all duration-500")}>
-            {card.targetWord ? processText(card.targetWord) : displayedSentence}
+            {(card.targetWord && !settings.showWholeSentenceOnFront) ? processText(card.targetWord) : displayedSentence}
           </p>
         </div>
       );
     }
 
-    // If not flipped (Front), show target word if available
-    if (!isFlipped && card.targetWord) {
-      // For Japanese, parse furigana from the targetWord (it may contain furigana markup)
+    
+    if (!isFlipped && card.targetWord && !settings.showWholeSentenceOnFront) {
+      
       if (language === 'japanese') {
         const segments = parseFurigana(card.targetWord);
         const hasFurigana = segments.some(s => s.furigana);
@@ -301,7 +301,7 @@ export const Flashcard = React.memo<FlashcardProps>(({
       const hasFurigana = segments.some(s => s.furigana);
       
       if (hasFurigana) {
-        // Extract plain text from targetWord for comparison (remove furigana markup)
+        
         const targetWordPlain = card.targetWord 
           ? parseFurigana(card.targetWord).map(s => s.text).join('')
           : null;
@@ -328,7 +328,7 @@ export const Flashcard = React.memo<FlashcardProps>(({
     }
 
     if (card.targetWord) {
-      // Extract plain text from targetWord for comparison (remove furigana markup)
+      
       const targetWordPlain = parseFurigana(card.targetWord).map(s => s.text).join('');
       const parts = displayedSentence.split(new RegExp(`(${escapeRegExp(targetWordPlain)})`, 'gi'));
       return (

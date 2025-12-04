@@ -4,6 +4,33 @@ import { cn } from "@/lib/utils"
 /**
  * A game-styled panel with decorative corners, similar to Genshin Impact UI
  */
+
+const CornerSvg = ({ className, ...props }: React.ComponentProps<"svg">) => (
+  <svg
+    width="20"
+    height="20"
+    viewBox="0 0 20 20"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    className={className}
+    {...props}
+  >
+    <path d="M0 0H12V1H1V12H0V0Z" fill="currentColor" />
+    <rect x="2" y="2" width="2" height="2" fill="currentColor" />
+    <rect x="5" y="2" width="3" height="1" fill="currentColor" className="opacity-50" />
+    <rect x="2" y="5" width="1" height="3" fill="currentColor" className="opacity-50" />
+    
+    {/* Diagonal Rhombus */}
+    <path d="M5 4L6 5L5 6L4 5Z" fill="currentColor" className="opacity-40" />
+    
+    {/* Horizontal Rhombus */}
+    <path d="M13.5 0L14.5 1L13.5 2L12.5 1Z" fill="currentColor" className="opacity-60" />
+    
+    {/* Vertical Rhombus */}
+    <path d="M0 13.5L1 12.5L2 13.5L1 14.5Z" fill="currentColor" className="opacity-60" />
+  </svg>
+)
+
 interface GamePanelProps extends React.HTMLAttributes<HTMLDivElement> {
   variant?: 'default' | 'highlight' | 'stat'
   size?: 'sm' | 'md' | 'lg'
@@ -24,18 +51,18 @@ export function GamePanel({
     <div
       className={cn(
         "relative group/panel",
-        // Base styling
+        
         "bg-card",
-        // Border styling
+        
         "border border-border",
-        // Size variants
+        
         size === 'sm' && "p-3",
         size === 'md' && "p-4 md:p-5",
         size === 'lg' && "p-5 md:p-6",
-        // Variant styling - highlight has a subtle accent background
+        
         variant === 'highlight' && "border-primary/50 shadow-sm",
         variant === 'stat' && "border-border/70",
-        // Hover glow effect
+        
         glowOnHover && "transition-shadow duration-300 hover:shadow-[0_0_20px_-5px_hsl(var(--primary)/0.3)]",
         className
       )}
@@ -45,28 +72,16 @@ export function GamePanel({
       {showCorners && (
         <>
           {/* Top Left Corner */}
-          <span className="absolute -top-px -left-px w-3 h-3 pointer-events-none">
-            <span className="absolute top-0 left-0 w-full h-0.5 bg-primary" />
-            <span className="absolute top-0 left-0 h-full w-0.5 bg-primary" />
-          </span>
+          <CornerSvg className="absolute -top-px -left-px text-primary pointer-events-none" />
           
           {/* Top Right Corner */}
-          <span className="absolute -top-px -right-px w-3 h-3 pointer-events-none">
-            <span className="absolute top-0 right-0 w-full h-0.5 bg-primary" />
-            <span className="absolute top-0 right-0 h-full w-0.5 bg-primary" />
-          </span>
+          <CornerSvg className="absolute -top-px -right-px text-primary pointer-events-none rotate-90" />
           
           {/* Bottom Left Corner */}
-          <span className="absolute -bottom-px -left-px w-3 h-3 pointer-events-none">
-            <span className="absolute bottom-0 left-0 w-full h-0.5 bg-primary" />
-            <span className="absolute bottom-0 left-0 h-full w-0.5 bg-primary" />
-          </span>
+          <CornerSvg className="absolute -bottom-px -left-px text-primary pointer-events-none -rotate-90" />
           
           {/* Bottom Right Corner */}
-          <span className="absolute -bottom-px -right-px w-3 h-3 pointer-events-none">
-            <span className="absolute bottom-0 right-0 w-full h-0.5 bg-primary" />
-            <span className="absolute bottom-0 right-0 h-full w-0.5 bg-primary" />
-          </span>
+          <CornerSvg className="absolute -bottom-px -right-px text-primary pointer-events-none rotate-180" />
         </>
       )}
       
@@ -138,8 +153,8 @@ export function GameStat({
         <div className="flex items-center gap-1.5 mb-2">
           {icon && (
             <span className={cn(
-              "text-muted-foreground/70 transition-colors",
-              `group-hover/stat:${styles.text}`
+              "transition-colors",
+              styles.text
             )}>
               {icon}
             </span>
@@ -312,11 +327,11 @@ export function GameButton({
       className={cn(
         "relative group/btn inline-flex items-center justify-center gap-2 font-ui uppercase tracking-[0.1em] transition-all duration-200",
         "disabled:opacity-40 disabled:cursor-not-allowed",
-        // Size variants
+        
         size === 'sm' && "h-8 px-4 text-[10px]",
         size === 'md' && "h-10 px-6 text-xs",
         size === 'lg' && "h-12 px-8 text-sm",
-        // Variant styling
+        
         variant === 'primary' && [
           "bg-primary text-foreground",
           "hover:bg-primary/90",
@@ -404,7 +419,7 @@ export function GameMetricRow({
       <span className="absolute left-0 top-1/4 bottom-1/4 w-[2px] bg-primary/40 group-hover/metric:bg-primary/70 transition-colors" />
       
       <div className="flex items-center gap-2.5 pl-2">
-        <span className="text-muted-foreground/60 group-hover/metric:text-primary/70 transition-colors">
+        <span className="text-primary/70 transition-colors">
           {icon}
         </span>
         <span className="text-sm text-muted-foreground font-light font-ui">

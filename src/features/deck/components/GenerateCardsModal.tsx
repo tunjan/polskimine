@@ -13,7 +13,7 @@ import { toast } from 'sonner';
 import { parseFurigana, cn } from '@/lib/utils';
 import { Textarea } from '@/components/ui/textarea';
 
-// Inline mini loader for buttons
+
 const ButtonLoader = () => (
   <span className="relative w-4 h-4 inline-block">
     <span className="absolute inset-0 border border-primary-foreground/40 rotate-45 animate-pulse" />
@@ -90,9 +90,10 @@ export const GenerateCardsModal: React.FC<GenerateCardsModalProps> = ({ isOpen, 
     };
 
     const handleSave = () => {
+        const now = Date.now();
         const cardsToSave: Card[] = generatedData
             .filter((_, i) => selectedIndices.has(i))
-            .map(item => {
+            .map((item, index) => {
                 let targetSentence = item.targetSentence;
 
                 if (settings.language === 'japanese' && item.furigana) {
@@ -112,7 +113,8 @@ export const GenerateCardsModal: React.FC<GenerateCardsModalProps> = ({ isOpen, 
                     status: 'new',
                     interval: 0,
                     easeFactor: 2.5,
-                    dueDate: new Date().toISOString(),
+                    
+                    dueDate: new Date(now + index * 1000).toISOString(),
                     reps: 0,
                     lapses: 0,
                     tags: ['AI-Gen', 'Custom']

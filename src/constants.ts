@@ -21,7 +21,7 @@ export const MOCK_CARDS: Card[] = [
     status: 'learning',
     interval: 1,
     easeFactor: 2.5,
-    dueDate: new Date(Date.now() - 86400000).toISOString(), // Due yesterday
+    dueDate: new Date(Date.now() - 86400000).toISOString(), 
   },
   {
     id: '3',
@@ -43,7 +43,7 @@ export const MOCK_CARDS: Card[] = [
     status: 'graduated',
     interval: 10,
     easeFactor: 2.7,
-    dueDate: new Date(Date.now() + 86400000 * 5).toISOString(), // Due in 5 days
+    dueDate: new Date(Date.now() + 86400000 * 5).toISOString(), 
   },
   {
     id: '5',
