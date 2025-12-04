@@ -27,8 +27,10 @@ export const useStudySession = ({
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isFlipped, setIsFlipped] = useState(false);
   const [sessionComplete, setSessionComplete] = useState(dueCards.length === 0);
-  const [actionHistory, setActionHistory] = useState<{ addedCard: boolean }[]>([]);
+  const [actionHistory, setActionHistory] = useState<{ addedCardId: string | null }[]>([]);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [isWaiting, setIsWaiting] = useState(false);
+  const [tick, setTick] = useState(0);
   const isInitialized = useRef(false);
 
 
@@ -66,6 +68,53 @@ export const useStudySession = ({
     }
   }, [dueCards, initialReserve, settings.cardOrder]);
 
+  // NOTE: We intentionally do NOT sync sessionCards with dueCards during the session.
+  // Doing so would cause the index to shift when cards are removed from dueCards,
+  // leading to cards being skipped. The session queue is effectively "detached"
+  // from the dueCards query once initialized.
+  // Card deletions should be handled explicitly via onDeleteCard callback.
+
+  useEffect(() => {
+    const current = sessionCards[currentIndex];
+    if (!current) {
+      setIsWaiting(false);
+      return;
+    }
+
+    const now = new Date();
+    if (isCardDue(current, now)) {
+      setIsWaiting(false);
+      return;
+    }
+
+    const nextDueIndex = sessionCards.findIndex((c, i) => i > currentIndex && isCardDue(c, now));
+
+    if (nextDueIndex !== -1) {
+      setSessionCards((prev) => {
+        const newCards = [...prev];
+        const [card] = newCards.splice(nextDueIndex, 1);
+        newCards.splice(currentIndex, 0, card);
+        return newCards;
+      });
+      setIsWaiting(false);
+    } else {
+      // If user has enabled "skip learning wait", allow review immediately
+      if (settings.ignoreLearningStepsWhenNoCards) {
+        setIsWaiting(false);
+        return;
+      }
+      
+      setIsWaiting(true);
+      const dueTime = new Date(current.dueDate).getTime();
+      const delay = Math.max(100, dueTime - now.getTime());
+      
+      const timer = setTimeout(() => {
+        setTick((t) => t + 1);
+      }, delay);
+      return () => clearTimeout(timer);
+    }
+  }, [sessionCards, currentIndex, tick, settings.ignoreLearningStepsWhenNoCards]);
+
   const currentCard = sessionCards[currentIndex];
 
   const isCurrentCardDue = useMemo(() => {
@@ -86,18 +135,34 @@ export const useStudySession = ({
         await Promise.resolve(onUpdateCard(updatedCard));
         await Promise.resolve(onRecordReview(currentCard, grade));
 
-        let appended = false;
+        let addedCardId: string | null = null;
+        let newSessionLength = sessionCards.length;
+        const isLastCard = currentIndex === sessionCards.length - 1;
+        
         if (updatedCard.status === 'learning') {
-          setSessionCards((prev) => {
-            const last = prev[prev.length - 1];
-            if (last && last.id === updatedCard.id) return prev;
-            return [...prev, updatedCard];
-          });
-          appended = true;
+          if (isLastCard) {
+            // On last card and still learning: update the card in place and stay here
+            setSessionCards((prev) => {
+              const newCards = [...prev];
+              newCards[currentIndex] = updatedCard;
+              return newCards;
+            });
+            // Stay on current card, just flip back
+            setIsFlipped(false);
+            setActionHistory((prev) => [...prev, { addedCardId: null }]);
+            // Note: finally block will clean up isProcessing
+            return; // Early return - don't increment index or complete
+          } else {
+            // Not on last card: add to end normally
+            setSessionCards((prev) => [...prev, updatedCard]);
+            addedCardId = updatedCard.id;
+            newSessionLength = sessionCards.length + 1;
+          }
         }
-        setActionHistory((prev) => [...prev, { addedCard: appended }]);
+        setActionHistory((prev) => [...prev, { addedCardId }]);
 
-        if (currentIndex < sessionCards.length - 1 || appended) {
+        // Check against the updated length (accounting for potentially added card)
+        if (currentIndex < newSessionLength - 1) {
           setIsFlipped(false);
           setCurrentIndex((prev) => prev + 1);
         } else {
@@ -131,18 +196,23 @@ export const useStudySession = ({
       await Promise.resolve(onUpdateCard(updatedCard));
 
 
-      let replacementAdded = false;
+      let addedCardId: string | null = null;
+      let newSessionLength = sessionCards.length;
+      
       if (wasNew && reserveCards.length > 0) {
         const nextNew = reserveCards[0];
         setSessionCards(prev => [...prev, nextNew]);
         setReserveCards(prev => prev.slice(1));
-        replacementAdded = true;
+        addedCardId = nextNew.id;
+        // Account for the card we just added
+        newSessionLength = sessionCards.length + 1;
       }
 
 
-      setActionHistory((prev) => [...prev, { addedCard: replacementAdded }]);
+      setActionHistory((prev) => [...prev, { addedCardId }]);
 
-      if (currentIndex < sessionCards.length - 1 || replacementAdded) {
+      // Check against the updated length (accounting for potentially added card)
+      if (currentIndex < newSessionLength - 1) {
         setIsFlipped(false);
         setCurrentIndex((prev) => prev + 1);
       } else {
@@ -167,8 +237,14 @@ export const useStudySession = ({
 
 
 
-        if (lastAction?.addedCard) {
-          setSessionCards((prevCards) => prevCards.slice(0, -1));
+        if (lastAction?.addedCardId) {
+          setSessionCards((prevCards) => {
+             const last = prevCards[prevCards.length - 1];
+             if (last && last.id === lastAction.addedCardId) {
+                 return prevCards.slice(0, -1);
+             }
+             return prevCards;
+          });
         }
 
         return newHistory;
@@ -184,6 +260,34 @@ export const useStudySession = ({
     ? (currentIndex / sessionCards.length) * 100
     : 0;
 
+  // Remove a card from the session queue (e.g., when deleted)
+  const removeCardFromSession = useCallback((cardId: string) => {
+    setSessionCards((prev) => {
+      const index = prev.findIndex((c) => c.id === cardId);
+      if (index === -1) return prev;
+
+      const newCards = prev.filter((c) => c.id !== cardId);
+
+      // Adjust currentIndex if needed
+      if (index < currentIndex) {
+        setCurrentIndex((i) => Math.max(0, i - 1));
+      } else if (index === currentIndex && newCards.length > 0) {
+        // If we removed the current card, stay at the same index
+        // (which will now point to the next card)
+        if (currentIndex >= newCards.length) {
+          setCurrentIndex(newCards.length - 1);
+        }
+      }
+
+      // Check if session should complete
+      if (newCards.length === 0) {
+        setSessionComplete(true);
+      }
+
+      return newCards;
+    });
+  }, [currentIndex]);
+
   return {
     sessionCards,
     currentCard,
@@ -197,5 +301,7 @@ export const useStudySession = ({
     handleUndo,
     progress,
     isProcessing,
+    isWaiting,
+    removeCardFromSession,
   };
 };

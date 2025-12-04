@@ -25,19 +25,23 @@ import {
 } from '@/features/deck/hooks/useDeckQueries';
 import { CardXpPayload } from '@/features/xp/xpUtils';
 
-interface DeckContextValue {
+interface DeckState {
   history: ReviewHistory;
   stats: DeckStats;
   reviewsToday: { newCards: number; reviewCards: number };
   isLoading: boolean;
   dataVersion: number;
+  canUndo: boolean;
+}
+
+interface DeckDispatch {
   recordReview: (card: Card, grade: Grade, xpPayload?: CardXpPayload) => Promise<void>;
   undoReview: () => Promise<void>;
-  canUndo: boolean;
   refreshDeckData: () => void;
 }
 
-const DeckContext = createContext<DeckContextValue | undefined>(undefined);
+const DeckStateContext = createContext<DeckState | undefined>(undefined);
+const DeckDispatchContext = createContext<DeckDispatch | undefined>(undefined);
 
 export const DeckProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const queryClient = useQueryClient();
@@ -57,75 +61,79 @@ export const DeckProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const isLoading = statsLoading || dueCardsLoading || reviewsLoading || historyLoading;
 
-  
-  
-  
-  
-  
-
   const streakStats = useMemo(() => {
-    const sortedDates = Object.keys(history || {}).sort();
-    let currentStreak = 0;
-    let longestStreak = 0;
-    let tempStreak = 0;
+    if (!history || Object.keys(history).length === 0) {
+      return { currentStreak: 0, longestStreak: 0, totalReviews: 0 };
+    }
 
-    const totalReviews = Object.values(history || {}).reduce(
+    // Sort dates once for efficient processing
+    const sortedDates = Object.keys(history).sort();
+    
+    const totalReviews = Object.values(history).reduce(
       (acc, val) => acc + (typeof val === 'number' ? val : 0),
       0
     );
 
+    // Calculate longest streak using sorted dates (O(n) instead of O(n²))
+    let longestStreak = 1;
+    let tempStreak = 1;
+
+    for (let i = 1; i < sortedDates.length; i++) {
+      const prev = new Date(sortedDates[i - 1]);
+      const curr = new Date(sortedDates[i]);
+      const diffDays = Math.round((curr.getTime() - prev.getTime()) / (1000 * 60 * 60 * 24));
+
+      if (diffDays === 1) {
+        tempStreak++;
+        longestStreak = Math.max(longestStreak, tempStreak);
+      } else {
+        tempStreak = 1;
+      }
+    }
+
+    // Calculate current streak from today/yesterday backwards
+    // Use binary search approach - find today's position and count backwards
     const srsToday = getSRSDate(new Date());
     const todayStr = getUTCDateString(srsToday);
     const srsYesterday = new Date(srsToday);
     srsYesterday.setDate(srsYesterday.getDate() - 1);
     const yesterdayStr = getUTCDateString(srsYesterday);
 
-    if (history?.[todayStr]) {
+    let currentStreak = 0;
+
+    // Find starting point for current streak count
+    const hasToday = history[todayStr];
+    const hasYesterday = history[yesterdayStr];
+
+    if (hasToday || hasYesterday) {
+      // Start counting from either today or yesterday
+      const startDate = new Date(hasToday ? srsToday : srsYesterday);
       currentStreak = 1;
-      const checkDate = new Date(srsYesterday);
-      while (true) {
+
+      // Count consecutive days backwards using sorted dates for O(n) lookup
+      // Create a Set for O(1) date lookups instead of while loop
+      const dateSet = new Set(sortedDates);
+      const checkDate = new Date(startDate);
+      checkDate.setDate(checkDate.getDate() - 1);
+
+      // Maximum reasonable streak check (bounded iteration)
+      const maxDays = Math.min(sortedDates.length, 365 * 10); // 10 years max
+      for (let i = 0; i < maxDays; i++) {
         const dateStr = getUTCDateString(checkDate);
-        if (history[dateStr]) {
+        if (dateSet.has(dateStr)) {
           currentStreak++;
           checkDate.setDate(checkDate.getDate() - 1);
         } else {
           break;
         }
-      }
-    } else if (history?.[yesterdayStr]) {
-      currentStreak = 0; 
-      const checkDate = new Date(srsYesterday);
-      while (true) {
-        const dateStr = getUTCDateString(checkDate);
-        if (history[dateStr]) {
-          currentStreak++;
-          checkDate.setDate(checkDate.getDate() - 1);
-        } else {
-          break;
-        }
-      }
-    }
-
-    if (sortedDates.length > 0) {
-      tempStreak = 1;
-      longestStreak = 1;
-      for (let i = 1; i < sortedDates.length; i++) {
-        const prev = new Date(sortedDates[i - 1]);
-        const curr = new Date(sortedDates[i]);
-        const diffTime = Math.abs(curr.getTime() - prev.getTime());
-        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-
-        if (diffDays === 1) {
-          tempStreak++;
-        } else {
-          tempStreak = 1;
-        }
-        if (tempStreak > longestStreak) longestStreak = tempStreak;
       }
     }
 
     return { currentStreak, longestStreak, totalReviews };
   }, [history]);
+
+  const currentNewLimit = settings.dailyNewLimits?.[settings.language] ?? 20;
+  const currentReviewLimit = settings.dailyReviewLimits?.[settings.language] ?? 100;
 
   const stats = useMemo<DeckStats>(() => {
     if (!dbStats || !dueCards || !reviewsToday) {
@@ -140,9 +148,6 @@ export const DeckProvider: React.FC<{ children: React.ReactNode }> = ({ children
         longestStreak: 0,
       };
     }
-
-    const currentNewLimit = settings.dailyNewLimits?.[settings.language] ?? 20;
-    const currentReviewLimit = settings.dailyReviewLimits?.[settings.language] ?? 100;
 
     const limitedCards = applyStudyLimits(dueCards, {
       dailyNewLimit: currentNewLimit,
@@ -163,7 +168,7 @@ export const DeckProvider: React.FC<{ children: React.ReactNode }> = ({ children
       totalReviews: streakStats.totalReviews,
       longestStreak: streakStats.longestStreak,
     };
-  }, [dbStats, dueCards, reviewsToday, settings.dailyNewLimits, settings.dailyReviewLimits, settings.language, streakStats]);
+  }, [dbStats, dueCards, reviewsToday, currentNewLimit, currentReviewLimit, streakStats]);
 
   const recordReview = useCallback(async (oldCard: Card, grade: Grade, xpPayload?: CardXpPayload) => {
     const today = getUTCDateString(getSRSDate(new Date()));
@@ -200,28 +205,52 @@ export const DeckProvider: React.FC<{ children: React.ReactNode }> = ({ children
     queryClient.invalidateQueries({ queryKey: ['cards'] });
   }, [queryClient]);
 
-  const value = useMemo(
+  const stateValue = useMemo<DeckState>(
     () => ({
       history: history || {},
       stats,
       reviewsToday: reviewsToday || { newCards: 0, reviewCards: 0 },
       isLoading,
       dataVersion: 0,
-      recordReview,
-      undoReview,
       canUndo: !!lastReview,
-      refreshDeckData,
     }),
-    [history, stats, reviewsToday, isLoading, recordReview, undoReview, lastReview, refreshDeckData]
+    [history, stats, reviewsToday, isLoading, lastReview]
   );
 
-  return <DeckContext.Provider value={value}>{children}</DeckContext.Provider>;
+  const dispatchValue = useMemo<DeckDispatch>(
+    () => ({
+      recordReview,
+      undoReview,
+      refreshDeckData,
+    }),
+    [recordReview, undoReview, refreshDeckData]
+  );
+
+  return (
+    <DeckStateContext.Provider value={stateValue}>
+      <DeckDispatchContext.Provider value={dispatchValue}>
+        {children}
+      </DeckDispatchContext.Provider>
+    </DeckStateContext.Provider>
+  );
+};
+
+export const useDeckState = () => {
+  const context = useContext(DeckStateContext);
+  if (context === undefined) {
+    throw new Error('useDeckState must be used within a DeckProvider');
+  }
+  return context;
+};
+
+export const useDeckDispatch = () => {
+  const context = useContext(DeckDispatchContext);
+  if (context === undefined) {
+    throw new Error('useDeckDispatch must be used within a DeckProvider');
+  }
+  return context;
 };
 
 export const useDeck = () => {
-  const context = useContext(DeckContext);
-  if (!context) {
-    throw new Error('useDeck must be used within a DeckProvider');
-  }
-  return context;
+  return { ...useDeckState(), ...useDeckDispatch() };
 };

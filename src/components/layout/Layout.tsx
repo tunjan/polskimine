@@ -99,7 +99,7 @@ const AppSidebar: React.FC<NavActionProps> = ({
       <SidebarHeader className="pt-4 pb-3">
         <div className="flex items-center justify-between group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-0">
           <div className="flex items-center gap-2 overflow-hidden transition-all group-data-[collapsible=icon]:w-0 group-data-[collapsible=icon]:opacity-0">
-            <span className="text-sm font-medium tracking-tight whitespace-nowrap text-foreground" style={{ fontFamily: 'var(--font-sans)' }}>LinguaFlow</span>
+            <span className="text-sm pl-2 font-medium tracking-tight whitespace-nowrap text-foreground" style={{ fontFamily: 'var(--font-sans)' }}>LinguaFlow</span>
           </div>
           <SidebarTrigger className="ml-auto group-data-[collapsible=icon]:ml-0 hover:bg-transparent hover:text-foreground/60 h-7 w-7" />
         </div>
@@ -261,61 +261,122 @@ const MobileBottomNav: React.FC = () => {
 
   const navItems = [
     { to: '/', icon: LayoutDashboard, label: 'Home' },
-    { to: '/cards', icon: ListIcon, label: 'Index' },
+    { to: '/cards', icon: ListIcon, label: 'Cards' },
   ];
 
   return (
-    <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 border-t border-border bg-background pb-[env(safe-area-inset-bottom)]">
-      <div className="flex items-center justify-between h-14 px-6 max-w-md mx-auto relative">
-
-        {/* Left Items */}
-        {navItems.map((item) => {
-          const isActive = location.pathname === item.to;
-          return (
-            <Link
-              key={item.to}
-              to={item.to}
-              className="flex flex-col items-center justify-center w-12 gap-1 group"
-            >
-              <item.icon
-                size={18}
-                strokeWidth={isActive ? 1.8 : 1.3}
-                className={clsx(
-                  "transition-colors",
-                  isActive ? "text-foreground" : "text-muted-foreground group-hover:text-foreground"
-                )}
-              />
-            </Link>
-          );
-        })}
-
-        {/* Center FAB (Study) */}
-        <div className="absolute left-1/2 -translate-x-1/2 -top-5">
-          <Link
-            to="/study"
-            className="flex items-center justify-center w-12 h-12 rounded-full bg-foreground text-background hover:bg-foreground/90 active:scale-95 transition-all border-4 border-background"
-          >
-            <GraduationCap size={20} strokeWidth={1.8} />
-          </Link>
+    <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 pb-[env(safe-area-inset-bottom)]">
+      {/* Genshin-style background with top border accent */}
+      <div className="relative bg-background/95 backdrop-blur-sm border-t border-border/50">
+        {/* Top accent line with diamond center */}
+        <div className="absolute -top-px left-0 right-0 flex items-center justify-center">
+          <div className="h-px flex-1 bg-linear-to-r from-transparent via-primary/30 to-primary/50" />
+          <div className="w-2 h-2 rotate-45 border border-primary/40 bg-background -translate-y-1/2" />
+          <div className="h-px flex-1 bg-linear-to-l from-transparent via-primary/30 to-primary/50" />
         </div>
 
-        {/* Right Items */}
-        <Link
-          to="/leaderboard"
-          className="flex flex-col items-center justify-center w-12 gap-1 group"
-        >
-          <Trophy
-            size={18}
-            strokeWidth={location.pathname === '/leaderboard' ? 1.8 : 1.3}
-            className={clsx(
-              "transition-colors",
-              location.pathname === '/leaderboard' ? "text-foreground" : "text-muted-foreground group-hover:text-foreground"
-            )}
-          />
-        </Link>
+        <div className="flex items-center justify-between h-16 px-4 max-w-md mx-auto relative">
+          {/* Left Nav Items */}
+          <div className="flex items-center gap-1">
+            {navItems.map((item) => {
+              const isActive = location.pathname === item.to;
+              return (
+                <Link
+                  key={item.to}
+                  to={item.to}
+                  className="relative flex flex-col items-center justify-center w-14 h-14 group"
+                >
+                  {/* Active indicator - diamond shape */}
+                  {isActive && (
+                    <div className="absolute top-1 w-1 h-1 rotate-45 bg-primary" />
+                  )}
+                  
+                  {/* Icon container with subtle frame on active */}
+                  <div className={clsx(
+                    "relative flex items-center justify-center w-8 h-8 transition-all",
+                    isActive && "before:absolute before:inset-0 before:border before:border-primary/20 before:rotate-45"
+                  )}>
+                    <item.icon
+                      size={18}
+                      strokeWidth={isActive ? 1.5 : 1.2}
+                      className={clsx(
+                        "transition-all relative z-10",
+                        isActive ? "text-foreground" : "text-muted-foreground group-hover:text-foreground"
+                      )}
+                    />
+                  </div>
+                  
+                  {/* Label */}
+                  <span className={clsx(
+                    "text-[9px] uppercase tracking-widest mt-0.5 transition-colors",
+                    isActive ? "text-foreground" : "text-muted-foreground/70 group-hover:text-muted-foreground"
+                  )}>
+                    {item.label}
+                  </span>
+                </Link>
+              );
+            })}
+          </div>
 
-        {/* Menu Trigger using SidebarTrigger */}
-        <SidebarTrigger className="flex flex-col items-center justify-center w-12 gap-1 hover:bg-transparent" />
+          {/* Center FAB (Study) - Subtle Genshin-inspired style */}
+          <div className="absolute left-1/2 -translate-x-1/2 -top-3">
+            <Link
+              to="/study"
+              className="group relative flex items-center justify-center"
+            >
+              {/* Main button - smaller diamond */}
+              <div className="relative w-10 h-10 bg-background border border-primary/40 rotate-45 flex items-center justify-center transition-all group-hover:border-primary group-hover:bg-primary/5 group-active:scale-95">
+                <GraduationCap 
+                  size={18} 
+                  strokeWidth={1.5} 
+                  className="-rotate-45 text-primary/80 transition-all group-hover:text-primary group-hover:scale-105" 
+                />
+              </div>
+            </Link>
+          </div>
+
+          {/* Right Nav Items */}
+          <div className="flex items-center gap-1">
+            <Link
+              to="/leaderboard"
+              className="relative flex flex-col items-center justify-center w-14 h-14 group"
+            >
+              {/* Active indicator - diamond shape */}
+              {location.pathname === '/leaderboard' && (
+                <div className="absolute top-1 w-1 h-1 rotate-45 bg-primary" />
+              )}
+              
+              <div className={clsx(
+                "relative flex items-center justify-center w-8 h-8 transition-all",
+                location.pathname === '/leaderboard' && "before:absolute before:inset-0 before:border before:border-primary/20 before:rotate-45"
+              )}>
+                <Trophy
+                  size={18}
+                  strokeWidth={location.pathname === '/leaderboard' ? 1.5 : 1.2}
+                  className={clsx(
+                    "transition-all relative z-10",
+                    location.pathname === '/leaderboard' ? "text-foreground" : "text-muted-foreground group-hover:text-foreground"
+                  )}
+                />
+              </div>
+              
+              <span className={clsx(
+                "text-[9px] uppercase tracking-widest mt-0.5 transition-colors",
+                location.pathname === '/leaderboard' ? "text-foreground" : "text-muted-foreground/70 group-hover:text-muted-foreground"
+              )}>
+                Rank
+              </span>
+            </Link>
+
+            {/* Menu Trigger */}
+            <div className="relative flex flex-col items-center justify-center w-14 h-14">
+              <SidebarTrigger className="flex items-center justify-center w-8 h-8 hover:bg-transparent [&>svg]:w-[18px] [&>svg]:h-[18px] [&>svg]:stroke-[1.2]" />
+              <span className="text-[9px] uppercase tracking-widest mt-0.5 text-muted-foreground/70">
+                Menu
+              </span>
+            </div>
+          </div>
+        </div>
       </div>
     </nav>
   );
@@ -370,7 +431,7 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
         <div className="flex-1 flex flex-col">
           {/* Main Content Area */}
           <main className="flex-1 pb-16 md:pb-0">
-            <div className="w-full h-full mx-auto max-w-6xl px-4 py-4 md:p-8">
+            <div className="w-full h-full mx-auto max-w-6xl py-2 md:p-8">
               {children}
               <SabotageNotification />
             </div>

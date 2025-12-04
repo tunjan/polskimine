@@ -13,13 +13,17 @@ interface GeneralSettingsProps {
   setLocalSettings: React.Dispatch<React.SetStateAction<UserSettings>>;
   username: string;
   setUsername: (username: string) => void;
+  languageLevel: string;
+  onUpdateLevel: (level: string) => void;
 }
 
 export const GeneralSettings: React.FC<GeneralSettingsProps> = ({ 
   localSettings, 
   setLocalSettings,
   username,
-  setUsername
+  setUsername,
+  languageLevel,
+  onUpdateLevel
 }) => {
   return (
     <div className="space-y-8 max-w-2xl">
@@ -82,6 +86,23 @@ export const GeneralSettings: React.FC<GeneralSettingsProps> = ({
               className="border-0 border-b border-border/30 rounded-none px-0 focus:ring-0 py-3 h-auto font-ui text-base bg-transparent focus-visible:border-primary/60 font-light"
             />
           </div>
+        </GamePanel>
+
+        <GamePanel variant="default" size="md" glowOnHover>
+            <div className="flex items-center gap-2 mb-3">
+                <label className="text-[10px] uppercase font-ui text-muted-foreground">Proficiency Level</label>
+            </div>
+            <EditorialSelect
+                value={languageLevel || 'A1'}
+                onChange={onUpdateLevel}
+                options={[
+                    { value: 'A1', label: 'A1 - Beginner' },
+                    { value: 'A2', label: 'A2 - Elementary' },
+                    { value: 'B1', label: 'B1 - Intermediate' },
+                    { value: 'C1', label: 'C1 - Advanced' },
+                ]}
+            />
+            <p className="text-xs text-muted-foreground mt-2">Controls AI complexity.</p>
         </GamePanel>
 
         <GamePanel variant="default" size="md" glowOnHover>

@@ -21,7 +21,37 @@ import { supabase } from '@/lib/supabase';
 
 const queryClient = new QueryClient();
 
-const Router = Capacitor.isNativePlatform() ? HashRouter : BrowserRouter;
+// Toast configuration - defined outside component to prevent re-renders
+const TOAST_OPTIONS = {
+  className: 'bg-card/95 backdrop-blur-sm text-foreground border border-border/40  rounded-3xl font-serif px-6 py-4 gap-3',
+  style: {
+    fontFamily: 'var(--font-serif)',
+    fontSize: '1rem',
+    fontWeight: 400,
+    letterSpacing: '-0.01em',
+  },
+  descriptionClassName: 'text-muted-foreground/80 font-sans font-light text-sm tracking-wide',
+  actionButtonStyle: {
+    backgroundColor: 'var(--primary)',
+    color: 'var(--primary-foreground)',
+    fontFamily: 'var(--font-sans)',
+    borderRadius: '9999px',
+    fontSize: '0.75rem',
+    textTransform: 'uppercase' as const,
+    letterSpacing: '0.1em',
+    padding: '0.5rem 1rem',
+  },
+  cancelButtonStyle: {
+    backgroundColor: 'var(--muted)',
+    color: 'var(--muted-foreground)',
+    fontFamily: 'var(--font-sans)',
+    borderRadius: '9999px',
+    fontSize: '0.75rem',
+    textTransform: 'uppercase' as const,
+    letterSpacing: '0.1em',
+    padding: '0.5rem 1rem',
+  }
+};
 
 const LinguaFlowApp: React.FC = () => {
   const { user, profile, loading } = useAuth();
@@ -62,6 +92,8 @@ const LinguaFlowApp: React.FC = () => {
     return <OnboardingFlow />;
   }
   
+  // Select router based on platform - done inside component for better testability
+  const Router = Capacitor.isNativePlatform() ? HashRouter : BrowserRouter;
 
   return (
     <Router>
@@ -114,39 +146,7 @@ const App: React.FC = () => {
               <DeckProvider>
                 <SabotageProvider>
                   <LinguaFlowApp />
-                  <Toaster 
-                    position="bottom-right" 
-                    toastOptions={{
-                      className: 'bg-card/95 backdrop-blur-sm text-foreground border border-border/40  rounded-3xl font-serif px-6 py-4 gap-3',
-                      style: {
-                        fontFamily: 'var(--font-serif)',
-                        fontSize: '1rem',
-                        fontWeight: 400,
-                        letterSpacing: '-0.01em',
-                      },
-                      descriptionClassName: 'text-muted-foreground/80 font-sans font-light text-sm tracking-wide',
-                      actionButtonStyle: {
-                        backgroundColor: 'var(--primary)',
-                        color: 'var(--primary-foreground)',
-                        fontFamily: 'var(--font-sans)',
-                        borderRadius: '9999px',
-                        fontSize: '0.75rem',
-                        textTransform: 'uppercase',
-                        letterSpacing: '0.1em',
-                        padding: '0.5rem 1rem',
-                      },
-                      cancelButtonStyle: {
-                        backgroundColor: 'var(--muted)',
-                        color: 'var(--muted-foreground)',
-                        fontFamily: 'var(--font-sans)',
-                        borderRadius: '9999px',
-                        fontSize: '0.75rem',
-                        textTransform: 'uppercase',
-                        letterSpacing: '0.1em',
-                        padding: '0.5rem 1rem',
-                      }
-                    }} 
-                  />
+                  <Toaster position="bottom-right" toastOptions={TOAST_OPTIONS} />
                 </SabotageProvider>
               </DeckProvider>
             </SettingsProvider>

@@ -16,6 +16,36 @@ const ensureUser = async () => {
 export const getDashboardStats = async (language?: string) => {
   const userId = await ensureUser();
   
+  if (language) {
+    const { data, error } = await supabase.rpc('get_dashboard_stats', { target_language: language });
+    if (!error && data) {
+      // Process forecast to match UI expectations
+      const daysToShow = 14;
+      const today = new Date();
+      const forecastMap = new Map(
+        (data.forecast || []).map((f: any) => [f.date, f.count])
+      );
+
+      const forecast = new Array(daysToShow).fill(0).map((_, i) => {
+        const date = addDays(today, i);
+        const dateStr = format(date, 'yyyy-MM-dd');
+        return {
+          day: format(date, 'd'),
+          fullDate: date.toISOString(),
+          count: forecastMap.get(dateStr) || 0
+        };
+      });
+
+      return {
+        counts: data.counts,
+        forecast,
+        languageXp: data.languageXp
+      };
+    }
+    // Fallback to client-side calculation if RPC fails
+    console.warn('RPC get_dashboard_stats failed or not found, falling back to client-side calculation', error);
+  }
+
   let query = supabase
     .from('cards')
     .select('status, due_date, interval')
@@ -182,46 +212,25 @@ export const getRevlogStats = async (language: string, days = 30) => {
   if (error) throw error;
 
   
-  const logs = (logsData ?? []).filter(log => cardIds.has(log.card_id));
-
-  
-  const activityMap = new Map<string, { date: string; count: number; pass: number; fail: number }>();
-  const gradeCounts = { Again: 0, Hard: 0, Good: 0, Easy: 0 };
-  
-  
-  for (let i = 0; i < days; i++) {
-    const d = subDays(new Date(), i);
-    const key = format(d, 'yyyy-MM-dd');
-    activityMap.set(key, { 
-      date: key, 
-      count: 0, 
-      pass: 0, 
-      fail: 0 
+  const { activityData, gradeCounts } = await new Promise<any>((resolve, reject) => {
+    const worker = new Worker(new URL('../workers/stats.worker.ts', import.meta.url), { type: 'module' });
+    worker.onmessage = (e) => {
+      resolve(e.data);
+      worker.terminate();
+    };
+    worker.onerror = (e) => {
+      reject(e);
+      worker.terminate();
+    };
+    worker.postMessage({
+      logs: logsData ?? [],
+      days,
+      cardIds: Array.from(cardIds)
     });
-  }
-
-  logs.forEach((log: any) => {
-    const dayKey = format(new Date(log.created_at), 'yyyy-MM-dd');
-    const entry = activityMap.get(dayKey);
-    
-    if (entry) {
-      entry.count++;
-      
-      if (log.grade === 1) entry.fail++;
-      else entry.pass++;
-    }
-
-    if (log.grade === 1) gradeCounts.Again++;
-    else if (log.grade === 2) gradeCounts.Hard++;
-    else if (log.grade === 3) gradeCounts.Good++;
-    else if (log.grade === 4) gradeCounts.Easy++;
   });
 
   
-  const activityData = Array.from(activityMap.values()).sort((a, b) => a.date.localeCompare(b.date));
-
-  
-  const retentionData = activityData.map(day => {
+  const retentionData = activityData.map((day: any) => {
     const dateObj = parse(day.date, 'yyyy-MM-dd', new Date());
     return {
       date: format(dateObj, 'MMM d'),
@@ -230,7 +239,7 @@ export const getRevlogStats = async (language: string, days = 30) => {
   });
 
   return {
-    activity: activityData.map(d => {
+    activity: activityData.map((d: any) => {
       const dateObj = parse(d.date, 'yyyy-MM-dd', new Date());
       return { ...d, label: format(dateObj, 'dd') };
     }),

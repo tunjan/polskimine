@@ -6,6 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Sparkles, Check, X as XIcon, ArrowRight, BookOpen } from 'lucide-react';
 import { aiService } from '@/features/deck/services/ai';
 import { useSettings } from '@/contexts/SettingsContext';
+import { useAuth } from '@/contexts/AuthContext';
 import { getLearnedWords } from '@/services/db/repositories/cardRepository';
 import { Card } from '@/types';
 import { v4 as uuidv4 } from 'uuid';
@@ -30,12 +31,14 @@ interface GenerateCardsModalProps {
 
 export const GenerateCardsModal: React.FC<GenerateCardsModalProps> = ({ isOpen, onClose, onAddCards }) => {
     const { settings } = useSettings();
+    const { profile } = useAuth();
     const [step, setStep] = useState<'config' | 'preview'>('config');
     const [loading, setLoading] = useState(false);
 
     const [instructions, setInstructions] = useState('');
     const [count, setCount] = useState([5]);
     const [useLearnedWords, setUseLearnedWords] = useState(false);
+    const [difficultyMode, setDifficultyMode] = useState<'beginner' | 'immersive'>('immersive');
 
     const [generatedData, setGeneratedData] = useState<any[]>([]);
     const [selectedIndices, setSelectedIndices] = useState<Set<number>>(new Set());
@@ -53,12 +56,12 @@ export const GenerateCardsModal: React.FC<GenerateCardsModalProps> = ({ isOpen, 
         setLoading(true);
         try {
             let learnedWords: string[] = [];
-            if (useLearnedWords) {
-                try {
-                    learnedWords = await getLearnedWords(settings.language);
-                } catch (e) {
-                    console.error("Failed to fetch learned words", e);
-                }
+            // Always fetch learned words for de-duplication, even if not explicitly used for "negative constraint" in prompt
+            // But the user prompt says: "1. Get Known Words"
+            try {
+                learnedWords = await getLearnedWords(settings.language);
+            } catch (e) {
+                console.error("Failed to fetch learned words", e);
             }
 
             const results = await aiService.generateBatchCards({
@@ -66,14 +69,41 @@ export const GenerateCardsModal: React.FC<GenerateCardsModalProps> = ({ isOpen, 
                 count: count[0],
                 language: settings.language,
                 apiKey: settings.geminiApiKey,
-                learnedWords
+                learnedWords: useLearnedWords ? learnedWords : undefined, // Only pass to AI if user wants to use them? 
+                // Wait, the user request says: "learnedWords, // Pass for "Negative Constraint" in prompt"
+                // And also "3. Client-Side De-duplication (The Safety Net)"
+                // So I should probably pass them if useLearnedWords is true OR if I want to use them for de-duplication.
+                // The prompt logic uses learnedWords to "Avoid teaching these words".
+                // Let's follow the user's snippet logic which passes learnedWords.
+                // But wait, the user snippet passes `learnedWords` directly.
+                // In my code `useLearnedWords` is a toggle.
+                // I will pass `learnedWords` to `generateBatchCards` regardless, but maybe I should respect the toggle?
+                // The user request snippet:
+                // const learnedWords = await getLearnedWords(settings.language);
+                // ... learnedWords, // Pass for "Negative Constraint" in prompt
+                
+                // So I will pass it.
+                proficiencyLevel: profile?.language_level || 'A1',
+                difficultyMode
             });
 
-            console.log('AI Generated Cards:', results);
-            console.log('First card sample:', results[0]);
+            // 3. Client-Side De-duplication (The Safety Net)
+            const existingWordSet = new Set(learnedWords.map(w => w.toLowerCase()));
+            
+            const uniqueResults = results.filter(card => {
+                if (!card.targetWord) return true;
+                return !existingWordSet.has(card.targetWord.toLowerCase());
+            });
 
-            setGeneratedData(results);
-            setSelectedIndices(new Set(results.map((_, i) => i)));
+            if (uniqueResults.length < results.length) {
+                toast.info(`Filtered out ${results.length - uniqueResults.length} duplicate words.`);
+            }
+
+            console.log('AI Generated Cards:', uniqueResults);
+            console.log('First card sample:', uniqueResults[0]);
+
+            setGeneratedData(uniqueResults);
+            setSelectedIndices(new Set(uniqueResults.map((_, i) => i)));
             setStep('preview');
         } catch (e) {
             toast.error("Failed to generate cards. Try again.");
@@ -208,6 +238,34 @@ export const GenerateCardsModal: React.FC<GenerateCardsModalProps> = ({ isOpen, 
                                             <Label htmlFor="learned-words" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-muted-foreground">
                                                 Use Learned Words (i+1)
                                             </Label>
+                                        </div>
+
+                                        <div className="mt-6">
+                                            <h3 className="text-[10px] font-ui font-medium uppercase tracking-[0.15em] text-muted-foreground mb-3">Progression Mode</h3>
+                                            <div className="flex gap-2">
+                                                <button 
+                                                    onClick={() => setDifficultyMode('beginner')} 
+                                                    className={cn(
+                                                        "flex-1 py-2 px-3 text-xs font-ui uppercase tracking-wider border transition-all",
+                                                        difficultyMode === 'beginner' 
+                                                            ? "bg-primary/10 border-primary text-primary" 
+                                                            : "bg-transparent border-border/50 text-muted-foreground hover:border-primary/50"
+                                                    )}
+                                                >
+                                                    Zero to Hero
+                                                </button>
+                                                <button 
+                                                    onClick={() => setDifficultyMode('immersive')} 
+                                                    className={cn(
+                                                        "flex-1 py-2 px-3 text-xs font-ui uppercase tracking-wider border transition-all",
+                                                        difficultyMode === 'immersive' 
+                                                            ? "bg-primary/10 border-primary text-primary" 
+                                                            : "bg-transparent border-border/50 text-muted-foreground hover:border-primary/50"
+                                                    )}
+                                                >
+                                                    Immersive
+                                                </button>
+                                            </div>
                                         </div>
                                     </div>
                                 )}

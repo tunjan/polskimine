@@ -139,6 +139,8 @@ export const useRecordReviewMutation = () => {
 
       queryClient.setQueryData(['dueCards', settings.language], (old: Card[] | undefined) => {
         if (!old) return [];
+        // If graded 'Again', keep it in dueCards (it will be due immediately/soon)
+        if (grade === 'Again') return old;
         return old.filter(c => c.id !== card.id);
       });
 

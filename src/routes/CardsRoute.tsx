@@ -21,7 +21,7 @@ export const CardsRoute: React.FC = () => {
   const [debouncedSearch, setDebouncedSearch] = useState('');
   const [page, setPage] = useState(0);
   const [isHeaderExpanded, setIsHeaderExpanded] = useState(true);
-  const [compactView, setCompactView] = useState(false);
+  const [compactView, setCompactView] = useState(true);
   const pageSize = 50;
   
   const { data, isLoading, isPlaceholderData } = useCardsQuery(page, pageSize, debouncedSearch);
@@ -102,14 +102,7 @@ export const CardsRoute: React.FC = () => {
         {/* --- Game-Styled Header (Collapsible) --- */}
         <header className="relative px-8 md:px-8 lg:px-8 shrink-0 border-b border-border/50 bg-background z-20 transition-all duration-500 ease-out">
             {/* Bottom corner accents */}
-            <span className="absolute -bottom-px left-8 w-3 h-3 pointer-events-none hidden md:block">
-              <span className="absolute bottom-0 left-0 w-full h-0.5 bg-primary/30" />
-              <span className="absolute bottom-0 left-0 h-full w-0.5 bg-primary/30" />
-            </span>
-            <span className="absolute -bottom-px right-8 w-3 h-3 pointer-events-none hidden md:block">
-              <span className="absolute bottom-0 right-0 w-full h-0.5 bg-primary/30" />
-              <span className="absolute bottom-0 right-0 h-full w-0.5 bg-primary/30" />
-            </span>
+
             
             {/* Collapsed Header - Compact View */}
             {!isHeaderExpanded && (
@@ -334,9 +327,7 @@ export const CardsRoute: React.FC = () => {
                     </div>
                   </div>
                   
-                  <p className="text-base md:text-lg text-muted-foreground font-light leading-relaxed max-w-2xl" style={{ fontFamily: 'var(--font-sans)' }}>
-                    Studying {settings.language}
-                  </p>
+
                 </div>
 
                 {/* Controls - Game Styled */}
@@ -379,7 +370,7 @@ export const CardsRoute: React.FC = () => {
                   </div>
 
                   {/* Action Buttons - Game Styled */}
-                  <div className="flex items-center gap-3 w-full md:w-auto justify-end">
+                  <div className="flex items-center md:gap-3 w-full md:w-auto justify-between md:justify-end">
                     <button 
                       onClick={() => setCompactView(!compactView)}
                       className={cn(
@@ -423,13 +414,13 @@ export const CardsRoute: React.FC = () => {
                       onClick={() => setIsAddModalOpen(true)} 
                       className={cn(
                         "relative group/btn inline-flex items-center justify-center w-10 h-10 transition-all duration-200",
-                        "border border-primary bg-primary text-foreground",
-                        "hover:bg-primary/90"
+                        "border border-primary bg-primary/10 text-foreground",
+                        "hover:bg-primary/30"
                       )}
                     >
                       <span className="absolute -top-px -left-px w-2 h-2 opacity-0 group-hover/btn:opacity-100 transition-opacity pointer-events-none">
-                        <span className="absolute top-0 left-0 w-full h-0.5 bg-primary-foreground/50" />
-                        <span className="absolute top-0 left-0 h-full w-0.5 bg-primary-foreground/50" />
+                        <span className="absolute top-0 left-0 w-full h-0.5 bg-foreground/50" />
+                        <span className="absolute top-0 left-0 h-full w-0.5 bg-foreground/50" />
                       </span>
                       <span className="absolute -bottom-px -right-px w-2 h-2 opacity-0 group-hover/btn:opacity-100 transition-opacity pointer-events-none">
                         <span className="absolute bottom-0 right-0 w-full h-0.5 bg-foreground/50" />
@@ -486,16 +477,9 @@ export const CardsRoute: React.FC = () => {
         </div>
 
         {/* --- Game-Styled Footer with Pagination --- */}
-        <div className="relative px-8 md:px-16 lg:px-24 py-5 flex flex-col md:flex-row items-center justify-between border-t border-border/40 shrink-0 bg-background z-10 gap-4">
+        <div className="relative px-8 md:px-16 lg:px-24 py-5 flex md:flex-col md:flex-row items-center justify-between border-t border-border/40 shrink-0 bg-background z-10 gap-4">
           {/* Decorative corner accents */}
-          <span className="absolute -top-px left-8 w-3 h-3 pointer-events-none hidden md:block">
-            <span className="absolute top-0 left-0 w-full h-0.5 bg-primary/30" />
-            <span className="absolute top-0 left-0 h-full w-0.5 bg-primary/30" />
-          </span>
-          <span className="absolute -top-px right-8 w-3 h-3 pointer-events-none hidden md:block">
-            <span className="absolute top-0 right-0 w-full h-0.5 bg-primary/30" />
-            <span className="absolute top-0 right-0 h-full w-0.5 bg-primary/30" />
-          </span>
+
           
           <div className="flex items-center gap-4" style={{ fontFamily: 'var(--font-sans)' }}>
             <div className="relative px-4 py-2 bg-card/60 border border-border/50">

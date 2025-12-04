@@ -13,16 +13,25 @@ serve(async (req: Request) => {
 
   try {
 
-    const { prompt, apiKey: userApiKey } = await req.json()
+    const { prompt, apiKey: userApiKey, responseSchema } = await req.json()
     
 
 
-    const apiKey = userApiKey || Deno.env.get('GEMINI_API_KEY')
+    const apiKey = userApiKey
 
     if (!apiKey) {
       throw new Error('No Gemini API Key provided. Please add one in Settings.')
     }
 
+    // Build generation config with JSON mode
+    const generationConfig: any = {
+      response_mime_type: "application/json"
+    }
+
+    // If a response schema is provided, use it for controlled generation
+    if (responseSchema) {
+      generationConfig.response_schema = responseSchema
+    }
 
     const response = await fetch(
       `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent?key=${apiKey}`,
@@ -33,9 +42,7 @@ serve(async (req: Request) => {
         },
         body: JSON.stringify({
           contents: [{ parts: [{ text: prompt }] }],
-          generationConfig: {
-            response_mime_type: "application/json"
-          }
+          generationConfig
         }),
       }
     )

@@ -43,7 +43,6 @@ export const ColorPicker: React.FC<ColorPickerProps> = ({ label, value, onChange
 
   return (
     <div className="flex items-center justify-between">
-      <Label>{label}</Label>
       <div className="flex items-center gap-2">
         <div className="relative w-10 h-10 rounded-full overflow-hidden border-none  hover:scale-110 transition-transform">
           <input

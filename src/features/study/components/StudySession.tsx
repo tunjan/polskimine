@@ -1,5 +1,5 @@
-import React, { useEffect, useMemo, useCallback, useState } from 'react';
-import { X, Undo2, Archive, Pencil, Trash2 } from 'lucide-react';
+import React, { useEffect, useMemo, useCallback, useState, useRef } from 'react';
+import { X, Undo2, Archive, Pencil, Trash2, Zap, Sparkles, Trophy, Target, TrendingUp } from 'lucide-react';
 import { Card, Grade } from '@/types';
 import { useSettings } from '@/contexts/SettingsContext';
 import { Flashcard } from './Flashcard';
@@ -92,6 +92,7 @@ export const StudySession: React.FC<StudySessionProps> = ({
     handleUndo,
     progress,
     isProcessing,
+    isWaiting,
   } = useStudySession({
     dueCards,
     reserveCards,
@@ -159,9 +160,46 @@ export const StudySession: React.FC<StudySessionProps> = ({
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [currentCard, sessionComplete, isFlipped, isProcessing, handleGrade, handleUndo, canUndo, onUndo, onExit, settings.binaryRatingMode]);
 
-  if (sessionComplete) {
+  if (isWaiting) {
     return (
-      <div className="fixed inset-0 bg-background flex flex-col items-center justify-center animate-in fade-in duration-1000">
+      <div className="fixed inset-0 bg-background flex flex-col items-center justify-center animate-in fade-in duration-300 z-50">
+        <div className="text-center space-y-6 px-6">
+          <div className="space-y-2">
+            <h2 className="text-2xl font-light tracking-tight text-foreground">Waiting for learning steps...</h2>
+            <p className="text-sm text-muted-foreground">Cards are cooling down. Take a short break.</p>
+          </div>
+          <button 
+            onClick={onExit}
+            className="px-6 py-2 text-sm font-medium bg-secondary text-secondary-foreground hover:bg-secondary/80 transition-colors"
+          >
+            Exit Session
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  if (sessionComplete) {
+    const cardsReviewed = currentIndex;
+    
+    return (
+      <div className="fixed inset-0 bg-background flex flex-col items-center justify-center animate-in fade-in duration-1000 overflow-hidden">
+        {/* Animated background particles */}
+        <div className="absolute inset-0 pointer-events-none overflow-hidden">
+          {[...Array(12)].map((_, i) => (
+            <span 
+              key={i}
+              className="absolute w-1 h-1 rotate-45 bg-primary/30"
+              style={{
+                left: `${10 + (i % 4) * 25}%`,
+                top: `${20 + Math.floor(i / 4) * 30}%`,
+                animation: `float ${3 + (i % 3)}s ease-in-out infinite`,
+                animationDelay: `${i * 0.2}s`
+              }}
+            />
+          ))}
+        </div>
+        
         {/* Decorative corner accents */}
         <span className="absolute top-4 left-4 w-8 h-8 pointer-events-none">
           <span className="absolute top-0 left-0 w-full h-0.5 bg-primary/40" />
@@ -180,19 +218,73 @@ export const StudySession: React.FC<StudySessionProps> = ({
           <span className="absolute bottom-0 right-0 h-full w-0.5 bg-primary/40" />
         </span>
         
-        <div className="text-center space-y-12 px-6">
-          <div className="space-y-4">
-            <div className="flex items-center justify-center gap-3 mb-6">
-              <span className="w-12 h-px bg-gradient-to-r from-transparent to-primary/40" />
-              <span className="w-2 h-2 rotate-45 bg-primary/60" />
-              <span className="w-12 h-px bg-gradient-to-l from-transparent to-primary/40" />
+        <div className="text-center space-y-10 px-6 max-w-lg mx-auto">
+          {/* Trophy icon with glow */}
+          <div className="relative inline-flex items-center justify-center animate-in zoom-in duration-700">
+            <div className="absolute inset-0 blur-xl bg-primary/20 scale-150" />
+            <div className="relative w-16 h-16 flex items-center justify-center border-2 border-primary/30 rotate-45">
+              <Trophy size={28} className="text-primary -rotate-45" strokeWidth={1.5} />
             </div>
-            <h2 className="text-5xl md:text-7xl font-light tracking-tight text-foreground">Session Complete</h2>
-            <p className="text-[10px] font-ui uppercase tracking-[0.25em] text-muted-foreground/60">All cards reviewed</p>
           </div>
+          
+          {/* Header */}
+          <div className="space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-200">
+            <div className="flex items-center justify-center gap-3 mb-6">
+              <span className="w-16 h-px bg-linear-to-r from-transparent to-primary/40" />
+              <span className="w-2 h-2 rotate-45 bg-primary/60 animate-pulse" />
+              <span className="w-16 h-px bg-linear-to-l from-transparent to-primary/40" />
+            </div>
+            <h2 className="text-4xl md:text-6xl font-light tracking-tight text-foreground">Session Complete</h2>
+            <p className="text-[10px] font-ui uppercase tracking-[0.25em] text-muted-foreground/60">Well done!</p>
+          </div>
+          
+          {/* Stats grid */}
+          <div className="grid grid-cols-3 gap-4 animate-in fade-in slide-in-from-bottom-6 duration-700 delay-500">
+            <div className="relative p-4 border border-border/30 bg-card/30">
+              <span className="absolute top-0 left-0 w-2 h-2">
+                <span className="absolute top-0 left-0 w-full h-px bg-primary/30" />
+                <span className="absolute top-0 left-0 h-full w-px bg-primary/30" />
+              </span>
+              <div className="flex flex-col items-center gap-1">
+                <Target size={16} className="text-muted-foreground/60" strokeWidth={1.5} />
+                <span className="text-2xl font-light text-foreground tabular-nums">{cardsReviewed}</span>
+                <span className="text-[8px] font-ui uppercase tracking-wider text-muted-foreground/50">Cards</span>
+              </div>
+            </div>
+            
+            <div className="relative p-4 border border-primary/30 bg-primary/5">
+              <span className="absolute top-0 left-0 w-2 h-2">
+                <span className="absolute top-0 left-0 w-full h-px bg-primary" />
+                <span className="absolute top-0 left-0 h-full w-px bg-primary" />
+              </span>
+              <span className="absolute bottom-0 right-0 w-2 h-2">
+                <span className="absolute bottom-0 right-0 w-full h-px bg-primary" />
+                <span className="absolute bottom-0 right-0 h-full w-px bg-primary" />
+              </span>
+              <div className="flex flex-col items-center gap-1">
+                <Zap size={16} className="text-primary" strokeWidth={1.5} />
+                <span className="text-2xl font-light text-primary tabular-nums">+{sessionXp}</span>
+                <span className="text-[8px] font-ui uppercase tracking-wider text-primary/60">XP Earned</span>
+              </div>
+            </div>
+            
+            <div className="relative p-4 border border-border/30 bg-card/30">
+              <span className="absolute top-0 right-0 w-2 h-2">
+                <span className="absolute top-0 right-0 w-full h-px bg-primary/30" />
+                <span className="absolute top-0 right-0 h-full w-px bg-primary/30" />
+              </span>
+              <div className="flex flex-col items-center gap-1">
+                <Sparkles size={16} className="text-muted-foreground/60" strokeWidth={1.5} />
+                <span className="text-2xl font-light text-foreground tabular-nums">{sessionStreak}</span>
+                <span className="text-[8px] font-ui uppercase tracking-wider text-muted-foreground/50">Best Streak</span>
+              </div>
+            </div>
+          </div>
+          
+          {/* Continue button */}
           <button 
             onClick={() => onComplete ? onComplete() : onExit()} 
-            className="group relative px-10 py-4 bg-card hover:bg-primary/5 border border-border hover:border-primary/40 transition-all duration-300"
+            className="group relative px-12 py-4 bg-card hover:bg-primary/5 border border-border hover:border-primary/40 transition-all animate-in fade-in duration-700 delay-700"
           >
             {/* Button corner accents */}
             <span className="absolute -top-px -left-px w-2 h-2 border-l border-t border-primary opacity-0 group-hover:opacity-100 transition-opacity" />
@@ -211,20 +303,28 @@ export const StudySession: React.FC<StudySessionProps> = ({
   return (
     <div className="fixed inset-0 z-50 bg-background flex flex-col overflow-hidden">
       
-      {/* Game-styled progress bar */}
-      <div className="relative h-1 w-full bg-muted/30 border-b border-border/20">
-        {/* Corner accents */}
-        <span className="absolute top-0 left-0 w-1 h-full bg-primary/40" />
-        <span className="absolute top-0 right-0 w-1 h-full bg-primary/40" />
+      {/* Game-styled progress bar with glow */}
+      <div className="relative h-1.5 w-full bg-muted/30 border-b border-border/20 overflow-hidden">
+        {/* Progress fill with glow */}
         <div 
-          className="h-full bg-gradient-to-r from-primary/60 via-primary to-primary/60 transition-all duration-700 ease-out origin-left" 
-          style={{ transform: `scaleX(${progress / 100})` }} 
+          className="absolute h-full bg-linear-to-r from-primary/70 via-primary to-primary/70 transition-all duration-700 ease-out animate-progress-glow" 
+          style={{ width: `${progress}%` }} 
         />
-        {/* Progress shine effect */}
+        {/* Animated shine overlay */}
         <div 
-          className="absolute top-0 h-full w-8 bg-gradient-to-r from-transparent via-white/20 to-transparent transition-all duration-700"
-          style={{ left: `${progress}%`, transform: 'translateX(-50%)' }} 
+          className="absolute top-0 h-full bg-linear-to-r from-transparent via-white/30 to-transparent w-16 transition-all duration-700"
+          style={{ 
+            left: `${Math.max(0, progress - 8)}%`,
+            opacity: progress > 0 ? 1 : 0
+          }} 
         />
+        {/* Progress end glow point */}
+        {progress > 0 && (
+          <div 
+            className="absolute top-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-primary shadow-[0_0_8px_2px] shadow-primary/50 transition-all duration-700"
+            style={{ left: `calc(${progress}% - 4px)` }} 
+          />
+        )}
       </div>
 
       {/* Game-styled header */}
@@ -265,17 +365,35 @@ export const StudySession: React.FC<StudySessionProps> = ({
 
          {/* Meta info and controls - game styled */}
          <div className="flex items-center gap-2 sm:gap-4 md:gap-8">
-            {/* XP display */}
-            <div className="hidden sm:flex items-center gap-3 px-3 py-1.5 bg-card/50 border border-border/30">
-                <span className="w-1 h-1 rotate-45 bg-primary/60" />
-                <span className="text-xs font-ui tracking-wide text-foreground/80">
-                    {sessionXp} <span className="text-[10px] uppercase tracking-wider text-muted-foreground">XP</span>
+            {/* Enhanced XP display */}
+            <div className="hidden sm:flex items-center gap-3 px-4 py-2 bg-linear-to-r from-primary/5 to-transparent border border-primary/20 relative overflow-hidden group">
+                {/* Subtle glow effect */}
+                <div className="absolute inset-0 bg-primary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                
+                {/* XP icon with glow */}
+                <div className="relative">
+                  <Zap size={14} strokeWidth={2} className="text-primary fill-primary/20" />
+                  <div className="absolute inset-0 blur-[2px] opacity-50">
+                    <Zap size={14} strokeWidth={2} className="text-primary" />
+                  </div>
+                </div>
+                
+                {/* XP value */}
+                <span className="relative text-sm font-ui font-medium tracking-wide text-foreground tabular-nums">
+                    {sessionXp}
+                    <span className="text-[9px] uppercase tracking-wider text-muted-foreground/60 ml-1">XP</span>
                 </span>
+                
+                {/* Multiplier badge */}
                 {multiplierInfo.value > 1.0 && (
-                    <span className="text-[10px] text-primary font-medium px-1.5 py-0.5 bg-primary/10 border border-primary/20">
-                        ×{multiplierInfo.value.toFixed(1)}
-                    </span>
+                    <div className="flex items-center gap-1 text-[10px] text-primary font-semibold px-2 py-0.5  animate-pulse">
+                        <TrendingUp size={10} strokeWidth={2.5} />
+                        <span>×{multiplierInfo.value.toFixed(1)}</span>
+                    </div>
                 )}
+                
+                {/* Corner accents */}
+
             </div>
             
             {/* Action buttons */}
@@ -285,6 +403,7 @@ export const StudySession: React.FC<StudySessionProps> = ({
                   onClick={() => setIsEditModalOpen(true)}
                   disabled={isProcessing}
                   title="Edit Card"
+                  aria-label="Edit Card"
                 />
                 <GameActionButton 
                   icon={<Trash2 size={14} strokeWidth={1.5} />} 
@@ -295,6 +414,7 @@ export const StudySession: React.FC<StudySessionProps> = ({
                   }}
                   disabled={isProcessing}
                   title="Delete Card"
+                  aria-label="Delete Card"
                   variant="danger"
                 />
                 <GameActionButton 
@@ -302,35 +422,34 @@ export const StudySession: React.FC<StudySessionProps> = ({
                   onClick={handleMarkKnown}
                   disabled={isProcessing}
                   title="Archive"
+                  aria-label="Archive"
                 />
                 {canUndo && (
                     <GameActionButton 
                       icon={<Undo2 size={14} strokeWidth={1.5} />} 
                       onClick={handleUndo}
                       title="Undo (Z)"
+                      aria-label="Undo"
                     />
                 )}
                 <GameActionButton 
                   icon={<X size={14} strokeWidth={1.5} />} 
                   onClick={onExit}
                   title="Exit (Esc)"
+                  aria-label="Exit"
                   variant="danger"
                 />
             </div>
          </div>
          
-         {/* Right corner accent */}
-         <span className="absolute top-0 right-0 w-3 h-3 pointer-events-none">
-           <span className="absolute top-0 right-0 w-full h-0.5 bg-primary/30" />
-           <span className="absolute top-0 right-0 h-full w-0.5 bg-primary/30" />
-         </span>
+
       </header>
 
       {/* Central focus area - game styled */}
       <main className="flex-1 w-full relative flex flex-col items-center justify-center py-8">
          {/* Decorative side accents */}
-         <span className="absolute left-4 top-1/2 -translate-y-1/2 w-px h-32 bg-gradient-to-b from-transparent via-border/30 to-transparent hidden md:block" />
-         <span className="absolute right-4 top-1/2 -translate-y-1/2 w-px h-32 bg-gradient-to-b from-transparent via-border/30 to-transparent hidden md:block" />
+         <span className="absolute left-4 top-1/2 -translate-y-1/2 w-px h-32 bg-linear-to-b from-transparent via-border/30 to-transparent hidden md:block" />
+         <span className="absolute right-4 top-1/2 -translate-y-1/2 w-px h-32 bg-linear-to-b from-transparent via-border/30 to-transparent hidden md:block" />
          
          <StudyFeedback feedback={feedback} />
          
@@ -362,13 +481,28 @@ export const StudySession: React.FC<StudySessionProps> = ({
                <button 
                 onClick={() => setIsFlipped(true)}
                 disabled={isProcessing}
-                className="group relative w-full h-full flex items-center justify-center"
+                className="group relative w-full h-full flex items-center justify-center border border-transparent hover:border-primary/20 hover:bg-primary/5 transition-all duration-300"
                >
-                <span className="w-1.5 h-1.5 rotate-45 bg-muted-foreground/20 group-hover:bg-primary/40 transition-colors mr-3" />
-                <span className="text-[10px] font-ui uppercase tracking-[0.2em] text-muted-foreground/40 group-hover:text-foreground/60 transition-colors duration-300">
+                {/* Corner accents on hover */}
+                <span className="absolute -top-px -left-px w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <span className="absolute top-0 left-0 w-full h-px bg-primary/50" />
+                  <span className="absolute top-0 left-0 h-full w-px bg-primary/50" />
+                </span>
+                <span className="absolute -bottom-px -right-px w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <span className="absolute bottom-0 right-0 w-full h-px bg-primary/50" />
+                  <span className="absolute bottom-0 right-0 h-full w-px bg-primary/50" />
+                </span>
+                
+                <span className="w-1.5 h-1.5 rotate-45 bg-muted-foreground/20 group-hover:bg-primary/60 transition-colors mr-3" />
+                <span className="text-[11px] font-ui uppercase tracking-[0.2em] text-muted-foreground/50 group-hover:text-primary/80 transition-colors duration-300">
                     Show Answer
                 </span>
-                <span className="w-1.5 h-1.5 rotate-45 bg-muted-foreground/20 group-hover:bg-primary/40 transition-colors ml-3" />
+                <span className="w-1.5 h-1.5 rotate-45 bg-muted-foreground/20 group-hover:bg-primary/60 transition-colors ml-3" />
+                
+                {/* Subtle keyboard hint */}
+                <span className="absolute bottom-3 text-[8px] font-ui text-muted-foreground/20 opacity-0 group-hover:opacity-60 transition-all duration-300 tracking-wider">
+                  SPACE
+                </span>
                </button>
           ) : (
               settings.binaryRatingMode ? (
@@ -501,52 +635,108 @@ const GameAnswerButton = React.memo(({ label, shortcut, intent, onClick, disable
     onClick: () => void; 
     disabled: boolean;
 }) => {
+    const [isPressed, setIsPressed] = useState(false);
+    
     const colorMap = {
-        danger: { text: 'text-red-500/70', hover: 'hover:text-red-500', border: 'hover:border-red-500/30', bg: 'hover:bg-red-500/5', accent: 'bg-red-500' },
-        warning: { text: 'text-orange-500/70', hover: 'hover:text-orange-500', border: 'hover:border-orange-500/30', bg: 'hover:bg-orange-500/5', accent: 'bg-orange-500' },
-        success: { text: 'text-emerald-500/70', hover: 'hover:text-emerald-500', border: 'hover:border-emerald-500/30', bg: 'hover:bg-emerald-500/5', accent: 'bg-emerald-500' },
-        info: { text: 'text-blue-500/70', hover: 'hover:text-blue-500', border: 'hover:border-blue-500/30', bg: 'hover:bg-blue-500/5', accent: 'bg-blue-500' }
+        danger: { 
+          text: 'text-red-500/70', 
+          hover: 'hover:text-red-500', 
+          border: 'hover:border-red-500/40', 
+          bg: 'hover:bg-red-500/5', 
+          accent: 'bg-red-500',
+          glow: 'shadow-red-500/20',
+          gradient: 'from-red-500/10 to-transparent'
+        },
+        warning: { 
+          text: 'text-orange-500/70', 
+          hover: 'hover:text-orange-500', 
+          border: 'hover:border-orange-500/40', 
+          bg: 'hover:bg-orange-500/5', 
+          accent: 'bg-orange-500',
+          glow: 'shadow-orange-500/20',
+          gradient: 'from-orange-500/10 to-transparent'
+        },
+        success: { 
+          text: 'text-emerald-500/70', 
+          hover: 'hover:text-emerald-500', 
+          border: 'hover:border-emerald-500/40', 
+          bg: 'hover:bg-emerald-500/5', 
+          accent: 'bg-emerald-500',
+          glow: 'shadow-emerald-500/20',
+          gradient: 'from-emerald-500/10 to-transparent'
+        },
+        info: { 
+          text: 'text-blue-500/70', 
+          hover: 'hover:text-blue-500', 
+          border: 'hover:border-blue-500/40', 
+          bg: 'hover:bg-blue-500/5', 
+          accent: 'bg-blue-500',
+          glow: 'shadow-blue-500/20',
+          gradient: 'from-blue-500/10 to-transparent'
+        }
     };
     const colors = colorMap[intent];
 
+    const handleClick = () => {
+        if (disabled) return;
+        setIsPressed(true);
+        setTimeout(() => setIsPressed(false), 150);
+        onClick();
+    };
+
     return (
         <button 
-            onClick={onClick}
+            onClick={handleClick}
             disabled={disabled}
             className={clsx(
-                "group relative flex flex-col items-center justify-center h-full w-full outline-none select-none",
+                "group relative flex flex-col items-center justify-center h-full w-full outline-none select-none overflow-hidden",
                 "border border-border/20 bg-card/30 transition-all duration-200",
                 colors.border, colors.bg,
+                "hover:shadow-lg",
+                colors.glow,
+                isPressed && "scale-95",
                 disabled && "opacity-20 cursor-not-allowed"
             )}
         >
+            {/* Gradient background on hover */}
+            <div className={clsx(
+              "absolute inset-0 bg-linear-to-t opacity-0 group-hover:opacity-100 transition-opacity duration-300",
+              colors.gradient
+            )} />
+            
             {/* Corner accents on hover */}
-            <span className={clsx("absolute -top-px -left-px w-2 h-2 opacity-0 group-hover:opacity-100 transition-opacity")}>
+            <span className={clsx("absolute -top-px -left-px w-2.5 h-2.5 opacity-0 group-hover:opacity-100 transition-opacity")}>
               <span className={clsx("absolute top-0 left-0 w-full h-px", colors.accent)} />
               <span className={clsx("absolute top-0 left-0 h-full w-px", colors.accent)} />
             </span>
-            <span className={clsx("absolute -top-px -right-px w-2 h-2 opacity-0 group-hover:opacity-100 transition-opacity")}>
+            <span className={clsx("absolute -top-px -right-px w-2.5 h-2.5 opacity-0 group-hover:opacity-100 transition-opacity")}>
               <span className={clsx("absolute top-0 right-0 w-full h-px", colors.accent)} />
               <span className={clsx("absolute top-0 right-0 h-full w-px", colors.accent)} />
             </span>
-            <span className={clsx("absolute -bottom-px -left-px w-2 h-2 opacity-0 group-hover:opacity-100 transition-opacity")}>
+            <span className={clsx("absolute -bottom-px -left-px w-2.5 h-2.5 opacity-0 group-hover:opacity-100 transition-opacity")}>
               <span className={clsx("absolute bottom-0 left-0 w-full h-px", colors.accent)} />
               <span className={clsx("absolute bottom-0 left-0 h-full w-px", colors.accent)} />
             </span>
-            <span className={clsx("absolute -bottom-px -right-px w-2 h-2 opacity-0 group-hover:opacity-100 transition-opacity")}>
+            <span className={clsx("absolute -bottom-px -right-px w-2.5 h-2.5 opacity-0 group-hover:opacity-100 transition-opacity")}>
               <span className={clsx("absolute bottom-0 right-0 w-full h-px", colors.accent)} />
               <span className={clsx("absolute bottom-0 right-0 h-full w-px", colors.accent)} />
             </span>
             
-            {/* Diamond accent */}
-            <span className={clsx(
-              "w-1 h-1 rotate-45 mb-2 opacity-40 group-hover:opacity-100 transition-opacity",
-              colors.accent
-            )} />
+            {/* Diamond accent with glow */}
+            <div className="relative mb-2">
+              <span className={clsx(
+                "w-1.5 h-1.5 rotate-45 opacity-40 group-hover:opacity-100 transition-all duration-200 block",
+                colors.accent
+              )} />
+              <span className={clsx(
+                "absolute inset-0 w-1.5 h-1.5 rotate-45 opacity-0 group-hover:opacity-60 blur-sm transition-opacity",
+                colors.accent
+              )} />
+            </div>
             
             {/* Label */}
             <span className={clsx(
-                "text-sm font-ui uppercase tracking-[0.15em] transition-all duration-200",
+                "relative text-sm font-ui uppercase tracking-[0.15em] transition-all duration-200",
                 colors.text, colors.hover
             )}>
                 {label}

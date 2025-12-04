@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { 
   Play, 
   Activity, 
@@ -7,13 +7,13 @@ import {
   BookOpen,
   Sparkles,
   Target,
-  Flame,
   Star,
   Circle,
   Clock,
   CheckCircle2
 } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
+import { subDays, startOfDay, format } from 'date-fns';
 
 
 import { DeckStats, ReviewHistory, Card as CardType } from '@/types';
@@ -29,10 +29,14 @@ import {
   GamePanel, 
   GameStat, 
   GameSectionHeader, 
-  GameProgressBar,
   GameButton,
   GameMetricRow,
-  GameDivider
+  GameDivider,
+  LevelBadge,
+  StreakDisplay,
+  CircularProgress,
+  GameEmptyState,
+  CardDistributionBar
 } from '@/components/ui/game-ui';
 
 
@@ -78,6 +82,29 @@ export const Dashboard: React.FC<DashboardProps> = ({
   const hasNoCards = metrics.total === 0;
   const hasNoActivity = stats.totalReviews === 0;
 
+  // Calculate last 7 days for streak display
+  const lastSevenDays = useMemo(() => {
+    const today = startOfDay(new Date());
+    return Array.from({ length: 7 }).map((_, i) => {
+      const date = subDays(today, 6 - i);
+      const dateKey = format(date, 'yyyy-MM-dd');
+      const count = history[dateKey] || 0;
+      return { date, active: count > 0, count };
+    });
+  }, [history]);
+
+  // Check if streak is at risk (no reviews today)
+  const todayKey = format(new Date(), 'yyyy-MM-dd');
+  const isStreakAtRisk = stats.streak > 0 && !history[todayKey];
+
+  // Card distribution segments for the bar
+  const cardSegments = [
+    { label: 'New', value: metrics.new, color: 'bg-sky-500' },
+    { label: 'Learning', value: metrics.learning, color: 'bg-amber-500' },
+    { label: 'Reviewing', value: metrics.reviewing, color: 'bg-violet-500' },
+    { label: 'Mastered', value: metrics.known, color: 'bg-emerald-500' },
+  ];
+
   return (
     <div className="min-h-screen bg-background px-4 md:px-6 lg:px-8 py-4 md:py-6 max-w-[1100px] mx-auto font-editorial">
       
@@ -85,126 +112,190 @@ export const Dashboard: React.FC<DashboardProps> = ({
       <section className="mb-10 md:mb-12">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8">
           
-          {/* Primary Action Card - Today's Mission */}
-          <GamePanel variant="highlight" size="lg" glowOnHover className="flex flex-col justify-between min-h-[260px] bg-gradient-to-br from-card to-primary/5">
-            {/* Header */}
-            <div className="flex items-center justify-between mb-6">
-              <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
-                  <Target className="w-4 h-4 text-primary" strokeWidth={2} />
-                </div>
-                <p className="text-xs text-foreground/80 uppercase tracking-[0.2em] font-medium font-ui">
-                  Today's Mission
-                </p>
-              </div>
-              {stats.due > 0 && (
-                <span className="px-2 py-0.5 bg-primary/10 text-primary text-[10px] font-medium uppercase tracking-wider rounded-full">
-                  Ready
-                </span>
-              )}
+          {/* Primary Action Card - Today's Mission (Genshin-inspired) */}
+          <GamePanel variant="highlight" size="lg" glowOnHover showCorners className="flex flex-col justify-between min-h-[280px] overflow-hidden relative border-primary/20">
+            {/* Decorative background pattern - Genshin Commission Style */}
+            <div className="absolute inset-0 pointer-events-none overflow-hidden">
+              {/* Top accent line with diamond endpoints */}
+              <div className="absolute top-0 left-0 w-full h-px bg-linear-to-r from-transparent via-primary/50 to-transparent" />
+              <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 w-2 h-2 rotate-45 border border-primary/40 bg-background" />
+              
+              {/* Geometric constellation pattern */}
+  
+              
+              {/* Floating diamond particles */}
+              <div className="absolute top-8 left-8 w-1.5 h-1.5 rotate-45 bg-primary/20 animate-pulse" />
+              <div className="absolute top-16 right-12 w-1 h-1 rotate-45 bg-primary/30 animate-pulse delay-500" />
+              <div className="absolute bottom-20 left-16 w-1 h-1 rotate-45 bg-primary/25 animate-pulse delay-1000" />
+              <div className="absolute bottom-12 right-1/4 w-1.5 h-1.5 rotate-45 border border-primary/20 animate-pulse delay-700" />
+              
+              {/* Side accent lines */}
+              <div className="absolute left-0 top-1/4 w-px h-1/2 bg-linear-to-b from-transparent via-primary/20 to-transparent" />
+              <div className="absolute right-0 top-1/4 w-px h-1/2 bg-linear-to-b from-transparent via-primary/20 to-transparent" />
             </div>
             
+        
+
             {/* Main Stats */}
-            <div className="flex-1 flex flex-col justify-center">
-              <div className="text-center mb-6">
-                <span className="text-6xl md:text-7xl font-light text-foreground tracking-tight tabular-nums">
-                  {stats.due}
-                </span>
-                <p className="text-sm text-muted-foreground font-light mt-1">
-                  card{stats.due === 1 ? '' : 's'} waiting for you
-                </p>
+            <div className="flex-1 flex flex-col justify-center py-2 relative z-10">
+              <div className="flex items-center justify-center gap-8 md:gap-12 mb-6">
+                {/* Left decorative wing */}
+       
+
+                <div className="text-center relative">
+ 
+                  
+                  <div className="relative">
+                    <div className="text-6xl md:text-8xl font-light text-foreground tracking-tighter tabular-nums relative inline-block">
+                      {stats.due}
+                      {stats.due === 0 && (
+                        <div className="absolute -top-3 -right-5 animate-in zoom-in duration-300">
+                          <div className="relative">
+                            <CheckCircle2 className="w-7 h-7 text-emerald-500" />
+                            <div className="absolute inset-0 w-7 h-7 bg-emerald-500/20 blur-sm" />
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-center justify-center gap-3 mt-3">
+                    <div className="flex items-center gap-1">
+                      <div className="w-1 h-1 rotate-45 bg-border/60" />
+                      <div className="h-px w-6 bg-border/40" />
+                    </div>
+                    <p className="text-[10px] text-muted-foreground font-medium tracking-[0.2em] uppercase">
+                      {stats.due === 1 ? 'Card' : 'Cards'} Remaining
+                    </p>
+                    <div className="flex items-center gap-1">
+                      <div className="h-px w-6 bg-border/40" />
+                      <div className="w-1 h-1 rotate-45 bg-border/60" />
+                    </div>
+                  </div>
+                </div>
+
+       
               </div>
               
-              {/* Breakdown */}
-              <div className="flex items-center justify-center gap-8">
-                <div className="text-center">
-                  <div className="flex items-center justify-center gap-1.5 mb-1">
-                    <Star className="w-3.5 h-3.5 text-amber-500" strokeWidth={2} fill="currentColor" />
-                    <span className="text-[10px] text-muted-foreground uppercase tracking-wider font-ui">New</span>
+              {/* Rewards Section - Styled like Genshin item rewards */}
+              <div className="flex justify-center gap-3 md:gap-6">
+                {/* New Cards Reward */}
+                <div className="group relative flex flex-row items-center gap-2 md:gap-6">
+                  <div className="relative w-10 h-10 md:w-12 md:h-12 flex items-center justify-center">
+                    {/* Item frame */}
+                    <div className="absolute inset-0 border border-amber-500/30 rotate-45 group-hover:border-amber-500/50 transition-colors" />
+                    <div className="absolute inset-1 border border-amber-500/10 rotate-45" />
+                    {/* Icon */}
+                    <Star className="w-3.5 h-3.5 md:w-4 md:h-4 text-amber-500 group-hover:scale-110 transition-transform relative z-10" fill="currentColor" />
                   </div>
-                  <p className="text-2xl font-light text-foreground tabular-nums">{stats.newDue}</p>
+                  <div className="text-left">
+                    <span className="block text-base md:text-lg font-medium leading-none tabular-nums">{stats.newDue}</span>
+                    <span className="text-[8px] md:text-[9px] text-muted-foreground uppercase tracking-wider mt-0.5 block">New</span>
+                  </div>
                 </div>
-                
-                <div className="h-8 w-px bg-border" />
-                
-                <div className="text-center">
-                  <div className="flex items-center justify-center gap-1.5 mb-1">
-                    <Activity className="w-3.5 h-3.5 text-sky-500" strokeWidth={2} />
-                    <span className="text-[10px] text-muted-foreground uppercase tracking-wider font-ui">Review</span>
+
+                {/* Divider */}
+                <div className="flex items-center justify-center opacity-30">
+                  <div className="h-px w-2 md:w-4 bg-border" />
+                  <div className="w-1 h-1 md:w-1.5 md:h-1.5 rotate-45 border border-border mx-0.5 md:mx-1" />
+                  <div className="h-px w-2 md:w-4 bg-border" />
+                </div>
+
+                {/* Review Cards Reward */}
+                <div className="group relative flex flex-row items-center gap-2 md:gap-6">
+                  <div className="relative w-10 h-10 md:w-12 md:h-12 flex items-center justify-center">
+                    {/* Item frame */}
+                    <div className="absolute inset-0 border border-sky-500/30 rotate-45 group-hover:border-sky-500/50 transition-colors" />
+                    <div className="absolute inset-1 border border-sky-500/10 rotate-45" />
+                    {/* Icon */}
+                    <Activity className="w-3.5 h-3.5 md:w-4 md:h-4 text-sky-500 group-hover:scale-110 transition-transform relative z-10" />
                   </div>
-                  <p className="text-2xl font-light text-foreground tabular-nums">{stats.reviewDue}</p>
+                  <div className="text-left">
+                    <span className="block text-base md:text-lg font-medium leading-none tabular-nums">{stats.reviewDue}</span>
+                    <span className="text-[8px] md:text-[9px] text-muted-foreground uppercase tracking-wider mt-0.5 block">Review</span>
+                  </div>
                 </div>
               </div>
             </div>
 
             {/* Action Button */}
-            <GameButton 
-              size="lg" 
-              onClick={onStartSession}
-              disabled={stats.due === 0}
-              className="w-full mt-6"
-              variant={stats.due > 0 ? 'primary' : 'ghost'}
-            >
-              <Play className="w-4 h-4 fill-current" /> 
-              {stats.due > 0 ? 'Start Session' : 'All Caught Up'}
-            </GameButton>
+            <div className="relative mt-4 z-10">
+              {/* Decorative line above button */}
+              <div className="flex items-center justify-center gap-3 mb-3">
+                <div className="h-px flex-1 bg-linear-to-r from-transparent to-border/40" />
+                <div className="w-1.5 h-1.5 rotate-45 border border-primary/30" />
+                <div className="h-px flex-1 bg-linear-to-l from-transparent to-border/40" />
+              </div>
+              
+              <GameButton 
+                size="lg" 
+                onClick={onStartSession}
+                disabled={stats.due === 0}
+                className="w-full relative overflow-hidden group border-primary/40 hover:border-primary/70 transition-all duration-300"
+                variant={stats.due > 0 ? 'primary' : 'ghost'}
+              >
+                {/* Shimmer effect on hover */}
+                <div className="absolute inset-0 bg-linear-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
+                
+                {/* Button content */}
+                <span className="flex items-center justify-center gap-3 py-0.5">
+                  {stats.due > 0 ? (
+                    <>
+                      <div className="flex items-center gap-1">
+                        <span className="w-1 h-1 rotate-45 bg-current opacity-40" />
+                        <span className="w-1.5 h-1.5 rotate-45 bg-current opacity-60" />
+                      </div>
+                      <Play className="w-4 h-4 fill-current" />
+                      <span className="tracking-[0.2em] font-bold">BEGIN</span>
+                      <div className="flex items-center gap-1">
+                        <span className="w-1.5 h-1.5 rotate-45 bg-current opacity-60" />
+                        <span className="w-1 h-1 rotate-45 bg-current opacity-40" />
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      <CheckCircle2 className="w-4 h-4" />
+                      <span className="tracking-[0.15em] font-medium">COMMISSION COMPLETE</span>
+                    </>
+                  )}
+                </span>
+              </GameButton>
+            </div>
           </GamePanel>
 
           {/* Progress & Stats */}
           <div className="space-y-4">
             
-            {/* Level Progress */}
-            <GamePanel size="md" glowOnHover className="bg-gradient-to-br from-card to-primary/5">
-              <div className="space-y-4">
-                <div className="flex items-baseline justify-between">
-                  <div>
-                    <div className="flex items-center gap-1.5 mb-1">
-                      <span className="w-1.5 h-1.5 rotate-45 bg-primary/60" />
-                      <p className="text-[10px] text-muted-foreground uppercase tracking-[0.15em] font-light font-ui">
-                        Level
-                      </p>
-                    </div>
-                    <p className="text-3xl font-light text-foreground tabular-nums">
-                      {levelData.level}
-                    </p>
-                  </div>
-                  <div className="text-right">
-                    <div className="flex items-center gap-1.5 mb-1 justify-end">
-                      <Sparkles className="w-3 h-3 text-primary/60" strokeWidth={1.5} />
-                      <p className="text-[10px] text-muted-foreground uppercase tracking-[0.15em] font-light font-ui">
-                        Experience
-                      </p>
-                    </div>
-                    <p className="text-lg font-light text-foreground tabular-nums">
-                      {languageXp.xp.toLocaleString()} XP
-                    </p>
-                  </div>
-                </div>
-                
-                <GameProgressBar
-                  value={levelData.progressPercent}
-                  variant="xp"
-                  label={`${levelData.xpToNextLevel.toLocaleString()} XP to Level ${levelData.level + 1}`}
-                />
-              </div>
+            {/* Level Badge - Enhanced */}
+            <GamePanel size="md" glowOnHover className="bg-linear-to-br from-card to-primary/5">
+              <LevelBadge
+                level={levelData.level}
+                xp={languageXp.xp}
+                progressPercent={levelData.progressPercent}
+                xpToNextLevel={levelData.xpToNextLevel}
+                showDetails={true}
+              />
+            </GamePanel>
+
+            {/* Streak Display - Enhanced */}
+            <GamePanel size="md" glowOnHover>
+              <StreakDisplay
+                currentStreak={stats.streak}
+                lastSevenDays={lastSevenDays}
+                isAtRisk={isStreakAtRisk}
+              />
             </GamePanel>
 
             {/* Quick Metrics */}
-            <div className="grid grid-cols-1 gap-2">
-              <GameMetricRow 
-                icon={<Flame className="w-4 h-4 text-orange-500" strokeWidth={1.5} />} 
-                label="Current Streak" 
-                value={stats.streak} 
-                unit="days" 
-              />
+            <div className="grid grid-cols-2 gap-2">
               <GameMetricRow 
                 icon={<Activity className="w-4 h-4 text-sky-500" strokeWidth={1.5} />} 
-                label="Total Reviews" 
+                label="Reviews" 
                 value={stats.totalReviews.toLocaleString()} 
               />
               <GameMetricRow 
                 icon={<Trophy className="w-4 h-4 text-yellow-500" strokeWidth={1.5} />} 
-                label="Points Earned" 
+                label="Points" 
                 value={profile?.points?.toLocaleString() ?? '0'} 
               />
             </div>
@@ -223,41 +314,47 @@ export const Dashboard: React.FC<DashboardProps> = ({
         />
         
         {hasNoCards ? (
-          <EmptyState 
+          <GameEmptyState 
             icon={BookOpen}
             title="No cards yet"
             description="Start by adding some cards to your deck to begin learning."
+            action={{ label: 'Add Cards', onClick: () => {} }}
           />
         ) : (
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
-            <GameStat 
-              label="New" 
-              value={metrics.new} 
-              sublabel="Unseen cards" 
-              icon={<Circle className="w-3.5 h-3.5" />}
-              color="sky"
-            />
-            <GameStat 
-              label="Learning" 
-              value={metrics.learning} 
-              sublabel="Currently studying" 
-              icon={<Clock className="w-3.5 h-3.5" />}
-              color="amber"
-            />
-            <GameStat 
-              label="Reviewing" 
-              value={metrics.reviewing} 
-              sublabel="Mature cards" 
-              icon={<Activity className="w-3.5 h-3.5" />}
-              color="violet"
-            />
-            <GameStat 
-              label="Mastered" 
-              value={metrics.known} 
-              sublabel="Fully learned" 
-              icon={<CheckCircle2 className="w-3.5 h-3.5" />}
-              color="emerald"
-            />
+          <div className="space-y-5">
+
+            {/* Stat cards */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
+              <GameStat 
+                label="New" 
+                value={metrics.new} 
+                sublabel="Unseen cards" 
+                icon={<Circle className="w-3.5 h-3.5" />}
+                color="sky"
+              />
+              <GameStat 
+                label="Learning" 
+                value={metrics.learning} 
+                sublabel="Currently studying" 
+                icon={<Clock className="w-3.5 h-3.5" />}
+                color="amber"
+              />
+              <GameStat 
+                label="Reviewing" 
+                value={metrics.reviewing} 
+                sublabel="Mature cards" 
+                icon={<Activity className="w-3.5 h-3.5" />}
+                color="violet"
+              />
+              <GameStat 
+                label="Mastered" 
+                value={metrics.known} 
+                sublabel="Fully learned" 
+                icon={<CheckCircle2 className="w-3.5 h-3.5" />}
+                color="emerald"
+              />
+            </div>
+            
           </div>
         )}
       </section>
@@ -271,10 +368,11 @@ export const Dashboard: React.FC<DashboardProps> = ({
         />
         
         {hasNoActivity ? (
-          <EmptyState 
+          <GameEmptyState 
             icon={Activity}
             title="No activity yet"
             description="Complete your first review session to see your activity patterns."
+            action={{ label: 'Start Learning', onClick: onStartSession }}
           />
         ) : (
           <GamePanel size="md">
@@ -292,7 +390,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
         />
         
         {hasNoActivity ? (
-          <EmptyState 
+          <GameEmptyState 
             icon={Sparkles}
             title="No data available"
             description="Review some cards to unlock performance insights."
@@ -346,7 +444,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
         />
         
         {hasNoCards ? (
-          <EmptyState 
+          <GameEmptyState 
             icon={Activity}
             title="No cards to analyze"
             description="Add cards to your deck to see health metrics."
@@ -361,29 +459,6 @@ export const Dashboard: React.FC<DashboardProps> = ({
   );
 };
 
-
-
-const EmptyState: React.FC<{ 
-  icon: React.ElementType; 
-  title: string; 
-  description: string;
-}> = ({ icon: Icon, title, description }) => (
-  <GamePanel className="p-8 md:p-12 border-dashed flex flex-col items-center justify-center text-center">
-    <div className="relative mb-4">
-      {/* Decorative ring */}
-      <div className="w-14 h-14 rounded-full border-2 border-dashed border-border/50 flex items-center justify-center">
-        <Icon className="w-5 h-5 text-muted-foreground/60" strokeWidth={1.5} />
-      </div>
-      {/* Corner accents */}
-      <span className="absolute -top-1 -left-1 w-2 h-2 border-l border-t border-primary/30" />
-      <span className="absolute -top-1 -right-1 w-2 h-2 border-r border-t border-primary/30" />
-      <span className="absolute -bottom-1 -left-1 w-2 h-2 border-l border-b border-primary/30" />
-      <span className="absolute -bottom-1 -right-1 w-2 h-2 border-r border-b border-primary/30" />
-    </div>
-    <h3 className="text-sm font-medium text-foreground mb-1 font-ui">{title}</h3>
-    <p className="text-xs text-muted-foreground font-light max-w-60">{description}</p>
-  </GamePanel>
-);
 
 const ChartSkeleton: React.FC = () => (
   <div className="h-full w-full flex items-end gap-1 animate-pulse">

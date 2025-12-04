@@ -4,7 +4,7 @@ import { escapeRegExp, parseFurigana, cn } from '@/lib/utils';
 import { ttsService } from '@/services/tts';
 import { useSettings } from '@/contexts/SettingsContext';
 import { useSabotage } from '@/contexts/SabotageContext';
-import { uwuify, FAKE_ANSWERS } from '@/lib/memeUtils';
+import { useCardText } from '@/features/deck/hooks/useCardText';
 import { Play, Sparkles, Quote, Mic, Volume2, Plus } from 'lucide-react';
 import { ButtonLoader } from '@/components/ui/game-ui';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
@@ -65,12 +65,11 @@ export const Flashcard = React.memo<FlashcardProps>(({
 }) => {
   const { settings } = useSettings();
   const { isCursedWith } = useSabotage();
+  const { displayedTranslation, isGaslit, processText } = useCardText(card);
   const [isRevealed, setIsRevealed] = useState(!blindMode);
   const [playSlow, setPlaySlow] = useState(false);
   const playSlowRef = React.useRef(playSlow);
   const hasSpokenRef = React.useRef<string | null>(null);
-  const [displayedTranslation, setDisplayedTranslation] = useState(card.nativeTranslation);
-  const [isGaslit, setIsGaslit] = useState(false);
 
   
   const [selection, setSelection] = useState<{ text: string; top: number; left: number } | null>(null);
@@ -95,19 +94,6 @@ export const Flashcard = React.memo<FlashcardProps>(({
     playSlowRef.current = playSlow;
   }, [playSlow]);
 
-  useEffect(() => {
-    if (isCursedWith('gaslight') && Math.random() > 0.5) {
-      const randomFake = FAKE_ANSWERS[Math.floor(Math.random() * FAKE_ANSWERS.length)];
-      setDisplayedTranslation(randomFake);
-      setIsGaslit(true);
-    } else {
-      setDisplayedTranslation(card.nativeTranslation);
-      setIsGaslit(false);
-    }
-  }, [card.id, isCursedWith]);
-
-  const processText = (text: string) => isCursedWith('uwu') ? uwuify(text) : text;
-
   const getPlainTextForTTS = useCallback((text: string): string => {
     const segments = parseFurigana(text);
     return segments.map(s => s.text).join('');
@@ -117,7 +103,10 @@ export const Flashcard = React.memo<FlashcardProps>(({
     const effectiveRate = playSlowRef.current ? Math.max(0.25, settings.tts.rate * 0.6) : settings.tts.rate;
     const effectiveSettings = { ...settings.tts, rate: effectiveRate };
     const plainText = getPlainTextForTTS(card.targetSentence);
-    ttsService.speak(plainText, language, effectiveSettings);
+    console.log('TTS speak called:', { plainText, language, effectiveSettings });
+    ttsService.speak(plainText, language, effectiveSettings).catch(err => {
+      console.error('TTS speak error:', err);
+    });
     setPlaySlow(prev => !prev);
   }, [card.targetSentence, language, settings.tts, getPlainTextForTTS]);
 
@@ -250,8 +239,23 @@ export const Flashcard = React.memo<FlashcardProps>(({
     );
 
     if (!isRevealed) {
+      const handleReveal = () => setIsRevealed(true);
+      const handleKeyDown = (e: React.KeyboardEvent) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          setIsRevealed(true);
+        }
+      };
+
       return (
-        <div onClick={() => setIsRevealed(true)} className="cursor-pointer group flex flex-col items-center gap-8">
+        <div 
+          onClick={handleReveal}
+          onKeyDown={handleKeyDown}
+          role="button"
+          tabIndex={0}
+          aria-label="Reveal card content"
+          className="cursor-pointer group flex flex-col items-center gap-8 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+        >
           {blindMode && (
             <button
               onClick={(e) => { e.stopPropagation(); speak(); }}
@@ -306,10 +310,33 @@ export const Flashcard = React.memo<FlashcardProps>(({
           ? parseFurigana(card.targetWord).map(s => s.text).join('')
           : null;
         
+        // Build a map of which segments are part of the target word
+        // by finding the target word in the concatenated sentence
+        const segmentTexts = segments.map(s => s.text);
+        const fullText = segmentTexts.join('');
+        const targetIndices = new Set<number>();
+        
+        if (targetWordPlain) {
+          const targetStart = fullText.indexOf(targetWordPlain);
+          if (targetStart !== -1) {
+            const targetEnd = targetStart + targetWordPlain.length;
+            let charIndex = 0;
+            for (let i = 0; i < segments.length; i++) {
+              const segmentStart = charIndex;
+              const segmentEnd = charIndex + segments[i].text.length;
+              // Check if this segment overlaps with the target word range
+              if (segmentStart < targetEnd && segmentEnd > targetStart) {
+                targetIndices.add(i);
+              }
+              charIndex = segmentEnd;
+            }
+          }
+        }
+        
         return (
           <div className={cn(baseClasses, "leading-[1.6]")}>
             {segments.map((segment, i) => {
-              const isTarget = targetWordPlain && (targetWordPlain === segment.text || targetWordPlain.includes(segment.text) || segment.text.includes(targetWordPlain));
+              const isTarget = targetIndices.has(i);
               if (segment.furigana) {
                 return (
                   <ruby key={i} className="group/ruby" style={{ rubyAlign: 'center' }}>
@@ -330,7 +357,9 @@ export const Flashcard = React.memo<FlashcardProps>(({
     if (card.targetWord) {
       
       const targetWordPlain = parseFurigana(card.targetWord).map(s => s.text).join('');
-      const parts = displayedSentence.split(new RegExp(`(${escapeRegExp(targetWordPlain)})`, 'gi'));
+      // Use word boundaries to match only complete words, not substrings within words
+      const wordBoundaryRegex = new RegExp(`(\\b${escapeRegExp(targetWordPlain)}\\b)`, 'gi');
+      const parts = displayedSentence.split(wordBoundaryRegex);
       return (
         <p className={baseClasses}>
           {parts.map((part, i) =>
@@ -355,35 +384,32 @@ export const Flashcard = React.memo<FlashcardProps>(({
   return (
     <>
       <div className={containerClasses} onMouseUp={handleMouseUp} onTouchEnd={handleMouseUp}>
-        {/* Game-styled decorative frame */}
-        <div className="absolute inset-8 md:inset-16 pointer-events-none">
-          {/* Corner accents */}
-          <span className="absolute top-0 left-0 w-6 h-6">
-            <span className="absolute top-0 left-0 w-full h-px bg-border/20" />
-            <span className="absolute top-0 left-0 h-full w-px bg-border/20" />
-          </span>
-          <span className="absolute top-0 right-0 w-6 h-6">
-            <span className="absolute top-0 right-0 w-full h-px bg-border/20" />
-            <span className="absolute top-0 right-0 h-full w-px bg-border/20" />
-          </span>
-          <span className="absolute bottom-0 left-0 w-6 h-6">
-            <span className="absolute bottom-0 left-0 w-full h-px bg-border/20" />
-            <span className="absolute bottom-0 left-0 h-full w-px bg-border/20" />
-          </span>
-          <span className="absolute bottom-0 right-0 w-6 h-6">
-            <span className="absolute bottom-0 right-0 w-full h-px bg-border/20" />
-            <span className="absolute bottom-0 right-0 h-full w-px bg-border/20" />
-          </span>
+        {/* Game-styled decorative frame with glow on flip */}
+        <div className={cn(
+          "absolute inset-8 md:inset-16 pointer-events-none transition-all duration-700",
+          isFlipped && "scale-[1.02]"
+        )}>
+          
+          {/* Center decorative lines on flip */}
+          {isFlipped && (
+            <>
+              <span className="absolute top-1/2 left-0 w-4 h-px bg-linear-to-r from-primary/20 to-transparent -translate-y-1/2" />
+              <span className="absolute top-1/2 right-0 w-4 h-px bg-linear-to-l from-primary/20 to-transparent -translate-y-1/2" />
+            </>
+          )}
         </div>
 
         {/* Main content */}
-        <div className="w-full px-8 md:px-16 flex flex-col items-center gap-6 md:gap-6 z-10">
+        <div className={cn(
+          "w-full px-8 md:px-16 flex flex-col items-center z-10 transition-all duration-700 ease-out",
+          isFlipped && "-translate-y-[40%]"
+        )}>
           {RenderedSentence}
 
           {isRevealed && (
             <button
               onClick={speak}
-              className="group relative flex items-center justify-center text-muted-foreground/40 hover:text-primary/70 transition-all duration-300 mt-4 p-3 border border-transparent hover:border-primary/20 hover:bg-primary/5"
+              className="group relative flex items-center justify-center text-muted-foreground/40 hover:text-primary/70 transition-all duration-300 p-3 border border-transparent hover:border-primary/20 hover:bg-primary/5"
             >
               {/* Corner accents on hover */}
               <span className="absolute -top-px -left-px w-1.5 h-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -399,13 +425,19 @@ export const Flashcard = React.memo<FlashcardProps>(({
           )}
         </div>
 
-        {/* Translation reveal with game-styled animation */}
+        {/* Translation reveal with enhanced game-styled animation */}
         {isFlipped && (
-          <div className="absolute top-1/2 left-0 right-0 bottom-4 pt-12 md:pt-16 flex flex-col items-center gap-3 z-0 pointer-events-none animate-in fade-in slide-in-from-bottom-4 duration-700 overflow-y-auto">
-
+          <div className="absolute top-1/2 left-0 right-0 bottom-4 pt-4 md:pt-8 flex flex-col items-center gap-3 z-0 pointer-events-none overflow-y-auto">
+            
+            {/* Decorative divider */}
+            <div className="flex items-center gap-3 mb-2 animate-in fade-in duration-500">
+              <span className="w-8 h-px bg-linear-to-r from-transparent to-primary/30" />
+              <span className="w-1 h-1 rotate-45 bg-primary/40" />
+              <span className="w-8 h-px bg-linear-to-l from-transparent to-primary/30" />
+            </div>
 
             {showTranslation && (
-              <div className="relative group pointer-events-auto px-8 md:px-16 shrink-0 flex flex-col items-center gap-1">
+              <div className="relative group pointer-events-auto px-8 md:px-16 shrink-0 flex flex-col items-center gap-1 animate-in fade-in slide-in-from-bottom-4 duration-700 fill-mode-backwards">
                 {card.targetWord && (
                   <div className="flex flex-col items-center gap-0.5 mb-1">
                     <div className="flex items-center gap-2">
@@ -415,7 +447,7 @@ export const Flashcard = React.memo<FlashcardProps>(({
                         processText={processText}
                       />
                       {card.targetWordPartOfSpeech && (
-                        <span className="text-[9px] font-ui font-medium uppercase border border-border/60 px-1.5 py-0.5 text-muted-foreground/80 tracking-widest">
+                        <span className="text-[9px] font-ui font-medium uppercase border border-primary/30 bg-primary/5 px-2 py-0.5 text-primary/70 tracking-widest">
                           {card.targetWordPartOfSpeech}
                         </span>
                       )}
@@ -503,34 +535,34 @@ export const Flashcard = React.memo<FlashcardProps>(({
 
       {/* Game-styled analysis modal */}
       <Dialog open={isAnalysisOpen} onOpenChange={setIsAnalysisOpen}>
-        <DialogContent className="sm:max-w-xl bg-card border border-border p-0 overflow-hidden">
+        <DialogContent className="sm:max-w-xl bg-card border border-border p-0 overflow-hidden max-h-[85vh] flex flex-col">
           {/* Corner accents */}
-          <span className="absolute top-0 left-0 w-4 h-4 pointer-events-none">
+          <span className="absolute top-0 left-0 w-4 h-4 pointer-events-none z-10">
             <span className="absolute top-0 left-0 w-full h-0.5 bg-primary" />
             <span className="absolute top-0 left-0 h-full w-0.5 bg-primary" />
           </span>
-          <span className="absolute top-0 right-0 w-4 h-4 pointer-events-none">
+          <span className="absolute top-0 right-0 w-4 h-4 pointer-events-none z-10">
             <span className="absolute top-0 right-0 w-full h-0.5 bg-primary" />
             <span className="absolute top-0 right-0 h-full w-0.5 bg-primary" />
           </span>
-          <span className="absolute bottom-0 left-0 w-4 h-4 pointer-events-none">
+          <span className="absolute bottom-0 left-0 w-4 h-4 pointer-events-none z-10">
             <span className="absolute bottom-0 left-0 w-full h-0.5 bg-primary" />
             <span className="absolute bottom-0 left-0 h-full w-0.5 bg-primary" />
           </span>
-          <span className="absolute bottom-0 right-0 w-4 h-4 pointer-events-none">
+          <span className="absolute bottom-0 right-0 w-4 h-4 pointer-events-none z-10">
             <span className="absolute bottom-0 right-0 w-full h-0.5 bg-primary" />
             <span className="absolute bottom-0 right-0 h-full w-0.5 bg-primary" />
           </span>
 
-          <div className="p-8 md:p-10 space-y-8">
+          <div className="p-8 md:p-10 space-y-8 overflow-y-auto">
             {/* Header */}
             <div className="space-y-3 border-b border-border/40 pb-6">
               <div className="flex justify-between items-start gap-6">
-                <div className="flex items-center gap-3">
-                  <span className="w-2 h-2 rotate-45 bg-primary/60" />
-                  <h2 className="text-3xl md:text-4xl font-light tracking-tight">{analysisResult?.originalText}</h2>
+                <div className="flex items-center gap-3 min-w-0">
+                  <span className="w-2 h-2 rotate-45 bg-primary/60 shrink-0" />
+                  <h2 className="text-3xl md:text-4xl font-light tracking-tight break-words">{analysisResult?.originalText}</h2>
                 </div>
-                <span className="text-[9px] font-ui font-medium uppercase border border-border/60 px-3 py-1.5 text-muted-foreground/80 tracking-[0.15em] whitespace-nowrap">
+                <span className="text-[9px] font-ui font-medium uppercase border border-border/60 px-3 py-1.5 text-muted-foreground/80 tracking-[0.15em] whitespace-nowrap shrink-0">
                   {analysisResult?.partOfSpeech}
                 </span>
               </div>
@@ -543,7 +575,7 @@ export const Flashcard = React.memo<FlashcardProps>(({
                   <span className="w-1 h-1 rotate-45 bg-primary/40" />
                   <span className="text-[9px] font-ui font-medium uppercase tracking-[0.2em] text-muted-foreground/60">Definition</span>
                 </div>
-                <p className="text-lg font-light leading-relaxed text-foreground/90">{analysisResult?.definition}</p>
+                <p className="text-lg font-light leading-relaxed text-foreground/90 break-words">{analysisResult?.definition}</p>
               </div>
 
               <div className="pt-4">
@@ -552,7 +584,7 @@ export const Flashcard = React.memo<FlashcardProps>(({
                   <span className="text-[9px] font-ui font-medium uppercase tracking-[0.2em] text-muted-foreground/60">In This Context</span>
                 </div>
                 <div className="relative pl-4 border-l-2 border-primary/20">
-                  <p className="text-base italic text-muted-foreground/75 leading-relaxed">
+                  <p className="text-base italic text-muted-foreground/75 leading-relaxed break-words">
                     {analysisResult?.contextMeaning}
                   </p>
                 </div>

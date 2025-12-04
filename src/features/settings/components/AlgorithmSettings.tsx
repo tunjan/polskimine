@@ -38,13 +38,29 @@ export const AlgorithmSettings: React.FC<AlgorithmSettingsProps> = ({
         return;
       }
       const currentW = localSettings.fsrs.w || FSRS_DEFAULTS.w;
-      const optimizedW = await optimizeFSRS(logs, currentW, setProgress);
-      setLocalSettings(prev => ({ ...prev, fsrs: { ...prev.fsrs, w: optimizedW } }));
-      setReport({ reviews: logs.length });
-      toast.success("Optimization complete");
+      
+      const worker = new Worker(new URL('../../../workers/fsrs.worker.ts', import.meta.url), { type: 'module' });
+      
+      worker.onmessage = (e) => {
+        const { type, progress, w, error } = e.data;
+        if (type === 'progress') {
+          setProgress(progress);
+        } else if (type === 'result') {
+          setLocalSettings(prev => ({ ...prev, fsrs: { ...prev.fsrs, w } }));
+          setReport({ reviews: logs.length });
+          toast.success("Optimization complete");
+          worker.terminate();
+          setIsOptimizing(false);
+        } else if (type === 'error') {
+          toast.error(`Optimization failed: ${error}`);
+          worker.terminate();
+          setIsOptimizing(false);
+        }
+      };
+
+      worker.postMessage({ logs, currentW });
     } catch (e) {
-      toast.error("Optimization failed");
-    } finally {
+      toast.error("Optimization failed to start");
       setIsOptimizing(false);
     }
   };

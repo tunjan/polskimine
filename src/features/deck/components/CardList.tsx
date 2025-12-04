@@ -532,6 +532,28 @@ export const CardList: React.FC<CardListProps> = (props) => {
   const itemSize = compactView ? 44 : 140;
   const RowComponent = compactView ? CompactRow : Row;
 
+  const itemData = React.useMemo(() => ({
+    cards: props.cards,
+    searchTerm: props.searchTerm,
+    onEditCard: props.onEditCard,
+    onDeleteCard: props.onDeleteCard,
+    onViewHistory: props.onViewHistory,
+    onPrioritizeCard: props.onPrioritizeCard,
+    selectedIds: props.selectedIds,
+    onToggleSelect: props.onToggleSelect,
+    compactView: props.compactView
+  }), [
+    props.cards, 
+    props.searchTerm, 
+    props.onEditCard, 
+    props.onDeleteCard, 
+    props.onViewHistory, 
+    props.onPrioritizeCard, 
+    props.selectedIds, 
+    props.onToggleSelect, 
+    props.compactView
+  ]);
+
   return (
     <div className="flex-1 h-full w-full">
       <AutoSizer>
@@ -541,7 +563,7 @@ export const CardList: React.FC<CardListProps> = (props) => {
             width={width}
             itemCount={props.cards.length}
             itemSize={itemSize}
-            itemData={props}
+            itemData={itemData}
             className="no-scrollbar"
             overscanCount={compactView ? 10 : 3}
           >

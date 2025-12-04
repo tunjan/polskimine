@@ -302,29 +302,37 @@ class TTSService {
     }
 
     private async playAudioBuffer(buffer: ArrayBuffer, opId: number) {
-        if (!this.audioContext) {
-            this.audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
-        }
-
         try {
-            const decodedBuffer = await this.audioContext.decodeAudioData(buffer);
+            // Create a fresh AudioContext for each playback to avoid Firefox issues
+            // Firefox has strict autoplay policies and suspended contexts don't always resume properly
+            if (this.audioContext) {
+                try {
+                    await this.audioContext.close();
+                } catch {}
+            }
+            this.audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+
+            // Firefox requires the context to be in 'running' state
+            if (this.audioContext.state === 'suspended') {
+                await this.audioContext.resume();
+            }
+
+            const decodedBuffer = await this.audioContext.decodeAudioData(buffer.slice(0));
             if (this.currentOperationId !== opId) return;
 
             if (this.currentSource) {
-                this.currentSource.stop();
+                try { this.currentSource.stop(); } catch {}
             }
+            
             this.currentSource = this.audioContext.createBufferSource();
             this.currentSource.buffer = decodedBuffer;
             this.currentSource.connect(this.audioContext.destination);
+            
+            // Don't suspend the context on ended - this causes issues in Firefox
             this.currentSource.onended = () => {
-                if (this.audioContext && this.audioContext.state === 'running') {
-                    this.audioContext.suspend().catch(() => {});
-                }
+                this.currentSource = null;
             };
 
-            if (this.audioContext.state === 'suspended') {
-                try { await this.audioContext.resume(); } catch {}
-            }
             this.currentSource.start(0);
         } catch (e) {
             console.error("Audio playback error", e);
@@ -350,11 +358,8 @@ class TTSService {
             window.speechSynthesis.cancel();
         }
         if (this.currentSource) {
-            this.currentSource.stop();
+            try { this.currentSource.stop(); } catch {}
             this.currentSource = null;
-        }
-        if (this.audioContext && this.audioContext.state === 'running') {
-            this.audioContext.suspend().catch(() => {});
         }
     }
 }

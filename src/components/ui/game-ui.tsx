@@ -42,7 +42,7 @@ export function GamePanel({
   className, 
   variant = 'default',
   size = 'md',
-  showCorners = true,
+  showCorners = false,
   glowOnHover = false,
   children,
   ...props 
@@ -92,6 +92,7 @@ export function GamePanel({
 
 /**
  * A stat display with game-style decorations
+ * Uses CSS variables for theming compatibility with LanguageThemeManager
  */
 interface GameStatProps extends React.HTMLAttributes<HTMLDivElement> {
   label: string
@@ -102,6 +103,67 @@ interface GameStatProps extends React.HTMLAttributes<HTMLDivElement> {
   size?: 'sm' | 'md' | 'lg'
   color?: 'default' | 'blue' | 'green' | 'amber' | 'rose' | 'purple' | 'sky' | 'emerald' | 'violet'
 }
+
+// Color styles using CSS custom properties for theme compatibility
+// These map to semantic colors that can be overridden by the theme
+const getStatColorStyles = (color: GameStatProps['color']) => {
+  // Use CSS variables with fallbacks for theme integration
+  const colorMap: Record<NonNullable<GameStatProps['color']>, { 
+    bg: string; 
+    text: string; 
+    border: string;
+    cssVar?: string;
+  }> = {
+    default: { 
+      bg: "bg-primary/40", 
+      text: "text-primary/70", 
+      border: "hover:border-primary/40",
+      cssVar: "hsl(var(--primary))"
+    },
+    blue: { 
+      bg: "bg-[hsl(var(--stat-blue,217_91%_60%)/0.4)]", 
+      text: "text-[hsl(var(--stat-blue,217_91%_60%)/0.7)]", 
+      border: "hover:border-[hsl(var(--stat-blue,217_91%_60%)/0.4)]"
+    },
+    sky: { 
+      bg: "bg-[hsl(var(--stat-sky,199_89%_48%)/0.4)]", 
+      text: "text-[hsl(var(--stat-sky,199_89%_48%)/0.7)]", 
+      border: "hover:border-[hsl(var(--stat-sky,199_89%_48%)/0.4)]"
+    },
+    green: { 
+      bg: "bg-[hsl(var(--stat-green,142_71%_45%)/0.4)]", 
+      text: "text-[hsl(var(--stat-green,142_71%_45%)/0.7)]", 
+      border: "hover:border-[hsl(var(--stat-green,142_71%_45%)/0.4)]"
+    },
+    emerald: { 
+      bg: "bg-[hsl(var(--stat-emerald,160_84%_39%)/0.4)]", 
+      text: "text-[hsl(var(--stat-emerald,160_84%_39%)/0.7)]", 
+      border: "hover:border-[hsl(var(--stat-emerald,160_84%_39%)/0.4)]"
+    },
+    amber: { 
+      bg: "bg-[hsl(var(--stat-amber,38_92%_50%)/0.4)]", 
+      text: "text-[hsl(var(--stat-amber,38_92%_50%)/0.7)]", 
+      border: "hover:border-[hsl(var(--stat-amber,38_92%_50%)/0.4)]"
+    },
+    rose: { 
+      bg: "bg-[hsl(var(--stat-rose,350_89%_60%)/0.4)]", 
+      text: "text-[hsl(var(--stat-rose,350_89%_60%)/0.7)]", 
+      border: "hover:border-[hsl(var(--stat-rose,350_89%_60%)/0.4)]"
+    },
+    purple: { 
+      bg: "bg-[hsl(var(--stat-purple,270_91%_65%)/0.4)]", 
+      text: "text-[hsl(var(--stat-purple,270_91%_65%)/0.7)]", 
+      border: "hover:border-[hsl(var(--stat-purple,270_91%_65%)/0.4)]"
+    },
+    violet: { 
+      bg: "bg-[hsl(var(--stat-violet,258_90%_66%)/0.4)]", 
+      text: "text-[hsl(var(--stat-violet,258_90%_66%)/0.7)]", 
+      border: "hover:border-[hsl(var(--stat-violet,258_90%_66%)/0.4)]"
+    },
+  };
+  
+  return colorMap[color || 'default'];
+};
 
 export function GameStat({ 
   label, 
@@ -114,19 +176,7 @@ export function GameStat({
   color = 'default',
   ...props 
 }: GameStatProps) {
-  const colorStyles = {
-    default: { bg: "bg-primary/40", text: "text-primary/70", border: "hover:border-primary/40" },
-    blue: { bg: "bg-blue-500/40", text: "text-blue-500/70", border: "hover:border-blue-500/40" },
-    sky: { bg: "bg-sky-500/40", text: "text-sky-500/70", border: "hover:border-sky-500/40" },
-    green: { bg: "bg-green-500/40", text: "text-green-500/70", border: "hover:border-green-500/40" },
-    emerald: { bg: "bg-emerald-500/40", text: "text-emerald-500/70", border: "hover:border-emerald-500/40" },
-    amber: { bg: "bg-amber-500/40", text: "text-amber-500/70", border: "hover:border-amber-500/40" },
-    rose: { bg: "bg-rose-500/40", text: "text-rose-500/70", border: "hover:border-rose-500/40" },
-    purple: { bg: "bg-purple-500/40", text: "text-purple-500/70", border: "hover:border-purple-500/40" },
-    violet: { bg: "bg-violet-500/40", text: "text-violet-500/70", border: "hover:border-violet-500/40" },
-  };
-
-  const styles = colorStyles[color] || colorStyles.default;
+  const styles = getStatColorStyles(color);
 
   return (
     <GamePanel 
@@ -325,7 +375,7 @@ export function GameButton({
   return (
     <button
       className={cn(
-        "relative group/btn inline-flex items-center justify-center gap-2 font-ui uppercase tracking-[0.1em] transition-all duration-200",
+        "relative group/btn inline-flex items-center  justify-center gap-2 font-ui uppercase tracking-[0.1em] transition-all duration-200",
         "disabled:opacity-40 disabled:cursor-not-allowed",
         
         size === 'sm' && "h-8 px-4 text-[10px]",
@@ -333,9 +383,9 @@ export function GameButton({
         size === 'lg' && "h-12 px-8 text-sm",
         
         variant === 'primary' && [
-          "bg-primary text-foreground",
-          "hover:bg-primary/90",
-          "border-none"
+          "bg-primary/10 text-foreground",
+          "hover:bg-primary/20",
+          "border border-primary",
         ],
         variant === 'secondary' && [
           "bg-card text-foreground",
@@ -522,6 +572,208 @@ export function GameLoader({ size = 'md', text, className }: GameLoaderProps) {
 }
 
 /**
+ * Immersive full-screen loading state inspired by Genshin Impact
+ * Features animated geometric patterns, subtle particles, and elegant typography
+ */
+
+const LOADING_TIPS = [
+  "Consistent daily reviews build lasting memory",
+  "Focus on context, not just translation",
+  "Use spaced repetition to your advantage",
+  "Speaking aloud strengthens recall",
+  "Small daily progress beats cramming",
+  "Create mental associations for new words",
+  "Review cards when your mind is fresh",
+  "Mistakes are opportunities to learn",
+]
+
+interface GameLoadingScreenProps {
+  title?: string
+  subtitle?: string
+  showTip?: boolean
+  className?: string
+}
+
+export function GameLoadingScreen({ 
+  title = "Loading", 
+  subtitle,
+  showTip = true,
+  className 
+}: GameLoadingScreenProps) {
+  const [tipIndex] = React.useState(() => Math.floor(Math.random() * LOADING_TIPS.length))
+  const tip = LOADING_TIPS[tipIndex]
+
+  return (
+    <div className={cn(
+      "fixed inset-0 z-50 flex flex-col items-center justify-center",
+      "bg-background",
+      className
+    )}>
+      {/* Subtle geometric background pattern */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        {/* Corner ornaments */}
+        <div className="absolute top-8 left-8 opacity-[0.08]">
+          <CornerOrnament />
+        </div>
+        <div className="absolute top-8 right-8 opacity-[0.08] rotate-90">
+          <CornerOrnament />
+        </div>
+        <div className="absolute bottom-8 left-8 opacity-[0.08] -rotate-90">
+          <CornerOrnament />
+        </div>
+        <div className="absolute bottom-8 right-8 opacity-[0.08] rotate-180">
+          <CornerOrnament />
+        </div>
+        
+        {/* Floating particles */}
+        <div className="absolute inset-0">
+          {[...Array(6)].map((_, i) => (
+            <span
+              key={i}
+              className="absolute w-1 h-1 bg-primary/20 rotate-45 animate-float"
+              style={{
+                left: `${15 + i * 15}%`,
+                top: `${20 + (i % 3) * 25}%`,
+                animationDelay: `${i * 0.4}s`,
+                animationDuration: `${3 + i * 0.5}s`
+              }}
+            />
+          ))}
+        </div>
+        
+        {/* Horizontal accent lines */}
+        <div className="absolute left-0 right-0 top-1/3 flex items-center justify-center opacity-[0.04]">
+          <div className="flex-1 max-w-xs h-px bg-linear-to-r from-transparent via-foreground to-transparent" />
+        </div>
+        <div className="absolute left-0 right-0 bottom-1/3 flex items-center justify-center opacity-[0.04]">
+          <div className="flex-1 max-w-xs h-px bg-linear-to-r from-transparent via-foreground to-transparent" />
+        </div>
+      </div>
+      
+      {/* Main content */}
+      <div className="relative flex flex-col items-center gap-8 px-6">
+        {/* Central loader animation */}
+        <div className="relative w-32 h-32">
+          {/* Outermost ring - very slow rotation */}
+          <div 
+            className="absolute inset-0 border border-border/30 rotate-45"
+            style={{ animation: 'spin 8s linear infinite' }}
+          />
+          
+          {/* Second ring with dots at corners */}
+          <div 
+            className="absolute inset-3 rotate-45"
+            style={{ animation: 'spin 6s linear infinite reverse' }}
+          >
+            <div className="absolute inset-0 border border-primary/20" />
+            <span className="absolute -top-0.5 -left-0.5 w-1 h-1 bg-primary/40 rotate-45" />
+            <span className="absolute -top-0.5 -right-0.5 w-1 h-1 bg-primary/40 rotate-45" />
+            <span className="absolute -bottom-0.5 -left-0.5 w-1 h-1 bg-primary/40 rotate-45" />
+            <span className="absolute -bottom-0.5 -right-0.5 w-1 h-1 bg-primary/40 rotate-45" />
+          </div>
+          
+          {/* Third ring */}
+          <div 
+            className="absolute inset-6 border border-primary/30 rotate-45"
+            style={{ animation: 'spin 4s linear infinite' }}
+          />
+          
+          {/* Fourth ring with glow */}
+          <div 
+            className="absolute inset-9 border border-primary/50 rotate-45 shadow-[0_0_20px_-5px_hsl(var(--primary)/0.3)]"
+            style={{ animation: 'spin 3s linear infinite reverse' }}
+          />
+          
+          {/* Innermost diamond */}
+          <div className="absolute inset-[52px] bg-primary/10 rotate-45 animate-pulse" />
+          
+          {/* Center point */}
+          <span 
+            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-2 h-2 bg-primary rotate-45"
+            style={{ animation: 'pulse 1.5s ease-in-out infinite' }}
+          />
+          
+          {/* Orbiting accent dots */}
+          <div className="absolute inset-0 animate-spin" style={{ animationDuration: '4s' }}>
+            <span className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1 w-1.5 h-1.5 bg-primary/60 rotate-45" />
+          </div>
+          <div className="absolute inset-0" style={{ animation: 'spin 4s linear infinite reverse' }}>
+            <span className="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-1 w-1.5 h-1.5 bg-primary/40 rotate-45" />
+          </div>
+        </div>
+        
+        {/* Title section */}
+        <div className="flex flex-col items-center gap-3 text-center">
+          <div className="flex items-center gap-4">
+            <span className="w-12 h-px bg-linear-to-r from-transparent to-border" />
+            <h2 className="text-lg font-light text-foreground tracking-[0.2em] uppercase font-ui">
+              {title}
+            </h2>
+            <span className="w-12 h-px bg-linear-to-l from-transparent to-border" />
+          </div>
+          
+          {subtitle && (
+            <p className="text-sm text-muted-foreground/70 font-light">
+              {subtitle}
+            </p>
+          )}
+          
+          {/* Animated dots */}
+          <div className="flex items-center gap-1.5 mt-1">
+            {[0, 1, 2].map((i) => (
+              <span
+                key={i}
+                className="w-1 h-1 bg-primary/60 rotate-45 animate-pulse"
+                style={{ animationDelay: `${i * 0.2}s` }}
+              />
+            ))}
+          </div>
+        </div>
+      </div>
+      
+      {/* Bottom tip section */}
+      {showTip && (
+        <div className="absolute bottom-12 left-0 right-0 px-8">
+          <div className="max-w-md mx-auto flex flex-col items-center gap-3">
+            <div className="flex items-center gap-2">
+              <span className="w-1 h-1 bg-primary/40 rotate-45" />
+              <span className="text-[10px] text-muted-foreground/50 uppercase tracking-[0.2em] font-ui">
+                Tip
+              </span>
+              <span className="w-1 h-1 bg-primary/40 rotate-45" />
+            </div>
+            <p className="text-sm text-muted-foreground/60 text-center font-light italic font-editorial">
+              "{tip}"
+            </p>
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
+/** Corner ornament for loading screen decoration */
+function CornerOrnament() {
+  return (
+    <svg width="80" height="80" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+      {/* Main corner frame */}
+      <path d="M0 0H40V2H2V40H0V0Z" fill="currentColor" />
+      <path d="M0 0H50V1H1V50H0V0Z" fill="currentColor" opacity="0.5" />
+      
+      {/* Inner details */}
+      <rect x="6" y="6" width="4" height="4" fill="currentColor" />
+      <rect x="14" y="6" width="8" height="2" fill="currentColor" opacity="0.6" />
+      <rect x="6" y="14" width="2" height="8" fill="currentColor" opacity="0.6" />
+      
+      {/* Diamond accents */}
+      <path d="M12 10L14 12L12 14L10 12Z" fill="currentColor" opacity="0.4" />
+      <path d="M30 2L32 4L30 6L28 4Z" fill="currentColor" opacity="0.5" />
+      <path d="M2 30L4 28L6 30L4 32Z" fill="currentColor" opacity="0.5" />
+    </svg>
+  )
+}
+
+/**
  * Compact inline button loader with spinning diamond
  */
 export function ButtonLoader({ className }: { className?: string }) {
@@ -532,5 +784,474 @@ export function ButtonLoader({ className }: { className?: string }) {
     >
       <span className="w-2 h-2 bg-current rotate-45 opacity-70" />
     </span>
+  )
+}
+
+/**
+ * Rank system configuration - maps levels to rank titles and colors
+ */
+const RANK_CONFIG = [
+  { maxLevel: 5, title: 'Novice', color: 'text-zinc-500', bgColor: 'bg-zinc-500/10', borderColor: 'border-zinc-500/30' },
+  { maxLevel: 10, title: 'Apprentice', color: 'text-emerald-500', bgColor: 'bg-emerald-500/10', borderColor: 'border-emerald-500/30' },
+  { maxLevel: 20, title: 'Scholar', color: 'text-sky-500', bgColor: 'bg-sky-500/10', borderColor: 'border-sky-500/30' },
+  { maxLevel: 35, title: 'Adept', color: 'text-violet-500', bgColor: 'bg-violet-500/10', borderColor: 'border-violet-500/30' },
+  { maxLevel: 50, title: 'Expert', color: 'text-amber-500', bgColor: 'bg-amber-500/10', borderColor: 'border-amber-500/30' },
+  { maxLevel: 75, title: 'Master', color: 'text-orange-500', bgColor: 'bg-orange-500/10', borderColor: 'border-orange-500/30' },
+  { maxLevel: 100, title: 'Grandmaster', color: 'text-rose-500', bgColor: 'bg-rose-500/10', borderColor: 'border-rose-500/30' },
+  { maxLevel: Infinity, title: 'Legend', color: 'text-primary', bgColor: 'bg-primary/10', borderColor: 'border-primary/30' },
+] as const
+
+export function getRankForLevel(level: number) {
+  return RANK_CONFIG.find(r => level <= r.maxLevel) || RANK_CONFIG[RANK_CONFIG.length - 1]
+}
+
+/**
+ * Level badge with rank title - Genshin-inspired design
+ */
+interface LevelBadgeProps {
+  level: number
+  xp: number
+  progressPercent: number
+  xpToNextLevel: number
+  showDetails?: boolean
+  className?: string
+}
+
+export function LevelBadge({ 
+  level, 
+  xp, 
+  progressPercent, 
+  xpToNextLevel,
+  showDetails = true,
+  className 
+}: LevelBadgeProps) {
+  const rank = getRankForLevel(level)
+  
+  return (
+    <div className={cn("relative", className)}>
+      <div className="flex items-center gap-4">
+        {/* Level emblem */}
+        <div className="relative w-16 h-16">
+          {/* Outer decorative ring */}
+          <svg className="absolute inset-0 w-full h-full" viewBox="0 0 64 64">
+            {/* Background circle */}
+            <circle
+              cx="32"
+              cy="32"
+              r="30"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1"
+              className="text-border/40"
+            />
+            {/* Progress arc */}
+            <circle
+              cx="32"
+              cy="32"
+              r="30"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeDasharray={`${(progressPercent / 100) * 188.5} 188.5`}
+              className={cn(rank.color, "transition-all duration-500")}
+              style={{ transform: 'rotate(-90deg)', transformOrigin: 'center' }}
+            />
+          </svg>
+          
+          {/* Inner diamond frame */}
+          <div className="absolute inset-2">
+            <div className={cn(
+              "w-full h-full border rotate-45",
+              "bg-card",
+              rank.borderColor
+            )}>
+              {/* Corner accents */}
+              <span className={cn("absolute -top-px -left-px w-1.5 h-1.5 border-l border-t", rank.borderColor)} />
+              <span className={cn("absolute -top-px -right-px w-1.5 h-1.5 border-r border-t", rank.borderColor)} />
+              <span className={cn("absolute -bottom-px -left-px w-1.5 h-1.5 border-l border-b", rank.borderColor)} />
+              <span className={cn("absolute -bottom-px -right-px w-1.5 h-1.5 border-r border-b", rank.borderColor)} />
+            </div>
+          </div>
+          
+          {/* Level number - centered */}
+          <div className="absolute inset-0 flex items-center justify-center">
+            <span className={cn(
+              "text-xl font-light tabular-nums",
+              rank.color
+            )}>
+              {level}
+            </span>
+          </div>
+          
+          {/* Cardinal point diamonds */}
+          <span className={cn("absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 w-1.5 h-1.5 rotate-45 border", rank.bgColor, rank.borderColor)} />
+          <span className={cn("absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-1/2 w-1.5 h-1.5 rotate-45 border", rank.bgColor, rank.borderColor)} />
+          <span className={cn("absolute left-0 top-1/2 -translate-x-1/2 -translate-y-1/2 w-1.5 h-1.5 rotate-45 border", rank.bgColor, rank.borderColor)} />
+          <span className={cn("absolute right-0 top-1/2 translate-x-1/2 -translate-y-1/2 w-1.5 h-1.5 rotate-45 border", rank.bgColor, rank.borderColor)} />
+        </div>
+        
+        {/* Level details */}
+        {showDetails && (
+          <div className="flex-1">
+            <div className="flex items-center gap-2 mb-1">
+              <span className={cn("text-xs font-medium uppercase tracking-[0.15em] font-ui", rank.color)}>
+                {rank.title}
+              </span>
+              <span className="w-1 h-1 rotate-45 bg-border" />
+              <span className="text-[10px] text-muted-foreground uppercase tracking-wider font-ui">
+                Level {level}
+              </span>
+            </div>
+            
+            <div className="flex items-baseline gap-2">
+              <span className="text-lg font-light text-foreground tabular-nums">
+                {xp.toLocaleString()}
+              </span>
+              <span className="text-xs text-muted-foreground font-light">XP</span>
+            </div>
+            
+            <p className="text-[10px] text-muted-foreground/70 mt-1 font-light">
+              {xpToNextLevel.toLocaleString()} XP to next level
+            </p>
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
+
+/**
+ * Streak display with flame animation and weekly calendar
+ */
+interface StreakDisplayProps {
+  currentStreak: number
+  lastSevenDays: { date: Date; active: boolean; count: number }[]
+  isAtRisk?: boolean
+  className?: string
+}
+
+export function StreakDisplay({ 
+  currentStreak, 
+  lastSevenDays,
+  isAtRisk = false,
+  className 
+}: StreakDisplayProps) {
+  return (
+    <div className={cn("relative group/streak", className)}>
+      <div className="flex items-center gap-5">
+        {/* Flame icon with geometric frame */}
+        <div className="relative w-14 h-14">
+          {/* Outer decorative ring */}
+          <svg className="absolute inset-0 w-full h-full" viewBox="0 0 56 56">
+            <circle
+              cx="28"
+              cy="28"
+              r="26"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1"
+              className={currentStreak > 0 ? "text-orange-500/30" : "text-border/40"}
+            />
+            {/* Decorative dots at cardinal points */}
+            {currentStreak > 0 && (
+              <>
+                <rect x="26" y="0" width="4" height="4" fill="currentColor" className="text-orange-500/40" transform="rotate(45 28 2)" />
+                <rect x="26" y="52" width="4" height="4" fill="currentColor" className="text-orange-500/40" transform="rotate(45 28 54)" />
+              </>
+            )}
+          </svg>
+          
+          {/* Inner content */}
+          <div className={cn(
+            "absolute inset-1.5 rounded-full flex items-center justify-center",
+            "border transition-all duration-300",
+            currentStreak > 0 
+              ? "bg-orange-500/5 border-orange-500/20" 
+              : "bg-muted/30 border-border/40"
+          )}>
+            {/* Flame icon using Lucide-style path */}
+            <svg 
+              className={cn(
+                "w-5 h-5 transition-all",
+                currentStreak > 0 ? "text-orange-500 group-hover/streak:animate-flame-flicker" : "text-muted-foreground/30"
+              )}
+              viewBox="0 0 24 24" 
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z" />
+            </svg>
+          </div>
+          
+          {/* Streak at risk indicator */}
+          {isAtRisk && currentStreak > 0 && (
+            <span className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 bg-amber-500 rounded-full animate-pulse border-2 border-card" />
+          )}
+        </div>
+        
+        {/* Streak info */}
+        <div className="flex-1">
+          <div className="flex items-baseline gap-2 mb-3">
+            <span className="text-3xl font-light text-foreground tabular-nums">
+              {currentStreak}
+            </span>
+            <span className="text-sm text-muted-foreground font-light">
+              day{currentStreak === 1 ? '' : 's'}
+            </span>
+            {isAtRisk && currentStreak > 0 && (
+              <span className="text-[10px] text-amber-500 uppercase tracking-wider font-ui animate-pulse">
+                At Risk
+              </span>
+            )}
+          </div>
+          
+          {/* Weekly calendar - refined */}
+          <div className="flex gap-1">
+            {lastSevenDays.map((day, i) => (
+              <div key={i} className="flex flex-col items-center gap-1">
+                <span className="text-[9px] text-muted-foreground/50 font-ui">
+                  {day.date.toLocaleDateString('en', { weekday: 'narrow' })}
+                </span>
+                <div className={cn(
+                  "w-5 h-5 flex items-center justify-center transition-all",
+                  "border",
+                  day.active 
+                    ? "bg-orange-500/15 border-orange-500/30" 
+                    : "bg-muted/20 border-border/20"
+                )}>
+                  {day.active && (
+                    <span className="w-1.5 h-1.5 rotate-45 bg-orange-500" />
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+/**
+ * Circular progress indicator for the hero section
+ */
+interface CircularProgressProps {
+  value: number
+  max: number
+  size?: 'sm' | 'md' | 'lg'
+  showLabel?: boolean
+  label?: string
+  className?: string
+}
+
+export function CircularProgress({
+  value,
+  max,
+  size = 'lg',
+  showLabel = true,
+  label,
+  className
+}: CircularProgressProps) {
+  const percentage = max > 0 ? (value / max) * 100 : 0
+  const isComplete = value === 0 && max === 0
+  
+  const sizeConfig = {
+    sm: { size: 80, stroke: 3, textSize: 'text-xl' },
+    md: { size: 120, stroke: 4, textSize: 'text-3xl' },
+    lg: { size: 160, stroke: 5, textSize: 'text-5xl' }
+  }
+  
+  const config = sizeConfig[size]
+  const radius = (config.size - config.stroke * 2) / 2
+  const circumference = radius * 2 * Math.PI
+  const offset = circumference - (percentage / 100) * circumference
+
+  return (
+    <div className={cn("relative inline-flex items-center justify-center", className)}>
+      <svg 
+        width={config.size} 
+        height={config.size} 
+        className="-rotate-90"
+      >
+        {/* Background circle */}
+        <circle
+          cx={config.size / 2}
+          cy={config.size / 2}
+          r={radius}
+          fill="none"
+          stroke="currentColor"
+          strokeWidth={config.stroke}
+          className="text-border/30"
+        />
+        
+        {/* Progress circle */}
+        <circle
+          cx={config.size / 2}
+          cy={config.size / 2}
+          r={radius}
+          fill="none"
+          stroke="currentColor"
+          strokeWidth={config.stroke}
+          strokeLinecap="round"
+          strokeDasharray={circumference}
+          strokeDashoffset={offset}
+          className={cn(
+            "transition-all duration-500",
+            isComplete ? "text-emerald-500" : "text-primary"
+          )}
+        />
+        
+        {/* Decorative dots at cardinal points */}
+        {[0, 90, 180, 270].map((angle) => {
+          const radian = (angle * Math.PI) / 180
+          const x = config.size / 2 + (radius + 6) * Math.cos(radian - Math.PI / 2)
+          const y = config.size / 2 + (radius + 6) * Math.sin(radian - Math.PI / 2)
+          return (
+            <rect
+              key={angle}
+              x={x - 1.5}
+              y={y - 1.5}
+              width={3}
+              height={3}
+              fill="currentColor"
+              className="text-primary/40"
+              transform={`rotate(45 ${x} ${y})`}
+            />
+          )
+        })}
+      </svg>
+      
+      {/* Center content */}
+      <div className="absolute inset-0 flex flex-col items-center justify-center">
+        <span className={cn(config.textSize, "font-light text-foreground tabular-nums")}>
+          {value}
+        </span>
+        {showLabel && (
+          <span className="text-xs text-muted-foreground font-light mt-1">
+            {label || (isComplete ? 'Complete' : `of ${max}`)}
+          </span>
+        )}
+      </div>
+    </div>
+  )
+}
+
+/**
+ * Enhanced empty state with decorative pattern
+ */
+interface GameEmptyStateProps {
+  icon: React.ElementType
+  title: string
+  description: string
+  action?: {
+    label: string
+    onClick: () => void
+  }
+  className?: string
+}
+
+export function GameEmptyState({ 
+  icon: Icon, 
+  title, 
+  description, 
+  action,
+  className 
+}: GameEmptyStateProps) {
+  return (
+    <GamePanel className={cn("relative overflow-hidden", className)}>
+      {/* Background pattern */}
+      <div className="absolute inset-0 opacity-[0.02] pointer-events-none">
+        <div className="absolute inset-0" style={{
+          backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 0L32 2L30 4L28 2Z' fill='currentColor'/%3E%3C/svg%3E")`,
+          backgroundSize: '30px 30px'
+        }} />
+      </div>
+      
+      <div className="relative p-8 md:p-12 flex flex-col items-center justify-center text-center">
+        {/* Icon container */}
+        <div className="relative mb-5">
+          {/* Outer rotating ring */}
+          <div className="w-20 h-20 border border-dashed border-border/40 rotate-45 flex items-center justify-center">
+            <div className="w-14 h-14 border border-border/60 -rotate-45 flex items-center justify-center bg-card">
+              <Icon className="w-6 h-6 text-muted-foreground/50" strokeWidth={1.5} />
+            </div>
+          </div>
+          
+          {/* Corner diamonds */}
+          <span className="absolute -top-1 left-1/2 -translate-x-1/2 w-2 h-2 rotate-45 bg-primary/20 border border-primary/30" />
+          <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-2 h-2 rotate-45 bg-primary/20 border border-primary/30" />
+          <span className="absolute top-1/2 -left-1 -translate-y-1/2 w-2 h-2 rotate-45 bg-primary/20 border border-primary/30" />
+          <span className="absolute top-1/2 -right-1 -translate-y-1/2 w-2 h-2 rotate-45 bg-primary/20 border border-primary/30" />
+        </div>
+        
+        <h3 className="text-sm font-medium text-foreground mb-2 font-ui tracking-wide">
+          {title}
+        </h3>
+        <p className="text-xs text-muted-foreground font-light max-w-60 mb-5">
+          {description}
+        </p>
+        
+        {action && (
+          <GameButton 
+            variant="secondary" 
+            size="sm" 
+            onClick={action.onClick}
+          >
+            {action.label}
+          </GameButton>
+        )}
+      </div>
+    </GamePanel>
+  )
+}
+
+/**
+ * Card distribution mini bar visualization
+ */
+interface CardDistributionBarProps {
+  segments: { label: string; value: number; color: string }[]
+  total: number
+  className?: string
+}
+
+export function CardDistributionBar({ segments, total, className }: CardDistributionBarProps) {
+  if (total === 0) return null
+  
+  return (
+    <div className={cn("space-y-2", className)}>
+      {/* Bar */}
+      <div className="relative h-2 bg-muted/30 overflow-hidden flex">
+        {segments.map((segment, i) => {
+          const width = (segment.value / total) * 100
+          if (width === 0) return null
+          return (
+            <div
+              key={i}
+              className={cn("h-full transition-all duration-500", segment.color)}
+              style={{ width: `${width}%` }}
+            />
+          )
+        })}
+      </div>
+      
+      {/* Legend */}
+      <div className="flex flex-wrap gap-x-4 gap-y-1">
+        {segments.map((segment, i) => (
+          <div key={i} className="flex items-center gap-1.5">
+            <span className={cn("w-2 h-2 rotate-45", segment.color)} />
+            <span className="text-[10px] text-muted-foreground font-ui">
+              {segment.label}
+            </span>
+            <span className="text-[10px] text-foreground/80 tabular-nums font-ui">
+              {segment.value}
+            </span>
+          </div>
+        ))}
+      </div>
+    </div>
   )
 }

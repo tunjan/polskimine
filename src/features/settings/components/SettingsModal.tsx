@@ -132,7 +132,8 @@ const rowToCard = (row: CsvRow, fallbackLanguage: Language): Card | null => {
 };
 
 const parseCardsFromCsv = (payload: string, fallbackLanguage: Language): Card[] => {
-    const sanitized = payload.replace(/\r\n/g, '\n').trim();
+    // Strip BOM (Byte Order Mark) that Excel and other tools may add to CSV files
+    const sanitized = payload.replace(/^\uFEFF/, '').replace(/\r\n/g, '\n').trim();
     if (!sanitized) return [];
 
     const lines: string[] = [];
@@ -196,7 +197,7 @@ const signatureForCard = (sentence: string, language: Language) =>
 export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
   const { settings, updateSettings, saveApiKeys } = useSettings();
     const { refreshDeckData } = useDeck();
-    const { signOut, profile, updateUsername } = useAuth();
+    const { signOut, profile, updateUsername, updateLanguageLevel } = useAuth();
     const queryClient = useQueryClient();
   const [localSettings, setLocalSettings] = useState(settings);
   const [localUsername, setLocalUsername] = useState('');
@@ -617,6 +618,8 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                         setLocalSettings={setLocalSettings}
                         username={localUsername}
                         setUsername={setLocalUsername}
+                        languageLevel={profile?.language_level || 'A1'}
+                        onUpdateLevel={updateLanguageLevel}
                     />
                 )}
 

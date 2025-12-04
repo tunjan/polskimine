@@ -9,7 +9,7 @@ export interface GenerateInitialDeckOptions {
 
 /**
  * Generate a personalized initial deck using Gemini AI via aiService
- * Uses client-side logic to call the 'generate-card' function indirectly
+ * Uses parallel micro-batching for faster generation and better variety
  */
 export async function generateInitialDeck(options: GenerateInitialDeckOptions): Promise<Card[]> {
     if (!options.apiKey) {
@@ -17,24 +17,30 @@ export async function generateInitialDeck(options: GenerateInitialDeckOptions): 
     }
 
     try {
-        // Use aiService.generateBatchCards which uses the existing 'generate-card' edge function
-        // We define a broad topic suitable for the user's level
-        const instructions = `Generate content for ${options.proficiencyLevel} level. Topic: Essential daily life phrases, greetings, and basic survival vocabulary.`;
-
-        // We request 5 batches of 10 cards to ensure variety and avoid timeouts
-        const batchCount = 5;
-        const cardsPerBatch = 10;
+        const totalCards = 50;
+        const batchSize = 10;
         
-        const batchPromises = Array.from({ length: batchCount }).map(() => 
+        // Create 5 varied prompts to ensure diversity
+        const topics = [
+            "Greetings and Introductions",
+            "Ordering Food and Drinks",
+            "Travel and Directions",
+            "Hobbies and Free Time",
+            "Emergency and Health"
+        ];
+
+        // Fire 5 parallel requests for 10 cards each
+        const promises = topics.map((topic) => 
             aiService.generateBatchCards({
                 language: options.language,
-                instructions: instructions,
-                count: cardsPerBatch,
+                instructions: `Generate content for ${options.proficiencyLevel} level. Topic: ${topic}. Ensure sentences are practical and varied.`,
+                count: batchSize,
                 apiKey: options.apiKey!,
             })
         );
 
-        const results = await Promise.all(batchPromises);
+        // Wait for all batches to finish
+        const results = await Promise.all(promises);
         const generatedData = results.flat();
 
         if (!generatedData || !Array.isArray(generatedData)) {

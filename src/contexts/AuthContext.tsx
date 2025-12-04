@@ -25,6 +25,7 @@ interface AuthContextType {
   signInWithEmail: (email: string, password: string) => Promise<void>;
   signUpWithEmail: (email: string, password: string, username: string, languageLevel?: string) => Promise<any>;
   updateUsername: (username: string) => Promise<void>;
+  updateLanguageLevel: (level: string) => Promise<void>;
   markInitialDeckGenerated: () => Promise<void>;
   loading: boolean;
   incrementXPOptimistically: (amount: number) => void;
@@ -38,6 +39,26 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
 
+  const fetchProfile = React.useCallback(async (userId: string) => {
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('id', userId)
+      .single();
+
+    if (error) {
+      console.error('Failed to load profile', error);
+      return;
+    }
+
+    const safeData = {
+      ...data,
+      points: data.points ?? 0
+    };
+
+    setProfile(safeData as Profile);
+  }, []);
+
   useEffect(() => {
     let isMounted = true;
 
@@ -48,7 +69,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setSession(nextSession);
       setUser(nextSession?.user ?? null);
       if (nextSession?.user) {
-        fetchProfile(nextSession.user.id);
+        await fetchProfile(nextSession.user.id);
       } else {
         setProfile(null);
       }
@@ -59,12 +80,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, nextSession) => {
+    } = supabase.auth.onAuthStateChange(async (_event, nextSession) => {
       if (!isMounted) return;
       setSession(nextSession);
       setUser(nextSession?.user ?? null);
       if (nextSession?.user) {
-        fetchProfile(nextSession.user.id);
+        await fetchProfile(nextSession.user.id);
       } else {
         setProfile(null);
       }
@@ -75,27 +96,32 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       isMounted = false;
       subscription.unsubscribe();
     };
-  }, []);
+  }, [fetchProfile]);
 
 
   useEffect(() => {
-    if (!user) return;
+    let isMounted = true;
+
+    if (user) {
+      fetchProfile(user.id);
+    } else {
+      setProfile(null);
+    }
 
     const channel = supabase
-      .channel('profile-changes')
+      .channel('profile_changes')
       .on(
         'postgres_changes',
         {
           event: 'UPDATE',
           schema: 'public',
           table: 'profiles',
-          filter: `id=eq.${user.id}`,
+          filter: user ? `id=eq.${user.id}` : undefined,
         },
         (payload) => {
+          if (!isMounted) return;
           const newProfile = payload.new as Profile;
-
-
-          setProfile(prev => {
+          setProfile((prev) => {
             if (!prev) return newProfile;
 
             if (prev.xp > newProfile.xp || prev.points > newProfile.points) {
@@ -108,30 +134,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       .subscribe();
 
     return () => {
+      isMounted = false;
       supabase.removeChannel(channel);
     };
-  }, [user]);
-
-  const fetchProfile = async (userId: string) => {
-    const { data, error } = await supabase
-      .from('profiles')
-      .select('*')
-      .eq('id', userId)
-      .single();
-
-    if (error) {
-      console.error('Failed to load profile', error);
-      return;
-    }
-
-
-    const safeData = {
-      ...data,
-      points: data.points ?? 0
-    };
-
-    setProfile(safeData as Profile);
-  };
+  }, [user, fetchProfile]);
 
   const signInWithGoogle = async () => {
     const redirectTo = Capacitor.isNativePlatform()
@@ -207,6 +213,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setProfile((prev) => prev ? { ...prev, username: newUsername } : null);
   };
 
+  const updateLanguageLevel = async (level: string) => {
+    if (!user) return;
+    const { error } = await supabase
+      .from('profiles')
+      .update({ language_level: level })
+      .eq('id', user.id);
+    
+    if (error) throw error;
+    setProfile(prev => prev ? { ...prev, language_level: level } : null);
+  };
+
   const incrementXPOptimistically = (amount: number) => {
     if (!profile) return;
 
@@ -239,7 +256,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   return (
     <AuthContext.Provider
-      value={{ session, user, profile, signInWithGoogle, signOut, signInWithEmail, signUpWithEmail, updateUsername, loading, incrementXPOptimistically, markInitialDeckGenerated }}
+      value={{ session, user, profile, signInWithGoogle, signOut, signInWithEmail, signUpWithEmail, updateUsername, updateLanguageLevel, loading, incrementXPOptimistically, markInitialDeckGenerated }}
     >
       {children}
     </AuthContext.Provider>

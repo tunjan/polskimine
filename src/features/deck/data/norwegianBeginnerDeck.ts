@@ -1,20 +1,5 @@
 import { Card } from '@/types';
-import { v4 as uuidv4 } from 'uuid';
-
-const createCard = (sentence: string, translation: string, targetWord?: string, notes: string = '', targetWordTranslation?: string, targetWordPartOfSpeech?: string): Card => ({
-  id: uuidv4(),
-  targetSentence: sentence,
-  targetWord,
-  nativeTranslation: translation,
-  notes,
-  targetWordTranslation,
-  targetWordPartOfSpeech,
-  status: 'new',
-  interval: 0,
-  easeFactor: 2.5,
-  dueDate: new Date().toISOString(),
-  language: 'norwegian'
-});
+import { createNorwegianCard as createCard } from './createCard';
 
 export const NORWEGIAN_BEGINNER_DECK: Card[] = [
 

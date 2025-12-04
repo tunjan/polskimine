@@ -25,6 +25,15 @@ export const SabotageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   const { user } = useAuth();
   const [activeCurses, setActiveCurses] = useState<ActiveCurse[]>([]);
   const [notificationQueue, setNotificationQueue] = useState<ActiveCurse[]>([]);
+  const seenIdsRef = React.useRef<string[]>([]);
+
+  useEffect(() => {
+    try {
+      seenIdsRef.current = JSON.parse(localStorage.getItem('linguaflow_seen_curses') || '[]');
+    } catch (e) {
+      seenIdsRef.current = [];
+    }
+  }, []);
 
   const fetchCurses = async () => {
     if (!user) return;
@@ -62,7 +71,7 @@ export const SabotageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
     setActiveCurses(enrichedCurses);
 
-    const seenIds: string[] = JSON.parse(localStorage.getItem('linguaflow_seen_curses') || '[]');
+    const seenIds = seenIdsRef.current;
     const newCurses = enrichedCurses.filter((c) => !seenIds.includes(c.id));
     if (newCurses.length > 0) {
       setNotificationQueue(newCurses);
@@ -131,10 +140,10 @@ export const SabotageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     setNotificationQueue((prev) => {
       if (prev.length === 0) return prev;
       const [dismissed, ...rest] = prev;
-      const seenIds: string[] = JSON.parse(localStorage.getItem('linguaflow_seen_curses') || '[]');
-      if (!seenIds.includes(dismissed.id)) {
-        seenIds.push(dismissed.id);
-        localStorage.setItem('linguaflow_seen_curses', JSON.stringify(seenIds));
+      
+      if (!seenIdsRef.current.includes(dismissed.id)) {
+        seenIdsRef.current.push(dismissed.id);
+        localStorage.setItem('linguaflow_seen_curses', JSON.stringify(seenIdsRef.current));
       }
       return rest;
     });

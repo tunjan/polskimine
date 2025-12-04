@@ -149,6 +149,24 @@ export const StudySettings: React.FC<StudySettingsProps> = ({ localSettings, set
             />
           </div>
         </GamePanel>
+
+        <GamePanel variant="stat" size="sm" className="hover:border-primary/40 transition-colors">
+          <div className="flex items-center justify-between gap-6">
+            <div className="flex-1">
+              <div className="flex items-center gap-2 mb-1">
+                <span className="w-1 h-1 rotate-45 bg-primary/40" />
+                <span className="text-sm font-light text-foreground font-ui">Skip Learning Wait</span>
+              </div>
+              <p className="text-xs text-muted-foreground/60 font-light pl-3">Continue reviewing other due cards instead of waiting for learning steps to cool down</p>
+            </div>
+            <Switch
+              checked={localSettings.ignoreLearningStepsWhenNoCards}
+              onCheckedChange={(checked) =>
+                setLocalSettings((prev) => ({ ...prev, ignoreLearningStepsWhenNoCards: checked }))
+              }
+            />
+          </div>
+        </GamePanel>
       </div>
     </div>
   );

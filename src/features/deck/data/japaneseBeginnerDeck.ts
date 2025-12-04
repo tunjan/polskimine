@@ -1,19 +1,5 @@
 import { Card } from '@/types';
-import { v4 as uuidv4 } from 'uuid';
-
-const createCard = (sentence: string, translation: string, targetWord?: string, notes: string = '', furigana?: string): Card => ({
-  id: uuidv4(),
-  targetSentence: sentence,
-  targetWord,
-  nativeTranslation: translation,
-  notes,
-  furigana,
-  status: 'new',
-  interval: 0,
-  easeFactor: 2.5,
-  dueDate: new Date().toISOString(),
-  language: 'japanese'
-});
+import { createJapaneseCard as createCard } from './createCard';
 
 export const JAPANESE_BEGINNER_DECK: Card[] = [
 

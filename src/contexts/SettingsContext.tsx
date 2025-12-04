@@ -60,7 +60,7 @@ interface SettingsContextType {
 const SettingsContext = createContext<SettingsContextType | undefined>(undefined);
 
 export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const [settingsLoading, setSettingsLoading] = useState(false);
 
   const [settings, setSettings] = useState<UserSettings>(() => {
@@ -100,7 +100,7 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   
   useEffect(() => {
     const loadCloudSettings = async () => {
-      if (!user) return;
+      if (authLoading || !user) return;
 
       setSettingsLoading(true);
       try {
@@ -132,7 +132,7 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     };
 
     loadCloudSettings();
-  }, [user]);
+  }, [user, authLoading]);
 
   const updateSettings = (newSettings: Partial<UserSettings>) => {
     setSettings(prev => ({
@@ -207,6 +207,17 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 export const useSettings = () => {
   const context = useContext(SettingsContext);
   if (context === undefined) {
+    // During HMR, context may temporarily be undefined. Return defaults to prevent crash.
+    if (import.meta.hot) {
+      console.warn('useSettings called outside SettingsProvider during HMR, using defaults');
+      return {
+        settings: DEFAULT_SETTINGS,
+        updateSettings: async () => {},
+        resetSettings: async () => {},
+        settingsLoading: true,
+        saveApiKeys: async () => {},
+      };
+    }
     throw new Error('useSettings must be used within a SettingsProvider');
   }
   return context;
