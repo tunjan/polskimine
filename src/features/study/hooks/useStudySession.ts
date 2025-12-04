@@ -106,6 +106,14 @@ export const useStudySession = ({
       
       setIsWaiting(true);
       const dueTime = new Date(current.dueDate).getTime();
+      
+      // FIX: Handle invalid dates to prevent infinite loop
+      if (isNaN(dueTime)) {
+        console.error('Invalid due date for card:', current.id);
+        setIsWaiting(false);
+        return;
+      }
+
       const delay = Math.max(100, dueTime - now.getTime());
       
       const timer = setTimeout(() => {

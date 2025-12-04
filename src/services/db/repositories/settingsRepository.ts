@@ -119,3 +119,4 @@ export async function migrateLocalSettingsToDatabase(userId: string): Promise<bo
         return false;
     }
 }
+

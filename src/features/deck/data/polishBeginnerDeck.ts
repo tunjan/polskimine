@@ -80,3 +80,4 @@ export const POLISH_BEGINNER_DECK: Card[] = [
   createCard("Jest blisko stąd.", "It is close to here.", "blisko", "", "close", "adverb"),
   createCard("To jest daleko.", "It is far.", "daleko", "", "far", "adverb")
 ];
+

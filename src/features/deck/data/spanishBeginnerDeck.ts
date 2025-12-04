@@ -66,3 +66,4 @@ export const SPANISH_BEGINNER_DECK: Card[] = [
   createCard("El coche es rojo.", "The car is red.", "rojo", ""),
   createCard("La casa es grande.", "The house is big.", "grande", "")
 ];
+

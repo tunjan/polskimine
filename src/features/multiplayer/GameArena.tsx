@@ -447,3 +447,4 @@ export const GameArena: React.FC = () => {
     </div>
   );
 };
+

@@ -103,3 +103,4 @@ export const GradeDistributionChart: React.FC<GradeDistributionChartProps> = ({ 
     </div>
   );
 };
+

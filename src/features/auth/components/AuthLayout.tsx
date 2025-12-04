@@ -29,3 +29,4 @@ export const AuthLayout: React.FC<AuthLayoutProps> = ({ children, className }) =
     </div>
   );
 };
+

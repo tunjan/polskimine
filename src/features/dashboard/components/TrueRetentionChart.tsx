@@ -85,3 +85,4 @@ export const TrueRetentionChart: React.FC<TrueRetentionChartProps> = ({ data, ta
     </div>
   );
 };
+

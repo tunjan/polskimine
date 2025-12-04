@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Card, Grade } from '@/types';
 import { StudySession } from '@/features/study/components/StudySession';
@@ -28,16 +28,13 @@ export const StudyRoute: React.FC = () => {
   const [reserveCards, setReserveCards] = useState<Card[]>([]); 
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const loadedRef = useRef(false);
 
   const mode = searchParams.get('mode');
   const isCramMode = mode === 'cram';
 
   useEffect(() => {
-    // Prevent multiple loads
-    if (loadedRef.current) return;
-    
     let isMounted = true;
+    setIsLoading(true);
 
     const loadCards = async () => {
       try {
@@ -48,13 +45,20 @@ export const StudyRoute: React.FC = () => {
           if (isMounted) {
             setSessionCards(cramCards);
             setReserveCards([]);
-            loadedRef.current = true;
           }
         } else {
-          const [due, reviewsToday] = await Promise.all([
-            getDueCards(new Date(), settings.language),
-            getTodayReviewStats(settings.language)
-          ]);
+          // FIX: Create a timeout promise
+          const timeoutPromise = new Promise((_, reject) => 
+            setTimeout(() => reject(new Error('Request timed out')), 15000)
+          );
+
+          const [due, reviewsToday] = await Promise.race([
+            Promise.all([
+              getDueCards(new Date(), settings.language),
+              getTodayReviewStats(settings.language)
+            ]),
+            timeoutPromise
+          ]) as [Card[], { newCards: number; reviewCards: number }];
           
           if (!isMounted) return;
           
@@ -88,7 +92,6 @@ export const StudyRoute: React.FC = () => {
           
           setSessionCards(active);
           setReserveCards(reserve);
-          loadedRef.current = true;
         }
       } catch (err) {
         console.error("Failed to load cards", err);
@@ -127,9 +130,9 @@ export const StudyRoute: React.FC = () => {
     setSessionCards(prev => prev.filter(c => c.id !== id));
   };
 
-  const handleRecordReview = (card: Card, grade: Grade, xpPayload?: CardXpPayload) => {
+  const handleRecordReview = async (card: Card, grade: Grade, xpPayload?: CardXpPayload) => {
     if (!isCramMode) {
-      recordReview(card, grade, xpPayload);
+      await recordReview(card, grade, xpPayload);
     }
   };
 

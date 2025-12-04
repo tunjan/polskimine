@@ -4,6 +4,7 @@ import { Difficulty, Language } from '@/types';
 import { cn } from '@/lib/utils';
 import { GameButton, GameInput, GameLoader } from '@/components/ui/game-ui';
 
+// Component for deck generation setup
 interface DeckGenerationStepProps {
     language: Language;
     proficiencyLevel: Difficulty;
@@ -171,3 +172,4 @@ export const DeckGenerationStep: React.FC<DeckGenerationStepProps> = ({
         </div>
     );
 };
+

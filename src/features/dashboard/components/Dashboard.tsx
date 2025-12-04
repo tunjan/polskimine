@@ -32,6 +32,7 @@ import {
   getRankForLevel
 } from '@/components/ui/game-ui';
 
+import { MusicControl } from './MusicControl';
 import { Heatmap } from './Heatmap';
 import { RetentionStats } from './RetentionStats';
 import { ReviewVolumeChart } from './ReviewVolumeChart';
@@ -99,6 +100,9 @@ export const Dashboard: React.FC<DashboardProps> = ({
 
       <div className="relative px-4 md:px-6 lg:px-8 py-4 md:py-6 max-w-[1200px] mx-auto">
         
+        {/* Music Control */}
+        <MusicControl />
+
         {/* === CHARACTER BANNER SECTION === */}
         <section className="mb-8 md:mb-10">
           <div className="grid grid-cols-1 lg:grid-cols-[320px_1fr] gap-6">
@@ -566,3 +570,4 @@ const ChartEmpty: React.FC = () => (
     <p className="text-xs text-muted-foreground font-medium">No data available</p>
   </div>
 );
+

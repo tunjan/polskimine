@@ -31,6 +31,14 @@ interface AuthContextType {
   incrementXPOptimistically: (amount: number) => void;
 }
 
+// Helper for timeout
+const withTimeout = <T,>(promise: Promise<T>, ms: number, label: string): Promise<T> => {
+    return Promise.race([
+        promise,
+        new Promise<T>((_, reject) => setTimeout(() => reject(new Error(`${label} timeout`)), ms))
+    ]);
+};
+
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -63,17 +71,36 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     let isMounted = true;
 
     const loadSession = async () => {
-      const { data } = await supabase.auth.getSession();
-      if (!isMounted) return;
-      const nextSession = data.session;
-      setSession(nextSession);
-      setUser(nextSession?.user ?? null);
-      if (nextSession?.user) {
-        await fetchProfile(nextSession.user.id);
-      } else {
-        setProfile(null);
+      try {
+        // Timeout after 5 seconds to prevent infinite loading
+        const timeoutPromise = new Promise((_, reject) => 
+          setTimeout(() => reject(new Error('Session load timeout')), 5000)
+        );
+
+        const sessionPromise = supabase.auth.getSession();
+        
+        const { data } = await Promise.race([sessionPromise, timeoutPromise]) as any;
+        
+        if (!isMounted) return;
+        
+        const nextSession = data.session;
+        setSession(nextSession);
+        setUser(nextSession?.user ?? null);
+        
+        if (nextSession?.user) {
+          // FIX: Add timeout to profile fetch
+          await withTimeout(fetchProfile(nextSession.user.id), 10000, 'Profile load');
+        } else {
+          setProfile(null);
+        }
+      } catch (error) {
+        console.error('Unexpected error loading session:', error);
+        // If timeout or error, we assume no session or let the user retry via UI
+      } finally {
+        if (isMounted) {
+          setLoading(false);
+        }
       }
-      setLoading(false);
     };
 
     loadSession();
@@ -84,11 +111,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (!isMounted) return;
       setSession(nextSession);
       setUser(nextSession?.user ?? null);
+      
       if (nextSession?.user) {
+        // We await here to ensure profile is loaded before potential UI updates
+        // though this runs after the initial load usually.
         await fetchProfile(nextSession.user.id);
       } else {
         setProfile(null);
       }
+      
+      // Ensure loading is false after any auth state change
       setLoading(false);
     });
 

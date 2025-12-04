@@ -60,3 +60,4 @@ export const StudyFeedback = ({ feedback }: { feedback: XpFeedback | null }) => 
     </div>
   );
 };
+

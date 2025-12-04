@@ -266,3 +266,4 @@ export const getLearnedWords = async (language: Language): Promise<string[]> => 
     
   return [...new Set(words)];
 };
+

@@ -24,6 +24,7 @@ class TTSService {
     private currentSource: AudioBufferSourceNode | null = null;
     private currentOperationId = 0;
     private abortController: AbortController | null = null;
+    private resumeInterval: ReturnType<typeof setInterval> | null = null;
 
     constructor() {
         if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
@@ -182,12 +183,14 @@ class TTSService {
 
         // Chrome workaround: Resume speech synthesis if it gets paused/stuck
         // This handles another Chrome bug where synth pauses itself after ~15s
-        let resumeInterval: ReturnType<typeof setInterval> | null = null;
         
         utterance.onstart = () => {
-            resumeInterval = setInterval(() => {
+            this.resumeInterval = setInterval(() => {
                 if (!window.speechSynthesis.speaking) {
-                    if (resumeInterval) clearInterval(resumeInterval);
+                    if (this.resumeInterval) {
+                        clearInterval(this.resumeInterval);
+                        this.resumeInterval = null;
+                    }
                 } else if (window.speechSynthesis.paused) {
                     window.speechSynthesis.resume();
                 }
@@ -195,11 +198,17 @@ class TTSService {
         };
 
         utterance.onend = () => {
-            if (resumeInterval) clearInterval(resumeInterval);
+            if (this.resumeInterval) {
+                clearInterval(this.resumeInterval);
+                this.resumeInterval = null;
+            }
         };
 
         utterance.onerror = (event) => {
-            if (resumeInterval) clearInterval(resumeInterval);
+            if (this.resumeInterval) {
+                clearInterval(this.resumeInterval);
+                this.resumeInterval = null;
+            }
             // Don't log 'interrupted' errors as they're expected when canceling
             if (event.error !== 'interrupted') {
                 console.error("Speech synthesis error:", event.error);
@@ -344,6 +353,11 @@ class TTSService {
         if (this.abortController) {
             this.abortController.abort();
             this.abortController = null;
+        }
+
+        if (this.resumeInterval) {
+            clearInterval(this.resumeInterval);
+            this.resumeInterval = null;
         }
 
         // Native Stop

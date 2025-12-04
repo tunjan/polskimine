@@ -213,3 +213,4 @@ export function getLevelProgress(xp: number): {
     nextLevelXp,
   };
 }
+

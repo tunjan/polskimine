@@ -130,3 +130,4 @@ self.onmessage = async (e: MessageEvent) => {
     self.postMessage({ type: 'error', error: (error as Error).message });
   }
 };
+

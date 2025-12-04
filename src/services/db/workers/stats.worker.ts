@@ -65,3 +65,4 @@ self.onmessage = (e: MessageEvent<WorkerInput>) => {
     totalReviews: filteredLogs.length
   });
 };
+

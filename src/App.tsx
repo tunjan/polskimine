@@ -4,6 +4,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { DeckProvider } from '@/contexts/DeckContext';
 import { SettingsProvider } from '@/contexts/SettingsContext';
 import { ThemeProvider } from '@/contexts/ThemeContext';
+import { MusicProvider } from '@/contexts/MusicContext';
 import { SabotageProvider } from '@/contexts/SabotageContext';
 import { Toaster } from 'sonner';
 import { Layout } from '@/components/layout/Layout';
@@ -76,8 +77,13 @@ const LinguaFlowApp: React.FC = () => {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="flex flex-col items-center gap-3">
-          <div className="animate-spin rounded-full h-4 w-4 border border-foreground/20 border-t-foreground" />
-          <span className="text-[10px] font-sans uppercase tracking-widest text-muted-foreground">Loading Profile</span>
+          <p className="text-sm font-sans text-muted-foreground">Profile not found.</p>
+          <button 
+            onClick={() => window.location.reload()}
+            className="text-xs font-sans uppercase tracking-widest text-primary hover:underline"
+          >
+            Retry
+          </button>
         </div>
       </div>
     );
@@ -145,8 +151,10 @@ const App: React.FC = () => {
             <SettingsProvider>
               <DeckProvider>
                 <SabotageProvider>
-                  <LinguaFlowApp />
-                  <Toaster position="bottom-right" toastOptions={TOAST_OPTIONS} />
+                  <MusicProvider>
+                    <LinguaFlowApp />
+                    <Toaster position="bottom-right" toastOptions={TOAST_OPTIONS} />
+                  </MusicProvider>
                 </SabotageProvider>
               </DeckProvider>
             </SettingsProvider>

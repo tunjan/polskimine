@@ -171,3 +171,4 @@ export const StudySettings: React.FC<StudySettingsProps> = ({ localSettings, set
     </div>
   );
 };
+

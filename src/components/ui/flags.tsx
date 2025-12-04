@@ -32,3 +32,4 @@ export const SpanishFlag: React.FC<FlagProps> = ({ className }) => (
     <rect y="6" width="32" height="12" fill="#F1BF00"/>
   </svg>
 );
+

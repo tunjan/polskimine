@@ -3,6 +3,7 @@ import { Check } from 'lucide-react';
 import { Difficulty } from '@/types';
 import { cn } from '@/lib/utils';
 
+// Component for selecting language proficiency level
 interface LanguageLevelSelectorProps {
     selectedLevel: Difficulty | null;
     onSelectLevel: (level: Difficulty) => void;
@@ -90,3 +91,4 @@ export const LanguageLevelSelector: React.FC<LanguageLevelSelectorProps> = ({
         </div>
     );
 };
+

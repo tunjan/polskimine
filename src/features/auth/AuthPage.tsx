@@ -3,13 +3,11 @@ import { ArrowRight, Command, ArrowLeft, Mail, Lock, User as UserIcon } from 'lu
 import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
 import { useSettings } from '@/contexts/SettingsContext';
-import { LanguageLevelSelector } from './components/LanguageLevelSelector';
-import { DeckGenerationStep } from './components/DeckGenerationStep';
+import { LanguageLevelSelector, DeckGenerationStep, AuthLayout } from './components';
 import { generateInitialDeck } from '@/features/deck/services/deckGeneration';
 import { saveAllCards } from '@/services/db/repositories/cardRepository';
 import { updateUserSettings } from '@/services/db/repositories/settingsRepository';
 import { Difficulty } from '@/types';
-import { AuthLayout } from './components/AuthLayout';
 import { GamePanel, GameButton, GameInput, GameDivider, GameLoader } from '@/components/ui/game-ui';
 
 type SignupStep = 'credentials' | 'level' | 'deck';
@@ -254,3 +252,4 @@ export const AuthPage: React.FC = () => {
     </AuthLayout>
   );
 };
+

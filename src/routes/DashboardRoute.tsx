@@ -13,18 +13,31 @@ export const DashboardRoute: React.FC = () => {
   const { settings } = useSettings();
   const navigate = useNavigate();
 
-  const { data: dashboardStats, isLoading: isStatsLoading } = useQuery({
+  const { data: dashboardStats, isLoading: isStatsLoading, isError: isStatsError } = useQuery({
     queryKey: ['dashboardStats', settings.language],
     queryFn: () => getDashboardStats(settings.language),
   });
 
-  const { data: cards, isLoading: isCardsLoading } = useQuery({
+  const { data: cards, isLoading: isCardsLoading, isError: isCardsError } = useQuery({
     queryKey: ['dashboardCards', settings.language],
     queryFn: () => getCardsForDashboard(settings.language),
   });
 
-  if (isStatsLoading || isCardsLoading || !dashboardStats || !cards) {
+  if (isStatsLoading || isCardsLoading) {
     return <GameLoadingScreen title="Loading" subtitle="Preparing your dashboard" />;
+  }
+
+  if (isStatsError || isCardsError) {
+    return (
+      <div className="p-8 text-center">
+        <h2 className="text-red-500">Failed to load dashboard data.</h2>
+        <button onClick={() => window.location.reload()} className="mt-4 btn">Retry</button>
+      </div>
+    );
+  }
+
+  if (!dashboardStats || !cards) {
+    return <div>No data found.</div>;
   }
 
   

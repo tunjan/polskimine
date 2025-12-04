@@ -198,3 +198,4 @@ export const GeneralSettings: React.FC<GeneralSettingsProps> = ({
     </div>
   );
 };
+

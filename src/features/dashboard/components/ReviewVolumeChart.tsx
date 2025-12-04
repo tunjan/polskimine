@@ -67,3 +67,4 @@ export const ReviewVolumeChart: React.FC<ReviewVolumeChartProps> = ({ data }) =>
     </div>
   );
 };
+

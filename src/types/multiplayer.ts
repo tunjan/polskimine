@@ -27,3 +27,4 @@ export interface GamePlayer {
   score: number;
   is_ready: boolean;
 }
+

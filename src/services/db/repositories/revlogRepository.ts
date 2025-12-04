@@ -70,3 +70,4 @@ export const getAllReviewLogs = async (language?: string): Promise<ReviewLog[]> 
   
   return logs as unknown as ReviewLog[];
 };
+

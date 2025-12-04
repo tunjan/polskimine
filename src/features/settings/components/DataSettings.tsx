@@ -114,3 +114,4 @@ export const DataSettings: React.FC<DataSettingsProps> = ({
     </GamePanel>
   </div>
 );
+

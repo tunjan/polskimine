@@ -78,3 +78,4 @@ export const NORWEGIAN_BEGINNER_DECK: Card[] = [
   createCard("Det er her.", "It is here.", "her", "", "here", "adverb"),
   createCard("Det er der borte.", "It is over there.", "der", "", "there", "adverb")
 ];
+

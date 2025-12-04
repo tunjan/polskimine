@@ -74,3 +74,4 @@ export const createSpanishCard = (
   targetWord?: string,
   notes: string = ''
 ): Card => createCard('spanish', sentence, translation, targetWord, notes);
+

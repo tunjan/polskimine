@@ -42,3 +42,4 @@ export const LevelProgressBar: React.FC<LevelProgressBarProps> = ({ xp, level, c
     </div>
   );
 };
+

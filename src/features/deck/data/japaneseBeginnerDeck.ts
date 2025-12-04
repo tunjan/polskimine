@@ -65,3 +65,4 @@ export const JAPANESE_BEGINNER_DECK: Card[] = [
   createCard("分かりません。", "I don't understand.", "分かり", "", "分[わ]かりません。"),
   createCard("お腹が空きました。", "I am hungry.", "空き", "", "お 腹[なか]が 空[す]きました。")
 ];
+
