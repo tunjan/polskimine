@@ -44,7 +44,6 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { PolishFlag, NorwegianFlag, JapaneseFlag, SpanishFlag } from '@/components/ui/flags';
-import { GameMenuItemChevron } from '@/components/ui/game-menu-item';
 import { toast } from 'sonner';
 import clsx from 'clsx';
 
@@ -95,24 +94,24 @@ const AppSidebar: React.FC<NavActionProps> = ({
   ];
 
   return (
-    <Sidebar collapsible="icon">
-      <SidebarHeader className="pt-4 pb-3">
-        <div className="flex items-center justify-between group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-0">
+    <Sidebar collapsible="icon" className="border-r-0">
+    
+      <SidebarHeader className="p-4 pb-2">
+        <div className="flex items-center justify-between group-data-[collapsible=icon]:justify-center">
           <div className="flex items-center gap-2 overflow-hidden transition-all group-data-[collapsible=icon]:w-0 group-data-[collapsible=icon]:opacity-0">
-            <span className="text-sm pl-2 font-medium tracking-tight whitespace-nowrap text-foreground" style={{ fontFamily: 'var(--font-sans)' }}>LinguaFlow</span>
+            {/* Decorative diamond before title */}
+            <div className="w-1.5 h-1.5 rotate-45 bg-primary/60" />
+            <span className="text-sm font-medium tracking-wide text-foreground uppercase">LinguaFlow</span>
           </div>
-          <SidebarTrigger className="ml-auto group-data-[collapsible=icon]:ml-0 hover:bg-transparent hover:text-foreground/60 h-7 w-7" />
+          <SidebarTrigger className="ml-auto group-data-[collapsible=icon]:ml-0 h-7 w-7 text-muted-foreground/60 hover:text-foreground hover:bg-transparent" />
         </div>
       </SidebarHeader>
 
-      <SidebarContent className="px-2 group-data-[collapsible=icon]:px-2">
+      <SidebarContent className="px-3 group-data-[collapsible=icon]:px-2">
         {/* Primary Nav */}
-        <SidebarGroup className="px-0 py-2 group-data-[collapsible=icon]:py-2">
-          <SidebarGroupLabel className="text-[10px] uppercase tracking-[0.15em] text-muted-foreground px-2 mb-2 font-light group-data-[collapsible=icon]:hidden" style={{ fontFamily: 'var(--font-sans)' }}>
-            Navigation
-          </SidebarGroupLabel>
+        <SidebarGroup className="px-0 py-3 group-data-[collapsible=icon]:py-2">
           <SidebarGroupContent>
-            <SidebarMenu className="gap-2 group-data-[collapsible=icon]:gap-1">
+            <SidebarMenu className="gap-0.5 group-data-[collapsible=icon]:gap-1">
               {mainNavItems.map((item) => {
                 const isActive = item.to === '/multiplayer'
                   ? location.pathname.startsWith(item.to)
@@ -120,25 +119,30 @@ const AppSidebar: React.FC<NavActionProps> = ({
 
                 return (
                   <SidebarMenuItem key={item.to}>
-                    <GameMenuItemChevron isActive={isActive}>
-                      <SidebarMenuButton
-                        asChild
-                        isActive={isActive}
-                        onClick={onCloseMobileMenu}
-                        className={clsx(
-                          "h-9 px-2 rounded-none transition-colors relative text-sm font-light group-data-[collapsible=icon]:px-0 group-data-[collapsible=icon]:justify-center",
-                          isActive 
-                            ? "text-foreground bg-card/80" 
-                            : "text-muted-foreground hover:text-foreground hover:bg-card/30"
+                    <SidebarMenuButton
+                      asChild
+                      isActive={isActive}
+                      onClick={onCloseMobileMenu}
+                      className={clsx(
+                        "relative h-9 px-3 rounded-none transition-all duration-200 text-[13px] tracking-wide group-data-[collapsible=icon]:px-0 group-data-[collapsible=icon]:justify-center",
+                        isActive 
+                          ? "text-foreground bg-transparent font-medium" 
+                          : "text-muted-foreground hover:text-foreground hover:bg-transparent"
+                      )}
+                    >
+                      <Link to={item.to} className="flex items-center gap-3 w-full">
+                        {/* Active indicator - vertical line */}
+                        {isActive && (
+                          <div className="absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-4 bg-primary" />
                         )}
-                        style={{ fontFamily: 'var(--font-sans)' }}
-                      >
-                        <Link to={item.to} className="flex items-center gap-2.5 w-full">
-                          <item.icon size={14} strokeWidth={isActive ? 1.8 : 1.5} className="shrink-0" />
-                          <span className="group-data-[collapsible=icon]:hidden">{item.label}</span>
-                        </Link>
-                      </SidebarMenuButton>
-                    </GameMenuItemChevron>
+                        <item.icon size={15} strokeWidth={isActive ? 1.5 : 1.25} className="shrink-0" />
+                        <span className="group-data-[collapsible=icon]:hidden">{item.label}</span>
+                        {/* Active diamond indicator */}
+                        {isActive && (
+                          <div className="ml-auto w-1 h-1 rotate-45 bg-primary/60 group-data-[collapsible=icon]:hidden" />
+                        )}
+                      </Link>
+                    </SidebarMenuButton>
                   </SidebarMenuItem>
                 );
               })}
@@ -146,28 +150,29 @@ const AppSidebar: React.FC<NavActionProps> = ({
           </SidebarGroupContent>
         </SidebarGroup>
 
-        {/* Separator */}
-        <div className="h-px bg-border/50 my-3 mx-2 group-data-[collapsible=icon]:hidden" />
+        {/* Genshin-style separator with diamond */}
+        <div className="flex items-center gap-2 my-3 mx-1 group-data-[collapsible=icon]:hidden">
+          <div className="h-px flex-1 bg-gradient-to-r from-border/60 to-transparent" />
+          <div className="w-1 h-1 rotate-45 border border-primary/30" />
+          <div className="h-px flex-1 bg-gradient-to-l from-border/60 to-transparent" />
+        </div>
 
         {/* Tools Section */}
         <SidebarGroup className="px-0 py-2 group-data-[collapsible=icon]:py-2">
-          <SidebarGroupLabel className="text-[10px] uppercase tracking-[0.15em] text-muted-foreground px-2 mb-2 font-light group-data-[collapsible=icon]:hidden" style={{ fontFamily: 'var(--font-sans)' }}>
-            Quick Actions
+          <SidebarGroupLabel className="text-[10px] uppercase tracking-widest text-muted-foreground/50 px-3 mb-2 group-data-[collapsible=icon]:hidden">
+            Actions
           </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu className="gap-0.5 group-data-[collapsible=icon]:gap-1">
               {toolItems.map((item) => (
                 <SidebarMenuItem key={item.label}>
-                  <GameMenuItemChevron>
-                    <SidebarMenuButton 
-                      onClick={item.onClick}
-                      className="h-9 px-2 rounded-none transition-colors text-muted-foreground hover:text-foreground hover:bg-card/30 text-sm font-light group-data-[collapsible=icon]:px-0 group-data-[collapsible=icon]:justify-center"
-                      style={{ fontFamily: 'var(--font-sans)' }}
-                    >
-                      <item.icon size={14} strokeWidth={1.5} className="shrink-0" />
-                      <span className="group-data-[collapsible=icon]:hidden">{item.label}</span>
-                    </SidebarMenuButton>
-                  </GameMenuItemChevron>
+                  <SidebarMenuButton 
+                    onClick={item.onClick}
+                    className="h-8 px-3 rounded-none transition-all duration-200 text-muted-foreground hover:text-foreground hover:bg-transparent text-[13px] tracking-wide group-data-[collapsible=icon]:px-0 group-data-[collapsible=icon]:justify-center"
+                  >
+                    <item.icon size={14} strokeWidth={1.25} className="shrink-0" />
+                    <span className="group-data-[collapsible=icon]:hidden">{item.label}</span>
+                  </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}
             </SidebarMenu>
@@ -175,7 +180,11 @@ const AppSidebar: React.FC<NavActionProps> = ({
         </SidebarGroup>
       </SidebarContent>
 
-      <SidebarFooter className="">
+      <SidebarFooter className="p-3 pt-0">
+        {/* Genshin-style top separator */}
+        <div className="flex items-center gap-2 mb-3 group-data-[collapsible=icon]:hidden">
+          <div className="h-px flex-1 bg-gradient-to-r from-border/40 to-transparent" />
+        </div>
         
         <SidebarMenu className="gap-0.5">
           {/* Language Selector */}
@@ -183,17 +192,16 @@ const AppSidebar: React.FC<NavActionProps> = ({
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <SidebarMenuButton 
-                  className=""
-                  style={{ fontFamily: 'var(--font-sans)' }}
+                  className="h-8 px-3 rounded-none hover:bg-transparent text-[13px] tracking-wide text-muted-foreground hover:text-foreground group-data-[collapsible=icon]:px-0 group-data-[collapsible=icon]:justify-center"
                 >
-                  <div className="w-4 h-4 ">
-                    <currentLanguage.Flag className="" />
+                  <div className="w-4 h-3 rounded-[1px] overflow-hidden border border-border/30 shrink-0">
+                    <currentLanguage.Flag className="w-full h-full object-cover" />
                   </div>
-                  <span>{currentLanguage.name}</span>
-                  <ChevronUp className="ml-auto opacity-40" size={12} strokeWidth={1.5} />
+                  <span className="group-data-[collapsible=icon]:hidden">{currentLanguage.name}</span>
+                  <ChevronUp className="ml-auto text-muted-foreground/50 group-data-[collapsible=icon]:hidden" size={12} strokeWidth={1.5} />
                 </SidebarMenuButton>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="start" className="p-1">
+              <DropdownMenuContent align="start" className="p-1.5 rounded-none border-border/50">
                 {languages.map((lang) => (
                   <DropdownMenuItem
                     key={lang.code}
@@ -202,12 +210,13 @@ const AppSidebar: React.FC<NavActionProps> = ({
                       toast.success(`Switched to ${lang.name}`);
                       onCloseMobileMenu?.();
                     }}
-                    className="gap-2.5 py-2 px-2.5 text-sm font-light rounded-md"
-                    style={{ fontFamily: 'var(--font-sans)' }}
+                    className="gap-2.5 py-2 px-2.5 text-[13px] tracking-wide rounded-none"
                   >
-                    <lang.Flag className="w-4 h-auto rounded-sm" />
+                    <lang.Flag className="w-4 h-3 rounded-[1px] border border-border/30" />
                     <span className="flex-1">{lang.name}</span>
-                    {settings.language === lang.code && <Check size={14} className="ml-auto text-foreground" strokeWidth={2} />}
+                    {settings.language === lang.code && (
+                      <div className="w-1 h-1 rotate-45 bg-primary" />
+                    )}
                   </DropdownMenuItem>
                 ))}
               </DropdownMenuContent>
@@ -218,34 +227,32 @@ const AppSidebar: React.FC<NavActionProps> = ({
           <SidebarMenuItem>
             <SidebarMenuButton 
               onClick={() => { onOpenSettings(); onCloseMobileMenu?.(); }}
-              className="h-9 px-2 rounded-md text-muted-foreground hover:text-foreground hover:bg-card/50 text-sm font-light"
-              style={{ fontFamily: 'var(--font-sans)' }}
+              className="h-8 px-3 rounded-none text-muted-foreground hover:text-foreground hover:bg-transparent text-[13px] tracking-wide group-data-[collapsible=icon]:px-0 group-data-[collapsible=icon]:justify-center"
             >
-              <Settings size={14} strokeWidth={1.5} />
-              <span>Settings</span>
+              <Settings size={14} strokeWidth={1.25} className="shrink-0" />
+              <span className="group-data-[collapsible=icon]:hidden">Settings</span>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
 
         {/* User Info */}
         {user && (
-          <div className="px-2 pt-3 pb-1 group-data-[collapsible=icon]:hidden border-t border-border/30 mt-3">
-            <p className="text-[10px] tracking-[0.1em] text-muted-foreground/60 truncate" style={{ fontFamily: 'var(--font-sans)' }}>
+          <div className="px-3 py-2 group-data-[collapsible=icon]:hidden mt-1">
+            <p className="text-[10px] text-muted-foreground/50 truncate tracking-wide uppercase">
               {user.email}
             </p>
           </div>
         )}
         
         {/* Logout */}
-        <SidebarMenu className="gap-0.5 mt-2">
+        <SidebarMenu className="gap-0">
           <SidebarMenuItem>
             <SidebarMenuButton
               onClick={() => { signOut(); onCloseMobileMenu?.(); }}
-              className="h-9 px-2 rounded-md text-muted-foreground hover:text-destructive hover:bg-destructive/5 text-sm font-light transition-colors"
-              style={{ fontFamily: 'var(--font-sans)' }}
+              className="h-8 px-3 rounded-none text-muted-foreground/60 hover:text-destructive hover:bg-transparent text-[13px] tracking-wide transition-colors group-data-[collapsible=icon]:px-0 group-data-[collapsible=icon]:justify-center"
             >
-              <LogOut size={14} strokeWidth={1.5} />
-              <span>Sign Out</span>
+              <LogOut size={14} strokeWidth={1.25} className="shrink-0" />
+              <span className="group-data-[collapsible=icon]:hidden">Sign Out</span>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>

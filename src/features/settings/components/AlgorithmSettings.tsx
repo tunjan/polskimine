@@ -121,7 +121,7 @@ export const AlgorithmSettings: React.FC<AlgorithmSettingsProps> = ({
               Analyzes {report ? `${report.reviews} review records` : 'your review history'} to calculate personalized parameters.
             </p>
             {report && (
-              <span className="text-[10px] font-ui uppercase tracking-[0.15em] text-emerald-500">Complete</span>
+              <span className="text-[10px] font-ui uppercase tracking-[0.15em] text-pine-500">Complete</span>
             )}
           </div>
 

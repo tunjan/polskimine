@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { Sparkles, BookOpen } from 'lucide-react';
-import { ButtonLoader } from '@/components/ui/game-ui';
 import { Difficulty, Language } from '@/types';
-import clsx from 'clsx';
+import { cn } from '@/lib/utils';
+import { GameButton, GameInput, GameLoader } from '@/components/ui/game-ui';
 
 interface DeckGenerationStepProps {
     language: Language;
@@ -46,10 +46,7 @@ export const DeckGenerationStep: React.FC<DeckGenerationStepProps> = ({
     return (
         <div className="space-y-6">
             <div className="space-y-2">
-                <h2 className="text-xl font-light tracking-tight text-foreground">
-                    Initialize your deck.
-                </h2>
-                <p className="text-xs font-mono text-muted-foreground">
+                <p className="text-xs font-ui text-muted-foreground uppercase tracking-wider">
                     Choose how to start learning {languageName} at {proficiencyLevel} level.
                 </p>
             </div>
@@ -61,28 +58,40 @@ export const DeckGenerationStep: React.FC<DeckGenerationStepProps> = ({
                     type="button"
                     onClick={() => setSelectedOption('ai')}
                     disabled={loading}
-                    className={clsx(
-                        'group relative w-full text-left p-4 border rounded-[2px] transition-all',
-                        'hover:bg-secondary/30 disabled:opacity-50',
+                    className={cn(
+                        'group relative w-full text-left p-4 border-2 transition-all duration-200',
+                        'hover:bg-amber-500/5 hover:border-amber-500/30 disabled:opacity-50',
                         selectedOption === 'ai'
-                            ? 'border-foreground bg-secondary/20'
-                            : 'border-border/40'
+                            ? 'border-amber-500 bg-amber-500/10'
+                            : 'border-border/40 bg-card'
                     )}
                 >
                     <div className="flex items-start gap-3">
-                        <div className="mt-1 w-8 h-8 bg-foreground/10 rounded-[2px] flex items-center justify-center">
-                            <Sparkles size={16} className="text-foreground" />
+                        <div className="mt-1 w-8 h-8 bg-amber-500/10 border border-amber-500/20 rotate-45 flex items-center justify-center">
+                            <Sparkles size={16} className="text-amber-500 -rotate-45" />
                         </div>
-                        <div className="flex-1 space-y-1">
-                            <div className="text-sm font-mono font-medium text-foreground">
+                        <div className="flex-1 space-y-1 ml-2">
+                            <div className={cn(
+                                "text-sm font-ui font-bold uppercase tracking-wider",
+                                selectedOption === 'ai' ? "text-amber-500" : "text-foreground"
+                            )}>
                                 AI-Generated Deck
                             </div>
-                            <p className="text-xs text-muted-foreground leading-relaxed">
+                            <p className="text-xs text-muted-foreground/80 leading-relaxed">
                                 Generate 50 personalized flashcards using Gemini AI, tailored to {proficiencyLevel} level.
                                 Requires your API key.
                             </p>
                         </div>
                     </div>
+                    
+                    {selectedOption === 'ai' && (
+                        <>
+                            <span className="absolute top-0 left-0 w-2 h-2 border-t-2 border-l-2 border-amber-500" />
+                            <span className="absolute top-0 right-0 w-2 h-2 border-t-2 border-r-2 border-amber-500" />
+                            <span className="absolute bottom-0 left-0 w-2 h-2 border-b-2 border-l-2 border-amber-500" />
+                            <span className="absolute bottom-0 right-0 w-2 h-2 border-b-2 border-r-2 border-amber-500" />
+                        </>
+                    )}
                 </button>
 
                 {/* Default Deck */}
@@ -90,81 +99,74 @@ export const DeckGenerationStep: React.FC<DeckGenerationStepProps> = ({
                     type="button"
                     onClick={() => setSelectedOption('default')}
                     disabled={loading}
-                    className={clsx(
-                        'group relative w-full text-left p-4 border rounded-[2px] transition-all',
-                        'hover:bg-secondary/30 disabled:opacity-50',
+                    className={cn(
+                        'group relative w-full text-left p-4 border-2 transition-all duration-200',
+                        'hover:bg-amber-500/5 hover:border-amber-500/30 disabled:opacity-50',
                         selectedOption === 'default'
-                            ? 'border-foreground bg-secondary/20'
-                            : 'border-border/40'
+                            ? 'border-amber-500 bg-amber-500/10'
+                            : 'border-border/40 bg-card'
                     )}
                 >
                     <div className="flex items-start gap-3">
-                        <div className="mt-1 w-8 h-8 bg-foreground/10 rounded-[2px] flex items-center justify-center">
-                            <BookOpen size={16} className="text-foreground" />
+                        <div className="mt-1 w-8 h-8 bg-amber-500/10 border border-amber-500/20 rotate-45 flex items-center justify-center">
+                            <BookOpen size={16} className="text-amber-500 -rotate-45" />
                         </div>
-                        <div className="flex-1 space-y-1">
-                            <div className="text-sm font-mono font-medium text-foreground">
-                                Default Beginner Course
+                        <div className="flex-1 space-y-1 ml-2">
+                            <div className={cn(
+                                "text-sm font-ui font-bold uppercase tracking-wider",
+                                selectedOption === 'default' ? "text-amber-500" : "text-foreground"
+                            )}>
+                                Standard Course
                             </div>
-                            <p className="text-xs text-muted-foreground leading-relaxed">
-                                Start with our curated beginner deck. No API key needed. You can generate custom cards later.
+                            <p className="text-xs text-muted-foreground/80 leading-relaxed">
+                                Start with our curated beginner deck. Best for getting started quickly.
                             </p>
                         </div>
                     </div>
+                    
+                    {selectedOption === 'default' && (
+                        <>
+                            <span className="absolute top-0 left-0 w-2 h-2 border-t-2 border-l-2 border-amber-500" />
+                            <span className="absolute top-0 right-0 w-2 h-2 border-t-2 border-r-2 border-amber-500" />
+                            <span className="absolute bottom-0 left-0 w-2 h-2 border-b-2 border-l-2 border-amber-500" />
+                            <span className="absolute bottom-0 right-0 w-2 h-2 border-b-2 border-r-2 border-amber-500" />
+                        </>
+                    )}
                 </button>
             </div>
 
-            {/* API Key Input (shown only if AI option selected) */}
+            {/* API Key Input */}
             {selectedOption === 'ai' && (
-                <div className="group relative animate-in fade-in slide-in-from-top-2 duration-300">
-                    <label className="absolute -top-3 left-0 text-[9px] font-mono uppercase tracking-widest text-muted-foreground transition-colors group-focus-within:text-foreground">
-                        Gemini API Key
-                    </label>
-                    <input
-                        className="w-full bg-transparent border-b border-border py-2 text-sm outline-none transition-all focus:border-foreground placeholder:text-muted-foreground/20 rounded-none font-mono"
-                        placeholder="AIza..."
+                <div className="animate-in fade-in slide-in-from-top-2 duration-200">
+                    <GameInput
+                        label="Gemini API Key"
                         type="password"
+                        placeholder="Enter your API key"
                         value={apiKey}
-                        onChange={(e) => {
-                            setApiKey(e.target.value);
-                            setError('');
-                        }}
-                        disabled={loading}
+                        onChange={(e) => setApiKey(e.target.value)}
+                        error={error}
                     />
-                    <p className="mt-2 text-[10px] text-muted-foreground font-mono">
-                        Your API key will be saved securely and synced across all your devices.
+                    <p className="text-[10px] text-muted-foreground mt-2">
+                        Your key is stored locally and only used for deck generation.
                     </p>
                 </div>
             )}
 
-            {/* Error Message */}
-            {error && (
-                <div className="p-3 bg-destructive/10 border border-destructive/20 rounded-[2px]">
-                    <p className="text-xs text-destructive font-mono">{error}</p>
+            {/* Action Button */}
+            {selectedOption && (
+                <div className="pt-2 animate-in fade-in slide-in-from-bottom-2 duration-200">
+                    <GameButton 
+                        onClick={handleGenerate} 
+                        disabled={loading} 
+                        className="w-full"
+                    >
+                        {loading ? (
+                            <GameLoader size="sm" />
+                        ) : (
+                            selectedOption === 'ai' ? 'Generate Deck' : 'Start Learning'
+                        )}
+                    </GameButton>
                 </div>
-            )}
-
-            {/* Continue Button */}
-            <button
-                type="button"
-                onClick={handleGenerate}
-                disabled={!selectedOption || loading}
-                className="w-full h-11 bg-foreground text-background text-xs font-mono uppercase tracking-widest hover:opacity-90 transition-opacity disabled:opacity-50 flex items-center justify-center gap-3 rounded-[2px]"
-            >
-                {loading ? (
-                    <>
-                        <ButtonLoader />
-                        {selectedOption === 'ai' ? 'Generating...' : 'Setting up...'}
-                    </>
-                ) : (
-                    'Continue'
-                )}
-            </button>
-
-            {loading && selectedOption === 'ai' && (
-                <p className="text-center text-[10px] text-muted-foreground font-mono animate-pulse">
-                    This may take 20-30 seconds...
-                </p>
             )}
         </div>
     );

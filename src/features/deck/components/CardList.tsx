@@ -33,10 +33,10 @@ const StatusBadge = ({ status }: { status: string }) => {
     new: { 
       label: 'Unseen', 
       icon: <Star className="w-3 h-3" strokeWidth={1.5} fill="currentColor" />,
-      borderColor: 'border-amber-500/50',
-      bgColor: 'bg-amber-500/10',
+      borderColor: 'border-amber-700/50',
+      bgColor: 'bg-amber-600/10',
       textColor: 'text-amber-600 dark:text-amber-400',
-      accentColor: 'bg-amber-500'
+      accentColor: 'bg-amber-600'
     },
     learning: { 
       label: 'Learning', 
@@ -49,10 +49,10 @@ const StatusBadge = ({ status }: { status: string }) => {
     graduated: { 
       label: 'Reviewing', 
       icon: <Clock className="w-3 h-3" strokeWidth={1.5} />,
-      borderColor: 'border-emerald-500/50',
-      bgColor: 'bg-emerald-500/10',
-      textColor: 'text-emerald-600 dark:text-emerald-400',
-      accentColor: 'bg-emerald-500'
+      borderColor: 'border-pine-500/50',
+      bgColor: 'bg-pine-500/10',
+      textColor: 'text-pine-600 dark:text-pine-400',
+      accentColor: 'bg-pine-500'
     },
     known: { 
       label: 'Mastered', 
@@ -121,17 +121,17 @@ const ScheduleDisplay = ({ dateStr, status, interval }: { dateStr: string, statu
   
   if (date.getFullYear() === 1970) {
     return (
-      <div className="relative inline-flex items-center gap-2 px-4 py-2.5 bg-amber-500/10 border border-amber-500/50 text-amber-600 dark:text-amber-400">
+      <div className="relative inline-flex items-center gap-2 px-4 py-2.5 bg-amber-600/10 border border-amber-700/50 text-amber-600 dark:text-amber-400">
         {/* Corner decorations with accent */}
         <span className="absolute -top-px -left-px w-2.5 h-2.5 pointer-events-none">
-          <span className="absolute top-0 left-0 w-full h-0.5 bg-amber-500" />
-          <span className="absolute top-0 left-0 h-full w-0.5 bg-amber-500" />
+          <span className="absolute top-0 left-0 w-full h-0.5 bg-amber-600" />
+          <span className="absolute top-0 left-0 h-full w-0.5 bg-amber-600" />
         </span>
         <span className="absolute -bottom-px -right-px w-2.5 h-2.5 pointer-events-none">
-          <span className="absolute bottom-0 right-0 w-full h-0.5 bg-amber-500" />
-          <span className="absolute bottom-0 right-0 h-full w-0.5 bg-amber-500" />
+          <span className="absolute bottom-0 right-0 w-full h-0.5 bg-amber-600" />
+          <span className="absolute bottom-0 right-0 h-full w-0.5 bg-amber-600" />
         </span>
-        <span className="w-1 h-1 rotate-45 bg-amber-500" />
+        <span className="w-1 h-1 rotate-45 bg-amber-600" />
         <Zap className="w-3.5 h-3.5" strokeWidth={2} fill="currentColor" />
         <span className="text-xs font-ui uppercase tracking-[0.15em] font-medium">
           Priority
@@ -176,9 +176,9 @@ const CompactRow = memo(({ index, style, data }: ListChildComponentProps<any>) =
   const isSelected = selectedIds.has(card.id);
 
   const statusColors: Record<string, string> = {
-    new: 'bg-amber-500',
+    new: 'bg-amber-600',
     learning: 'bg-sky-500',
-    graduated: 'bg-emerald-500',
+    graduated: 'bg-pine-500',
     known: 'bg-primary',
   };
 

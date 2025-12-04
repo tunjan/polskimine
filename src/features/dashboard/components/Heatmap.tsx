@@ -36,10 +36,10 @@ export const Heatmap: React.FC<HeatmapProps> = ({ history }) => {
   
   const getColorStyle = (count: number): string => {
     if (count === 0) return 'bg-muted/30';
-    if (count <= 2) return 'bg-emerald-200 dark:bg-emerald-900';
-    if (count <= 5) return 'bg-emerald-400 dark:bg-emerald-700';
-    if (count <= 9) return 'bg-emerald-500 dark:bg-emerald-500';
-    return 'bg-emerald-600 dark:bg-emerald-400';
+    if (count <= 2) return 'bg-pine-200 dark:bg-pine-900';
+    if (count <= 5) return 'bg-pine-400 dark:bg-pine-700';
+    if (count <= 9) return 'bg-pine-500 dark:bg-pine-500';
+    return 'bg-pine-600 dark:bg-pine-400';
   };
 
   
@@ -113,7 +113,7 @@ export const Heatmap: React.FC<HeatmapProps> = ({ history }) => {
                 <TooltipTrigger asChild>
                   <div
                     className={clsx(
-                      "w-3 h-3 sm:w-3.5 sm:h-3.5 lg:w-3 lg:h-3 rounded-sm transition-all duration-200 hover:scale-110 hover:ring-1 hover:ring-emerald-500/50",
+                      "w-3 h-3 sm:w-3.5 sm:h-3.5 lg:w-3 lg:h-3 rounded-sm transition-all duration-200 hover:scale-110 hover:ring-1 hover:ring-pine-500/50",
                       day.inFuture ? 'opacity-0 pointer-events-none' : getColorStyle(day.count)
                     )}
                   />
@@ -138,10 +138,10 @@ export const Heatmap: React.FC<HeatmapProps> = ({ history }) => {
           <span>Less</span>
           <div className="flex gap-0.5">
             <div className="w-2.5 h-2.5 rounded-sm bg-muted/30" />
-            <div className="w-2.5 h-2.5 rounded-sm bg-emerald-200 dark:bg-emerald-900" />
-            <div className="w-2.5 h-2.5 rounded-sm bg-emerald-400 dark:bg-emerald-700" />
-            <div className="w-2.5 h-2.5 rounded-sm bg-emerald-500 dark:bg-emerald-500" />
-            <div className="w-2.5 h-2.5 rounded-sm bg-emerald-600 dark:bg-emerald-400" />
+            <div className="w-2.5 h-2.5 rounded-sm bg-pine-200 dark:bg-pine-900" />
+            <div className="w-2.5 h-2.5 rounded-sm bg-pine-400 dark:bg-pine-700" />
+            <div className="w-2.5 h-2.5 rounded-sm bg-pine-500 dark:bg-pine-500" />
+            <div className="w-2.5 h-2.5 rounded-sm bg-pine-600 dark:bg-pine-400" />
           </div>
           <span>More</span>
         </div>

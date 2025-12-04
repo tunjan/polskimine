@@ -612,17 +612,17 @@ export const CardsRoute: React.FC = () => {
                 onClick={handleBatchPrioritize}
                 className={cn(
                   "relative group/action inline-flex items-center gap-2 px-4 py-2 text-xs font-ui uppercase tracking-[0.1em] transition-all duration-200",
-                  "border border-amber-500/40 bg-amber-500/10 text-amber-600 dark:text-amber-400",
-                  "hover:border-amber-500/60 hover:bg-amber-500/20"
+                  "border border-amber-700/40 bg-amber-600/10 text-amber-600 dark:text-amber-400",
+                  "hover:border-amber-700/60 hover:bg-amber-600/20"
                 )}
               >
                 <span className="absolute -top-px -left-px w-1.5 h-1.5 pointer-events-none">
-                  <span className="absolute top-0 left-0 w-full h-0.5 bg-amber-500/60" />
-                  <span className="absolute top-0 left-0 h-full w-0.5 bg-amber-500/60" />
+                  <span className="absolute top-0 left-0 w-full h-0.5 bg-amber-600/60" />
+                  <span className="absolute top-0 left-0 h-full w-0.5 bg-amber-600/60" />
                 </span>
                 <span className="absolute -bottom-px -right-px w-1.5 h-1.5 pointer-events-none">
-                  <span className="absolute bottom-0 right-0 w-full h-0.5 bg-amber-500/60" />
-                  <span className="absolute bottom-0 right-0 h-full w-0.5 bg-amber-500/60" />
+                  <span className="absolute bottom-0 right-0 w-full h-0.5 bg-amber-600/60" />
+                  <span className="absolute bottom-0 right-0 h-full w-0.5 bg-amber-600/60" />
                 </span>
                 <Zap size={14} strokeWidth={2} />
                 Prioritize

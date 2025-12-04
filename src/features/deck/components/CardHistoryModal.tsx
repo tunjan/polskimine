@@ -70,9 +70,9 @@ export const CardHistoryModal: React.FC<CardHistoryModalProps> = ({ card, isOpen
   };
 
   const getStateColor = (state?: number) => {
-      if (state === 0) return 'border-amber-500/50 bg-amber-500/10 text-amber-600 dark:text-amber-400';
+      if (state === 0) return 'border-amber-700/50 bg-amber-600/10 text-amber-600 dark:text-amber-400';
       if (state === 1) return 'border-sky-500/50 bg-sky-500/10 text-sky-600 dark:text-sky-400';
-      if (state === 2) return 'border-emerald-500/50 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400';
+      if (state === 2) return 'border-pine-500/50 bg-pine-500/10 text-pine-600 dark:text-pine-400';
       if (state === 3) return 'border-rose-500/50 bg-rose-500/10 text-rose-600 dark:text-rose-400';
       return 'border-border bg-muted/50 text-muted-foreground';
   };

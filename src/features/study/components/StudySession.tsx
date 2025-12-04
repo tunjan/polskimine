@@ -121,7 +121,7 @@ export const StudySession: React.FC<StudySessionProps> = ({
     if (s === 3) {
         return { label: 'LAPSE', className: 'text-red-500 border-red-500/20 bg-red-500/5' };
     }
-    return { label: 'REV', className: 'text-green-500 border-green-500/20 bg-green-500/5' };
+    return { label: 'REV', className: 'text-green-700 border-green-700/20 bg-green-700/5' };
   }, [currentCard, isCramMode]);
 
   useEffect(() => {
@@ -329,12 +329,6 @@ export const StudySession: React.FC<StudySessionProps> = ({
 
       {/* Game-styled header */}
       <header className="relative h-16 md:h-20 px-4 md:px-12 flex justify-between items-center select-none shrink-0 pt-[env(safe-area-inset-top)] gap-2 border-b border-border/10">
-         {/* Left corner accent */}
-         <span className="absolute top-0 left-0 w-3 h-3 pointer-events-none">
-           <span className="absolute top-0 left-0 w-full h-0.5 bg-primary/30" />
-           <span className="absolute top-0 left-0 h-full w-0.5 bg-primary/30" />
-         </span>
-         
          {/* Queue statistics - game UI style */}
          <div className="flex items-center gap-2 sm:gap-4 md:gap-6">
             <GameQueueStat 
@@ -361,14 +355,11 @@ export const StudySession: React.FC<StudySessionProps> = ({
               isActive={currentStatus?.label === 'REV'}
               color="green"
             />
-         </div>
 
-         {/* Meta info and controls - game styled */}
-         <div className="flex items-center gap-2 sm:gap-4 md:gap-8">
             {/* Enhanced XP display */}
-            <div className="hidden sm:flex items-center gap-3 px-4 py-2 bg-linear-to-r from-primary/5 to-transparent border border-primary/20 relative overflow-hidden group">
+            <div className="hidden sm:flex items-center gap-3  relative overflow-hidden group">
                 {/* Subtle glow effect */}
-                <div className="absolute inset-0 bg-primary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                <div className="absolute inset-0 bg-primary/5 opacity-0 " />
                 
                 {/* XP icon with glow */}
                 <div className="relative">
@@ -395,6 +386,13 @@ export const StudySession: React.FC<StudySessionProps> = ({
                 {/* Corner accents */}
 
             </div>
+         </div>
+
+         
+
+         {/* Meta info and controls - game styled */}
+         <div className="flex items-center gap-2 sm:gap-4 md:gap-8">
+            
             
             {/* Action buttons */}
             <div className="flex items-center gap-1">
@@ -466,15 +464,7 @@ export const StudySession: React.FC<StudySessionProps> = ({
 
       {/* Game-styled answer controls */}
       <footer className="relative shrink-0 pb-[env(safe-area-inset-bottom)] border-t border-border/10">
-        {/* Corner accents */}
-        <span className="absolute bottom-0 left-0 w-3 h-3 pointer-events-none">
-          <span className="absolute bottom-0 left-0 w-full h-0.5 bg-primary/30" />
-          <span className="absolute bottom-0 left-0 h-full w-0.5 bg-primary/30" />
-        </span>
-        <span className="absolute bottom-0 right-0 w-3 h-3 pointer-events-none">
-          <span className="absolute bottom-0 right-0 w-full h-0.5 bg-primary/30" />
-          <span className="absolute bottom-0 right-0 h-full w-0.5 bg-primary/30" />
-        </span>
+
         
         <div className="h-24 md:h-28 w-full max-w-4xl mx-auto px-8 md:px-16">
           {!isFlipped ? (
@@ -582,7 +572,7 @@ const GameQueueStat = React.memo(({ label, count, isActive, color }: {
     blue: { active: 'text-blue-500 border-blue-500/30 bg-blue-500/5', inactive: 'text-muted-foreground/60 border-border/30' },
     orange: { active: 'text-orange-500 border-orange-500/30 bg-orange-500/5', inactive: 'text-muted-foreground/60 border-border/30' },
     red: { active: 'text-red-500 border-red-500/30 bg-red-500/5', inactive: 'text-muted-foreground/60 border-border/30' },
-    green: { active: 'text-green-500 border-green-500/30 bg-green-500/5', inactive: 'text-muted-foreground/60 border-border/30' },
+    green: { active: 'text-green-700 border-green-700/30 bg-green-700/5', inactive: 'text-muted-foreground/60 border-border/30' },
   };
   const colors = colorMap[color];
   
@@ -657,13 +647,13 @@ const GameAnswerButton = React.memo(({ label, shortcut, intent, onClick, disable
           gradient: 'from-orange-500/10 to-transparent'
         },
         success: { 
-          text: 'text-emerald-500/70', 
-          hover: 'hover:text-emerald-500', 
-          border: 'hover:border-emerald-500/40', 
-          bg: 'hover:bg-emerald-500/5', 
-          accent: 'bg-emerald-500',
-          glow: 'shadow-emerald-500/20',
-          gradient: 'from-emerald-500/10 to-transparent'
+          text: 'text-pine-500/70', 
+          hover: 'hover:text-pine-500', 
+          border: 'hover:border-pine-500/40', 
+          bg: 'hover:bg-pine-500/5', 
+          accent: 'bg-pine-500',
+          glow: 'shadow-pine-500/20',
+          gradient: 'from-pine-500/10 to-transparent'
         },
         info: { 
           text: 'text-blue-500/70', 

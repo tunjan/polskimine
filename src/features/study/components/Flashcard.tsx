@@ -390,36 +390,20 @@ export const Flashcard = React.memo<FlashcardProps>(({
           isFlipped && "scale-[1.02]"
         )}>
           
-          {/* Center decorative lines on flip */}
-          {isFlipped && (
-            <>
-              <span className="absolute top-1/2 left-0 w-4 h-px bg-linear-to-r from-primary/20 to-transparent -translate-y-1/2" />
-              <span className="absolute top-1/2 right-0 w-4 h-px bg-linear-to-l from-primary/20 to-transparent -translate-y-1/2" />
-            </>
-          )}
         </div>
 
         {/* Main content */}
         <div className={cn(
           "w-full px-8 md:px-16 flex flex-col items-center z-10 transition-all duration-700 ease-out",
-          isFlipped && "-translate-y-[40%]"
+          isFlipped && "-translate-y-[80%]"
         )}>
           {RenderedSentence}
 
           {isRevealed && (
             <button
               onClick={speak}
-              className="group relative flex items-center justify-center text-muted-foreground/40 hover:text-primary/70 transition-all duration-300 p-3 border border-transparent hover:border-primary/20 hover:bg-primary/5"
+              className="group relative flex items-center justify-center text-muted-foreground/40 hover:text-primary/70 transition-all duration-300 mt-6"
             >
-              {/* Corner accents on hover */}
-              <span className="absolute -top-px -left-px w-1.5 h-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
-                <span className="absolute top-0 left-0 w-full h-px bg-primary/40" />
-                <span className="absolute top-0 left-0 h-full w-px bg-primary/40" />
-              </span>
-              <span className="absolute -bottom-px -right-px w-1.5 h-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
-                <span className="absolute bottom-0 right-0 w-full h-px bg-primary/40" />
-                <span className="absolute bottom-0 right-0 h-full w-px bg-primary/40" />
-              </span>
               <Volume2 size={20} strokeWidth={1.5} className={cn("transition-all duration-300", playSlow && "text-primary")} />
             </button>
           )}
@@ -427,7 +411,7 @@ export const Flashcard = React.memo<FlashcardProps>(({
 
         {/* Translation reveal with enhanced game-styled animation */}
         {isFlipped && (
-          <div className="absolute top-1/2 left-0 right-0 bottom-4 pt-4 md:pt-8 flex flex-col items-center gap-3 z-0 pointer-events-none overflow-y-auto">
+          <div className="absolute top-1/2 left-0 right-0 bottom-4  flex flex-col items-center gap-3 z-0 pointer-events-none overflow-y-auto">
             
             {/* Decorative divider */}
             <div className="flex items-center gap-3 mb-2 animate-in fade-in duration-500">
@@ -446,11 +430,7 @@ export const Flashcard = React.memo<FlashcardProps>(({
                         className="text-xl md:text-2xl font-light text-primary/90"
                         processText={processText}
                       />
-                      {card.targetWordPartOfSpeech && (
-                        <span className="text-[9px] font-ui font-medium uppercase border border-primary/30 bg-primary/5 px-2 py-0.5 text-primary/70 tracking-widest">
-                          {card.targetWordPartOfSpeech}
-                        </span>
-                      )}
+
                     </div>
                     {card.targetWordTranslation && (
                       <span className="text-base text-muted-foreground/80 font-light italic">{card.targetWordTranslation}</span>
@@ -459,6 +439,7 @@ export const Flashcard = React.memo<FlashcardProps>(({
                 )}
 
                 <div className="max-w-3xl">
+                  
                   <p className={cn(
                     "text-base md:text-xl text-foreground/70 font-light italic text-center leading-relaxed text-balance transition-colors duration-300",
                     isGaslit ? "text-destructive/70" : "group-hover:text-foreground/85"
@@ -475,7 +456,7 @@ export const Flashcard = React.memo<FlashcardProps>(({
             )}
 
             {card.notes && (
-              <div className="mt-2 pointer-events-auto shrink-0">
+              <div className="mt-2 pointer-events-auto shrink-0 px-6">
                 <FuriganaText 
                   text={card.notes}
                   className="text-xs font-ui font-light text-foreground text-center tracking-wide leading-relaxed block"

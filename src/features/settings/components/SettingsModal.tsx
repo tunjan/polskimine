@@ -547,16 +547,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
         
         {/* Game-styled Sidebar */}
         <div className="relative w-full md:w-72 bg-card border-b md:border-b-0 md:border-r border-border p-4 md:p-6 flex flex-col justify-between shrink-0">
-            {/* Corner decorations */}
-            <span className="absolute -top-px -left-px w-4 h-4 pointer-events-none">
-              <span className="absolute top-0 left-0 w-full h-0.5 bg-primary" />
-              <span className="absolute top-0 left-0 h-full w-0.5 bg-primary" />
-            </span>
-            <span className="absolute -bottom-px -left-px w-4 h-4 pointer-events-none hidden md:block">
-              <span className="absolute bottom-0 left-0 w-full h-0.5 bg-primary" />
-              <span className="absolute bottom-0 left-0 h-full w-0.5 bg-primary" />
-            </span>
-
+         
             <div className="space-y-6">
                 <DialogTitle className="flex items-center gap-3 mb-8">
                     <span className="w-2 h-2 rotate-45 bg-primary/60" />
@@ -721,11 +712,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
 
             {/* Game-styled Footer */}
             <div className="relative px-6 py-4 md:px-12 md:py-5 border-t border-border bg-card/50 flex justify-between items-center gap-4 shrink-0 flex-wrap">
-                {/* Corner accents */}
-                <span className="absolute -bottom-px -right-px w-4 h-4 pointer-events-none hidden md:block">
-                  <span className="absolute bottom-0 right-0 w-full h-0.5 bg-primary" />
-                  <span className="absolute bottom-0 right-0 h-full w-0.5 bg-primary" />
-                </span>
+                
                 
                 <button 
                     onClick={() => {

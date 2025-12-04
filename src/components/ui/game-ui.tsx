@@ -2,37 +2,59 @@ import * as React from "react"
 import { cn } from "@/lib/utils"
 
 /**
- * A game-styled panel with decorative corners, similar to Genshin Impact UI
+ * Genshin Impact-inspired flat UI components
+ * Features: geometric shapes, diamond motifs, ornate frames, flat colors
  */
 
-const CornerSvg = ({ className, ...props }: React.ComponentProps<"svg">) => (
+// ============================================================================
+// DECORATIVE SVG ELEMENTS
+// ============================================================================
+
+/** Ornate corner accent - elegant Genshin-style frame */
+const GenshinCorner = ({ className, ...props }: React.ComponentProps<"svg">) => (
   <svg
-    width="20"
-    height="20"
-    viewBox="0 0 20 20"
+    width="48"
+    height="48"
+    viewBox="0 0 48 48"
     fill="none"
     xmlns="http://www.w3.org/2000/svg"
     className={className}
     {...props}
   >
-    <path d="M0 0H12V1H1V12H0V0Z" fill="currentColor" />
-    <rect x="2" y="2" width="2" height="2" fill="currentColor" />
-    <rect x="5" y="2" width="3" height="1" fill="currentColor" className="opacity-50" />
-    <rect x="2" y="5" width="1" height="3" fill="currentColor" className="opacity-50" />
+    {/* Primary Corner Bracket */}
+    <path d="M0 0H36V2H2V36H0V0Z" fill="currentColor" />
     
-    {/* Diagonal Rhombus */}
-    <path d="M5 4L6 5L5 6L4 5Z" fill="currentColor" className="opacity-40" />
+    {/* Secondary Inner Bracket */}
+    <path d="M5 5H24V6.5H6.5V24H5V5Z" fill="currentColor" opacity="0.6" />
     
-    {/* Horizontal Rhombus */}
-    <path d="M13.5 0L14.5 1L13.5 2L12.5 1Z" fill="currentColor" className="opacity-60" />
+
     
-    {/* Vertical Rhombus */}
-    <path d="M0 13.5L1 12.5L2 13.5L1 14.5Z" fill="currentColor" className="opacity-60" />
+    {/* Main Corner Diamond */}
+    
+    {/* Small Accents along top */}
+    <rect x="28" y="5" width="4" height="1.5" fill="currentColor" opacity="0.5" />
+    <rect x="34" y="5" width="1.5" height="1.5" fill="currentColor" opacity="0.5" />
+    
+    {/* Small Accents along side */}
+    <rect x="5" y="28" width="1.5" height="4" fill="currentColor" opacity="0.5" />
+    <rect x="5" y="34" width="1.5" height="1.5" fill="currentColor" opacity="0.5" />
+
+    {/* Distant decorative elements */}
+    <rect x="40" y="0" width="6" height="2" fill="currentColor" opacity="0.4" />
+    <rect x="0" y="40" width="2" height="6" fill="currentColor" opacity="0.4" />
+    
+    {/* Floating diamonds at ends */}
+    <path d="M46 1L47 2L46 3L45 2Z" fill="currentColor" opacity="0.6" />
+    <path d="M1 46L2 47L3 46L2 45Z" fill="currentColor" opacity="0.6" />
   </svg>
 )
 
+// ============================================================================
+// GAME PANEL - Primary container component
+// ============================================================================
+
 interface GamePanelProps extends React.HTMLAttributes<HTMLDivElement> {
-  variant?: 'default' | 'highlight' | 'stat'
+  variant?: 'default' | 'highlight' | 'stat' | 'ornate'
   size?: 'sm' | 'md' | 'lg'
   showCorners?: boolean
   glowOnHover?: boolean
@@ -51,38 +73,39 @@ export function GamePanel({
     <div
       className={cn(
         "relative group/panel",
-        
         "bg-card",
         
-        "border border-border",
+        // Border styles based on variant
+        variant === 'default' && "border-2 bborder-amber-700/20 dark:border-amber-700/25",
+        variant === 'highlight' && "border-2 border-amber-700/40 dark:border-amber-400/35",
+        variant === 'stat' && "border bborder-amber-700/15 dark:border-amber-700/20",
+        variant === 'ornate' && "border-2 border-amber-700/50 dark:border-amber-400/40",
         
+        // Padding based on size
         size === 'sm' && "p-3",
         size === 'md' && "p-4 md:p-5",
         size === 'lg' && "p-5 md:p-6",
         
-        variant === 'highlight' && "border-primary/50 shadow-sm",
-        variant === 'stat' && "border-border/70",
+        // Hover glow effect (flat - just border color change)
+        glowOnHover && "transition-colors duration-200 ",
         
-        glowOnHover && "transition-shadow duration-300 hover:shadow-[0_0_20px_-5px_hsl(var(--primary)/0.3)]",
         className
       )}
       {...props}
     >
-      {/* Corner decorations */}
+      {/* Ornate corner decorations */}
       {showCorners && (
         <>
-          {/* Top Left Corner */}
-          <CornerSvg className="absolute -top-px -left-px text-primary pointer-events-none" />
-          
-          {/* Top Right Corner */}
-          <CornerSvg className="absolute -top-px -right-px text-primary pointer-events-none rotate-90" />
-          
-          {/* Bottom Left Corner */}
-          <CornerSvg className="absolute -bottom-px -left-px text-primary pointer-events-none -rotate-90" />
-          
-          {/* Bottom Right Corner */}
-          <CornerSvg className="absolute -bottom-px -right-px text-primary pointer-events-none rotate-180" />
+          <GenshinCorner className="absolute -top-px -left-px text-amber-500/80 dark:text-amber-400/70 pointer-events-none" />
+          <GenshinCorner className="absolute -top-px -right-px text-amber-500/80 dark:text-amber-400/70 pointer-events-none rotate-90" />
+          <GenshinCorner className="absolute -bottom-px -left-px text-amber-500/80 dark:text-amber-400/70 pointer-events-none -rotate-90" />
+          <GenshinCorner className="absolute -bottom-px -right-px text-amber-500/80 dark:text-amber-400/70 pointer-events-none rotate-180" />
         </>
+      )}
+      
+      {/* Ornate variant has additional inner frame */}
+      {variant === 'ornate' && (
+        <div className="absolute inset-2 border border-amber-700/20 pointer-events-none" />
       )}
       
       {children}
@@ -90,10 +113,10 @@ export function GamePanel({
   )
 }
 
-/**
- * A stat display with game-style decorations
- * Uses CSS variables for theming compatibility with LanguageThemeManager
- */
+// ============================================================================
+// GAME STAT - Statistic display card
+// ============================================================================
+
 interface GameStatProps extends React.HTMLAttributes<HTMLDivElement> {
   label: string
   value: string | number
@@ -101,69 +124,70 @@ interface GameStatProps extends React.HTMLAttributes<HTMLDivElement> {
   icon?: React.ReactNode
   trend?: 'up' | 'down' | 'neutral'
   size?: 'sm' | 'md' | 'lg'
-  color?: 'default' | 'blue' | 'green' | 'amber' | 'rose' | 'purple' | 'sky' | 'emerald' | 'violet'
+  color?: 'default' | 'amber' | 'blue' | 'green' | 'rose' | 'purple' | 'sky' | 'pine' | 'violet'
 }
 
-// Color styles using CSS custom properties for theme compatibility
-// These map to semantic colors that can be overridden by the theme
-const getStatColorStyles = (color: GameStatProps['color']) => {
-  // Use CSS variables with fallbacks for theme integration
-  const colorMap: Record<NonNullable<GameStatProps['color']>, { 
-    bg: string; 
-    text: string; 
-    border: string;
-    cssVar?: string;
-  }> = {
-    default: { 
-      bg: "bg-primary/40", 
-      text: "text-primary/70", 
-      border: "hover:border-primary/40",
-      cssVar: "hsl(var(--primary))"
-    },
-    blue: { 
-      bg: "bg-[hsl(var(--stat-blue,217_91%_60%)/0.4)]", 
-      text: "text-[hsl(var(--stat-blue,217_91%_60%)/0.7)]", 
-      border: "hover:border-[hsl(var(--stat-blue,217_91%_60%)/0.4)]"
-    },
-    sky: { 
-      bg: "bg-[hsl(var(--stat-sky,199_89%_48%)/0.4)]", 
-      text: "text-[hsl(var(--stat-sky,199_89%_48%)/0.7)]", 
-      border: "hover:border-[hsl(var(--stat-sky,199_89%_48%)/0.4)]"
-    },
-    green: { 
-      bg: "bg-[hsl(var(--stat-green,142_71%_45%)/0.4)]", 
-      text: "text-[hsl(var(--stat-green,142_71%_45%)/0.7)]", 
-      border: "hover:border-[hsl(var(--stat-green,142_71%_45%)/0.4)]"
-    },
-    emerald: { 
-      bg: "bg-[hsl(var(--stat-emerald,160_84%_39%)/0.4)]", 
-      text: "text-[hsl(var(--stat-emerald,160_84%_39%)/0.7)]", 
-      border: "hover:border-[hsl(var(--stat-emerald,160_84%_39%)/0.4)]"
-    },
-    amber: { 
-      bg: "bg-[hsl(var(--stat-amber,38_92%_50%)/0.4)]", 
-      text: "text-[hsl(var(--stat-amber,38_92%_50%)/0.7)]", 
-      border: "hover:border-[hsl(var(--stat-amber,38_92%_50%)/0.4)]"
-    },
-    rose: { 
-      bg: "bg-[hsl(var(--stat-rose,350_89%_60%)/0.4)]", 
-      text: "text-[hsl(var(--stat-rose,350_89%_60%)/0.7)]", 
-      border: "hover:border-[hsl(var(--stat-rose,350_89%_60%)/0.4)]"
-    },
-    purple: { 
-      bg: "bg-[hsl(var(--stat-purple,270_91%_65%)/0.4)]", 
-      text: "text-[hsl(var(--stat-purple,270_91%_65%)/0.7)]", 
-      border: "hover:border-[hsl(var(--stat-purple,270_91%_65%)/0.4)]"
-    },
-    violet: { 
-      bg: "bg-[hsl(var(--stat-violet,258_90%_66%)/0.4)]", 
-      text: "text-[hsl(var(--stat-violet,258_90%_66%)/0.7)]", 
-      border: "hover:border-[hsl(var(--stat-violet,258_90%_66%)/0.4)]"
-    },
-  };
-  
-  return colorMap[color || 'default'];
-};
+const statColorConfig: Record<NonNullable<GameStatProps['color']>, {
+  accent: string
+  text: string
+  bg: string
+  border: string
+}> = {
+  default: {
+    accent: "bg-amber-600",
+    text: "text-amber-500",
+    bg: "bg-amber-600/10",
+    border: "border-amber-700/30"
+  },
+  amber: {
+    accent: "bg-amber-600",
+    text: "text-amber-500",
+    bg: "bg-amber-600/10",
+    border: "border-amber-700/30"
+  },
+  blue: {
+    accent: "bg-blue-500",
+    text: "text-blue-500",
+    bg: "bg-blue-500/10",
+    border: "border-blue-500/30"
+  },
+  sky: {
+    accent: "bg-sky-500",
+    text: "text-sky-500",
+    bg: "bg-sky-500/10",
+    border: "border-sky-500/30"
+  },
+  green: {
+    accent: "bg-pine-500",
+    text: "text-pine-500",
+    bg: "bg-pine-500/10",
+    border: "border-pine-500/30"
+  },
+  pine: {
+    accent: "bg-pine-500",
+    text: "text-pine-500",
+    bg: "bg-pine-500/10",
+    border: "border-pine-500/30"
+  },
+  rose: {
+    accent: "bg-rose-500",
+    text: "text-rose-500",
+    bg: "bg-rose-500/10",
+    border: "border-rose-500/30"
+  },
+  purple: {
+    accent: "bg-purple-500",
+    text: "text-purple-500",
+    bg: "bg-purple-500/10",
+    border: "border-purple-500/30"
+  },
+  violet: {
+    accent: "bg-violet-500",
+    text: "text-violet-500",
+    bg: "bg-violet-500/10",
+    border: "border-violet-500/30"
+  }
+}
 
 export function GameStat({ 
   label, 
@@ -176,41 +200,33 @@ export function GameStat({
   color = 'default',
   ...props 
 }: GameStatProps) {
-  const styles = getStatColorStyles(color);
+  const colors = statColorConfig[color]
 
   return (
-    <GamePanel 
-      variant="stat" 
-      size="sm" 
+    <div 
       className={cn(
-        "group/stat transition-all duration-200",
-        "hover:bg-card",
-        styles.border,
+        "relative group/stat",
+        "bg-card border border-border/50",
+        "p-4 transition-colors duration-200",
+        "hover:border-border",
         className
       )}
-      glowOnHover
       {...props}
     >
+      {/* Top accent bar - simple line */}
+      <div className={cn("absolute top-0 left-0 right-0 h-0.5", colors.accent, "opacity-80")} />
+      
+      {/* Content */}
       <div className="relative">
-        {/* Diamond accent */}
-        <span className={cn(
-          "absolute -top-1 -right-1 w-1.5 h-1.5 rotate-45 transition-colors",
-          styles.bg,
-          `group-hover/stat:${styles.bg.replace('/40', '/70')}`
-        )} />
-        
-        {/* Label with optional icon */}
-        <div className="flex items-center gap-1.5 mb-2">
+        {/* Label with icon */}
+        <div className="flex items-center gap-2 mb-2">
           {icon && (
-            <span className={cn(
-              "transition-colors",
-              styles.text
-            )}>
+            <span className={cn(colors.text, "opacity-80")}>
               {icon}
             </span>
           )}
           <p className={cn(
-            "uppercase tracking-[0.15em] text-muted-foreground font-light font-ui",
+            "uppercase tracking-[0.15em] text-muted-foreground font-medium font-ui",
             size === 'sm' && "text-[9px]",
             size === 'md' && "text-[10px]",
             size === 'lg' && "text-[11px]"
@@ -220,29 +236,46 @@ export function GameStat({
         </div>
         
         {/* Value */}
-        <p className={cn(
-          "font-light text-foreground tabular-nums tracking-tight",
-          size === 'sm' && "text-xl",
-          size === 'md' && "text-2xl md:text-3xl",
-          size === 'lg' && "text-3xl md:text-4xl"
-        )}>
-          {typeof value === 'number' ? value.toLocaleString() : value}
-        </p>
+        <div className="flex items-baseline gap-2">
+          <p className={cn(
+            "font-medium text-foreground tabular-nums tracking-tight",
+            size === 'sm' && "text-2xl",
+            size === 'md' && "text-3xl md:text-4xl",
+            size === 'lg' && "text-4xl md:text-5xl"
+          )}>
+            {typeof value === 'number' ? value.toLocaleString() : value}
+          </p>
+          
+          {/* Trend indicator */}
+          {trend && (
+            <span className={cn(
+              "text-xs font-medium",
+              trend === 'up' && "text-pine-500",
+              trend === 'down' && "text-rose-500",
+              trend === 'neutral' && "text-muted-foreground"
+            )}>
+              {trend === 'up' && '↑'}
+              {trend === 'down' && '↓'}
+              {trend === 'neutral' && '→'}
+            </span>
+          )}
+        </div>
         
         {/* Sublabel */}
         {sublabel && (
-          <p className="text-[10px] text-muted-foreground/60 mt-1 font-light font-ui">
+          <p className="text-[11px] text-muted-foreground/60 mt-1.5 font-medium font-ui">
             {sublabel}
           </p>
         )}
       </div>
-    </GamePanel>
+    </div>
   )
 }
 
-/**
- * Game-style section header with decorative line
- */
+// ============================================================================
+// GAME SECTION HEADER - Section title with ornate line
+// ============================================================================
+
 interface GameSectionHeaderProps extends React.HTMLAttributes<HTMLDivElement> {
   title: string
   subtitle?: string
@@ -258,22 +291,29 @@ export function GameSectionHeader({
 }: GameSectionHeaderProps) {
   return (
     <div className={cn("mb-5 md:mb-6", className)} {...props}>
-      <div className="flex items-center gap-3 mb-1">
-        {/* Decorative diamond */}
-        <span className="w-2 h-2 rotate-45 bg-primary/60" />
+      <div className="flex items-center gap-4 mb-1.5">
+        {/* Left ornate element */}
+        <div className="flex items-center gap-2">
+          <span className="w-3 h-3 rotate-45 border-2 border-amber-700/60" />
+          <span className="w-6 h-0.5 bg-amber-600/40" />
+        </div>
         
         {/* Title */}
-        <h2 className="text-lg md:text-xl font-medium text-foreground tracking-tight font-ui flex items-center gap-2">
-          {icon && <span className="text-primary/70">{icon}</span>}
+        <h2 className="text-lg md:text-xl font-semibold text-foreground tracking-wide font-ui flex items-center gap-2.5">
+          {icon && <span className="text-amber-500/80">{icon}</span>}
           {title}
         </h2>
         
-        {/* Decorative line */}
-        <span className="flex-1 h-px bg-gradient-to-r from-border/60 via-border/30 to-transparent" />
+        {/* Right ornate line */}
+        <div className="flex-1 flex items-center gap-2">
+          <span className="flex-1 h-px bg-border/60" />
+          <span className="w-1.5 h-1.5 rotate-45 bg-amber-600/40" />
+          <span className="w-8 h-px bg-border/40" />
+        </div>
       </div>
       
       {subtitle && (
-        <p className="text-sm text-muted-foreground font-light pl-5">
+        <p className="text-sm text-muted-foreground/70 font-medium pl-12">
           {subtitle}
         </p>
       )}
@@ -281,9 +321,10 @@ export function GameSectionHeader({
   )
 }
 
-/**
- * Game-style progress bar with decorative elements
- */
+// ============================================================================
+// GAME PROGRESS BAR - Flat progress indicator
+// ============================================================================
+
 interface GameProgressBarProps extends React.HTMLAttributes<HTMLDivElement> {
   value: number
   max?: number
@@ -306,17 +347,17 @@ export function GameProgressBar({
   const percentage = Math.min(100, Math.max(0, (value / max) * 100))
   
   return (
-    <div className={cn("space-y-1.5", className)} {...props}>
+    <div className={cn("space-y-2", className)} {...props}>
       {/* Label row */}
       {(label || showValue) && (
         <div className="flex justify-between items-center">
           {label && (
-            <span className="text-xs text-muted-foreground font-light font-ui">
+            <span className="text-xs text-muted-foreground font-medium font-ui uppercase tracking-wider">
               {label}
             </span>
           )}
           {showValue && (
-            <span className="text-xs text-foreground font-medium tabular-nums">
+            <span className="text-xs text-foreground font-semibold tabular-nums">
               {Math.round(percentage)}%
             </span>
           )}
@@ -325,40 +366,46 @@ export function GameProgressBar({
       
       {/* Progress bar container */}
       <div className={cn(
-        "relative w-full bg-muted/50 overflow-hidden",
-        "border border-border/30",
-        size === 'sm' && "h-1.5",
-        size === 'md' && "h-2",
-        size === 'lg' && "h-3"
+        "relative w-full overflow-hidden",
+        "bg-muted/40 border border-border/40",
+        size === 'sm' && "h-2",
+        size === 'md' && "h-3",
+        size === 'lg' && "h-4"
       )}>
-        {/* Corner accents */}
-        <span className="absolute top-0 left-0 w-1 h-full bg-primary/30" />
-        <span className="absolute top-0 right-0 w-1 h-full bg-primary/30" />
+        {/* End cap decorations */}
+        <span className="absolute top-0 bottom-0 left-0 w-1 bg-amber-600/20 z-10" />
+        <span className="absolute top-0 bottom-0 right-0 w-1 bg-amber-600/20 z-10" />
         
-        {/* Fill bar */}
+        {/* Fill bar - flat color */}
         <div 
           className={cn(
-            "h-full transition-all duration-700 ease-out relative",
-            variant === 'default' && "bg-white",
-            variant === 'xp' && "bg-gradient-to-r from-foreground via-foreground to-primary",
-            variant === 'health' && "bg-gradient-to-r from-green-500 to-green-400"
+            "h-full transition-all duration-700 ease-out",
+            variant === 'default' && "bg-amber-600",
+            variant === 'xp' && "bg-blue-500",
+            variant === 'health' && "bg-pine-500"
           )}
           style={{ width: `${percentage}%` }}
-        >
-          {/* Shine effect */}
-          <span className="absolute inset-0 bg-gradient-to-b from-white/20 to-transparent" />
-          
-          {/* Moving highlight */}
-          <span className="absolute top-0 right-0 w-4 h-full bg-gradient-to-r from-transparent to-white/30" />
-        </div>
+        />
+        
+        {/* Progress marker at end */}
+        {percentage > 0 && percentage < 100 && (
+          <span 
+            className={cn(
+              "absolute top-0 bottom-0 w-0.5 bg-white/60",
+              "transition-all duration-700"
+            )}
+            style={{ left: `${percentage}%` }}
+          />
+        )}
       </div>
     </div>
   )
 }
 
-/**
- * Game-style button with corner accents
- */
+// ============================================================================
+// GAME BUTTON - Action button with corner accents
+// ============================================================================
+
 interface GameButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: 'primary' | 'secondary' | 'ghost'
   size?: 'sm' | 'md' | 'lg'
@@ -375,71 +422,49 @@ export function GameButton({
   return (
     <button
       className={cn(
-        "relative group/btn inline-flex items-center  justify-center gap-2 font-ui uppercase tracking-[0.1em] transition-all duration-200",
+        "relative group/btn inline-flex items-center justify-center gap-2",
+        "font-ui font-semibold uppercase tracking-[0.15em]",
+        "transition-all duration-150",
         "disabled:opacity-40 disabled:cursor-not-allowed",
         
-        size === 'sm' && "h-8 px-4 text-[10px]",
-        size === 'md' && "h-10 px-6 text-xs",
-        size === 'lg' && "h-12 px-8 text-sm",
+        // Size variants
+        size === 'sm' && "h-9 px-5 text-[10px]",
+        size === 'md' && "h-11 px-7 text-xs",
+        size === 'lg' && "h-13 px-9 text-sm",
         
+        // Style variants - flat design
         variant === 'primary' && [
-          "bg-primary/10 text-foreground",
-          "hover:bg-primary/20",
-          "border border-primary",
+          "bg-amber-600/10 text-amber-950",
+          "hover:bg-amber-600/20 active:bg-amber-600",
+          "border-2 border-amber-700/50",
         ],
         variant === 'secondary' && [
           "bg-card text-foreground",
-          "hover:bg-card/80",
-          "border border-border"
+          "hover:bg-muted/50 active:bg-muted",
+          "border border-border",
         ],
         variant === 'ghost' && [
           "bg-transparent text-muted-foreground",
-          "hover:text-foreground hover:bg-card/50",
-          "border border-transparent"
+          "hover:text-foreground hover:bg-muted/30",
+          "border border-transparent hover:border-border/50"
         ],
+        
         className
       )}
       disabled={disabled}
       {...props}
     >
-      {/* Corner accents that appear on hover */}
-      <span className={cn(
-        "absolute -top-px -left-px w-2 h-2 border-l-2 border-t-2 transition-opacity duration-200",
-        "opacity-0 group-hover/btn:opacity-100",
-        variant === 'primary' && "border-foreground/50",
-        variant === 'secondary' && "border-primary/50",
-        variant === 'ghost' && "border-foreground/30"
-      )} />
-      <span className={cn(
-        "absolute -top-px -right-px w-2 h-2 border-r-2 border-t-2 transition-opacity duration-200",
-        "opacity-0 group-hover/btn:opacity-100",
-        variant === 'primary' && "border-foreground/50",
-        variant === 'secondary' && "border-primary/50",
-        variant === 'ghost' && "border-foreground/30"
-      )} />
-      <span className={cn(
-        "absolute -bottom-px -left-px w-2 h-2 border-l-2 border-b-2 transition-opacity duration-200",
-        "opacity-0 group-hover/btn:opacity-100",
-        variant === 'primary' && "border-foreground/50",
-        variant === 'secondary' && "border-primary/50",
-        variant === 'ghost' && "border-foreground/30"
-      )} />
-      <span className={cn(
-        "absolute -bottom-px -right-px w-2 h-2 border-r-2 border-b-2 transition-opacity duration-200",
-        "opacity-0 group-hover/btn:opacity-100",
-        variant === 'primary' && "border-foreground/50",
-        variant === 'secondary' && "border-primary/50",
-        variant === 'ghost' && "border-foreground/30"
-      )} />
+      
       
       {children}
     </button>
   )
 }
 
-/**
- * Game-style metric row
- */
+// ============================================================================
+// GAME METRIC ROW - Horizontal stat display
+// ============================================================================
+
 interface GameMetricRowProps extends React.HTMLAttributes<HTMLDivElement> {
   icon: React.ReactNode
   label: string
@@ -458,31 +483,36 @@ export function GameMetricRow({
   return (
     <div 
       className={cn(
-        "group/metric relative bg-card/60 border border-border/40 p-3 md:p-4",
+        "group/metric relative",
+        "bg-card/60 border border-border/40 p-4",
         "flex items-center justify-between",
-        "hover:border-primary/30 hover:bg-card/80 transition-all duration-200",
+        "hover:border-amber-700/30 transition-colors duration-150",
         className
       )}
       {...props}
     >
       {/* Left accent line */}
-      <span className="absolute left-0 top-1/4 bottom-1/4 w-[2px] bg-primary/40 group-hover/metric:bg-primary/70 transition-colors" />
+      <span className={cn(
+        "absolute left-0 top-2 bottom-2 w-0.5",
+        "bg-amber-600/30 group-hover/metric:bg-amber-600/60",
+        "transition-colors duration-150"
+      )} />
       
-      <div className="flex items-center gap-2.5 pl-2">
-        <span className="text-primary/70 transition-colors">
-          {icon}
-        </span>
-        <span className="text-sm text-muted-foreground font-light font-ui">
+      {/* Label side */}
+      <div className="flex items-center gap-3 pl-3">
+        <span className="text-amber-500/70">{icon}</span>
+        <span className="text-sm text-muted-foreground font-medium font-ui">
           {label}
         </span>
       </div>
       
+      {/* Value side */}
       <div className="flex items-baseline gap-1.5">
-        <span className="text-lg md:text-xl font-light text-foreground tabular-nums">
+        <span className="text-xl font-semibold text-foreground tabular-nums">
           {typeof value === 'number' ? value.toLocaleString() : value}
         </span>
         {unit && (
-          <span className="text-xs text-muted-foreground font-light">
+          <span className="text-xs text-muted-foreground/70 font-medium">
             {unit}
           </span>
         )}
@@ -491,24 +521,26 @@ export function GameMetricRow({
   )
 }
 
-/**
- * Animated divider with game styling
- */
+// ============================================================================
+// GAME DIVIDER - Ornate horizontal separator
+// ============================================================================
+
 export function GameDivider({ className }: { className?: string }) {
   return (
-    <div className={cn("flex items-center gap-2 my-6", className)}>
-      <span className="w-2 h-2 rotate-45 bg-border/80" />
-      <span className="flex-1 h-px bg-linear-to-r from-border via-border/90 to-transparent" />
-      <span className="w-1.5 h-1.5 rotate-45 bg-border/70" />
-      <span className="flex-1 h-px bg-linear-to-l from-border via-border/90 to-transparent" />
-      <span className="w-2 h-2 rotate-45 bg-border/80" />
+    <div className={cn("flex items-center gap-3 my-6", className)}>
+      <span className="w-2.5 h-2.5 rotate-45 border border-amber-700/40" />
+      <span className="flex-1 h-px bg-border/50" />
+      <span className="w-1.5 h-1.5 rotate-45 bg-amber-600/40" />
+      <span className="flex-1 h-px bg-border/50" />
+      <span className="w-2.5 h-2.5 rotate-45 border border-amber-700/40" />
     </div>
   )
 }
 
-/**
- * Game-style loading spinner with diamond animation
- */
+// ============================================================================
+// GAME LOADER - Spinning geometric loader
+// ============================================================================
+
 interface GameLoaderProps {
   size?: 'sm' | 'md' | 'lg'
   text?: string
@@ -517,64 +549,62 @@ interface GameLoaderProps {
 
 export function GameLoader({ size = 'md', text, className }: GameLoaderProps) {
   const sizeConfig = {
-    sm: { container: 'w-10 h-10', inner: 'inset-1', innermost: 'inset-2', diamond: 'w-1 h-1' },
-    md: { container: 'w-16 h-16', inner: 'inset-2', innermost: 'inset-4', diamond: 'w-2 h-2' },
-    lg: { container: 'w-24 h-24', inner: 'inset-3', innermost: 'inset-6', diamond: 'w-3 h-3' }
+    sm: { container: 'w-12 h-12', inner: 'inset-1.5', diamond: 'w-1.5 h-1.5' },
+    md: { container: 'w-20 h-20', inner: 'inset-3', diamond: 'w-2 h-2' },
+    lg: { container: 'w-28 h-28', inner: 'inset-4', diamond: 'w-3 h-3' }
   }
 
   const config = sizeConfig[size]
 
   return (
-    <div className={cn("flex flex-col items-center justify-center gap-4", className)}>
+    <div className={cn("flex flex-col items-center justify-center gap-5", className)}>
       <div className={cn("relative", config.container)}>
-        {/* Outer rotating diamond - spins slowly clockwise */}
+        {/* Outer rotating square */}
         <div 
-          className="absolute inset-0 border border-border/50 rotate-45 animate-spin"
-          style={{ animationDuration: '3s' }}
+          className="absolute inset-0 border-2 border-amber-700/30 rotate-45 animate-spin"
+          style={{ animationDuration: '4s' }}
         />
-        {/* Middle rotating diamond - spins counter-clockwise */}
+        
+        {/* Inner counter-rotating square */}
         <div 
-          className={cn("absolute border border-primary/40 rotate-45", config.inner)}
-          style={{ animation: 'spin 2s linear infinite reverse' }}
+          className={cn("absolute border-2 border-amber-700/50 rotate-45", config.inner)}
+          style={{ animation: 'spin 3s linear infinite reverse' }}
         />
-        {/* Inner rotating diamond - spins faster clockwise */}
-        <div 
-          className={cn("absolute border border-primary/60 rotate-45 animate-spin", config.innermost)}
-          style={{ animationDuration: '1.5s' }}
-        />
-        {/* Center diamond dot - pulses */}
+        
+        {/* Center diamond - pulsing */}
         <span 
           className={cn(
-            "absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-primary rotate-45 animate-pulse",
+            "absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2",
+            "bg-amber-600 rotate-45 animate-pulse",
             config.diamond
           )} 
         />
-        {/* Rotating accent lines */}
-        <div className="absolute inset-0 animate-spin" style={{ animationDuration: '2s' }}>
-          <span className="absolute top-0 left-1/2 -translate-x-1/2 w-0.5 h-1.5 bg-primary/60" />
-          <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-0.5 h-1.5 bg-primary/60" />
-          <span className="absolute left-0 top-1/2 -translate-y-1/2 h-0.5 w-1.5 bg-primary/60" />
-          <span className="absolute right-0 top-1/2 -translate-y-1/2 h-0.5 w-1.5 bg-primary/60" />
+        
+        {/* Cardinal point markers */}
+        <div className="absolute inset-0 animate-spin" style={{ animationDuration: '2.5s' }}>
+          <span className="absolute top-0 left-1/2 -translate-x-1/2 w-1 h-1 bg-amber-600/60 rotate-45" />
+          <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-1 h-1 bg-amber-600/60 rotate-45" />
+          <span className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-1 bg-amber-600/60 rotate-45" />
+          <span className="absolute right-0 top-1/2 -translate-y-1/2 w-1 h-1 bg-amber-600/60 rotate-45" />
         </div>
       </div>
       
       {text && (
-        <div className="flex items-center justify-center gap-3">
-          <span className="w-6 h-px bg-gradient-to-r from-transparent via-border to-transparent" />
-          <span className="text-xs font-light text-muted-foreground/60 tracking-[0.15em] uppercase font-ui animate-pulse">
+        <div className="flex items-center gap-3">
+          <span className="w-8 h-px bg-border" />
+          <span className="text-xs font-medium text-muted-foreground/70 tracking-[0.2em] uppercase font-ui">
             {text}
           </span>
-          <span className="w-6 h-px bg-gradient-to-r from-transparent via-border to-transparent" />
+          <span className="w-8 h-px bg-border" />
         </div>
       )}
     </div>
   )
 }
 
-/**
- * Immersive full-screen loading state inspired by Genshin Impact
- * Features animated geometric patterns, subtle particles, and elegant typography
- */
+// ============================================================================
+// GAME LOADING SCREEN - Full-screen loading state
+// ============================================================================
 
 const LOADING_TIPS = [
   "Consistent daily reviews build lasting memory",
@@ -586,6 +616,33 @@ const LOADING_TIPS = [
   "Review cards when your mind is fresh",
   "Mistakes are opportunities to learn",
 ]
+
+/** Large corner ornament for loading screen */
+function CornerOrnament() {
+  return (
+    <svg width="100" height="100" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+      {/* Main L-frame */}
+      <path d="M0 0H50V2H2V50H0V0Z" fill="currentColor" />
+      <path d="M0 0H60V1H1V60H0V0Z" fill="currentColor" opacity="0.5" />
+      
+      {/* Inner geometric details */}
+      <rect x="8" y="8" width="6" height="6" fill="none" stroke="currentColor" strokeWidth="1" />
+      <path d="M11 11L13 13L11 15L9 13Z" fill="currentColor" opacity="0.6" />
+      
+      {/* Extended accents */}
+      <rect x="20" y="8" width="12" height="2" fill="currentColor" opacity="0.4" />
+      <rect x="8" y="20" width="2" height="12" fill="currentColor" opacity="0.4" />
+      
+      {/* Diamond markers */}
+      <path d="M40 2L42 4L40 6L38 4Z" fill="currentColor" opacity="0.5" />
+      <path d="M2 40L4 38L6 40L4 42Z" fill="currentColor" opacity="0.5" />
+      
+      {/* Additional line details */}
+      <rect x="50" y="0" width="8" height="1" fill="currentColor" opacity="0.3" />
+      <rect x="0" y="50" width="1" height="8" fill="currentColor" opacity="0.3" />
+    </svg>
+  )
+}
 
 interface GameLoadingScreenProps {
   title?: string
@@ -609,122 +666,115 @@ export function GameLoadingScreen({
       "bg-background",
       className
     )}>
-      {/* Subtle geometric background pattern */}
+      {/* Corner ornaments */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        {/* Corner ornaments */}
-        <div className="absolute top-8 left-8 opacity-[0.08]">
+        <div className="absolute top-6 left-6 text-amber-500/10">
           <CornerOrnament />
         </div>
-        <div className="absolute top-8 right-8 opacity-[0.08] rotate-90">
+        <div className="absolute top-6 right-6 text-amber-500/10 rotate-90">
           <CornerOrnament />
         </div>
-        <div className="absolute bottom-8 left-8 opacity-[0.08] -rotate-90">
+        <div className="absolute bottom-6 left-6 text-amber-500/10 -rotate-90">
           <CornerOrnament />
         </div>
-        <div className="absolute bottom-8 right-8 opacity-[0.08] rotate-180">
+        <div className="absolute bottom-6 right-6 text-amber-500/10 rotate-180">
           <CornerOrnament />
         </div>
         
-        {/* Floating particles */}
-        <div className="absolute inset-0">
-          {[...Array(6)].map((_, i) => (
-            <span
-              key={i}
-              className="absolute w-1 h-1 bg-primary/20 rotate-45 animate-float"
-              style={{
-                left: `${15 + i * 15}%`,
-                top: `${20 + (i % 3) * 25}%`,
-                animationDelay: `${i * 0.4}s`,
-                animationDuration: `${3 + i * 0.5}s`
-              }}
-            />
-          ))}
-        </div>
-        
-        {/* Horizontal accent lines */}
-        <div className="absolute left-0 right-0 top-1/3 flex items-center justify-center opacity-[0.04]">
-          <div className="flex-1 max-w-xs h-px bg-linear-to-r from-transparent via-foreground to-transparent" />
-        </div>
-        <div className="absolute left-0 right-0 bottom-1/3 flex items-center justify-center opacity-[0.04]">
-          <div className="flex-1 max-w-xs h-px bg-linear-to-r from-transparent via-foreground to-transparent" />
-        </div>
+        {/* Subtle floating diamonds */}
+        {[...Array(8)].map((_, i) => (
+          <span
+            key={i}
+            className="absolute w-1.5 h-1.5 bg-amber-600/15 rotate-45 animate-float"
+            style={{
+              left: `${10 + i * 12}%`,
+              top: `${15 + (i % 4) * 20}%`,
+              animationDelay: `${i * 0.3}s`,
+              animationDuration: `${4 + i * 0.4}s`
+            }}
+          />
+        ))}
       </div>
       
       {/* Main content */}
-      <div className="relative flex flex-col items-center gap-8 px-6">
-        {/* Central loader animation */}
-        <div className="relative w-32 h-32">
-          {/* Outermost ring - very slow rotation */}
+      <div className="relative flex flex-col items-center gap-10 px-6">
+        {/* Central geometric loader */}
+        <div className="relative w-36 h-36">
+          {/* Outer square - slow rotation */}
           <div 
-            className="absolute inset-0 border border-border/30 rotate-45"
-            style={{ animation: 'spin 8s linear infinite' }}
+            className="absolute inset-0 border-2 border-amber-700/20 rotate-45"
+            style={{ animation: 'spin 10s linear infinite' }}
           />
           
-          {/* Second ring with dots at corners */}
+          {/* Second square with corner dots */}
           <div 
-            className="absolute inset-3 rotate-45"
-            style={{ animation: 'spin 6s linear infinite reverse' }}
+            className="absolute inset-4 rotate-45"
+            style={{ animation: 'spin 7s linear infinite reverse' }}
           >
-            <div className="absolute inset-0 border border-primary/20" />
-            <span className="absolute -top-0.5 -left-0.5 w-1 h-1 bg-primary/40 rotate-45" />
-            <span className="absolute -top-0.5 -right-0.5 w-1 h-1 bg-primary/40 rotate-45" />
-            <span className="absolute -bottom-0.5 -left-0.5 w-1 h-1 bg-primary/40 rotate-45" />
-            <span className="absolute -bottom-0.5 -right-0.5 w-1 h-1 bg-primary/40 rotate-45" />
+            <div className="absolute inset-0 border-2 border-amber-700/30" />
+            <span className="absolute -top-1 -left-1 w-2 h-2 bg-amber-600/40" />
+            <span className="absolute -top-1 -right-1 w-2 h-2 bg-amber-600/40" />
+            <span className="absolute -bottom-1 -left-1 w-2 h-2 bg-amber-600/40" />
+            <span className="absolute -bottom-1 -right-1 w-2 h-2 bg-amber-600/40" />
           </div>
           
-          {/* Third ring */}
+          {/* Third square */}
           <div 
-            className="absolute inset-6 border border-primary/30 rotate-45"
-            style={{ animation: 'spin 4s linear infinite' }}
+            className="absolute inset-8 border-2 border-amber-700/40 rotate-45"
+            style={{ animation: 'spin 5s linear infinite' }}
           />
           
-          {/* Fourth ring with glow */}
+          {/* Fourth square */}
           <div 
-            className="absolute inset-9 border border-primary/50 rotate-45 shadow-[0_0_20px_-5px_hsl(var(--primary)/0.3)]"
-            style={{ animation: 'spin 3s linear infinite reverse' }}
+            className="absolute inset-12 border-2 border-amber-700/60 rotate-45"
+            style={{ animation: 'spin 4s linear infinite reverse' }}
           />
           
-          {/* Innermost diamond */}
-          <div className="absolute inset-[52px] bg-primary/10 rotate-45 animate-pulse" />
+          {/* Inner diamond */}
+          <div className="absolute inset-[56px] bg-amber-600/20 rotate-45" />
           
           {/* Center point */}
           <span 
-            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-2 h-2 bg-primary rotate-45"
-            style={{ animation: 'pulse 1.5s ease-in-out infinite' }}
+            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-3 h-3 bg-amber-600 rotate-45 animate-pulse"
           />
           
-          {/* Orbiting accent dots */}
-          <div className="absolute inset-0 animate-spin" style={{ animationDuration: '4s' }}>
-            <span className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1 w-1.5 h-1.5 bg-primary/60 rotate-45" />
-          </div>
-          <div className="absolute inset-0" style={{ animation: 'spin 4s linear infinite reverse' }}>
-            <span className="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-1 w-1.5 h-1.5 bg-primary/40 rotate-45" />
+          {/* Orbiting accent */}
+          <div className="absolute inset-0 animate-spin" style={{ animationDuration: '3s' }}>
+            <span className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-2 w-2 h-2 bg-amber-600/70 rotate-45" />
           </div>
         </div>
         
         {/* Title section */}
-        <div className="flex flex-col items-center gap-3 text-center">
-          <div className="flex items-center gap-4">
-            <span className="w-12 h-px bg-linear-to-r from-transparent to-border" />
-            <h2 className="text-lg font-light text-foreground tracking-[0.2em] uppercase font-ui">
+        <div className="flex flex-col items-center gap-4 text-center">
+          <div className="flex items-center gap-5">
+            <div className="flex items-center gap-1">
+              <span className="w-2 h-2 rotate-45 border border-amber-700/40" />
+              <span className="w-16 h-px bg-amber-600/30" />
+            </div>
+            
+            <h2 className="text-xl font-semibold text-foreground tracking-[0.25em] uppercase font-ui">
               {title}
             </h2>
-            <span className="w-12 h-px bg-linear-to-l from-transparent to-border" />
+            
+            <div className="flex items-center gap-1">
+              <span className="w-16 h-px bg-amber-600/30" />
+              <span className="w-2 h-2 rotate-45 border border-amber-700/40" />
+            </div>
           </div>
           
           {subtitle && (
-            <p className="text-sm text-muted-foreground/70 font-light">
+            <p className="text-sm text-muted-foreground/70 font-medium">
               {subtitle}
             </p>
           )}
           
-          {/* Animated dots */}
-          <div className="flex items-center gap-1.5 mt-1">
+          {/* Loading dots */}
+          <div className="flex items-center gap-2 mt-2">
             {[0, 1, 2].map((i) => (
               <span
                 key={i}
-                className="w-1 h-1 bg-primary/60 rotate-45 animate-pulse"
-                style={{ animationDelay: `${i * 0.2}s` }}
+                className="w-1.5 h-1.5 bg-amber-600/60 rotate-45 animate-pulse"
+                style={{ animationDelay: `${i * 0.25}s` }}
               />
             ))}
           </div>
@@ -733,16 +783,18 @@ export function GameLoadingScreen({
       
       {/* Bottom tip section */}
       {showTip && (
-        <div className="absolute bottom-12 left-0 right-0 px-8">
+        <div className="absolute bottom-14 left-0 right-0 px-8">
           <div className="max-w-md mx-auto flex flex-col items-center gap-3">
-            <div className="flex items-center gap-2">
-              <span className="w-1 h-1 bg-primary/40 rotate-45" />
-              <span className="text-[10px] text-muted-foreground/50 uppercase tracking-[0.2em] font-ui">
+            <div className="flex items-center gap-3">
+              <span className="w-4 h-px bg-amber-600/30" />
+              <span className="w-1.5 h-1.5 rotate-45 bg-amber-600/40" />
+              <span className="text-[10px] text-amber-500/60 uppercase tracking-[0.25em] font-semibold font-ui">
                 Tip
               </span>
-              <span className="w-1 h-1 bg-primary/40 rotate-45" />
+              <span className="w-1.5 h-1.5 rotate-45 bg-amber-600/40" />
+              <span className="w-4 h-px bg-amber-600/30" />
             </div>
-            <p className="text-sm text-muted-foreground/60 text-center font-light italic font-editorial">
+            <p className="text-sm text-muted-foreground/50 text-center font-medium italic font-editorial">
               "{tip}"
             </p>
           </div>
@@ -752,62 +804,44 @@ export function GameLoadingScreen({
   )
 }
 
-/** Corner ornament for loading screen decoration */
-function CornerOrnament() {
-  return (
-    <svg width="80" height="80" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
-      {/* Main corner frame */}
-      <path d="M0 0H40V2H2V40H0V0Z" fill="currentColor" />
-      <path d="M0 0H50V1H1V50H0V0Z" fill="currentColor" opacity="0.5" />
-      
-      {/* Inner details */}
-      <rect x="6" y="6" width="4" height="4" fill="currentColor" />
-      <rect x="14" y="6" width="8" height="2" fill="currentColor" opacity="0.6" />
-      <rect x="6" y="14" width="2" height="8" fill="currentColor" opacity="0.6" />
-      
-      {/* Diamond accents */}
-      <path d="M12 10L14 12L12 14L10 12Z" fill="currentColor" opacity="0.4" />
-      <path d="M30 2L32 4L30 6L28 4Z" fill="currentColor" opacity="0.5" />
-      <path d="M2 30L4 28L6 30L4 32Z" fill="currentColor" opacity="0.5" />
-    </svg>
-  )
-}
+// ============================================================================
+// BUTTON LOADER - Inline loading spinner
+// ============================================================================
 
-/**
- * Compact inline button loader with spinning diamond
- */
 export function ButtonLoader({ className }: { className?: string }) {
   return (
     <span 
       className={cn("inline-flex items-center justify-center w-4 h-4 animate-spin", className)}
-      style={{ animationDuration: '0.8s' }}
+      style={{ animationDuration: '0.7s' }}
     >
-      <span className="w-2 h-2 bg-current rotate-45 opacity-70" />
+      <span className="w-2 h-2 bg-current rotate-45 opacity-80" />
     </span>
   )
 }
 
-/**
- * Rank system configuration - maps levels to rank titles and colors
- */
+// ============================================================================
+// RANK SYSTEM - Level and rank configuration
+// ============================================================================
+
 const RANK_CONFIG = [
-  { maxLevel: 5, title: 'Novice', color: 'text-zinc-500', bgColor: 'bg-zinc-500/10', borderColor: 'border-zinc-500/30' },
-  { maxLevel: 10, title: 'Apprentice', color: 'text-emerald-500', bgColor: 'bg-emerald-500/10', borderColor: 'border-emerald-500/30' },
-  { maxLevel: 20, title: 'Scholar', color: 'text-sky-500', bgColor: 'bg-sky-500/10', borderColor: 'border-sky-500/30' },
-  { maxLevel: 35, title: 'Adept', color: 'text-violet-500', bgColor: 'bg-violet-500/10', borderColor: 'border-violet-500/30' },
-  { maxLevel: 50, title: 'Expert', color: 'text-amber-500', bgColor: 'bg-amber-500/10', borderColor: 'border-amber-500/30' },
-  { maxLevel: 75, title: 'Master', color: 'text-orange-500', bgColor: 'bg-orange-500/10', borderColor: 'border-orange-500/30' },
-  { maxLevel: 100, title: 'Grandmaster', color: 'text-rose-500', bgColor: 'bg-rose-500/10', borderColor: 'border-rose-500/30' },
-  { maxLevel: Infinity, title: 'Legend', color: 'text-primary', bgColor: 'bg-primary/10', borderColor: 'border-primary/30' },
+  { maxLevel: 5, title: 'Novice', color: 'text-zinc-400', bgColor: 'bg-zinc-500/30', borderColor: 'border-zinc-500/60', accentColor: 'bg-zinc-600' },
+  { maxLevel: 10, title: 'Apprentice', color: 'text-pine-400', bgColor: 'bg-pine-500/10', borderColor: 'border-pine-500/30', accentColor: 'bg-pine-400' },
+  { maxLevel: 20, title: 'Scholar', color: 'text-sky-400', bgColor: 'bg-sky-500/10', borderColor: 'border-sky-500/30', accentColor: 'bg-sky-400' },
+  { maxLevel: 35, title: 'Adept', color: 'text-violet-400', bgColor: 'bg-violet-500/10', borderColor: 'border-violet-500/30', accentColor: 'bg-violet-400' },
+  { maxLevel: 50, title: 'Expert', color: 'text-amber-400', bgColor: 'bg-amber-600/10', borderColor: 'border-amber-700/30', accentColor: 'bg-amber-400' },
+  { maxLevel: 75, title: 'Master', color: 'text-orange-400', bgColor: 'bg-orange-500/10', borderColor: 'border-orange-500/30', accentColor: 'bg-orange-400' },
+  { maxLevel: 100, title: 'Grandmaster', color: 'text-rose-400', bgColor: 'bg-rose-500/10', borderColor: 'border-rose-500/30', accentColor: 'bg-rose-400' },
+  { maxLevel: Infinity, title: 'Legend', color: 'text-amber-300', bgColor: 'bg-amber-400/10', borderColor: 'border-amber-400/30', accentColor: 'bg-amber-300' },
 ] as const
 
 export function getRankForLevel(level: number) {
   return RANK_CONFIG.find(r => level <= r.maxLevel) || RANK_CONFIG[RANK_CONFIG.length - 1]
 }
 
-/**
- * Level badge with rank title - Genshin-inspired design
- */
+// ============================================================================
+// LEVEL BADGE - Ornate level display with rank
+// ============================================================================
+
 interface LevelBadgeProps {
   level: number
   xp: number
@@ -829,89 +863,105 @@ export function LevelBadge({
   
   return (
     <div className={cn("relative", className)}>
-      <div className="flex items-center gap-4">
-        {/* Level emblem */}
-        <div className="relative w-16 h-16">
-          {/* Outer decorative ring */}
-          <svg className="absolute inset-0 w-full h-full" viewBox="0 0 64 64">
-            {/* Background circle */}
+      <div className="flex items-center gap-5">
+        {/* Level emblem - Genshin-style geometric frame */}
+        <div className="relative w-20 h-20">
+          {/* Background circle with progress */}
+          <svg className="absolute inset-0 w-full h-full" viewBox="0 0 80 80">
+            {/* Background ring */}
             <circle
-              cx="32"
-              cy="32"
-              r="30"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="1"
-              className="text-border/40"
-            />
-            {/* Progress arc */}
-            <circle
-              cx="32"
-              cy="32"
-              r="30"
+              cx="40"
+              cy="40"
+              r="36"
               fill="none"
               stroke="currentColor"
               strokeWidth="2"
-              strokeLinecap="round"
-              strokeDasharray={`${(progressPercent / 100) * 188.5} 188.5`}
+              className="text-border/40"
+            />
+            
+            {/* Progress arc */}
+            <circle
+              cx="40"
+              cy="40"
+              r="36"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="3"
+              strokeLinecap="square"
+              strokeDasharray={`${(progressPercent / 100) * 226} 226`}
               className={cn(rank.color, "transition-all duration-500")}
               style={{ transform: 'rotate(-90deg)', transformOrigin: 'center' }}
             />
+            
+            {/* Decorative tick marks */}
+            {[0, 90, 180, 270].map((angle) => (
+              <rect
+                key={angle}
+                x="39"
+                y="2"
+                width="2"
+                height="4"
+                fill="currentColor"
+                className={rank.color}
+                opacity="0.5"
+                transform={`rotate(${angle} 40 40)`}
+              />
+            ))}
           </svg>
           
           {/* Inner diamond frame */}
-          <div className="absolute inset-2">
+          <div className="absolute inset-3">
             <div className={cn(
-              "w-full h-full border rotate-45",
-              "bg-card",
+              "w-full h-full rotate-45",
+              "border-2 bg-card",
               rank.borderColor
             )}>
-              {/* Corner accents */}
-              <span className={cn("absolute -top-px -left-px w-1.5 h-1.5 border-l border-t", rank.borderColor)} />
-              <span className={cn("absolute -top-px -right-px w-1.5 h-1.5 border-r border-t", rank.borderColor)} />
-              <span className={cn("absolute -bottom-px -left-px w-1.5 h-1.5 border-l border-b", rank.borderColor)} />
-              <span className={cn("absolute -bottom-px -right-px w-1.5 h-1.5 border-r border-b", rank.borderColor)} />
+              {/* Inner corner accents */}
+              <span className={cn("absolute -top-0.5 -left-0.5 w-2 h-2 border-l-2 border-t-2", rank.borderColor)} />
+              <span className={cn("absolute -top-0.5 -right-0.5 w-2 h-2 border-r-2 border-t-2", rank.borderColor)} />
+              <span className={cn("absolute -bottom-0.5 -left-0.5 w-2 h-2 border-l-2 border-b-2", rank.borderColor)} />
+              <span className={cn("absolute -bottom-0.5 -right-0.5 w-2 h-2 border-r-2 border-b-2", rank.borderColor)} />
             </div>
           </div>
           
-          {/* Level number - centered */}
+          {/* Level number */}
           <div className="absolute inset-0 flex items-center justify-center">
             <span className={cn(
-              "text-xl font-light tabular-nums",
+              "text-2xl font-bold tabular-nums",
               rank.color
             )}>
               {level}
             </span>
           </div>
           
-          {/* Cardinal point diamonds */}
-          <span className={cn("absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 w-1.5 h-1.5 rotate-45 border", rank.bgColor, rank.borderColor)} />
-          <span className={cn("absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-1/2 w-1.5 h-1.5 rotate-45 border", rank.bgColor, rank.borderColor)} />
-          <span className={cn("absolute left-0 top-1/2 -translate-x-1/2 -translate-y-1/2 w-1.5 h-1.5 rotate-45 border", rank.bgColor, rank.borderColor)} />
-          <span className={cn("absolute right-0 top-1/2 translate-x-1/2 -translate-y-1/2 w-1.5 h-1.5 rotate-45 border", rank.bgColor, rank.borderColor)} />
+          {/* Cardinal diamonds */}
+          <span className={cn("absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 w-2 h-2 rotate-45", rank.bgColor, "border", rank.borderColor)} />
+          <span className={cn("absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-1/2 w-2 h-2 rotate-45", rank.bgColor, "border", rank.borderColor)} />
+          <span className={cn("absolute left-0 top-1/2 -translate-x-1/2 -translate-y-1/2 w-2 h-2 rotate-45", rank.bgColor, "border", rank.borderColor)} />
+          <span className={cn("absolute right-0 top-1/2 translate-x-1/2 -translate-y-1/2 w-2 h-2 rotate-45", rank.bgColor, "border", rank.borderColor)} />
         </div>
         
         {/* Level details */}
         {showDetails && (
           <div className="flex-1">
-            <div className="flex items-center gap-2 mb-1">
-              <span className={cn("text-xs font-medium uppercase tracking-[0.15em] font-ui", rank.color)}>
+            <div className="flex items-center gap-2.5 mb-1.5">
+              <span className={cn("text-xs font-bold uppercase tracking-[0.2em] font-ui", rank.color)}>
                 {rank.title}
               </span>
-              <span className="w-1 h-1 rotate-45 bg-border" />
-              <span className="text-[10px] text-muted-foreground uppercase tracking-wider font-ui">
-                Level {level}
+              <span className={cn("w-1.5 h-1.5 rotate-45", rank.accentColor, "opacity-60")} />
+              <span className="text-[10px] text-muted-foreground uppercase tracking-widest font-semibold font-ui">
+                Lv. {level}
               </span>
             </div>
             
             <div className="flex items-baseline gap-2">
-              <span className="text-lg font-light text-foreground tabular-nums">
+              <span className="text-xl font-semibold text-foreground tabular-nums">
                 {xp.toLocaleString()}
               </span>
-              <span className="text-xs text-muted-foreground font-light">XP</span>
+              <span className="text-xs text-muted-foreground font-medium">XP</span>
             </div>
             
-            <p className="text-[10px] text-muted-foreground/70 mt-1 font-light">
+            <p className="text-[13px] text-muted-foreground/60 mt-1.5 font-medium">
               {xpToNextLevel.toLocaleString()} XP to next level
             </p>
           </div>
@@ -920,10 +970,10 @@ export function LevelBadge({
     </div>
   )
 }
+// ============================================================================
+// STREAK DISPLAY - Daily streak with calendar
+// ============================================================================
 
-/**
- * Streak display with flame animation and weekly calendar
- */
 interface StreakDisplayProps {
   currentStreak: number
   lastSevenDays: { date: Date; active: boolean; count: number }[]
@@ -939,92 +989,85 @@ export function StreakDisplay({
 }: StreakDisplayProps) {
   return (
     <div className={cn("relative group/streak", className)}>
-      <div className="flex items-center gap-5">
-        {/* Flame icon with geometric frame */}
+      <div className="flex items-center gap-6">
+        {/* Flame icon with simple frame */}
         <div className="relative w-14 h-14">
-          {/* Outer decorative ring */}
-          <svg className="absolute inset-0 w-full h-full" viewBox="0 0 56 56">
-            <circle
-              cx="28"
-              cy="28"
-              r="26"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="1"
-              className={currentStreak > 0 ? "text-orange-500/30" : "text-border/40"}
-            />
-            {/* Decorative dots at cardinal points */}
-            {currentStreak > 0 && (
-              <>
-                <rect x="26" y="0" width="4" height="4" fill="currentColor" className="text-orange-500/40" transform="rotate(45 28 2)" />
-                <rect x="26" y="52" width="4" height="4" fill="currentColor" className="text-orange-500/40" transform="rotate(45 28 54)" />
-              </>
-            )}
-          </svg>
+          {/* Simple square frame */}
+          <div className={cn(
+            "absolute inset-0 border-2 transition-colors duration-200",
+            currentStreak > 0 
+              ? "border-orange-500/40" 
+              : "border-border/30"
+          )} />
+          
+          {/* Small corner accents */}
+          {currentStreak > 0 && (
+            <>
+              <div className="absolute -top-0.5 -left-0.5 w-2 h-2 border-t-2 border-l-2 border-orange-500/60" />
+              <div className="absolute -top-0.5 -right-0.5 w-2 h-2 border-t-2 border-r-2 border-orange-500/60" />
+              <div className="absolute -bottom-0.5 -left-0.5 w-2 h-2 border-b-2 border-l-2 border-orange-500/60" />
+              <div className="absolute -bottom-0.5 -right-0.5 w-2 h-2 border-b-2 border-r-2 border-orange-500/60" />
+            </>
+          )}
           
           {/* Inner content */}
           <div className={cn(
-            "absolute inset-1.5 rounded-full flex items-center justify-center",
-            "border transition-all duration-300",
+            "absolute inset-1 flex items-center justify-center",
             currentStreak > 0 
-              ? "bg-orange-500/5 border-orange-500/20" 
-              : "bg-muted/30 border-border/40"
+              ? "bg-orange-500/10" 
+              : "bg-muted/10"
           )}>
-            {/* Flame icon using Lucide-style path */}
+            {/* Flame icon */}
             <svg 
               className={cn(
-                "w-5 h-5 transition-all",
-                currentStreak > 0 ? "text-orange-500 group-hover/streak:animate-flame-flicker" : "text-muted-foreground/30"
+                "w-6 h-6 transition-colors",
+                currentStreak > 0 ? "text-orange-500" : "text-muted-foreground/30"
               )}
               viewBox="0 0 24 24" 
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
+              fill="currentColor"
             >
               <path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z" />
             </svg>
           </div>
           
-          {/* Streak at risk indicator */}
+          {/* At risk indicator */}
           {isAtRisk && currentStreak > 0 && (
-            <span className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 bg-amber-500 rounded-full animate-pulse border-2 border-card" />
+            <span className="absolute -top-1.5 -right-1.5 w-2.5 h-2.5 bg-amber-600 rotate-45 animate-pulse" />
           )}
         </div>
         
         {/* Streak info */}
         <div className="flex-1">
-          <div className="flex items-baseline gap-2 mb-3">
-            <span className="text-3xl font-light text-foreground tabular-nums">
+          <div className="flex items-baseline gap-2.5 mb-3">
+            <span className="text-4xl font-bold text-foreground tabular-nums">
               {currentStreak}
             </span>
-            <span className="text-sm text-muted-foreground font-light">
+            <span className="text-sm text-muted-foreground font-medium">
               day{currentStreak === 1 ? '' : 's'}
             </span>
             {isAtRisk && currentStreak > 0 && (
-              <span className="text-[10px] text-amber-500 uppercase tracking-wider font-ui animate-pulse">
+              <span className="text-[10px] text-amber-500 uppercase tracking-widest font-bold font-ui animate-pulse ml-2">
                 At Risk
               </span>
             )}
           </div>
           
-          {/* Weekly calendar - refined */}
-          <div className="flex gap-1">
+          {/* Weekly calendar */}
+          <div className="flex gap-1.5">
             {lastSevenDays.map((day, i) => (
-              <div key={i} className="flex flex-col items-center gap-1">
-                <span className="text-[9px] text-muted-foreground/50 font-ui">
+              <div key={i} className="flex flex-col items-center gap-1.5">
+                <span className="text-[9px] text-muted-foreground/50 font-semibold font-ui uppercase">
                   {day.date.toLocaleDateString('en', { weekday: 'narrow' })}
                 </span>
                 <div className={cn(
-                  "w-5 h-5 flex items-center justify-center transition-all",
-                  "border",
+                  "w-6 h-6 flex items-center justify-center",
+                  "border transition-colors",
                   day.active 
-                    ? "bg-orange-500/15 border-orange-500/30" 
-                    : "bg-muted/20 border-border/20"
+                    ? "bg-orange-500/15 border-orange-500/40" 
+                    : "bg-muted/10 border-border/20"
                 )}>
                   {day.active && (
-                    <span className="w-1.5 h-1.5 rotate-45 bg-orange-500" />
+                    <span className="w-2 h-2 rotate-45 bg-orange-500" />
                   )}
                 </div>
               </div>
@@ -1036,9 +1079,10 @@ export function StreakDisplay({
   )
 }
 
-/**
- * Circular progress indicator for the hero section
- */
+// ============================================================================
+// CIRCULAR PROGRESS - Ring-style progress indicator
+// ============================================================================
+
 interface CircularProgressProps {
   value: number
   max: number
@@ -1060,9 +1104,9 @@ export function CircularProgress({
   const isComplete = value === 0 && max === 0
   
   const sizeConfig = {
-    sm: { size: 80, stroke: 3, textSize: 'text-xl' },
-    md: { size: 120, stroke: 4, textSize: 'text-3xl' },
-    lg: { size: 160, stroke: 5, textSize: 'text-5xl' }
+    sm: { size: 80, stroke: 4, textSize: 'text-xl', innerOffset: 8 },
+    md: { size: 120, stroke: 5, textSize: 'text-3xl', innerOffset: 12 },
+    lg: { size: 160, stroke: 6, textSize: 'text-5xl', innerOffset: 16 }
   }
   
   const config = sizeConfig[size]
@@ -1077,7 +1121,7 @@ export function CircularProgress({
         height={config.size} 
         className="-rotate-90"
       >
-        {/* Background circle */}
+        {/* Background ring */}
         <circle
           cx={config.size / 2}
           cy={config.size / 2}
@@ -1088,7 +1132,7 @@ export function CircularProgress({
           className="text-border/30"
         />
         
-        {/* Progress circle */}
+        {/* Progress ring */}
         <circle
           cx={config.size / 2}
           cy={config.size / 2}
@@ -1096,29 +1140,29 @@ export function CircularProgress({
           fill="none"
           stroke="currentColor"
           strokeWidth={config.stroke}
-          strokeLinecap="round"
+          strokeLinecap="square"
           strokeDasharray={circumference}
           strokeDashoffset={offset}
           className={cn(
             "transition-all duration-500",
-            isComplete ? "text-emerald-500" : "text-primary"
+            isComplete ? "text-pine-500" : "text-amber-500"
           )}
         />
         
-        {/* Decorative dots at cardinal points */}
+        {/* Cardinal point markers */}
         {[0, 90, 180, 270].map((angle) => {
           const radian = (angle * Math.PI) / 180
-          const x = config.size / 2 + (radius + 6) * Math.cos(radian - Math.PI / 2)
-          const y = config.size / 2 + (radius + 6) * Math.sin(radian - Math.PI / 2)
+          const x = config.size / 2 + (radius + 8) * Math.cos(radian - Math.PI / 2)
+          const y = config.size / 2 + (radius + 8) * Math.sin(radian - Math.PI / 2)
           return (
             <rect
               key={angle}
-              x={x - 1.5}
-              y={y - 1.5}
-              width={3}
-              height={3}
+              x={x - 2}
+              y={y - 2}
+              width={4}
+              height={4}
               fill="currentColor"
-              className="text-primary/40"
+              className="text-amber-500/40"
               transform={`rotate(45 ${x} ${y})`}
             />
           )
@@ -1127,11 +1171,11 @@ export function CircularProgress({
       
       {/* Center content */}
       <div className="absolute inset-0 flex flex-col items-center justify-center">
-        <span className={cn(config.textSize, "font-light text-foreground tabular-nums")}>
+        <span className={cn(config.textSize, "font-bold text-foreground tabular-nums")}>
           {value}
         </span>
         {showLabel && (
-          <span className="text-xs text-muted-foreground font-light mt-1">
+          <span className="text-xs text-muted-foreground font-medium mt-1">
             {label || (isComplete ? 'Complete' : `of ${max}`)}
           </span>
         )}
@@ -1140,9 +1184,10 @@ export function CircularProgress({
   )
 }
 
-/**
- * Enhanced empty state with decorative pattern
- */
+// ============================================================================
+// GAME EMPTY STATE - Empty state with decorative frame
+// ============================================================================
+
 interface GameEmptyStateProps {
   icon: React.ElementType
   title: string
@@ -1163,35 +1208,36 @@ export function GameEmptyState({
 }: GameEmptyStateProps) {
   return (
     <GamePanel className={cn("relative overflow-hidden", className)}>
-      {/* Background pattern */}
-      <div className="absolute inset-0 opacity-[0.02] pointer-events-none">
+      {/* Subtle diamond pattern background */}
+      <div className="absolute inset-0 opacity-[0.03] pointer-events-none">
         <div className="absolute inset-0" style={{
-          backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 0L32 2L30 4L28 2Z' fill='currentColor'/%3E%3C/svg%3E")`,
-          backgroundSize: '30px 30px'
+          backgroundImage: `url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M20 0L22 2L20 4L18 2Z' fill='%23f59e0b'/%3E%3C/svg%3E")`,
+          backgroundSize: '40px 40px'
         }} />
       </div>
       
-      <div className="relative p-8 md:p-12 flex flex-col items-center justify-center text-center">
-        {/* Icon container */}
-        <div className="relative mb-5">
-          {/* Outer rotating ring */}
-          <div className="w-20 h-20 border border-dashed border-border/40 rotate-45 flex items-center justify-center">
-            <div className="w-14 h-14 border border-border/60 -rotate-45 flex items-center justify-center bg-card">
-              <Icon className="w-6 h-6 text-muted-foreground/50" strokeWidth={1.5} />
+      <div className="relative p-10 md:p-14 flex flex-col items-center justify-center text-center">
+        {/* Icon container with ornate frame */}
+        <div className="relative mb-6">
+          {/* Outer rotating frame */}
+          <div className="w-24 h-24 border-2 border-amber-700/20 rotate-45 flex items-center justify-center">
+            {/* Inner frame */}
+            <div className="w-16 h-16 border border-border/60 -rotate-45 flex items-center justify-center bg-card">
+              <Icon className="w-7 h-7 text-muted-foreground/40" strokeWidth={1.5} />
             </div>
           </div>
           
-          {/* Corner diamonds */}
-          <span className="absolute -top-1 left-1/2 -translate-x-1/2 w-2 h-2 rotate-45 bg-primary/20 border border-primary/30" />
-          <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-2 h-2 rotate-45 bg-primary/20 border border-primary/30" />
-          <span className="absolute top-1/2 -left-1 -translate-y-1/2 w-2 h-2 rotate-45 bg-primary/20 border border-primary/30" />
-          <span className="absolute top-1/2 -right-1 -translate-y-1/2 w-2 h-2 rotate-45 bg-primary/20 border border-primary/30" />
+          {/* Corner accents */}
+          <span className="absolute -top-2 left-1/2 -translate-x-1/2 w-2.5 h-2.5 rotate-45 bg-amber-600/20 border border-amber-700/30" />
+          <span className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-2.5 h-2.5 rotate-45 bg-amber-600/20 border border-amber-700/30" />
+          <span className="absolute top-1/2 -left-2 -translate-y-1/2 w-2.5 h-2.5 rotate-45 bg-amber-600/20 border border-amber-700/30" />
+          <span className="absolute top-1/2 -right-2 -translate-y-1/2 w-2.5 h-2.5 rotate-45 bg-amber-600/20 border border-amber-700/30" />
         </div>
         
-        <h3 className="text-sm font-medium text-foreground mb-2 font-ui tracking-wide">
+        <h3 className="text-sm font-semibold text-foreground mb-2.5 font-ui tracking-wide uppercase">
           {title}
         </h3>
-        <p className="text-xs text-muted-foreground font-light max-w-60 mb-5">
+        <p className="text-xs text-muted-foreground/70 font-medium max-w-64 mb-6">
           {description}
         </p>
         
@@ -1209,9 +1255,10 @@ export function GameEmptyState({
   )
 }
 
-/**
- * Card distribution mini bar visualization
- */
+// ============================================================================
+// CARD DISTRIBUTION BAR - Mini visualization
+// ============================================================================
+
 interface CardDistributionBarProps {
   segments: { label: string; value: number; color: string }[]
   total: number
@@ -1222,9 +1269,9 @@ export function CardDistributionBar({ segments, total, className }: CardDistribu
   if (total === 0) return null
   
   return (
-    <div className={cn("space-y-2", className)}>
+    <div className={cn("space-y-3", className)}>
       {/* Bar */}
-      <div className="relative h-2 bg-muted/30 overflow-hidden flex">
+      <div className="relative h-2.5 bg-muted/30 border border-border/30 overflow-hidden flex">
         {segments.map((segment, i) => {
           const width = (segment.value / total) * 100
           if (width === 0) return null
@@ -1239,19 +1286,80 @@ export function CardDistributionBar({ segments, total, className }: CardDistribu
       </div>
       
       {/* Legend */}
-      <div className="flex flex-wrap gap-x-4 gap-y-1">
+      <div className="flex flex-wrap gap-x-5 gap-y-1.5">
         {segments.map((segment, i) => (
-          <div key={i} className="flex items-center gap-1.5">
-            <span className={cn("w-2 h-2 rotate-45", segment.color)} />
-            <span className="text-[10px] text-muted-foreground font-ui">
+          <div key={i} className="flex items-center gap-2">
+            <span className={cn("w-2.5 h-2.5 rotate-45", segment.color)} />
+            <span className="text-[10px] text-muted-foreground font-semibold font-ui uppercase tracking-wide">
               {segment.label}
             </span>
-            <span className="text-[10px] text-foreground/80 tabular-nums font-ui">
+            <span className="text-[11px] text-foreground/80 tabular-nums font-semibold font-ui">
               {segment.value}
             </span>
           </div>
         ))}
       </div>
+    </div>
+  )
+}
+
+// ============================================================================
+// GAME INPUT - Styled input field
+// ============================================================================
+
+interface GameInputProps extends React.InputHTMLAttributes<HTMLInputElement> {
+  label?: string
+  error?: string
+  icon?: React.ReactNode
+}
+
+export function GameInput({
+  label,
+  error,
+  icon,
+  className,
+  ...props
+}: GameInputProps) {
+  return (
+    <div className="space-y-1.5">
+      {label && (
+        <label className="text-xs font-medium text-muted-foreground font-ui uppercase tracking-wider ml-1">
+          {label}
+        </label>
+      )}
+      <div className="relative group/input">
+        <input
+          className={cn(
+            "w-full h-11 bg-card border-2 border-border/50 text-foreground px-4",
+            "font-ui text-sm placeholder:text-muted-foreground/50",
+            "transition-all duration-200",
+            "focus:border-amber-600/50 focus:bg-amber-600/5 outline-none",
+            "disabled:opacity-50 disabled:cursor-not-allowed",
+            icon && "pl-11",
+            error && "border-rose-500/50 focus:border-rose-500/50 bg-rose-500/5",
+            className
+          )}
+          {...props}
+        />
+        
+        {/* Icon */}
+        {icon && (
+          <div className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground group-focus-within/input:text-amber-500 transition-colors">
+            {icon}
+          </div>
+        )}
+        
+        {/* Corner accents on focus */}
+        <div className="absolute inset-0 pointer-events-none opacity-0 group-focus-within/input:opacity-100 transition-opacity duration-200">
+          <span className="absolute top-0 left-0 w-1.5 h-1.5 border-t-2 border-l-2 border-amber-500" />
+          <span className="absolute top-0 right-0 w-1.5 h-1.5 border-t-2 border-r-2 border-amber-500" />
+          <span className="absolute bottom-0 left-0 w-1.5 h-1.5 border-b-2 border-l-2 border-amber-500" />
+          <span className="absolute bottom-0 right-0 w-1.5 h-1.5 border-b-2 border-r-2 border-amber-500" />
+        </div>
+      </div>
+      {error && (
+        <p className="text-[10px] text-rose-500 font-medium ml-1">{error}</p>
+      )}
     </div>
   )
 }

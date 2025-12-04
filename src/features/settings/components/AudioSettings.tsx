@@ -48,7 +48,7 @@ export const AudioSettings: React.FC<AudioSettingsProps> = ({
               { value: 'google', label: 'Google Cloud TTS' },
               { value: 'azure', label: 'Microsoft Azure' },
             ]}
-            className="border-0 border-b border-border/30 rounded-none px-0 py-3 h-auto font-ui text-base bg-transparent focus-visible:border-primary/60 font-light"
+            className="font-ui"
           />
         </div>
 
@@ -66,7 +66,7 @@ export const AudioSettings: React.FC<AudioSettingsProps> = ({
                 placeholder={localSettings.tts.provider === 'google' ? "Google Cloud API key" : "Azure subscription key"}
                 value={localSettings.tts.provider === 'google' ? localSettings.tts.googleApiKey : localSettings.tts.azureApiKey}
                 onChange={(e) => updateTts(localSettings.tts.provider === 'google' ? { googleApiKey: e.target.value } : { azureApiKey: e.target.value })}
-                className="font-mono text-sm bg-transparent border-0 border-b border-border/30 rounded-none px-0 py-3 placeholder:text-muted-foreground/30 focus-visible:border-primary/60"
+                className="font-mono"
               />
             </div>
             {localSettings.tts.provider === 'azure' && (
@@ -81,7 +81,7 @@ export const AudioSettings: React.FC<AudioSettingsProps> = ({
                   placeholder="e.g., eastus, westeurope"
                   value={localSettings.tts.azureRegion}
                   onChange={(e) => updateTts({ azureRegion: e.target.value })}
-                  className="font-mono text-sm bg-transparent border-0 border-b border-border/30 rounded-none px-0 py-3 placeholder:text-muted-foreground/30 focus-visible:border-primary/60"
+                  className="font-mono"
                 />
               </div>
             )}
@@ -118,7 +118,7 @@ export const AudioSettings: React.FC<AudioSettingsProps> = ({
             value={localSettings.tts.voiceURI || 'default'}
             onChange={(value) => updateTts({ voiceURI: value === 'default' ? null : value })}
             options={[{ value: 'default', label: 'System Default' }, ...availableVoices.map(v => ({ value: v.id, label: v.name }))]}
-            className="border-0 border-b border-border/30 rounded-none px-0 py-3 h-auto font-ui text-base bg-transparent focus-visible:border-primary/60 font-light"
+            className="font-ui"
           />
         </div>
       </GamePanel>

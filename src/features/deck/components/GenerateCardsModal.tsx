@@ -272,7 +272,7 @@ export const GenerateCardsModal: React.FC<GenerateCardsModalProps> = ({ isOpen, 
 
                                 {step === 'preview' && (
                                     <div className="animate-in fade-in slide-in-from-left-4 duration-500 relative">
-                                        <span className="absolute -left-3 top-0 bottom-0 w-0.5 bg-emerald-500/50" />
+                                        <span className="absolute -left-3 top-0 bottom-0 w-0.5 bg-pine-500/50" />
                                         <h3 className="text-[10px] font-ui font-medium uppercase tracking-[0.15em] text-muted-foreground mb-2">Selected</h3>
                                         <div className="flex items-baseline gap-2">
                                             <span className="text-5xl font-light text-foreground tabular-nums">{selectedIndices.size}</span>

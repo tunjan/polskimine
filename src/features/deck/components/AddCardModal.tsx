@@ -172,23 +172,7 @@ export const AddCardModal: React.FC<AddCardModalProps> = ({ isOpen, onClose, onA
     return (
         <Dialog open={isOpen} onOpenChange={onClose}>
             <DialogContent className="sm:max-w-2xl p-0 bg-card border border-border gap-0 overflow-hidden max-h-[85vh] overflow-y-auto">
-                {/* Corner accents */}
-                <span className="absolute top-0 left-0 w-4 h-4 pointer-events-none z-10">
-                    <span className="absolute top-0 left-0 w-full h-0.5 bg-primary" />
-                    <span className="absolute top-0 left-0 h-full w-0.5 bg-primary" />
-                </span>
-                <span className="absolute top-0 right-0 w-4 h-4 pointer-events-none z-10">
-                    <span className="absolute top-0 right-0 w-full h-0.5 bg-primary" />
-                    <span className="absolute top-0 right-0 h-full w-0.5 bg-primary" />
-                </span>
-                <span className="absolute bottom-0 left-0 w-4 h-4 pointer-events-none z-10">
-                    <span className="absolute bottom-0 left-0 w-full h-0.5 bg-primary" />
-                    <span className="absolute bottom-0 left-0 h-full w-0.5 bg-primary" />
-                </span>
-                <span className="absolute bottom-0 right-0 w-4 h-4 pointer-events-none z-10">
-                    <span className="absolute bottom-0 right-0 w-full h-0.5 bg-primary" />
-                    <span className="absolute bottom-0 right-0 h-full w-0.5 bg-primary" />
-                </span>
+                
 
                 <DialogDescription className="sr-only">Form to add or edit a flashcard</DialogDescription>
 
@@ -246,7 +230,7 @@ export const AddCardModal: React.FC<AddCardModalProps> = ({ isOpen, onClose, onA
                                     value={form.translation}
                                     onChange={e => setForm({ ...form, translation: e.target.value })}
                                     placeholder="e.g., This is a house."
-                                    className="w-full bg-transparent border-b border-border/40 py-2 text-lg font-light text-foreground placeholder:text-muted-foreground/20 focus:outline-none focus:border-primary/50 transition-colors"
+                                    className="w-full bg-transparent border-b border-border/40 p-2 text-lg font-light text-foreground placeholder:text-muted-foreground/20 focus:outline-none focus:border-primary/50 transition-colors"
                                 />
                             </div>
                             <div className="space-y-3 group">
@@ -258,7 +242,7 @@ export const AddCardModal: React.FC<AddCardModalProps> = ({ isOpen, onClose, onA
                                     value={form.targetWord}
                                     onChange={e => setForm({ ...form, targetWord: e.target.value })}
                                     placeholder="e.g., house"
-                                    className="w-full bg-transparent border-b border-border/40 py-2 text-lg font-light text-foreground placeholder:text-muted-foreground/20 focus:outline-none focus:border-primary/50 transition-colors"
+                                    className="w-full bg-transparent border-b border-border/40 p-2 text-lg font-light text-foreground placeholder:text-muted-foreground/20 focus:outline-none focus:border-primary/50 transition-colors"
                                 />
                             </div>
                         </div>
@@ -273,7 +257,7 @@ export const AddCardModal: React.FC<AddCardModalProps> = ({ isOpen, onClose, onA
                                     value={form.targetWordTranslation}
                                     onChange={e => setForm({ ...form, targetWordTranslation: e.target.value })}
                                     placeholder="e.g., house"
-                                    className="w-full bg-transparent border-b border-border/40 py-2 text-lg font-light text-foreground placeholder:text-muted-foreground/20 focus:outline-none focus:border-primary/50 transition-colors"
+                                    className="w-full bg-transparent border-b border-border/40 p-2 text-lg font-light text-foreground placeholder:text-muted-foreground/20 focus:outline-none focus:border-primary/50 transition-colors"
                                 />
                             </div>
                             <div className="space-y-3 group">
@@ -284,7 +268,7 @@ export const AddCardModal: React.FC<AddCardModalProps> = ({ isOpen, onClose, onA
                                 <select
                                     value={form.targetWordPartOfSpeech}
                                     onChange={e => setForm({ ...form, targetWordPartOfSpeech: e.target.value })}
-                                    className="w-full bg-transparent border-b border-border/40 py-2 text-lg font-light text-foreground placeholder:text-muted-foreground/20 focus:outline-none focus:border-primary/50 transition-colors"
+                                    className="w-full bg-transparent border-b border-border/40 p-2 text-lg font-light text-foreground placeholder:text-muted-foreground/20 focus:outline-none focus:border-primary/50 transition-colors"
                                 >
                                     <option value="" disabled>Select POS</option>
                                     <option value="noun">Noun</option>
@@ -305,14 +289,14 @@ export const AddCardModal: React.FC<AddCardModalProps> = ({ isOpen, onClose, onA
                                 value={form.notes}
                                 onChange={e => setForm({ ...form, notes: e.target.value })}
                                 placeholder="Add any usage notes or context..."
-                                className="w-full bg-transparent border-b border-border/40 py-2 text-base font-light text-foreground placeholder:text-muted-foreground/20 focus:outline-none focus:border-primary/50 transition-colors resize-none min-h-[60px]"
+                                className="w-full bg-transparent border-b border-border/40 p-2 text-base font-light text-foreground placeholder:text-muted-foreground/20 focus:outline-none focus:border-primary/50 transition-colors resize-none min-h-[60px]"
                             />
                         </div>
 
                         <div className="flex justify-end pt-2">
                             <button
                                 type="submit"
-                                className="group relative inline-flex items-center gap-3 bg-primary/90 text-primary-foreground px-8 py-3.5 text-[11px] font-ui font-medium uppercase tracking-[0.2em] hover:bg-primary transition-all duration-300"
+                                className="group relative inline-flex items-center gap-3 bg-primary/10 text-primary/60 border rounded-sm border-primary px-8 py-3.5 text-[11px] font-ui font-medium uppercase tracking-[0.2em] hover:bg-primary/20 transition-all duration-300"
                             >
                                 {/* Button corner accents */}
                                 <span className="absolute -top-px -left-px w-2 h-2">

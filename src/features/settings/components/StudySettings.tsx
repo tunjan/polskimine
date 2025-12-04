@@ -38,7 +38,7 @@ export const StudySettings: React.FC<StudySettingsProps> = ({ localSettings, set
         <GamePanel variant="highlight" size="md" glowOnHover>
           <div className="space-y-4 text-center">
             <div className="flex items-center justify-center gap-2">
-              <span className="w-1.5 h-1.5 rotate-45 bg-amber-500/60" />
+              <span className="w-1.5 h-1.5 rotate-45 bg-amber-600/60" />
               <label className="text-[10px] text-muted-foreground uppercase tracking-[0.15em] font-light font-ui">
                 New Cards
               </label>

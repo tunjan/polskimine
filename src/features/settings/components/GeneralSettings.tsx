@@ -46,7 +46,7 @@ export const GeneralSettings: React.FC<GeneralSettingsProps> = ({
             value={username}
             onChange={(e) => setUsername(e.target.value)}
             placeholder="Enter your display name"
-            className="font-ui text-base bg-transparent border-0 border-b border-border/30 rounded-none px-0 focus-visible:ring-0 focus-visible:border-primary/60 h-auto py-3 placeholder:text-muted-foreground/30 transition-colors font-light"
+            className="font-ui"
           />
           <p className="text-xs text-muted-foreground/60 leading-relaxed font-light">
             Displayed on global leaderboards and achievements.
@@ -83,14 +83,17 @@ export const GeneralSettings: React.FC<GeneralSettingsProps> = ({
                 value: key,
                 label: label,
               }))}
-              className="border-0 border-b border-border/30 rounded-none px-0 focus:ring-0 py-3 h-auto font-ui text-base bg-transparent focus-visible:border-primary/60 font-light"
+              className="font-ui"
             />
           </div>
         </GamePanel>
 
         <GamePanel variant="default" size="md" glowOnHover>
             <div className="flex items-center gap-2 mb-3">
-                <label className="text-[10px] uppercase font-ui text-muted-foreground">Proficiency Level</label>
+              <span className="w-1.5 h-1.5 rotate-45 bg-primary/40" />
+              <label className="text-[10px] text-muted-foreground uppercase tracking-[0.15em] font-light font-ui">
+                Proficiency Level
+              </label>
             </div>
             <EditorialSelect
                 value={languageLevel || 'A1'}
@@ -151,7 +154,7 @@ export const GeneralSettings: React.FC<GeneralSettingsProps> = ({
             value={localSettings.geminiApiKey || ''}
             onChange={(e) => setLocalSettings(prev => ({ ...prev, geminiApiKey: e.target.value }))}
             placeholder="API key for content generation"
-            className="font-mono text-sm bg-transparent border-0 border-b border-border/30 rounded-none px-0 focus-visible:ring-0 focus-visible:border-primary/60 h-auto py-3 placeholder:text-muted-foreground/30 transition-colors"
+            className="font-mono"
           />
           <p className="text-xs text-muted-foreground/60 leading-relaxed font-light">
             Powers sentence generation and linguistic analysis features.

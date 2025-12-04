@@ -65,12 +65,12 @@ export const DataSettings: React.FC<DataSettingsProps> = ({
       variant={syncComplete ? "stat" : "default"} 
       size="md" 
       glowOnHover={!syncComplete}
-      className={syncComplete ? "border-emerald-500/30" : ""}
+      className={syncComplete ? "border-pine-500/30" : ""}
     >
       <div className="flex items-center gap-4">
-        <div className={`w-12 h-12 flex items-center justify-center border ${syncComplete ? "bg-emerald-500/10 border-emerald-500/30" : "bg-card border-border/30"}`}>
+        <div className={`w-12 h-12 flex items-center justify-center border ${syncComplete ? "bg-pine-500/10 border-pine-500/30" : "bg-card border-border/30"}`}>
           {syncComplete ? (
-            <Check className="w-5 h-5 text-emerald-500" strokeWidth={1.5} />
+            <Check className="w-5 h-5 text-pine-500" strokeWidth={1.5} />
           ) : (
             <Cloud className="w-5 h-5 text-muted-foreground/60" strokeWidth={1.5} />
           )}
