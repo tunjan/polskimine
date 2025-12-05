@@ -63,6 +63,8 @@ export const DeckActionsProvider: React.FC<{ children: React.ReactNode }> = ({ c
         queryClient.invalidateQueries({ queryKey: ['reviewsToday'] });
         queryClient.invalidateQueries({ queryKey: ['history'] });
         queryClient.invalidateQueries({ queryKey: ['cards'] });
+        queryClient.invalidateQueries({ queryKey: ['dashboardStats'] });
+        queryClient.invalidateQueries({ queryKey: ['dashboardCards'] });
     }, [queryClient]);
 
     const value = {
