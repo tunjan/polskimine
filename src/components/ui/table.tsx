@@ -86,7 +86,6 @@ const TableHead = React.forwardRef<
       "h-12 px-4 text-left align-middle font-ui font-semibold uppercase tracking-wider text-[11px]",
       "text-primary/70 dark:text-primary/80",
       "[&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px]",
-      // Genshin decorative separator between headers
       "[&:not(:last-child)]:relative [&:not(:last-child)]:after:absolute [&:not(:last-child)]:after:right-0 [&:not(:last-child)]:after:top-1/4 [&:not(:last-child)]:after:h-1/2 [&:not(:last-child)]:after:w-px [&:not(:last-child)]:after:bg-border/30",
       className
     )}

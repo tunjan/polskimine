@@ -22,12 +22,10 @@ export function GameButton({
                 "transition-all duration-150",
                 "disabled:opacity-40 disabled:cursor-not-allowed",
 
-                // Size variants
                 size === 'sm' && "h-9 px-5 text-[10px]",
                 size === 'md' && "h-11 px-7 text-xs",
                 size === 'lg' && "h-13 px-9 text-sm",
 
-                // Style variants - flat design
                 variant === 'primary' && [
                     "bg-amber-600/10 text-amber-950",
                     "hover:bg-amber-600/20 active:bg-amber-600",

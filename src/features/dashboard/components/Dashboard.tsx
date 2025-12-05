@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react';
-import { 
-  Activity, 
-  Zap, 
+import {
+  Activity,
+  Zap,
   Trophy,
   BookOpen,
   Sparkles,
@@ -22,9 +22,9 @@ import { useAuth } from '@/contexts/AuthContext';
 import { getRevlogStats } from '@/services/db/repositories/statsRepository';
 import { getLevelProgress, cn } from '@/lib/utils';
 
-import { 
-  GamePanel, 
-  GameSectionHeader, 
+import {
+  GamePanel,
+  GameSectionHeader,
   GameDivider,
   LevelBadge,
   StreakDisplay,
@@ -63,7 +63,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
 }) => {
   const { settings } = useSettings();
   const { profile } = useAuth();
-  
+
   const levelData = getLevelProgress(languageXp.xp);
   const rank = getRankForLevel(levelData.level);
 
@@ -99,25 +99,25 @@ export const Dashboard: React.FC<DashboardProps> = ({
       </div>
 
       <div className="relative px-4 md:px-6 lg:px-8 py-4 md:py-6 max-w-[1200px] mx-auto">
-        
+
         {/* Music Control */}
         <MusicControl />
 
         {/* === CHARACTER BANNER SECTION === */}
         <section className="mb-8 md:mb-10">
           <div className="grid grid-cols-1 lg:grid-cols-[320px_1fr] gap-6">
-            
+
             {/* Left: Character Card / Profile */}
             <div className="relative">
-              <GamePanel 
-                variant="ornate" 
-                size="lg" 
-                showCorners 
+              <GamePanel
+                variant="ornate"
+                size="lg"
+                showCorners
                 className="h-full bg-linear-to-br from-card via-card to-primary/5"
               >
                 {/* Top accent line */}
                 <div className="absolute top-0 left-8 right-8 h-0.5 bg-linear-to-r from-transparent via-primary/60 to-transparent" />
-                
+
                 {/* Level Emblem */}
                 <div className="flex flex-col items-center pt-2 pb-4">
                   <LevelBadge
@@ -127,7 +127,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
                     xpToNextLevel={levelData.xpToNextLevel}
                     showDetails={false}
                   />
-                  
+
                   {/* Rank Title */}
                   <div className="mt-4 text-center">
                     <div className="flex items-center justify-center gap-3 mb-1">
@@ -189,7 +189,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
                     <span>{Math.round(levelData.progressPercent)}%</span>
                   </div>
                   <div className="relative h-2 bg-muted/40 border border-border/40">
-                    <div 
+                    <div
                       className={cn("h-full transition-all duration-700", rank.accentColor)}
                       style={{ width: `${levelData.progressPercent}%` }}
                     />
@@ -203,10 +203,10 @@ export const Dashboard: React.FC<DashboardProps> = ({
             {/* Right: Mission Panel */}
             <div className="space-y-4">
               {/* Main Quest Card */}
-              <GamePanel 
-                variant="highlight" 
-                size="lg" 
-                showCorners 
+              <GamePanel
+                variant="highlight"
+                size="lg"
+                showCorners
                 glowOnHover
                 className="relative overflow-hidden"
               >
@@ -218,7 +218,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
                   <div className="flex-1">
                     <div className="flex items-center gap-2">
                       <span className="text-[10px] text-amber-500 dark:text-amber-300 font-bold uppercase tracking-[0.2em]">Daily Commission</span>
-                     
+
                     </div>
                     <h2 className="text-xl font-semibold text-foreground tracking-wide mt-1">
                       Study Session
@@ -274,12 +274,12 @@ export const Dashboard: React.FC<DashboardProps> = ({
                   className={cn(
                     "group relative w-full py-4 px-6 overflow-hidden",
                     "transition-all duration-300",
-                    stats.due > 0 
-                      ? "border-2 border-amber-600/60 hover:border-amber-600 bg-amber-500/10 hover:bg-amber-500/20" 
+                    stats.due > 0
+                      ? "border-2 border-amber-600/60 hover:border-amber-600 bg-amber-500/10 hover:bg-amber-500/20"
                       : "border-2 border-pine-500/40 bg-pine-500/10 cursor-not-allowed"
                   )}
                 >
-                  
+
                   {stats.due > 0 ? (
                     <div className="flex items-center justify-center gap-4">
                       <span className="w-10 h-0.5 bg-amber-500/50 group-hover:w-14 group-hover:bg-amber-300 transition-all duration-300" />
@@ -316,43 +316,43 @@ export const Dashboard: React.FC<DashboardProps> = ({
 
         {/* === CARD COLLECTION === */}
         <section className="mb-8 md:mb-10">
-          <GameSectionHeader 
-            title="Card Collection" 
-            subtitle="Your vocabulary inventory" 
+          <GameSectionHeader
+            title="Card Collection"
+            subtitle="Your vocabulary inventory"
             icon={<BookOpen className="w-4 h-4" strokeWidth={1.5} />}
           />
-          
+
           {hasNoCards ? (
-            <GameEmptyState 
+            <GameEmptyState
               icon={BookOpen}
               title="Empty Inventory"
               description="Your card collection is empty. Add cards to start building your vocabulary."
-              action={{ label: 'Add Cards', onClick: () => {} }}
+              action={{ label: 'Add Cards', onClick: () => { } }}
             />
           ) : (
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
-              <InventorySlot 
+              <InventorySlot
                 icon={<Circle className="w-4 h-4" />}
                 label="New"
                 value={metrics.new}
                 description="Unseen cards"
                 color="sky"
               />
-              <InventorySlot 
+              <InventorySlot
                 icon={<Clock className="w-4 h-4" />}
                 label="Learning"
                 value={metrics.learning}
                 description="In progress"
                 color="amber"
               />
-              <InventorySlot 
+              <InventorySlot
                 icon={<Activity className="w-4 h-4" />}
                 label="Reviewing"
                 value={metrics.reviewing}
                 description="Mature cards"
                 color="violet"
               />
-              <InventorySlot 
+              <InventorySlot
                 icon={<CheckCircle2 className="w-4 h-4" />}
                 label="Mastered"
                 value={metrics.known}
@@ -365,14 +365,14 @@ export const Dashboard: React.FC<DashboardProps> = ({
 
         {/* === ADVENTURE LOG === */}
         <section className="mb-8 md:mb-10">
-          <GameSectionHeader 
-            title="Adventure Log" 
+          <GameSectionHeader
+            title="Adventure Log"
             subtitle="Your study history over time"
             icon={<Activity className="w-4 h-4" strokeWidth={1.5} />}
           />
-          
+
           {hasNoActivity ? (
-            <GameEmptyState 
+            <GameEmptyState
               icon={Activity}
               title="No Adventures Yet"
               description="Complete your first study session to begin logging your journey."
@@ -387,14 +387,14 @@ export const Dashboard: React.FC<DashboardProps> = ({
 
         {/* === ATTRIBUTES === */}
         <section className="mb-8 md:mb-10">
-          <GameSectionHeader 
-            title="Attributes" 
+          <GameSectionHeader
+            title="Attributes"
             subtitle="Performance metrics and trends"
             icon={<Sparkles className="w-4 h-4" strokeWidth={1.5} />}
           />
-          
+
           {hasNoActivity ? (
-            <GameEmptyState 
+            <GameEmptyState
               icon={Sparkles}
               title="Stats Locked"
               description="Complete some reviews to unlock performance attributes."
@@ -402,7 +402,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
           ) : (
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-5">
               <GamePanel size="md">
-                <ChartHeader 
+                <ChartHeader
                   icon={<Activity className="w-3.5 h-3.5 text-sky-500" />}
                   title="Review Volume"
                 />
@@ -418,7 +418,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
               </GamePanel>
 
               <GamePanel size="md">
-                <ChartHeader 
+                <ChartHeader
                   icon={<Target className="w-3.5 h-3.5 text-pine-500" />}
                   title="Retention Rate"
                 />
@@ -426,9 +426,9 @@ export const Dashboard: React.FC<DashboardProps> = ({
                   {isRevlogLoading ? (
                     <ChartSkeleton />
                   ) : revlogStats ? (
-                    <TrueRetentionChart 
-                      data={revlogStats.retention} 
-                      targetRetention={settings.fsrs.request_retention} 
+                    <TrueRetentionChart
+                      data={revlogStats.retention}
+                      targetRetention={settings.fsrs.request_retention}
                     />
                   ) : (
                     <ChartEmpty />
@@ -441,14 +441,14 @@ export const Dashboard: React.FC<DashboardProps> = ({
 
         {/* === DECK ANALYSIS === */}
         <section className="mb-8">
-          <GameSectionHeader 
-            title="Deck Analysis" 
+          <GameSectionHeader
+            title="Deck Analysis"
             subtitle="Card stability and health metrics"
             icon={<Zap className="w-4 h-4" strokeWidth={1.5} />}
           />
-          
+
           {hasNoCards ? (
-            <GameEmptyState 
+            <GameEmptyState
               icon={Activity}
               title="No Data"
               description="Add cards to your deck to see analysis metrics."
@@ -464,7 +464,6 @@ export const Dashboard: React.FC<DashboardProps> = ({
   );
 };
 
-// === HELPER COMPONENTS ===
 
 interface InventorySlotProps {
   icon: React.ReactNode;
@@ -503,7 +502,7 @@ const colorConfig = {
 
 function InventorySlot({ icon, label, value, description, color }: InventorySlotProps) {
   const colors = colorConfig[color];
-  
+
   return (
     <div className={cn(
       "group relative bg-card border-2 p-4 transition-all duration-200",
@@ -511,28 +510,28 @@ function InventorySlot({ icon, label, value, description, color }: InventorySlot
     )}>
       {/* Top accent line */}
       <div className={cn("absolute top-0 left-0 right-0 h-0.5", colors.accent, "opacity-60")} />
-      
+
       {/* Corner accents on hover */}
       <div className={cn("absolute -top-0.5 -left-0.5 w-2 h-2 border-t-2 border-l-2 opacity-0 group-hover:opacity-100 transition-opacity", colors.border.split(' ')[0])} />
       <div className={cn("absolute -top-0.5 -right-0.5 w-2 h-2 border-t-2 border-r-2 opacity-0 group-hover:opacity-100 transition-opacity", colors.border.split(' ')[0])} />
       <div className={cn("absolute -bottom-0.5 -left-0.5 w-2 h-2 border-b-2 border-l-2 opacity-0 group-hover:opacity-100 transition-opacity", colors.border.split(' ')[0])} />
       <div className={cn("absolute -bottom-0.5 -right-0.5 w-2 h-2 border-b-2 border-r-2 opacity-0 group-hover:opacity-100 transition-opacity", colors.border.split(' ')[0])} />
-      
+
       {/* Icon */}
       <div className={cn("w-9 h-9 flex items-center justify-center mb-3 border", colors.border.split(' ')[0], colors.bg)}>
         <span className={colors.text}>{icon}</span>
       </div>
-      
+
       {/* Label */}
       <p className="text-[10px] text-muted-foreground uppercase tracking-[0.15em] font-semibold mb-1">
         {label}
       </p>
-      
+
       {/* Value */}
       <p className="text-3xl font-semibold text-foreground tabular-nums">
         {value.toLocaleString()}
       </p>
-      
+
       {/* Description */}
       <p className="text-[11px] text-muted-foreground/60 mt-1 font-medium">
         {description}
@@ -556,9 +555,9 @@ function ChartHeader({ icon, title }: { icon: React.ReactNode; title: string }) 
 const ChartSkeleton: React.FC = () => (
   <div className="h-full w-full flex items-end gap-1 animate-pulse">
     {Array.from({ length: 12 }).map((_, i) => (
-      <div 
-        key={i} 
-        className="flex-1 bg-muted/50" 
+      <div
+        key={i}
+        className="flex-1 bg-muted/50"
         style={{ height: `${20 + Math.random() * 60}%` }}
       />
     ))}

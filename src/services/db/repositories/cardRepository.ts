@@ -1,11 +1,10 @@
-import { Card } from '@/types';
+import { Card, CardStatus, Language, LanguageId } from '@/types';
 import { getSRSDate } from '@/features/study/logic/srs';
 import { db, generateId } from '@/services/db/dexie';
 import { SRS_CONFIG } from '@/constants';
 
-type Language = Card['language'];
 
-// Map DB format to Card type (still useful for consistency)
+
 export const mapToCard = (data: any): Card => ({
   id: data.id,
   targetSentence: data.targetSentence,
@@ -82,7 +81,6 @@ export const getCardsForDashboard = async (language: Language): Promise<Array<{
 };
 
 export const saveCard = async (card: Card) => {
-  // Ensure card has an ID
   if (!card.id) {
     card.id = generateId();
   }
@@ -101,7 +99,6 @@ export const deleteCardsBatch = async (ids: string[]) => {
 export const saveAllCards = async (cards: Card[]) => {
   if (!cards.length) return;
 
-  // Ensure all cards have IDs
   const cardsWithIds = cards.map(card => ({
     ...card,
     id: card.id || generateId()
@@ -122,29 +119,25 @@ export const getDueCards = async (now: Date, language: Language): Promise<Card[]
 
   const cutoffISO = cutoffDate.toISOString();
 
-  // Get all cards for language that are not 'known' and due before cutoff
   const cards = await db.cards
     .where('language')
     .equals(language)
     .filter(card => card.status !== 'known' && card.dueDate <= cutoffISO)
     .toArray();
 
-  // Sort by due date
   return cards.sort((a, b) => a.dueDate.localeCompare(b.dueDate));
 };
 
 export const getCramCards = async (limit: number, tag?: string, language?: Language): Promise<Card[]> => {
   let cards = await db.cards
     .where('language')
-    .equals(language || 'polish')
+    .equals(language || LanguageId.Polish)
     .toArray();
 
-  // Filter by tag if provided
   if (tag) {
     cards = cards.filter(c => c.tags?.includes(tag));
   }
 
-  // Shuffle and limit
   const shuffled = cards.sort(() => Math.random() - 0.5);
   return shuffled.slice(0, limit);
 };

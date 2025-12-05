@@ -6,7 +6,7 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 export function escapeRegExp(string: string) {
-  return string.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"); 
+  return string.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
 export interface FuriganaSegment {
@@ -20,14 +20,14 @@ export function parseFurigana(text: string): FuriganaSegment[] {
   let lastIndex = 0;
   let match;
 
-  
+
   const punctuationRegex = /^([、。！？「」『』（）\(\),.!?:;""''—\-–]+)(.*)/;
 
   while ((match = regex.exec(text)) !== null) {
-    
+
     if (match.index > lastIndex) {
       const betweenText = text.slice(lastIndex, match.index);
-      
+
       betweenText.split(/(\s+)/).forEach(part => {
         if (part) {
           segments.push({ text: part });
@@ -39,7 +39,7 @@ export function parseFurigana(text: string): FuriganaSegment[] {
     const furigana = match[2];
 
     while (true) {
-      
+
       const punctuationMatch = kanjiText.match(punctuationRegex);
       if (punctuationMatch && punctuationMatch[2]) {
         segments.push({ text: punctuationMatch[1] });
@@ -47,14 +47,14 @@ export function parseFurigana(text: string): FuriganaSegment[] {
         continue;
       }
 
-      
-      
+
+
       const kanaRegex = /^([\u3040-\u30ff]+)(.*)/;
       const kanaMatch = kanjiText.match(kanaRegex);
 
       if (kanaMatch && kanaMatch[2]) {
-        
-        
+
+
         segments.push({ text: kanaMatch[1] });
         kanjiText = kanaMatch[2];
         continue;
@@ -68,7 +68,7 @@ export function parseFurigana(text: string): FuriganaSegment[] {
     lastIndex = regex.lastIndex;
   }
 
-  
+
   if (lastIndex < text.length) {
     const remainingText = text.slice(lastIndex);
     remainingText.split(/(\s+)/).forEach(part => {
@@ -169,29 +169,14 @@ export function hslToHex(h: number, s: number, l: number): string {
   return `#${toHex(r)}${toHex(g)}${toHex(b)}`;
 }
 
-/**
- * Calculate level from XP using formula: XP = 100 * (level - 1)^2
- * @param xp - The experience points
- * @returns The calculated level (minimum 1)
- */
 export function calculateLevel(xp: number): number {
   return Math.floor(Math.sqrt(xp / 100)) + 1;
 }
 
-/**
- * Calculate XP required for a given level
- * @param level - The target level
- * @returns XP required to reach this level
- */
 export function getXpForLevel(level: number): number {
   return (level - 1) * (level - 1) * 100;
 }
 
-/**
- * Calculate level progress percentage
- * @param xp - Current XP
- * @returns Object with current level, progress percentage, and XP to next level
- */
 export function getLevelProgress(xp: number): {
   level: number;
   progressPercent: number;
@@ -204,7 +189,7 @@ export function getLevelProgress(xp: number): {
   const nextLevelXp = getXpForLevel(level + 1);
   const progressPercent = ((xp - currentLevelXp) / (nextLevelXp - currentLevelXp)) * 100;
   const xpToNextLevel = nextLevelXp - xp;
-  
+
   return {
     level,
     progressPercent,

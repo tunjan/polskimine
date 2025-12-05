@@ -1,6 +1,13 @@
 import * as React from "react"
 import { cn } from "@/lib/utils"
-import { GameButton } from "./GameButton"
+
+const LOADING_TIPS = [
+    "Reviewing daily keeps the streak alive!",
+    "Use mnemonics to remember difficult words.",
+    "Consistency is key to language mastery.",
+    "Take breaks to let your brain absorb the material.",
+    "Say the words out loud for better retention."
+];
 
 export interface GameLoaderProps {
     size?: 'sm' | 'md' | 'lg'
@@ -8,7 +15,7 @@ export interface GameLoaderProps {
     className?: string
 }
 
-export function GameLoader({ size = 'md', text, className }: GameLoaderProps) {
+export function GameLoader({ size = 'md', className }: GameLoaderProps) {
     const sizeConfig = {
         sm: { container: 'w-12 h-12', inner: 'inset-1.5', diamond: 'w-1.5 h-1.5' },
         md: { container: 'w-20 h-20', inner: 'inset-3', diamond: 'w-2 h-2' },
@@ -20,81 +27,24 @@ export function GameLoader({ size = 'md', text, className }: GameLoaderProps) {
     return (
         <div className={cn("flex flex-col items-center justify-center gap-5", className)}>
             <div className={cn("relative", config.container)}>
-                {/* Outer rotating square */}
-                <div
-                    className="absolute inset-0 border-2 border-amber-700/30 rotate-45 animate-spin"
-                    style={{ animationDuration: '4s' }}
-                />
-
-                {/* Inner counter-rotating square */}
-                <div
-                    className={cn("absolute border-2 border-amber-700/50 rotate-45", config.inner)}
-                    style={{ animation: 'spin 3s linear infinite reverse' }}
-                />
-
-                {/* Center diamond - pulsing */}
-                <span
-                    className={cn(
-                        "absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2",
-                        "bg-amber-600 rotate-45 animate-pulse",
-                        config.diamond
-                    )}
-                />
-
-                {/* Cardinal point markers */}
-                <div className="absolute inset-0 animate-spin" style={{ animationDuration: '2.5s' }}>
-                    <span className="absolute top-0 left-1/2 -translate-x-1/2 w-1 h-1 bg-amber-600/60 rotate-45" />
-                    <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-1 h-1 bg-amber-600/60 rotate-45" />
-                    <span className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-1 bg-amber-600/60 rotate-45" />
-                    <span className="absolute right-0 top-1/2 -translate-y-1/2 w-1 h-1 bg-amber-600/60 rotate-45" />
-                </div>
+                <span className={cn("absolute border-2 border-amber-600/30 rotate-45 animate-spin", config.inner)} style={{ animationDuration: '3s' }} />
+                <span className={cn("absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-amber-600 rotate-45", config.diamond)} />
             </div>
-
-            {text && (
-                <div className="flex items-center gap-3">
-                    <span className="w-8 h-px bg-border" />
-                    <span className="text-xs font-medium text-muted-foreground/70 tracking-[0.2em] uppercase font-ui">
-                        {text}
-                    </span>
-                    <span className="w-8 h-px bg-border" />
-                </div>
-            )}
         </div>
     )
 }
 
-const LOADING_TIPS = [
-    "Consistent daily reviews build lasting memory",
-    "Focus on context, not just translation",
-    "Use spaced repetition to your advantage",
-    "Speaking aloud strengthens recall",
-    "Small daily progress beats cramming",
-    "Create mental associations for new words",
-    "Review cards when your mind is fresh",
-    "Mistakes are opportunities to learn",
-]
-
-/** Large corner ornament for loading screen */
 export function CornerOrnament() {
     return (
         <svg width="100" height="100" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-            {/* Main L-frame */}
             <path d="M0 0H50V2H2V50H0V0Z" fill="currentColor" />
             <path d="M0 0H60V1H1V60H0V0Z" fill="currentColor" opacity="0.5" />
-
-            {/* Inner geometric details */}
             <rect x="8" y="8" width="6" height="6" fill="none" stroke="currentColor" strokeWidth="1" />
             <path d="M11 11L13 13L11 15L9 13Z" fill="currentColor" opacity="0.6" />
-
-            {/* Extended accents */}
             <rect x="20" y="8" width="12" height="2" fill="currentColor" opacity="0.4" />
             <rect x="8" y="20" width="2" height="12" fill="currentColor" opacity="0.4" />
-
-            {/* Diamond markers */}
             <path d="M40 2L42 4L40 6L38 4Z" fill="currentColor" opacity="0.5" />
             <path d="M2 40L4 38L6 40L4 42Z" fill="currentColor" opacity="0.5" />
-
-            {/* Additional line details */}
             <rect x="50" y="0" width="8" height="1" fill="currentColor" opacity="0.3" />
             <rect x="0" y="50" width="1" height="8" fill="currentColor" opacity="0.3" />
         </svg>

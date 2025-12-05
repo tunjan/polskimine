@@ -27,7 +27,6 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { cn } from "@/lib/utils"
 import { formatDistanceToNow, parseISO, isValid, format } from "date-fns"
 
-// Status badge component
 const StatusBadge = ({ status }: { status: string }) => {
     const statusConfig: Record<string, {
         label: string;
@@ -80,7 +79,6 @@ const StatusBadge = ({ status }: { status: string }) => {
     )
 }
 
-// Schedule display component
 const ScheduleCell = ({ dateStr, status, interval }: { dateStr: string, status: string, interval: number }) => {
     if (status === 'new') {
         return (
@@ -94,7 +92,6 @@ const ScheduleCell = ({ dateStr, status, interval }: { dateStr: string, status: 
     const date = parseISO(dateStr)
     if (!isValid(date)) return <span className="text-muted-foreground/40 text-xs">—</span>
 
-    // Priority card (epoch date)
     if (date.getFullYear() === 1970) {
         return (
             <div className="inline-flex items-center gap-1.5 px-2 py-1 bg-amber-500/10 border border-amber-500/50 text-amber-500 rounded-sm">
@@ -122,7 +119,6 @@ const ScheduleCell = ({ dateStr, status, interval }: { dateStr: string, status: 
     )
 }
 
-// Sortable header component
 const SortableHeader = ({
     column,
     children
@@ -159,7 +155,6 @@ interface ColumnActions {
 
 export function getCardColumns(actions: ColumnActions): ColumnDef<Card>[] {
     return [
-        // Selection column
         {
             id: "select",
             header: ({ table }) => (
@@ -193,7 +188,6 @@ export function getCardColumns(actions: ColumnActions): ColumnDef<Card>[] {
             size: 40,
         },
 
-        // Bookmark column
         {
             accessorKey: "isBookmarked",
             header: ({ column }) => (
@@ -215,7 +209,6 @@ export function getCardColumns(actions: ColumnActions): ColumnDef<Card>[] {
             size: 50,
         },
 
-        // Status column
         {
             accessorKey: "status",
             header: ({ column }) => <SortableHeader column={column}>Status</SortableHeader>,
@@ -223,7 +216,6 @@ export function getCardColumns(actions: ColumnActions): ColumnDef<Card>[] {
             size: 120,
         },
 
-        // Target word column
         {
             accessorKey: "targetWord",
             header: ({ column }) => <SortableHeader column={column}>Word</SortableHeader>,
@@ -245,7 +237,6 @@ export function getCardColumns(actions: ColumnActions): ColumnDef<Card>[] {
             size: 140,
         },
 
-        // Target sentence column
         {
             accessorKey: "targetSentence",
             header: ({ column }) => <SortableHeader column={column}>Sentence</SortableHeader>,
@@ -257,7 +248,6 @@ export function getCardColumns(actions: ColumnActions): ColumnDef<Card>[] {
             filterFn: "includesString",
         },
 
-        // Translation column
         {
             accessorKey: "nativeTranslation",
             header: "Translation",
@@ -268,7 +258,6 @@ export function getCardColumns(actions: ColumnActions): ColumnDef<Card>[] {
             ),
         },
 
-        // Schedule column
         {
             accessorKey: "dueDate",
             header: ({ column }) => <SortableHeader column={column}>Due</SortableHeader>,
@@ -282,7 +271,6 @@ export function getCardColumns(actions: ColumnActions): ColumnDef<Card>[] {
             size: 120,
         },
 
-        // Reviews column
         {
             accessorKey: "reps",
             header: ({ column }) => <SortableHeader column={column}>Reviews</SortableHeader>,
@@ -298,7 +286,6 @@ export function getCardColumns(actions: ColumnActions): ColumnDef<Card>[] {
             size: 90,
         },
 
-        // Actions column
         {
             id: "actions",
             header: () => <span className="sr-only">Actions</span>,

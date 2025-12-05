@@ -1,11 +1,11 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Card, Grade, UserSettings } from '@/types';
 import { calculateNextReview, isCardDue } from '@/features/study/logic/srs';
-import { isNewCard } from '@/services/studyLimits'; 
+import { isNewCard } from '@/services/studyLimits';
 
 interface UseStudySessionParams {
   dueCards: Card[];
-  reserveCards?: Card[]; 
+  reserveCards?: Card[];
   settings: UserSettings;
   onUpdateCard: (card: Card) => void;
   onRecordReview: (card: Card, grade: Grade) => void;
@@ -15,7 +15,7 @@ interface UseStudySessionParams {
 
 export const useStudySession = ({
   dueCards,
-  reserveCards: initialReserve = [], 
+  reserveCards: initialReserve = [],
   settings,
   onUpdateCard,
   onRecordReview,
@@ -23,7 +23,7 @@ export const useStudySession = ({
   onUndo,
 }: UseStudySessionParams) => {
   const [sessionCards, setSessionCards] = useState<Card[]>(dueCards);
-  const [reserveCards, setReserveCards] = useState<Card[]>(initialReserve); 
+  const [reserveCards, setReserveCards] = useState<Card[]>(initialReserve);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isFlipped, setIsFlipped] = useState(false);
   const [sessionComplete, setSessionComplete] = useState(dueCards.length === 0);
@@ -68,11 +68,6 @@ export const useStudySession = ({
     }
   }, [dueCards, initialReserve, settings.cardOrder]);
 
-  // NOTE: We intentionally do NOT sync sessionCards with dueCards during the session.
-  // Doing so would cause the index to shift when cards are removed from dueCards,
-  // leading to cards being skipped. The session queue is effectively "detached"
-  // from the dueCards query once initialized.
-  // Card deletions should be handled explicitly via onDeleteCard callback.
 
   useEffect(() => {
     const current = sessionCards[currentIndex];
@@ -98,16 +93,14 @@ export const useStudySession = ({
       });
       setIsWaiting(false);
     } else {
-      // If user has enabled "skip learning wait", allow review immediately
       if (settings.ignoreLearningStepsWhenNoCards) {
         setIsWaiting(false);
         return;
       }
-      
+
       setIsWaiting(true);
       const dueTime = new Date(current.dueDate).getTime();
-      
-      // FIX: Handle invalid dates to prevent infinite loop
+
       if (isNaN(dueTime)) {
         console.error('Invalid due date for card:', current.id);
         setIsWaiting(false);
@@ -115,7 +108,7 @@ export const useStudySession = ({
       }
 
       const delay = Math.max(100, dueTime - now.getTime());
-      
+
       const timer = setTimeout(() => {
         setTick((t) => t + 1);
       }, delay);
@@ -146,22 +139,18 @@ export const useStudySession = ({
         let addedCardId: string | null = null;
         let newSessionLength = sessionCards.length;
         const isLastCard = currentIndex === sessionCards.length - 1;
-        
+
         if (updatedCard.status === 'learning') {
           if (isLastCard) {
-            // On last card and still learning: update the card in place and stay here
             setSessionCards((prev) => {
               const newCards = [...prev];
               newCards[currentIndex] = updatedCard;
               return newCards;
             });
-            // Stay on current card, just flip back
             setIsFlipped(false);
             setActionHistory((prev) => [...prev, { addedCardId: null }]);
-            // Note: finally block will clean up isProcessing
-            return; // Early return - don't increment index or complete
+            return;
           } else {
-            // Not on last card: add to end normally
             setSessionCards((prev) => [...prev, updatedCard]);
             addedCardId = updatedCard.id;
             newSessionLength = sessionCards.length + 1;
@@ -169,7 +158,6 @@ export const useStudySession = ({
         }
         setActionHistory((prev) => [...prev, { addedCardId }]);
 
-        // Check against the updated length (accounting for potentially added card)
         if (currentIndex < newSessionLength - 1) {
           setIsFlipped(false);
           setCurrentIndex((prev) => prev + 1);
@@ -194,7 +182,7 @@ export const useStudySession = ({
     setIsProcessing(true);
 
     try {
-      const wasNew = isNewCard(currentCard); 
+      const wasNew = isNewCard(currentCard);
 
       const updatedCard: Card = {
         ...currentCard,
@@ -206,20 +194,18 @@ export const useStudySession = ({
 
       let addedCardId: string | null = null;
       let newSessionLength = sessionCards.length;
-      
+
       if (wasNew && reserveCards.length > 0) {
         const nextNew = reserveCards[0];
         setSessionCards(prev => [...prev, nextNew]);
         setReserveCards(prev => prev.slice(1));
         addedCardId = nextNew.id;
-        // Account for the card we just added
         newSessionLength = sessionCards.length + 1;
       }
 
 
       setActionHistory((prev) => [...prev, { addedCardId }]);
 
-      // Check against the updated length (accounting for potentially added card)
       if (currentIndex < newSessionLength - 1) {
         setIsFlipped(false);
         setCurrentIndex((prev) => prev + 1);
@@ -235,7 +221,12 @@ export const useStudySession = ({
   }, [currentCard, currentIndex, onUpdateCard, sessionCards.length, reserveCards]);
 
   const handleUndo = useCallback(() => {
-    if (!canUndo || !onUndo) return;
+    // Prevent undo while processing a review
+    if (isProcessingRef.current || !canUndo || !onUndo) return;
+
+    // We don't need to lock for undo as it's synchronous logic here,
+    // but we must respect the lock from other actions.
+
     onUndo();
 
     if (currentIndex > 0 || sessionComplete) {
@@ -243,15 +234,13 @@ export const useStudySession = ({
         const newHistory = prev.slice(0, -1);
         const lastAction = prev[prev.length - 1];
 
-
-
         if (lastAction?.addedCardId) {
           setSessionCards((prevCards) => {
-             const last = prevCards[prevCards.length - 1];
-             if (last && last.id === lastAction.addedCardId) {
-                 return prevCards.slice(0, -1);
-             }
-             return prevCards;
+            const last = prevCards[prevCards.length - 1];
+            if (last && last.id === lastAction.addedCardId) {
+              return prevCards.slice(0, -1);
+            }
+            return prevCards;
           });
         }
 
@@ -270,6 +259,11 @@ export const useStudySession = ({
 
   // Remove a card from the session queue (e.g., when deleted)
   const removeCardFromSession = useCallback((cardId: string) => {
+    // We do NOT block this with isProcessingRef because if a card is deleted externally
+    // or via a separate control, we MUST update the session state to avoid crashing on a missing card.
+    // However, if the current card IS the one being processed, we might have an issue.
+    // Ideally, the delete action is disabled in the UI while processing.
+
     setSessionCards((prev) => {
       const index = prev.findIndex((c) => c.id === cardId);
       if (index === -1) return prev;

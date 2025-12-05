@@ -4,16 +4,19 @@ import { Capacitor } from '@capacitor/core';
 import { BrowserRouter, HashRouter } from 'react-router-dom';
 import { Toaster } from 'sonner';
 
-import { DeckProvider } from '@/contexts/DeckContext';
+import { SessionProvider } from '@/contexts/SessionContext';
+import { DeckActionsProvider } from '@/contexts/DeckActionsContext';
+import { DeckStatsProvider } from '@/contexts/DeckStatsContext';
 import { SettingsProvider } from '@/contexts/SettingsContext';
 import { ThemeProvider } from '@/contexts/ThemeContext';
 import { MusicProvider } from '@/contexts/MusicContext';
 import { AuthProvider } from '@/contexts/AuthContext';
+import { ProfileProvider } from '@/contexts/ProfileContext';
+import { GamificationProvider } from '@/contexts/GamificationContext';
 import { ErrorBoundary } from '@/components/common/ErrorBoundary';
 
 const queryClient = new QueryClient();
 
-// Toast configuration
 const TOAST_OPTIONS = {
     className: 'genshin-toast gap-4',
     style: {
@@ -59,16 +62,24 @@ export const AppProviders: React.FC<AppProvidersProps> = ({ children }) => {
             <ThemeProvider defaultTheme="light" storageKey="languagemine-theme">
                 <ErrorBoundary>
                     <AuthProvider>
-                        <SettingsProvider>
-                            <DeckProvider>
-                                <MusicProvider>
-                                    <Router>
-                                        {children}
-                                        <Toaster position="bottom-right" toastOptions={TOAST_OPTIONS} />
-                                    </Router>
-                                </MusicProvider>
-                            </DeckProvider>
-                        </SettingsProvider>
+                        <ProfileProvider>
+                            <GamificationProvider>
+                                <SettingsProvider>
+                                    <SessionProvider>
+                                        <DeckActionsProvider>
+                                            <DeckStatsProvider>
+                                                <MusicProvider>
+                                                    <Router>
+                                                        {children}
+                                                        <Toaster position="bottom-right" toastOptions={TOAST_OPTIONS} />
+                                                    </Router>
+                                                </MusicProvider>
+                                            </DeckStatsProvider>
+                                        </DeckActionsProvider>
+                                    </SessionProvider>
+                                </SettingsProvider>
+                            </GamificationProvider>
+                        </ProfileProvider>
                     </AuthProvider>
                 </ErrorBoundary>
             </ThemeProvider>

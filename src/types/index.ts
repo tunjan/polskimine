@@ -56,7 +56,9 @@ export interface DeckStats {
   longestStreak: number;
 }
 
-export type Language = 'polish' | 'norwegian' | 'japanese' | 'spanish';
+import { Language } from './languages';
+export type { Language } from './languages';
+export { LanguageId, LANGUAGE_LABELS } from './languages';
 
 export type TTSProvider = 'browser' | 'google' | 'azure';
 

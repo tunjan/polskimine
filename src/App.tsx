@@ -2,6 +2,7 @@ import React from 'react';
 import { AppProviders } from '@/app/AppProviders';
 import { AppRouter } from '@/app/AppRouter';
 import { usePlatformSetup } from '@/hooks/usePlatformSetup';
+import { useProfile } from '@/contexts/ProfileContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { AuthPage } from '@/features/auth/AuthPage';
 import { UsernameSetup } from '@/features/auth/UsernameSetup';
@@ -9,7 +10,10 @@ import { OnboardingFlow } from '@/features/auth/OnboardingFlow';
 
 const AppContent: React.FC = () => {
   usePlatformSetup();
-  const { user, profile, loading } = useAuth();
+  const { user, loading: authLoading } = useAuth();
+  const { profile, loading: profileLoading } = useProfile();
+
+  const loading = authLoading || profileLoading;
 
   if (loading) {
     return (
@@ -22,12 +26,10 @@ const AppContent: React.FC = () => {
     );
   }
 
-  // No user = show auth page (now local profile creation)
   if (!user) {
     return <AuthPage />;
   }
 
-  // User exists but no profile = shouldn't happen with local auth, but handle gracefully
   if (!profile) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
@@ -44,12 +46,10 @@ const AppContent: React.FC = () => {
     );
   }
 
-  // No username = setup required
   if (!profile.username) {
     return <UsernameSetup />;
   }
 
-  // No initial deck = show onboarding
   if (!profile.initial_deck_generated) {
     return <OnboardingFlow />;
   }

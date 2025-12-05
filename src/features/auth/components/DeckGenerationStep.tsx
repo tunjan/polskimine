@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { Sparkles, BookOpen } from 'lucide-react';
-import { Difficulty, Language } from '@/types';
+import { motion } from "framer-motion";
+import { Difficulty, Language, LanguageId } from '@/types';
 import { cn } from '@/lib/utils';
 import { GameButton, GameInput, GameLoader } from '@/components/ui/game-ui';
 
-// Component for deck generation setup
 interface DeckGenerationStepProps {
     language: Language;
     proficiencyLevel: Difficulty;
@@ -40,9 +40,23 @@ export const DeckGenerationStep: React.FC<DeckGenerationStepProps> = ({
         }
     };
 
-    const languageName = language === 'norwegian' ? 'Norwegian' :
-        (language === 'japanese' ? 'Japanese' :
-            (language === 'spanish' ? 'Spanish' : 'Polish'));
+    const getLanguagePrompt = (lang: Language) => {
+        switch (lang) {
+            case LanguageId.Polish:
+                return "Generate a starter deck for learning Polish (A1 level). Include basic greetings, numbers, and essential verbs.";
+            case LanguageId.Norwegian:
+                return "Generate a starter deck for learning Norwegian (Bokmål). Include common phrases and daily vocabulary.";
+            case LanguageId.Japanese:
+                return "Generate a starter deck for learning Japanese (N5 level). Include hiragana/katakana basics and simple kanji.";
+            case LanguageId.Spanish:
+                return "Generate a starter deck for learning Spanish (A1 level). Include essential travel phrases and core vocabulary.";
+            default:
+                return "Generate a starter deck for learning this language.";
+        }
+    };
+    const languageName = language === LanguageId.Norwegian ? 'Norwegian' :
+        (language === LanguageId.Japanese ? 'Japanese' :
+            (language === LanguageId.Spanish ? 'Spanish' : 'Polish'));
 
     return (
         <div className="space-y-6">
@@ -84,7 +98,7 @@ export const DeckGenerationStep: React.FC<DeckGenerationStepProps> = ({
                             </p>
                         </div>
                     </div>
-                    
+
                     {selectedOption === 'ai' && (
                         <>
                             <span className="absolute top-0 left-0 w-2 h-2 border-t-2 border-l-2 border-amber-400" />
@@ -124,7 +138,7 @@ export const DeckGenerationStep: React.FC<DeckGenerationStepProps> = ({
                             </p>
                         </div>
                     </div>
-                    
+
                     {selectedOption === 'default' && (
                         <>
                             <span className="absolute top-0 left-0 w-2 h-2 border-t-2 border-l-2 border-amber-400" />
@@ -156,9 +170,9 @@ export const DeckGenerationStep: React.FC<DeckGenerationStepProps> = ({
             {/* Action Button */}
             {selectedOption && (
                 <div className="pt-2 animate-in fade-in slide-in-from-bottom-2 duration-200">
-                    <GameButton 
-                        onClick={handleGenerate} 
-                        disabled={loading} 
+                    <GameButton
+                        onClick={handleGenerate}
+                        disabled={loading}
                         className="w-full"
                     >
                         {loading ? (

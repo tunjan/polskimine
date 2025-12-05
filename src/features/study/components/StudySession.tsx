@@ -66,13 +66,11 @@ export const StudySession: React.FC<StudySessionProps> = ({
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const { sessionXp, sessionStreak, multiplierInfo, feedback, processCardResult, subtractXp } = useXpSession(dailyStreak, isCramMode);
 
-  // Track the last XP earned to subtract on undo
   const lastXpEarnedRef = React.useRef<number>(0);
 
   const enhancedRecordReview = useCallback((card: Card, grade: Grade) => {
     const rating = mapGradeToRating(grade);
     const xpResult = processCardResult(rating);
-    // Store the XP earned for potential undo
     lastXpEarnedRef.current = xpResult.totalXp;
     const payload: CardXpPayload = {
       ...xpResult,
@@ -85,11 +83,10 @@ export const StudySession: React.FC<StudySessionProps> = ({
     onRecordReview(card, grade, payload);
   }, [onRecordReview, processCardResult, sessionStreak, isCramMode, dailyStreak, multiplierInfo]);
 
-  // Wrapper for onUndo that also subtracts session XP
   const handleUndoWithXp = useCallback(() => {
     if (onUndo && lastXpEarnedRef.current > 0) {
       subtractXp(lastXpEarnedRef.current);
-      lastXpEarnedRef.current = 0; // Reset after subtracting
+      lastXpEarnedRef.current = 0;
     }
     onUndo?.();
   }, [onUndo, subtractXp]);

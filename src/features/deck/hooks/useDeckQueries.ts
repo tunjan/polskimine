@@ -14,6 +14,7 @@ import { Card, Grade } from '@/types';
 import { getSRSDate } from '@/features/study/logic/srs';
 import { format, differenceInMinutes } from 'date-fns';
 import { useAuth } from '@/contexts/AuthContext';
+import { useGamification } from '@/contexts/GamificationContext';
 import { toast } from 'sonner';
 import { CardXpPayload } from '@/features/xp/xpUtils';
 
@@ -56,7 +57,8 @@ export const useHistoryQuery = () => {
 export const useRecordReviewMutation = () => {
   const queryClient = useQueryClient();
   const { settings } = useSettings();
-  const { user, incrementXPOptimistically } = useAuth();
+  const { user } = useAuth();
+  const { incrementXP } = useGamification();
 
   return useMutation({
     mutationFn: async ({ card, grade, xpPayload }: { card: Card; grade: Grade; xpPayload?: CardXpPayload }) => {
@@ -70,10 +72,8 @@ export const useRecordReviewMutation = () => {
 
       const scheduledDays = card.interval || 0;
 
-      // Add review log
       await addReviewLog(card, grade, elapsedDays, scheduledDays);
 
-      // XP is now purely local - just increment optimistically
       const xpAmount = xpPayload?.totalXp ?? 0;
 
       return { card, grade, today, xpAmount };
@@ -109,14 +109,13 @@ export const useRecordReviewMutation = () => {
 
       queryClient.setQueryData(['dueCards', settings.language], (old: Card[] | undefined) => {
         if (!old) return [];
-        // If graded 'Again', keep it in dueCards (it will be due immediately/soon)
         if (grade === 'Again') return old;
         return old.filter(c => c.id !== card.id);
       });
 
       if (user) {
         const xpAmount = xpPayload?.totalXp ?? 0;
-        incrementXPOptimistically(xpAmount);
+        incrementXP(xpAmount);
 
         queryClient.setQueryData(['dashboardStats', settings.language], (old: any) => {
           if (!old) return old;
@@ -151,19 +150,17 @@ export const useRecordReviewMutation = () => {
 export const useClaimDailyBonusMutation = () => {
   const queryClient = useQueryClient();
   const { settings } = useSettings();
-  const { incrementXPOptimistically } = useAuth();
+  const { incrementXP } = useGamification();
   const BONUS_AMOUNT = 20;
 
   return useMutation({
     mutationFn: async () => {
-      // In local mode, just give the bonus without server verification
-      // Could add local date tracking to prevent claiming multiple times per day
       return { success: true };
     },
     onSuccess: (data) => {
       if (data && data.success) {
         toast.success(`Daily Goal Complete! +${BONUS_AMOUNT} XP`);
-        incrementXPOptimistically(BONUS_AMOUNT);
+        incrementXP(BONUS_AMOUNT);
 
         queryClient.setQueryData(['dashboardStats', settings.language], (old: any) => {
           if (!old) return old;
@@ -180,7 +177,8 @@ export const useClaimDailyBonusMutation = () => {
 export const useUndoReviewMutation = () => {
   const queryClient = useQueryClient();
   const { settings } = useSettings();
-  const { user, incrementXPOptimistically } = useAuth();
+  const { user } = useAuth();
+  const { incrementXP } = useGamification();
 
   return useMutation({
     mutationFn: async ({ card, date, xpEarned }: { card: Card; date: string; xpEarned: number }) => {
@@ -189,9 +187,8 @@ export const useUndoReviewMutation = () => {
       return { card, date, xpEarned };
     },
     onSuccess: ({ xpEarned }) => {
-      // Subtract the XP that was earned from this review
       if (user && xpEarned > 0) {
-        incrementXPOptimistically(-xpEarned);
+        incrementXP(-xpEarned);
 
         queryClient.setQueryData(['dashboardStats', settings.language], (old: any) => {
           if (!old) return old;

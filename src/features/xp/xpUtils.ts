@@ -17,7 +17,7 @@ export const getDailyStreakMultiplier = (
   if (days <= 0) return { value: 1.0, label: 'Standard (1.00x)' };
 
   const rawCurve = Math.tanh(days / XP_CONFIG.ASYMPTOTE_SCALE);
-  
+
   const value = Math.round((1 + rawCurve) * 100) / 100;
 
   let tier = 'Rookie';
@@ -49,10 +49,6 @@ export interface CardXpPayload extends XpCalculationResult {
   multiplierLabel: string;
 }
 
-/**
- * Calculates the XP reward for a single card interaction.
- * Keeps logic pure so it can run on both client and server.
- */
 export const calculateCardXp = (
   rating: CardRating,
   sessionStreak: number,
@@ -75,8 +71,8 @@ export const calculateCardXp = (
 
   const { value: multiplier } = getDailyStreakMultiplier(dailyStreak);
   const preMultiplied = baseXp + bonusXp;
-  
-  
+
+
   const totalXp = Math.round(preMultiplied * multiplier);
 
   return {

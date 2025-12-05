@@ -27,38 +27,35 @@ const mapStateToStatus = (state: State): CardStatus => {
 };
 
 function getFSRS(settings?: UserSettings['fsrs']) {
-   if (!cachedFSRS || 
-       lastConfig?.request_retention !== settings?.request_retention ||
-       lastConfig?.maximum_interval !== settings?.maximum_interval ||
-       lastConfig?.w !== settings?.w ||
-       lastConfig?.enable_fuzzing !== settings?.enable_fuzzing) {
-       
-       const paramsConfig = {
-        request_retention: settings?.request_retention || FSRS_DEFAULTS.request_retention,
-        maximum_interval: settings?.maximum_interval || FSRS_DEFAULTS.maximum_interval,
-        w: settings?.w || FSRS_DEFAULTS.w,
-        enable_fuzz: settings?.enable_fuzzing ?? FSRS_DEFAULTS.enable_fuzzing,
-      };
-       const params = generatorParameters(paramsConfig);
-       cachedFSRS = new FSRS(params);
-       lastConfig = settings || null;
-   }
-   return cachedFSRS;
+  if (!cachedFSRS ||
+    lastConfig?.request_retention !== settings?.request_retention ||
+    lastConfig?.maximum_interval !== settings?.maximum_interval ||
+    lastConfig?.w !== settings?.w ||
+    lastConfig?.enable_fuzzing !== settings?.enable_fuzzing) {
+
+    const paramsConfig = {
+      request_retention: settings?.request_retention || FSRS_DEFAULTS.request_retention,
+      maximum_interval: settings?.maximum_interval || FSRS_DEFAULTS.maximum_interval,
+      w: settings?.w || FSRS_DEFAULTS.w,
+      enable_fuzz: settings?.enable_fuzzing ?? FSRS_DEFAULTS.enable_fuzzing,
+    };
+    const params = generatorParameters(paramsConfig);
+    cachedFSRS = new FSRS(params);
+    lastConfig = settings || null;
+  }
+  return cachedFSRS;
 }
 
-/**
- * Calculates the next interval and scheduling info using FSRS.
- */
 export const calculateNextReview = (card: Card, grade: Grade, settings?: UserSettings['fsrs']): Card => {
   const f = getFSRS(settings);
   const now = new Date();
-  
+
 
   let currentState = card.state;
   if (currentState === undefined) {
-      if (card.status === 'new') currentState = State.New;
-      else if (card.status === 'learning') currentState = State.Learning;
-      else currentState = State.Review;
+    if (card.status === 'new') currentState = State.New;
+    else if (card.status === 'learning') currentState = State.Learning;
+    else currentState = State.Review;
   }
 
   const lastReviewDate = card.last_review ? new Date(card.last_review) : undefined;
@@ -81,17 +78,17 @@ export const calculateNextReview = (card: Card, grade: Grade, settings?: UserSet
   } as FSRSCard;
 
   const rating = mapGradeToRating(grade);
-  
+
 
   const schedulingCards = f.repeat(fsrsCard, now);
   const log = schedulingCards[rating].card;
-  
+
   const isNew = currentState === State.New || (card.reps || 0) === 0;
   const tentativeStatus = mapStateToStatus(log.state);
-  
 
 
-  
+
+
 
 
   const status = card.status === 'graduated' && tentativeStatus === 'learning' && grade !== 'Again'
@@ -120,20 +117,17 @@ export const calculateNextReview = (card: Card, grade: Grade, settings?: UserSet
     first_review: card.first_review || (isNew ? now.toISOString() : undefined),
     status,
     interval: log.scheduled_days,
-    learningStep: undefined, 
+    learningStep: undefined,
     leechCount: totalLapses,
     isLeech
   };
 };
 
-/**
- * Checks if a card is due for review.
- */
 export const isCardDue = (card: Card, now: Date = new Date()): boolean => {
   const due = new Date(card.dueDate);
-  
+
   if (card.status === 'learning' || card.state === State.Learning || card.state === State.Relearning) {
-      return due <= now;
+    return due <= now;
   }
 
   const srsToday = getSRSDate(now);

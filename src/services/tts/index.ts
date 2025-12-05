@@ -49,7 +49,6 @@ class TTSService {
     async getAvailableVoices(language: Language, settings: TTSSettings): Promise<VoiceOption[]> {
         const validCodes = LANG_CODE_MAP[language];
 
-        // Native mobile: return system default
         if (Capacitor.isNativePlatform() && settings.provider === 'browser') {
             try {
                 const { languages } = await TextToSpeech.getSupportedLanguages();
@@ -64,7 +63,6 @@ class TTSService {
             }
         }
 
-        // Browser-native voices
         if (settings.provider === 'browser') {
             return this.browserVoices
                 .filter(v => validCodes.some(code => v.lang.toLowerCase().startsWith(code.toLowerCase())))
@@ -76,7 +74,6 @@ class TTSService {
                 }));
         }
 
-        // Azure TTS (direct API) - user must provide their own key
         if (settings.provider === 'azure' && settings.azureApiKey && settings.azureRegion) {
             try {
                 const response = await fetch(`https://${settings.azureRegion}.tts.speech.microsoft.com/cognitiveservices/voices/list`, {
@@ -98,8 +95,6 @@ class TTSService {
             }
         }
 
-        // Google TTS removed - CORS issues from browser direct calls
-        // If provider is 'google', fall back to browser voices
         if (settings.provider === 'google') {
             console.warn('Google TTS not available in local mode. Using browser voices.');
             return this.browserVoices
@@ -123,7 +118,6 @@ class TTSService {
         const opId = ++this.currentOperationId;
         this.abortController = new AbortController();
 
-        // Default to browser for local app
         if (settings.provider === 'browser' || settings.provider === 'google') {
             await this.speakBrowser(text, language, settings);
         } else if (settings.provider === 'azure') {
@@ -132,7 +126,6 @@ class TTSService {
     }
 
     private async speakBrowser(text: string, language: Language, settings: TTSSettings) {
-        // --- NATIVE MOBILE ---
         if (Capacitor.isNativePlatform()) {
             try {
                 await TextToSpeech.speak({
@@ -149,7 +142,6 @@ class TTSService {
             return;
         }
 
-        // Web fallback
         if (!('speechSynthesis' in window)) return;
 
         window.speechSynthesis.cancel();
@@ -167,7 +159,6 @@ class TTSService {
             }
         }
 
-        // Chrome workaround for stuck speech
         utterance.onstart = () => {
             this.resumeInterval = setInterval(() => {
                 if (!window.speechSynthesis.speaking) {
@@ -245,29 +236,31 @@ class TTSService {
         }
     }
 
+    private getAudioContext(): AudioContext {
+        if (!this.audioContext || this.audioContext.state === 'closed') {
+            this.audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+        }
+        return this.audioContext;
+    }
+
     private async playAudioBuffer(buffer: ArrayBuffer, opId: number) {
         try {
-            if (this.audioContext) {
-                try {
-                    await this.audioContext.close();
-                } catch { }
-            }
-            this.audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+            const ctx = this.getAudioContext();
 
-            if (this.audioContext.state === 'suspended') {
-                await this.audioContext.resume();
+            if (ctx.state === 'suspended') {
+                await ctx.resume();
             }
 
-            const decodedBuffer = await this.audioContext.decodeAudioData(buffer.slice(0));
+            const decodedBuffer = await ctx.decodeAudioData(buffer.slice(0));
             if (this.currentOperationId !== opId) return;
 
             if (this.currentSource) {
                 try { this.currentSource.stop(); } catch { }
             }
 
-            this.currentSource = this.audioContext.createBufferSource();
+            this.currentSource = ctx.createBufferSource();
             this.currentSource.buffer = decodedBuffer;
-            this.currentSource.connect(this.audioContext.destination);
+            this.currentSource.connect(ctx.destination);
 
             this.currentSource.onended = () => {
                 this.currentSource = null;
@@ -291,14 +284,12 @@ class TTSService {
             this.resumeInterval = null;
         }
 
-        // Native Stop
         if (Capacitor.isNativePlatform()) {
             try {
                 await TextToSpeech.stop();
             } catch (e) { }
         }
 
-        // Web Stop
         if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
             window.speechSynthesis.cancel();
         }

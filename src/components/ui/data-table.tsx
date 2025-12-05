@@ -36,7 +36,6 @@ interface DataTableProps<TData, TValue> {
     searchColumn?: string
     pageSize?: number
     onRowClick?: (row: TData) => void
-    // Manual pagination props
     pageCount?: number
     pageIndex?: number
     onPageChange?: (page: number) => void
@@ -72,12 +71,10 @@ export function DataTable<TData, TValue>({
 
     const rowSelection = externalRowSelection ?? internalRowSelection
 
-    // Use external or internal pagination state
     const paginationState = manualPagination
         ? { pageIndex, pageSize }
         : internalPagination
 
-    // Apply search filter
     React.useEffect(() => {
         if (searchColumn && searchValue) {
             setColumnFilters([{ id: searchColumn, value: searchValue }])

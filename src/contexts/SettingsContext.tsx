@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { UserSettings, Language } from '../types';
+import { UserSettings, Language, LanguageId, TTSSettings } from '@/types';
 import { FSRS_DEFAULTS } from '../constants';
 import { useAuth } from './AuthContext';
 import { getUserSettings, updateUserSettings, migrateLocalSettingsToDatabase, UserApiKeys } from '@/services/db/repositories/settingsRepository';
@@ -7,22 +7,32 @@ import { toast } from 'sonner';
 
 
 const createLimits = (val: number): Record<Language, number> => ({
-  polish: val,
-  norwegian: val,
-  japanese: val,
-  spanish: val
+  [LanguageId.Polish]: val,
+  [LanguageId.Norwegian]: val,
+  [LanguageId.Japanese]: val,
+  [LanguageId.Spanish]: val
 });
 
 export const DEFAULT_SETTINGS: UserSettings = {
-  language: 'polish',
+  language: LanguageId.Polish,
   languageColors: {
-    polish: '346 84% 45%',
-    norwegian: '200 90% 40%',
-    japanese: '330 85% 65%',
-    spanish: '45 100% 50%', 
+    [LanguageId.Polish]: '#dc2626',
+    [LanguageId.Norwegian]: '#ef4444',
+    [LanguageId.Japanese]: '#f87171',
+    [LanguageId.Spanish]: '#fca5a5',
   },
-  dailyNewLimits: createLimits(20),
-  dailyReviewLimits: createLimits(100),
+  dailyNewLimits: {
+    [LanguageId.Polish]: 20,
+    [LanguageId.Norwegian]: 20,
+    [LanguageId.Japanese]: 20,
+    [LanguageId.Spanish]: 20,
+  },
+  dailyReviewLimits: {
+    [LanguageId.Polish]: 100,
+    [LanguageId.Norwegian]: 100,
+    [LanguageId.Japanese]: 100,
+    [LanguageId.Spanish]: 100,
+  },
   autoPlayAudio: false,
   blindMode: false,
   showTranslationAfterFlip: true,
@@ -87,7 +97,7 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
           fsrs: { ...DEFAULT_SETTINGS.fsrs, ...(parsed.fsrs || {}) },
           tts: { ...DEFAULT_SETTINGS.tts, ...(parsed.tts || {}) },
           languageColors: { ...DEFAULT_SETTINGS.languageColors, ...(parsed.languageColors || {}) },
-          
+
           geminiApiKey: '',
         };
       }
@@ -97,20 +107,20 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     return DEFAULT_SETTINGS;
   });
 
-  
+
   useEffect(() => {
     const loadCloudSettings = async () => {
       if (authLoading || !user) return;
 
       setSettingsLoading(true);
       try {
-        
+
         const migrated = await migrateLocalSettingsToDatabase(user.id);
         if (migrated) {
           toast.success('Settings migrated to cloud');
         }
 
-        
+
         const cloudSettings = await getUserSettings(user.id);
         if (cloudSettings) {
           setSettings(prev => ({
@@ -146,7 +156,7 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     }));
   };
 
-  
+
   const saveApiKeys = async (apiKeys: UserApiKeys) => {
     if (!user) {
       throw new Error('User not authenticated');
@@ -156,7 +166,7 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       setSettingsLoading(true);
       await updateUserSettings(user.id, apiKeys);
 
-      
+
       setSettings(prev => ({
         ...prev,
         geminiApiKey: apiKeys.geminiApiKey || '',
@@ -178,11 +188,11 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     }
   };
 
-  
+
   useEffect(() => {
     const localSettings = {
       ...settings,
-      
+
       geminiApiKey: '',
       tts: {
         ...settings.tts,
@@ -207,15 +217,14 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 export const useSettings = () => {
   const context = useContext(SettingsContext);
   if (context === undefined) {
-    // During HMR, context may temporarily be undefined. Return defaults to prevent crash.
     if (import.meta.hot) {
       console.warn('useSettings called outside SettingsProvider during HMR, using defaults');
       return {
         settings: DEFAULT_SETTINGS,
-        updateSettings: async () => {},
-        resetSettings: async () => {},
+        updateSettings: async () => { },
+        resetSettings: async () => { },
         settingsLoading: true,
-        saveApiKeys: async () => {},
+        saveApiKeys: async () => { },
       };
     }
     throw new Error('useSettings must be used within a SettingsProvider');

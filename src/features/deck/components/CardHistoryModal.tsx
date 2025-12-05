@@ -4,31 +4,10 @@ import { Card } from '@/types';
 import { format, formatDistanceToNow, parseISO, isValid } from 'date-fns';
 import { Activity, Clock, Target, Zap, X as XIcon, History, Calendar } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { GenshinCorner } from '@/components/game/GamePanel';
 
-// Genshin-style ornate corner SVG
-const GenshinCorner = ({ className }: { className?: string }) => (
-  <svg
-    width="48"
-    height="48"
-    viewBox="0 0 48 48"
-    fill="none"
-    xmlns="http://www.w3.org/2000/svg"
-    className={className}
-  >
-    <path d="M0 0H36V2H2V36H0V0Z" fill="currentColor" />
-    <path d="M5 5H24V6.5H6.5V24H5V5Z" fill="currentColor" opacity="0.6" />
-    <rect x="28" y="5" width="4" height="1.5" fill="currentColor" opacity="0.5" />
-    <rect x="34" y="5" width="1.5" height="1.5" fill="currentColor" opacity="0.5" />
-    <rect x="5" y="28" width="1.5" height="4" fill="currentColor" opacity="0.5" />
-    <rect x="5" y="34" width="1.5" height="1.5" fill="currentColor" opacity="0.5" />
-    <rect x="40" y="0" width="6" height="2" fill="currentColor" opacity="0.4" />
-    <rect x="0" y="40" width="2" height="6" fill="currentColor" opacity="0.4" />
-    <path d="M46 1L47 2L46 3L45 2Z" fill="currentColor" opacity="0.6" />
-    <path d="M1 46L2 47L3 46L2 45Z" fill="currentColor" opacity="0.6" />
-  </svg>
-);
 
-// Diamond divider component
+
 const DiamondDivider = ({ className }: { className?: string }) => (
   <div className={cn("flex items-center gap-3", className)}>
     <span className="flex-1 h-px bg-amber-600/20" />
@@ -109,12 +88,7 @@ export const CardHistoryModal: React.FC<CardHistoryModalProps> = ({ card, isOpen
   };
 
   const getStateColor = (state?: number) => {
-    // Using Genshin element-like colors
-    if (state === 0) return 'border-amber-600/50 bg-amber-500/10 text-amber-600 dark:text-amber-400'; // Geo-ish
-    if (state === 1) return 'border-sky-500/50 bg-sky-500/10 text-sky-600 dark:text-sky-400'; // Anemo-ish
-    if (state === 2) return 'border-emerald-500/50 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400'; // Dendro-ish
-    if (state === 3) return 'border-rose-500/50 bg-rose-500/10 text-rose-600 dark:text-rose-400'; // Pyro-ish
-    return 'border-slate-500/50 bg-slate-500/10 text-slate-500';
+    if (state === 0) return 'border-amber-600/50 bg-amber-500/10 text-amber-600 dark:text-amber-400'; if (state === 1) return 'border-sky-500/50 bg-sky-500/10 text-sky-600 dark:text-sky-400'; if (state === 2) return 'border-emerald-500/50 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400'; if (state === 3) return 'border-rose-500/50 bg-rose-500/10 text-rose-600 dark:text-rose-400'; return 'border-slate-500/50 bg-slate-500/10 text-slate-500';
   };
 
   return (

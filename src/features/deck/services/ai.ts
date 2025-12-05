@@ -1,6 +1,5 @@
-// Direct Gemini API calls - no Supabase edge functions
+import { LanguageId } from '@/types';
 
-// Types for Gemini API interactions
 interface GeminiRequestBody {
   contents: Array<{
     parts: Array<{ text: string }>;
@@ -24,7 +23,6 @@ interface GeminiResponseSchema {
   required?: string[];
 }
 
-// Type for generated card data from AI
 interface GeneratedCardData {
   targetSentence: string;
   nativeTranslation: string;
@@ -40,7 +38,7 @@ interface GeneratedCardData {
 interface BatchGenerationOptions {
   instructions: string;
   count: number;
-  language: 'polish' | 'norwegian' | 'japanese' | 'spanish';
+  language: typeof LanguageId[keyof typeof LanguageId];
   learnedWords?: string[];
   proficiencyLevel?: string;
   difficultyMode?: 'beginner' | 'immersive';
@@ -111,7 +109,6 @@ async function callGemini(prompt: string, apiKey: string, responseSchema?: Gemin
 
   const data = await response.json();
 
-  // Extract text from response
   const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
   if (!text) {
     throw new Error('No response from AI');
@@ -121,8 +118,8 @@ async function callGemini(prompt: string, apiKey: string, responseSchema?: Gemin
 }
 
 export const aiService = {
-  async translateText(text: string, language: 'polish' | 'norwegian' | 'japanese' | 'spanish' = 'polish', apiKey: string): Promise<string> {
-    const langName = language === 'norwegian' ? 'Norwegian' : (language === 'japanese' ? 'Japanese' : (language === 'spanish' ? 'Spanish' : 'Polish'));
+  async translateText(text: string, language: typeof LanguageId[keyof typeof LanguageId] = LanguageId.Polish, apiKey: string): Promise<string> {
+    const langName = language === LanguageId.Norwegian ? 'Norwegian' : (language === LanguageId.Japanese ? 'Japanese' : (language === LanguageId.Spanish ? 'Spanish' : 'Polish'));
     const prompt = `
       Role: Expert Translator.
       Task: Translate the following ${langName} text to English.
@@ -133,14 +130,13 @@ export const aiService = {
     return await callGemini(prompt, apiKey);
   },
 
-  async analyzeWord(word: string, contextSentence: string, language: 'polish' | 'norwegian' | 'japanese' | 'spanish' = 'polish', apiKey: string): Promise<{
+  async analyzeWord(word: string, contextSentence: string, language: typeof LanguageId[keyof typeof LanguageId] = LanguageId.Polish, apiKey: string): Promise<{
     definition: string;
     partOfSpeech: string;
     contextMeaning: string;
   }> {
-    const langName = language === 'norwegian' ? 'Norwegian' : (language === 'japanese' ? 'Japanese' : (language === 'spanish' ? 'Spanish' : 'Polish'));
+    const langName = language === LanguageId.Norwegian ? 'Norwegian' : (language === LanguageId.Japanese ? 'Japanese' : (language === LanguageId.Spanish ? 'Spanish' : 'Polish'));
 
-    // Define strict schema
     const responseSchema: GeminiResponseSchema = {
       type: 'OBJECT',
       properties: {
@@ -162,10 +158,11 @@ export const aiService = {
     `;
 
     const result = await callGemini(prompt, apiKey, responseSchema);
+    const cleanedResult = extractJSON(result);
     try {
-      return JSON.parse(result);
+      return JSON.parse(cleanedResult);
     } catch (e) {
-      console.error("Failed to parse AI response", e);
+      console.error("Failed to parse AI response", e, "\nRaw:", result, "\nCleaned:", cleanedResult);
       return {
         definition: "Failed to analyze",
         partOfSpeech: "Unknown",
@@ -174,7 +171,7 @@ export const aiService = {
     }
   },
 
-  async generateSentenceForWord(targetWord: string, language: 'polish' | 'norwegian' | 'japanese' | 'spanish' = 'polish', apiKey: string): Promise<{
+  async generateSentenceForWord(targetWord: string, language: typeof LanguageId[keyof typeof LanguageId] = LanguageId.Polish, apiKey: string): Promise<{
     targetSentence: string;
     nativeTranslation: string;
     targetWordTranslation: string;
@@ -182,7 +179,7 @@ export const aiService = {
     notes: string;
     furigana?: string;
   }> {
-    const langName = language === 'norwegian' ? 'Norwegian' : (language === 'japanese' ? 'Japanese' : (language === 'spanish' ? 'Spanish' : 'Polish'));
+    const langName = language === LanguageId.Norwegian ? 'Norwegian' : (language === LanguageId.Japanese ? 'Japanese' : (language === LanguageId.Spanish ? 'Spanish' : 'Polish'));
 
     const responseSchema: GeminiResponseSchema = {
       type: 'OBJECT',
@@ -195,7 +192,7 @@ export const aiService = {
           enum: ["noun", "verb", "adjective", "adverb", "pronoun"]
         },
         notes: { type: 'STRING' },
-        ...(language === 'japanese' ? { furigana: { type: 'STRING' } } : {})
+        ...(language === LanguageId.Japanese ? { furigana: { type: 'STRING' } } : {})
       },
       required: ['targetSentence', 'nativeTranslation', 'targetWordTranslation', 'targetWordPartOfSpeech', 'notes']
     };
@@ -217,7 +214,7 @@ export const aiService = {
       - notes: A brief, helpful grammar note about how the word is functioning in this specific sentence (e.g. case usage, conjugation). Max 2 sentences.
     `;
 
-    if (language === 'japanese') {
+    if (language === LanguageId.Japanese) {
       prompt += `
       - furigana: The FULL targetSentence with furigana in the format "Kanji[reading]" for ALL Kanji. 
         Example: "私[わたし]は 日本語[にほんご]を 勉強[べんきょう]しています。" (Ensure the brackets are correct).
@@ -225,16 +222,16 @@ export const aiService = {
     }
 
     const result = await callGemini(prompt, apiKey, responseSchema);
+    const cleanedResult = extractJSON(result);
     try {
-      return JSON.parse(result);
+      return JSON.parse(cleanedResult);
     } catch (e) {
-      console.error("Failed to parse AI response", e);
+      console.error("Failed to parse AI response", e, "\nRaw:", result, "\nCleaned:", cleanedResult);
       throw new Error("Failed to generate sentence for word");
     }
-    // Removed old catch block that used extractJSON
   },
 
-  async generateCardContent(sentence: string, language: 'polish' | 'norwegian' | 'japanese' | 'spanish' = 'polish', apiKey: string): Promise<{
+  async generateCardContent(sentence: string, language: typeof LanguageId[keyof typeof LanguageId] = LanguageId.Polish, apiKey: string): Promise<{
     translation: string;
     targetWord?: string;
     targetWordTranslation?: string;
@@ -242,7 +239,7 @@ export const aiService = {
     notes: string;
     furigana?: string;
   }> {
-    const langName = language === 'norwegian' ? 'Norwegian' : (language === 'japanese' ? 'Japanese' : (language === 'spanish' ? 'Spanish' : 'Polish'));
+    const langName = language === LanguageId.Norwegian ? 'Norwegian' : (language === LanguageId.Japanese ? 'Japanese' : (language === LanguageId.Spanish ? 'Spanish' : 'Polish'));
 
     const responseSchema: GeminiResponseSchema = {
       type: 'OBJECT',
@@ -255,7 +252,7 @@ export const aiService = {
           enum: ["noun", "verb", "adjective", "adverb", "pronoun"]
         },
         notes: { type: 'STRING' },
-        ...(language === 'japanese' ? { furigana: { type: 'STRING' } } : {})
+        ...(language === LanguageId.Japanese ? { furigana: { type: 'STRING' } } : {})
       },
       required: ['translation', 'targetWord', 'targetWordTranslation', 'targetWordPartOfSpeech', 'notes']
     };
@@ -272,7 +269,7 @@ export const aiService = {
       - notes: Concise grammar explanation (max 2 sentences). specific to this sentence's structure or the target word's usage.
     `;
 
-    if (language === 'japanese') {
+    if (language === LanguageId.Japanese) {
       prompt += `
       - furigana: The FULL sentence with furigana in format "Kanji[reading]" for ALL Kanji. 
         Example: "私[わたし]は 日本語[にほんご]を 勉強[べんきょう]しています。"
@@ -280,10 +277,11 @@ export const aiService = {
     }
 
     const result = await callGemini(prompt, apiKey, responseSchema);
+    const cleanedResult = extractJSON(result);
     try {
-      return JSON.parse(result);
+      return JSON.parse(cleanedResult);
     } catch (e) {
-      console.error("Failed to parse AI response", e);
+      console.error("Failed to parse AI response", e, "\nRaw:", result, "\nCleaned:", cleanedResult);
       return {
         translation: "",
         notes: ""
@@ -300,7 +298,7 @@ export const aiService = {
     proficiencyLevel = 'A1',
     difficultyMode = 'immersive'
   }: BatchGenerationOptions & { apiKey: string }): Promise<GeneratedCardData[]> {
-    const langName = language === 'norwegian' ? 'Norwegian' : (language === 'japanese' ? 'Japanese' : (language === 'spanish' ? 'Spanish' : 'Polish'));
+    const langName = language === LanguageId.Norwegian ? 'Norwegian' : (language === LanguageId.Japanese ? 'Japanese' : (language === LanguageId.Spanish ? 'Spanish' : 'Polish'));
 
     const hasLearnedWords = learnedWords && learnedWords.length > 0;
 
@@ -308,7 +306,6 @@ export const aiService = {
 
     if (difficultyMode === 'beginner') {
       if (hasLearnedWords) {
-        // CONTINUOUS PROGRESSION (Day 2+)
         progressionRules = `
         CRITICAL PROGRESSION RULES (Continued Learning / Duolingo Style):
         This is a SEQUENTIAL LESSON extending the user's existing knowledge.
@@ -326,7 +323,6 @@ export const aiService = {
         - **Constraint**: A card should NOT contain more than 1 unknown word (a word that is NOT in "LearnedWords" and NOT in "Introduced Vocabulary").
         `;
       } else {
-        // DAY 1 (Absolute Beginner)
         progressionRules = `
         CRITICAL PROGRESSION RULES (Zero-to-Hero / Duolingo Style):
         This is a SEQUENTIAL LESSON. Card N must build upon Cards 1...(N-1).
@@ -341,7 +337,6 @@ export const aiService = {
         `;
       }
     } else {
-      // Immersive Mode
       progressionRules = `
         CRITICAL: Each card MUST contain a COMPLETE, NATURAL SENTENCE in targetSentence.
         - The sentence must demonstrate vivid, real usage of the target vocabulary word.
@@ -360,7 +355,6 @@ export const aiService = {
         `
       : "User has NO prior vocabulary. Start from scratch.";
 
-    // Define the schema for a single card with proper typing
     const cardSchemaProperties: Record<string, GeminiSchemaProperty> = {
       targetSentence: { type: "STRING" },
       nativeTranslation: { type: "STRING" },
@@ -377,8 +371,7 @@ export const aiService = {
 
     const requiredFields = ["targetSentence", "nativeTranslation", "targetWord", "targetWordTranslation", "targetWordPartOfSpeech", "notes"];
 
-    // Add furigana for Japanese
-    if (language === 'japanese') {
+    if (language === LanguageId.Japanese) {
       cardSchemaProperties.furigana = {
         type: "STRING",
         description: "The FULL targetSentence with kanji readings in Kanji[reading] format for ALL kanji characters"
@@ -392,7 +385,6 @@ export const aiService = {
       required: requiredFields
     };
 
-    // Define response schema as array of cards
     const responseSchema: GeminiResponseSchema = {
       type: "ARRAY",
       items: cardSchema
@@ -423,7 +415,7 @@ export const aiService = {
           "targetWordPartOfSpeech": "noun|verb|adjective|adverb|pronoun",
           "grammaticalCase": "nominative|genitive|...", 
           "gender": "masculine|feminine|neuter",
-          "notes": "Explain the grammar of the target word in this specific context."${language === 'japanese' ? ',\n          "furigana": "The FULL targetSentence with Kanji[reading] format for ALL kanji. Example: 私[わたし]は 日本語[にほんご]を 勉強[べんきょう]しています"' : ''}
+          "notes": "Explain the grammar of the target word in this specific context."${language === LanguageId.Japanese ? ',\n          "furigana": "The FULL targetSentence with Kanji[reading] format for ALL kanji. Example: 私[わたし]は 日本語[にほんご]を 勉強[べんきょう]しています"' : ''}
         }
       ]
 
@@ -432,11 +424,12 @@ export const aiService = {
 
     const result = await callGemini(prompt, apiKey, responseSchema);
 
+    const cleanedResult = extractJSON(result);
     try {
-      const parsed = JSON.parse(result);
+      const parsed = JSON.parse(cleanedResult);
       return Array.isArray(parsed) ? parsed : [];
     } catch (e) {
-      console.error("Failed to parse AI batch response", e);
+      console.error("Failed to parse AI batch response", e, "\nRaw:", result, "\nCleaned:", cleanedResult);
       throw new Error("Failed to generate valid cards");
     }
   }

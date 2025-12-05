@@ -5,7 +5,7 @@ import { StudySession } from '@/features/study/components/StudySession';
 import { useDeck } from '@/contexts/DeckContext';
 import { useSettings } from '@/contexts/SettingsContext';
 import { useCardOperations } from '@/features/deck/hooks/useCardOperations';
-import { isNewCard } from '@/services/studyLimits'; 
+import { isNewCard } from '@/services/studyLimits';
 import {
   getCramCards,
   getDueCards,
@@ -21,11 +21,11 @@ export const StudyRoute: React.FC = () => {
   const { updateCard, deleteCard, addCard } = useCardOperations();
   const { settings } = useSettings();
   const claimBonus = useClaimDailyBonusMutation();
-  
+
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const [sessionCards, setSessionCards] = useState<Card[]>([]);
-  const [reserveCards, setReserveCards] = useState<Card[]>([]); 
+  const [reserveCards, setReserveCards] = useState<Card[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -47,8 +47,7 @@ export const StudyRoute: React.FC = () => {
             setReserveCards([]);
           }
         } else {
-          // FIX: Create a timeout promise
-          const timeoutPromise = new Promise((_, reject) => 
+          const timeoutPromise = new Promise((_, reject) =>
             setTimeout(() => reject(new Error('Request timed out')), 15000)
           );
 
@@ -59,15 +58,15 @@ export const StudyRoute: React.FC = () => {
             ]),
             timeoutPromise
           ]) as [Card[], { newCards: number; reviewCards: number }];
-          
+
           if (!isMounted) return;
-          
+
           const dailyNewLimit = settings.dailyNewLimits?.[settings.language] ?? 20;
           const dailyReviewLimit = settings.dailyReviewLimits?.[settings.language] ?? 100;
 
           const active: Card[] = [];
           const reserve: Card[] = [];
-          
+
           let newCount = reviewsToday.newCards || 0;
           let reviewCount = reviewsToday.reviewCards || 0;
 
@@ -89,7 +88,7 @@ export const StudyRoute: React.FC = () => {
               if (hasLimit(dailyReviewLimit)) reviewCount++;
             }
           }
-          
+
           setSessionCards(active);
           setReserveCards(reserve);
         }
@@ -125,8 +124,8 @@ export const StudyRoute: React.FC = () => {
 
   const handleDeleteCard = async (id: string) => {
     await deleteCard(id);
-    
-    
+
+
     setSessionCards(prev => prev.filter(c => c.id !== id));
   };
 
@@ -156,7 +155,7 @@ export const StudyRoute: React.FC = () => {
           </div>
           <h2 className="text-lg font-medium">Failed to load study session</h2>
           <p className="text-sm text-muted-foreground">{error}</p>
-          <button 
+          <button
             onClick={() => navigate('/')}
             className="mt-2 px-4 py-2 bg-primary text-primary-foreground rounded-md text-sm"
           >
@@ -168,9 +167,9 @@ export const StudyRoute: React.FC = () => {
   }
 
   return (
-    <StudySession 
+    <StudySession
       dueCards={sessionCards}
-      reserveCards={reserveCards} 
+      reserveCards={reserveCards}
       onUpdateCard={handleUpdateCard}
       onDeleteCard={handleDeleteCard}
       onRecordReview={handleRecordReview}

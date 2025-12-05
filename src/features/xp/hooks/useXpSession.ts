@@ -35,10 +35,8 @@ export const useXpSession = (dailyStreak: number, isCramMode: boolean = false) =
     return result;
   }, [sessionStreak, dailyStreak, isCramMode]);
 
-  // Subtract XP from session (used when undoing a review)
   const subtractXp = useCallback((amount: number) => {
     setSessionXp(prev => Math.max(0, prev - amount));
-    // Also decrement streak since we're undoing the last card
     setSessionStreak(prev => Math.max(0, prev - 1));
   }, []);
 

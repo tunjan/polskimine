@@ -14,10 +14,12 @@ import {
 } from 'lucide-react';
 import { useSettings } from '@/contexts/SettingsContext';
 import { useAuth } from '@/contexts/AuthContext';
+import { useProfile } from '@/contexts/ProfileContext';
 import { useCardOperations } from '@/features/deck/hooks/useCardOperations';
 import { AddCardModal } from '@/features/deck/components/AddCardModal';
 import { SettingsModal } from '@/features/settings/components/SettingsModal';
 import { CramModal } from '@/features/study/components/CramModal';
+import { LanguageId } from '@/types';
 import {
   Sidebar,
   SidebarContent,
@@ -61,13 +63,14 @@ const AppSidebar: React.FC<NavActionProps> = ({
 }) => {
   const location = useLocation();
   const { settings, updateSettings } = useSettings();
-  const { signOut, user, profile } = useAuth();
+  const { signOut, user } = useAuth();
+  const { profile } = useProfile();
 
   const languages = [
-    { code: 'polish', name: 'Polish', Flag: PolishFlag },
-    { code: 'norwegian', name: 'Norwegian', Flag: NorwegianFlag },
-    { code: 'japanese', name: 'Japanese', Flag: JapaneseFlag },
-    { code: 'spanish', name: 'Spanish', Flag: SpanishFlag },
+    { code: LanguageId.Polish, name: 'Polish', Flag: PolishFlag },
+    { code: LanguageId.Norwegian, name: 'Norwegian', Flag: NorwegianFlag },
+    { code: LanguageId.Japanese, name: 'Japanese', Flag: JapaneseFlag },
+    { code: LanguageId.Spanish, name: 'Spanish', Flag: SpanishFlag },
   ] as const;
 
   const currentLanguage = languages.find(lang => lang.code === settings.language) || languages[0];

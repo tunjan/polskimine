@@ -2,13 +2,14 @@ import React, { useState } from 'react';
 import { ArrowRight, Command, ArrowLeft, User as UserIcon } from 'lucide-react';
 import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
+import { useProfile } from '@/contexts/ProfileContext';
 import { useSettings } from '@/contexts/SettingsContext';
 import { LanguageLevelSelector, DeckGenerationStep, AuthLayout } from './components';
 import { LanguageSelector } from './components/LanguageSelector';
 import { generateInitialDeck } from '@/features/deck/services/deckGeneration';
 import { saveAllCards } from '@/services/db/repositories/cardRepository';
 import { updateUserSettings } from '@/services/db/repositories/settingsRepository';
-import { Difficulty, Card, Language } from '@/types';
+import { Difficulty, Card, Language, LanguageId } from '@/types';
 import { GamePanel, GameButton, GameInput, GameLoader } from '@/components/ui/game-ui';
 import { POLISH_BEGINNER_DECK } from '@/features/deck/data/polishBeginnerDeck';
 import { NORWEGIAN_BEGINNER_DECK } from '@/features/deck/data/norwegianBeginnerDeck';
@@ -19,7 +20,8 @@ import { v4 as uuidv4 } from 'uuid';
 type SetupStep = 'username' | 'language' | 'level' | 'deck';
 
 export const AuthPage: React.FC = () => {
-  const { createLocalProfile, markInitialDeckGenerated } = useAuth();
+  const { createLocalProfile, markInitialDeckGenerated } = useProfile();
+
   const { settings, updateSettings } = useSettings();
   const [loading, setLoading] = useState(false);
 
@@ -51,15 +53,12 @@ export const AuthPage: React.FC = () => {
     setLoading(true);
 
     try {
-      // Create local profile
       await createLocalProfile(username.trim(), selectedLevel);
 
-      // Save API key if provided
       if (useAI && apiKey) {
         await updateUserSettings('local-user', { geminiApiKey: apiKey });
       }
 
-      // Generate or load deck
       let cards: Card[] = [];
 
       if (useAI && apiKey) {
@@ -70,11 +69,10 @@ export const AuthPage: React.FC = () => {
         });
         toast.success(`Generated ${cards.length} personalized cards!`);
       } else {
-        // Load static beginner deck
         const rawDeck =
-          settings.language === 'norwegian' ? NORWEGIAN_BEGINNER_DECK :
-            (settings.language === 'japanese' ? JAPANESE_BEGINNER_DECK :
-              (settings.language === 'spanish' ? SPANISH_BEGINNER_DECK : POLISH_BEGINNER_DECK));
+          settings.language === LanguageId.Norwegian ? NORWEGIAN_BEGINNER_DECK :
+            (settings.language === LanguageId.Japanese ? JAPANESE_BEGINNER_DECK :
+              (settings.language === LanguageId.Spanish ? SPANISH_BEGINNER_DECK : POLISH_BEGINNER_DECK));
 
         cards = rawDeck.map(c => ({
           ...c,
@@ -97,7 +95,6 @@ export const AuthPage: React.FC = () => {
     }
   };
 
-  // Render helpers
   const renderHeader = () => (
     <div className="text-center mb-8">
       <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-amber-400/10 border-2 border-amber-400/20 flex items-center justify-center text-amber-400">
@@ -157,7 +154,7 @@ export const AuthPage: React.FC = () => {
           </div>
           <LanguageSelector
             selectedLanguage={settings.language}
-            onSelectLanguage={handleLanguageSelected}
+            onSelect={handleLanguageSelected}
           />
         </GamePanel>
       </AuthLayout>

@@ -9,6 +9,7 @@ import { GamePanel, GameButton, GameDivider } from '@/components/game';
 import { useSettings } from '@/contexts/SettingsContext';
 import { useDeck } from '@/contexts/DeckContext';
 import { useAuth } from '@/contexts/AuthContext';
+import { useProfile } from '@/contexts/ProfileContext';
 import { Language } from '@/types';
 import { ttsService, VoiceOption } from '@/services/tts';
 import {
@@ -37,7 +38,8 @@ type SettingsTab = 'general' | 'audio' | 'study' | 'algorithm' | 'data' | 'dange
 export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
     const { settings, updateSettings, saveApiKeys } = useSettings();
     const { refreshDeckData } = useDeck();
-    const { signOut, profile, updateUsername, updateLanguageLevel } = useAuth();
+    const { signOut } = useAuth();
+    const { profile, updateUsername, updateLanguageLevel } = useProfile();
     const [localSettings, setLocalSettings] = useState(settings);
     const [localUsername, setLocalUsername] = useState('');
     const [activeTab, setActiveTab] = useState<SettingsTab>('general');

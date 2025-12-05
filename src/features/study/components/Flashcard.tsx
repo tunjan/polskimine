@@ -1,15 +1,18 @@
 import React, { useMemo, useEffect, useCallback, useState } from 'react';
-import { Card, Language } from '@/types';
+import { Card, Language, LanguageId } from '@/types';
 import { escapeRegExp, parseFurigana, cn } from '@/lib/utils';
 import { ttsService } from '@/services/tts';
 import { useSettings } from '@/contexts/SettingsContext';
 import { useCardText } from '@/features/deck/hooks/useCardText';
-import { Play, Sparkles, Quote, Mic, Volume2, Plus } from 'lucide-react';
-import { ButtonLoader } from '@/components/ui/game-ui';
-import { Dialog, DialogContent } from '@/components/ui/dialog';
+import { Mic, Volume2 } from 'lucide-react';
 import { aiService } from '@/features/deck/services/ai';
 import { toast } from 'sonner';
 import { v4 as uuidv4 } from 'uuid';
+
+import { FuriganaRenderer } from '@/components/ui/furigana-renderer';
+import { useTextSelection } from '@/features/study/hooks/useTextSelection';
+import { AnalysisModal } from '@/features/study/components/AnalysisModal';
+import { SelectionMenu } from '@/features/study/components/SelectionMenu';
 
 interface FlashcardProps {
   card: Card;
@@ -21,45 +24,13 @@ interface FlashcardProps {
   onAddCard?: (card: Card) => void;
 }
 
-
-const FuriganaText: React.FC<{
-  text: string;
-  className?: string;
-  processText?: (text: string) => string;
-}> = ({ text, className = '', processText = (t) => t }) => {
-  const segments = parseFurigana(text);
-  const hasFurigana = segments.some(s => s.furigana);
-
-  if (!hasFurigana) {
-    return <span className={className}>{processText(text)}</span>;
-  }
-
-  return (
-    <span className={cn(className, "leading-[1.6]")}>
-      {segments.map((segment, i) => {
-        if (segment.furigana) {
-          return (
-            <ruby key={i} className="group/ruby" style={{ rubyAlign: 'center' }}>
-              <span>{processText(segment.text)}</span>
-              <rt className="text-[0.5em] text-muted-foreground/70 select-none opacity-0 group-hover/ruby:opacity-100 transition-opacity duration-500 font-sans font-light tracking-wide text-center" style={{ textAlign: 'center' }}>
-                {processText(segment.furigana)}
-              </rt>
-            </ruby>
-          );
-        }
-        return <span key={i}>{processText(segment.text)}</span>;
-      })}
-    </span>
-  );
-};
-
 export const Flashcard = React.memo<FlashcardProps>(({
   card,
   isFlipped,
   autoPlayAudio = false,
   blindMode = false,
   showTranslation = true,
-  language = 'polish',
+  language = LanguageId.Polish,
   onAddCard
 }) => {
   const { settings } = useSettings();
@@ -69,24 +40,24 @@ export const Flashcard = React.memo<FlashcardProps>(({
   const playSlowRef = React.useRef(playSlow);
   const hasSpokenRef = React.useRef<string | null>(null);
 
+  // Extracted Hooks
+  const { selection, handleMouseUp, clearSelection } = useTextSelection();
 
-  const [selection, setSelection] = useState<{ text: string; top: number; left: number } | null>(null);
+  // Analysis State
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [analysisResult, setAnalysisResult] = useState<{ originalText: string; definition: string; partOfSpeech: string; contextMeaning: string } | null>(null);
   const [isAnalysisOpen, setIsAnalysisOpen] = useState(false);
-
-
   const [isGeneratingCard, setIsGeneratingCard] = useState(false);
 
   useEffect(() => { setIsRevealed(!blindMode); }, [card.id, blindMode]);
   useEffect(() => { if (isFlipped) setIsRevealed(true); }, [isFlipped]);
 
   useEffect(() => {
-    setSelection(null);
+    clearSelection();
     setAnalysisResult(null);
     setIsAnalysisOpen(false);
     setPlaySlow(false);
-  }, [card.id]);
+  }, [card.id, clearSelection]);
 
   useEffect(() => {
     playSlowRef.current = playSlow;
@@ -101,7 +72,6 @@ export const Flashcard = React.memo<FlashcardProps>(({
     const effectiveRate = playSlowRef.current ? Math.max(0.25, settings.tts.rate * 0.6) : settings.tts.rate;
     const effectiveSettings = { ...settings.tts, rate: effectiveRate };
     const plainText = getPlainTextForTTS(card.targetSentence);
-    console.log('TTS speak called:', { plainText, language, effectiveSettings });
     ttsService.speak(plainText, language, effectiveSettings).catch(err => {
       console.error('TTS speak error:', err);
     });
@@ -118,41 +88,17 @@ export const Flashcard = React.memo<FlashcardProps>(({
     if (hasSpokenRef.current !== card.id) {
       hasSpokenRef.current = null;
     }
-    // Only auto-play audio when the card is flipped (showing the back)
     if (autoPlayAudio && isFlipped && hasSpokenRef.current !== card.id) {
       speak();
       hasSpokenRef.current = card.id;
     }
   }, [card.id, autoPlayAudio, isFlipped, speak]);
 
-  const handleMouseUp = useCallback(() => {
-    const sel = window.getSelection();
-    if (!sel || sel.isCollapsed) {
-      setSelection(null);
-      return;
-    }
-    const text = sel.toString().trim();
-    if (!text) return;
-    const range = sel.getRangeAt(0);
-    const rect = range.getBoundingClientRect();
-    setSelection({ text, top: rect.top - 60, left: rect.left + (rect.width / 2) });
-  }, []);
-
-  useEffect(() => {
-    const clear = () => setSelection(null);
-    window.addEventListener('resize', clear);
-    window.addEventListener('scroll', clear, true);
-    return () => {
-      window.removeEventListener('resize', clear);
-      window.removeEventListener('scroll', clear, true);
-    };
-  }, []);
-
   const handleAnalyze = async () => {
     if (!selection) return;
     if (!settings.geminiApiKey) {
       toast.error("API Key required.");
-      setSelection(null);
+      clearSelection();
       return;
     }
     setIsAnalyzing(true);
@@ -160,8 +106,7 @@ export const Flashcard = React.memo<FlashcardProps>(({
       const result = await aiService.analyzeWord(selection.text, card.targetSentence, language, settings.geminiApiKey);
       setAnalysisResult({ ...result, originalText: selection.text });
       setIsAnalysisOpen(true);
-      setSelection(null);
-      window.getSelection()?.removeAllRanges();
+      clearSelection();
     } catch (e) {
       toast.error("Analysis failed.");
     } finally {
@@ -173,12 +118,12 @@ export const Flashcard = React.memo<FlashcardProps>(({
     if (!selection) return;
     if (!settings.geminiApiKey) {
       toast.error("API Key required.");
-      setSelection(null);
+      clearSelection();
       return;
     }
     if (!onAddCard) {
       toast.error("Cannot add card from here.");
-      setSelection(null);
+      clearSelection();
       return;
     }
     setIsGeneratingCard(true);
@@ -186,7 +131,7 @@ export const Flashcard = React.memo<FlashcardProps>(({
       const result = await aiService.generateSentenceForWord(selection.text, language, settings.geminiApiKey);
 
       let targetSentence = result.targetSentence;
-      if (language === 'japanese' && result.furigana) {
+      if (language === LanguageId.Japanese && result.furigana) {
         targetSentence = parseFurigana(result.furigana).map(s => s.text).join("");
       }
 
@@ -211,8 +156,7 @@ export const Flashcard = React.memo<FlashcardProps>(({
 
       onAddCard(newCard);
       toast.success(`Card created for "${selection.text}"`);
-      setSelection(null);
-      window.getSelection()?.removeAllRanges();
+      clearSelection();
     } catch (e) {
       toast.error("Failed to generate card.");
     } finally {
@@ -279,32 +223,30 @@ export const Flashcard = React.memo<FlashcardProps>(({
       );
     }
 
-
     if (!isFlipped && card.targetWord && !settings.showWholeSentenceOnFront) {
-
-      if (language === 'japanese') {
-        const segments = parseFurigana(card.targetWord);
-        const hasFurigana = segments.some(s => s.furigana);
-        if (hasFurigana) {
-          return (
-            <FuriganaText
-              text={card.targetWord}
-              className={baseClasses}
-              processText={processText}
-            />
-          );
-        }
+      if (language === LanguageId.Japanese) {
+        return (
+          <FuriganaRenderer
+            text={card.targetWord}
+            className={baseClasses}
+            processText={processText}
+          />
+        );
       }
       return <p className={baseClasses}>{processText(card.targetWord)}</p>;
     }
 
-    // For Japanese: check both furigana field AND targetSentence for kanji readings
-    // The AI sometimes embeds readings directly in targetSentence like "唐辛子[とうがらし]"
+    // Logic to highlight target text or render Japanese logic
+    // We can simplify this significantly with FuriganaRenderer if adapted, 
+    // but the highlighting logic is specific to text matching. 
+    // For now, keeping the highlighting logic inline is safer to avoid breaking complex regex stuff, 
+    // but we can use FuriganaRenderer for the parts.
+
+    // Actually, let's reuse valid parts.
+
     const hasFuriganaInDedicatedField = card.furigana && /\[.+?\]/.test(card.furigana);
     const hasFuriganaInSentence = card.targetSentence && /\[.+?\]/.test(card.targetSentence);
 
-    // Prefer dedicated furigana field if it has markup and substantial content
-    // Otherwise use targetSentence which may have embedded furigana
     let furiganaSource: string | undefined;
     if (hasFuriganaInDedicatedField) {
       const furiganaPlainText = parseFurigana(card.furigana!).map(s => s.text).join('');
@@ -319,18 +261,26 @@ export const Flashcard = React.memo<FlashcardProps>(({
     if (!furiganaSource) {
       furiganaSource = card.targetSentence;
     }
-    if (language === 'japanese' && furiganaSource) {
+
+    // If Japanese and using furigana...
+    if (language === LanguageId.Japanese && furiganaSource) {
+      // Check if we can use FuriganaRenderer with custom logic?
+      // The original code had complex logic to highlight the target word inside the ruby structure.
+      // FuriganaRenderer renders segments.
+      // To maintain highlighting, we'd need to pass a refined structure or style.
+      // For this refactor, simplest is to allow FuriganaRenderer to take `highlightWord`?
+      // Or just keep the custom render logic here for this specific case as it is core "Game Logic".
+
+      // I will keep the custom logic for Japanese sentence highlighting here as it is very specific.
+
       const segments = parseFurigana(furiganaSource);
       const hasFurigana = segments.some(s => s.furigana);
 
       if (hasFurigana) {
-
         const targetWordPlain = card.targetWord
           ? parseFurigana(card.targetWord).map(s => s.text).join('')
           : null;
 
-        // Build a map of which segments are part of the target word
-        // by finding the target word in the concatenated sentence
         const segmentTexts = segments.map(s => s.text);
         const fullText = segmentTexts.join('');
         const targetIndices = new Set<number>();
@@ -343,7 +293,6 @@ export const Flashcard = React.memo<FlashcardProps>(({
             for (let i = 0; i < segments.length; i++) {
               const segmentStart = charIndex;
               const segmentEnd = charIndex + segments[i].text.length;
-              // Check if this segment overlaps with the target word range
               if (segmentStart < targetEnd && segmentEnd > targetStart) {
                 targetIndices.add(i);
               }
@@ -374,9 +323,7 @@ export const Flashcard = React.memo<FlashcardProps>(({
     }
 
     if (card.targetWord) {
-
       const targetWordPlain = parseFurigana(card.targetWord).map(s => s.text).join('');
-      // Use word boundaries to match only complete words, not substrings within words
       const wordBoundaryRegex = new RegExp(`(\\b${escapeRegExp(targetWordPlain)}\\b)`, 'gi');
       const parts = displayedSentence.split(wordBoundaryRegex);
       return (
@@ -391,7 +338,7 @@ export const Flashcard = React.memo<FlashcardProps>(({
     }
 
     return <p className={baseClasses}>{displayedSentence}</p>;
-  }, [displayedSentence, card.targetWord, card.furigana, isRevealed, language, fontSizeClass, blindMode, speak, isFlipped]);
+  }, [displayedSentence, card.targetWord, card.furigana, isRevealed, language, fontSizeClass, blindMode, speak, isFlipped, card.targetSentence, processText, settings.showWholeSentenceOnFront]);
 
   const containerClasses = cn(
     "relative w-full max-w-7xl mx-auto flex flex-col items-center justify-center h-full"
@@ -405,7 +352,6 @@ export const Flashcard = React.memo<FlashcardProps>(({
           "absolute inset-8 md:inset-16 pointer-events-none transition-all duration-700",
           isFlipped && "scale-[1.02]"
         )}>
-
         </div>
 
         {/* Main content */}
@@ -441,12 +387,11 @@ export const Flashcard = React.memo<FlashcardProps>(({
                 {card.targetWord && (
                   <div className="flex flex-col items-center gap-0.5 mb-1">
                     <div className="flex items-center gap-2">
-                      <FuriganaText
+                      <FuriganaRenderer
                         text={card.targetWord}
                         className="text-xl md:text-2xl font-light text-primary/90"
                         processText={processText}
                       />
-
                     </div>
                     {card.targetWordTranslation && (
                       <span className="text-base text-muted-foreground/80 font-light italic">{card.targetWordTranslation}</span>
@@ -455,7 +400,6 @@ export const Flashcard = React.memo<FlashcardProps>(({
                 )}
 
                 <div className="max-w-3xl">
-
                   <p className={cn(
                     "text-base md:text-xl text-foreground/70 font-light italic text-center leading-relaxed text-balance transition-colors duration-300",
                     isGaslit ? "text-destructive/70" : "group-hover:text-foreground/85"
@@ -473,7 +417,7 @@ export const Flashcard = React.memo<FlashcardProps>(({
 
             {card.notes && (
               <div className="mt-2 pointer-events-auto shrink-0 px-6">
-                <FuriganaText
+                <FuriganaRenderer
                   text={card.notes}
                   className="text-xs font-ui font-light text-foreground text-center tracking-wide leading-relaxed block"
                   processText={processText}
@@ -484,112 +428,23 @@ export const Flashcard = React.memo<FlashcardProps>(({
         )}
       </div>
 
-      {/* Game-styled floating selection menu */}
       {selection && (
-        <div
-          className="fixed z-50 -translate-x-1/2 animate-in fade-in slide-in-from-bottom-2 duration-300 flex gap-1"
-          style={{ top: selection.top, left: selection.left }}
-          onMouseDown={(e) => e.preventDefault()}
-        >
-          <button
-            onClick={handleAnalyze}
-            disabled={isAnalyzing || isGeneratingCard}
-            className="relative bg-card text-foreground px-5 py-2.5 border border-primary/30 hover:border-primary/50 hover:bg-primary/5 transition-all duration-200 text-[10px] font-ui font-medium uppercase tracking-[0.15em] flex items-center gap-2.5"
-          >
-            {/* Corner accents */}
-            <span className="absolute -top-px -left-px w-2 h-2">
-              <span className="absolute top-0 left-0 w-full h-px bg-primary" />
-              <span className="absolute top-0 left-0 h-full w-px bg-primary" />
-            </span>
-            <span className="absolute -bottom-px -right-px w-2 h-2">
-              <span className="absolute bottom-0 right-0 w-full h-px bg-primary" />
-              <span className="absolute bottom-0 right-0 h-full w-px bg-primary" />
-            </span>
-            {isAnalyzing ? <ButtonLoader /> : <Sparkles size={11} strokeWidth={2} className="text-primary" />}
-            <span>Analyze</span>
-          </button>
-          {onAddCard && (
-            <button
-              onClick={handleGenerateCard}
-              disabled={isAnalyzing || isGeneratingCard}
-              className="relative bg-card text-foreground px-5 py-2.5 border border-primary/30 hover:border-primary/50 hover:bg-primary/5 transition-all duration-200 text-[10px] font-ui font-medium uppercase tracking-[0.15em] flex items-center gap-2.5"
-            >
-              {/* Corner accents */}
-              <span className="absolute -top-px -left-px w-2 h-2">
-                <span className="absolute top-0 left-0 w-full h-px bg-primary" />
-                <span className="absolute top-0 left-0 h-full w-px bg-primary" />
-              </span>
-              <span className="absolute -bottom-px -right-px w-2 h-2">
-                <span className="absolute bottom-0 right-0 w-full h-px bg-primary" />
-                <span className="absolute bottom-0 right-0 h-full w-px bg-primary" />
-              </span>
-              {isGeneratingCard ? <ButtonLoader /> : <Plus size={11} strokeWidth={2} className="text-primary" />}
-              <span>Create Card</span>
-            </button>
-          )}
-        </div>
+        <SelectionMenu
+          top={selection.top}
+          left={selection.left}
+          onAnalyze={handleAnalyze}
+          onGenerateCard={onAddCard ? handleGenerateCard : undefined}
+          isAnalyzing={isAnalyzing}
+          isGeneratingCard={isGeneratingCard}
+        />
       )}
 
-      {/* Game-styled analysis modal */}
-      <Dialog open={isAnalysisOpen} onOpenChange={setIsAnalysisOpen}>
-        <DialogContent className="sm:max-w-xl bg-card border border-border p-0 overflow-hidden max-h-[85vh] flex flex-col">
-          {/* Corner accents */}
-          <span className="absolute top-0 left-0 w-4 h-4 pointer-events-none z-10">
-            <span className="absolute top-0 left-0 w-full h-0.5 bg-primary" />
-            <span className="absolute top-0 left-0 h-full w-0.5 bg-primary" />
-          </span>
-          <span className="absolute top-0 right-0 w-4 h-4 pointer-events-none z-10">
-            <span className="absolute top-0 right-0 w-full h-0.5 bg-primary" />
-            <span className="absolute top-0 right-0 h-full w-0.5 bg-primary" />
-          </span>
-          <span className="absolute bottom-0 left-0 w-4 h-4 pointer-events-none z-10">
-            <span className="absolute bottom-0 left-0 w-full h-0.5 bg-primary" />
-            <span className="absolute bottom-0 left-0 h-full w-0.5 bg-primary" />
-          </span>
-          <span className="absolute bottom-0 right-0 w-4 h-4 pointer-events-none z-10">
-            <span className="absolute bottom-0 right-0 w-full h-0.5 bg-primary" />
-            <span className="absolute bottom-0 right-0 h-full w-0.5 bg-primary" />
-          </span>
-
-          <div className="p-8 md:p-10 space-y-8 overflow-y-auto">
-            {/* Header */}
-            <div className="space-y-3 border-b border-border/40 pb-6">
-              <div className="flex justify-between items-start gap-6">
-                <div className="flex items-center gap-3 min-w-0">
-                  <span className="w-2 h-2 rotate-45 bg-primary/60 shrink-0" />
-                  <h2 className="text-3xl md:text-4xl font-light tracking-tight break-words">{analysisResult?.originalText}</h2>
-                </div>
-                <span className="text-[9px] font-ui font-medium uppercase border border-border/60 px-3 py-1.5 text-muted-foreground/80 tracking-[0.15em] whitespace-nowrap shrink-0">
-                  {analysisResult?.partOfSpeech}
-                </span>
-              </div>
-            </div>
-
-            {/* Content sections */}
-            <div className="space-y-6">
-              <div>
-                <div className="flex items-center gap-2 mb-3">
-                  <span className="w-1 h-1 rotate-45 bg-primary/40" />
-                  <span className="text-[9px] font-ui font-medium uppercase tracking-[0.2em] text-muted-foreground/60">Definition</span>
-                </div>
-                <p className="text-lg font-light leading-relaxed text-foreground/90 break-words">{analysisResult?.definition}</p>
-              </div>
-
-              <div className="pt-4">
-                <div className="flex items-center gap-2 mb-3">
-                  <Quote size={11} strokeWidth={1.5} className="text-muted-foreground/50" />
-                  <span className="text-[9px] font-ui font-medium uppercase tracking-[0.2em] text-muted-foreground/60">In This Context</span>
-                </div>
-                <div className="relative pl-4 border-l-2 border-primary/20">
-                  <p className="text-base italic text-muted-foreground/75 leading-relaxed break-words">
-                    {analysisResult?.contextMeaning}
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </DialogContent>
-      </Dialog>
+      <AnalysisModal
+        isOpen={isAnalysisOpen}
+        onClose={setIsAnalysisOpen}
+        result={analysisResult}
+      />
     </>
   );
 });
+

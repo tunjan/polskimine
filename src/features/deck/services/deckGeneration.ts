@@ -7,10 +7,6 @@ export interface GenerateInitialDeckOptions {
     apiKey?: string;
 }
 
-/**
- * Generate a personalized initial deck using Gemini AI via aiService
- * Uses parallel micro-batching for faster generation and better variety
- */
 export async function generateInitialDeck(options: GenerateInitialDeckOptions): Promise<Card[]> {
     if (!options.apiKey) {
         throw new Error('API Key is required for AI deck generation');
@@ -20,7 +16,6 @@ export async function generateInitialDeck(options: GenerateInitialDeckOptions): 
         const totalCards = 50;
         const batchSize = 10;
 
-        // Create 5 varied prompts to ensure diversity
         const topics = [
             "Casual Greetings & Meeting New Friends (informal)",
             "Ordering Coffee, Pastries & Restaurant Basics",
@@ -29,7 +24,6 @@ export async function generateInitialDeck(options: GenerateInitialDeckOptions): 
             "Essential Health & Emergency Phrases (Safety First)"
         ];
 
-        // Fire 5 parallel requests for 10 cards each
         const promises = topics.map((topic) =>
             aiService.generateBatchCards({
                 language: options.language,
@@ -39,7 +33,6 @@ export async function generateInitialDeck(options: GenerateInitialDeckOptions): 
             })
         );
 
-        // Wait for all batches to finish
         const results = await Promise.all(promises);
         const generatedData = results.flat();
 
@@ -47,7 +40,6 @@ export async function generateInitialDeck(options: GenerateInitialDeckOptions): 
             throw new Error('Invalid response format from AI service');
         }
 
-        // Convert raw AI response to full Card objects
         const now = Date.now();
         const cards: Card[] = generatedData.map((card: any, index: number) => ({
             id: crypto.randomUUID(),
@@ -64,7 +56,6 @@ export async function generateInitialDeck(options: GenerateInitialDeckOptions): 
             status: 'new' as const,
             interval: 0,
             easeFactor: 2.5,
-            // Stagger due dates by 1 second to ensure they are reviewed in the generated order
             dueDate: new Date(now + index * 1000).toISOString(),
             tags: [options.proficiencyLevel, 'Starter', 'AI-Gen'],
         }));

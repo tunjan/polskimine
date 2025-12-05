@@ -1,21 +1,16 @@
 import { db } from '@/services/db/dexie';
-import { ReviewHistory } from '@/types';
+import { ReviewHistory, Language, LanguageId } from '@/types';
 import { format } from 'date-fns';
 
-type Language = keyof ReviewHistory | string;
-
 export const getHistory = async (language?: Language): Promise<ReviewHistory> => {
-  // Get review logs
   let logs = await db.revlog.toArray();
 
-  // If language specified, filter by cards in that language
   if (language) {
     const cards = await db.cards.where('language').equals(language).toArray();
     const cardIds = new Set(cards.map(c => c.id));
     logs = logs.filter(log => cardIds.has(log.card_id));
   }
 
-  // Build history object
   return logs.reduce<ReviewHistory>((acc, entry) => {
     const dateKey = format(new Date(entry.created_at), 'yyyy-MM-dd');
     acc[dateKey] = (acc[dateKey] || 0) + 1;
@@ -26,9 +21,8 @@ export const getHistory = async (language?: Language): Promise<ReviewHistory> =>
 export const incrementHistory = async (
   date: string,
   delta: number = 1,
-  language: Language = 'polish'
+  language: Language = LanguageId.Polish
 ) => {
-  // Get existing history entry
   const existing = await db.history.get({ date, language });
 
   if (existing) {
@@ -44,11 +38,11 @@ export const incrementHistory = async (
   }
 };
 
-export const saveFullHistory = async (history: ReviewHistory, language: Language = 'polish') => {
+export const saveFullHistory = async (history: ReviewHistory, language: Language = LanguageId.Polish) => {
   const entries = Object.entries(history).map(([date, count]) => ({
     date,
     language,
-    count
+    count: typeof count === 'number' ? count : 0
   }));
 
   if (entries.length === 0) return;

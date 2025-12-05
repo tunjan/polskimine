@@ -14,8 +14,6 @@ export const MusicProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const [volume, setVolume] = useState(0.3);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
-  // Using a placeholder path. Please place a file named 'medieval.mp3' in 'public/music/'
-  // or update this URL to a valid audio source.
   const MUSIC_URL = '/music/medieval.mp3';
 
   useEffect(() => {
@@ -23,7 +21,6 @@ export const MusicProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     audioRef.current.loop = true;
     audioRef.current.volume = volume;
 
-    // Attempt to play if isPlaying is true (might be blocked by browser policy)
     if (isPlaying) {
       audioRef.current.play().catch(e => {
         console.log("Autoplay prevented:", e);

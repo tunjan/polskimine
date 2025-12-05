@@ -7,38 +7,17 @@ import { Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip
 import { Sparkles, Check, X as XIcon, ArrowRight, BookOpen, Info, ChevronDown, Star, Scroll } from 'lucide-react';
 import { aiService } from '@/features/deck/services/ai';
 import { useSettings } from '@/contexts/SettingsContext';
-import { useAuth } from '@/contexts/AuthContext';
+import { useProfile } from '@/contexts/ProfileContext';
 import { getLearnedWords } from '@/services/db/repositories/cardRepository';
 import { Card } from '@/types';
 import { v4 as uuidv4 } from 'uuid';
 import { toast } from 'sonner';
 import { parseFurigana, cn } from '@/lib/utils';
 import { Textarea } from '@/components/ui/textarea';
+import { GenshinCorner } from '@/components/game/GamePanel';
 
-// Genshin-style ornate corner SVG
-const GenshinCorner = ({ className }: { className?: string }) => (
-    <svg
-        width="48"
-        height="48"
-        viewBox="0 0 48 48"
-        fill="none"
-        xmlns="http://www.w3.org/2000/svg"
-        className={className}
-    >
-        <path d="M0 0H36V2H2V36H0V0Z" fill="currentColor" />
-        <path d="M5 5H24V6.5H6.5V24H5V5Z" fill="currentColor" opacity="0.6" />
-        <rect x="28" y="5" width="4" height="1.5" fill="currentColor" opacity="0.5" />
-        <rect x="34" y="5" width="1.5" height="1.5" fill="currentColor" opacity="0.5" />
-        <rect x="5" y="28" width="1.5" height="4" fill="currentColor" opacity="0.5" />
-        <rect x="5" y="34" width="1.5" height="1.5" fill="currentColor" opacity="0.5" />
-        <rect x="40" y="0" width="6" height="2" fill="currentColor" opacity="0.4" />
-        <rect x="0" y="40" width="2" height="6" fill="currentColor" opacity="0.4" />
-        <path d="M46 1L47 2L46 3L45 2Z" fill="currentColor" opacity="0.6" />
-        <path d="M1 46L2 47L3 46L2 45Z" fill="currentColor" opacity="0.6" />
-    </svg>
-);
 
-// Genshin-style animated loader
+
 const GenshinLoader = () => (
     <div className="relative w-10 h-10">
         <div
@@ -53,7 +32,6 @@ const GenshinLoader = () => (
     </div>
 );
 
-// Diamond divider component
 const DiamondDivider = ({ className }: { className?: string }) => (
     <div className={cn("flex items-center gap-3", className)}>
         <span className="flex-1 h-px bg-amber-600/20" />
@@ -72,7 +50,7 @@ interface GenerateCardsModalProps {
 
 export const GenerateCardsModal: React.FC<GenerateCardsModalProps> = ({ isOpen, onClose, onAddCards }) => {
     const { settings } = useSettings();
-    const { profile } = useAuth();
+    const { profile } = useProfile();
     const [step, setStep] = useState<'config' | 'preview'>('config');
     const [loading, setLoading] = useState(false);
 
@@ -203,7 +181,6 @@ export const GenerateCardsModal: React.FC<GenerateCardsModalProps> = ({ isOpen, 
             let derivedLevel = selectedLevel;
 
             if (learnedWords.length === 0) {
-                // Fallback for absolute beginners
                 const starters = [
                     "Basic Greetings & Introductions",
                     "Ordering Food & Drink",
@@ -219,8 +196,7 @@ export const GenerateCardsModal: React.FC<GenerateCardsModalProps> = ({ isOpen, 
                 topicInstructions = `Create a structured lesson that reviews and expands upon these known words: ${selected.join(', ')}. Create sentences that place these words in new contexts or combine them.`;
             }
 
-            setInstructions(topicInstructions); // Visual feedback
-
+            setInstructions(topicInstructions);
             const results = await aiService.generateBatchCards({
                 instructions: topicInstructions,
                 count: count[0],

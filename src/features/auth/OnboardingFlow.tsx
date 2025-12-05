@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
 import { useSettings } from '@/contexts/SettingsContext';
 import { useAuth } from '@/contexts/AuthContext';
+import { useProfile } from '@/contexts/ProfileContext';
 import { LanguageLevelSelector } from './components/LanguageLevelSelector';
 import { LanguageSelector } from './components/LanguageSelector';
 import { DeckGenerationStep } from './components/DeckGenerationStep';
-import { Difficulty, Card, Language } from '@/types';
+import { Difficulty, Card, Language, LanguageId } from '@/types';
 import { toast } from 'sonner';
 import { updateUserSettings } from '@/services/db/repositories/settingsRepository';
 import { generateInitialDeck } from '@/features/deck/services/deckGeneration';
@@ -17,7 +18,8 @@ import { SPANISH_BEGINNER_DECK } from '@/features/deck/data/spanishBeginnerDeck'
 import { v4 as uuidv4 } from 'uuid';
 
 export const OnboardingFlow: React.FC = () => {
-  const { user, markInitialDeckGenerated, signOut } = useAuth();
+  const { user, signOut } = useAuth();
+  const { markInitialDeckGenerated } = useProfile();
   const { settings, updateSettings } = useSettings();
   const [step, setStep] = useState<'language' | 'level' | 'deck'>('language');
   const [selectedLevel, setSelectedLevel] = useState<Difficulty | null>(null);
@@ -53,9 +55,9 @@ export const OnboardingFlow: React.FC = () => {
       } else {
 
         const rawDeck =
-          settings.language === 'norwegian' ? NORWEGIAN_BEGINNER_DECK :
-            (settings.language === 'japanese' ? JAPANESE_BEGINNER_DECK :
-              (settings.language === 'spanish' ? SPANISH_BEGINNER_DECK : POLISH_BEGINNER_DECK));
+          settings.language === LanguageId.Norwegian ? NORWEGIAN_BEGINNER_DECK :
+            (settings.language === LanguageId.Japanese ? JAPANESE_BEGINNER_DECK :
+              (settings.language === LanguageId.Spanish ? SPANISH_BEGINNER_DECK : POLISH_BEGINNER_DECK));
 
         cards = rawDeck.map(c => ({
           ...c,
@@ -117,7 +119,7 @@ export const OnboardingFlow: React.FC = () => {
         {step === 'language' && (
           <LanguageSelector
             selectedLanguage={settings.language}
-            onSelectLanguage={handleLanguageSelected}
+            onSelect={handleLanguageSelected}
           />
         )}
 

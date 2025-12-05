@@ -10,13 +10,11 @@ export const useCardsQuery = (page = 0, pageSize = 50, searchTerm = '') => {
   return useQuery({
     queryKey: ['cards', language, page, pageSize, searchTerm],
     queryFn: async () => {
-      // Get all cards for language
       let cards = await db.cards
         .where('language')
         .equals(language)
         .toArray();
 
-      // Simple search filter if searchTerm provided
       if (searchTerm) {
         const term = searchTerm.toLowerCase();
         cards = cards.filter(c =>
@@ -27,10 +25,8 @@ export const useCardsQuery = (page = 0, pageSize = 50, searchTerm = '') => {
         );
       }
 
-      // Sort by dueDate descending (newest first)
       cards.sort((a, b) => b.dueDate.localeCompare(a.dueDate));
 
-      // Paginate
       const start = page * pageSize;
       const end = start + pageSize;
       const paginatedCards = cards.slice(start, end);

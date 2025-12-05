@@ -5,6 +5,7 @@ import { v4 as uuidv4 } from 'uuid';
 
 import { db } from '@/services/db/dexie';
 import { useSettings } from '@/contexts/SettingsContext';
+import { LanguageId } from '@/types';
 import {
     deleteCardsByLanguage,
     saveAllCards,
@@ -27,17 +28,14 @@ export const useAccountManagement = () => {
             return;
         }
         try {
-            // Delete cards for current language
             await deleteCardsByLanguage(settings.language);
 
-            // Clear history for language
             await clearHistory(settings.language);
 
-            // Load starter deck
             const rawDeck =
-                settings.language === 'norwegian' ? NORWEGIAN_BEGINNER_DECK :
-                    (settings.language === 'japanese' ? JAPANESE_BEGINNER_DECK :
-                        (settings.language === 'spanish' ? SPANISH_BEGINNER_DECK : POLISH_BEGINNER_DECK));
+                settings.language === LanguageId.Norwegian ? NORWEGIAN_BEGINNER_DECK :
+                    (settings.language === LanguageId.Japanese ? JAPANESE_BEGINNER_DECK :
+                        (settings.language === LanguageId.Spanish ? SPANISH_BEGINNER_DECK : POLISH_BEGINNER_DECK));
             const deck = rawDeck.map(c => ({ ...c, id: uuidv4(), dueDate: new Date().toISOString() }));
             await saveAllCards(deck);
 
@@ -57,7 +55,6 @@ export const useAccountManagement = () => {
         }
 
         try {
-            // Clear all local data
             await db.cards.clear();
             await db.revlog.clear();
             await db.history.clear();

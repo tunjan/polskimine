@@ -96,14 +96,12 @@ export const CardsRoute: React.FC = () => {
     const allSelected = allCurrentPageIds.every(id => selectedIds.has(id));
 
     if (allSelected) {
-      // Deselect all on this page
       setSelectedIds(prev => {
         const next = new Set(prev);
         allCurrentPageIds.forEach(id => next.delete(id));
         return next;
       });
     } else {
-      // Select all on this page
       setSelectedIds(prev => {
         const next = new Set(prev);
         allCurrentPageIds.forEach(id => next.add(id));

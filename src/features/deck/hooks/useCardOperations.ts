@@ -101,7 +101,6 @@ export const useCardOperations = (): CardOperations => {
   const prioritizeCards = useCallback(
     async (ids: string[]) => {
       try {
-        // Update cards directly in Dexie
         await db.cards
           .where('id')
           .anyOf(ids)

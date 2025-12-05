@@ -30,20 +30,30 @@ export const addReviewLog = async (
   };
 
   await db.revlog.add(entry);
+
+  // Increment aggregated stats atomically
+  // Import incrementStat dynamically to avoid circular dependency
+  const { incrementStat } = await import('./aggregatedStatsRepository');
+
+  // Increment language-specific stats
+  await incrementStat(card.language, 'total_xp', 10);
+  await incrementStat(card.language, 'total_reviews', 1);
+
+  // Increment global stats
+  await incrementStat('global', 'total_xp', 10);
+  await incrementStat('global', 'total_reviews', 1);
 };
 
+
 export const getAllReviewLogs = async (language?: string): Promise<ReviewLog[]> => {
-  // Get all review logs
   let logs = await db.revlog.toArray();
 
-  // If language specified, filter by cards in that language
   if (language) {
     const cards = await db.cards.where('language').equals(language).toArray();
     const cardIds = new Set(cards.map(c => c.id));
     logs = logs.filter(log => cardIds.has(log.card_id));
   }
 
-  // Sort by created_at ascending
   logs.sort((a, b) => a.created_at.localeCompare(b.created_at));
 
   return logs as unknown as ReviewLog[];

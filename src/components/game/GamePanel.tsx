@@ -1,7 +1,6 @@
 import * as React from "react"
 import { cn } from "@/lib/utils"
 
-/** Ornate corner accent - elegant Genshin-style frame */
 export const GenshinCorner = ({ className, ...props }: React.ComponentProps<"svg">) => (
     <svg
         width="48"
@@ -58,18 +57,15 @@ export function GamePanel({
                 "relative group/panel",
                 "bg-card",
 
-                // Border styles based on variant
                 variant === 'default' && "border-2 border-amber-700/20 dark:border-amber-700/25",
                 variant === 'highlight' && "border-2 border-amber-700/40 dark:border-amber-400/35",
                 variant === 'stat' && "border border-amber-700/15 dark:border-amber-700/20",
                 variant === 'ornate' && "border-2 border-amber-700/50 dark:border-amber-400/40",
 
-                // Padding based on size
                 size === 'sm' && "p-3",
                 size === 'md' && "p-4 md:p-5",
                 size === 'lg' && "p-5 md:p-6",
 
-                // Hover glow effect (flat - just border color change)
                 glowOnHover && "transition-colors duration-200 ",
 
                 className

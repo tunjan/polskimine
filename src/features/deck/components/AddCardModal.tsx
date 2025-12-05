@@ -1,12 +1,13 @@
 import React, { useState, useEffect, useMemo, useRef } from "react";
 import { ArrowRight, Sparkles, Scroll, BookOpen, PenLine, Languages, Tag, FileText } from "lucide-react";
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
-import { Card } from "@/types";
+import { Card, LanguageId } from "@/types";
 import { v4 as uuidv4 } from "uuid";
 import { toast } from "sonner";
 import { aiService } from "@/features/deck/services/ai";
 import { escapeRegExp, parseFurigana, cn } from "@/lib/utils";
 import { useSettings } from "@/contexts/SettingsContext";
+import { GenshinCorner } from "@/components/game/GamePanel";
 
 interface AddCardModalProps {
     isOpen: boolean;
@@ -15,31 +16,8 @@ interface AddCardModalProps {
     initialCard?: Card;
 }
 
-/** Ornate corner accent SVG - Genshin-style decorative frame corner */
-const GenshinCorner = ({ className }: { className?: string }) => (
-    <svg
-        width="40"
-        height="40"
-        viewBox="0 0 40 40"
-        fill="none"
-        xmlns="http://www.w3.org/2000/svg"
-        className={className}
-    >
-        {/* Primary Corner Bracket */}
-        <path d="M0 0H30V1.5H1.5V30H0V0Z" fill="currentColor" />
-        {/* Secondary Inner Bracket */}
-        <path d="M4 4H20V5H5V20H4V4Z" fill="currentColor" opacity="0.5" />
-        {/* Small Accents along top */}
-        <rect x="24" y="4" width="3" height="1" fill="currentColor" opacity="0.4" />
-        {/* Small Accents along side */}
-        <rect x="4" y="24" width="1" height="3" fill="currentColor" opacity="0.4" />
-        {/* Floating diamonds at ends */}
-        <path d="M34 1L35 2L34 3L33 2Z" fill="currentColor" opacity="0.5" />
-        <path d="M1 34L2 35L1 36L0 35Z" fill="currentColor" opacity="0.5" />
-    </svg>
-);
 
-/** Diamond divider - Genshin-style ornamental separator */
+
 const DiamondDivider = ({ className }: { className?: string }) => (
     <div className={cn("flex items-center gap-2", className)}>
         <span className="flex-1 h-px bg-amber-600/30" />
@@ -112,7 +90,7 @@ export const AddCardModal: React.FC<AddCardModalProps> = ({ isOpen, onClose, onA
             if (isMounted.current) {
                 setForm(prev => ({
                     ...prev,
-                    sentence: (targetLanguage === 'japanese' && result.furigana) ? result.furigana : prev.sentence,
+                    sentence: (targetLanguage === LanguageId.Japanese && result.furigana) ? result.furigana : prev.sentence,
                     translation: result.translation,
                     targetWord: result.targetWord || prev.targetWord,
                     targetWordTranslation: result.targetWordTranslation || prev.targetWordTranslation,
@@ -147,7 +125,7 @@ export const AddCardModal: React.FC<AddCardModalProps> = ({ isOpen, onClose, onA
         let targetSentence = form.sentence;
         let furigana = form.furigana || undefined;
 
-        if (targetLanguage === 'japanese') {
+        if (targetLanguage === LanguageId.Japanese) {
             furigana = form.sentence;
             targetSentence = parseFurigana(form.sentence).map(s => s.text).join("");
         }
@@ -174,7 +152,7 @@ export const AddCardModal: React.FC<AddCardModalProps> = ({ isOpen, onClose, onA
 
         const targetLanguage = initialCard?.language || settings.language;
 
-        if (targetLanguage === 'japanese') {
+        if (targetLanguage === LanguageId.Japanese) {
             const segments = parseFurigana(form.sentence);
             return (
                 <div className="mt-4 text-xl font-light text-amber-100/60 dark:text-amber-200/50 select-none">

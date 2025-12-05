@@ -17,7 +17,6 @@ interface CardListProps {
   onToggleSelect: (id: string, index: number, isShift: boolean) => void;
   onSelectAll: () => void;
 
-  // Pagination props
   page?: number;
   totalPages?: number;
   totalCount?: number;
@@ -40,7 +39,6 @@ export const CardList: React.FC<CardListProps> = ({
   totalCount = 0,
   onPageChange,
 }) => {
-  // Convert Set<string> to RowSelectionState for TanStack Table
   const rowSelection = useMemo(() => {
     const state: RowSelectionState = {};
     selectedIds.forEach((id) => {
@@ -49,13 +47,10 @@ export const CardList: React.FC<CardListProps> = ({
     return state;
   }, [selectedIds]);
 
-  // Handle row selection changes from the table
   const handleRowSelectionChange = (newSelection: RowSelectionState) => {
-    // Find which rows changed
     const newSelectedIds = new Set(Object.keys(newSelection).filter(id => newSelection[id]));
     const currentSelectedIds = selectedIds;
 
-    // Find added IDs
     newSelectedIds.forEach(id => {
       if (!currentSelectedIds.has(id)) {
         const index = cards.findIndex(c => c.id === id);
@@ -65,7 +60,6 @@ export const CardList: React.FC<CardListProps> = ({
       }
     });
 
-    // Find removed IDs
     currentSelectedIds.forEach(id => {
       if (!newSelectedIds.has(id)) {
         const index = cards.findIndex(c => c.id === id);
@@ -76,7 +70,6 @@ export const CardList: React.FC<CardListProps> = ({
     });
   };
 
-  // Column definitions with actions
   const columns = useMemo(
     () => getCardColumns({
       onEditCard,
@@ -87,7 +80,6 @@ export const CardList: React.FC<CardListProps> = ({
     [onEditCard, onDeleteCard, onViewHistory, onPrioritizeCard]
   );
 
-  // Empty state
   if (cards.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center h-[60vh]">
@@ -147,7 +139,6 @@ export const CardList: React.FC<CardListProps> = ({
         searchColumn="targetSentence"
         pageSize={50}
         onRowClick={onViewHistory}
-        // Manual pagination
         manualPagination={true}
         pageCount={totalPages}
         pageIndex={page}

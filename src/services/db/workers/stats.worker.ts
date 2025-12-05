@@ -6,63 +6,158 @@ interface Log {
   card_id: string;
 }
 
-interface WorkerInput {
+interface ActivityWorkerInput {
+  action: 'calculate_activity';
   logs: Log[];
   days: number;
   cardIds: string[];
 }
 
+interface StreakWorkerInput {
+  action: 'calculate_streaks';
+  history: Record<string, number>; // date string to review count
+  todayStr: string;
+  yesterdayStr: string;
+}
+
+type WorkerInput = ActivityWorkerInput | StreakWorkerInput;
+
 self.onmessage = (e: MessageEvent<WorkerInput>) => {
-  const { logs, days, cardIds } = e.data;
-  const cardIdSet = new Set(cardIds);
+  const input = e.data;
 
-  // Filter logs
-  const filteredLogs = logs.filter(log => cardIdSet.has(log.card_id));
+  if (input.action === 'calculate_activity') {
+    // Original activity calculation logic
+    const { logs, days, cardIds } = input;
+    const cardIdSet = new Set(cardIds);
 
-  const activityMap = new Map<string, { date: string; count: number; pass: number; fail: number }>();
-  const gradeCounts = { Again: 0, Hard: 0, Good: 0, Easy: 0 };
+    const filteredLogs = logs.filter(log => cardIdSet.has(log.card_id));
 
-  const now = new Date();
+    const activityMap = new Map<string, { date: string; count: number; pass: number; fail: number }>();
+    const gradeCounts = { Again: 0, Hard: 0, Good: 0, Easy: 0 };
 
-  for (let i = 0; i < days; i++) {
-    const d = subDays(now, i);
-    const key = format(d, 'yyyy-MM-dd');
-    activityMap.set(key, { 
-      date: key, 
-      count: 0, 
-      pass: 0, 
-      fail: 0 
+    const now = new Date();
+
+    for (let i = 0; i < days; i++) {
+      const d = subDays(now, i);
+      const key = format(d, 'yyyy-MM-dd');
+      activityMap.set(key, {
+        date: key,
+        count: 0,
+        pass: 0,
+        fail: 0
+      });
+    }
+
+    filteredLogs.forEach(log => {
+      const date = new Date(log.created_at);
+      const key = format(date, 'yyyy-MM-dd');
+
+      if (activityMap.has(key)) {
+        const entry = activityMap.get(key)!;
+        entry.count++;
+        if (log.grade === 1) {
+          entry.fail++;
+        } else {
+          entry.pass++;
+        }
+      }
+
+      if (log.grade === 1) gradeCounts.Again++;
+      else if (log.grade === 2) gradeCounts.Hard++;
+      else if (log.grade === 3) gradeCounts.Good++;
+      else if (log.grade === 4) gradeCounts.Easy++;
     });
-  }
 
-  filteredLogs.forEach(log => {
-    const date = new Date(log.created_at);
-    const key = format(date, 'yyyy-MM-dd');
-    
-    if (activityMap.has(key)) {
-      const entry = activityMap.get(key)!;
-      entry.count++;
-      if (log.grade === 1) {
-        entry.fail++;
+    const activityData = Array.from(activityMap.values()).sort((a, b) =>
+      a.date.localeCompare(b.date)
+    );
+
+    self.postMessage({
+      activityData,
+      gradeCounts,
+      totalReviews: filteredLogs.length
+    });
+  } else if (input.action === 'calculate_streaks') {
+    // New streak calculation logic (moved from DeckStatsContext)
+    const { history, todayStr, yesterdayStr } = input;
+
+    if (!history || Object.keys(history).length === 0) {
+      self.postMessage({
+        currentStreak: 0,
+        longestStreak: 0,
+        totalReviews: 0
+      });
+      return;
+    }
+
+    // Sort dates once for efficient processing
+    const sortedDates = Object.keys(history).sort();
+
+    // Calculate total reviews
+    const totalReviews = Object.values(history).reduce(
+      (acc, val) => acc + (typeof val === 'number' ? val : 0),
+      0
+    );
+
+    // Calculate longest streak using sorted dates (O(n) instead of O(n²))
+    let longestStreak = 1;
+    let tempStreak = 1;
+
+    for (let i = 1; i < sortedDates.length; i++) {
+      const prev = new Date(sortedDates[i - 1]);
+      const curr = new Date(sortedDates[i]);
+      const diffDays = Math.round((curr.getTime() - prev.getTime()) / (1000 * 60 * 60 * 24));
+
+      if (diffDays === 1) {
+        tempStreak++;
+        longestStreak = Math.max(longestStreak, tempStreak);
       } else {
-        entry.pass++;
+        tempStreak = 1;
       }
     }
 
-    if (log.grade === 1) gradeCounts.Again++;
-    else if (log.grade === 2) gradeCounts.Hard++;
-    else if (log.grade === 3) gradeCounts.Good++;
-    else if (log.grade === 4) gradeCounts.Easy++;
-  });
+    // Calculate current streak from today/yesterday backwards
+    let currentStreak = 0;
 
-  const activityData = Array.from(activityMap.values()).sort((a, b) => 
-    a.date.localeCompare(b.date)
-  );
+    // Find starting point for current streak count
+    const hasToday = history[todayStr];
+    const hasYesterday = history[yesterdayStr];
 
-  self.postMessage({
-    activityData,
-    gradeCounts,
-    totalReviews: filteredLogs.length
-  });
+    if (hasToday || hasYesterday) {
+      // Start counting from either today or yesterday
+      currentStreak = 1;
+
+      // Count consecutive days backwards using Set for O(1) lookup
+      const dateSet = new Set(sortedDates);
+
+      // Start from the day before today or yesterday (whichever we found)
+      const startDateStr = hasToday ? todayStr : yesterdayStr;
+      let checkDate = new Date(startDateStr);
+      checkDate.setDate(checkDate.getDate() - 1);
+
+      // Limit to prevent infinite loops (reasonable max: 10 years)
+      const maxDays = Math.min(sortedDates.length, 3650);
+
+      for (let i = 0; i < maxDays; i++) {
+        const year = checkDate.getFullYear();
+        const month = String(checkDate.getMonth() + 1).padStart(2, '0');
+        const day = String(checkDate.getDate()).padStart(2, '0');
+        const dateStr = `${year}-${month}-${day}`;
+
+        if (dateSet.has(dateStr)) {
+          currentStreak++;
+          checkDate.setDate(checkDate.getDate() - 1);
+        } else {
+          break;
+        }
+      }
+    }
+
+    self.postMessage({
+      currentStreak,
+      longestStreak,
+      totalReviews
+    });
+  }
 };
 

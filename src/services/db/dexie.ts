@@ -2,7 +2,6 @@ import Dexie, { Table } from 'dexie';
 import { Card, ReviewLog } from '@/types';
 import { State } from 'ts-fsrs';
 
-// Profile for local user (singleton)
 export interface LocalProfile {
     id: string;
     username: string;
@@ -15,7 +14,6 @@ export interface LocalProfile {
     updated_at: string;
 }
 
-// Review log entry for Dexie
 export interface RevlogEntry {
     id: string;
     card_id: string;
@@ -28,14 +26,12 @@ export interface RevlogEntry {
     created_at: string;
 }
 
-// Study history entry
 export interface HistoryEntry {
     date: string;
     language: string;
     count: number;
 }
 
-// Settings stored locally
 export interface LocalSettings {
     id: string;
     gemini_api_key?: string;
@@ -44,51 +40,129 @@ export interface LocalSettings {
     azure_region?: string;
 }
 
+export interface AggregatedStat {
+    id: string;          // composite key: `${language}:${metric}` or `global:${metric}`
+    language: string;    // language code or 'global'
+    metric: string;      // 'total_xp', 'total_reviews', etc.
+    value: number;       // the aggregated value
+    updated_at: string;  // ISO timestamp
+}
+
 class LinguaFlowDB extends Dexie {
     cards!: Table<Card>;
     revlog!: Table<RevlogEntry>;
     history!: Table<HistoryEntry>;
     profile!: Table<LocalProfile>;
     settings!: Table<LocalSettings>;
+    aggregated_stats!: Table<AggregatedStat>;
 
     constructor() {
         super('linguaflow-dexie');
 
-        this.version(1).stores({
-            // Card indexes for efficient queries
-            cards: 'id, status, language, dueDate, isBookmarked, [status+language], [language+status]',
-
-            // Review log for SRS history
+        // Version 2 schema (existing)
+        this.version(2).stores({
+            cards: 'id, status, language, dueDate, isBookmarked, [status+language], [language+status], [language+status+interval]',
             revlog: 'id, card_id, created_at, [card_id+created_at]',
-
-            // Study history by date and language
             history: '[date+language], date, language',
-
-            // Profile singleton (id = 'local')
             profile: 'id',
-
-            // Settings singleton (id = 'local')
             settings: 'id'
+        });
+
+        // Version 3: Add aggregated_stats table
+        this.version(3).stores({
+            cards: 'id, status, language, dueDate, isBookmarked, [status+language], [language+status], [language+status+interval]',
+            revlog: 'id, card_id, created_at, [card_id+created_at]',
+            history: '[date+language], date, language',
+            profile: 'id',
+            settings: 'id',
+            aggregated_stats: 'id, [language+metric], updated_at'
+        }).upgrade(async (tx) => {
+            // Backfill aggregated stats from existing data
+            console.log('[Migration] Starting aggregated_stats backfill...');
+
+            // Get unique languages from cards
+            const allCards = await tx.table<Card>('cards').toArray();
+            const languages = Array.from(new Set(allCards.map(c => c.language)));
+
+            // For each language, calculate XP and total reviews
+            for (const language of languages) {
+                const cardIds = new Set(
+                    allCards.filter(c => c.language === language).map(c => c.id)
+                );
+
+                let totalXp = 0;
+                let totalReviews = 0;
+
+                // Count reviews for this language
+                await tx.table<RevlogEntry>('revlog').each(log => {
+                    if (cardIds.has(log.card_id)) {
+                        totalXp += 10; // 10 XP per review
+                        totalReviews++;
+                    }
+                });
+
+                // Write aggregated stats
+                await tx.table<AggregatedStat>('aggregated_stats').bulkAdd([
+                    {
+                        id: `${language}:total_xp`,
+                        language,
+                        metric: 'total_xp',
+                        value: totalXp,
+                        updated_at: new Date().toISOString()
+                    },
+                    {
+                        id: `${language}:total_reviews`,
+                        language,
+                        metric: 'total_reviews',
+                        value: totalReviews,
+                        updated_at: new Date().toISOString()
+                    }
+                ]);
+
+                console.log(`[Migration] Backfilled stats for ${language}: ${totalXp} XP, ${totalReviews} reviews`);
+            }
+
+            // Global stats
+            let globalXp = 0;
+            let globalReviews = 0;
+            await tx.table<RevlogEntry>('revlog').each(() => {
+                globalXp += 10;
+                globalReviews++;
+            });
+
+            await tx.table<AggregatedStat>('aggregated_stats').bulkAdd([
+                {
+                    id: 'global:total_xp',
+                    language: 'global',
+                    metric: 'total_xp',
+                    value: globalXp,
+                    updated_at: new Date().toISOString()
+                },
+                {
+                    id: 'global:total_reviews',
+                    language: 'global',
+                    metric: 'total_reviews',
+                    value: globalReviews,
+                    updated_at: new Date().toISOString()
+                }
+            ]);
+
+            console.log('[Migration] Aggregated stats backfill complete!');
         });
     }
 }
 
-// Single DB instance
 export const db = new LinguaFlowDB();
 
-// Helper to generate UUIDs with fallback for environments without crypto.randomUUID
 export const generateId = (): string => {
-    // Use native crypto.randomUUID if available
     if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
         return crypto.randomUUID();
     }
 
-    // Fallback: generate UUID v4 using crypto.getRandomValues
     if (typeof crypto !== 'undefined' && typeof crypto.getRandomValues === 'function') {
         const bytes = new Uint8Array(16);
         crypto.getRandomValues(bytes);
 
-        // Set version (4) and variant (RFC4122)
         bytes[6] = (bytes[6] & 0x0f) | 0x40;
         bytes[8] = (bytes[8] & 0x3f) | 0x80;
 
@@ -99,7 +173,6 @@ export const generateId = (): string => {
         return `${hex.slice(0, 8)}-${hex.slice(8, 12)}-${hex.slice(12, 16)}-${hex.slice(16, 20)}-${hex.slice(20)}`;
     }
 
-    // Last resort fallback using Math.random (less secure but works everywhere)
     return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
         const r = (Math.random() * 16) | 0;
         const v = c === 'x' ? r : (r & 0x3) | 0x8;
