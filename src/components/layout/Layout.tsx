@@ -10,7 +10,8 @@ import {
   Zap,
   ChevronUp,
   Check,
-  Command
+  Command,
+  Save
 } from 'lucide-react';
 import { useSettings } from '@/contexts/SettingsContext';
 import { useAuth } from '@/contexts/AuthContext';
@@ -43,6 +44,7 @@ import {
 import { PolishFlag, NorwegianFlag, JapaneseFlag, SpanishFlag } from '@/components/ui/flags';
 import { toast } from 'sonner';
 import clsx from 'clsx';
+import { useSyncthingSync } from '@/features/settings/hooks/useSyncthingSync';
 
 
 
@@ -50,6 +52,8 @@ interface NavActionProps {
   onOpenAdd: () => void;
   onOpenCram: () => void;
   onOpenSettings: () => void;
+  onSyncSave: () => void;
+  isSyncing: boolean;
   onCloseMobileMenu?: () => void;
 }
 
@@ -59,6 +63,8 @@ const AppSidebar: React.FC<NavActionProps> = ({
   onOpenAdd,
   onOpenCram,
   onOpenSettings,
+  onSyncSave,
+  isSyncing,
   onCloseMobileMenu
 }) => {
   const location = useLocation();
@@ -84,6 +90,7 @@ const AppSidebar: React.FC<NavActionProps> = ({
   const toolItems = [
     { icon: Plus, label: 'Add Entry', onClick: () => { onOpenAdd(); onCloseMobileMenu?.(); } },
     { icon: Zap, label: 'Cram Mode', onClick: () => { onOpenCram(); onCloseMobileMenu?.(); } },
+    { icon: Save, label: isSyncing ? 'Saving...' : 'Save Changes', onClick: () => { if (!isSyncing) { onSyncSave(); } }, disabled: isSyncing },
   ];
 
   return (
@@ -347,6 +354,7 @@ const MobileBottomNav: React.FC = () => {
 export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { addCard } = useCardOperations();
   const location = useLocation();
+  const { saveToSyncFile, isSaving: isSyncing } = useSyncthingSync();
 
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
@@ -358,6 +366,8 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
     onOpenAdd: () => setIsAddModalOpen(true),
     onOpenCram: () => setIsCramModalOpen(true),
     onOpenSettings: () => setIsSettingsOpen(true),
+    onSyncSave: saveToSyncFile,
+    isSyncing,
   };
 
 

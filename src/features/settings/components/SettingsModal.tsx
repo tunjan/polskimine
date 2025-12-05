@@ -10,14 +10,16 @@ import { useSettings } from '@/contexts/SettingsContext';
 import { useDeck } from '@/contexts/DeckContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { useProfile } from '@/contexts/ProfileContext';
-import { Language } from '@/types';
+import { Card, Language, UserSettings } from '@/types';
 import { ttsService, VoiceOption } from '@/services/tts';
 import {
     saveAllCards,
     getCardSignatures,
     getCards,
+    clearAllCards,
 } from '@/services/db/repositories/cardRepository';
-import { getHistory } from '@/services/db/repositories/historyRepository';
+import { getHistory, saveFullHistory, clearHistory } from '@/services/db/repositories/historyRepository';
+import { db } from '@/services/db/dexie';
 import { GeneralSettings } from './GeneralSettings';
 import { AudioSettings } from './AudioSettings';
 import { StudySettings } from './StudySettings';
@@ -27,6 +29,7 @@ import { DataSettings } from './DataSettings';
 import { parseCardsFromCsv, signatureForCard } from '@/features/deck/services/csvImport';
 import { useCloudSync } from '@/features/settings/hooks/useCloudSync';
 import { useAccountManagement } from '@/features/settings/hooks/useAccountManagement';
+import { useSyncthingSync } from '@/features/settings/hooks/useSyncthingSync';
 
 interface SettingsModalProps {
     isOpen: boolean;
@@ -45,6 +48,8 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
     const [activeTab, setActiveTab] = useState<SettingsTab>('general');
     const [availableVoices, setAvailableVoices] = useState<VoiceOption[]>([]);
     const csvInputRef = useRef<HTMLInputElement>(null);
+    const jsonInputRef = useRef<HTMLInputElement>(null);
+    const [isRestoring, setIsRestoring] = useState(false);
 
     const { handleSyncToCloud, isSyncingToCloud, syncComplete } = useCloudSync();
     const {
@@ -53,6 +58,13 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
         confirmResetDeck,
         confirmResetAccount
     } = useAccountManagement();
+    const {
+        saveToSyncFile,
+        loadFromSyncFile,
+        isSaving: isSyncthingSaving,
+        isLoading: isSyncthingLoading,
+        lastSync: lastSyncthingSync
+    } = useSyncthingSync();
 
     useEffect(() => {
         const loadVoices = async () => {
@@ -122,6 +134,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
         try {
             const cards = await getCards();
             const history = await getHistory();
+            const revlog = await db.revlog.toArray();
 
             const safeSettings = {
                 ...localSettings,
@@ -129,14 +142,16 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                     ...localSettings.tts,
                     googleApiKey: '',
                     azureApiKey: ''
-                }
+                },
+                geminiApiKey: ''
             };
 
             const exportData = {
-                version: 1,
+                version: 2,
                 date: new Date().toISOString(),
                 cards,
                 history,
+                revlog,
                 settings: safeSettings
             };
 
@@ -151,6 +166,122 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
             toast.success("Export complete.");
         } catch (e) {
             toast.error("Export failed.");
+        }
+    };
+
+    const handleRestoreBackup = async (event: React.ChangeEvent<HTMLInputElement>) => {
+        const file = event.target.files?.[0];
+        if (!file) return;
+
+        setIsRestoring(true);
+        try {
+            const text = await file.text();
+            let data: {
+                version?: number;
+                date?: string;
+                cards?: Card[];
+                history?: Record<string, number>;
+                settings?: Partial<UserSettings>;
+                revlog?: Array<{
+                    id: string;
+                    card_id: string;
+                    grade: number;
+                    state: number;
+                    elapsed_days: number;
+                    scheduled_days: number;
+                    stability: number;
+                    difficulty: number;
+                    created_at: string;
+                }>;
+            };
+
+            try {
+                data = JSON.parse(text);
+            } catch {
+                toast.error("Invalid backup file. Please select a valid JSON backup.");
+                return;
+            }
+
+            // Validate backup structure
+            if (!data.cards || !Array.isArray(data.cards)) {
+                toast.error("Invalid backup: missing cards data.");
+                return;
+            }
+
+            // Confirm restore with user
+            const confirmed = window.confirm(
+                `This will replace your current data with the backup from ${data.date ? new Date(data.date).toLocaleDateString() : 'unknown date'}.\n\n` +
+                `Cards: ${data.cards.length}\n` +
+                `This action cannot be undone. Continue?`
+            );
+
+            if (!confirmed) {
+                return;
+            }
+
+            // Clear existing data
+            await clearAllCards();
+            await clearHistory();
+            await db.revlog.clear();
+            await db.aggregated_stats.clear();
+
+            // Restore cards
+            if (data.cards.length > 0) {
+                await saveAllCards(data.cards);
+            }
+
+            // Restore review history
+            if (data.history && typeof data.history === 'object') {
+                // Group history by language if possible, otherwise use default language
+                const languages = new Set(data.cards.map(c => c.language).filter(Boolean));
+                const primaryLanguage = languages.size > 0 ? [...languages][0] : localSettings.language;
+                await saveFullHistory(data.history, primaryLanguage);
+            }
+
+            // Restore revlog if present
+            if (data.revlog && Array.isArray(data.revlog) && data.revlog.length > 0) {
+                await db.revlog.bulkPut(data.revlog);
+            }
+
+            // Restore settings (merge with current, don't overwrite API keys)
+            if (data.settings) {
+                const restoredSettings: Partial<UserSettings> = {
+                    ...data.settings,
+                    // Preserve API keys from current settings
+                    geminiApiKey: localSettings.geminiApiKey,
+                    tts: {
+                        ...data.settings.tts,
+                        googleApiKey: localSettings.tts.googleApiKey,
+                        azureApiKey: localSettings.tts.azureApiKey,
+                    } as UserSettings['tts'],
+                };
+                setLocalSettings(prev => ({
+                    ...prev,
+                    ...restoredSettings,
+                    tts: {
+                        ...prev.tts,
+                        ...(restoredSettings.tts || {}),
+                    },
+                    fsrs: {
+                        ...prev.fsrs,
+                        ...(restoredSettings.fsrs || {}),
+                    },
+                }));
+                updateSettings(restoredSettings);
+            }
+
+            // Recalculate aggregated stats from imported data
+            const { recalculateAllStats } = await import('@/services/db/repositories/aggregatedStatsRepository');
+            await recalculateAllStats();
+
+            refreshDeckData();
+            toast.success(`Restored ${data.cards.length} cards from backup.`);
+        } catch (error) {
+            console.error('Backup restore failed:', error);
+            toast.error("Failed to restore backup. Please try again.");
+        } finally {
+            setIsRestoring(false);
+            event.target.value = '';
         }
     };
 
@@ -318,9 +449,17 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                                 onExport={handleExport}
                                 onImport={handleImport}
                                 csvInputRef={csvInputRef}
+                                onRestoreBackup={handleRestoreBackup}
+                                jsonInputRef={jsonInputRef}
+                                isRestoring={isRestoring}
                                 onSyncToCloud={handleSyncToCloud}
                                 isSyncingToCloud={isSyncingToCloud}
                                 syncComplete={syncComplete}
+                                onSyncthingSave={saveToSyncFile}
+                                onSyncthingLoad={loadFromSyncFile}
+                                isSyncthingSaving={isSyncthingSaving}
+                                isSyncthingLoading={isSyncthingLoading}
+                                lastSyncthingSync={lastSyncthingSync}
                             />
                         )}
 

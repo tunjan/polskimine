@@ -1,23 +1,41 @@
 import React, { RefObject } from 'react';
-import { Download, Upload, Cloud, Check, Database, HardDrive } from 'lucide-react';
+import { Download, Upload, Cloud, Check, Database, HardDrive, RotateCcw } from 'lucide-react';
 import { GamePanel, GameSectionHeader, GameDivider, GameButton } from '@/components/ui/game-ui';
+import { SyncthingSettings } from './SyncthingSettings';
 
 interface DataSettingsProps {
   onExport: () => void;
   onImport: (event: React.ChangeEvent<HTMLInputElement>) => void;
   csvInputRef: RefObject<HTMLInputElement>;
+  onRestoreBackup: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  jsonInputRef: RefObject<HTMLInputElement>;
+  isRestoring: boolean;
   onSyncToCloud: () => void;
   isSyncingToCloud: boolean;
   syncComplete: boolean;
+  // Syncthing sync props
+  onSyncthingSave?: () => void;
+  onSyncthingLoad?: () => void;
+  isSyncthingSaving?: boolean;
+  isSyncthingLoading?: boolean;
+  lastSyncthingSync?: string | null;
 }
 
 export const DataSettings: React.FC<DataSettingsProps> = ({
   onExport,
   onImport,
   csvInputRef,
+  onRestoreBackup,
+  jsonInputRef,
+  isRestoring,
   onSyncToCloud,
   isSyncingToCloud,
   syncComplete,
+  onSyncthingSave,
+  onSyncthingLoad,
+  isSyncthingSaving,
+  isSyncthingLoading,
+  lastSyncthingSync,
 }) => (
   <div className="space-y-8 max-w-2xl">
     
@@ -40,18 +58,37 @@ export const DataSettings: React.FC<DataSettingsProps> = ({
         </div>
       </GamePanel>
 
-      <GamePanel variant="default" size="md" glowOnHover className="cursor-pointer group" onClick={() => csvInputRef.current?.click()}>
+      <GamePanel 
+        variant="default" 
+        size="md" 
+        glowOnHover 
+        className={`cursor-pointer group ${isRestoring ? 'opacity-50 pointer-events-none' : ''}`} 
+        onClick={() => !isRestoring && jsonInputRef.current?.click()}
+      >
         <div className="flex flex-col items-center text-center space-y-3 py-2">
           <div className="w-12 h-12 bg-card flex items-center justify-center border border-border/30 group-hover:border-primary/40 transition-colors">
-            <Upload className="w-5 h-5 text-muted-foreground/60 group-hover:text-primary/70 transition-colors" strokeWidth={1.5} />
+            <RotateCcw className={`w-5 h-5 text-muted-foreground/60 group-hover:text-primary/70 transition-colors ${isRestoring ? 'animate-spin' : ''}`} strokeWidth={1.5} />
           </div>
           <div>
-            <p className="text-sm font-ui text-foreground mb-1">Import Cards</p>
-            <p className="text-xs text-muted-foreground/60 font-light">Add flashcards from CSV file</p>
+            <p className="text-sm font-ui text-foreground mb-1">{isRestoring ? 'Restoring...' : 'Restore Backup'}</p>
+            <p className="text-xs text-muted-foreground/60 font-light">Import from JSON backup file</p>
           </div>
         </div>
       </GamePanel>
     </div>
+
+    {/* Import Cards Section */}
+    <GamePanel variant="default" size="md" glowOnHover className="cursor-pointer group" onClick={() => csvInputRef.current?.click()}>
+      <div className="flex items-center gap-4">
+        <div className="w-12 h-12 bg-card flex items-center justify-center border border-border/30 group-hover:border-primary/40 transition-colors">
+          <Upload className="w-5 h-5 text-muted-foreground/60 group-hover:text-primary/70 transition-colors" strokeWidth={1.5} />
+        </div>
+        <div>
+          <p className="text-sm font-ui text-foreground mb-1">Import Cards</p>
+          <p className="text-xs text-muted-foreground/60 font-light">Add flashcards from CSV file (without replacing existing)</p>
+        </div>
+      </div>
+    </GamePanel>
 
     <GameDivider />
 
@@ -101,17 +138,31 @@ export const DataSettings: React.FC<DataSettingsProps> = ({
       </div>
     </GamePanel>
 
+    <GameDivider />
+
+    {/* Syncthing Sync Section */}
+    {onSyncthingSave && onSyncthingLoad && (
+      <SyncthingSettings
+        onSave={onSyncthingSave}
+        onLoad={onSyncthingLoad}
+        isSaving={isSyncthingSaving || false}
+        isLoading={isSyncthingLoading || false}
+        lastSync={lastSyncthingSync || null}
+      />
+    )}
+
     <input type="file" ref={csvInputRef} accept=".csv,.txt" className="hidden" onChange={onImport} />
+    <input type="file" ref={jsonInputRef} accept=".json" className="hidden" onChange={onRestoreBackup} />
     
     {/* Help Text */}
     <GamePanel variant="stat" size="sm" className="border-border/20">
       <div className="flex items-start gap-3">
         <span className="w-1.5 h-1.5 rotate-45 bg-muted-foreground/30 mt-1.5 shrink-0" />
-        <p className="text-xs text-muted-foreground/50 font-light leading-relaxed">
-          CSV format: sentence, translation, target word, notes, tags. Delimiter automatically detected.
-        </p>
+        <div className="text-xs text-muted-foreground/50 font-light leading-relaxed space-y-1">
+          <p><strong className="text-muted-foreground/70">Restore Backup:</strong> Replaces all data with a previous JSON backup.</p>
+          <p><strong className="text-muted-foreground/70">Import Cards:</strong> Adds cards from CSV without replacing existing data.</p>
+        </div>
       </div>
     </GamePanel>
   </div>
 );
-
