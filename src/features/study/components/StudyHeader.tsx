@@ -35,13 +35,42 @@ export const StudyHeader: React.FC<StudyHeaderProps> = React.memo(({
     isBookmarked,
     onBookmark,
 }) => {
+    const activeColor = currentStatus?.label === 'NEW' ? 'bg-blue-500' 
+        : currentStatus?.label === 'LRN' ? 'bg-amber-500' 
+        : currentStatus?.label === 'LAPSE' ? 'bg-red-500' 
+        : currentStatus?.label === 'REV' ? 'bg-green-600' 
+        : 'bg-amber-500';
+
+    const activeBorderColor = currentStatus?.label === 'NEW' ? 'border-blue-500' 
+        : currentStatus?.label === 'LRN' ? 'border-amber-700' 
+        : currentStatus?.label === 'LAPSE' ? 'border-red-500' 
+        : currentStatus?.label === 'REV' ? 'border-green-600' 
+        : 'border-amber-500';
+
+    const activeGradientLeft = currentStatus?.label === 'NEW' ? 'from-blue-500' 
+        : currentStatus?.label === 'LRN' ? 'from-amber-700' 
+        : currentStatus?.label === 'LAPSE' ? 'from-red-500' 
+        : currentStatus?.label === 'REV' ? 'from-green-600' 
+        : 'from-amber-500';
+
+    const activeGradientRight = currentStatus?.label === 'NEW' ? 'from-blue-500' 
+        : currentStatus?.label === 'LRN' ? 'from-amber-700' 
+        : currentStatus?.label === 'LAPSE' ? 'from-red-500' 
+        : currentStatus?.label === 'REV' ? 'from-green-600' 
+        : 'from-amber-500';
+
     return (
-        <header className="relative h-16 md:h-20 px-4 md:px-6 flex justify-between items-center select-none shrink-0 pt-[env(safe-area-inset-top)] gap-2 border-b border-amber-600/15">
+        <header className="relative h-16 md:h-20 px-4 md:px-6 flex justify-between items-center select-none shrink-0 pt-[env(safe-area-inset-top)] gap-2 ">
             {/* Bottom decorative accent */}
-            <div className="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-1/2 flex items-center gap-2 z-10">
-                <span className="w-6 h-px bg-amber-500/20" />
-                <span className="w-1 h-1 rotate-45 bg-amber-500/30" />
-                <span className="w-6 h-px bg-amber-500/20" />
+            <div className="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-1/2 flex items-center justify-center z-10">
+                <div className="relative">
+                    <span className={clsx("w-3 h-3 rotate-45 transition-colors duration-300 block border bg-transparent", activeBorderColor, "opacity-80")} />
+                    <span className={clsx("absolute inset-0 w-3 h-3 rotate-45 blur-[1px] transition-colors duration-300 block", activeColor, "opacity-50")} />
+                    {/* Left fading line - positioned at left vertex */}
+                    <span className={clsx("absolute top-1/2 -translate-y-1/2 -left-[5px] w-32 h-px transition-colors duration-300 bg-gradient-to-l to-transparent opacity-60 -translate-x-full", activeGradientLeft)} />
+                    {/* Right fading line - positioned at right vertex */}
+                    <span className={clsx("absolute top-1/2 -translate-y-1/2 -right-[5px] w-32 h-px transition-colors duration-300 bg-gradient-to-r to-transparent opacity-60 translate-x-full", activeGradientRight)} />
+                </div>
             </div>
 
             {/* Queue statistics - game UI style */}
@@ -70,34 +99,34 @@ export const StudyHeader: React.FC<StudyHeaderProps> = React.memo(({
                     isActive={currentStatus?.label === 'REV'}
                     color="green"
                 />
+            </div>
 
-                {/* Enhanced XP display */}
-                <div className="hidden sm:flex items-center gap-3 relative overflow-hidden group">
-                    {/* Subtle glow effect */}
-                    <div className="absolute inset-0 bg-primary/5 opacity-0" />
+            {/* Enhanced XP display - centered */}
+            <div className="absolute left-1/2 -translate-x-1/2 top-1/2 -translate-y-1/2 hidden sm:flex items-center gap-3 overflow-hidden group">
+                {/* Subtle glow effect */}
+                <div className="absolute inset-0 bg-primary/5 opacity-0" />
 
-                    {/* XP icon with glow */}
-                    <div className="relative">
-                        <Zap size={14} strokeWidth={2} className="text-primary fill-primary/20" />
-                        <div className="absolute inset-0 blur-[2px] opacity-50">
-                            <Zap size={14} strokeWidth={2} className="text-primary" />
-                        </div>
+                {/* XP icon with glow */}
+                <div className="relative">
+                    <Zap size={14} strokeWidth={2} className="text-primary fill-primary/20" />
+                    <div className="absolute inset-0 blur-[2px] opacity-50">
+                        <Zap size={14} strokeWidth={2} className="text-primary" />
                     </div>
-
-                    {/* XP value */}
-                    <span className="relative text-sm font-ui font-medium tracking-wide text-foreground tabular-nums">
-                        {sessionXp}
-                        <span className="text-[9px] uppercase tracking-wider text-muted-foreground/60 ml-1">XP</span>
-                    </span>
-
-                    {/* Multiplier badge */}
-                    {multiplierInfo.value > 1.0 && (
-                        <div className="flex items-center gap-1 text-[10px] text-primary font-semibold px-2 py-0.5 animate-pulse">
-                            <TrendingUp size={10} strokeWidth={2.5} />
-                            <span>×{multiplierInfo.value.toFixed(1)}</span>
-                        </div>
-                    )}
                 </div>
+
+                {/* XP value */}
+                <span className="relative text-sm font-ui font-medium tracking-wide text-foreground tabular-nums">
+                    {sessionXp}
+                    <span className="text-[9px] uppercase tracking-wider text-muted-foreground/60 ml-1">XP</span>
+                </span>
+
+                {/* Multiplier badge */}
+                {multiplierInfo.value > 1.0 && (
+                    <div className="flex items-center gap-1 text-[10px] text-primary font-semibold px-2 py-0.5 animate-pulse">
+                        <TrendingUp size={10} strokeWidth={2.5} />
+                        <span>×{multiplierInfo.value.toFixed(1)}</span>
+                    </div>
+                )}
             </div>
 
             {/* Meta info and controls - game styled */}
@@ -163,7 +192,7 @@ const GameQueueStat = React.memo(({ label, count, isActive, color }: {
 }) => {
     const colorMap = {
         blue: { active: 'text-blue-800 border-blue-500/30 bg-blue-500/5', inactive: 'text-muted-foreground/60 border-border/80' },
-        orange: { active: 'text-amber-800 border-amber-500/30 bg-amber-500/5', inactive: 'text-muted-foreground/60 border-border/80' },
+        orange: { active: 'text-amber-800 border-amber-800/40 bg-amber-500/5', inactive: 'text-muted-foreground/60 border-border/80' },
         red: { active: 'text-red-800 border-red-500/30 bg-red-500/5', inactive: 'text-muted-foreground/60 border-border/80' },
         green: { active: 'text-green-800 border-green-700/30 bg-green-700/5', inactive: 'text-muted-foreground/60 border-border/80' },
     };
@@ -175,6 +204,11 @@ const GameQueueStat = React.memo(({ label, count, isActive, color }: {
             isActive ? colors.active : colors.inactive,
             count === 0 && !isActive && "opacity-40"
         )}>
+            {/* Top-left corner */}
+            <span className="absolute -top-px -left-px w-1.5 h-1.5 border-t border-l border-current opacity-60" />
+            {/* Bottom-right corner */}
+            <span className="absolute -bottom-px -right-px w-1.5 h-1.5 border-b border-r border-current opacity-60" />
+            
             {/* Diamond indicator */}
             <span className={clsx(
                 "w-1.5 h-1.5 rotate-45 transition-colors",
@@ -182,6 +216,7 @@ const GameQueueStat = React.memo(({ label, count, isActive, color }: {
             )} />
             <span className="hidden sm:inline text-[9px] font-ui uppercase tracking-wider">{label}</span>
             <span className="text-xs font-ui font-medium tabular-nums">{count}</span>
+
         </div>
     );
 });

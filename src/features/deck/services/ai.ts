@@ -118,6 +118,43 @@ async function callGemini(prompt: string, apiKey: string, responseSchema?: Gemin
 }
 
 export const aiService = {
+  async lemmatizeWord(word: string, language: typeof LanguageId[keyof typeof LanguageId] = LanguageId.Polish, apiKey: string): Promise<string> {
+    const langName = language === LanguageId.Norwegian ? 'Norwegian' : (language === LanguageId.Japanese ? 'Japanese' : (language === LanguageId.Spanish ? 'Spanish' : 'Polish'));
+
+    const responseSchema: GeminiResponseSchema = {
+      type: 'OBJECT',
+      properties: {
+        lemma: { type: 'STRING' }
+      },
+      required: ['lemma']
+    };
+
+    const prompt = `
+      Role: Expert ${langName} linguist.
+      Task: Convert the ${langName} word "${word}" to its dictionary/base form (lemma).
+      
+      Rules:
+      - For verbs: return the infinitive form
+      - For nouns: return the nominative singular form
+      - For adjectives: return the masculine nominative singular form (or base form for languages without gender)
+      - For adverbs: return the base form
+      - If already in base form, return as-is
+      - Return ONLY the lemma, nothing else
+      
+      Output: { "lemma": "the base form" }
+    `;
+
+    const result = await callGemini(prompt, apiKey, responseSchema);
+    const cleanedResult = extractJSON(result);
+    try {
+      const parsed = JSON.parse(cleanedResult);
+      return parsed.lemma || word;
+    } catch (e) {
+      console.error("Failed to parse lemmatize response", e);
+      return word;
+    }
+  },
+
   async translateText(text: string, language: typeof LanguageId[keyof typeof LanguageId] = LanguageId.Polish, apiKey: string): Promise<string> {
     const langName = language === LanguageId.Norwegian ? 'Norwegian' : (language === LanguageId.Japanese ? 'Japanese' : (language === LanguageId.Spanish ? 'Spanish' : 'Polish'));
     const prompt = `

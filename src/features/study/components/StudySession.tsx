@@ -312,7 +312,7 @@ export const StudySession: React.FC<StudySessionProps> = ({
 
         {/* Progress fill with amber gradient */}
         <div
-          className="absolute h-full bg-linear-to-r from-amber-600/50 via-amber-500/70 to-amber-400/50 transition-all duration-700 ease-out"
+          className="absolute h-full bg-linear-to-r from-amber-600/80 via-amber-500/60 to-amber-400/40 transition-all duration-700 ease-out"
           style={{ width: `${progress}%` }}
         />
         {/* Animated shine overlay */}
@@ -326,7 +326,7 @@ export const StudySession: React.FC<StudySessionProps> = ({
         {/* Progress end glow point */}
         {progress > 0 && (
           <div
-            className="absolute top-1/2 -translate-y-1/2 w-1.5 h-1.5 rotate-45 bg-amber-400 shadow-[0_0_8px_2px] shadow-amber-500/50 transition-all duration-700"
+            className="absolute top-1/2 -translate-y-1/2 w-1.5 h-1.5 rotate-45 bg-amber-500 shadow-[0_0_8px_2px] shadow-amber-500/50 transition-all duration-700"
             style={{ left: `calc(${progress}% - 3px)` }}
           />
         )}

@@ -190,3 +190,14 @@ export const getLearnedWords = async (language: Language): Promise<string[]> => 
 
   return [...new Set(words)];
 };
+
+export const getCardByTargetWord = async (targetWord: string, language: Language): Promise<Card | undefined> => {
+  const lowerWord = targetWord.toLowerCase();
+  const cards = await db.cards
+    .where('language')
+    .equals(language)
+    .filter(card => card.targetWord?.toLowerCase() === lowerWord)
+    .toArray();
+
+  return cards[0];
+};

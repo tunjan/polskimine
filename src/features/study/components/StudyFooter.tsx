@@ -31,7 +31,7 @@ export const StudyFooter: React.FC<StudyFooterProps> = React.memo(({
                     <button
                         onClick={() => setIsFlipped(true)}
                         disabled={isProcessing}
-                        className="group relative w-full h-full flex items-center justify-center border-2 border-amber-700/15 hover:border-amber-500/30 bg-card/30 hover:bg-amber-500/5 transition-all duration-300"
+                        className="group relative w-full h-full flex items-center justify-center border-2 border-amber-700/30 hover:border-amber-500/30 bg-card/30 hover:bg-amber-500/5 transition-all duration-300"
                     >
                         {/* Corner brackets on hover */}
                         <span className="absolute -top-px -left-px w-4 h-4 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -52,11 +52,9 @@ export const StudyFooter: React.FC<StudyFooterProps> = React.memo(({
                         </span>
 
                         {/* Content with diamond accents */}
-                        <span className="w-2 h-2 rotate-45 border border-amber-600/30 group-hover:border-amber-500/50 group-hover:bg-amber-500/20 transition-all mr-4" />
-                        <span className="text-[11px] font-ui uppercase tracking-[0.2em] text-muted-foreground/50 group-hover:text-amber-600/80 transition-colors duration-300">
+                        <span className="text-[12px] font-bold font-ui uppercase tracking-[0.2em] text-muted-foreground/50 group-hover:text-amber-600/80 transition-colors duration-300">
                             Show Answer
                         </span>
-                        <span className="w-2 h-2 rotate-45 border border-amber-600/30 group-hover:border-amber-500/50 group-hover:bg-amber-500/20 transition-all ml-4" />
 
                         {/* Subtle keyboard hint */}
                         <span className="absolute bottom-3 text-[8px] font-ui text-muted-foreground/20 opacity-0 group-hover:opacity-60 transition-all duration-300 tracking-wider">

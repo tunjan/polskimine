@@ -46,7 +46,7 @@ const StatusBadge = ({ status }: { status: string }) => {
         graduated: {
             label: 'Review',
             icon: <Clock className="w-3 h-3" strokeWidth={1.5} />,
-            className: 'text-emerald-400 bg-emerald-500/10 border-emerald-500/30'
+            className: 'text-emerald-600 bg-emerald-600/10 border-emerald-600/30'
         },
         known: {
             label: 'Mastered',

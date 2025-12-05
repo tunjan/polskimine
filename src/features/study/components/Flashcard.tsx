@@ -4,8 +4,10 @@ import { escapeRegExp, parseFurigana, cn, findInflectedWordInSentence } from '@/
 import { ttsService } from '@/services/tts';
 import { useSettings } from '@/contexts/SettingsContext';
 import { useCardText } from '@/features/deck/hooks/useCardText';
-import { Mic, Volume2 } from 'lucide-react';
+import { Mic, Volume2, Zap } from 'lucide-react';
 import { aiService } from '@/features/deck/services/ai';
+import { getCardByTargetWord } from '@/services/db/repositories/cardRepository';
+import { db } from '@/services/db/dexie';
 import { toast } from 'sonner';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -128,17 +130,49 @@ export const Flashcard = React.memo<FlashcardProps>(({
     }
     setIsGeneratingCard(true);
     try {
-      const result = await aiService.generateSentenceForWord(selection.text, language, settings.geminiApiKey);
+      // First, lemmatize the selected word to get its base form
+      const lemma = await aiService.lemmatizeWord(selection.text, language, settings.geminiApiKey);
+      
+      // Check if a card with this target word (base form) already exists
+      const existingCard = await getCardByTargetWord(lemma, language);
+      if (existingCard) {
+        // Only show prioritize action for new cards (to avoid messing up SRS scheduling)
+        const isPrioritizable = existingCard.status === 'new';
+        toast.error(`Card already exists for "${lemma}"`, {
+          action: isPrioritizable ? {
+            label: 'Prioritize',
+            onClick: async () => {
+              try {
+                await db.cards.where('id').equals(existingCard.id).modify({ dueDate: new Date(0).toISOString() });
+                toast.success(`"${lemma}" moved to top of queue`);
+              } catch (e) {
+                toast.error('Failed to prioritize card');
+              }
+            }
+          } : undefined,
+          duration: 5000
+        });
+        clearSelection();
+        setIsGeneratingCard(false);
+        return;
+      }
+
+      const result = await aiService.generateSentenceForWord(lemma, language, settings.geminiApiKey);
 
       let targetSentence = result.targetSentence;
       if (language === LanguageId.Japanese && result.furigana) {
         targetSentence = parseFurigana(result.furigana).map(s => s.text).join("");
       }
 
+      // Set the due date to be the first card tomorrow (after 4am cutoff)
+      const tomorrow = new Date();
+      tomorrow.setDate(tomorrow.getDate() + 1);
+      tomorrow.setHours(4, 0, 0, 1); // Just after 4am cutoff to be first
+
       const newCard: Card = {
         id: uuidv4(),
         targetSentence,
-        targetWord: selection.text,
+        targetWord: lemma,
         targetWordTranslation: result.targetWordTranslation,
         targetWordPartOfSpeech: result.targetWordPartOfSpeech,
         nativeTranslation: result.nativeTranslation,
@@ -148,14 +182,14 @@ export const Flashcard = React.memo<FlashcardProps>(({
         status: 'new',
         interval: 0,
         easeFactor: 2.5,
-        dueDate: new Date().toISOString(),
+        dueDate: tomorrow.toISOString(),
         reps: 0,
         lapses: 0,
         tags: ['AI-Gen', 'From-Study']
       };
 
       onAddCard(newCard);
-      toast.success(`Card created for "${selection.text}"`);
+      toast.success(`Card created for "${lemma}" — scheduled for tomorrow`);
       clearSelection();
     } catch (e) {
       toast.error("Failed to generate card.");

@@ -1,7 +1,8 @@
 import React, { RefObject } from 'react';
-import { Download, Upload, Cloud, Check, Database, HardDrive, RotateCcw } from 'lucide-react';
+import { Download, Upload, Cloud, Check, Database, HardDrive, RotateCcw, Key } from 'lucide-react';
 import { GamePanel, GameSectionHeader, GameDivider, GameButton } from '@/components/ui/game-ui';
 import { SyncthingSettings } from './SyncthingSettings';
+import { Switch } from '@/components/ui/switch';
 
 interface DataSettingsProps {
   onExport: () => void;
@@ -19,6 +20,11 @@ interface DataSettingsProps {
   isSyncthingSaving?: boolean;
   isSyncthingLoading?: boolean;
   lastSyncthingSync?: string | null;
+  // API key export/import options
+  includeApiKeys: boolean;
+  onIncludeApiKeysChange: (checked: boolean) => void;
+  importApiKeys: boolean;
+  onImportApiKeysChange: (checked: boolean) => void;
 }
 
 export const DataSettings: React.FC<DataSettingsProps> = ({
@@ -36,6 +42,10 @@ export const DataSettings: React.FC<DataSettingsProps> = ({
   isSyncthingSaving,
   isSyncthingLoading,
   lastSyncthingSync,
+  includeApiKeys,
+  onIncludeApiKeysChange,
+  importApiKeys,
+  onImportApiKeysChange,
 }) => (
   <div className="space-y-8 max-w-2xl">
     
@@ -89,6 +99,47 @@ export const DataSettings: React.FC<DataSettingsProps> = ({
         </div>
       </div>
     </GamePanel>
+
+    <GameDivider />
+
+    {/* API Key Options Section */}
+    <GameSectionHeader 
+      title="API Key Options" 
+      subtitle="Control how API keys are handled"
+      icon={<Key className="w-4 h-4" strokeWidth={1.5} />}
+    />
+    <div className="space-y-3">
+      <GamePanel variant="stat" size="sm" className="hover:border-primary/40 transition-colors">
+        <div className="flex items-center justify-between gap-6">
+          <div className="flex-1">
+            <div className="flex items-center gap-2 mb-1">
+              <span className="w-1 h-1 rotate-45 bg-primary/40" />
+              <span className="text-sm font-light text-foreground font-ui">Include API Keys in Export</span>
+            </div>
+            <p className="text-xs text-muted-foreground/60 font-light pl-3">Include your API keys when exporting backup files</p>
+          </div>
+          <Switch
+            checked={includeApiKeys}
+            onCheckedChange={onIncludeApiKeysChange}
+          />
+        </div>
+      </GamePanel>
+      <GamePanel variant="stat" size="sm" className="hover:border-primary/40 transition-colors">
+        <div className="flex items-center justify-between gap-6">
+          <div className="flex-1">
+            <div className="flex items-center gap-2 mb-1">
+              <span className="w-1 h-1 rotate-45 bg-primary/40" />
+              <span className="text-sm font-light text-foreground font-ui">Import API Keys from Backup</span>
+            </div>
+            <p className="text-xs text-muted-foreground/60 font-light pl-3">Restore API keys when importing backup files</p>
+          </div>
+          <Switch
+            checked={importApiKeys}
+            onCheckedChange={onImportApiKeysChange}
+          />
+        </div>
+      </GamePanel>
+    </div>
 
     <GameDivider />
 

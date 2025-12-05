@@ -50,6 +50,8 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
     const csvInputRef = useRef<HTMLInputElement>(null);
     const jsonInputRef = useRef<HTMLInputElement>(null);
     const [isRestoring, setIsRestoring] = useState(false);
+    const [includeApiKeys, setIncludeApiKeys] = useState(false);
+    const [importApiKeys, setImportApiKeys] = useState(false);
 
     const { handleSyncToCloud, isSyncingToCloud, syncComplete } = useCloudSync();
     const {
@@ -140,10 +142,10 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                 ...localSettings,
                 tts: {
                     ...localSettings.tts,
-                    googleApiKey: '',
-                    azureApiKey: ''
+                    googleApiKey: includeApiKeys ? localSettings.tts.googleApiKey : '',
+                    azureApiKey: includeApiKeys ? localSettings.tts.azureApiKey : ''
                 },
-                geminiApiKey: ''
+                geminiApiKey: includeApiKeys ? localSettings.geminiApiKey : ''
             };
 
             const exportData = {
@@ -243,16 +245,22 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                 await db.revlog.bulkPut(data.revlog);
             }
 
-            // Restore settings (merge with current, don't overwrite API keys)
+            // Restore settings (merge with current, conditionally overwrite API keys based on importApiKeys setting)
             if (data.settings) {
                 const restoredSettings: Partial<UserSettings> = {
                     ...data.settings,
-                    // Preserve API keys from current settings
-                    geminiApiKey: localSettings.geminiApiKey,
+                    // Only import API keys if the setting is enabled and they exist in the backup
+                    geminiApiKey: importApiKeys && data.settings.geminiApiKey 
+                        ? data.settings.geminiApiKey 
+                        : localSettings.geminiApiKey,
                     tts: {
                         ...data.settings.tts,
-                        googleApiKey: localSettings.tts.googleApiKey,
-                        azureApiKey: localSettings.tts.azureApiKey,
+                        googleApiKey: importApiKeys && data.settings.tts?.googleApiKey 
+                            ? data.settings.tts.googleApiKey 
+                            : localSettings.tts.googleApiKey,
+                        azureApiKey: importApiKeys && data.settings.tts?.azureApiKey 
+                            ? data.settings.tts.azureApiKey 
+                            : localSettings.tts.azureApiKey,
                     } as UserSettings['tts'],
                 };
                 setLocalSettings(prev => ({
@@ -460,6 +468,10 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                                 isSyncthingSaving={isSyncthingSaving}
                                 isSyncthingLoading={isSyncthingLoading}
                                 lastSyncthingSync={lastSyncthingSync}
+                                includeApiKeys={includeApiKeys}
+                                onIncludeApiKeysChange={setIncludeApiKeys}
+                                importApiKeys={importApiKeys}
+                                onImportApiKeysChange={setImportApiKeys}
                             />
                         )}
 
