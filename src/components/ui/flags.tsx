@@ -33,3 +33,11 @@ export const SpanishFlag: React.FC<FlagProps> = ({ className }) => (
   </svg>
 );
 
+export const GermanFlag: React.FC<FlagProps> = ({ className }) => (
+  <svg viewBox="0 0 32 24" className={className} aria-hidden="true">
+    <rect width="32" height="8" fill="#000000"/>
+    <rect y="8" width="32" height="8" fill="#DD0000"/>
+    <rect y="16" width="32" height="8" fill="#FFCC00"/>
+  </svg>
+);
+

@@ -41,7 +41,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { PolishFlag, NorwegianFlag, JapaneseFlag, SpanishFlag } from '@/components/ui/flags';
+import { PolishFlag, NorwegianFlag, JapaneseFlag, SpanishFlag, GermanFlag } from '@/components/ui/flags';
 import { toast } from 'sonner';
 import clsx from 'clsx';
 import { useSyncthingSync } from '@/features/settings/hooks/useSyncthingSync';
@@ -77,6 +77,7 @@ const AppSidebar: React.FC<NavActionProps> = ({
     { code: LanguageId.Norwegian, name: 'Norwegian', Flag: NorwegianFlag },
     { code: LanguageId.Japanese, name: 'Japanese', Flag: JapaneseFlag },
     { code: LanguageId.Spanish, name: 'Spanish', Flag: SpanishFlag },
+    { code: LanguageId.German, name: 'German', Flag: GermanFlag },
   ] as const;
 
   const currentLanguage = languages.find(lang => lang.code === settings.language) || languages[0];

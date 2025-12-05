@@ -7,7 +7,8 @@ const LANG_CODE_MAP: Record<Language, string[]> = {
     polish: ['pl-PL', 'pl'],
     norwegian: ['nb-NO', 'no-NO', 'no'],
     japanese: ['ja-JP', 'ja'],
-    spanish: ['es-ES', 'es-MX', 'es']
+    spanish: ['es-ES', 'es-MX', 'es'],
+    german: ['de-DE', 'de-AT', 'de-CH', 'de']
 };
 
 export interface VoiceOption {

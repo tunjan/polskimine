@@ -10,7 +10,8 @@ const createLimits = (val: number): Record<Language, number> => ({
   [LanguageId.Polish]: val,
   [LanguageId.Norwegian]: val,
   [LanguageId.Japanese]: val,
-  [LanguageId.Spanish]: val
+  [LanguageId.Spanish]: val,
+  [LanguageId.German]: val
 });
 
 export const DEFAULT_SETTINGS: UserSettings = {
@@ -20,18 +21,21 @@ export const DEFAULT_SETTINGS: UserSettings = {
     [LanguageId.Norwegian]: '#ef4444',
     [LanguageId.Japanese]: '#f87171',
     [LanguageId.Spanish]: '#fca5a5',
+    [LanguageId.German]: '#facc15',
   },
   dailyNewLimits: {
     [LanguageId.Polish]: 20,
     [LanguageId.Norwegian]: 20,
     [LanguageId.Japanese]: 20,
     [LanguageId.Spanish]: 20,
+    [LanguageId.German]: 20,
   },
   dailyReviewLimits: {
     [LanguageId.Polish]: 100,
     [LanguageId.Norwegian]: 100,
     [LanguageId.Japanese]: 100,
     [LanguageId.Spanish]: 100,
+    [LanguageId.German]: 100,
   },
   autoPlayAudio: false,
   blindMode: false,

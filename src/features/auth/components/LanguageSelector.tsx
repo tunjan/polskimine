@@ -14,6 +14,7 @@ const LANGUAGES: { id: Language; name: string; flag: string }[] = [
     { id: LanguageId.Norwegian, name: "Norwegian", flag: "🇳🇴" },
     { id: LanguageId.Japanese, name: "Japanese", flag: "🇯🇵" },
     { id: LanguageId.Spanish, name: "Spanish", flag: "🇪🇸" },
+    { id: LanguageId.German, name: "German", flag: "🇩🇪" },
 ];
 
 export const LanguageSelector: React.FC<LanguageSelectorProps> = ({

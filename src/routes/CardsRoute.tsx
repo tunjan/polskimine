@@ -1,15 +1,15 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { ChevronLeft, ChevronRight, Search, X, Plus, Sparkles, BookOpen, Zap, Trash2 } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Search, X, Plus, Sparkles, BookOpen, Zap, Trash2, Filter, Bookmark, AlertTriangle } from 'lucide-react';
 
 import { useDeck } from '@/contexts/DeckContext';
 import { useSettings } from '@/contexts/SettingsContext';
-import { Card } from '@/types';
+import { Card, CardStatus } from '@/types';
 import { AddCardModal } from '@/features/deck/components/AddCardModal';
 import { GenerateCardsModal } from '@/features/deck/components/GenerateCardsModal';
 import { CardHistoryModal } from '@/features/deck/components/CardHistoryModal';
 import { CardList } from '@/features/deck/components/CardList';
 import { useCardOperations } from '@/features/deck/hooks/useCardOperations';
-import { useCardsQuery } from '@/features/deck/hooks/useCardsQuery';
+import { useCardsQuery, CardFilters } from '@/features/deck/hooks/useCardsQuery';
 import { GamePanel, GameButton, GameDivider, GameLoader } from '@/components/ui/game-ui';
 import { cn } from '@/lib/utils';
 
@@ -21,12 +21,18 @@ export const CardsRoute: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
   const [page, setPage] = useState(0);
+  const [filters, setFilters] = useState<CardFilters>({});
+  const [showFilters, setShowFilters] = useState(false);
 
   const pageSize = 50;
 
-  const { data, isLoading, isPlaceholderData } = useCardsQuery(page, pageSize, debouncedSearch);
+  const { data, isLoading, isPlaceholderData } = useCardsQuery(page, pageSize, debouncedSearch, filters);
   const cards = data?.data || [];
   const totalCount = data?.count || 0;
+
+  const activeFilterCount = (filters.status && filters.status !== 'all' ? 1 : 0) +
+    (filters.bookmarked ? 1 : 0) +
+    (filters.leech ? 1 : 0);
 
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isGenerateModalOpen, setIsGenerateModalOpen] = useState(false);
@@ -46,7 +52,11 @@ export const CardsRoute: React.FC = () => {
   useEffect(() => {
     setSelectedIds(new Set());
     setLastSelectedIndex(null);
-  }, [page, debouncedSearch]);
+  }, [page, debouncedSearch, filters]);
+
+  const clearFilters = () => {
+    setFilters({});
+  };
 
   const handleEditCard = (card: Card) => {
     setSelectedCard(card);
@@ -161,6 +171,112 @@ export const CardsRoute: React.FC = () => {
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className="h-9 pl-9 pr-4 bg-card/50 border border-border/50 focus:border-primary/50 w-full sm:w-48 transition-all outline-none text-sm"
                 />
+              </div>
+
+              <div className="relative">
+                <button
+                  onClick={() => setShowFilters(!showFilters)}
+                  className={cn(
+                    "h-9 w-9 flex items-center justify-center border bg-card/50 transition-all shrink-0 relative",
+                    activeFilterCount > 0
+                      ? "border-primary/50 text-primary hover:bg-primary/20"
+                      : "border-border/50 text-muted-foreground hover:bg-primary/10 hover:border-primary/50 hover:text-primary"
+                  )}
+                  title="Filter Cards"
+                >
+                  <Filter className="w-4 h-4" />
+                  {activeFilterCount > 0 && (
+                    <span className="absolute -top-1 -right-1 w-4 h-4 bg-primary text-primary-foreground text-[10px] font-bold flex items-center justify-center">
+                      {activeFilterCount}
+                    </span>
+                  )}
+                </button>
+
+                {/* Filter Dropdown */}
+                {showFilters && (
+                  <>
+                    <div
+                      className="fixed inset-0 z-40"
+                      onClick={() => setShowFilters(false)}
+                    />
+                    <div className="absolute right-0 top-full mt-2 z-50 w-64 bg-card border border-border/50 shadow-xl p-4 space-y-4">
+                      {/* Corner accents */}
+                      <span className="absolute -top-px -left-px w-3 h-3 pointer-events-none">
+                        <span className="absolute top-0 left-0 w-full h-px bg-primary" />
+                        <span className="absolute top-0 left-0 h-full w-px bg-primary" />
+                      </span>
+                      <span className="absolute -bottom-px -right-px w-3 h-3 pointer-events-none">
+                        <span className="absolute bottom-0 right-0 w-full h-px bg-primary" />
+                        <span className="absolute bottom-0 right-0 h-full w-px bg-primary" />
+                      </span>
+
+                      {/* Header */}
+                      <div className="flex items-center justify-between pb-2 border-b border-border/50">
+                        <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Filters</span>
+                        {activeFilterCount > 0 && (
+                          <button
+                            onClick={clearFilters}
+                            className="text-xs text-primary hover:underline"
+                          >
+                            Clear all
+                          </button>
+                        )}
+                      </div>
+
+                      {/* Status Filter */}
+                      <div className="space-y-2">
+                        <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Status</label>
+                        <div className="grid grid-cols-2 gap-1.5">
+                          {(['all', 'new', 'learning', 'graduated', 'known'] as const).map((status) => (
+                            <button
+                              key={status}
+                              onClick={() => setFilters(f => ({ ...f, status: status === 'all' ? undefined : status }))}
+                              className={cn(
+                                "px-2 py-1.5 text-xs border transition-all capitalize",
+                                (filters.status === status || (!filters.status && status === 'all'))
+                                  ? "bg-primary/20 border-primary/50 text-primary"
+                                  : "bg-card/50 border-border/50 text-muted-foreground hover:border-primary/30 hover:text-foreground"
+                              )}
+                            >
+                              {status}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Toggle Filters */}
+                      <div className="space-y-2">
+                        <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Quick Filters</label>
+                        <div className="space-y-1.5">
+                          <button
+                            onClick={() => setFilters(f => ({ ...f, bookmarked: !f.bookmarked }))}
+                            className={cn(
+                              "w-full flex items-center gap-2 px-3 py-2 text-xs border transition-all",
+                              filters.bookmarked
+                                ? "bg-primary/20 border-primary/50 text-primary"
+                                : "bg-card/50 border-border/50 text-muted-foreground hover:border-primary/30 hover:text-foreground"
+                            )}
+                          >
+                            <Bookmark className="w-3.5 h-3.5" />
+                            <span>Bookmarked</span>
+                          </button>
+                          <button
+                            onClick={() => setFilters(f => ({ ...f, leech: !f.leech }))}
+                            className={cn(
+                              "w-full flex items-center gap-2 px-3 py-2 text-xs border transition-all",
+                              filters.leech
+                                ? "bg-destructive/20 border-destructive/50 text-destructive"
+                                : "bg-card/50 border-border/50 text-muted-foreground hover:border-primary/30 hover:text-foreground"
+                            )}
+                          >
+                            <AlertTriangle className="w-3.5 h-3.5" />
+                            <span>Leech Cards</span>
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </>
+                )}
               </div>
 
               <button

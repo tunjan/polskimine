@@ -15,6 +15,7 @@ import { toast } from 'sonner';
 import { parseFurigana, cn } from '@/lib/utils';
 import { Textarea } from '@/components/ui/textarea';
 import { GenshinCorners, DiamondDivider, InnerFrame } from '@/components/game/GamePanel';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 
 
@@ -43,6 +44,7 @@ interface GenerateCardsModalProps {
 export const GenerateCardsModal: React.FC<GenerateCardsModalProps> = ({ isOpen, onClose, onAddCards }) => {
     const { settings } = useSettings();
     const { profile } = useProfile();
+    const isMobile = useIsMobile();
     const [step, setStep] = useState<'config' | 'preview'>('config');
     const [loading, setLoading] = useState(false);
 
@@ -230,7 +232,10 @@ export const GenerateCardsModal: React.FC<GenerateCardsModalProps> = ({ isOpen, 
 
     return (
         <Dialog open={isOpen} onOpenChange={resetAndClose}>
-            <DialogContent className="sm:max-w-4xl p-0 bg-gradient-to-b from-background via-background to-card border-2 border-amber-700/30 dark:border-amber-600/25 overflow-hidden gap-0 [&>button]:hidden">
+            <DialogContent className={cn(
+                "p-0 bg-gradient-to-b from-background via-background to-card border-2 border-amber-700/30 dark:border-amber-600/25 overflow-hidden gap-0 [&>button]:hidden",
+                isMobile ? "max-w-[95vw] max-h-[90vh]" : "sm:max-w-4xl"
+            )}>
                 {/* Ornate Genshin corners */}
                 <GenshinCorners />
 
@@ -238,12 +243,26 @@ export const GenerateCardsModal: React.FC<GenerateCardsModalProps> = ({ isOpen, 
                 <InnerFrame />
 
                 {/* Floating diamond decorations */}
-                <span className="absolute top-6 left-1/2 -translate-x-1/2 w-2 h-2 rotate-45 bg-amber-500/20 pointer-events-none z-10 animate-pulse" />
-                <span className="absolute bottom-6 left-1/2 -translate-x-1/2 w-2 h-2 rotate-45 bg-amber-500/20 pointer-events-none z-10 animate-pulse" style={{ animationDelay: '0.5s' }} />
+                <span className={cn(
+                    "absolute left-1/2 -translate-x-1/2 w-2 h-2 rotate-45 bg-amber-500/20 pointer-events-none z-10 animate-pulse",
+                    isMobile ? "top-3" : "top-6"
+                )} />
+                <span className={cn(
+                    "absolute left-1/2 -translate-x-1/2 w-2 h-2 rotate-45 bg-amber-500/20 pointer-events-none z-10 animate-pulse",
+                    isMobile ? "bottom-3" : "bottom-6"
+                )} style={{ animationDelay: '0.5s' }} />
 
-                <div className="flex h-[620px]">
+                <div className={cn(
+                    "flex",
+                    isMobile ? "flex-col h-[85vh] overflow-y-auto" : "flex-row h-[620px]"
+                )}>
                     {/* Sidebar / Info Panel - Genshin Menu Style */}
-                    <div className="w-1/3 bg-gradient-to-b from-card/50 to-muted/20 p-6 flex flex-col justify-between border-r border-amber-700/20 dark:border-amber-600/15 relative overflow-hidden">
+                    <div className={cn(
+                        "bg-gradient-to-b from-card/50 to-muted/20 flex flex-col relative overflow-hidden",
+                        isMobile 
+                            ? "w-full p-4 border-b border-amber-700/20 dark:border-amber-600/15" 
+                            : "w-1/3 p-6 justify-between border-r border-amber-700/20 dark:border-amber-600/15"
+                    )}>
                         {/* Decorative sidebar pattern */}
                         <div className="absolute inset-0 pointer-events-none overflow-hidden">
                             {[...Array(5)].map((_, i) => (
@@ -260,10 +279,16 @@ export const GenerateCardsModal: React.FC<GenerateCardsModalProps> = ({ isOpen, 
 
                         {/* Header with Genshin-style ornament */}
                         <div>
-                            <div className="flex items-center gap-3 mb-8">
+                            <div className={cn(
+                                "flex items-center",
+                                isMobile ? "gap-3 mb-4" : "gap-6 mb-8"
+                            )}>
                                 <div className="relative">
-                                    <div className="w-12 h-12 flex items-center justify-center border-2 border-amber-600/40 bg-amber-600/10 rotate-45">
-                                        <Scroll size={20} className="text-amber-500 -rotate-45" strokeWidth={1.5} />
+                                    <div className={cn(
+                                        "flex items-center justify-center border-2 border-amber-600/40 bg-amber-600/10 rotate-45",
+                                        isMobile ? "w-8 h-8" : "w-10 h-10"
+                                    )}>
+                                        <Scroll size={isMobile ? 16 : 20} className="text-amber-500 -rotate-45" strokeWidth={1.5} />
                                     </div>
                                     {/* Corner accents on icon */}
                                     <span className="absolute -top-1 -left-1 w-2 h-0.5 bg-amber-500/60" />
@@ -273,29 +298,50 @@ export const GenerateCardsModal: React.FC<GenerateCardsModalProps> = ({ isOpen, 
                                 </div>
                                 <div>
                                     <span className="text-[10px] font-serif uppercase tracking-[0.2em] text-amber-600/70 dark:text-amber-500/60 block">Arcane Forge</span>
-                                    <span className="text-lg font-serif tracking-wide text-foreground">Card Synthesis</span>
+                                    <span className={cn(
+                                        "font-serif tracking-wide text-foreground",
+                                        isMobile ? "text-base" : "text-lg"
+                                    )}>Card Synthesis</span>
                                 </div>
                             </div>
 
-                            <DiamondDivider className="mb-6" />
+                            <DiamondDivider className={isMobile ? "mb-3" : "mb-6"} />
 
-                            <div className="space-y-6">
+                            <div className={cn("space-y-6", isMobile && "space-y-4")}>
                                 {/* Target Language Display */}
-                                <div className="genshin-attr-row flex-col items-start gap-1 border-l-2 border-amber-600/30 pl-4">
+                                <div className={cn(
+                                    "genshin-attr-row flex-col items-center gap-1",
+                                    isMobile && "flex-row justify-between"
+                                )}>
                                     <span className="text-[10px] uppercase tracking-[0.15em] text-muted-foreground font-medium">Target Language</span>
-                                    <span className="text-2xl font-serif capitalize text-foreground tracking-wide">{settings.language}</span>
+                                    <span className={cn(
+                                        "font-serif capitalize text-foreground tracking-wide",
+                                        isMobile ? "text-lg" : "text-2xl"
+                                    )}>{settings.language}</span>
                                 </div>
 
                                 {step === 'config' && (
-                                    <div className="space-y-5 animate-genshin-fade-in">
+                                    <div className={cn(
+                                        "animate-genshin-fade-in",
+                                        isMobile ? "grid grid-cols-2 gap-3" : "space-y-5"
+                                    )}>
                                         {/* Card Quantity */}
-                                        <div className="border-l-2 border-amber-600/30 pl-4">
-                                            <h3 className="text-[10px] uppercase tracking-[0.15em] text-muted-foreground mb-3 font-medium flex items-center gap-2">
+                                        <div className={cn(
+                                            "border-l-2 border-amber-600/30 pl-4",
+                                            isMobile && "col-span-1"
+                                        )}>
+                                            <h3 className="text-[10px] uppercase tracking-[0.15em] text-muted-foreground mb-2 font-medium flex items-center gap-2">
                                                 <Star size={10} className="text-amber-500/60" />
                                                 Quantity
                                             </h3>
-                                            <div className="flex items-baseline gap-2 mb-3">
-                                                <span className="text-4xl font-serif text-amber-600 dark:text-amber-500 tabular-nums">{count[0]}</span>
+                                            <div className={cn(
+                                                "flex items-baseline gap-2",
+                                                isMobile ? "mb-2" : "mb-3"
+                                            )}>
+                                                <span className={cn(
+                                                    "font-serif text-amber-600 dark:text-amber-500 tabular-nums",
+                                                    isMobile ? "text-2xl" : "text-4xl"
+                                                )}>{count[0]}</span>
                                                 <span className="text-sm text-muted-foreground">cards</span>
                                             </div>
                                             <Slider
@@ -309,32 +355,44 @@ export const GenerateCardsModal: React.FC<GenerateCardsModalProps> = ({ isOpen, 
                                         </div>
 
                                         {/* i+1 Toggle */}
-                                        <div className="flex items-center gap-3 pl-4 py-2">
+                                        <div className={cn(
+                                            "flex items-center gap-3 pl-4 py-2",
+                                            isMobile && "col-span-1 items-start flex-col gap-2"
+                                        )}>
                                             <Switch
                                                 id="learned-words"
                                                 checked={useLearnedWords}
                                                 onCheckedChange={setUseLearnedWords}
                                             />
-                                            <Label htmlFor="learned-words" className="text-sm text-muted-foreground cursor-pointer">
+                                            <Label htmlFor="learned-words" className={cn(
+                                                "text-sm text-muted-foreground cursor-pointer",
+                                                isMobile && "text-xs"
+                                            )}>
                                                 Use Learned Words (i+1)
                                             </Label>
                                         </div>
 
                                         {/* Level Selector - Genshin dropdown style */}
-                                        <div className="relative pl-4">
+                                        <div className={cn(
+                                            "relative pl-4",
+                                            isMobile && "col-span-1"
+                                        )}>
                                             <h3 className="text-[10px] uppercase tracking-[0.15em] text-muted-foreground mb-2 font-medium flex items-center gap-2">
                                                 <Star size={10} className="text-amber-500/60" />
                                                 Mastery Level
                                             </h3>
                                             <button
                                                 onClick={() => setShowLevelDropdown(!showLevelDropdown)}
-                                                className="w-full flex items-center justify-between py-2.5 px-4 text-sm border border-amber-700/30 dark:border-amber-600/20 bg-card/50 hover:border-amber-600/50 transition-all group"
+                                                className={cn(
+                                                    "w-full flex items-center justify-between py-2.5 px-4 text-sm border border-amber-700/30 dark:border-amber-600/20 bg-card/50 hover:border-amber-600/50 transition-all group",
+                                                    isMobile && "py-2 px-3"
+                                                )}
                                             >
                                                 <span className="flex items-center gap-2">
                                                     <span className="w-6 h-6 flex items-center justify-center">
                                                         <span className="text-[10px] font-bold text-amber-600 dark:text-amber-500 ">{selectedLevel}</span>
                                                     </span>
-                                                    <span className="text-muted-foreground text-xs">{levelDescriptions[selectedLevel]}</span>
+                                                    {!isMobile && <span className="text-muted-foreground text-xs">{levelDescriptions[selectedLevel]}</span>}
                                                 </span>
                                                 <ChevronDown size={14} className={cn(
                                                     "text-amber-500/60 transition-transform",
@@ -342,7 +400,10 @@ export const GenerateCardsModal: React.FC<GenerateCardsModalProps> = ({ isOpen, 
                                                 )} />
                                             </button>
                                             {showLevelDropdown && (
-                                                <div className="absolute bottom-full left-4 right-0 mb-1 border border-amber-700/30 dark:border-amber-600/20 bg-card z-50 shadow-lg">
+                                                <div className={cn(
+                                                    "absolute left-4 right-0 mb-1 border border-amber-700/30 dark:border-amber-600/20 bg-card z-50 shadow-lg",
+                                                    isMobile ? "top-full mt-1" : "bottom-full"
+                                                )}>
                                                     {levels.map((level) => (
                                                         <button
                                                             key={level}
@@ -352,7 +413,8 @@ export const GenerateCardsModal: React.FC<GenerateCardsModalProps> = ({ isOpen, 
                                                             }}
                                                             className={cn(
                                                                 "w-full flex items-center gap-3 py-2.5 px-4 text-sm text-left hover:bg-amber-600/10 transition-colors",
-                                                                selectedLevel === level && "bg-amber-600/15 border-l-2 border-amber-500"
+                                                                selectedLevel === level && "bg-amber-600/15 border-l-2 border-amber-500",
+                                                                isMobile && "py-2 px-3"
                                                             )}
                                                         >
                                                             <span className="w-5 h-5 flex items-center justify-center border border-amber-600/40 rotate-45">
@@ -366,12 +428,18 @@ export const GenerateCardsModal: React.FC<GenerateCardsModalProps> = ({ isOpen, 
                                         </div>
 
                                         {/* Progression Mode */}
-                                        <div className="pl-4">
-                                            <h3 className="text-[10px] uppercase tracking-[0.15em] text-muted-foreground mb-3 font-medium flex items-center gap-2">
+                                        <div className={cn(
+                                            "pl-4",
+                                            isMobile && "col-span-1"
+                                        )}>
+                                            <h3 className="text-[10px] uppercase tracking-[0.15em] text-muted-foreground mb-2 font-medium flex items-center gap-2">
                                                 <Star size={10} className="text-amber-500/60" />
                                                 Learning Path
                                             </h3>
-                                            <div className="grid grid-cols-2 gap-2">
+                                            <div className={cn(
+                                                "grid gap-2",
+                                                isMobile ? "grid-cols-1" : "grid-cols-2"
+                                            )}>
                                                 <Tooltip>
                                                     <TooltipTrigger asChild>
                                                         <button
@@ -434,13 +502,19 @@ export const GenerateCardsModal: React.FC<GenerateCardsModalProps> = ({ isOpen, 
                                 )}
 
                                 {step === 'preview' && (
-                                    <div className="animate-genshin-fade-in border-l-2 border-amber-600/30 pl-4">
+                                    <div className={cn(
+                                        "animate-genshin-fade-in border-l-2 border-amber-600/30 pl-4",
+                                        isMobile && "flex items-center justify-between"
+                                    )}>
                                         <h3 className="text-[10px] uppercase tracking-[0.15em] text-muted-foreground mb-2 font-medium flex items-center gap-2">
                                             <Star size={10} className="text-amber-500/60" />
                                             Selected
                                         </h3>
                                         <div className="flex items-baseline gap-2">
-                                            <span className="text-4xl font-serif text-amber-600 dark:text-amber-500 tabular-nums">{selectedIndices.size}</span>
+                                            <span className={cn(
+                                                "font-serif text-amber-600 dark:text-amber-500 tabular-nums",
+                                                isMobile ? "text-2xl" : "text-4xl"
+                                            )}>{selectedIndices.size}</span>
                                             <span className="text-sm text-muted-foreground">of {generatedData.length}</span>
                                         </div>
                                     </div>
@@ -452,9 +526,15 @@ export const GenerateCardsModal: React.FC<GenerateCardsModalProps> = ({ isOpen, 
                     </div>
 
                     {/* Main Content Area */}
-                    <div className="flex-1 p-8 flex flex-col bg-gradient-to-br from-card/30 via-transparent to-amber-600/5 relative">
+                    <div className={cn(
+                        "flex-1 flex flex-col bg-gradient-to-br from-card/30 via-transparent to-amber-600/5 relative",
+                        isMobile ? "p-4" : "p-8"
+                    )}>
                         {/* Close button with Genshin styling */}
-                        <div className="absolute top-4 right-4 z-10">
+                        <div className={cn(
+                            "absolute z-10",
+                            isMobile ? "top-2 right-2" : "top-4 right-4"
+                        )}>
                             <button
                                 onClick={resetAndClose}
                                 className="relative w-10 h-10 flex items-center justify-center text-muted-foreground hover:text-amber-600 dark:hover:text-amber-500 border border-transparent hover:border-amber-600/30 bg-card/50 hover:bg-amber-600/10 transition-all group"
@@ -468,16 +548,31 @@ export const GenerateCardsModal: React.FC<GenerateCardsModalProps> = ({ isOpen, 
                         </div>
 
                         {step === 'config' ? (
-                            <div className="flex-1 flex flex-col justify-center max-w-xl mx-auto w-full animate-genshin-fade-in">
+                            <div className={cn(
+                                "flex-1 flex flex-col justify-center w-full animate-genshin-fade-in",
+                                isMobile ? "max-w-full" : "max-w-xl mx-auto"
+                            )}>
                                 {/* Header section */}
-                                <div className="mb-8 text-center">
-                                    <div className="flex items-center justify-center gap-4 mb-4">
-                                        <span className="w-12 h-px bg-amber-600/30" />
+                                <div className={cn(
+                                    "text-center",
+                                    isMobile ? "mb-4" : "mb-8"
+                                )}>
+                                    <div className={cn(
+                                        "flex items-center justify-center gap-4 mb-4",
+                                        isMobile && "gap-2 mb-2"
+                                    )}>
+                                        <span className={cn("h-px bg-amber-600/30", isMobile ? "w-8" : "w-12")} />
                                         <span className="w-2.5 h-2.5 rotate-45 border border-amber-600/50" />
-                                        <span className="w-12 h-px bg-amber-600/30" />
+                                        <span className={cn("h-px bg-amber-600/30", isMobile ? "w-8" : "w-12")} />
                                     </div>
-                                    <h2 className="text-2xl font-serif text-foreground mb-2 tracking-wide">What would you like to learn?</h2>
-                                    <p className="text-muted-foreground/70 text-sm">Describe the topic, scenario, or vocabulary you wish to master</p>
+                                    <h2 className={cn(
+                                        "font-serif text-foreground mb-2 tracking-wide",
+                                        isMobile ? "text-lg" : "text-2xl"
+                                    )}>What would you like to learn?</h2>
+                                    <p className={cn(
+                                        "text-muted-foreground/70",
+                                        isMobile ? "text-xs" : "text-sm"
+                                    )}>Describe the topic, scenario, or vocabulary you wish to master</p>
                                 </div>
 
                                 {/* Textarea with Genshin styling */}
@@ -496,26 +591,33 @@ export const GenerateCardsModal: React.FC<GenerateCardsModalProps> = ({ isOpen, 
                                         value={instructions}
                                         onChange={(e) => setInstructions(e.target.value)}
                                         placeholder="e.g. I want to learn how to order coffee in a busy cafe, focusing on polite expressions..."
-                                        className="h-40 max-h-40 text-base p-6 bg-card/50 border border-amber-700/20 dark:border-amber-600/15 resize-none focus-visible:ring-0 focus-visible:border-amber-600/40 placeholder:text-muted-foreground/30 leading-relaxed"
+                                        className={cn(
+                                            "bg-card/50 border border-amber-700/20 dark:border-amber-600/15 resize-none focus-visible:ring-0 focus-visible:border-amber-600/40 placeholder:text-muted-foreground/30 leading-relaxed",
+                                            isMobile ? "h-24 max-h-24 text-sm p-4" : "h-40 max-h-40 text-base p-6"
+                                        )}
                                         autoFocus
                                     />
                                 </div>
 
                                 {/* Generate Button - Genshin style */}
-                                <div className="mt-8 flex justify-center gap-4">
+                                <div className={cn(
+                                    "flex justify-center gap-4",
+                                    isMobile ? "mt-4 flex-col gap-3" : "mt-8"
+                                )}>
                                     <button
                                         onClick={handleSmartLesson}
                                         disabled={loading}
                                         className={cn(
-                                            "relative group/btn inline-flex items-center gap-3 px-6 py-4",
-                                            "bg-indigo-900/40 hover:bg-indigo-800/60 text-indigo-100",
-                                            "border border-indigo-400/30 hover:border-indigo-400/60",
+                                            "relative group/btn inline-flex items-center justify-center gap-3",
+                                            "bg-indigo-900/40 hover:bg-indigo-800/60 text-indigo-900",
+                                            "border border-indigo-600/60 hover:border-indigo-400/60",
                                             "uppercase tracking-[0.1em] text-xs font-serif font-medium",
                                             "transition-all duration-200",
                                             "disabled:opacity-40 disabled:cursor-not-allowed",
+                                            isMobile ? "px-4 py-3 order-2" : "px-6 py-4"
                                         )}
                                     >
-                                        <Sparkles size={16} className="text-indigo-300" />
+                                        <Sparkles size={16} className="text-indigo-900" />
                                         <span>Smart Lesson</span>
                                     </button>
 
@@ -523,13 +625,14 @@ export const GenerateCardsModal: React.FC<GenerateCardsModalProps> = ({ isOpen, 
                                         onClick={handleGenerate}
                                         disabled={loading || !instructions}
                                         className={cn(
-                                            "relative group/btn inline-flex items-center gap-3 px-10 py-4",
+                                            "relative group/btn inline-flex items-center justify-center gap-3",
                                             "bg-amber-600/90 hover:bg-amber-600 text-white dark:text-amber-950",
                                             "border-2 border-amber-500",
                                             "uppercase tracking-[0.2em] text-sm font-serif font-semibold",
                                             "transition-all duration-200",
                                             "disabled:opacity-40 disabled:cursor-not-allowed",
-                                            "hover:shadow-[0_0_20px_-5px] hover:shadow-amber-500/40"
+                                            "hover:shadow-[0_0_20px_-5px] hover:shadow-amber-500/40",
+                                            isMobile ? "px-6 py-3 order-1" : "px-10 py-4"
                                         )}
                                     >
                                         {/* Button corner accents */}
@@ -555,30 +658,43 @@ export const GenerateCardsModal: React.FC<GenerateCardsModalProps> = ({ isOpen, 
                         ) : (
                             <div className="flex-1 flex flex-col h-full animate-genshin-fade-in">
                                 {/* Preview Header */}
-                                <div className="flex justify-between items-center mb-5">
+                                <div className={cn(
+                                    "flex justify-between items-center",
+                                    isMobile ? "mb-3" : "mb-5"
+                                )}>
                                     <div className="flex items-center gap-3">
                                         <span className="w-2 h-2 rotate-45 bg-amber-500/60" />
-                                        <h2 className="text-xl font-serif text-foreground tracking-wide">Review Cards</h2>
+                                        <h2 className={cn(
+                                            "font-serif text-foreground tracking-wide",
+                                            isMobile ? "text-base" : "text-xl"
+                                        )}>Review Cards</h2>
                                     </div>
                                     <button
                                         onClick={() => setStep('config')}
-                                        className="text-xs uppercase tracking-[0.1em] text-muted-foreground hover:text-amber-600 dark:hover:text-amber-500 transition-colors flex items-center gap-2"
+                                        className={cn(
+                                            "uppercase tracking-[0.1em] text-muted-foreground hover:text-amber-600 dark:hover:text-amber-500 transition-colors flex items-center gap-2",
+                                            isMobile ? "text-[10px]" : "text-xs"
+                                        )}
                                     >
                                         <span className="w-1 h-1 rotate-45 bg-current" />
                                         Edit Instructions
                                     </button>
                                 </div>
 
-                                <DiamondDivider className="mb-4" />
+                                <DiamondDivider className={isMobile ? "mb-3" : "mb-4"} />
 
                                 {/* Cards List - Genshin menu item style */}
-                                <div className="flex-1 overflow-y-auto space-y-2 -mr-4 pr-4">
+                                <div className={cn(
+                                    "flex-1 overflow-y-auto space-y-2",
+                                    isMobile ? "-mr-2 pr-2" : "-mr-4 pr-4"
+                                )}>
                                     {generatedData.map((card, idx) => (
                                         <div
                                             key={idx}
                                             onClick={() => toggleSelection(idx)}
                                             className={cn(
-                                                "relative p-5 border transition-all duration-200 cursor-pointer group",
+                                                "relative border transition-all duration-200 cursor-pointer group",
+                                                isMobile ? "p-3" : "p-5",
                                                 selectedIndices.has(idx)
                                                     ? "bg-amber-600/10 border-amber-600/40 dark:border-amber-500/30"
                                                     : "bg-card/30 border-amber-700/15 dark:border-amber-600/10 hover:bg-card/50 hover:border-amber-700/30 opacity-60 hover:opacity-100"
@@ -594,10 +710,19 @@ export const GenerateCardsModal: React.FC<GenerateCardsModalProps> = ({ isOpen, 
                                                 </>
                                             )}
 
-                                            <div className="flex justify-between items-start gap-4">
+                                            <div className={cn(
+                                                "flex justify-between items-start",
+                                                isMobile ? "gap-2" : "gap-4"
+                                            )}>
                                                 <div className="space-y-1.5 flex-1">
-                                                    <div className="text-base text-foreground">{card.targetSentence}</div>
-                                                    <div className="text-sm text-muted-foreground/70">{card.nativeTranslation}</div>
+                                                    <div className={cn(
+                                                        "text-foreground",
+                                                        isMobile ? "text-sm" : "text-base"
+                                                    )}>{card.targetSentence}</div>
+                                                    <div className={cn(
+                                                        "text-muted-foreground/70",
+                                                        isMobile ? "text-xs" : "text-sm"
+                                                    )}>{card.nativeTranslation}</div>
                                                 </div>
 
                                                 {/* Genshin-style checkbox */}
@@ -617,18 +742,22 @@ export const GenerateCardsModal: React.FC<GenerateCardsModalProps> = ({ isOpen, 
                                 </div>
 
                                 {/* Save Button */}
-                                <div className="pt-6 mt-4 border-t border-amber-700/20 dark:border-amber-600/15 flex justify-end">
+                                <div className={cn(
+                                    "border-t border-amber-700/20 dark:border-amber-600/15 flex justify-end",
+                                    isMobile ? "pt-4 mt-3" : "pt-6 mt-4"
+                                )}>
                                     <button
                                         onClick={handleSave}
                                         disabled={selectedIndices.size === 0}
                                         className={cn(
-                                            "relative group/btn inline-flex items-center gap-3 px-10 py-4",
+                                            "relative group/btn inline-flex items-center gap-3",
                                             "bg-amber-600/90 hover:bg-amber-600 text-white dark:text-amber-950",
                                             "border-2 border-amber-500",
                                             "uppercase tracking-[0.2em] text-sm font-serif font-semibold",
                                             "transition-all duration-200",
                                             "disabled:opacity-40 disabled:cursor-not-allowed",
-                                            "hover:shadow-[0_0_20px_-5px] hover:shadow-amber-500/40"
+                                            "hover:shadow-[0_0_20px_-5px] hover:shadow-amber-500/40",
+                                            isMobile ? "px-6 py-3 w-full justify-center" : "px-10 py-4"
                                         )}
                                     >
                                         {/* Button corner accents */}

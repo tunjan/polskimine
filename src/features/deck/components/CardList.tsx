@@ -76,8 +76,9 @@ export const CardList: React.FC<CardListProps> = ({
       onDeleteCard,
       onViewHistory,
       onPrioritizeCard,
+      onToggleSelect,
     }),
-    [onEditCard, onDeleteCard, onViewHistory, onPrioritizeCard]
+    [onEditCard, onDeleteCard, onViewHistory, onPrioritizeCard, onToggleSelect]
   );
 
   if (cards.length === 0) {

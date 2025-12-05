@@ -100,5 +100,6 @@ export const LANGUAGE_NAMES = {
   polish: 'Polish',
   norwegian: 'Norwegian',
   japanese: 'Japanese',
-  spanish: 'Spanish'
+  spanish: 'Spanish',
+  german: 'German'
 } as const;

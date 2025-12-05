@@ -1,6 +1,6 @@
 import React, { useMemo, useEffect, useCallback, useState } from 'react';
 import { Card, Language, LanguageId } from '@/types';
-import { escapeRegExp, parseFurigana, cn } from '@/lib/utils';
+import { escapeRegExp, parseFurigana, cn, findInflectedWordInSentence } from '@/lib/utils';
 import { ttsService } from '@/services/tts';
 import { useSettings } from '@/contexts/SettingsContext';
 import { useCardText } from '@/features/deck/hooks/useCardText';
@@ -286,9 +286,21 @@ export const Flashcard = React.memo<FlashcardProps>(({
         const targetIndices = new Set<number>();
 
         if (targetWordPlain) {
-          const targetStart = fullText.indexOf(targetWordPlain);
+          // First try exact match, then try inflected form match
+          let targetStart = fullText.indexOf(targetWordPlain);
+          let matchedWordLength = targetWordPlain.length;
+          
+          if (targetStart === -1) {
+            // Try to find inflected form
+            const matchedWord = findInflectedWordInSentence(targetWordPlain, fullText);
+            if (matchedWord) {
+              targetStart = fullText.indexOf(matchedWord);
+              matchedWordLength = matchedWord.length;
+            }
+          }
+          
           if (targetStart !== -1) {
-            const targetEnd = targetStart + targetWordPlain.length;
+            const targetEnd = targetStart + matchedWordLength;
             let charIndex = 0;
             for (let i = 0; i < segments.length; i++) {
               const segmentStart = charIndex;
@@ -324,17 +336,27 @@ export const Flashcard = React.memo<FlashcardProps>(({
 
     if (card.targetWord) {
       const targetWordPlain = parseFurigana(card.targetWord).map(s => s.text).join('');
-      const wordBoundaryRegex = new RegExp(`(\\b${escapeRegExp(targetWordPlain)}\\b)`, 'gi');
-      const parts = displayedSentence.split(wordBoundaryRegex);
-      return (
-        <p className={baseClasses}>
-          {parts.map((part, i) =>
-            part.toLowerCase() === targetWordPlain.toLowerCase()
-              ? <span key={i} className="text-primary/90 font-bold">{processText(part)}</span>
-              : <span key={i}>{processText(part)}</span>
-          )}
-        </p>
-      );
+      
+      // Find the actual word in the sentence (handles inflected forms like godzina -> godzinie)
+      const matchedWord = findInflectedWordInSentence(targetWordPlain, displayedSentence);
+      
+      if (matchedWord) {
+        // Use the matched word for highlighting (case-insensitive)
+        const wordBoundaryRegex = new RegExp(`(\\b${escapeRegExp(matchedWord)}\\b)`, 'gi');
+        const parts = displayedSentence.split(wordBoundaryRegex);
+        return (
+          <p className={baseClasses}>
+            {parts.map((part, i) =>
+              part.toLowerCase() === matchedWord.toLowerCase()
+                ? <span key={i} className="text-primary/90 font-bold">{processText(part)}</span>
+                : <span key={i}>{processText(part)}</span>
+            )}
+          </p>
+        );
+      }
+      
+      // Fallback: no match found, just display the sentence without highlighting
+      return <p className={baseClasses}>{displayedSentence}</p>;
     }
 
     return <p className={baseClasses}>{displayedSentence}</p>;

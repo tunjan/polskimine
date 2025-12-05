@@ -185,7 +185,7 @@ export const AddCardModal: React.FC<AddCardModalProps> = ({ isOpen, onClose, onA
                 <form onSubmit={handleSubmit} className="flex flex-col h-full relative z-0">
 
                     {/* Top Section: Header with ornate styling - pr-12 gives space for close button */}
-                    <div className="px-8 pr-14 pt-8 pb-6 bg-gradient-to-b from-amber-600/5 to-transparent dark:from-amber-400/5 relative border-b border-amber-700/20 dark:border-amber-600/15">
+                    <div className="px-8 pr-14 pt-8 pb-6 bg-gradient-to-br from-amber-600/10 via-transparent to-transparent dark:from-amber-400/10">
 
                         {/* Header Row */}
                         <div className="flex justify-between items-center mb-6">
@@ -213,7 +213,7 @@ export const AddCardModal: React.FC<AddCardModalProps> = ({ isOpen, onClose, onA
                                 disabled={isGenerating || !form.sentence}
                                 className={cn(
                                     "group relative flex items-center gap-2.5 px-4 py-2",
-                                    "border border-amber-600/40 hover:border-amber-500/60",
+                                    "border border-amber-800/80 hover:border-amber-500/60",
                                     "bg-amber-600/5 hover:bg-amber-600/15",
                                     "transition-all duration-200",
                                     "disabled:opacity-40 disabled:cursor-not-allowed",
@@ -221,15 +221,15 @@ export const AddCardModal: React.FC<AddCardModalProps> = ({ isOpen, onClose, onA
                                 )}
                             >
                                 {/* Button corner accents */}
-                                <CornerAccents className="bg-amber-500/60" />
+                                <CornerAccents className="bg-amber-900/80" />
 
                                 <Sparkles size={14} className={cn(
                                     "transition-all duration-200",
-                                    isGenerating ? "text-amber-400 animate-pulse" : "text-amber-600/80 group-hover:text-amber-500"
+                                    isGenerating ? "text-amber-800 animate-pulse" : "text-amber-800/80 group-hover:text-amber-500"
                                 )} />
                                 <span className={cn(
                                     "text-[10px] font-ui font-semibold uppercase tracking-[0.15em]",
-                                    isGenerating ? "text-amber-400" : "text-amber-600 dark:text-amber-400/80 group-hover:text-amber-500"
+                                    isGenerating ? "text-amber-800" : "text-amber-800/80 group-hover:text-amber-500"
                                 )}>
                                     {isGenerating ? "Analyzing..." : "Auto-Fill"}
                                 </span>
@@ -241,7 +241,7 @@ export const AddCardModal: React.FC<AddCardModalProps> = ({ isOpen, onClose, onA
                             <textarea
                                 ref={textareaRef}
                                 placeholder="Type your sentence here..."
-                                className="w-full text-2xl md:text-3xl font-light bg-transparent border-none outline-none placeholder:text-amber-700/20 dark:placeholder:text-amber-400/15 resize-none overflow-hidden p-0 leading-tight tracking-tight text-foreground min-h-[80px]"
+                                className="w-full text-2xl md:text-3xl font-light bg-transparent border-none outline-none placeholder:text-amber-700/40 dark:placeholder:text-amber-400/15 resize-none overflow-hidden p-0 leading-tight tracking-tight text-foreground min-h-[80px]"
                                 value={form.sentence}
                                 onChange={e => setForm({ ...form, sentence: e.target.value })}
                                 rows={1}
@@ -255,7 +255,7 @@ export const AddCardModal: React.FC<AddCardModalProps> = ({ isOpen, onClose, onA
                     <DiamondDivider className="mx-8 my-1" />
 
                     {/* Bottom Section: Form Fields with Genshin styling */}
-                    <div className="px-8 py-6 space-y-6 bg-card">
+                    <div className="px-8 py-6 space-y-6 bg-gradient-to-tl from-amber-600/10 via-transparent to-transparent dark:from-amber-400/10">
 
                         {/* Translation & Target Word Row */}
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
@@ -270,7 +270,7 @@ export const AddCardModal: React.FC<AddCardModalProps> = ({ isOpen, onClose, onA
                                     value={form.translation}
                                     onChange={e => setForm({ ...form, translation: e.target.value })}
                                     placeholder="e.g., This is a house."
-                                    className="w-full bg-transparent border-b-2 border-amber-700/20 dark:border-amber-600/15 p-2 text-lg font-light text-foreground placeholder:text-muted-foreground/20 focus:outline-none focus:border-amber-500/50 transition-colors"
+                                    className="w-full bg-transparent border-b-2 border-amber-700/50 dark:border-amber-600/15 p-2 text-lg font-light text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:border-amber-800/50 transition-colors"
                                 />
                             </div>
 
@@ -285,7 +285,7 @@ export const AddCardModal: React.FC<AddCardModalProps> = ({ isOpen, onClose, onA
                                     value={form.targetWord}
                                     onChange={e => setForm({ ...form, targetWord: e.target.value })}
                                     placeholder="e.g., house"
-                                    className="w-full bg-transparent border-b-2 border-amber-700/20 dark:border-amber-600/15 p-2 text-lg font-light text-foreground placeholder:text-muted-foreground/20 focus:outline-none focus:border-amber-500/50 transition-colors"
+                                    className="w-full bg-transparent border-b-2 border-amber-700/50 dark:border-amber-600/15 p-2 text-lg font-light text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:border-amber-800/50 transition-colors"
                                 />
                             </div>
                         </div>
@@ -303,7 +303,7 @@ export const AddCardModal: React.FC<AddCardModalProps> = ({ isOpen, onClose, onA
                                     value={form.targetWordTranslation}
                                     onChange={e => setForm({ ...form, targetWordTranslation: e.target.value })}
                                     placeholder="e.g., house"
-                                    className="w-full bg-transparent border-b-2 border-amber-700/20 dark:border-amber-600/15 p-2 text-lg font-light text-foreground placeholder:text-muted-foreground/20 focus:outline-none focus:border-amber-500/50 transition-colors"
+                                    className="w-full bg-transparent border-b-2 border-amber-700/50 dark:border-amber-600/15 p-2 text-lg font-light text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:border-amber-800/50 transition-colors"
                                 />
                             </div>
 
@@ -317,7 +317,7 @@ export const AddCardModal: React.FC<AddCardModalProps> = ({ isOpen, onClose, onA
                                 <select
                                     value={form.targetWordPartOfSpeech}
                                     onChange={e => setForm({ ...form, targetWordPartOfSpeech: e.target.value })}
-                                    className="w-full bg-card border-b-2 border-amber-700/20 dark:border-amber-600/15 p-2 text-lg font-light text-foreground focus:outline-none focus:border-amber-500/50 transition-colors cursor-pointer"
+                                    className="w-full bg-card border-b-2 border-amber-700/50 dark:border-amber-600/15 p-2 text-lg font-light text-foreground focus:outline-none focus:border-amber-500/50 transition-colors cursor-pointer"
                                 >
                                     <option value="" disabled>Select POS</option>
                                     <option value="noun">Noun</option>
@@ -340,7 +340,7 @@ export const AddCardModal: React.FC<AddCardModalProps> = ({ isOpen, onClose, onA
                                 value={form.notes}
                                 onChange={e => setForm({ ...form, notes: e.target.value })}
                                 placeholder="Add any usage notes or context..."
-                                className="w-full bg-transparent border-b-2 border-amber-700/20 dark:border-amber-600/15 p-2 text-base font-light text-foreground placeholder:text-muted-foreground/20 focus:outline-none focus:border-amber-500/50 transition-colors resize-none min-h-[60px]"
+                                className="w-full bg-transparent border-b-2 border-amber-700/50 dark:border-amber-600/15 p-2 text-base font-light text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:border-amber-500/50 transition-colors resize-none min-h-[60px]"
                             />
                         </div>
 

@@ -162,10 +162,10 @@ const GameQueueStat = React.memo(({ label, count, isActive, color }: {
     color: 'blue' | 'orange' | 'red' | 'green';
 }) => {
     const colorMap = {
-        blue: { active: 'text-blue-800 border-blue-500/30 bg-blue-500/5', inactive: 'text-muted-foreground/60 border-border/30' },
-        orange: { active: 'text-amber-800 border-amber-500/30 bg-amber-500/5', inactive: 'text-muted-foreground/60 border-border/30' },
-        red: { active: 'text-red-800 border-red-500/30 bg-red-500/5', inactive: 'text-muted-foreground/60 border-border/30' },
-        green: { active: 'text-green-800 border-green-700/30 bg-green-700/5', inactive: 'text-muted-foreground/60 border-border/30' },
+        blue: { active: 'text-blue-800 border-blue-500/30 bg-blue-500/5', inactive: 'text-muted-foreground/60 border-border/80' },
+        orange: { active: 'text-amber-800 border-amber-500/30 bg-amber-500/5', inactive: 'text-muted-foreground/60 border-border/80' },
+        red: { active: 'text-red-800 border-red-500/30 bg-red-500/5', inactive: 'text-muted-foreground/60 border-border/80' },
+        green: { active: 'text-green-800 border-green-700/30 bg-green-700/5', inactive: 'text-muted-foreground/60 border-border/80' },
     };
     const colors = colorMap[color];
 

@@ -2,13 +2,25 @@ import { useQuery, keepPreviousData } from '@tanstack/react-query';
 import { useSettings } from '@/contexts/SettingsContext';
 import { db } from '@/services/db/dexie';
 import { mapToCard } from '@/services/db/repositories/cardRepository';
+import { CardStatus } from '@/types';
 
-export const useCardsQuery = (page = 0, pageSize = 50, searchTerm = '') => {
+export interface CardFilters {
+  status?: CardStatus | 'all';
+  bookmarked?: boolean;
+  leech?: boolean;
+}
+
+export const useCardsQuery = (
+  page = 0,
+  pageSize = 50,
+  searchTerm = '',
+  filters: CardFilters = {}
+) => {
   const { settings } = useSettings();
   const language = settings.language;
 
   return useQuery({
-    queryKey: ['cards', language, page, pageSize, searchTerm],
+    queryKey: ['cards', language, page, pageSize, searchTerm, filters],
     queryFn: async () => {
       let cards = await db.cards
         .where('language')
@@ -23,6 +35,21 @@ export const useCardsQuery = (page = 0, pageSize = 50, searchTerm = '') => {
           c.targetWord?.toLowerCase().includes(term) ||
           c.notes?.toLowerCase().includes(term)
         );
+      }
+
+      // Apply status filter
+      if (filters.status && filters.status !== 'all') {
+        cards = cards.filter(c => c.status === filters.status);
+      }
+
+      // Apply bookmarked filter
+      if (filters.bookmarked) {
+        cards = cards.filter(c => c.isBookmarked === true);
+      }
+
+      // Apply leech filter
+      if (filters.leech) {
+        cards = cards.filter(c => c.isLeech === true);
       }
 
       cards.sort((a, b) => b.dueDate.localeCompare(a.dueDate));

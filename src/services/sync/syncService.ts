@@ -1,5 +1,6 @@
 import { Capacitor } from '@capacitor/core';
 import { Filesystem, Directory, Encoding } from '@capacitor/filesystem';
+import { Share } from '@capacitor/share';
 import { db } from '@/services/db/dexie';
 import { getCards, saveAllCards, clearAllCards } from '@/services/db/repositories/cardRepository';
 import { getHistory, saveFullHistory, clearHistory } from '@/services/db/repositories/historyRepository';
@@ -125,20 +126,30 @@ export const saveSyncFile = async (settings: Partial<UserSettings>): Promise<{ s
         const filename = getSyncFilePath();
 
         if (Capacitor.isNativePlatform()) {
-            // On mobile, write to Documents directory (Syncthing accessible)
+            // On mobile, first write to cache directory, then use Share to let user choose destination
+            const tempFilename = `linguaflow-backup-${Date.now()}.json`;
+            
             await Filesystem.writeFile({
-                path: filename,
+                path: tempFilename,
                 data: jsonContent,
-                directory: Directory.Documents,
+                directory: Directory.Cache,
                 encoding: Encoding.UTF8
             });
 
             const uri = await Filesystem.getUri({
-                path: filename,
-                directory: Directory.Documents
+                path: tempFilename,
+                directory: Directory.Cache
             });
 
-            console.log('[Sync] Saved to:', uri.uri);
+            // Use Share API to let user choose where to save the file
+            await Share.share({
+                title: 'LinguaFlow Backup',
+                text: 'Save your LinguaFlow backup data',
+                url: uri.uri,
+                dialogTitle: 'Save backup file to...'
+            });
+
+            console.log('[Sync] Shared file for saving:', uri.uri);
             return { success: true, path: uri.uri };
         } else {
             // On web, use File System Access API if available

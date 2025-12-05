@@ -151,6 +151,7 @@ interface ColumnActions {
     onDeleteCard: (id: string) => void
     onViewHistory: (card: Card) => void
     onPrioritizeCard: (id: string) => void
+    onToggleSelect?: (id: string, index: number, isShift: boolean) => void
 }
 
 export function getCardColumns(actions: ColumnActions): ColumnDef<Card>[] {
@@ -170,19 +171,30 @@ export function getCardColumns(actions: ColumnActions): ColumnDef<Card>[] {
                     />
                 </div>
             ),
-            cell: ({ row }) => (
-                <div
-                    className="flex items-center justify-center"
-                    onClick={(e) => e.stopPropagation()}
-                >
-                    <Checkbox
-                        checked={row.getIsSelected()}
-                        onCheckedChange={(value) => row.toggleSelected(!!value)}
-                        aria-label="Select row"
-                        className="border-muted-foreground/50 data-[state=checked]:bg-primary data-[state=checked]:border-primary text-primary-foreground"
-                    />
-                </div>
-            ),
+            cell: ({ row, table }) => {
+                const handleClick = (e: React.MouseEvent) => {
+                    e.stopPropagation();
+                    if (actions.onToggleSelect) {
+                        const rowIndex = table.getRowModel().rows.findIndex(r => r.id === row.id);
+                        actions.onToggleSelect(row.id, rowIndex, e.shiftKey);
+                    } else {
+                        row.toggleSelected();
+                    }
+                };
+                return (
+                    <div
+                        className="flex items-center justify-center"
+                        onClick={handleClick}
+                    >
+                        <Checkbox
+                            checked={row.getIsSelected()}
+                            onCheckedChange={() => {}}
+                            aria-label="Select row"
+                            className="border-muted-foreground/50 data-[state=checked]:bg-primary data-[state=checked]:border-primary text-primary-foreground pointer-events-none"
+                        />
+                    </div>
+                );
+            },
             enableSorting: false,
             enableHiding: false,
             size: 40,
