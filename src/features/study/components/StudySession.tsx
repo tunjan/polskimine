@@ -104,6 +104,7 @@ export const StudySession: React.FC<StudySessionProps> = ({
     progress,
     isProcessing,
     isWaiting,
+    removeCardFromSession,
   } = useStudySession({
     dueCards,
     reserveCards,
@@ -119,6 +120,16 @@ export const StudySession: React.FC<StudySessionProps> = ({
     const updatedCard = { ...currentCard, isBookmarked: pressed };
     onUpdateCard(updatedCard);
   }, [currentCard, onUpdateCard]);
+
+  const handleDelete = useCallback(() => {
+    if (!currentCard) return;
+    if (confirm('Are you sure you want to delete this card?')) {
+      // First update the session state to show the next card
+      removeCardFromSession(currentCard.id);
+      // Then delete from the database
+      onDeleteCard(currentCard.id);
+    }
+  }, [currentCard, removeCardFromSession, onDeleteCard]);
 
   const counts = useMemo(() => getQueueCounts(sessionCards.slice(currentIndex)), [sessionCards, currentIndex]);
 
@@ -339,11 +350,7 @@ export const StudySession: React.FC<StudySessionProps> = ({
         multiplierInfo={multiplierInfo}
         isProcessing={isProcessing}
         onEdit={() => setIsEditModalOpen(true)}
-        onDelete={() => {
-          if (confirm('Are you sure you want to delete this card?')) {
-            onDeleteCard(currentCard.id);
-          }
-        }}
+        onDelete={handleDelete}
         onArchive={handleMarkKnown}
         onUndo={handleUndo}
         onExit={onExit}

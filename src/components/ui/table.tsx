@@ -24,7 +24,7 @@ const TableHeader = React.forwardRef<
     ref={ref}
     className={cn(
       "[&_tr]:border-b-2 [&_tr]:border-primary/20",
-      "bg-gradient-to-r from-card via-card to-card",
+      "bg-linear-to-r from-card via-card to-card",
       className
     )}
     {...props}
@@ -85,8 +85,8 @@ const TableHead = React.forwardRef<
     className={cn(
       "h-12 px-4 text-left align-middle font-ui font-semibold uppercase tracking-wider text-[11px]",
       "text-primary/70 dark:text-primary/80",
-      "[&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px]",
-      "[&:not(:last-child)]:relative [&:not(:last-child)]:after:absolute [&:not(:last-child)]:after:right-0 [&:not(:last-child)]:after:top-1/4 [&:not(:last-child)]:after:h-1/2 [&:not(:last-child)]:after:w-px [&:not(:last-child)]:after:bg-border/30",
+      "[&:has([role=checkbox])]:pr-0 *:[[role=checkbox]]:translate-y-0.5",
+      "not-last:relative not-last:after:absolute not-last:after:right-0 not-last:after:top-1/4 not-last:after:h-1/2 not-last:after:w-px not-last:after:bg-border/30",
       className
     )}
     {...props}
@@ -101,7 +101,7 @@ const TableCell = React.forwardRef<
   <td
     ref={ref}
     className={cn(
-      "p-4 align-middle [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px]",
+      "p-4 align-middle [&:has([role=checkbox])]:pr-0 *:[[role=checkbox]]:translate-y-0.5",
       className
     )}
     {...props}

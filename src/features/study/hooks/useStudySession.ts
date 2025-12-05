@@ -258,6 +258,7 @@ export const useStudySession = ({
     : 0;
 
   // Remove a card from the session queue (e.g., when deleted)
+  // This does NOT pull from reserves since the card wasn't reviewed
   const removeCardFromSession = useCallback((cardId: string) => {
     // We do NOT block this with isProcessingRef because if a card is deleted externally
     // or via a separate control, we MUST update the session state to avoid crashing on a missing card.
@@ -279,6 +280,8 @@ export const useStudySession = ({
         if (currentIndex >= newCards.length) {
           setCurrentIndex(newCards.length - 1);
         }
+        // Reset flip state for the new current card
+        setIsFlipped(false);
       }
 
       // Check if session should complete
