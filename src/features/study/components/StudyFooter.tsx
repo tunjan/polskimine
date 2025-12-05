@@ -26,7 +26,7 @@ export const StudyFooter: React.FC<StudyFooterProps> = React.memo(({
                 <span className="w-8 h-px bg-amber-500/20" />
             </div>
 
-            <div className="h-24 md:h-28 w-full max-w-4xl mx-auto px-8 md:px-16">
+            <div className="h-24 md:h-28 w-full max-w-4xl mx-auto py-6 px-8 md:px-16">
                 {!isFlipped ? (
                     <button
                         onClick={() => setIsFlipped(true)}
@@ -53,7 +53,7 @@ export const StudyFooter: React.FC<StudyFooterProps> = React.memo(({
 
                         {/* Content with diamond accents */}
                         <span className="w-2 h-2 rotate-45 border border-amber-600/30 group-hover:border-amber-500/50 group-hover:bg-amber-500/20 transition-all mr-4" />
-                        <span className="text-[11px] font-ui uppercase tracking-[0.2em] text-muted-foreground/50 group-hover:text-amber-500/80 transition-colors duration-300">
+                        <span className="text-[11px] font-ui uppercase tracking-[0.2em] text-muted-foreground/50 group-hover:text-amber-600/80 transition-colors duration-300">
                             Show Answer
                         </span>
                         <span className="w-2 h-2 rotate-45 border border-amber-600/30 group-hover:border-amber-500/50 group-hover:bg-amber-500/20 transition-all ml-4" />
@@ -65,7 +65,7 @@ export const StudyFooter: React.FC<StudyFooterProps> = React.memo(({
                     </button>
                 ) : (
                     binaryRatingMode ? (
-                        <div className="grid grid-cols-2 h-full w-full gap-4 md:gap-8 items-center py-3">
+                        <div className="grid grid-cols-2 h-full w-full gap-4 md:gap-8 items-center">
                             <GameAnswerButton
                                 label="Again"
                                 shortcut="1"
@@ -82,7 +82,7 @@ export const StudyFooter: React.FC<StudyFooterProps> = React.memo(({
                             />
                         </div>
                     ) : (
-                        <div className="grid grid-cols-4 h-full w-full gap-2 md:gap-4 items-center py-3">
+                        <div className="grid grid-cols-4 h-full w-full gap-2 md:gap-4 items-center">
                             <GameAnswerButton
                                 label="Again"
                                 shortcut="1"
@@ -130,7 +130,7 @@ const GameAnswerButton = React.memo(({ label, shortcut, intent, onClick, disable
 
     const colorMap = {
         danger: {
-            text: 'text-red-500/70',
+            text: 'text-red-800/70',
             hover: 'hover:text-red-500',
             border: 'hover:border-red-500/40',
             bg: 'hover:bg-red-500/5',
@@ -139,7 +139,7 @@ const GameAnswerButton = React.memo(({ label, shortcut, intent, onClick, disable
             gradient: 'from-red-500/10 to-transparent'
         },
         warning: {
-            text: 'text-amber-500/70',
+            text: 'text-amber-800/70',
             hover: 'hover:text-amber-500',
             border: 'hover:border-amber-500/40',
             bg: 'hover:bg-amber-500/5',
@@ -148,7 +148,7 @@ const GameAnswerButton = React.memo(({ label, shortcut, intent, onClick, disable
             gradient: 'from-amber-500/10 to-transparent'
         },
         success: {
-            text: 'text-pine-500/70',
+            text: 'text-pine-800/70',
             hover: 'hover:text-pine-500',
             border: 'hover:border-pine-500/40',
             bg: 'hover:bg-pine-500/5',
@@ -157,7 +157,7 @@ const GameAnswerButton = React.memo(({ label, shortcut, intent, onClick, disable
             gradient: 'from-pine-500/10 to-transparent'
         },
         info: {
-            text: 'text-blue-500/70',
+            text: 'text-blue-800/70',
             hover: 'hover:text-blue-500',
             border: 'hover:border-blue-500/40',
             bg: 'hover:bg-blue-500/5',
@@ -181,13 +181,13 @@ const GameAnswerButton = React.memo(({ label, shortcut, intent, onClick, disable
             disabled={disabled}
             className={clsx(
                 "group relative flex flex-col items-center justify-center h-full w-full outline-none select-none overflow-hidden",
-                "border border-border/20 bg-card/30 transition-all duration-200",
+                "border border-border/80 bg-card transition-all duration-200",
                 colors.border, colors.bg,
                 "hover:shadow-lg",
                 colors.glow,
                 isPressed && "scale-95",
-                disabled && "opacity-20 cursor-not-allowed"
-            )}
+                disabled && "opacity-90 cursor-not-allowed"
+            )}  
         >
             {/* Gradient background on hover */}
             <div className={clsx(

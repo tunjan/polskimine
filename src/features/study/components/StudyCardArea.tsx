@@ -27,7 +27,7 @@ export const StudyCardArea: React.FC<StudyCardAreaProps> = React.memo(({
     onAddCard,
 }) => {
     return (
-        <main className="flex-1 w-full relative flex flex-col items-center justify-center py-8 overflow-hidden">
+        <main className="flex-1 mx-2  relative flex flex-col items-center justify-center py-8 overflow-hidden">
             {/* Subtle diamond pattern background */}
             <div
                 className="absolute inset-0 opacity-[0.015] pointer-events-none"
@@ -41,12 +41,12 @@ export const StudyCardArea: React.FC<StudyCardAreaProps> = React.memo(({
             <GenshinCorners className="text-amber-600/80 dark:text-amber-400/20 hidden md:block" zIndex="z-10" />
 
             {/* Decorative side accents - enhanced */}
-            <span className="absolute left-6 top-1/2 -translate-y-1/2 hidden md:flex flex-col items-center gap-2">
+            <span className="absolute left-0 top-1/2 -translate-y-1/2 hidden md:flex flex-col items-center gap-2">
                 <span className="w-px h-16 bg-linear-to-b from-transparent via-amber-600/80 to-transparent" />
                 <span className="w-1.5 h-1.5 rotate-45 bg-amber-600/80" />
                 <span className="w-px h-24 bg-linear-to-b from-amber-600/80 via-border/30 to-transparent" />
             </span>
-            <span className="absolute right-6 top-1/2 -translate-y-1/2 hidden md:flex flex-col items-center gap-2">
+            <span className="absolute right-0 top-1/2 -translate-y-1/2 hidden md:flex flex-col items-center gap-2">
                 <span className="w-px h-16 bg-linear-to-b from-transparent via-amber-600/80 to-transparent" />
                 <span className="w-1.5 h-1.5 rotate-45 bg-amber-600/80" />
                 <span className="w-px h-24 bg-linear-to-b from-amber-600/80 via-border/30 to-transparent" />

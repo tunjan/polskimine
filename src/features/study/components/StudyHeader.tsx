@@ -36,7 +36,7 @@ export const StudyHeader: React.FC<StudyHeaderProps> = React.memo(({
     onBookmark,
 }) => {
     return (
-        <header className="relative h-16 md:h-20 px-4 md:px-12 flex justify-between items-center select-none shrink-0 pt-[env(safe-area-inset-top)] gap-2 border-b border-amber-600/15">
+        <header className="relative h-16 md:h-20 px-4 md:px-6 flex justify-between items-center select-none shrink-0 pt-[env(safe-area-inset-top)] gap-2 border-b border-amber-600/15">
             {/* Bottom decorative accent */}
             <div className="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-1/2 flex items-center gap-2 z-10">
                 <span className="w-6 h-px bg-amber-500/20" />
@@ -162,10 +162,10 @@ const GameQueueStat = React.memo(({ label, count, isActive, color }: {
     color: 'blue' | 'orange' | 'red' | 'green';
 }) => {
     const colorMap = {
-        blue: { active: 'text-blue-500 border-blue-500/30 bg-blue-500/5', inactive: 'text-muted-foreground/60 border-border/30' },
-        orange: { active: 'text-amber-500 border-amber-500/30 bg-amber-500/5', inactive: 'text-muted-foreground/60 border-border/30' },
-        red: { active: 'text-red-500 border-red-500/30 bg-red-500/5', inactive: 'text-muted-foreground/60 border-border/30' },
-        green: { active: 'text-green-700 border-green-700/30 bg-green-700/5', inactive: 'text-muted-foreground/60 border-border/30' },
+        blue: { active: 'text-blue-800 border-blue-500/30 bg-blue-500/5', inactive: 'text-muted-foreground/60 border-border/30' },
+        orange: { active: 'text-amber-800 border-amber-500/30 bg-amber-500/5', inactive: 'text-muted-foreground/60 border-border/30' },
+        red: { active: 'text-red-800 border-red-500/30 bg-red-500/5', inactive: 'text-muted-foreground/60 border-border/30' },
+        green: { active: 'text-green-800 border-green-700/30 bg-green-700/5', inactive: 'text-muted-foreground/60 border-border/30' },
     };
     const colors = colorMap[color];
 

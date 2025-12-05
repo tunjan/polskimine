@@ -25,7 +25,7 @@ export function GameSectionHeader({
 
                 {/* Title */}
                 <h2 className="text-lg md:text-xl font-semibold text-foreground tracking-wide font-ui flex items-center gap-2.5">
-                    {icon && <span className="text-amber-500/80">{icon}</span>}
+                    {icon && <span className="text-amber-600/80">{icon}</span>}
                     {title}
                 </h2>
 

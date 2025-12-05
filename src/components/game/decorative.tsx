@@ -45,7 +45,7 @@ export const GenshinCorner = ({ className, ...props }: React.ComponentProps<"svg
 )
 
 interface GenshinCornersProps {
-    /** Color classes for the corners (e.g., "text-amber-500/80 dark:text-amber-400/70") */
+    /** Color classes for the corners (e.g., "text-amber-600/80 dark:text-amber-400/70") */
     className?: string
     /** Additional z-index class if needed */
     zIndex?: string
@@ -55,7 +55,7 @@ interface GenshinCornersProps {
  * GenshinCorners - Renders all 4 ornate corner decorations at once
  * Place inside a relative-positioned container
  */
-export const GenshinCorners = ({ className = "text-amber-500/80 dark:text-amber-400/70", zIndex = "z-20" }: GenshinCornersProps) => (
+export const GenshinCorners = ({ className = "text-amber-600/80 dark:text-amber-400/70", zIndex = "z-20" }: GenshinCornersProps) => (
     <>
         <GenshinCorner className={cn("absolute -top-px -left-px pointer-events-none", zIndex, className)} />
         <GenshinCorner className={cn("absolute -top-px -right-px pointer-events-none rotate-90", zIndex, className)} />

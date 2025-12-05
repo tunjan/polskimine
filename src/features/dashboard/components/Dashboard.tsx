@@ -112,7 +112,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
             <div className="relative">
               <GamePanel
                 variant="ornate"
-                size="lg"
+                size="md"
                 showCorners
                 className="h-full bg-linear-to-br from-card via-card to-primary/5"
               >
@@ -120,7 +120,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
                 <div className="absolute top-0 left-8 right-8 h-0.5 bg-linear-to-r from-transparent via-primary/60 to-transparent" />
 
                 {/* Level Emblem */}
-                <div className="flex flex-col items-center pt-2 pb-4">
+                <div className="flex flex-col items-center pt-2 pb-2">
                   <LevelBadge
                     level={levelData.level}
                     xp={languageXp.xp}
@@ -130,7 +130,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
                   />
 
                   {/* Rank Title */}
-                  <div className="mt-4 text-center">
+                  <div className="mt-2 text-center">
                     <div className="flex items-center justify-center gap-3 mb-1">
                       <span className="w-6 h-px bg-primary/40" />
                       <span className={cn("text-[10px] font-bold uppercase tracking-[0.25em]", rank.color)}>
@@ -145,7 +145,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
                 </div>
 
                 {/* Divider */}
-                <div className="flex items-center gap-3 my-4">
+                <div className="flex items-center gap-3 my-3">
                   <span className="flex-1 h-px bg-border/50" />
                   <span className="w-2 h-2 rotate-45 bg-primary/40" />
                   <span className="flex-1 h-px bg-border/50" />
@@ -154,28 +154,28 @@ export const Dashboard: React.FC<DashboardProps> = ({
                 {/* Stats - Attribute Style */}
                 <div className="space-y-0">
                   <div className="genshin-attr-row">
-                    <span className="attr-label flex items-center gap-2">
+                    <span className="attr-label text-sm flex items-center gap-2">
                       <Sparkles className="w-3.5 h-3.5 text-primary/60" />
                       Total XP
                     </span>
                     <span className="attr-value">{languageXp.xp.toLocaleString()}</span>
                   </div>
                   <div className="genshin-attr-row">
-                    <span className="attr-label flex items-center gap-2">
+                    <span className="attr-label flex text-sm items-center gap-2">
                       <Target className="w-3.5 h-3.5 text-primary/60" />
                       Next Level
                     </span>
                     <span className="attr-value">{levelData.xpToNextLevel.toLocaleString()} XP</span>
                   </div>
                   <div className="genshin-attr-row">
-                    <span className="attr-label flex items-center gap-2">
+                    <span className="attr-label flex text-sm items-center gap-2">
                       <Trophy className="w-3.5 h-3.5 text-yellow-500/60" />
                       Points
                     </span>
                     <span className="attr-value">{profile?.points?.toLocaleString() ?? '0'}</span>
                   </div>
                   <div className="genshin-attr-row">
-                    <span className="attr-label flex items-center gap-2">
+                    <span className="attr-label flex text-sm items-center gap-2">
                       <Activity className="w-3.5 h-3.5 text-sky-500/60" />
                       Total Reviews
                     </span>
@@ -184,7 +184,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
                 </div>
 
                 {/* Progress bar */}
-                <div className="mt-4 pt-4 border-t border-border/30">
+                <div className="mt-3 pt-3 border-t border-border/30">
                   <div className="flex justify-between text-[10px] text-muted-foreground mb-2 uppercase tracking-wider font-semibold">
                     <span>Progress</span>
                     <span>{Math.round(levelData.progressPercent)}%</span>
@@ -218,7 +218,6 @@ export const Dashboard: React.FC<DashboardProps> = ({
                     <path d="M0 0H40V2H2V40H0V0Z" fill="currentColor" />
                     <path d="M4 4H28V5H5V28H4V4Z" fill="currentColor" opacity="0.5" />
                     <rect x="32" y="4" width="6" height="1" fill="currentColor" opacity="0.4" />
-                    <path d="M42 3L43.5 4.5L42 6L40.5 4.5Z" fill="currentColor" opacity="0.6" />
                   </svg>
                   <svg className="absolute top-0 right-0 w-12 h-12 text-amber-600/70 rotate-90" viewBox="0 0 48 48" fill="none">
                     <path d="M0 0H40V2H2V40H0V0Z" fill="currentColor" />
@@ -235,11 +234,11 @@ export const Dashboard: React.FC<DashboardProps> = ({
                   </svg>
 
                   {/* Quest ribbon/banner */}
-                  <div className=" px-5 pt-5 mx-auto flex justify-around pb-4">
+                  <div className=" px-5 pt-5 mx-auto flex justify-around pb-3">
                     <div className="flex justify-evenly gap-4 mx-auto">
                       <div className="flex-1 flex-col mx-auto">
                         {/* Quest type badge */}
-                        <div className="items-center text-center gap-2 mb-1.5">
+                        <div className="items-center text-center gap-2 mb-1">
                           <span className="w-1.5 h-1.5 bg-amber-600 rotate-45 animate-pulse" />
                           <span className="text-[10px] text-amber-600 font-bold uppercase tracking-[0.25em]">
                             Daily Commission
@@ -263,9 +262,9 @@ export const Dashboard: React.FC<DashboardProps> = ({
                   </div>
 
                   {/* Due count display - Central focus */}
-                  <div className="flex items-center justify-center py-8 px-5">
+                  <div className="flex items-center justify-center py-6 px-5">
                     <div className="text-center">
-                      <div className="relative inline-flex items-center justify-center w-28 h-28 md:w-32 md:h-32 mb-4">
+                      <div className="relative inline-flex items-center justify-center w-24 h-24 md:w-28 md:h-28 mb-3">
 
 
                         {/* Diamond frame */}
@@ -276,13 +275,13 @@ export const Dashboard: React.FC<DashboardProps> = ({
                         <div className="relative">
                           <span className={cn(
                             "absolute inset-0 font-semibold text-amber-400/30 blur-sm font-serif",
-                            stats.due >= 1000 ? "text-2xl md:text-3xl" : stats.due >= 100 ? "text-3xl md:text-4xl" : "text-4xl md:text-5xl"
+                            stats.due >= 1000 ? "text-xl md:text-2xl" : stats.due >= 100 ? "text-2xl md:text-3xl" : "text-3xl md:text-4xl"
                           )}>
                             {stats.due}
                           </span>
                           <span className={cn(
                             "relative font-semibold text-foreground tabular-nums font-serif",
-                            stats.due >= 1000 ? "text-2xl md:text-3xl" : stats.due >= 100 ? "text-3xl md:text-4xl" : "text-4xl md:text-5xl"
+                            stats.due >= 1000 ? "text-xl md:text-2xl" : stats.due >= 100 ? "text-2xl md:text-3xl" : "text-3xl md:text-4xl"
                           )}>
                             {stats.due}
                           </span>
@@ -302,18 +301,12 @@ export const Dashboard: React.FC<DashboardProps> = ({
                       <span className="flex-1 h-px bg-amber-700/30" />
                     </div>
 
-                    <div className="grid grid-cols-2 gap-3 mb-5">
+                    <div className="grid grid-cols-2 gap-3 mb-4">
                       <div className="relative group/reward bg-gradient-to-br from-amber-500/10 to-transparent border border-amber-700/30 p-3 hover:border-amber-600/50 transition-colors">
-                        <div className="absolute top-0 left-0 w-2 h-2 border-t border-l border-amber-500/50" />
-                        <div className="absolute top-0 right-0 w-2 h-2 border-t border-r border-amber-500/50" />
                         <div className="flex items-center gap-3">
-                          <div className="relative w-10 h-10 flex items-center justify-center bg-amber-500/10 rotate-45">
-                            {/* Corner accents */}
-                            <span className="absolute top-0 left-0 w-2.5 h-2.5 border-t-2 border-l-2 border-amber-500/60" />
-                            <span className="absolute top-0 right-0 w-2.5 h-2.5 border-t-2 border-r-2 border-amber-500/60" />
-                            <span className="absolute bottom-0 left-0 w-2.5 h-2.5 border-b-2 border-l-2 border-amber-500/60" />
-                            <span className="absolute bottom-0 right-0 w-2.5 h-2.5 border-b-2 border-r-2 border-amber-500/60" />
-                            <Star className="w-5 h-5 text-amber-400 -rotate-45" fill="currentColor" />
+                          <div className="relative w-10 h-10 flex items-center justify-center bg-amber-500/10 rounded-4xl">
+                            
+                            <Star className="w-5 h-5 text-amber-400 " fill="currentColor" />
                           </div>
                           <div>
                             <p className="text-xl font-semibold text-foreground tabular-nums">{stats.newDue}</p>
@@ -323,16 +316,10 @@ export const Dashboard: React.FC<DashboardProps> = ({
                       </div>
 
                       <div className="relative group/reward bg-gradient-to-br from-sky-500/10 to-transparent border border-sky-700/30 p-3 hover:border-sky-600/50 transition-colors">
-                        <div className="absolute top-0 left-0 w-2 h-2 border-t border-l border-sky-500/50" />
-                        <div className="absolute top-0 right-0 w-2 h-2 border-t border-r border-sky-500/50" />
                         <div className="flex items-center gap-3">
-                          <div className="relative w-10 h-10 flex items-center justify-center bg-sky-500/10 rotate-45">
-                            {/* Corner accents */}
-                            <span className="absolute top-0 left-0 w-2.5 h-2.5 border-t-2 border-l-2 border-sky-500/60" />
-                            <span className="absolute top-0 right-0 w-2.5 h-2.5 border-t-2 border-r-2 border-sky-500/60" />
-                            <span className="absolute bottom-0 left-0 w-2.5 h-2.5 border-b-2 border-l-2 border-sky-500/60" />
-                            <span className="absolute bottom-0 right-0 w-2.5 h-2.5 border-b-2 border-r-2 border-sky-500/60" />
-                            <Activity className="w-5 h-5 text-sky-400 -rotate-45" />
+                          <div className="relative w-10 h-10 flex items-center justify-center bg-sky-500/10 rounded-4xl">
+                            
+                            <Activity className="w-5 h-5 text-sky-400 " />
                           </div>
                           <div>
                             <p className="text-xl font-semibold text-foreground tabular-nums">{stats.reviewDue}</p>
@@ -389,7 +376,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
                             <span className="text-base font-bold tracking-[0.35em] text-amber-600 dark:text-amber-300 uppercase">
                               Navigate
                             </span>
-                            <ChevronRight className="w-5 h-5 text-amber-400 group-hover/btn:translate-x-1 transition-transform" />
+                            
                             <span className="w-1.5 h-1.5 rotate-45 bg-amber-500 opacity-60" />
                             <span className="w-6 h-px bg-amber-500/50 group-hover/btn:w-10 group-hover/btn:bg-amber-400 transition-all duration-300" />
                           </div>

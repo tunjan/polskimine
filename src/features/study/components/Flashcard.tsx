@@ -353,10 +353,7 @@ export const Flashcard = React.memo<FlashcardProps>(({
           isFlipped && ""
         )}>
 
-          {/* Diamond accents at mid-points */}
-          <span className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 w-1.5 h-1.5 rotate-45 bg-amber-500/30 hidden md:block" />
-          <span className="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-1/2 w-1.5 h-1.5 rotate-45 bg-amber-500/30 hidden md:block" />
-        </div>
+         </div>
 
         {/* Main content */}
         <div className={cn(
@@ -380,7 +377,7 @@ export const Flashcard = React.memo<FlashcardProps>(({
           <div className="absolute top-1/2 left-0 right-0 bottom-4  flex flex-col items-center gap-3 z-0 pointer-events-none overflow-y-auto">
 
             {/* Decorative divider - Genshin style */}
-            <div className="flex items-center gap-3 mb-3 animate-in fade-in duration-500">
+            <div className="flex items-center gap-3 my-3 animate-in fade-in duration-500">
               <span className="w-12 h-px bg-linear-to-r from-transparent to-amber-600/80" />
               <span className="w-1.5 h-1.5 rotate-45 border border-amber-600/80" />
               <span className="w-1 h-1 rotate-45 bg-amber-600/80" />

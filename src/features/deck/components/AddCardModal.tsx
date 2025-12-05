@@ -225,7 +225,7 @@ export const AddCardModal: React.FC<AddCardModalProps> = ({ isOpen, onClose, onA
 
                                 <Sparkles size={14} className={cn(
                                     "transition-all duration-200",
-                                    isGenerating ? "text-amber-400 animate-pulse" : "text-amber-500/80 group-hover:text-amber-500"
+                                    isGenerating ? "text-amber-400 animate-pulse" : "text-amber-600/80 group-hover:text-amber-500"
                                 )} />
                                 <span className={cn(
                                     "text-[10px] font-ui font-semibold uppercase tracking-[0.15em]",
