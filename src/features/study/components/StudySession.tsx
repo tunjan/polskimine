@@ -64,6 +64,7 @@ export const StudySession: React.FC<StudySessionProps> = ({
 }) => {
   const { settings } = useSettings();
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
   const { sessionXp, sessionStreak, multiplierInfo, feedback, processCardResult, subtractXp } = useXpSession(dailyStreak, isCramMode);
 
   const lastXpEarnedRef = React.useRef<number>(0);
@@ -124,10 +125,17 @@ export const StudySession: React.FC<StudySessionProps> = ({
   const handleDelete = useCallback(async () => {
     if (!currentCard) return;
     if (confirm('Are you sure you want to delete this card?')) {
-      // First delete from the database (await to ensure it completes)
-      await onDeleteCard(currentCard.id);
-      // Then update the session state to show the next card
-      removeCardFromSession(currentCard.id);
+      setIsDeleting(true);
+      try {
+        // First delete from the database (await to ensure it completes)
+        await onDeleteCard(currentCard.id);
+        // Then update the session state to show the next card
+        removeCardFromSession(currentCard.id);
+      } catch (error) {
+        console.error("Failed to delete card", error);
+      } finally {
+        setIsDeleting(false);
+      }
     }
   }, [currentCard, removeCardFromSession, onDeleteCard]);
 
@@ -348,7 +356,7 @@ export const StudySession: React.FC<StudySessionProps> = ({
         currentStatus={currentStatus}
         sessionXp={sessionXp}
         multiplierInfo={multiplierInfo}
-        isProcessing={isProcessing}
+        isProcessing={isProcessing || isDeleting}
         onEdit={() => setIsEditModalOpen(true)}
         onDelete={handleDelete}
         onArchive={handleMarkKnown}

@@ -124,6 +124,11 @@ export const calculateNextReview = (card: Card, grade: Grade, settings?: UserSet
 };
 
 export const isCardDue = (card: Card, now: Date = new Date()): boolean => {
+  // New cards are always considered due
+  if (card.status === 'new' || card.state === State.New || (card.state === undefined && (card.reps || 0) === 0)) {
+    return true;
+  }
+
   const due = new Date(card.dueDate);
 
   if (card.status === 'learning' || card.state === State.Learning || card.state === State.Relearning) {

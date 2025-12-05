@@ -264,43 +264,56 @@ export const useStudySession = ({
     // However, if the current card IS the one being processed, we might have an issue.
     // Ideally, the delete action is disabled in the UI while processing.
 
-    setSessionCards((prev) => {
-      const index = prev.findIndex((c) => c.id === cardId);
-      if (index === -1) return prev;
+    const index = sessionCards.findIndex((c) => c.id === cardId);
+    if (index === -1) return;
 
-      const deletedCard = prev[index];
-      const wasNewCard = isNewCard(deletedCard);
+    const deletedCard = sessionCards[index];
+    const wasNewCard = isNewCard(deletedCard);
+    
+    let newCards = sessionCards.filter((c) => c.id !== cardId);
+    let newReserveCards = [...reserveCards];
+
+    // If we deleted a new card and have reserves, pull the next new card
+    if (wasNewCard && newReserveCards.length > 0) {
+      const nextNew = newReserveCards[0];
       
-      let newCards = prev.filter((c) => c.id !== cardId);
-
-      // If we deleted a new card and have reserves, pull the next new card
-      if (wasNewCard && reserveCards.length > 0) {
-        const nextNew = reserveCards[0];
-        newCards = [...newCards, nextNew];
-        setReserveCards((prevReserve) => prevReserve.slice(1));
-      }
-
-      // Adjust currentIndex if needed
-      if (index < currentIndex) {
-        setCurrentIndex((i) => Math.max(0, i - 1));
-      } else if (index === currentIndex && newCards.length > 0) {
-        // If we removed the current card, stay at the same index
-        // (which will now point to the next card)
-        if (currentIndex >= newCards.length) {
-          setCurrentIndex(newCards.length - 1);
+      // If "New First" order is active, insert the replacement card before any non-new cards
+      // to maintain the "new cards first" flow.
+      if (settings.cardOrder === 'newFirst') {
+        const firstNonNewIndex = newCards.findIndex(c => !isNewCard(c));
+        if (firstNonNewIndex !== -1) {
+          newCards.splice(firstNonNewIndex, 0, nextNew);
+        } else {
+          newCards.push(nextNew);
         }
-        // Reset flip state for the new current card
-        setIsFlipped(false);
+      } else {
+        newCards.push(nextNew);
       }
 
-      // Check if session should complete
-      if (newCards.length === 0) {
-        setSessionComplete(true);
-      }
+      newReserveCards = newReserveCards.slice(1);
+      setReserveCards(newReserveCards);
+    }
 
-      return newCards;
-    });
-  }, [currentIndex, reserveCards]);
+    setSessionCards(newCards);
+
+    // Adjust currentIndex if needed
+    if (index < currentIndex) {
+      setCurrentIndex((i) => Math.max(0, i - 1));
+    } else if (index === currentIndex && newCards.length > 0) {
+      // If we removed the current card, stay at the same index
+      // (which will now point to the next card)
+      if (currentIndex >= newCards.length) {
+        setCurrentIndex(newCards.length - 1);
+      }
+      // Reset flip state for the new current card
+      setIsFlipped(false);
+    }
+
+    // Check if session should complete
+    if (newCards.length === 0) {
+      setSessionComplete(true);
+    }
+  }, [sessionCards, reserveCards, currentIndex, settings.cardOrder]);
 
   return {
     sessionCards,
