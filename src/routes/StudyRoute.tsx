@@ -115,11 +115,11 @@ export const StudyRoute: React.FC = () => {
   const handleUpdateCard = (card: Card) => {
     if (isCramMode) {
       if (card.status === 'known') {
-        updateCard(card);
+        updateCard(card, { silent: true });
       }
       return;
     }
-    updateCard(card);
+    updateCard(card, { silent: true });
   };
 
   const handleDeleteCard = async (id: string) => {

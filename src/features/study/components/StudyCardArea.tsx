@@ -3,7 +3,7 @@ import { Card, Language } from '@/types';
 import { Flashcard } from './Flashcard';
 import { StudyFeedback } from './StudyFeedback';
 import { XpFeedback } from '@/features/xp/hooks/useXpSession';
-import { GenshinCorner } from '@/components/game/GamePanel';
+import { GenshinCorners } from '@/components/game/GamePanel';
 
 interface StudyCardAreaProps {
     feedback: XpFeedback | null;
@@ -38,10 +38,7 @@ export const StudyCardArea: React.FC<StudyCardAreaProps> = React.memo(({
             />
 
             {/* Ornate corner frames */}
-            <GenshinCorner className="absolute top-4 left-4 text-amber-600/80 dark:text-amber-400/20 pointer-events-none hidden md:block" />
-            <GenshinCorner className="absolute top-4 right-4 text-amber-600/80 dark:text-amber-400/20 pointer-events-none rotate-90 hidden md:block" />
-            <GenshinCorner className="absolute bottom-4 left-4 text-amber-600/80 dark:text-amber-400/20 pointer-events-none -rotate-90 hidden md:block" />
-            <GenshinCorner className="absolute bottom-4 right-4 text-amber-600/80 dark:text-amber-400/20 pointer-events-none rotate-180 hidden md:block" />
+            <GenshinCorners className="text-amber-600/80 dark:text-amber-400/20 hidden md:block" zIndex="z-10" />
 
             {/* Decorative side accents - enhanced */}
             <span className="absolute left-6 top-1/2 -translate-y-1/2 hidden md:flex flex-col items-center gap-2">

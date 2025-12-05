@@ -4,19 +4,8 @@ import { Card } from '@/types';
 import { format, formatDistanceToNow, parseISO, isValid } from 'date-fns';
 import { Activity, Clock, Target, Zap, X as XIcon, History, Calendar } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { GenshinCorner } from '@/components/game/GamePanel';
+import { GenshinCorners, DiamondDivider, InnerFrame } from '@/components/game/GamePanel';
 
-
-
-const DiamondDivider = ({ className }: { className?: string }) => (
-  <div className={cn("flex items-center gap-3", className)}>
-    <span className="flex-1 h-px bg-amber-600/20" />
-    <span className="w-2 h-2 rotate-45 border border-amber-600/40" />
-    <span className="w-1.5 h-1.5 rotate-45 bg-amber-600/50" />
-    <span className="w-2 h-2 rotate-45 border border-amber-600/40" />
-    <span className="flex-1 h-px bg-amber-600/20" />
-  </div>
-);
 
 interface CardHistoryModalProps {
   card: Card | undefined;
@@ -95,13 +84,10 @@ export const CardHistoryModal: React.FC<CardHistoryModalProps> = ({ card, isOpen
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-2xl max-h-[85vh] flex flex-col p-0 bg-gradient-to-b from-background via-background to-card border-2 border-amber-700/30 dark:border-amber-600/25 overflow-hidden gap-0 [&>button]:hidden">
         {/* Ornate Genshin corners */}
-        <GenshinCorner className="absolute -top-px -left-px text-amber-500/80 dark:text-amber-400/70 pointer-events-none z-20" />
-        <GenshinCorner className="absolute -top-px -right-px text-amber-500/80 dark:text-amber-400/70 pointer-events-none z-20 rotate-90" />
-        <GenshinCorner className="absolute -bottom-px -left-px text-amber-500/80 dark:text-amber-400/70 pointer-events-none z-20 -rotate-90" />
-        <GenshinCorner className="absolute -bottom-px -right-px text-amber-500/80 dark:text-amber-400/70 pointer-events-none z-20 rotate-180" />
+        <GenshinCorners />
 
         {/* Inner decorative frame */}
-        <div className="absolute inset-3 border border-amber-700/15 dark:border-amber-600/10 pointer-events-none z-10" />
+        <InnerFrame />
 
         {/* Floating diamond decorations */}
         <span className="absolute top-6 left-1/2 -translate-x-1/2 w-2 h-2 rotate-45 bg-amber-500/20 pointer-events-none z-10 animate-pulse" />

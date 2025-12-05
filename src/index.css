@@ -762,4 +762,256 @@
         @apply flex-1 h-px bg-border;
     }
 
+    /* =============================================================================
+       GENSHIN IMPACT STYLED TOAST
+       Ornate notification toasts matching game UI aesthetic
+       ============================================================================= */
+
+    /* Base Toast Container */
+    [data-sonner-toaster] {
+        --toast-bg: var(--card);
+        --toast-border: var(--border);
+        --toast-text: var(--foreground);
+        --toast-accent: var(--primary);
+        font-family: var(--font-sans);
+    }
+
+    /* Individual Toast Styling */
+    [data-sonner-toast] {
+        @apply relative overflow-visible;
+        background: var(--toast-bg) !important;
+        border: 1px solid var(--toast-border) !important;
+        border-radius: 0 !important;
+        box-shadow:
+            0 4px 20px -4px oklch(0 0 0 / 0.2),
+            inset 0 0 30px -15px var(--toast-accent) !important;
+        animation: genshin-toast-in 0.3s ease-out !important;
+    }
+
+    .dark [data-sonner-toast] {
+        box-shadow:
+            0 4px 25px -4px oklch(0 0 0 / 0.4),
+            inset 0 0 40px -20px var(--toast-accent) !important;
+    }
+
+    /* Toast slide-in animation */
+    @keyframes genshin-toast-in {
+        0% {
+            opacity: 0;
+            transform: translateX(20px) scale(0.95);
+        }
+
+        100% {
+            opacity: 1;
+            transform: translateX(0) scale(1);
+        }
+    }
+
+    /* Toast Content */
+    [data-sonner-toast] [data-title] {
+        font-family: var(--font-serif);
+        font-weight: 500;
+        letter-spacing: 0.03em;
+        color: var(--toast-text) !important;
+    }
+
+    [data-sonner-toast] [data-description] {
+        color: var(--muted-foreground) !important;
+        font-size: 0.875rem;
+    }
+
+    /* Decorative Corner Brackets */
+    [data-sonner-toast]::before,
+    [data-sonner-toast]::after {
+        content: '';
+        position: absolute;
+        width: 12px;
+        height: 12px;
+        pointer-events: none;
+        z-index: 10;
+    }
+
+    /* Top-left corner */
+    [data-sonner-toast]::before {
+        top: -1px;
+        left: -1px;
+        border-top: 2px solid var(--toast-accent);
+        border-left: 2px solid var(--toast-accent);
+    }
+
+    /* Bottom-right corner */
+    [data-sonner-toast]::after {
+        bottom: -1px;
+        right: -1px;
+        border-bottom: 2px solid var(--toast-accent);
+        border-right: 2px solid var(--toast-accent);
+    }
+
+    /* Diamond accent left side */
+    [data-sonner-toast] [data-icon] {
+        position: relative;
+    }
+
+    [data-sonner-toast] [data-icon]::before {
+        content: '';
+        position: absolute;
+        left: -8px;
+        top: 50%;
+        transform: translateY(-50%) rotate(45deg);
+        width: 6px;
+        height: 6px;
+        background: var(--toast-accent);
+        opacity: 0.6;
+    }
+
+    /* Inner frame decoration */
+    [data-sonner-toast] [data-content] {
+        position: relative;
+    }
+
+    [data-sonner-toast] [data-content]::before {
+        content: '';
+        position: absolute;
+        inset: -8px;
+        border: 1px solid var(--toast-accent);
+        opacity: 0.15;
+        pointer-events: none;
+    }
+
+    /* Top accent line */
+    [data-sonner-toast] [data-close-button]~*::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 20px;
+        right: 20px;
+        height: 1px;
+        background: linear-gradient(90deg, transparent, var(--toast-accent), transparent);
+        opacity: 0.4;
+    }
+
+    /* Close button styling */
+    [data-sonner-toast] [data-close-button] {
+        @apply border border-border bg-card hover:bg-primary/10 hover:border-primary/50;
+        border-radius: 0 !important;
+        transition: all 0.15s ease !important;
+    }
+
+    [data-sonner-toast] [data-close-button]:hover {
+        color: var(--toast-accent) !important;
+    }
+
+    /* Success toast variant - Dendro green */
+    [data-sonner-toast][data-type="success"] {
+        --toast-accent: oklch(0.55 0.18 140);
+        border-color: oklch(0.55 0.18 140 / 0.4) !important;
+    }
+
+    [data-sonner-toast][data-type="success"]::before,
+    [data-sonner-toast][data-type="success"]::after {
+        border-color: oklch(0.55 0.18 140);
+    }
+
+    .dark [data-sonner-toast][data-type="success"] {
+        --toast-accent: oklch(0.62 0.18 140);
+        border-color: oklch(0.62 0.18 140 / 0.4) !important;
+    }
+
+    /* Error toast variant - Pyro red */
+    [data-sonner-toast][data-type="error"] {
+        --toast-accent: oklch(0.55 0.22 25);
+        border-color: oklch(0.55 0.22 25 / 0.4) !important;
+    }
+
+    [data-sonner-toast][data-type="error"]::before,
+    [data-sonner-toast][data-type="error"]::after {
+        border-color: oklch(0.55 0.22 25);
+    }
+
+    .dark [data-sonner-toast][data-type="error"] {
+        --toast-accent: oklch(0.60 0.22 25);
+        border-color: oklch(0.60 0.22 25 / 0.4) !important;
+    }
+
+    /* Warning toast variant - Pyro orange */
+    [data-sonner-toast][data-type="warning"] {
+        --toast-accent: oklch(0.65 0.18 55);
+        border-color: oklch(0.65 0.18 55 / 0.4) !important;
+    }
+
+    [data-sonner-toast][data-type="warning"]::before,
+    [data-sonner-toast][data-type="warning"]::after {
+        border-color: oklch(0.65 0.18 55);
+    }
+
+    /* Info toast variant - Hydro blue */
+    [data-sonner-toast][data-type="info"] {
+        --toast-accent: oklch(0.52 0.18 245);
+        border-color: oklch(0.52 0.18 245 / 0.4) !important;
+    }
+
+    [data-sonner-toast][data-type="info"]::before,
+    [data-sonner-toast][data-type="info"]::after {
+        border-color: oklch(0.52 0.18 245);
+    }
+
+    .dark [data-sonner-toast][data-type="info"] {
+        --toast-accent: oklch(0.60 0.18 245);
+        border-color: oklch(0.60 0.18 245 / 0.4) !important;
+    }
+
+    /* Loading toast variant - Electro purple */
+    [data-sonner-toast][data-type="loading"] {
+        --toast-accent: oklch(0.55 0.18 285);
+        border-color: oklch(0.55 0.18 285 / 0.4) !important;
+    }
+
+    [data-sonner-toast][data-type="loading"]::before,
+    [data-sonner-toast][data-type="loading"]::after {
+        border-color: oklch(0.55 0.18 285);
+        animation: corner-pulse 1.5s ease-in-out infinite;
+    }
+
+    .dark [data-sonner-toast][data-type="loading"] {
+        --toast-accent: oklch(0.65 0.18 285);
+        border-color: oklch(0.65 0.18 285 / 0.4) !important;
+    }
+
+    /* Action button styling */
+    [data-sonner-toast] [data-button] {
+        @apply bg-primary/10 text-foreground border border-primary/50;
+        @apply hover:bg-primary hover:text-primary-foreground;
+        border-radius: 0 !important;
+        font-family: var(--font-sans);
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        font-size: 0.75rem;
+        transition: all 0.15s ease !important;
+    }
+
+    /* Cancel button styling */
+    [data-sonner-toast] [data-cancel] {
+        @apply bg-muted/50 text-muted-foreground border border-border;
+        @apply hover:bg-muted hover:text-foreground;
+        border-radius: 0 !important;
+        font-family: var(--font-sans);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        font-size: 0.75rem;
+    }
+
+    /* Hover glow effect */
+    [data-sonner-toast]:hover {
+        box-shadow:
+            0 6px 25px -4px oklch(0 0 0 / 0.25),
+            inset 0 0 35px -15px var(--toast-accent) !important;
+    }
+
+    .dark [data-sonner-toast]:hover {
+        box-shadow:
+            0 6px 30px -4px oklch(0 0 0 / 0.5),
+            inset 0 0 45px -20px var(--toast-accent) !important;
+    }
+
 }

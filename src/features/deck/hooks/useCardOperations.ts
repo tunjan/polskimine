@@ -14,7 +14,7 @@ import { db } from '@/services/db/dexie';
 interface CardOperations {
   addCard: (card: Card) => Promise<void>;
   addCardsBatch: (cards: Card[]) => Promise<void>;
-  updateCard: (card: Card) => Promise<void>;
+  updateCard: (card: Card, options?: { silent?: boolean }) => Promise<void>;
   deleteCard: (id: string) => Promise<void>;
   deleteCardsBatch: (ids: string[]) => Promise<void>;
   prioritizeCards: (ids: string[]) => Promise<void>;
@@ -55,12 +55,14 @@ export const useCardOperations = (): CardOperations => {
   );
 
   const updateCard = useCallback(
-    async (card: Card) => {
+    async (card: Card, options?: { silent?: boolean }) => {
       try {
         await saveCard(card);
         await queryClient.invalidateQueries({ queryKey: ['cards'] });
         refreshDeckData();
-        toast.success('Card updated successfully');
+        if (!options?.silent) {
+          toast.success('Card updated successfully');
+        }
       } catch (error) {
         console.error(error);
         toast.error('Failed to update card');

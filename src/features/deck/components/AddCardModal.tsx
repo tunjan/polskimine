@@ -7,7 +7,7 @@ import { toast } from "sonner";
 import { aiService } from "@/features/deck/services/ai";
 import { escapeRegExp, parseFurigana, cn } from "@/lib/utils";
 import { useSettings } from "@/contexts/SettingsContext";
-import { GenshinCorner } from "@/components/game/GamePanel";
+import { GenshinCorners, DiamondDivider, CornerAccents } from "@/components/game/GamePanel";
 
 interface AddCardModalProps {
     isOpen: boolean;
@@ -16,17 +16,6 @@ interface AddCardModalProps {
     initialCard?: Card;
 }
 
-
-
-const DiamondDivider = ({ className }: { className?: string }) => (
-    <div className={cn("flex items-center gap-2", className)}>
-        <span className="flex-1 h-px bg-amber-600/30" />
-        <span className="w-1.5 h-1.5 rotate-45 bg-amber-600/50" />
-        <span className="w-2 h-2 rotate-45 border border-amber-600/60" />
-        <span className="w-1.5 h-1.5 rotate-45 bg-amber-600/50" />
-        <span className="flex-1 h-px bg-amber-600/30" />
-    </div>
-);
 
 export const AddCardModal: React.FC<AddCardModalProps> = ({ isOpen, onClose, onAdd, initialCard }) => {
     const { settings } = useSettings();
@@ -186,10 +175,7 @@ export const AddCardModal: React.FC<AddCardModalProps> = ({ isOpen, onClose, onA
             <DialogContent className="sm:max-w-2xl p-0 bg-card border-2 border-amber-700/30 dark:border-amber-600/25 gap-0 overflow-hidden animate-genshin-fade-in [&>button]:z-30 [&>button]:right-5 [&>button]:top-5">
 
                 {/* Ornate Corner Decorations */}
-                <GenshinCorner className="absolute -top-px -left-px text-amber-500/70 dark:text-amber-400/60 pointer-events-none z-20" />
-                <GenshinCorner className="absolute -top-px -right-px text-amber-500/70 dark:text-amber-400/60 pointer-events-none z-20 rotate-90" />
-                <GenshinCorner className="absolute -bottom-px -left-px text-amber-500/70 dark:text-amber-400/60 pointer-events-none z-20 -rotate-90" />
-                <GenshinCorner className="absolute -bottom-px -right-px text-amber-500/70 dark:text-amber-400/60 pointer-events-none z-20 rotate-180" />
+                <GenshinCorners className="text-amber-500/70 dark:text-amber-400/60" />
 
                 {/* Inner decorative frame */}
                 <div className="absolute inset-3 border border-amber-700/15 dark:border-amber-600/10 pointer-events-none z-10" />
@@ -235,14 +221,7 @@ export const AddCardModal: React.FC<AddCardModalProps> = ({ isOpen, onClose, onA
                                 )}
                             >
                                 {/* Button corner accents */}
-                                <span className="absolute -top-px -left-px w-2 h-2">
-                                    <span className="absolute top-0 left-0 w-full h-px bg-amber-500/60" />
-                                    <span className="absolute top-0 left-0 h-full w-px bg-amber-500/60" />
-                                </span>
-                                <span className="absolute -bottom-px -right-px w-2 h-2">
-                                    <span className="absolute bottom-0 right-0 w-full h-px bg-amber-500/60" />
-                                    <span className="absolute bottom-0 right-0 h-full w-px bg-amber-500/60" />
-                                </span>
+                                <CornerAccents className="bg-amber-500/60" />
 
                                 <Sparkles size={14} className={cn(
                                     "transition-all duration-200",
