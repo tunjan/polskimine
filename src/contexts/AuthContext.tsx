@@ -16,6 +16,7 @@ interface AuthContextType {
   signInWithEmail: (email: string, password: string) => Promise<void>;
   signUpWithEmail: (email: string, password: string, username: string, languageLevel?: string) => Promise<any>;
   updateUsername: (username: string) => Promise<void>;
+  login: () => Promise<void>;
 }
 
 const LOCAL_USER_ID = 'local-user';
@@ -109,6 +110,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         signInWithEmail,
         signUpWithEmail,
         updateUsername,
+        login: async () => {
+          const profile = await db.profile.get(LOCAL_USER_ID);
+          if (profile) {
+            setUser({ id: LOCAL_USER_ID, email: 'local-user', username: profile.username });
+          }
+        }
       }}
     >
       {children}

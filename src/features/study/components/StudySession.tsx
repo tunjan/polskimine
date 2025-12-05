@@ -202,22 +202,26 @@ export const StudySession: React.FC<StudySessionProps> = ({
       <div className="fixed inset-0 bg-background flex flex-col items-center justify-center animate-in fade-in duration-1000 overflow-hidden">
 
 
-        {/* Decorative corner accents */}
-        <span className="absolute top-4 left-4 w-8 h-8 pointer-events-none">
-          <span className="absolute top-0 left-0 w-full h-0.5 bg-primary/40" />
-          <span className="absolute top-0 left-0 h-full w-0.5 bg-primary/40" />
+        {/* Decorative corner accents - Genshin style */}
+        <span className="absolute top-4 left-4 w-10 h-10 pointer-events-none">
+          <span className="absolute top-0 left-0 w-full h-0.5 bg-amber-500/40" />
+          <span className="absolute top-0 left-0 h-full w-0.5 bg-amber-500/40" />
+          <span className="absolute top-2 left-2 w-1.5 h-1.5 rotate-45 bg-amber-500/30" />
         </span>
-        <span className="absolute top-4 right-4 w-8 h-8 pointer-events-none">
-          <span className="absolute top-0 right-0 w-full h-0.5 bg-primary/40" />
-          <span className="absolute top-0 right-0 h-full w-0.5 bg-primary/40" />
+        <span className="absolute top-4 right-4 w-10 h-10 pointer-events-none">
+          <span className="absolute top-0 right-0 w-full h-0.5 bg-amber-500/40" />
+          <span className="absolute top-0 right-0 h-full w-0.5 bg-amber-500/40" />
+          <span className="absolute top-2 right-2 w-1.5 h-1.5 rotate-45 bg-amber-500/30" />
         </span>
-        <span className="absolute bottom-4 left-4 w-8 h-8 pointer-events-none">
-          <span className="absolute bottom-0 left-0 w-full h-0.5 bg-primary/40" />
-          <span className="absolute bottom-0 left-0 h-full w-0.5 bg-primary/40" />
+        <span className="absolute bottom-4 left-4 w-10 h-10 pointer-events-none">
+          <span className="absolute bottom-0 left-0 w-full h-0.5 bg-amber-500/40" />
+          <span className="absolute bottom-0 left-0 h-full w-0.5 bg-amber-500/40" />
+          <span className="absolute bottom-2 left-2 w-1.5 h-1.5 rotate-45 bg-amber-500/30" />
         </span>
-        <span className="absolute bottom-4 right-4 w-8 h-8 pointer-events-none">
-          <span className="absolute bottom-0 right-0 w-full h-0.5 bg-primary/40" />
-          <span className="absolute bottom-0 right-0 h-full w-0.5 bg-primary/40" />
+        <span className="absolute bottom-4 right-4 w-10 h-10 pointer-events-none">
+          <span className="absolute bottom-0 right-0 w-full h-0.5 bg-amber-500/40" />
+          <span className="absolute bottom-0 right-0 h-full w-0.5 bg-amber-500/40" />
+          <span className="absolute bottom-2 right-2 w-1.5 h-1.5 rotate-45 bg-amber-500/30" />
         </span>
 
         <div className="text-center space-y-10 px-6 max-w-lg mx-auto">
@@ -226,67 +230,69 @@ export const StudySession: React.FC<StudySessionProps> = ({
           {/* Header */}
           <div className="space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-200">
             <div className="flex items-center justify-center gap-3 mb-6">
-              <span className="w-16 h-px bg-linear-to-r from-transparent to-primary/40" />
-              <span className="w-2 h-2 rotate-45 bg-primary/60 animate-pulse" />
-              <span className="w-16 h-px bg-linear-to-l from-transparent to-primary/40" />
+              <span className="w-20 h-px bg-linear-to-r from-transparent to-amber-500/40" />
+              <span className="w-1.5 h-1.5 rotate-45 border border-amber-500/50" />
+              <span className="w-2 h-2 rotate-45 bg-amber-500/60" />
+              <span className="w-1.5 h-1.5 rotate-45 border border-amber-500/50" />
+              <span className="w-20 h-px bg-linear-to-l from-transparent to-amber-500/40" />
             </div>
             <h2 className="text-4xl md:text-6xl font-light tracking-tight text-foreground">Session Complete</h2>
           </div>
 
           {/* Stats grid */}
           <div className="grid grid-cols-3 gap-4 animate-in fade-in slide-in-from-bottom-6 duration-700 delay-500">
-            <div className="relative p-4 border border-border/30 bg-card/30">
+            <div className="relative p-4 border border-amber-600/20 bg-card/30">
               <span className="absolute top-0 left-0 w-2 h-2">
-                <span className="absolute top-0 left-0 w-full h-px bg-primary/30" />
-                <span className="absolute top-0 left-0 h-full w-px bg-primary/30" />
+                <span className="absolute top-0 left-0 w-full h-px bg-amber-500/40" />
+                <span className="absolute top-0 left-0 h-full w-px bg-amber-500/40" />
               </span>
               <div className="flex flex-col items-center gap-1">
-                <Target size={16} className="text-muted-foreground/60" strokeWidth={1.5} />
+                <Target size={16} className="text-amber-500/60" strokeWidth={1.5} />
                 <span className="text-2xl font-light text-foreground tabular-nums">{cardsReviewed}</span>
                 <span className="text-[8px] font-ui uppercase tracking-wider text-muted-foreground/50">Cards</span>
               </div>
             </div>
 
-            <div className="relative p-4 border border-primary/30 bg-primary/5">
-              <span className="absolute top-0 left-0 w-2 h-2">
-                <span className="absolute top-0 left-0 w-full h-px bg-primary" />
-                <span className="absolute top-0 left-0 h-full w-px bg-primary" />
+            <div className="relative p-4 border-2 border-amber-500/40 bg-amber-500/5">
+              <span className="absolute top-0 left-0 w-3 h-3">
+                <span className="absolute top-0 left-0 w-full h-0.5 bg-amber-500" />
+                <span className="absolute top-0 left-0 h-full w-0.5 bg-amber-500" />
               </span>
-              <span className="absolute bottom-0 right-0 w-2 h-2">
-                <span className="absolute bottom-0 right-0 w-full h-px bg-primary" />
-                <span className="absolute bottom-0 right-0 h-full w-px bg-primary" />
+              <span className="absolute bottom-0 right-0 w-3 h-3">
+                <span className="absolute bottom-0 right-0 w-full h-0.5 bg-amber-500" />
+                <span className="absolute bottom-0 right-0 h-full w-0.5 bg-amber-500" />
               </span>
               <div className="flex flex-col items-center gap-1">
-                <Zap size={16} className="text-primary" strokeWidth={1.5} />
-                <span className="text-2xl font-light text-primary tabular-nums">+{sessionXp}</span>
-                <span className="text-[8px] font-ui uppercase tracking-wider text-primary/60">XP Earned</span>
+                <Zap size={16} className="text-amber-500" strokeWidth={1.5} />
+                <span className="text-2xl font-light text-amber-500 tabular-nums">+{sessionXp}</span>
+                <span className="text-[8px] font-ui uppercase tracking-wider text-amber-500/60">XP Earned</span>
               </div>
             </div>
 
-            <div className="relative p-4 border border-border/30 bg-card/30">
+            <div className="relative p-4 border border-amber-600/20 bg-card/30">
               <span className="absolute top-0 right-0 w-2 h-2">
-                <span className="absolute top-0 right-0 w-full h-px bg-primary/30" />
-                <span className="absolute top-0 right-0 h-full w-px bg-primary/30" />
+                <span className="absolute top-0 right-0 w-full h-px bg-amber-500/40" />
+                <span className="absolute top-0 right-0 h-full w-px bg-amber-500/40" />
               </span>
               <div className="flex flex-col items-center gap-1">
-                <Sparkles size={16} className="text-muted-foreground/60" strokeWidth={1.5} />
+                <Sparkles size={16} className="text-amber-500/60" strokeWidth={1.5} />
                 <span className="text-2xl font-light text-foreground tabular-nums">{sessionStreak}</span>
                 <span className="text-[8px] font-ui uppercase tracking-wider text-muted-foreground/50">Best Streak</span>
               </div>
             </div>
           </div>
 
-          {/* Continue button */}
+          {/* Continue button - Genshin style */}
           <button
             onClick={() => onComplete ? onComplete() : onExit()}
-            className="group relative px-12 py-4 bg-card hover:bg-primary/5 border border-border hover:border-primary/40 transition-all animate-in fade-in duration-700 delay-700"
+            className="group relative px-12 py-4 bg-card hover:bg-amber-500/5 border-2 border-amber-700/20 hover:border-amber-500/40 transition-all animate-in fade-in duration-700 delay-700"
           >
             {/* Button corner accents */}
-            <span className="absolute -top-px -left-px w-2 h-2 border-l border-t border-primary opacity-0 group-hover:opacity-100 transition-opacity" />
-            <span className="absolute -top-px -right-px w-2 h-2 border-r border-t border-primary opacity-0 group-hover:opacity-100 transition-opacity" />
-            <span className="absolute -bottom-px -left-px w-2 h-2 border-l border-b border-primary opacity-0 group-hover:opacity-100 transition-opacity" />
-            <span className="absolute -bottom-px -right-px w-2 h-2 border-r border-b border-primary opacity-0 group-hover:opacity-100 transition-opacity" />
-            <span className="relative z-10 text-sm font-ui uppercase tracking-[0.15em] text-foreground/70 group-hover:text-primary transition-colors duration-300">Continue</span>
+            <span className="absolute -top-px -left-px w-3 h-3 border-l-2 border-t-2 border-amber-500 opacity-0 group-hover:opacity-100 transition-opacity" />
+            <span className="absolute -top-px -right-px w-3 h-3 border-r-2 border-t-2 border-amber-500 opacity-0 group-hover:opacity-100 transition-opacity" />
+            <span className="absolute -bottom-px -left-px w-3 h-3 border-l-2 border-b-2 border-amber-500 opacity-0 group-hover:opacity-100 transition-opacity" />
+            <span className="absolute -bottom-px -right-px w-3 h-3 border-r-2 border-b-2 border-amber-500 opacity-0 group-hover:opacity-100 transition-opacity" />
+            <span className="relative z-10 text-sm font-ui uppercase tracking-[0.15em] text-foreground/70 group-hover:text-amber-500 transition-colors duration-300">Continue</span>
           </button>
         </div>
       </div>
@@ -298,26 +304,30 @@ export const StudySession: React.FC<StudySessionProps> = ({
   return (
     <div className="fixed inset-0 z-50 bg-background flex flex-col overflow-hidden">
 
-      {/* Game-styled progress bar with glow */}
-      <div className="relative h-1.5 w-full bg-muted/30 border-b border-border/20 overflow-hidden">
-        {/* Progress fill with glow */}
+      {/* Genshin-styled progress bar */}
+      <div className="relative h-2 w-full bg-card border-b border-amber-600/10 overflow-hidden">
+        {/* Decorative end caps */}
+        <span className="absolute left-2 top-1/2 -translate-y-1/2 w-1 h-1 rotate-45 bg-amber-500/40 z-10" />
+        <span className="absolute right-2 top-1/2 -translate-y-1/2 w-1 h-1 rotate-45 bg-amber-500/40 z-10" />
+
+        {/* Progress fill with amber gradient */}
         <div
-          className="absolute h-full bg-linear-to-r from-primary/70 via-primary to-primary/70 transition-all duration-700 ease-out animate-progress-glow"
+          className="absolute h-full bg-linear-to-r from-amber-600/50 via-amber-500/70 to-amber-400/50 transition-all duration-700 ease-out"
           style={{ width: `${progress}%` }}
         />
         {/* Animated shine overlay */}
         <div
-          className="absolute top-0 h-full bg-linear-to-r from-transparent via-white/30 to-transparent w-16 transition-all duration-700"
+          className="absolute top-0 h-full bg-linear-to-r from-transparent via-white/20 to-transparent w-12 transition-all duration-700"
           style={{
-            left: `${Math.max(0, progress - 8)}%`,
+            left: `${Math.max(0, progress - 6)}%`,
             opacity: progress > 0 ? 1 : 0
           }}
         />
         {/* Progress end glow point */}
         {progress > 0 && (
           <div
-            className="absolute top-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-primary shadow-[0_0_8px_2px] shadow-primary/50 transition-all duration-700"
-            style={{ left: `calc(${progress}% - 4px)` }}
+            className="absolute top-1/2 -translate-y-1/2 w-1.5 h-1.5 rotate-45 bg-amber-400 shadow-[0_0_8px_2px] shadow-amber-500/50 transition-all duration-700"
+            style={{ left: `calc(${progress}% - 3px)` }}
           />
         )}
       </div>

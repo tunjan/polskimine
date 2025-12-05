@@ -762,44 +762,4 @@
         @apply flex-1 h-px bg-border;
     }
 
-    /* Genshin Toast Notification */
-    .genshin-toast {
-        @apply !relative !overflow-visible;
-        @apply !bg-card !text-foreground !border !border-border;
-        @apply !shadow-lg !shadow-black/10;
-        @apply !rounded-none;
-        @apply !font-serif !tracking-wide;
-        @apply !pl-6 !pr-8 !py-4;
-        /* Extra padding for aesthetics */
-    }
-
-    /* Left accent line */
-    .genshin-toast::before {
-        content: '';
-        @apply absolute left-0 top-0 bottom-0 w-1 bg-primary;
-    }
-
-    /* Corner decorative elements - Top Right */
-    .genshin-toast::after {
-        content: '';
-        @apply absolute -top-1 -right-1 w-3 h-3;
-        @apply border-t-2 border-r-2 border-primary;
-    }
-
-    /* Type specific styling */
-    .genshin-toast[data-type="error"]::before {
-        @apply !bg-destructive;
-    }
-
-    .genshin-toast[data-type="error"]::after {
-        @apply !border-destructive;
-    }
-
-    .genshin-toast[data-type="success"]::before {
-        @apply !bg-primary;
-    }
-
-    .genshin-toast[data-type="success"]::after {
-        @apply !border-primary;
-    }
 }

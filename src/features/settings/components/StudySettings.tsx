@@ -29,8 +29,8 @@ export const StudySettings: React.FC<StudySettingsProps> = ({ localSettings, set
       </GamePanel>
 
       {/* Daily Limits Section */}
-      <GameSectionHeader 
-        title="Daily Limits" 
+      <GameSectionHeader
+        title="Daily Limits"
         subtitle="Maximum cards per day"
         icon={<Target className="w-4 h-4" strokeWidth={1.5} />}
       />
@@ -87,8 +87,8 @@ export const StudySettings: React.FC<StudySettingsProps> = ({ localSettings, set
       <GameDivider />
 
       {/* Study Preferences Section */}
-      <GameSectionHeader 
-        title="Study Preferences" 
+      <GameSectionHeader
+        title="Study Preferences"
         subtitle="Session behavior options"
         icon={<ToggleLeft className="w-4 h-4" strokeWidth={1.5} />}
       />
@@ -142,7 +142,7 @@ export const StudySettings: React.FC<StudySettingsProps> = ({ localSettings, set
               <p className="text-xs text-muted-foreground/60 font-light pl-3">Show the full sentence on the front of the card instead of just the target word</p>
             </div>
             <Switch
-              checked={localSettings.showWholeSentenceOnFront || false}
+              checked={localSettings.showWholeSentenceOnFront}
               onCheckedChange={(checked) =>
                 setLocalSettings((prev) => ({ ...prev, showWholeSentenceOnFront: checked }))
               }

@@ -18,36 +18,7 @@ import { ErrorBoundary } from '@/components/common/ErrorBoundary';
 const queryClient = new QueryClient();
 
 const TOAST_OPTIONS = {
-    className: 'genshin-toast gap-4',
-    style: {
-        fontFamily: 'var(--font-serif)',
-        fontSize: '1rem',
-        fontWeight: 400,
-        letterSpacing: '0.02em',
-    },
-    descriptionClassName: 'text-muted-foreground font-sans font-light text-sm tracking-wide mt-1',
-    actionButtonStyle: {
-        backgroundColor: 'var(--primary)',
-        color: 'var(--primary-foreground)',
-        fontFamily: 'var(--font-sans)',
-        borderRadius: '0px',
-        fontSize: '0.75rem',
-        textTransform: 'uppercase' as const,
-        letterSpacing: '0.1em',
-        padding: '0.5rem 1rem',
-        border: '1px solid var(--primary-foreground)',
-    },
-    cancelButtonStyle: {
-        backgroundColor: 'transparent',
-        color: 'var(--muted-foreground)',
-        fontFamily: 'var(--font-sans)',
-        borderRadius: '0px',
-        fontSize: '0.75rem',
-        textTransform: 'uppercase' as const,
-        letterSpacing: '0.1em',
-        padding: '0.5rem 1rem',
-        border: '1px solid var(--border)',
-    }
+
 };
 
 interface AppProvidersProps {
@@ -71,7 +42,7 @@ export const AppProviders: React.FC<AppProvidersProps> = ({ children }) => {
                                                 <MusicProvider>
                                                     <Router>
                                                         {children}
-                                                        <Toaster position="bottom-right" toastOptions={TOAST_OPTIONS} />
+                                                        <Toaster position="bottom-right" expand={true} />
                                                     </Router>
                                                 </MusicProvider>
                                             </DeckStatsProvider>

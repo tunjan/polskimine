@@ -342,7 +342,9 @@ export const aiService = {
         - The sentence must demonstrate vivid, real usage of the target vocabulary word.
         - Never return just the word alone — always wrap it in a meaningful context.
         - Sentence complexity should match ${proficiencyLevel} level.
-        - Variety: Mix statements, questions, and mild imperatives. Avoid repetitive sentence structures (e.g., don't start every sentence with "I").
+        - Variety: Mix statements, questions, and mild imperatives. Avoid repetitive sentence structures.
+        - **DIVERSITY REQUIREMENT**: You must generate ${count} DISTINCT target words related to the topic. 
+        - **CONSTRAINT**: Do NOT use the same "targetWord" more than once in this batch.
         `;
     }
 
@@ -399,7 +401,9 @@ export const aiService = {
       
       Style Guidelines:
       - Tone: Natural, friendly, helpful.
-      - **Vocabulary Strategy**: CUMULATIVE. Repetition is good. If you taught "Apple" in card 1, use "Apple" in card 3 ("Red apple").
+      - **Vocabulary Strategy**: 
+          - For transitions and context: Repetition of *learned* words is good.
+          - For TARGET words (the new words being taught): **All ${count} target words must be UNIQUE**. Do not repeat the same new word.
       - Avoid: Complex grammar, rare words, or throwing the user into the deep end.
       - Content: tangible, visual, and concrete concepts first (objects, family, basic actions).
       

@@ -8,7 +8,7 @@ import { GameButton, GameInput, GameLoader } from '@/components/ui/game-ui';
 interface DeckGenerationStepProps {
     language: Language;
     proficiencyLevel: Difficulty;
-    onComplete: (useAI: boolean, apiKey?: string) => Promise<void>;
+    onComplete: (language: Language, useAI: boolean, apiKey?: string) => Promise<void>;
 }
 
 type DeckOption = 'ai' | 'default' | null;
@@ -33,7 +33,7 @@ export const DeckGenerationStep: React.FC<DeckGenerationStepProps> = ({
         setError('');
 
         try {
-            await onComplete(selectedOption === 'ai', selectedOption === 'ai' ? apiKey : undefined);
+            await onComplete(language, selectedOption === 'ai', selectedOption === 'ai' ? apiKey : undefined);
         } catch (err: any) {
             setError(err.message || 'Failed to complete setup');
             setLoading(false);

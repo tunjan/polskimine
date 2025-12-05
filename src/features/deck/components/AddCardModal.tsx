@@ -155,7 +155,7 @@ export const AddCardModal: React.FC<AddCardModalProps> = ({ isOpen, onClose, onA
         if (targetLanguage === LanguageId.Japanese) {
             const segments = parseFurigana(form.sentence);
             return (
-                <div className="mt-4 text-xl font-light text-amber-100/60 dark:text-amber-200/50 select-none">
+                <div className="mt-4 text-xl font-light text-amber-600/60 dark:text-amber-200/50 select-none">
                     {segments.map((segment, i) => {
                         const isTarget = form.targetWord && segment.text === form.targetWord;
                         if (segment.furigana) {
@@ -175,7 +175,7 @@ export const AddCardModal: React.FC<AddCardModalProps> = ({ isOpen, onClose, onA
         if (!form.targetWord) return null;
         const parts = form.sentence.split(new RegExp(`(${escapeRegExp(form.targetWord)})`, "gi"));
         return (
-            <div className="mt-4 text-xl font-light text-amber-100/60 dark:text-amber-200/50 select-none">
+            <div className="mt-4 text-xl font-light text-amber-600/60 dark:text-amber-200/50 select-none">
                 {parts.map((part, i) => part.toLowerCase() === form.targetWord.toLowerCase() ? <span key={i} className="text-amber-500 font-normal border-b-2 border-amber-500/50 pb-0.5">{part}</span> : <span key={i}>{part}</span>)}
             </div>
         );

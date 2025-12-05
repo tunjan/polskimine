@@ -36,7 +36,14 @@ export const StudyHeader: React.FC<StudyHeaderProps> = React.memo(({
     onBookmark,
 }) => {
     return (
-        <header className="relative h-16 md:h-20 px-4 md:px-12 flex justify-between items-center select-none shrink-0 pt-[env(safe-area-inset-top)] gap-2 border-b border-border/10">
+        <header className="relative h-16 md:h-20 px-4 md:px-12 flex justify-between items-center select-none shrink-0 pt-[env(safe-area-inset-top)] gap-2 border-b border-amber-600/15">
+            {/* Bottom decorative accent */}
+            <div className="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-1/2 flex items-center gap-2 z-10">
+                <span className="w-6 h-px bg-amber-500/20" />
+                <span className="w-1 h-1 rotate-45 bg-amber-500/30" />
+                <span className="w-6 h-px bg-amber-500/20" />
+            </div>
+
             {/* Queue statistics - game UI style */}
             <div className="flex items-center gap-2 sm:gap-4 md:gap-6">
                 <GameQueueStat

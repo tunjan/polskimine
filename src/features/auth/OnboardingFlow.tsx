@@ -34,7 +34,7 @@ export const OnboardingFlow: React.FC = () => {
     setStep('deck');
   };
 
-  const handleDeckComplete = async (useAI: boolean, apiKey?: string) => {
+  const handleDeckComplete = async (language: Language, useAI: boolean, apiKey?: string) => {
     if (!user || !selectedLevel) return;
 
     try {
@@ -48,34 +48,44 @@ export const OnboardingFlow: React.FC = () => {
 
       if (useAI && apiKey) {
         cards = await generateInitialDeck({
-          language: settings.language,
+          language,
           proficiencyLevel: selectedLevel,
           apiKey,
         });
       } else {
 
         const rawDeck =
-          settings.language === LanguageId.Norwegian ? NORWEGIAN_BEGINNER_DECK :
-            (settings.language === LanguageId.Japanese ? JAPANESE_BEGINNER_DECK :
-              (settings.language === LanguageId.Spanish ? SPANISH_BEGINNER_DECK : POLISH_BEGINNER_DECK));
+          language === LanguageId.Norwegian ? NORWEGIAN_BEGINNER_DECK :
+            (language === LanguageId.Japanese ? JAPANESE_BEGINNER_DECK :
+              (language === LanguageId.Spanish ? SPANISH_BEGINNER_DECK : POLISH_BEGINNER_DECK));
 
         cards = rawDeck.map(c => ({
           ...c,
           id: uuidv4(),
           dueDate: new Date().toISOString(),
-
           tags: [...(c.tags || []), selectedLevel]
         }));
       }
 
 
+
       if (cards.length > 0) {
+        console.log('[OnboardingFlow] Saving', cards.length, 'cards...');
         await saveAllCards(cards);
         toast.success(`Loaded ${cards.length} cards into your deck.`);
+        console.log('[OnboardingFlow] Cards saved.');
       }
 
 
+      console.log('[OnboardingFlow] Marking initial deck as generated...');
       await markInitialDeckGenerated();
+      console.log('[OnboardingFlow] Initial deck marked as generated.');
+
+      // Fallback: If we haven't been redirected after 2 seconds, force a reload
+      setTimeout(() => {
+        console.log('[OnboardingFlow] Redirection fallback triggered. Reloading...');
+        window.location.reload();
+      }, 2000);
 
     } catch (error: any) {
       console.error('Onboarding failed:', error);

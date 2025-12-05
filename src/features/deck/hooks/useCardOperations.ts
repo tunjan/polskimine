@@ -60,6 +60,7 @@ export const useCardOperations = (): CardOperations => {
         await saveCard(card);
         await queryClient.invalidateQueries({ queryKey: ['cards'] });
         refreshDeckData();
+        toast.success('Card updated successfully');
       } catch (error) {
         console.error(error);
         toast.error('Failed to update card');

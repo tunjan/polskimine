@@ -16,7 +16,7 @@ import { cn } from '@/lib/utils';
 export const CardsRoute: React.FC = () => {
   const { settings } = useSettings();
   const { stats } = useDeck();
-  const { addCard, addCardsBatch, deleteCard, deleteCardsBatch, prioritizeCards } = useCardOperations();
+  const { addCard, addCardsBatch, updateCard, deleteCard, deleteCardsBatch, prioritizeCards } = useCardOperations();
 
   const [searchTerm, setSearchTerm] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
@@ -130,9 +130,9 @@ export const CardsRoute: React.FC = () => {
         {/* Background with gradient */}
         <div className="absolute inset-0 bg-gradient-to-b from-background via-background/95 to-background/80 pointer-events-none" />
 
-        <div className="relative px-8 md:px-8 pt-6 pb-2">
+        <div className="relative px-4 md:px-8 pt-6 pb-2">
 
-          <div className="py-2 flex items-center justify-between gap-6">
+          <div className="py-2 flex flex-col sm:flex-row sm:items-center justify-between gap-4 sm:gap-6">
             {/* Title */}
             <div className="flex items-center gap-4">
               <div className="w-8 h-8 flex items-center justify-center border border-border/50 bg-card/50 rotate-45">
@@ -151,21 +151,21 @@ export const CardsRoute: React.FC = () => {
             </div>
 
             {/* Actions */}
-            <div className="flex items-center gap-3">
-              <div className="relative group">
+            <div className="flex items-center gap-3 w-full sm:w-auto">
+              <div className="relative group flex-1 sm:flex-none">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground group-focus-within:text-primary transition-colors" />
                 <input
                   type="text"
                   placeholder="Search..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="h-9 pl-9 pr-4 bg-card/50 border border-border/50 focus:border-primary/50 w-48 transition-all outline-none text-sm"
+                  className="h-9 pl-9 pr-4 bg-card/50 border border-border/50 focus:border-primary/50 w-full sm:w-48 transition-all outline-none text-sm"
                 />
               </div>
 
               <button
                 onClick={() => setIsGenerateModalOpen(true)}
-                className="h-9 w-9 flex items-center justify-center border border-border/50 bg-card/50 hover:bg-primary/10 hover:border-primary/50 text-muted-foreground hover:text-primary transition-all"
+                className="h-9 w-9 flex items-center justify-center border border-border/50 bg-card/50 hover:bg-primary/10 hover:border-primary/50 text-muted-foreground hover:text-primary transition-all shrink-0"
                 title="Generate Cards"
               >
                 <Sparkles className="w-4 h-4" />
@@ -173,7 +173,7 @@ export const CardsRoute: React.FC = () => {
 
               <button
                 onClick={() => setIsAddModalOpen(true)}
-                className="h-9 w-9 flex items-center justify-center border border-primary/50 bg-primary/10 hover:bg-primary/20 text-primary transition-all"
+                className="h-9 w-9 flex items-center justify-center border border-primary/50 bg-primary/10 hover:bg-primary/20 text-primary transition-all shrink-0"
                 title="Add Card"
               >
                 <Plus className="w-5 h-5" />
@@ -219,39 +219,39 @@ export const CardsRoute: React.FC = () => {
 
       {/* --- Floating Selection Bar (Genshin Style) --- */}
       <div className={cn(
-        "fixed bottom-8 left-1/2 -translate-x-1/2 z-50 transition-all duration-500 cubic-bezier(0.4, 0, 0.2, 1)",
+        "fixed bottom-20 md:bottom-8 left-1/2 -translate-x-1/2 z-50 transition-all duration-500 cubic-bezier(0.4, 0, 0.2, 1) w-[80%] md:w-auto",
         selectedIds.size > 0 ? "translate-y-0 opacity-100" : "translate-y-16 opacity-0 pointer-events-none"
       )}>
-        <div className="genshin-panel !p-0 flex items-center overflow-hidden shadow-2xl shadow-black/20 backdrop-blur-xl bg-card/90 min-w-[400px]">
+        <div className="genshin-panel !p-0 flex items-center overflow-hidden shadow-2xl shadow-black/20 backdrop-blur-xl bg-card/90 w-full">
           {/* Left: Count */}
-          <div className="px-6 py-3 bg-primary/10 border-r border-border/50 flex items-center gap-3">
+          <div className="px-4 py-2 md:px-6 md:py-3 bg-primary/10 border-r border-border/50 flex items-center gap-3">
             <div className="w-2 h-2 rotate-45 bg-primary" />
             <div className="flex flex-col">
-              <span className="text-2xl font-medium leading-none text-primary tabular-nums font-editorial">
+              <span className="text-xl md:text-2xl font-medium leading-none text-primary tabular-nums font-editorial">
                 {selectedIds.size}
               </span>
-              <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-bold">Selected</span>
+              <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-bold hidden sm:inline">Selected</span>
             </div>
           </div>
 
           {/* Right: Actions */}
-          <div className="flex-1 px-4 py-2 flex items-center justify-end gap-2">
+          <div className="flex-1 px-2 md:px-4 py-2 flex items-center justify-around md:justify-end gap-1 md:gap-2">
             <button
               onClick={handleBatchPrioritize}
-              className="flex items-center gap-2 px-4 py-2 text-xs font-bold uppercase tracking-wider text-amber-500 hover:bg-amber-500/10 border border-transparent hover:border-amber-500/30 transition-all"
+              className="flex items-center gap-2 px-3 py-2 md:px-4 md:py-2 text-xs font-bold uppercase tracking-wider text-amber-500 hover:bg-amber-500/10 border border-transparent hover:border-amber-500/30 transition-all"
             >
               <Zap className="w-4 h-4" />
-              <span>Prioritize</span>
+              <span className="hidden sm:inline">Prioritize</span>
             </button>
 
             <div className="w-px h-6 bg-border/50 mx-1" />
 
             <button
               onClick={handleBatchDelete}
-              className="flex items-center gap-2 px-4 py-2 text-xs font-bold uppercase tracking-wider text-destructive hover:bg-destructive/10 border border-transparent hover:border-destructive/30 transition-all"
+              className="flex items-center gap-2 px-3 py-2 md:px-4 md:py-2 text-xs font-bold uppercase tracking-wider text-destructive hover:bg-destructive/10 border border-transparent hover:border-destructive/30 transition-all"
             >
               <Trash2 className="w-4 h-4" />
-              <span>Delete</span>
+              <span className="hidden sm:inline">Delete</span>
             </button>
 
             <div className="w-px h-6 bg-border/50 mx-1" />
@@ -271,7 +271,7 @@ export const CardsRoute: React.FC = () => {
       <AddCardModal
         isOpen={isAddModalOpen}
         onClose={() => { setIsAddModalOpen(false); setSelectedCard(undefined); }}
-        onAdd={(card) => addCard(card)}
+        onAdd={(card) => selectedCard ? updateCard(card) : addCard(card)}
         initialCard={selectedCard}
       />
       <GenerateCardsModal

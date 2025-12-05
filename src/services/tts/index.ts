@@ -15,6 +15,7 @@ export interface VoiceOption {
     name: string;
     lang: string;
     provider: TTSProvider;
+    gender?: 'MALE' | 'FEMALE' | 'NEUTRAL';
 }
 
 class TTSService {
@@ -95,16 +96,29 @@ class TTSService {
             }
         }
 
-        if (settings.provider === 'google') {
-            console.warn('Google TTS not available in local mode. Using browser voices.');
-            return this.browserVoices
-                .filter(v => validCodes.some(code => v.lang.toLowerCase().startsWith(code.toLowerCase())))
-                .map(v => ({
-                    id: v.voiceURI,
-                    name: v.name,
-                    lang: v.lang,
-                    provider: 'browser'
-                }));
+        if (settings.provider === 'google' && settings.googleApiKey) {
+            try {
+                const response = await fetch(`https://texttospeech.googleapis.com/v1/voices?key=${settings.googleApiKey}`);
+                const data = await response.json();
+
+                if (data.voices) {
+                    return data.voices
+                        .filter((v: any) =>
+                            v.languageCodes.some((code: string) =>
+                                validCodes.some(validCode => code.toLowerCase().startsWith(validCode.toLowerCase()))
+                            )
+                        )
+                        .map((v: any) => ({
+                            id: v.name,
+                            name: `${v.name} (${v.ssmlGender})`,
+                            lang: v.languageCodes[0],
+                            provider: 'google',
+                            gender: v.ssmlGender
+                        }));
+                }
+            } catch (e) {
+                console.error("Failed to fetch Google voices", e);
+            }
         }
 
         return [];
@@ -118,10 +132,12 @@ class TTSService {
         const opId = ++this.currentOperationId;
         this.abortController = new AbortController();
 
-        if (settings.provider === 'browser' || settings.provider === 'google') {
+        if (settings.provider === 'browser') {
             await this.speakBrowser(text, language, settings);
         } else if (settings.provider === 'azure') {
             await this.speakAzure(text, language, settings, opId);
+        } else if (settings.provider === 'google') {
+            await this.speakGoogle(text, language, settings, opId);
         }
     }
 
@@ -198,7 +214,7 @@ class TTSService {
         if (!settings.azureApiKey || !settings.azureRegion) return;
 
         try {
-            const voiceName = settings.voiceURI || 'en-US-JennyNeural';
+            const voiceName = settings.voiceURI || 'en-US-JennyNeural'; // Should rely on default later if needed
 
             const ssml = `
                 <speak version='1.0' xml:lang='${LANG_CODE_MAP[language][0]}'>
@@ -236,6 +252,58 @@ class TTSService {
         }
     }
 
+    private async speakGoogle(text: string, language: Language, settings: TTSSettings, opId: number) {
+        if (!settings.googleApiKey) return;
+
+        try {
+            const requestBody = {
+                input: { text },
+                voice: {
+                    languageCode: LANG_CODE_MAP[language][0],
+                    name: settings.voiceURI && settings.voiceURI !== 'default' ? settings.voiceURI : undefined
+                },
+                audioConfig: {
+                    audioEncoding: 'MP3',
+                    speakingRate: settings.rate,
+                    pitch: (settings.pitch - 1) * 20, // Approximate mapping
+                    volumeGainDb: (settings.volume - 1) * 10 // Approximate mapping
+                }
+            };
+
+            const response = await fetch(`https://texttospeech.googleapis.com/v1/text:synthesize?key=${settings.googleApiKey}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json; charset=utf-8'
+                },
+                signal: this.abortController?.signal,
+                body: JSON.stringify(requestBody)
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error?.message || response.statusText);
+            }
+            if (this.currentOperationId !== opId) return;
+
+            const data = await response.json();
+
+            // Google Cloud TTS returns base64 encoded audio content
+            const binaryString = window.atob(data.audioContent);
+            const len = binaryString.length;
+            const bytes = new Uint8Array(len);
+            for (let i = 0; i < len; i++) {
+                bytes[i] = binaryString.charCodeAt(i);
+            }
+
+            this.playAudioBuffer(bytes.buffer, opId);
+
+        } catch (e: any) {
+            if (e?.name === 'AbortError') return;
+            console.error("Google TTS error", e);
+            toast.error(`Google TTS failed: ${e.message}`);
+        }
+    }
+
     private getAudioContext(): AudioContext {
         if (!this.audioContext || this.audioContext.state === 'closed') {
             this.audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
@@ -263,6 +331,7 @@ class TTSService {
             this.currentSource.connect(ctx.destination);
 
             this.currentSource.onended = () => {
+                // Keep context open for reuse
                 this.currentSource = null;
             };
 

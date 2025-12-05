@@ -21,6 +21,7 @@ type SetupStep = 'username' | 'language' | 'level' | 'deck';
 
 export const AuthPage: React.FC = () => {
   const { createLocalProfile, markInitialDeckGenerated } = useProfile();
+  const { login } = useAuth();
 
   const { settings, updateSettings } = useSettings();
   const [loading, setLoading] = useState(false);
@@ -48,7 +49,7 @@ export const AuthPage: React.FC = () => {
     setSetupStep('deck');
   };
 
-  const handleDeckSetup = async (useAI: boolean, apiKey?: string) => {
+  const handleDeckSetup = async (language: Language, useAI: boolean, apiKey?: string) => {
     if (!selectedLevel) return;
     setLoading(true);
 
@@ -63,16 +64,16 @@ export const AuthPage: React.FC = () => {
 
       if (useAI && apiKey) {
         cards = await generateInitialDeck({
-          language: settings.language,
+          language,
           proficiencyLevel: selectedLevel,
           apiKey,
         });
         toast.success(`Generated ${cards.length} personalized cards!`);
       } else {
         const rawDeck =
-          settings.language === LanguageId.Norwegian ? NORWEGIAN_BEGINNER_DECK :
-            (settings.language === LanguageId.Japanese ? JAPANESE_BEGINNER_DECK :
-              (settings.language === LanguageId.Spanish ? SPANISH_BEGINNER_DECK : POLISH_BEGINNER_DECK));
+          language === LanguageId.Norwegian ? NORWEGIAN_BEGINNER_DECK :
+            (language === LanguageId.Japanese ? JAPANESE_BEGINNER_DECK :
+              (language === LanguageId.Spanish ? SPANISH_BEGINNER_DECK : POLISH_BEGINNER_DECK));
 
         cards = rawDeck.map(c => ({
           ...c,
@@ -87,7 +88,11 @@ export const AuthPage: React.FC = () => {
         await saveAllCards(cards);
       }
 
-      await markInitialDeckGenerated();
+      await markInitialDeckGenerated('local-user');
+      await login();
+
+      // Fallback: If we haven't been redirected, force a reload to ensure app state picks up the profile
+      window.location.reload();
     } catch (error: any) {
       toast.error(error.message || 'Setup failed');
     } finally {
@@ -96,10 +101,8 @@ export const AuthPage: React.FC = () => {
   };
 
   const renderHeader = () => (
-    <div className="text-center mb-8">
-      <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-amber-400/10 border-2 border-amber-400/20 flex items-center justify-center text-amber-400">
-        <Command size={32} />
-      </div>
+    <div className="text-center my-8">
+
       <h1 className="text-2xl font-bold tracking-tight font-ui uppercase text-foreground">
         LinguaFlow
       </h1>

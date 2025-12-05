@@ -271,20 +271,20 @@ export function getCardColumns(actions: ColumnActions): ColumnDef<Card>[] {
             size: 120,
         },
 
-        {
-            accessorKey: "reps",
-            header: ({ column }) => <SortableHeader column={column}>Reviews</SortableHeader>,
-            cell: ({ row }) => {
-                const reps = row.getValue("reps") as number
-                return (
-                    <div className="flex items-center gap-2">
-                        <span className="w-1 h-1 rotate-45 bg-muted-foreground/30" />
-                        <span className="text-sm tabular-nums text-muted-foreground font-medium font-editorial">{reps || 0}</span>
-                    </div>
-                )
-            },
-            size: 90,
-        },
+        // {
+        //     accessorKey: "reps",
+        //     header: ({ column }) => <SortableHeader column={column}>Reviews</SortableHeader>,
+        //     cell: ({ row }) => {
+        //         const reps = row.getValue("reps") as number
+        //         return (
+        //             <div className="flex items-center gap-2">
+        //                 <span className="w-1 h-1 rotate-45 bg-muted-foreground/30" />
+        //                 <span className="text-sm tabular-nums text-muted-foreground font-medium font-editorial">{reps || 0}</span>
+        //             </div>
+        //         )
+        //     },
+        //     size: 90,
+        // },
 
         {
             id: "actions",

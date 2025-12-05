@@ -19,6 +19,7 @@ import { DeckStats, ReviewHistory, Card as CardType } from '@/types';
 
 import { useSettings } from '@/contexts/SettingsContext';
 import { useAuth } from '@/contexts/AuthContext';
+import { useProfile } from '@/contexts/ProfileContext';
 import { getRevlogStats } from '@/services/db/repositories/statsRepository';
 import { getLevelProgress, cn } from '@/lib/utils';
 
@@ -62,7 +63,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
   languageXp
 }) => {
   const { settings } = useSettings();
-  const { profile } = useAuth();
+  const { profile } = useProfile();
 
   const levelData = getLevelProgress(languageXp.xp);
   const rank = getRankForLevel(levelData.level);
@@ -105,7 +106,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
 
         {/* === CHARACTER BANNER SECTION === */}
         <section className="mb-8 md:mb-10">
-          <div className="grid grid-cols-1 lg:grid-cols-[320px_1fr] gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-[320px_1fr] gap-4 md:gap-6">
 
             {/* Left: Character Card / Profile */}
             <div className="relative">
@@ -202,103 +203,212 @@ export const Dashboard: React.FC<DashboardProps> = ({
 
             {/* Right: Mission Panel */}
             <div className="space-y-4">
-              {/* Main Quest Card */}
-              <GamePanel
-                variant="highlight"
-                size="lg"
-                showCorners
-                glowOnHover
-                className="relative overflow-hidden"
-              >
-                {/* Quest header */}
-                <div className="flex items-center gap-3 mb-6">
-                  <div className="w-12 h-12 flex items-center justify-center bg-amber-500/15 border-2 border-amber-600/50">
-                    <BookOpen className="w-5 h-5 text-amber-500 dark:text-amber-300" />
-                  </div>
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2">
-                      <span className="text-[10px] text-amber-500 dark:text-amber-300 font-bold uppercase tracking-[0.2em]">Daily Commission</span>
+              {/* Main Quest Card - Genshin Impact Style */}
+              <div className="relative group/quest">
+                {/* Outer glow effect on hover */}
+                <div className="absolute -inset-0.5 bg-gradient-to-r from-amber-500/0 via-amber-500/20 to-amber-500/0 rounded-sm opacity-0 group-hover/quest:opacity-100 transition-opacity duration-500 blur-xl" />
 
+                <div className="relative bg-gradient-to-br from-card via-card to-primary/5 border border-amber-700/40 overflow-hidden">
+
+                  {/* Top ornate border */}
+                  <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-amber-600/80 to-transparent" />
+
+                  {/* Corner ornaments */}
+                  <svg className="absolute top-0 left-0 w-12 h-12 text-amber-600/70" viewBox="0 0 48 48" fill="none">
+                    <path d="M0 0H40V2H2V40H0V0Z" fill="currentColor" />
+                    <path d="M4 4H28V5H5V28H4V4Z" fill="currentColor" opacity="0.5" />
+                    <rect x="32" y="4" width="6" height="1" fill="currentColor" opacity="0.4" />
+                    <path d="M42 3L43.5 4.5L42 6L40.5 4.5Z" fill="currentColor" opacity="0.6" />
+                  </svg>
+                  <svg className="absolute top-0 right-0 w-12 h-12 text-amber-600/70 rotate-90" viewBox="0 0 48 48" fill="none">
+                    <path d="M0 0H40V2H2V40H0V0Z" fill="currentColor" />
+                    <path d="M4 4H28V5H5V28H4V4Z" fill="currentColor" opacity="0.5" />
+                    <rect x="32" y="4" width="6" height="1" fill="currentColor" opacity="0.4" />
+                  </svg>
+                  <svg className="absolute bottom-0 left-0 w-12 h-12 text-amber-600/70 -rotate-90" viewBox="0 0 48 48" fill="none">
+                    <path d="M0 0H40V2H2V40H0V0Z" fill="currentColor" />
+                    <path d="M4 4H28V5H5V28H4V4Z" fill="currentColor" opacity="0.5" />
+                  </svg>
+                  <svg className="absolute bottom-0 right-0 w-12 h-12 text-amber-600/70 rotate-180" viewBox="0 0 48 48" fill="none">
+                    <path d="M0 0H40V2H2V40H0V0Z" fill="currentColor" />
+                    <path d="M4 4H28V5H5V28H4V4Z" fill="currentColor" opacity="0.5" />
+                  </svg>
+
+                  {/* Quest ribbon/banner */}
+                  <div className=" px-5 pt-5 mx-auto flex justify-around pb-4">
+                    <div className="flex justify-evenly gap-4 mx-auto">
+                      <div className="flex-1 flex-col mx-auto">
+                        {/* Quest type badge */}
+                        <div className="items-center text-center gap-2 mb-1.5">
+                          <span className="w-1.5 h-1.5 bg-amber-600 rotate-45 animate-pulse" />
+                          <span className="text-[10px] text-amber-600 font-bold uppercase tracking-[0.25em]">
+                            Daily Commission
+                          </span>
+                          <span className="w-8 h-px bg-gradient-to-r from-amber-600/60 to-transparent" />
+                        </div>
+                        <h2 className="text-xl font-semibold text-foreground ">
+                          Study Session
+                        </h2>
+                      </div>
                     </div>
-                    <h2 className="text-xl font-semibold text-foreground tracking-wide mt-1">
-                      Study Session
-                    </h2>
                   </div>
+
+                  {/* Decorative separator */}
+                  <div className="flex items-center gap-3 px-5">
+                    <span className="flex-1 h-px bg-gradient-to-r from-transparent via-amber-700/50 to-transparent" />
+                    <span className="w-2 h-2 rotate-45 border border-amber-600/60" />
+                    <span className="w-1 h-1 rotate-45 bg-amber-500/60" />
+                    <span className="w-2 h-2 rotate-45 border border-amber-600/60" />
+                    <span className="flex-1 h-px bg-gradient-to-r from-transparent via-amber-700/50 to-transparent" />
+                  </div>
+
+                  {/* Due count display - Central focus */}
+                  <div className="flex items-center justify-center py-8 px-5">
+                    <div className="text-center">
+                      <div className="relative inline-flex items-center justify-center w-28 h-28 md:w-32 md:h-32 mb-4">
+
+
+                        {/* Diamond frame */}
+                        <div className="absolute inset-4 border-2 border-amber-600/50 rotate-45" />
+                        <div className="absolute inset-6 border border-amber-600/30 rotate-45" />
+
+                        {/* Number with glow */}
+                        <div className="relative">
+                          <span className={cn(
+                            "absolute inset-0 font-semibold text-amber-400/30 blur-sm font-serif",
+                            stats.due >= 1000 ? "text-2xl md:text-3xl" : stats.due >= 100 ? "text-3xl md:text-4xl" : "text-4xl md:text-5xl"
+                          )}>
+                            {stats.due}
+                          </span>
+                          <span className={cn(
+                            "relative font-semibold text-foreground tabular-nums font-serif",
+                            stats.due >= 1000 ? "text-2xl md:text-3xl" : stats.due >= 100 ? "text-3xl md:text-4xl" : "text-4xl md:text-5xl"
+                          )}>
+                            {stats.due}
+                          </span>
+                        </div>
+                      </div>
+                      <p className="text-sm text-muted-foreground font-medium tracking-wide">
+                        {stats.due === 0 ? 'All caught up!' : 'Cards awaiting review'}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Rewards preview - Genshin loot style */}
+                  <div className="px-5 pb-5">
+                    <div className="text-[10px] text-amber-600/80 font-semibold uppercase tracking-[0.2em] mb-3 flex items-center gap-2">
+                      <span className="w-4 h-px bg-amber-600/40" />
+                      Session Details
+                      <span className="flex-1 h-px bg-amber-700/30" />
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-3 mb-5">
+                      <div className="relative group/reward bg-gradient-to-br from-amber-500/10 to-transparent border border-amber-700/30 p-3 hover:border-amber-600/50 transition-colors">
+                        <div className="absolute top-0 left-0 w-2 h-2 border-t border-l border-amber-500/50" />
+                        <div className="absolute top-0 right-0 w-2 h-2 border-t border-r border-amber-500/50" />
+                        <div className="flex items-center gap-3">
+                          <div className="relative w-10 h-10 flex items-center justify-center bg-amber-500/10 rotate-45">
+                            {/* Corner accents */}
+                            <span className="absolute top-0 left-0 w-2.5 h-2.5 border-t-2 border-l-2 border-amber-500/60" />
+                            <span className="absolute top-0 right-0 w-2.5 h-2.5 border-t-2 border-r-2 border-amber-500/60" />
+                            <span className="absolute bottom-0 left-0 w-2.5 h-2.5 border-b-2 border-l-2 border-amber-500/60" />
+                            <span className="absolute bottom-0 right-0 w-2.5 h-2.5 border-b-2 border-r-2 border-amber-500/60" />
+                            <Star className="w-5 h-5 text-amber-400 -rotate-45" fill="currentColor" />
+                          </div>
+                          <div>
+                            <p className="text-xl font-semibold text-foreground tabular-nums">{stats.newDue}</p>
+                            <p className="text-[10px] text-muted-foreground uppercase tracking-wider">New Cards</p>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="relative group/reward bg-gradient-to-br from-sky-500/10 to-transparent border border-sky-700/30 p-3 hover:border-sky-600/50 transition-colors">
+                        <div className="absolute top-0 left-0 w-2 h-2 border-t border-l border-sky-500/50" />
+                        <div className="absolute top-0 right-0 w-2 h-2 border-t border-r border-sky-500/50" />
+                        <div className="flex items-center gap-3">
+                          <div className="relative w-10 h-10 flex items-center justify-center bg-sky-500/10 rotate-45">
+                            {/* Corner accents */}
+                            <span className="absolute top-0 left-0 w-2.5 h-2.5 border-t-2 border-l-2 border-sky-500/60" />
+                            <span className="absolute top-0 right-0 w-2.5 h-2.5 border-t-2 border-r-2 border-sky-500/60" />
+                            <span className="absolute bottom-0 left-0 w-2.5 h-2.5 border-b-2 border-l-2 border-sky-500/60" />
+                            <span className="absolute bottom-0 right-0 w-2.5 h-2.5 border-b-2 border-r-2 border-sky-500/60" />
+                            <Activity className="w-5 h-5 text-sky-400 -rotate-45" />
+                          </div>
+                          <div>
+                            <p className="text-xl font-semibold text-foreground tabular-nums">{stats.reviewDue}</p>
+                            <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Reviews</p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Navigate button - Quest accept style */}
+                    <button
+                      onClick={onStartSession}
+                      disabled={stats.due === 0}
+                      className={cn(
+                        "group/btn relative w-full overflow-hidden",
+                        "transition-all duration-300",
+                        stats.due > 0
+                          ? "cursor-pointer"
+                          : "cursor-not-allowed opacity-60"
+                      )}
+                    >
+                      {/* Button background with animated gradient */}
+                      <div className={cn(
+                        "absolute inset-0 transition-opacity duration-300",
+                        stats.due > 0
+                          ? "bg-gradient-to-r from-amber-500/20 via-amber-400/15 to-amber-500/20 group-hover/btn:from-amber-500/30 group-hover/btn:via-amber-400/25 group-hover/btn:to-amber-500/30"
+                          : "bg-gradient-to-r from-emerald-500/20 via-emerald-400/15 to-emerald-500/20"
+                      )} />
+
+                      {/* Borders */}
+                      <div className={cn(
+                        "absolute inset-0 border-2 transition-colors",
+                        stats.due > 0
+                          ? "border-amber-600/50 group-hover/btn:border-amber-500/80"
+                          : "border-emerald-600/40"
+                      )} />
+
+                      {/* Inner border */}
+                      <div className={cn(
+                        "absolute inset-1 border transition-colors",
+                        stats.due > 0
+                          ? "border-amber-700/30 group-hover/btn:border-amber-600/40"
+                          : "border-emerald-700/20"
+                      )} />
+
+                      {/* Top shine line */}
+                      <div className="absolute top-0 left-4 right-4 h-px bg-gradient-to-r from-transparent via-amber-400/40 to-transparent opacity-0 group-hover/btn:opacity-100 transition-opacity" />
+
+                      <div className="relative py-4 px-6">
+                        {stats.due > 0 ? (
+                          <div className="flex items-center justify-center gap-4">
+                            <span className="w-6 h-px bg-amber-500/50 group-hover/btn:w-10 group-hover/btn:bg-amber-400 transition-all duration-300" />
+                            <span className="w-1.5 h-1.5 rotate-45 bg-amber-500 opacity-60" />
+                            <span className="text-base font-bold tracking-[0.35em] text-amber-600 dark:text-amber-300 uppercase">
+                              Navigate
+                            </span>
+                            <ChevronRight className="w-5 h-5 text-amber-400 group-hover/btn:translate-x-1 transition-transform" />
+                            <span className="w-1.5 h-1.5 rotate-45 bg-amber-500 opacity-60" />
+                            <span className="w-6 h-px bg-amber-500/50 group-hover/btn:w-10 group-hover/btn:bg-amber-400 transition-all duration-300" />
+                          </div>
+                        ) : (
+                          <div className="flex items-center justify-center gap-3">
+                            <CheckCircle2 className="w-5 h-5 text-emerald-400" />
+                            <span className="text-sm font-semibold tracking-[0.25em] text-emerald-600 dark:text-emerald-300 uppercase">
+                              Commission Complete
+                            </span>
+                          </div>
+                        )}
+                      </div>
+                    </button>
+                  </div>
+
+                  {/* Bottom ornate border */}
+                  <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-transparent via-amber-700/60 to-transparent" />
                 </div>
-
-                {/* Large due count */}
-                <div className="flex items-center justify-center py-6">
-                  <div className="text-center">
-                    <div className="relative inline-flex items-center justify-center w-24 h-24 md:w-28 md:h-28 mb-6">
-                      {/* Outer diamond */}
-                      <div className="absolute inset-0 border-2 border-amber-600/40 rotate-45" />
-                      {/* Inner diamond */}
-                      <div className="absolute inset-2.5 border border-amber-600/25 rotate-45" />
-                      {/* Number */}
-                      <span className="text-5xl md:text-6xl font-semibold text-foreground tabular-nums relative z-10 font-serif">
-                        {stats.due}
-                      </span>
-                    </div>
-                    <p className="text-sm text-muted-foreground font-medium tracking-wide">
-                      {stats.due === 0 ? 'All caught up!' : 'Cards awaiting review'}
-                    </p>
-                  </div>
-                </div>
-
-                {/* Reward preview */}
-                <div className="grid grid-cols-2 gap-4 mb-6 pt-4 border-t border-border/30">
-                  <div className="flex items-center gap-3 p-3 bg-muted/20 border border-border/30">
-                    <div className="w-10 h-10 flex items-center justify-center border border-amber-600/30 bg-amber-500/10">
-                      <Star className="w-5 h-5 text-amber-400" fill="currentColor" />
-                    </div>
-                    <div>
-                      <p className="text-lg font-semibold text-foreground tabular-nums">{stats.newDue}</p>
-                      <p className="text-[10px] text-muted-foreground uppercase tracking-wider">New Cards</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-3 p-3 bg-muted/20 border border-border/30">
-                    <div className="w-10 h-10 flex items-center justify-center border border-sky-500/30 bg-sky-500/10">
-                      <Activity className="w-5 h-5 text-sky-500" />
-                    </div>
-                    <div>
-                      <p className="text-lg font-semibold text-foreground tabular-nums">{stats.reviewDue}</p>
-                      <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Reviews</p>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Action Button */}
-                <button
-                  onClick={onStartSession}
-                  disabled={stats.due === 0}
-                  className={cn(
-                    "group relative w-full py-4 px-6 overflow-hidden",
-                    "transition-all duration-300",
-                    stats.due > 0
-                      ? "border-2 border-amber-600/60 hover:border-amber-600 bg-amber-500/10 hover:bg-amber-500/20"
-                      : "border-2 border-pine-500/40 bg-pine-500/10 cursor-not-allowed"
-                  )}
-                >
-
-                  {stats.due > 0 ? (
-                    <div className="flex items-center justify-center gap-4">
-                      <span className="w-10 h-0.5 bg-amber-500/50 group-hover:w-14 group-hover:bg-amber-300 transition-all duration-300" />
-                      <span className="text-lg font-bold tracking-[0.3em] text-amber-500 dark:text-amber-300 uppercase">
-                        Begin
-                      </span>
-                      <ChevronRight className="w-5 h-5 text-amber-500 dark:text-amber-300 group-hover:translate-x-1 transition-transform" />
-                      <span className="w-10 h-0.5 bg-amber-500/50 group-hover:w-14 group-hover:bg-amber-300 transition-all duration-300" />
-                    </div>
-                  ) : (
-                    <div className="flex items-center justify-center gap-3 text-pine-500">
-                      <CheckCircle2 className="w-5 h-5" />
-                      <span className="text-sm font-semibold tracking-[0.2em] uppercase">
-                        Mission Complete
-                      </span>
-                    </div>
-                  )}
-                </button>
-              </GamePanel>
+              </div>
 
               {/* Streak Display */}
               <GamePanel size="md" glowOnHover className="bg-linear-to-r from-card to-amber-500/5">

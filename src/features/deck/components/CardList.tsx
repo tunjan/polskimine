@@ -83,7 +83,7 @@ export const CardList: React.FC<CardListProps> = ({
   if (cards.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center h-[60vh]">
-        <GamePanel className="p-10 md:p-14 border-dashed flex flex-col items-center justify-center text-center max-w-md" glowOnHover>
+        <GamePanel className="p-6 md:p-14 border-dashed flex flex-col items-center justify-center text-center max-w-md" glowOnHover>
           {/* Decorative container with diamond shape */}
           <div className="relative mb-8">
             <div className="w-20 h-20 border border-border/60 flex items-center justify-center rotate-45">

@@ -9,7 +9,7 @@ interface ProfileContextType {
     createLocalProfile: (username: string, languageLevel?: string) => Promise<void>;
     updateUsername: (username: string) => Promise<void>;
     updateLanguageLevel: (level: string) => Promise<void>;
-    markInitialDeckGenerated: () => Promise<void>;
+    markInitialDeckGenerated: (userId?: string) => Promise<void>;
     refreshProfile: () => Promise<void>;
 }
 
@@ -42,10 +42,10 @@ export const ProfileProvider: React.FC<{ children: React.ReactNode }> = ({ child
     }, [user]);
 
     const createLocalProfile = async (username: string, languageLevel?: string) => {
-        if (!user) return;
+        const userId = user?.id || 'local-user';
 
         const newProfile: LocalProfile = {
-            id: user.id,
+            id: userId,
             username,
             xp: 0,
             points: 0,
@@ -83,15 +83,34 @@ export const ProfileProvider: React.FC<{ children: React.ReactNode }> = ({ child
         setProfile(prev => prev ? { ...prev, language_level: level } : null);
     };
 
-    const markInitialDeckGenerated = async () => {
-        if (!user) return;
+    const markInitialDeckGenerated = async (userId?: string) => {
+        const targetUserId = userId || user?.id;
+        if (!targetUserId) {
+            console.error('[ProfileContext] markInitialDeckGenerated: No user ID available');
+            return;
+        }
 
-        await db.profile.update(user.id, {
-            initial_deck_generated: true,
-            updated_at: new Date().toISOString()
-        });
+        console.log('[ProfileContext] markInitialDeckGenerated: Starting update for user', targetUserId);
 
+        // Optimistic update
         setProfile(prev => prev ? { ...prev, initial_deck_generated: true } : null);
+
+        try {
+            await db.profile.update(targetUserId, {
+                initial_deck_generated: true,
+                updated_at: new Date().toISOString()
+            });
+            console.log('[ProfileContext] markInitialDeckGenerated: DB update successful');
+
+            // Force a refresh from DB to ensure consistency
+            await fetchProfile();
+            console.log('[ProfileContext] markInitialDeckGenerated: Profile refreshed');
+        } catch (error) {
+            console.error('[ProfileContext] markInitialDeckGenerated: Failed to update profile', error);
+            // Revert optimistic update on failure (optional, but good practice)
+            // For now, we'll just throw, as the app state might be inconsistent
+            throw error;
+        }
     };
 
     return (

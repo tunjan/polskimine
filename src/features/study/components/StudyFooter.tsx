@@ -18,29 +18,45 @@ export const StudyFooter: React.FC<StudyFooterProps> = React.memo(({
     onGrade,
 }) => {
     return (
-        <footer className="relative shrink-0 pb-[env(safe-area-inset-bottom)] border-t border-border/10">
+        <footer className="relative shrink-0 pb-[env(safe-area-inset-bottom)] border-t border-amber-600/10">
+            {/* Top decorative accent */}
+            <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center gap-2">
+                <span className="w-8 h-px bg-amber-500/20" />
+                <span className="w-1.5 h-1.5 rotate-45 bg-amber-500/30" />
+                <span className="w-8 h-px bg-amber-500/20" />
+            </div>
+
             <div className="h-24 md:h-28 w-full max-w-4xl mx-auto px-8 md:px-16">
                 {!isFlipped ? (
                     <button
                         onClick={() => setIsFlipped(true)}
                         disabled={isProcessing}
-                        className="group relative w-full h-full flex items-center justify-center border border-transparent hover:border-primary/20 hover:bg-primary/5 transition-all duration-300"
+                        className="group relative w-full h-full flex items-center justify-center border-2 border-amber-700/15 hover:border-amber-500/30 bg-card/30 hover:bg-amber-500/5 transition-all duration-300"
                     >
-                        {/* Corner accents on hover */}
-                        <span className="absolute -top-px -left-px w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity">
-                            <span className="absolute top-0 left-0 w-full h-px bg-primary/50" />
-                            <span className="absolute top-0 left-0 h-full w-px bg-primary/50" />
+                        {/* Corner brackets on hover */}
+                        <span className="absolute -top-px -left-px w-4 h-4 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <span className="absolute top-0 left-0 w-full h-0.5 bg-amber-500/60" />
+                            <span className="absolute top-0 left-0 h-full w-0.5 bg-amber-500/60" />
                         </span>
-                        <span className="absolute -bottom-px -right-px w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity">
-                            <span className="absolute bottom-0 right-0 w-full h-px bg-primary/50" />
-                            <span className="absolute bottom-0 right-0 h-full w-px bg-primary/50" />
+                        <span className="absolute -top-px -right-px w-4 h-4 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <span className="absolute top-0 right-0 w-full h-0.5 bg-amber-500/60" />
+                            <span className="absolute top-0 right-0 h-full w-0.5 bg-amber-500/60" />
+                        </span>
+                        <span className="absolute -bottom-px -left-px w-4 h-4 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <span className="absolute bottom-0 left-0 w-full h-0.5 bg-amber-500/60" />
+                            <span className="absolute bottom-0 left-0 h-full w-0.5 bg-amber-500/60" />
+                        </span>
+                        <span className="absolute -bottom-px -right-px w-4 h-4 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <span className="absolute bottom-0 right-0 w-full h-0.5 bg-amber-500/60" />
+                            <span className="absolute bottom-0 right-0 h-full w-0.5 bg-amber-500/60" />
                         </span>
 
-                        <span className="w-1.5 h-1.5 rotate-45 bg-muted-foreground/20 group-hover:bg-primary/60 transition-colors mr-3" />
-                        <span className="text-[11px] font-ui uppercase tracking-[0.2em] text-muted-foreground/50 group-hover:text-primary/80 transition-colors duration-300">
+                        {/* Content with diamond accents */}
+                        <span className="w-2 h-2 rotate-45 border border-amber-600/30 group-hover:border-amber-500/50 group-hover:bg-amber-500/20 transition-all mr-4" />
+                        <span className="text-[11px] font-ui uppercase tracking-[0.2em] text-muted-foreground/50 group-hover:text-amber-500/80 transition-colors duration-300">
                             Show Answer
                         </span>
-                        <span className="w-1.5 h-1.5 rotate-45 bg-muted-foreground/20 group-hover:bg-primary/60 transition-colors ml-3" />
+                        <span className="w-2 h-2 rotate-45 border border-amber-600/30 group-hover:border-amber-500/50 group-hover:bg-amber-500/20 transition-all ml-4" />
 
                         {/* Subtle keyboard hint */}
                         <span className="absolute bottom-3 text-[8px] font-ui text-muted-foreground/20 opacity-0 group-hover:opacity-60 transition-all duration-300 tracking-wider">

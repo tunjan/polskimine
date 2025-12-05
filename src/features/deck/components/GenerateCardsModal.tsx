@@ -342,8 +342,8 @@ export const GenerateCardsModal: React.FC<GenerateCardsModalProps> = ({ isOpen, 
                                                 className="w-full flex items-center justify-between py-2.5 px-4 text-sm border border-amber-700/30 dark:border-amber-600/20 bg-card/50 hover:border-amber-600/50 transition-all group"
                                             >
                                                 <span className="flex items-center gap-2">
-                                                    <span className="w-6 h-6 flex items-center justify-center border border-amber-600/40 bg-amber-600/10 rotate-45">
-                                                        <span className="text-[10px] font-bold text-amber-600 dark:text-amber-500 -rotate-45">{selectedLevel}</span>
+                                                    <span className="w-6 h-6 flex items-center justify-center">
+                                                        <span className="text-[10px] font-bold text-amber-600 dark:text-amber-500 ">{selectedLevel}</span>
                                                     </span>
                                                     <span className="text-muted-foreground text-xs">{levelDescriptions[selectedLevel]}</span>
                                                 </span>

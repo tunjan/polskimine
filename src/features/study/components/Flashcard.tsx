@@ -347,11 +347,15 @@ export const Flashcard = React.memo<FlashcardProps>(({
   return (
     <>
       <div className={containerClasses} onMouseUp={handleMouseUp} onTouchEnd={handleMouseUp}>
-        {/* Game-styled decorative frame with glow on flip */}
+        {/* Genshin-styled ornate frame */}
         <div className={cn(
-          "absolute inset-8 md:inset-16 pointer-events-none transition-all duration-700",
-          isFlipped && "scale-[1.02]"
+          "absolute inset-4 md:inset-12 pointer-events-none transition-all duration-700",
+          isFlipped && ""
         )}>
+
+          {/* Diamond accents at mid-points */}
+          <span className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 w-1.5 h-1.5 rotate-45 bg-amber-500/30 hidden md:block" />
+          <span className="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-1/2 w-1.5 h-1.5 rotate-45 bg-amber-500/30 hidden md:block" />
         </div>
 
         {/* Main content */}
@@ -375,11 +379,13 @@ export const Flashcard = React.memo<FlashcardProps>(({
         {isFlipped && (
           <div className="absolute top-1/2 left-0 right-0 bottom-4  flex flex-col items-center gap-3 z-0 pointer-events-none overflow-y-auto">
 
-            {/* Decorative divider */}
-            <div className="flex items-center gap-3 mb-2 animate-in fade-in duration-500">
-              <span className="w-8 h-px bg-linear-to-r from-transparent to-primary/30" />
-              <span className="w-1 h-1 rotate-45 bg-primary/40" />
-              <span className="w-8 h-px bg-linear-to-l from-transparent to-primary/30" />
+            {/* Decorative divider - Genshin style */}
+            <div className="flex items-center gap-3 mb-3 animate-in fade-in duration-500">
+              <span className="w-12 h-px bg-linear-to-r from-transparent to-amber-600/80" />
+              <span className="w-1.5 h-1.5 rotate-45 border border-amber-600/80" />
+              <span className="w-1 h-1 rotate-45 bg-amber-600/80" />
+              <span className="w-1.5 h-1.5 rotate-45 border border-amber-600/80" />
+              <span className="w-12 h-px bg-linear-to-l from-transparent to-amber-600/80" />
             </div>
 
             {showTranslation && (
