@@ -6,7 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip';
 import { Sparkles, Check, X as XIcon, ArrowRight, BookOpen, Info, ChevronDown, Star, Scroll } from 'lucide-react';
 import { aiService } from '@/features/deck/services/ai';
-import { useSettings } from '@/contexts/SettingsContext';
+import { useSettingsStore } from '@/stores/useSettingsStore';
 import { useProfile } from '@/contexts/ProfileContext';
 import { getLearnedWords } from '@/services/db/repositories/cardRepository';
 import { Card } from '@/types';
@@ -42,7 +42,7 @@ interface GenerateCardsModalProps {
 }
 
 export const GenerateCardsModal: React.FC<GenerateCardsModalProps> = ({ isOpen, onClose, onAddCards }) => {
-    const { settings } = useSettings();
+    const settings = useSettingsStore(s => s.settings);
     const { profile } = useProfile();
     const isMobile = useIsMobile();
     const [step, setStep] = useState<'config' | 'preview'>('config');
@@ -259,8 +259,8 @@ export const GenerateCardsModal: React.FC<GenerateCardsModalProps> = ({ isOpen, 
                     {/* Sidebar / Info Panel - Genshin Menu Style */}
                     <div className={cn(
                         "bg-gradient-to-b from-card/50 to-muted/20 flex flex-col relative overflow-hidden",
-                        isMobile 
-                            ? "w-full p-4 border-b border-amber-700/20 dark:border-amber-600/15" 
+                        isMobile
+                            ? "w-full p-4 border-b border-amber-700/20 dark:border-amber-600/15"
                             : "w-1/3 p-6 justify-between border-r border-amber-700/20 dark:border-amber-600/15"
                     )}>
                         {/* Decorative sidebar pattern */}

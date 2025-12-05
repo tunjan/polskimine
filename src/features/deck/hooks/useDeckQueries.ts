@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { useSettings } from '@/contexts/SettingsContext';
+import { useSettingsStore } from '@/stores/useSettingsStore';
 import {
   getStats as fetchStats,
   getTodayReviewStats,
@@ -19,7 +19,7 @@ import { toast } from 'sonner';
 import { CardXpPayload } from '@/features/xp/xpUtils';
 
 export const useDeckStatsQuery = () => {
-  const { settings } = useSettings();
+  const settings = useSettingsStore(s => s.settings);
   return useQuery({
     queryKey: ['deckStats', settings.language],
     queryFn: () => fetchStats(settings.language),
@@ -28,7 +28,7 @@ export const useDeckStatsQuery = () => {
 };
 
 export const useDueCardsQuery = () => {
-  const { settings } = useSettings();
+  const settings = useSettingsStore(s => s.settings);
   return useQuery({
     queryKey: ['dueCards', settings.language],
     queryFn: () => getDueCards(new Date(), settings.language),
@@ -37,7 +37,7 @@ export const useDueCardsQuery = () => {
 };
 
 export const useReviewsTodayQuery = () => {
-  const { settings } = useSettings();
+  const settings = useSettingsStore(s => s.settings);
   return useQuery({
     queryKey: ['reviewsToday', settings.language],
     queryFn: () => getTodayReviewStats(settings.language),
@@ -46,7 +46,7 @@ export const useReviewsTodayQuery = () => {
 };
 
 export const useHistoryQuery = () => {
-  const { settings } = useSettings();
+  const settings = useSettingsStore(s => s.settings);
   return useQuery({
     queryKey: ['history', settings.language],
     queryFn: () => fetchHistory(settings.language),
@@ -56,7 +56,7 @@ export const useHistoryQuery = () => {
 
 export const useRecordReviewMutation = () => {
   const queryClient = useQueryClient();
-  const { settings } = useSettings();
+  const settings = useSettingsStore(s => s.settings);
   const { user } = useAuth();
   const { incrementXP } = useGamification();
 
@@ -149,7 +149,7 @@ export const useRecordReviewMutation = () => {
 
 export const useClaimDailyBonusMutation = () => {
   const queryClient = useQueryClient();
-  const { settings } = useSettings();
+  const settings = useSettingsStore(s => s.settings);
   const { incrementXP } = useGamification();
   const BONUS_AMOUNT = 20;
 
@@ -176,7 +176,7 @@ export const useClaimDailyBonusMutation = () => {
 
 export const useUndoReviewMutation = () => {
   const queryClient = useQueryClient();
-  const { settings } = useSettings();
+  const settings = useSettingsStore(s => s.settings);
   const { user } = useAuth();
   const { incrementXP } = useGamification();
 

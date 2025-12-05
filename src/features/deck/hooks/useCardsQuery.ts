@@ -1,5 +1,5 @@
 import { useQuery, keepPreviousData } from '@tanstack/react-query';
-import { useSettings } from '@/contexts/SettingsContext';
+import { useSettingsStore } from '@/stores/useSettingsStore';
 import { db } from '@/services/db/dexie';
 import { mapToCard } from '@/services/db/repositories/cardRepository';
 import { CardStatus } from '@/types';
@@ -16,7 +16,7 @@ export const useCardsQuery = (
   searchTerm = '',
   filters: CardFilters = {}
 ) => {
-  const { settings } = useSettings();
+  const settings = useSettingsStore(s => s.settings);
   const language = settings.language;
 
   return useQuery({

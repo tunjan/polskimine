@@ -3,7 +3,7 @@ import { ArrowRight, Command, ArrowLeft, User as UserIcon } from 'lucide-react';
 import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
 import { useProfile } from '@/contexts/ProfileContext';
-import { useSettings } from '@/contexts/SettingsContext';
+import { useSettingsStore } from '@/stores/useSettingsStore';
 import { LanguageLevelSelector, DeckGenerationStep, AuthLayout } from './components';
 import { LanguageSelector } from './components/LanguageSelector';
 import { generateInitialDeck } from '@/features/deck/services/deckGeneration';
@@ -23,7 +23,8 @@ export const AuthPage: React.FC = () => {
   const { createLocalProfile, markInitialDeckGenerated } = useProfile();
   const { login } = useAuth();
 
-  const { settings, updateSettings } = useSettings();
+  const settings = useSettingsStore(s => s.settings);
+  const updateSettings = useSettingsStore(s => s.updateSettings);
   const [loading, setLoading] = useState(false);
 
   const [username, setUsername] = useState('');

@@ -3,7 +3,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Card, Grade } from '@/types';
 import { StudySession } from '@/features/study/components/StudySession';
 import { useDeck } from '@/contexts/DeckContext';
-import { useSettings } from '@/contexts/SettingsContext';
+import { useSettingsStore } from '@/stores/useSettingsStore';
 import { useCardOperations } from '@/features/deck/hooks/useCardOperations';
 import { isNewCard } from '@/services/studyLimits';
 import {
@@ -19,7 +19,7 @@ import { toast } from 'sonner';
 export const StudyRoute: React.FC = () => {
   const { recordReview, undoReview, canUndo, stats } = useDeck();
   const { updateCard, deleteCard, addCard } = useCardOperations();
-  const { settings } = useSettings();
+  const settings = useSettingsStore(s => s.settings);
   const claimBonus = useClaimDailyBonusMutation();
 
   const navigate = useNavigate();

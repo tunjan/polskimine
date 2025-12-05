@@ -1,20 +1,16 @@
-import React, { useMemo, useEffect, useCallback, useState } from 'react';
+import React, { useMemo, useEffect } from 'react';
 import { Card, Language, LanguageId } from '@/types';
 import { escapeRegExp, parseFurigana, cn, findInflectedWordInSentence } from '@/lib/utils';
-import { ttsService } from '@/services/tts';
-import { useSettings } from '@/contexts/SettingsContext';
+import { useSettingsStore } from '@/stores/useSettingsStore';
 import { useCardText } from '@/features/deck/hooks/useCardText';
-import { Mic, Volume2, Zap } from 'lucide-react';
-import { aiService } from '@/features/deck/services/ai';
-import { getCardByTargetWord } from '@/services/db/repositories/cardRepository';
-import { db } from '@/services/db/dexie';
-import { toast } from 'sonner';
-import { v4 as uuidv4 } from 'uuid';
-
+import { Mic, Volume2 } from 'lucide-react';
 import { FuriganaRenderer } from '@/components/ui/furigana-renderer';
 import { useTextSelection } from '@/features/study/hooks/useTextSelection';
 import { AnalysisModal } from '@/features/study/components/AnalysisModal';
 import { SelectionMenu } from '@/features/study/components/SelectionMenu';
+import { useFlashcardAudio } from '@/features/study/hooks/useFlashcardAudio';
+import { useAIAnalysis } from '@/features/study/hooks/useAIAnalysis';
+import { useCardInteraction } from '@/features/study/hooks/useCardInteraction';
 
 interface FlashcardProps {
   card: Card;
@@ -35,168 +31,46 @@ export const Flashcard = React.memo<FlashcardProps>(({
   language = LanguageId.Polish,
   onAddCard
 }) => {
-  const { settings } = useSettings();
+  const settings = useSettingsStore(s => s.settings);
   const { displayedTranslation, isGaslit, processText } = useCardText(card);
-  const [isRevealed, setIsRevealed] = useState(!blindMode);
-  const [playSlow, setPlaySlow] = useState(false);
-  const playSlowRef = React.useRef(playSlow);
-  const hasSpokenRef = React.useRef<string | null>(null);
-
-  // Extracted Hooks
   const { selection, handleMouseUp, clearSelection } = useTextSelection();
 
-  // Analysis State
-  const [isAnalyzing, setIsAnalyzing] = useState(false);
-  const [analysisResult, setAnalysisResult] = useState<{ originalText: string; definition: string; partOfSpeech: string; contextMeaning: string } | null>(null);
-  const [isAnalysisOpen, setIsAnalysisOpen] = useState(false);
-  const [isGeneratingCard, setIsGeneratingCard] = useState(false);
-
-  useEffect(() => { setIsRevealed(!blindMode); }, [card.id, blindMode]);
-  useEffect(() => { if (isFlipped) setIsRevealed(true); }, [isFlipped]);
-
+  // Reset selection on card change
   useEffect(() => {
     clearSelection();
-    setAnalysisResult(null);
-    setIsAnalysisOpen(false);
-    setPlaySlow(false);
   }, [card.id, clearSelection]);
 
-  useEffect(() => {
-    playSlowRef.current = playSlow;
-  }, [playSlow]);
+  // Use Custom Hooks
+  const { isRevealed, setIsRevealed, handleReveal, handleKeyDown } = useCardInteraction({
+    cardId: card.id,
+    blindMode,
+    isFlipped
+  });
 
-  const getPlainTextForTTS = useCallback((text: string): string => {
-    const segments = parseFurigana(text);
-    return segments.map(s => s.text).join('');
-  }, []);
+  const { speak, playSlow } = useFlashcardAudio({
+    card,
+    language,
+    settings,
+    isFlipped,
+    autoPlayAudio
+  });
 
-  const speak = useCallback(() => {
-    const effectiveRate = playSlowRef.current ? Math.max(0.25, settings.tts.rate * 0.6) : settings.tts.rate;
-    const effectiveSettings = { ...settings.tts, rate: effectiveRate };
-    const plainText = getPlainTextForTTS(card.targetSentence);
-    ttsService.speak(plainText, language, effectiveSettings).catch(err => {
-      console.error('TTS speak error:', err);
-    });
-    setPlaySlow(prev => !prev);
-  }, [card.targetSentence, language, settings.tts, getPlainTextForTTS]);
-
-  useEffect(() => {
-    return () => {
-      ttsService.stop();
-    };
-  }, [card.id]);
-
-  useEffect(() => {
-    if (hasSpokenRef.current !== card.id) {
-      hasSpokenRef.current = null;
-    }
-    if (autoPlayAudio && isFlipped && hasSpokenRef.current !== card.id) {
-      speak();
-      hasSpokenRef.current = card.id;
-    }
-  }, [card.id, autoPlayAudio, isFlipped, speak]);
-
-  const handleAnalyze = async () => {
-    if (!selection) return;
-    if (!settings.geminiApiKey) {
-      toast.error("API Key required.");
-      clearSelection();
-      return;
-    }
-    setIsAnalyzing(true);
-    try {
-      const result = await aiService.analyzeWord(selection.text, card.targetSentence, language, settings.geminiApiKey);
-      setAnalysisResult({ ...result, originalText: selection.text });
-      setIsAnalysisOpen(true);
-      clearSelection();
-    } catch (e) {
-      toast.error("Analysis failed.");
-    } finally {
-      setIsAnalyzing(false);
-    }
-  };
-
-  const handleGenerateCard = async () => {
-    if (!selection) return;
-    if (!settings.geminiApiKey) {
-      toast.error("API Key required.");
-      clearSelection();
-      return;
-    }
-    if (!onAddCard) {
-      toast.error("Cannot add card from here.");
-      clearSelection();
-      return;
-    }
-    setIsGeneratingCard(true);
-    try {
-      // First, lemmatize the selected word to get its base form
-      const lemma = await aiService.lemmatizeWord(selection.text, language, settings.geminiApiKey);
-      
-      // Check if a card with this target word (base form) already exists
-      const existingCard = await getCardByTargetWord(lemma, language);
-      if (existingCard) {
-        // Only show prioritize action for new cards (to avoid messing up SRS scheduling)
-        const isPrioritizable = existingCard.status === 'new';
-        toast.error(`Card already exists for "${lemma}"`, {
-          action: isPrioritizable ? {
-            label: 'Prioritize',
-            onClick: async () => {
-              try {
-                await db.cards.where('id').equals(existingCard.id).modify({ dueDate: new Date(0).toISOString() });
-                toast.success(`"${lemma}" moved to top of queue`);
-              } catch (e) {
-                toast.error('Failed to prioritize card');
-              }
-            }
-          } : undefined,
-          duration: 5000
-        });
-        clearSelection();
-        setIsGeneratingCard(false);
-        return;
-      }
-
-      const result = await aiService.generateSentenceForWord(lemma, language, settings.geminiApiKey);
-
-      let targetSentence = result.targetSentence;
-      if (language === LanguageId.Japanese && result.furigana) {
-        targetSentence = parseFurigana(result.furigana).map(s => s.text).join("");
-      }
-
-      // Set the due date to be the first card tomorrow (after 4am cutoff)
-      const tomorrow = new Date();
-      tomorrow.setDate(tomorrow.getDate() + 1);
-      tomorrow.setHours(4, 0, 0, 1); // Just after 4am cutoff to be first
-
-      const newCard: Card = {
-        id: uuidv4(),
-        targetSentence,
-        targetWord: lemma,
-        targetWordTranslation: result.targetWordTranslation,
-        targetWordPartOfSpeech: result.targetWordPartOfSpeech,
-        nativeTranslation: result.nativeTranslation,
-        notes: result.notes,
-        furigana: result.furigana,
-        language,
-        status: 'new',
-        interval: 0,
-        easeFactor: 2.5,
-        dueDate: tomorrow.toISOString(),
-        reps: 0,
-        lapses: 0,
-        tags: ['AI-Gen', 'From-Study']
-      };
-
-      onAddCard(newCard);
-      toast.success(`Card created for "${lemma}" — scheduled for tomorrow`);
-      clearSelection();
-    } catch (e) {
-      toast.error("Failed to generate card.");
-    } finally {
-      setIsGeneratingCard(false);
-    }
-  };
+  const {
+    isAnalyzing,
+    analysisResult,
+    isAnalysisOpen,
+    setIsAnalysisOpen,
+    isGeneratingCard,
+    handleAnalyze,
+    handleGenerateCard
+  } = useAIAnalysis({
+    card,
+    language,
+    apiKey: settings.geminiApiKey,
+    selection,
+    clearSelection,
+    onAddCard
+  });
 
   const displayedSentence = processText(card.targetSentence);
 
@@ -216,14 +90,6 @@ export const Flashcard = React.memo<FlashcardProps>(({
     );
 
     if (!isRevealed) {
-      const handleReveal = () => setIsRevealed(true);
-      const handleKeyDown = (e: React.KeyboardEvent) => {
-        if (e.key === 'Enter' || e.key === ' ') {
-          e.preventDefault();
-          setIsRevealed(true);
-        }
-      };
-
       return (
         <div
           onClick={handleReveal}
@@ -271,13 +137,6 @@ export const Flashcard = React.memo<FlashcardProps>(({
     }
 
     // Logic to highlight target text or render Japanese logic
-    // We can simplify this significantly with FuriganaRenderer if adapted, 
-    // but the highlighting logic is specific to text matching. 
-    // For now, keeping the highlighting logic inline is safer to avoid breaking complex regex stuff, 
-    // but we can use FuriganaRenderer for the parts.
-
-    // Actually, let's reuse valid parts.
-
     const hasFuriganaInDedicatedField = card.furigana && /\[.+?\]/.test(card.furigana);
     const hasFuriganaInSentence = card.targetSentence && /\[.+?\]/.test(card.targetSentence);
 
@@ -298,15 +157,6 @@ export const Flashcard = React.memo<FlashcardProps>(({
 
     // If Japanese and using furigana...
     if (language === LanguageId.Japanese && furiganaSource) {
-      // Check if we can use FuriganaRenderer with custom logic?
-      // The original code had complex logic to highlight the target word inside the ruby structure.
-      // FuriganaRenderer renders segments.
-      // To maintain highlighting, we'd need to pass a refined structure or style.
-      // For this refactor, simplest is to allow FuriganaRenderer to take `highlightWord`?
-      // Or just keep the custom render logic here for this specific case as it is core "Game Logic".
-
-      // I will keep the custom logic for Japanese sentence highlighting here as it is very specific.
-
       const segments = parseFurigana(furiganaSource);
       const hasFurigana = segments.some(s => s.furigana);
 
@@ -323,7 +173,7 @@ export const Flashcard = React.memo<FlashcardProps>(({
           // First try exact match, then try inflected form match
           let targetStart = fullText.indexOf(targetWordPlain);
           let matchedWordLength = targetWordPlain.length;
-          
+
           if (targetStart === -1) {
             // Try to find inflected form
             const matchedWord = findInflectedWordInSentence(targetWordPlain, fullText);
@@ -332,7 +182,7 @@ export const Flashcard = React.memo<FlashcardProps>(({
               matchedWordLength = matchedWord.length;
             }
           }
-          
+
           if (targetStart !== -1) {
             const targetEnd = targetStart + matchedWordLength;
             let charIndex = 0;
@@ -370,10 +220,10 @@ export const Flashcard = React.memo<FlashcardProps>(({
 
     if (card.targetWord) {
       const targetWordPlain = parseFurigana(card.targetWord).map(s => s.text).join('');
-      
+
       // Find the actual word in the sentence (handles inflected forms like godzina -> godzinie)
       const matchedWord = findInflectedWordInSentence(targetWordPlain, displayedSentence);
-      
+
       if (matchedWord) {
         // Use the matched word for highlighting (case-insensitive)
         const wordBoundaryRegex = new RegExp(`(\\b${escapeRegExp(matchedWord)}\\b)`, 'gi');
@@ -388,13 +238,13 @@ export const Flashcard = React.memo<FlashcardProps>(({
           </p>
         );
       }
-      
+
       // Fallback: no match found, just display the sentence without highlighting
       return <p className={baseClasses}>{displayedSentence}</p>;
     }
 
     return <p className={baseClasses}>{displayedSentence}</p>;
-  }, [displayedSentence, card.targetWord, card.furigana, isRevealed, language, fontSizeClass, blindMode, speak, isFlipped, card.targetSentence, processText, settings.showWholeSentenceOnFront]);
+  }, [displayedSentence, card.targetWord, card.furigana, isRevealed, language, fontSizeClass, blindMode, speak, isFlipped, card.targetSentence, processText, settings.showWholeSentenceOnFront, handleReveal, handleKeyDown]);
 
   const containerClasses = cn(
     "relative w-full max-w-7xl mx-auto flex flex-col items-center justify-center h-full"
@@ -409,7 +259,7 @@ export const Flashcard = React.memo<FlashcardProps>(({
           isFlipped && ""
         )}>
 
-         </div>
+        </div>
 
         {/* Main content */}
         <div className={cn(
@@ -430,7 +280,7 @@ export const Flashcard = React.memo<FlashcardProps>(({
 
         {/* Translation reveal with enhanced game-styled animation */}
         {isFlipped && (
-          <div className="absolute top-1/2 left-0 right-0 bottom-4  flex flex-col items-center gap-3 z-0 pointer-events-none overflow-y-auto">
+          <div className="absolute top-1/2 left-0 right-0 bottom-4 text-center flex flex-col items-center gap-3 z-0 pointer-events-none overflow-y-auto">
 
             {/* Decorative divider - Genshin style */}
             <div className="flex items-center gap-3 my-3 animate-in fade-in duration-500">
@@ -506,4 +356,3 @@ export const Flashcard = React.memo<FlashcardProps>(({
     </>
   );
 });
-

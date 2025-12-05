@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useRef } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { ArrowRight, Sparkles, Scroll, BookOpen, PenLine, Languages, Tag, FileText } from "lucide-react";
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Card, LanguageId } from "@/types";
@@ -6,8 +6,11 @@ import { v4 as uuidv4 } from "uuid";
 import { toast } from "sonner";
 import { aiService } from "@/features/deck/services/ai";
 import { escapeRegExp, parseFurigana, cn } from "@/lib/utils";
-import { useSettings } from "@/contexts/SettingsContext";
+import { useSettingsStore } from "@/stores/useSettingsStore";
 import { GenshinCorners, DiamondDivider, CornerAccents } from "@/components/game/GamePanel";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
 
 interface AddCardModalProps {
     isOpen: boolean;
@@ -16,23 +19,55 @@ interface AddCardModalProps {
     initialCard?: Card;
 }
 
+const formSchema = z.object({
+    sentence: z.string().min(1, "Sentence is required"),
+    targetWord: z.string().optional(),
+    targetWordTranslation: z.string().optional(),
+    targetWordPartOfSpeech: z.string().optional(),
+    translation: z.string().min(1, "Translation is required"),
+    notes: z.string().optional(),
+    furigana: z.string().optional()
+}).superRefine((data, ctx) => {
+    if (data.targetWord && data.sentence) {
+        try {
+            if (!data.sentence.toLowerCase().includes(data.targetWord.toLowerCase())) {
+                ctx.addIssue({
+                    code: z.ZodIssueCode.custom,
+                    message: "Target word provided but not found in sentence",
+                    path: ["targetWord"],
+                });
+            }
+        } catch (e) {
+            // Fallback
+        }
+    }
+});
+
+type FormValues = z.infer<typeof formSchema>;
 
 export const AddCardModal: React.FC<AddCardModalProps> = ({ isOpen, onClose, onAdd, initialCard }) => {
-    const { settings } = useSettings();
-    const [form, setForm] = useState({
-        sentence: "",
-        targetWord: "",
-        targetWordTranslation: "",
-        targetWordPartOfSpeech: "",
-        translation: "",
-        notes: "",
-        furigana: ""
-    });
+    const settings = useSettingsStore(s => s.settings);
     const [isGenerating, setIsGenerating] = useState(false);
     const isMounted = React.useRef(false);
     const textareaRef = useRef<HTMLTextAreaElement>(null);
-
     const wasOpen = useRef(false);
+
+    const { register, handleSubmit, reset, setValue, watch, formState: { errors } } = useForm<FormValues>({
+        resolver: zodResolver(formSchema),
+        defaultValues: {
+            sentence: "",
+            targetWord: "",
+            targetWordTranslation: "",
+            targetWordPartOfSpeech: "",
+            translation: "",
+            notes: "",
+            furigana: ""
+        }
+    });
+
+    // Watch values for preview
+    const watchedSentence = watch("sentence");
+    const watchedTargetWord = watch("targetWord");
 
     useEffect(() => {
         isMounted.current = true;
@@ -42,7 +77,7 @@ export const AddCardModal: React.FC<AddCardModalProps> = ({ isOpen, onClose, onA
     useEffect(() => {
         if (isOpen && !wasOpen.current) {
             if (initialCard) {
-                setForm({
+                reset({
                     sentence: initialCard.targetSentence,
                     targetWord: initialCard.targetWord || "",
                     targetWordTranslation: initialCard.targetWordTranslation || "",
@@ -52,7 +87,7 @@ export const AddCardModal: React.FC<AddCardModalProps> = ({ isOpen, onClose, onA
                     furigana: initialCard.furigana || ""
                 });
             } else {
-                setForm({ sentence: "", targetWord: "", targetWordTranslation: "", targetWordPartOfSpeech: "", translation: "", notes: "", furigana: "" });
+                reset({ sentence: "", targetWord: "", targetWordTranslation: "", targetWordPartOfSpeech: "", translation: "", notes: "", furigana: "" });
             }
 
             setTimeout(() => {
@@ -63,10 +98,11 @@ export const AddCardModal: React.FC<AddCardModalProps> = ({ isOpen, onClose, onA
             }, 100);
         }
         wasOpen.current = isOpen;
-    }, [isOpen, initialCard, settings.language]);
+    }, [isOpen, initialCard, settings.language, reset]);
 
     const handleAutoFill = async () => {
-        if (!form.sentence) return;
+        const currentSentence = watch("sentence");
+        if (!currentSentence) return;
         if (!settings.geminiApiKey) {
             toast.error("Please add your Gemini API Key in Settings > General");
             return;
@@ -74,19 +110,20 @@ export const AddCardModal: React.FC<AddCardModalProps> = ({ isOpen, onClose, onA
         setIsGenerating(true);
         try {
             const targetLanguage = initialCard?.language || settings.language;
-            const result = await aiService.generateCardContent(form.sentence, targetLanguage, settings.geminiApiKey);
+            const result = await aiService.generateCardContent(currentSentence, targetLanguage, settings.geminiApiKey);
 
             if (isMounted.current) {
-                setForm(prev => ({
-                    ...prev,
-                    sentence: (targetLanguage === LanguageId.Japanese && result.furigana) ? result.furigana : prev.sentence,
-                    translation: result.translation,
-                    targetWord: result.targetWord || prev.targetWord,
-                    targetWordTranslation: result.targetWordTranslation || prev.targetWordTranslation,
-                    targetWordPartOfSpeech: result.targetWordPartOfSpeech || prev.targetWordPartOfSpeech,
-                    notes: result.notes,
-                    furigana: result.furigana || prev.furigana
-                }));
+                if (targetLanguage === LanguageId.Japanese && result.furigana) {
+                    setValue("sentence", result.furigana);
+                }
+
+                setValue("translation", result.translation);
+                if (result.targetWord) setValue("targetWord", result.targetWord);
+                if (result.targetWordTranslation) setValue("targetWordTranslation", result.targetWordTranslation);
+                if (result.targetWordPartOfSpeech) setValue("targetWordPartOfSpeech", result.targetWordPartOfSpeech);
+                setValue("notes", result.notes);
+                if (result.furigana) setValue("furigana", result.furigana);
+
                 toast.success("Content generated");
             }
         } catch (e) {
@@ -96,57 +133,46 @@ export const AddCardModal: React.FC<AddCardModalProps> = ({ isOpen, onClose, onA
         }
     };
 
-    const handleSubmit = (e: React.FormEvent) => {
-        e.preventDefault();
-        if (!form.sentence || !form.translation) {
-            toast.error("Sentence and translation required");
-            return;
-        }
-
-        if (form.targetWord && !form.sentence.toLowerCase().includes(form.targetWord.toLowerCase())) {
-            toast.error("Target word provided but not found in sentence");
-            return;
-        }
-
+    const onSubmit = (data: FormValues) => {
         const cardBase = initialCard || { id: uuidv4(), status: "new", interval: 0, easeFactor: 2.5, dueDate: new Date().toISOString(), reps: 0, lapses: 0 } as Card;
 
         const targetLanguage = initialCard?.language || settings.language;
-        let targetSentence = form.sentence;
-        let furigana = form.furigana || undefined;
+        let targetSentence = data.sentence;
+        let furigana = data.furigana || undefined;
 
         if (targetLanguage === LanguageId.Japanese) {
-            furigana = form.sentence;
-            targetSentence = parseFurigana(form.sentence).map(s => s.text).join("");
+            furigana = data.sentence;
+            targetSentence = parseFurigana(data.sentence).map(s => s.text).join("");
         }
 
         const newCard: Card = {
             ...cardBase,
             targetSentence: targetSentence,
-            targetWord: form.targetWord || undefined,
-            targetWordTranslation: form.targetWordTranslation || undefined,
-            targetWordPartOfSpeech: form.targetWordPartOfSpeech || undefined,
-            nativeTranslation: form.translation,
-            notes: form.notes,
+            targetWord: data.targetWord || undefined,
+            targetWordTranslation: data.targetWordTranslation || undefined,
+            targetWordPartOfSpeech: data.targetWordPartOfSpeech || undefined,
+            nativeTranslation: data.translation,
+            notes: data.notes,
             furigana: furigana,
             language: targetLanguage
         };
         onAdd(newCard);
-        setForm({ sentence: "", targetWord: "", targetWordTranslation: "", targetWordPartOfSpeech: "", translation: "", notes: "", furigana: "" });
+        reset({ sentence: "", targetWord: "", targetWordTranslation: "", targetWordPartOfSpeech: "", translation: "", notes: "", furigana: "" });
         onClose();
     };
 
 
     const HighlightedPreview = useMemo(() => {
-        if (!form.sentence) return null;
+        if (!watchedSentence) return null;
 
         const targetLanguage = initialCard?.language || settings.language;
 
         if (targetLanguage === LanguageId.Japanese) {
-            const segments = parseFurigana(form.sentence);
+            const segments = parseFurigana(watchedSentence);
             return (
                 <div className="mt-4 text-xl font-light text-amber-600/60 dark:text-amber-200/50 select-none">
                     {segments.map((segment, i) => {
-                        const isTarget = form.targetWord && segment.text === form.targetWord;
+                        const isTarget = watchedTargetWord && segment.text === watchedTargetWord;
                         if (segment.furigana) {
                             return (
                                 <ruby key={i} className="group mr-1" style={{ rubyAlign: 'center' }}>
@@ -161,14 +187,22 @@ export const AddCardModal: React.FC<AddCardModalProps> = ({ isOpen, onClose, onA
             );
         }
 
-        if (!form.targetWord) return null;
-        const parts = form.sentence.split(new RegExp(`(${escapeRegExp(form.targetWord)})`, "gi"));
-        return (
-            <div className="mt-4 text-xl font-light text-amber-600/60 dark:text-amber-200/50 select-none">
-                {parts.map((part, i) => part.toLowerCase() === form.targetWord.toLowerCase() ? <span key={i} className="text-amber-500 font-normal border-b-2 border-amber-500/50 pb-0.5">{part}</span> : <span key={i}>{part}</span>)}
-            </div>
-        );
-    }, [form.sentence, form.targetWord, settings.language, initialCard]);
+        if (!watchedTargetWord) return null;
+        try {
+            const parts = watchedSentence.split(new RegExp(`(${escapeRegExp(watchedTargetWord)})`, "gi"));
+            return (
+                <div className="mt-4 text-xl font-light text-amber-600/60 dark:text-amber-200/50 select-none">
+                    {parts.map((part, i) => part.toLowerCase() === watchedTargetWord.toLowerCase() ? <span key={i} className="text-amber-500 font-normal border-b-2 border-amber-500/50 pb-0.5">{part}</span> : <span key={i}>{part}</span>)}
+                </div>
+            );
+        } catch (e) {
+            return (
+                <div className="mt-4 text-xl font-light text-amber-600/60 dark:text-amber-200/50 select-none">
+                    {watchedSentence}
+                </div>
+            );
+        }
+    }, [watchedSentence, watchedTargetWord, settings.language, initialCard]);
 
     return (
         <Dialog open={isOpen} onOpenChange={onClose}>
@@ -182,7 +216,7 @@ export const AddCardModal: React.FC<AddCardModalProps> = ({ isOpen, onClose, onA
 
                 <DialogDescription className="sr-only">Form to add or edit a flashcard</DialogDescription>
 
-                <form onSubmit={handleSubmit} className="flex flex-col h-full relative z-0">
+                <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col h-full relative z-0">
 
                     {/* Top Section: Header with ornate styling - pr-12 gives space for close button */}
                     <div className="px-8 pr-14 pt-8 pb-6 bg-gradient-to-br from-amber-600/10 via-transparent to-transparent dark:from-amber-400/10">
@@ -210,7 +244,7 @@ export const AddCardModal: React.FC<AddCardModalProps> = ({ isOpen, onClose, onA
                             <button
                                 type="button"
                                 onClick={handleAutoFill}
-                                disabled={isGenerating || !form.sentence}
+                                disabled={isGenerating || !watchedSentence}
                                 className={cn(
                                     "group relative flex items-center gap-2.5 px-4 py-2",
                                     "border border-amber-800/80 hover:border-amber-500/60",
@@ -221,7 +255,7 @@ export const AddCardModal: React.FC<AddCardModalProps> = ({ isOpen, onClose, onA
                                 )}
                             >
                                 {/* Button corner accents */}
-                                <CornerAccents className="bg-amber-900/80" />
+                                <CornerAccents className="border-amber-900/80" />
 
                                 <Sparkles size={14} className={cn(
                                     "transition-all duration-200",
@@ -239,14 +273,18 @@ export const AddCardModal: React.FC<AddCardModalProps> = ({ isOpen, onClose, onA
                         {/* Sentence Input Area */}
                         <div className="relative">
                             <textarea
-                                ref={textareaRef}
+                                {...register("sentence")}
+                                ref={(e) => {
+                                    register("sentence").ref(e);
+                                    // @ts-ignore
+                                    textareaRef.current = e;
+                                }}
                                 placeholder="Type your sentence here..."
                                 className="w-full text-2xl md:text-3xl font-light bg-transparent border-none outline-none placeholder:text-amber-700/40 dark:placeholder:text-amber-400/15 resize-none overflow-hidden p-0 leading-tight tracking-tight text-foreground min-h-[80px]"
-                                value={form.sentence}
-                                onChange={e => setForm({ ...form, sentence: e.target.value })}
                                 rows={1}
                                 style={{ fieldSizing: 'content' } as any}
                             />
+                            {errors.sentence && <span className="text-red-500 text-sm mt-1">{errors.sentence.message}</span>}
                             {HighlightedPreview}
                         </div>
                     </div>
@@ -267,11 +305,11 @@ export const AddCardModal: React.FC<AddCardModalProps> = ({ isOpen, onClose, onA
                                     Translation
                                 </label>
                                 <input
-                                    value={form.translation}
-                                    onChange={e => setForm({ ...form, translation: e.target.value })}
+                                    {...register("translation")}
                                     placeholder="e.g., This is a house."
                                     className="w-full bg-transparent border-b-2 border-amber-700/50 dark:border-amber-600/15 p-2 text-lg font-light text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:border-amber-800/50 transition-colors"
                                 />
+                                {errors.translation && <span className="text-red-500 text-xs">{errors.translation.message}</span>}
                             </div>
 
                             {/* Target Word Field */}
@@ -282,11 +320,11 @@ export const AddCardModal: React.FC<AddCardModalProps> = ({ isOpen, onClose, onA
                                     Target Word
                                 </label>
                                 <input
-                                    value={form.targetWord}
-                                    onChange={e => setForm({ ...form, targetWord: e.target.value })}
+                                    {...register("targetWord")}
                                     placeholder="e.g., house"
                                     className="w-full bg-transparent border-b-2 border-amber-700/50 dark:border-amber-600/15 p-2 text-lg font-light text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:border-amber-800/50 transition-colors"
                                 />
+                                {errors.targetWord && <span className="text-red-500 text-xs">{errors.targetWord.message}</span>}
                             </div>
                         </div>
 
@@ -300,8 +338,7 @@ export const AddCardModal: React.FC<AddCardModalProps> = ({ isOpen, onClose, onA
                                     Word Translation
                                 </label>
                                 <input
-                                    value={form.targetWordTranslation}
-                                    onChange={e => setForm({ ...form, targetWordTranslation: e.target.value })}
+                                    {...register("targetWordTranslation")}
                                     placeholder="e.g., house"
                                     className="w-full bg-transparent border-b-2 border-amber-700/50 dark:border-amber-600/15 p-2 text-lg font-light text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:border-amber-800/50 transition-colors"
                                 />
@@ -315,11 +352,10 @@ export const AddCardModal: React.FC<AddCardModalProps> = ({ isOpen, onClose, onA
                                     Part of Speech
                                 </label>
                                 <select
-                                    value={form.targetWordPartOfSpeech}
-                                    onChange={e => setForm({ ...form, targetWordPartOfSpeech: e.target.value })}
+                                    {...register("targetWordPartOfSpeech")}
                                     className="w-full bg-card border-b-2 border-amber-700/50 dark:border-amber-600/15 p-2 text-lg font-light text-foreground focus:outline-none focus:border-amber-500/50 transition-colors cursor-pointer"
                                 >
-                                    <option value="" disabled>Select POS</option>
+                                    <option value="">Select POS</option>
                                     <option value="noun">Noun</option>
                                     <option value="verb">Verb</option>
                                     <option value="adjective">Adjective</option>
@@ -337,8 +373,7 @@ export const AddCardModal: React.FC<AddCardModalProps> = ({ isOpen, onClose, onA
                                 Context Notes
                             </label>
                             <textarea
-                                value={form.notes}
-                                onChange={e => setForm({ ...form, notes: e.target.value })}
+                                {...register("notes")}
                                 placeholder="Add any usage notes or context..."
                                 className="w-full bg-transparent border-b-2 border-amber-700/50 dark:border-amber-600/15 p-2 text-base font-light text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:border-amber-500/50 transition-colors resize-none min-h-[60px]"
                             />
@@ -351,22 +386,7 @@ export const AddCardModal: React.FC<AddCardModalProps> = ({ isOpen, onClose, onA
                                 className="group relative inline-flex items-center gap-3 bg-amber-600/15 hover:bg-amber-600/25 active:bg-amber-600/35 text-amber-700 dark:text-amber-400 border-2 border-amber-600/50 hover:border-amber-500/70 px-8 py-3.5 transition-all duration-200"
                             >
                                 {/* Button corner accents */}
-                                <span className="absolute -top-0.5 -left-0.5 w-3 h-3">
-                                    <span className="absolute top-0 left-0 w-full h-0.5 bg-amber-500" />
-                                    <span className="absolute top-0 left-0 h-full w-0.5 bg-amber-500" />
-                                </span>
-                                <span className="absolute -top-0.5 -right-0.5 w-3 h-3">
-                                    <span className="absolute top-0 right-0 w-full h-0.5 bg-amber-500" />
-                                    <span className="absolute top-0 right-0 h-full w-0.5 bg-amber-500" />
-                                </span>
-                                <span className="absolute -bottom-0.5 -left-0.5 w-3 h-3">
-                                    <span className="absolute bottom-0 left-0 w-full h-0.5 bg-amber-500" />
-                                    <span className="absolute bottom-0 left-0 h-full w-0.5 bg-amber-500" />
-                                </span>
-                                <span className="absolute -bottom-0.5 -right-0.5 w-3 h-3">
-                                    <span className="absolute bottom-0 right-0 w-full h-0.5 bg-amber-500" />
-                                    <span className="absolute bottom-0 right-0 h-full w-0.5 bg-amber-500" />
-                                </span>
+                                <CornerAccents position="all" size="md" className="border-amber-500" />
 
                                 {/* Diamond accent */}
                                 <span className="w-1.5 h-1.5 rotate-45 bg-amber-500/70 group-hover:bg-amber-500 transition-colors" />

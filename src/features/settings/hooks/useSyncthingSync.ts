@@ -1,7 +1,7 @@
 import { useState, useCallback } from 'react';
 import { toast } from 'sonner';
 import { useQueryClient } from '@tanstack/react-query';
-import { useSettings } from '@/contexts/SettingsContext';
+import { useSettingsStore } from '@/stores/useSettingsStore';
 import {
     saveSyncFile,
     loadSyncFile,
@@ -13,7 +13,8 @@ import {
 } from '@/services/sync/syncService';
 
 export const useSyncthingSync = () => {
-    const { settings, updateSettings } = useSettings();
+    const settings = useSettingsStore(s => s.settings);
+    const updateSettings = useSettingsStore(s => s.updateSettings);
     const queryClient = useQueryClient();
     const [isSaving, setIsSaving] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
@@ -23,7 +24,7 @@ export const useSyncthingSync = () => {
         setIsSaving(true);
         try {
             const result = await saveSyncFile(settings);
-            
+
             if (result.success) {
                 const now = new Date().toISOString();
                 setLastSyncTime(now);
@@ -47,7 +48,7 @@ export const useSyncthingSync = () => {
         setIsLoading(true);
         try {
             const result = await loadSyncFile();
-            
+
             if (!result.success) {
                 toast.error(result.error || 'Failed to load sync file');
                 return false;
@@ -73,16 +74,16 @@ export const useSyncthingSync = () => {
             }
 
             const importResult = await importSyncData(syncData, updateSettings);
-            
+
             if (importResult.success) {
                 const now = new Date().toISOString();
                 setLastSyncTime(now);
                 setLastSync(now);
                 toast.success(`Loaded ${syncData.cards.length} cards from sync file`);
-                
+
                 // Refresh all queries
                 queryClient.invalidateQueries();
-                
+
                 // Reload page after a short delay
                 setTimeout(() => window.location.reload(), 1000);
                 return true;

@@ -22,8 +22,24 @@ export function GamePanel({
     children,
     ...props
 }: GamePanelProps) {
+    const isInteractive = !!props.onClick
+
+    const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
+        if (props.onKeyDown) {
+            props.onKeyDown(e)
+        }
+
+        if (!isInteractive) return
+
+        if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault()
+            props.onClick?.(e as unknown as React.MouseEvent<HTMLDivElement>)
+        }
+    }
+
     return (
         <div
+            {...props}
             className={cn(
                 "relative group/panel",
                 "bg-card",
@@ -38,10 +54,13 @@ export function GamePanel({
                 size === 'lg' && "p-5 md:p-6",
 
                 glowOnHover && "transition-colors duration-200 ",
+                isInteractive && "cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
 
                 className
             )}
-            {...props}
+            role={isInteractive ? "button" : props.role}
+            tabIndex={isInteractive ? (props.tabIndex ?? 0) : props.tabIndex}
+            onKeyDown={handleKeyDown}
         >
             {/* Ornate corner decorations */}
             {showCorners && <GenshinCorners />}

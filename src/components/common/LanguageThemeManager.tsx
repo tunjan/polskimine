@@ -1,10 +1,10 @@
 import React, { useLayoutEffect } from 'react';
-import { useSettings } from '@/contexts/SettingsContext';
+import { useSettingsStore } from '@/stores/useSettingsStore';
 
 const STYLE_TAG_ID = 'custom-language-theme';
 
 export const LanguageThemeManager: React.FC = () => {
-  const { settings } = useSettings();
+  const settings = useSettingsStore(s => s.settings);
 
   useLayoutEffect(() => {
     if (typeof window === 'undefined') return;

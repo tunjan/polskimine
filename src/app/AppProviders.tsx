@@ -7,13 +7,13 @@ import { Toaster } from 'sonner';
 import { SessionProvider } from '@/contexts/SessionContext';
 import { DeckActionsProvider } from '@/contexts/DeckActionsContext';
 import { DeckStatsProvider } from '@/contexts/DeckStatsContext';
-import { SettingsProvider } from '@/contexts/SettingsContext';
 import { ThemeProvider } from '@/contexts/ThemeContext';
 import { MusicProvider } from '@/contexts/MusicContext';
 import { AuthProvider } from '@/contexts/AuthContext';
 import { ProfileProvider } from '@/contexts/ProfileContext';
 import { GamificationProvider } from '@/contexts/GamificationContext';
 import { ErrorBoundary } from '@/components/common/ErrorBoundary';
+import { SettingsSync } from '@/features/settings/components/SettingsSync';
 
 const queryClient = new QueryClient();
 
@@ -33,22 +33,21 @@ export const AppProviders: React.FC<AppProvidersProps> = ({ children }) => {
             <ThemeProvider defaultTheme="light" storageKey="languagemine-theme">
                 <ErrorBoundary>
                     <AuthProvider>
+                        <SettingsSync />
                         <ProfileProvider>
                             <GamificationProvider>
-                                <SettingsProvider>
-                                    <SessionProvider>
-                                        <DeckActionsProvider>
-                                            <DeckStatsProvider>
-                                                <MusicProvider>
-                                                    <Router>
-                                                        {children}
-                                                        <Toaster position="bottom-right" expand={true} />
-                                                    </Router>
-                                                </MusicProvider>
-                                            </DeckStatsProvider>
-                                        </DeckActionsProvider>
-                                    </SessionProvider>
-                                </SettingsProvider>
+                                <SessionProvider>
+                                    <DeckActionsProvider>
+                                        <DeckStatsProvider>
+                                            <MusicProvider>
+                                                <Router>
+                                                    {children}
+                                                    <Toaster position="bottom-right" expand={true} />
+                                                </Router>
+                                            </MusicProvider>
+                                        </DeckStatsProvider>
+                                    </DeckActionsProvider>
+                                </SessionProvider>
                             </GamificationProvider>
                         </ProfileProvider>
                     </AuthProvider>

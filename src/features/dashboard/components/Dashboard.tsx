@@ -17,7 +17,7 @@ import { subDays, startOfDay, format } from 'date-fns';
 
 import { DeckStats, ReviewHistory, Card as CardType } from '@/types';
 
-import { useSettings } from '@/contexts/SettingsContext';
+import { useSettingsStore } from '@/stores/useSettingsStore';
 import { useAuth } from '@/contexts/AuthContext';
 import { useProfile } from '@/contexts/ProfileContext';
 import { getRevlogStats } from '@/services/db/repositories/statsRepository';
@@ -62,7 +62,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
   cards,
   languageXp
 }) => {
-  const { settings } = useSettings();
+  const settings = useSettingsStore(s => s.settings);
   const { profile } = useProfile();
 
   const levelData = getLevelProgress(languageXp.xp);
@@ -305,7 +305,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
                       <div className="relative group/reward bg-gradient-to-br from-amber-500/10 to-transparent border border-amber-700/30 p-3 hover:border-amber-600/50 transition-colors">
                         <div className="flex items-center gap-3">
                           <div className="relative w-10 h-10 flex items-center justify-center bg-amber-500/10 rounded-4xl">
-                            
+
                             <Star className="w-5 h-5 text-amber-400 " fill="currentColor" />
                           </div>
                           <div>
@@ -318,7 +318,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
                       <div className="relative group/reward bg-gradient-to-br from-sky-500/10 to-transparent border border-sky-700/30 p-3 hover:border-sky-600/50 transition-colors">
                         <div className="flex items-center gap-3">
                           <div className="relative w-10 h-10 flex items-center justify-center bg-sky-500/10 rounded-4xl">
-                            
+
                             <Activity className="w-5 h-5 text-sky-400 " />
                           </div>
                           <div>
@@ -376,7 +376,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
                             <span className="text-base font-bold tracking-[0.35em] text-amber-600 dark:text-amber-300 uppercase">
                               Navigate
                             </span>
-                            
+
                             <span className="w-1.5 h-1.5 rotate-45 bg-amber-500 opacity-60" />
                             <span className="w-6 h-px bg-amber-500/50 group-hover/btn:w-10 group-hover/btn:bg-amber-400 transition-all duration-300" />
                           </div>
@@ -568,6 +568,7 @@ interface InventorySlotProps {
   value: number;
   description: string;
   color: 'sky' | 'amber' | 'violet' | 'pine';
+  onClick?: () => void;
 }
 
 const colorConfig = {
@@ -597,14 +598,31 @@ const colorConfig = {
   },
 };
 
-function InventorySlot({ icon, label, value, description, color }: InventorySlotProps) {
+function InventorySlot({ icon, label, value, description, color, onClick }: InventorySlotProps) {
   const colors = colorConfig[color];
+  const isInteractive = !!onClick;
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
+    if (!isInteractive) return;
+
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      onClick?.();
+    }
+  };
 
   return (
-    <div className={cn(
-      "group relative bg-card border-2 p-4 transition-all duration-200",
-      colors.border
-    )}>
+    <div
+      className={cn(
+        "group relative bg-card border-2 p-4 transition-all duration-200",
+        colors.border,
+        isInteractive && "cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+      )}
+      onClick={onClick}
+      role={isInteractive ? "button" : undefined}
+      tabIndex={isInteractive ? 0 : undefined}
+      onKeyDown={handleKeyDown}
+    >
       {/* Top accent line */}
       <div className={cn("absolute top-0 left-0 right-0 h-0.5", colors.accent, "opacity-60")} />
 

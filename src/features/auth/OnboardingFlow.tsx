@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useSettings } from '@/contexts/SettingsContext';
+import { useSettingsStore } from '@/stores/useSettingsStore';
 import { useAuth } from '@/contexts/AuthContext';
 import { useProfile } from '@/contexts/ProfileContext';
 import { LanguageLevelSelector } from './components/LanguageLevelSelector';
@@ -20,7 +20,8 @@ import { v4 as uuidv4 } from 'uuid';
 export const OnboardingFlow: React.FC = () => {
   const { user, signOut } = useAuth();
   const { markInitialDeckGenerated } = useProfile();
-  const { settings, updateSettings } = useSettings();
+  const settings = useSettingsStore(s => s.settings);
+  const updateSettings = useSettingsStore(s => s.updateSettings);
   const [step, setStep] = useState<'language' | 'level' | 'deck'>('language');
   const [selectedLevel, setSelectedLevel] = useState<Difficulty | null>(null);
 

@@ -13,7 +13,7 @@ import {
   Command,
   Save
 } from 'lucide-react';
-import { useSettings } from '@/contexts/SettingsContext';
+import { useSettingsStore } from '@/stores/useSettingsStore';
 import { useAuth } from '@/contexts/AuthContext';
 import { useProfile } from '@/contexts/ProfileContext';
 import { useCardOperations } from '@/features/deck/hooks/useCardOperations';
@@ -68,7 +68,8 @@ const AppSidebar: React.FC<NavActionProps> = ({
   onCloseMobileMenu
 }) => {
   const location = useLocation();
-  const { settings, updateSettings } = useSettings();
+  const settings = useSettingsStore(s => s.settings);
+  const updateSettings = useSettingsStore(s => s.updateSettings);
   const { signOut, user } = useAuth();
   const { profile } = useProfile();
 
@@ -132,7 +133,7 @@ const AppSidebar: React.FC<NavActionProps> = ({
                       <Link to={item.to} className="flex items-center gap-3 w-full">
                         {/* Active indicator - vertical line */}
                         {isActive && (
-                          <div className="absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-4 bg-primary" />
+                          <div className="absolute left-0 top-0 bottom-0 w-[2px] bg-linear-to-b from-primary/0 via-primary/50 to-primary/0 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                         )}
                         <item.icon size={15} strokeWidth={isActive ? 1.5 : 1.25} className="shrink-0" />
                         <span className="group-data-[collapsible=icon]:hidden">{item.label}</span>
@@ -151,9 +152,7 @@ const AppSidebar: React.FC<NavActionProps> = ({
 
         {/* Genshin-style separator with diamond */}
         <div className="flex items-center gap-2 my-3 mx-1 group-data-[collapsible=icon]:hidden">
-          <div className="h-px flex-1 bg-gradient-to-r from-border/60 to-transparent" />
-          <div className="w-1 h-1 rotate-45 border border-primary/30" />
-          <div className="h-px flex-1 bg-gradient-to-l from-border/60 to-transparent" />
+          <div className="w-full h-[1px] bg-linear-to-r from-transparent via-border/50 to-transparent my-2" />
         </div>
 
         {/* Tools Section */}

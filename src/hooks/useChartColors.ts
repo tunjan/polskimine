@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { useSettings } from '@/contexts/SettingsContext';
+import { useSettingsStore } from '@/stores/useSettingsStore';
 import { useTheme } from '@/contexts/ThemeContext';
 
 const getCssVarValue = (name: string) => {
@@ -11,16 +11,16 @@ const normalizeColor = (value: string, fallback: string) => {
   if (!value) return fallback;
   const candidate = value.trim();
   if (!candidate) return fallback;
-  
+
   if (/^(#|rgb|hsl|oklch|var)/i.test(candidate)) return candidate;
-  
+
   if (candidate.includes(' ')) return `hsl(${candidate})`;
   return candidate;
 };
 
 export const useChartColors = () => {
   const { theme } = useTheme();
-  const { settings } = useSettings();
+  const settings = useSettingsStore(s => s.settings);
 
   return useMemo(() => {
     const prefersDark = typeof window !== 'undefined' && window.matchMedia('(prefers-color-scheme: dark)').matches;

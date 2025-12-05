@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useMemo, useState, useEffect, useRef } from 'react';
 import { DeckStats, ReviewHistory } from '@/types';
 import { useDeckStatsQuery, useDueCardsQuery, useHistoryQuery } from '@/features/deck/hooks/useDeckQueries';
-import { useSettings } from './SettingsContext';
+import { useSettingsStore } from '@/stores/useSettingsStore';
 import { useSessionState } from './SessionContext';
 import { applyStudyLimits, isNewCard } from '@/services/studyLimits';
 import { getUTCDateString } from '@/constants';
@@ -16,7 +16,7 @@ interface DeckStatsState {
 const DeckStatsContext = createContext<DeckStatsState | undefined>(undefined);
 
 export const DeckStatsProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-    const { settings } = useSettings();
+    const settings = useSettingsStore(s => s.settings);
     const { reviewsToday } = useSessionState();
 
     const { data: dbStats, isLoading: statsLoading } = useDeckStatsQuery();

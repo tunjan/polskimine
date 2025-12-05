@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { ChevronLeft, ChevronRight, Search, X, Plus, Sparkles, BookOpen, Zap, Trash2, Filter, Bookmark, AlertTriangle } from 'lucide-react';
 
 import { useDeck } from '@/contexts/DeckContext';
-import { useSettings } from '@/contexts/SettingsContext';
+import { useSettingsStore } from '@/stores/useSettingsStore';
 import { Card, CardStatus } from '@/types';
 import { AddCardModal } from '@/features/deck/components/AddCardModal';
 import { GenerateCardsModal } from '@/features/deck/components/GenerateCardsModal';
@@ -14,7 +14,7 @@ import { GamePanel, GameButton, GameDivider, GameLoader } from '@/components/ui/
 import { cn } from '@/lib/utils';
 
 export const CardsRoute: React.FC = () => {
-  const { settings } = useSettings();
+  const settings = useSettingsStore(s => s.settings);
   const { stats } = useDeck();
   const { addCard, addCardsBatch, updateCard, deleteCard, deleteCardsBatch, prioritizeCards } = useCardOperations();
 
@@ -137,8 +137,7 @@ export const CardsRoute: React.FC = () => {
 
       {/* --- Genshin Header (Collapsible) --- */}
       <header className="relative shrink-0 z-20">
-        {/* Background with gradient */}
-        <div className="absolute inset-0 bg-gradient-to-b from-background via-background/95 to-background/80 pointer-events-none" />
+
 
         <div className="relative px-4 md:px-8 pt-6 pb-2">
 
@@ -216,7 +215,7 @@ export const CardsRoute: React.FC = () => {
                         {activeFilterCount > 0 && (
                           <button
                             onClick={clearFilters}
-                            className="text-xs text-primary hover:underline"
+                            className="p-0! bg-transparent border-none shadow-none"
                           >
                             Clear all
                           </button>
@@ -299,7 +298,7 @@ export const CardsRoute: React.FC = () => {
         </div>
 
         {/* Decorative bottom border */}
-        <div className="h-px w-full bg-gradient-to-r from-transparent via-border to-transparent opacity-50" />
+        <div className="absolute -bottom-1 left-0 right-0 h-[1px] bg-linear-to-r from-transparent via-amber-500/20 to-transparent group-hover:via-amber-500/40" />
       </header>
 
       {/* --- Main Content Area --- */}

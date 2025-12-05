@@ -61,18 +61,12 @@ const StatusBadge = ({ status }: { status: string }) => {
         <span
             className={cn(
                 "relative inline-flex items-center gap-1.5 px-2.5 py-1 text-[10px] font-medium uppercase tracking-wider transition-all border rounded-sm",
+                // Corner accents via pseudo-elements
+                "before:absolute before:-top-px before:-left-px before:w-1.5 before:h-1.5 before:border-t-2 before:border-l-2 before:border-current before:opacity-40 before:pointer-events-none",
+                "after:absolute after:-bottom-px after:-right-px after:w-1.5 after:h-1.5 after:border-b-2 after:border-r-2 after:border-current after:opacity-40 after:pointer-events-none",
                 config.className
             )}
         >
-            {/* Corner accents */}
-            <span className="absolute -top-px -left-px w-1.5 h-1.5 pointer-events-none">
-                <span className="absolute top-0 left-0 w-full h-0.5 bg-current opacity-40" />
-                <span className="absolute top-0 left-0 h-full w-0.5 bg-current opacity-40" />
-            </span>
-            <span className="absolute -bottom-px -right-px w-1.5 h-1.5 pointer-events-none">
-                <span className="absolute bottom-0 right-0 w-full h-0.5 bg-current opacity-40" />
-                <span className="absolute bottom-0 right-0 h-full w-0.5 bg-current opacity-40" />
-            </span>
             {config.icon}
             {config.label}
         </span>
@@ -188,7 +182,7 @@ export function getCardColumns(actions: ColumnActions): ColumnDef<Card>[] {
                     >
                         <Checkbox
                             checked={row.getIsSelected()}
-                            onCheckedChange={() => {}}
+                            onCheckedChange={() => { }}
                             aria-label="Select row"
                             className="border-muted-foreground/50 data-[state=checked]:bg-primary data-[state=checked]:border-primary text-primary-foreground pointer-events-none"
                         />

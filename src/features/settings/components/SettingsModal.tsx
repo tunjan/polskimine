@@ -6,7 +6,7 @@ import { useQueryClient } from '@tanstack/react-query';
 
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import { GamePanel, GameButton, GameDivider } from '@/components/game';
-import { useSettings } from '@/contexts/SettingsContext';
+import { useSettingsStore } from '@/stores/useSettingsStore';
 import { useDeck } from '@/contexts/DeckContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { useProfile } from '@/contexts/ProfileContext';
@@ -39,9 +39,11 @@ interface SettingsModalProps {
 type SettingsTab = 'general' | 'audio' | 'study' | 'algorithm' | 'data' | 'danger';
 
 export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
-    const { settings, updateSettings, saveApiKeys } = useSettings();
+    const settings = useSettingsStore(s => s.settings);
+    const updateSettings = useSettingsStore(s => s.updateSettings);
+    const saveApiKeys = useSettingsStore(s => s.saveApiKeys);
     const { refreshDeckData } = useDeck();
-    const { signOut } = useAuth();
+    const { signOut, user } = useAuth();
     const { profile, updateUsername, updateLanguageLevel } = useProfile();
     const [localSettings, setLocalSettings] = useState(settings);
     const [localUsername, setLocalUsername] = useState('');
@@ -100,7 +102,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
         updateSettings(localSettings);
 
         try {
-            await saveApiKeys({
+            await saveApiKeys(user?.id || 'local-user', {
                 geminiApiKey: localSettings.geminiApiKey,
                 googleTtsApiKey: localSettings.tts.googleApiKey,
                 azureTtsApiKey: localSettings.tts.azureApiKey,
@@ -250,16 +252,16 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                 const restoredSettings: Partial<UserSettings> = {
                     ...data.settings,
                     // Only import API keys if the setting is enabled and they exist in the backup
-                    geminiApiKey: importApiKeys && data.settings.geminiApiKey 
-                        ? data.settings.geminiApiKey 
+                    geminiApiKey: importApiKeys && data.settings.geminiApiKey
+                        ? data.settings.geminiApiKey
                         : localSettings.geminiApiKey,
                     tts: {
                         ...data.settings.tts,
-                        googleApiKey: importApiKeys && data.settings.tts?.googleApiKey 
-                            ? data.settings.tts.googleApiKey 
+                        googleApiKey: importApiKeys && data.settings.tts?.googleApiKey
+                            ? data.settings.tts.googleApiKey
                             : localSettings.tts.googleApiKey,
-                        azureApiKey: importApiKeys && data.settings.tts?.azureApiKey 
-                            ? data.settings.tts.azureApiKey 
+                        azureApiKey: importApiKeys && data.settings.tts?.azureApiKey
+                            ? data.settings.tts.azureApiKey
                             : localSettings.tts.azureApiKey,
                     } as UserSettings['tts'],
                 };

@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useCallback, useState } from 'react';
 import { Trophy, Target, Zap, Sparkles } from 'lucide-react';
 import { Card, Grade } from '@/types';
-import { useSettings } from '@/contexts/SettingsContext';
+import { useSettingsStore } from '@/stores/useSettingsStore';
 import { useStudySession } from '../hooks/useStudySession';
 import { useXpSession } from '@/features/xp/hooks/useXpSession';
 import { CardXpPayload, CardRating } from '@/features/xp/xpUtils';
@@ -62,7 +62,7 @@ export const StudySession: React.FC<StudySessionProps> = ({
   dailyStreak,
   onAddCard,
 }) => {
-  const { settings } = useSettings();
+  const settings = useSettingsStore(s => s.settings);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const { sessionXp, sessionStreak, multiplierInfo, feedback, processCardResult, subtractXp } = useXpSession(dailyStreak, isCramMode);

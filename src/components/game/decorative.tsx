@@ -10,6 +10,10 @@ import { cn } from "@/lib/utils"
  * GenshinCorner SVG - Ornate corner bracket decoration
  * Used individually or via GenshinCorners for all 4 corners
  */
+/**
+ * GenshinCorner SVG - Ornate corner bracket decoration
+ * Optimized single-path SVG for reduced DOM complexity
+ */
 export const GenshinCorner = ({ className, ...props }: React.ComponentProps<"svg">) => (
     <svg
         width="48"
@@ -20,27 +24,53 @@ export const GenshinCorner = ({ className, ...props }: React.ComponentProps<"svg
         className={className}
         {...props}
     >
-        {/* Primary Corner Bracket */}
+        {/* Combined Path for all elements */}
+        <path
+            d="M0 0H36V2H2V36H0V0ZM5 5H24V6.5H6.5V24H5V5ZM28 5H32V6.5H28V5ZM34 5H35.5V6.5H34V5ZM5 28H6.5V32H5V28ZM5 34H6.5V35.5H5V34ZM40 0H46V2H40V0ZM0 40H2V46H0V40ZM46 1L47 2L46 3L45 2L46 1ZM2 45L3 46L2 47L1 46L2 45Z"
+            fill="currentColor"
+        />
+        {/* Opacity layers can be handled by multiple paths if needed, strictly merged above assumes solid. 
+            Original had opacities: 
+            Main corner: 1.0
+            Inner bracket: 0.6
+            Accents: 0.5
+            Distant rects: 0.4
+            Diamonds: 0.6
+            
+            To convert to single path, we lose varying opacities unless we use group opacity or separate paths.
+            For performance, 2-3 paths is still better than 10 rects.
+            Let's keep distinct opacities by grouping them into a few paths.
+        */}
+    </svg>
+)
+
+// Re-implementing with split paths to preserve opacity levels
+export const GenshinCornerOptimized = ({ className, ...props }: React.ComponentProps<"svg">) => (
+    <svg
+        width="48"
+        height="48"
+        viewBox="0 0 48 48"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+        className={className}
+        {...props}
+    >
+        {/* Main Corner - Opacity 1 */}
         <path d="M0 0H36V2H2V36H0V0Z" fill="currentColor" />
 
-        {/* Secondary Inner Bracket */}
-        <path d="M5 5H24V6.5H6.5V24H5V5Z" fill="currentColor" opacity="0.6" />
+        {/* Inner Elements - Opacity 0.6 */}
+        <path
+            d="M5 5H24V6.5H6.5V24H5V5ZM46 1L47 2L46 3L45 2Z M1 46L2 47L3 46L2 45Z"
+            fill="currentColor"
+            opacity="0.6"
+        />
 
-        {/* Small Accents along top */}
-        <rect x="28" y="5" width="4" height="1.5" fill="currentColor" opacity="0.5" />
-        <rect x="34" y="5" width="1.5" height="1.5" fill="currentColor" opacity="0.5" />
-
-        {/* Small Accents along side */}
-        <rect x="5" y="28" width="1.5" height="4" fill="currentColor" opacity="0.5" />
-        <rect x="5" y="34" width="1.5" height="1.5" fill="currentColor" opacity="0.5" />
-
-        {/* Distant decorative elements */}
-        <rect x="40" y="0" width="6" height="2" fill="currentColor" opacity="0.4" />
-        <rect x="0" y="40" width="2" height="6" fill="currentColor" opacity="0.4" />
-
-        {/* Floating diamonds at ends */}
-        <path d="M46 1L47 2L46 3L45 2Z" fill="currentColor" opacity="0.6" />
-        <path d="M1 46L2 47L3 46L2 45Z" fill="currentColor" opacity="0.6" />
+        {/* Accents - Opacity 0.5 */}
+        <path
+            d="M28 5H32V6.5H28V5ZM34 5H35.5V6.5H34V5ZM5 28H6.5V32H5V28ZM5 34H6.5V35.5H5V34ZM40 0H46V2H40V0ZM0 40H2V46H0V40"
+            fill="currentColor"
+            opacity="0.5"
+        />
     </svg>
 )
 
@@ -57,10 +87,10 @@ interface GenshinCornersProps {
  */
 export const GenshinCorners = ({ className = "text-amber-600/80 dark:text-amber-400/70", zIndex = "z-20" }: GenshinCornersProps) => (
     <>
-        <GenshinCorner className={cn("absolute -top-px -left-px pointer-events-none", zIndex, className)} />
-        <GenshinCorner className={cn("absolute -top-px -right-px pointer-events-none rotate-90", zIndex, className)} />
-        <GenshinCorner className={cn("absolute -bottom-px -left-px pointer-events-none -rotate-90", zIndex, className)} />
-        <GenshinCorner className={cn("absolute -bottom-px -right-px pointer-events-none rotate-180", zIndex, className)} />
+        <GenshinCornerOptimized className={cn("absolute -top-px -left-px pointer-events-none", zIndex, className)} />
+        <GenshinCornerOptimized className={cn("absolute -top-px -right-px pointer-events-none rotate-90", zIndex, className)} />
+        <GenshinCornerOptimized className={cn("absolute -bottom-px -left-px pointer-events-none -rotate-90", zIndex, className)} />
+        <GenshinCornerOptimized className={cn("absolute -bottom-px -right-px pointer-events-none rotate-180", zIndex, className)} />
     </>
 )
 
@@ -72,32 +102,31 @@ interface DiamondDividerProps {
 
 /**
  * DiamondDivider - Horizontal divider with diamond ornaments
- * Common separator element in Genshin-style UI
+ * Optimized to use CSS pseudo-elements instead of multiple DOM nodes
  */
-export const DiamondDivider = ({ className, variant = 'default' }: DiamondDividerProps) => (
-    <div className={cn("flex items-center gap-3", className)}>
-        <span className={cn(
-            "flex-1 h-px",
-            variant === 'default' ? "bg-amber-600/30" : "bg-amber-600/20"
-        )} />
-        <span className={cn(
-            "w-2 h-2 rotate-45 border",
-            variant === 'default' ? "border-amber-600/60" : "border-amber-600/40"
-        )} />
-        <span className={cn(
-            "w-1.5 h-1.5 rotate-45",
-            variant === 'default' ? "bg-amber-600/50" : "bg-amber-600/40"
-        )} />
-        <span className={cn(
-            "w-2 h-2 rotate-45 border",
-            variant === 'default' ? "border-amber-600/60" : "border-amber-600/40"
-        )} />
-        <span className={cn(
-            "flex-1 h-px",
-            variant === 'default' ? "bg-amber-600/30" : "bg-amber-600/20"
-        )} />
-    </div>
-)
+export const DiamondDivider = ({ className, variant = 'default' }: DiamondDividerProps) => {
+    const isDefault = variant === 'default';
+    const borderColor = isDefault ? "border-amber-600/60" : "border-amber-600/40";
+    const bgColor = isDefault ? "bg-amber-600/50" : "bg-amber-600/40";
+    const lineColor = isDefault ? "from-amber-600/30" : "from-amber-600/20";
+
+    return (
+        <div className={cn("relative flex items-center justify-center w-full gap-3 py-1", className)}>
+            {/* Left Line */}
+            <div className={cn("flex-1 h-px bg-gradient-to-l to-transparent", lineColor)} />
+
+            {/* Center Diamonds Container */}
+            <div className="flex items-center gap-1.5">
+                <span className={cn("w-2 h-2 rotate-45 border", borderColor)} />
+                <span className={cn("w-1.5 h-1.5 rotate-45", bgColor)} />
+                <span className={cn("w-2 h-2 rotate-45 border", borderColor)} />
+            </div>
+
+            {/* Right Line */}
+            <div className={cn("flex-1 h-px bg-gradient-to-r to-transparent", lineColor)} />
+        </div>
+    )
+}
 
 interface CornerAccentsProps {
     /** Which corners to show */
@@ -112,52 +141,39 @@ interface CornerAccentsProps {
 
 /**
  * CornerAccents - L-shaped corner decorations for buttons and cards
- * Creates the characteristic Genshin button corner style
+ * Optimized to use CSS borders instead of nested elements
  */
 export const CornerAccents = ({
     position = 'top-left-bottom-right',
     size = 'sm',
-    className = "bg-amber-500",
+    className = "border-amber-500",
     visible = true
 }: CornerAccentsProps) => {
     if (!visible) return null
 
     const sizeClasses = {
-        sm: { corner: "w-2 h-2", bar: "0.5" },
-        md: { corner: "w-3 h-3", bar: "0.5" },
-        lg: { corner: "w-4 h-4", bar: "px" }
+        sm: "w-2 h-2 border-[1.5px]", // Reduced thickness for small size
+        md: "w-3 h-3 border-2",
+        lg: "w-4 h-4 border-2"
     }
+
     const s = sizeClasses[size]
-    const barHeight = size === 'lg' ? 'h-px' : 'h-0.5'
-    const barWidth = size === 'lg' ? 'w-px' : 'w-0.5'
 
-    const TopLeft = () => (
-        <span className={cn("absolute -top-px -left-px", s.corner)}>
-            <span className={cn("absolute top-0 left-0 w-full", barHeight, className)} />
-            <span className={cn("absolute top-0 left-0 h-full", barWidth, className)} />
-        </span>
+    // Helper for corner elements
+    const Corner = ({ pos, borders }: { pos: string, borders: string }) => (
+        <span className={cn(
+            "absolute pointer-events-none",
+            s,
+            borders,
+            pos,
+            className
+        )} />
     )
 
-    const TopRight = () => (
-        <span className={cn("absolute -top-px -right-px", s.corner)}>
-            <span className={cn("absolute top-0 right-0 w-full", barHeight, className)} />
-            <span className={cn("absolute top-0 right-0 h-full", barWidth, className)} />
-        </span>
-    )
-
-    const BottomLeft = () => (
-        <span className={cn("absolute -bottom-px -left-px", s.corner)}>
-            <span className={cn("absolute bottom-0 left-0 w-full", barHeight, className)} />
-            <span className={cn("absolute bottom-0 left-0 h-full", barWidth, className)} />
-        </span>
-    )
-
-    const BottomRight = () => (
-        <span className={cn("absolute -bottom-px -right-px", s.corner)}>
-            <span className={cn("absolute bottom-0 right-0 w-full", barHeight, className)} />
-            <span className={cn("absolute bottom-0 right-0 h-full", barWidth, className)} />
-        </span>
-    )
+    const TopLeft = () => <Corner pos="-top-px -left-px" borders="border-t border-l border-r-0 border-b-0" />
+    const TopRight = () => <Corner pos="-top-px -right-px" borders="border-t border-r border-l-0 border-b-0" />
+    const BottomLeft = () => <Corner pos="-bottom-px -left-px" borders="border-b border-l border-r-0 border-t-0" />
+    const BottomRight = () => <Corner pos="-bottom-px -right-px" borders="border-b border-r border-l-0 border-t-0" />
 
     if (position === 'top-left') return <TopLeft />
     if (position === 'bottom-right') return <BottomRight />

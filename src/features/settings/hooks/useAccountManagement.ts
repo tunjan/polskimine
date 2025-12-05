@@ -4,7 +4,7 @@ import { toast } from 'sonner';
 import { v4 as uuidv4 } from 'uuid';
 
 import { db } from '@/services/db/dexie';
-import { useSettings } from '@/contexts/SettingsContext';
+import { useSettingsStore } from '@/stores/useSettingsStore';
 import { LanguageId } from '@/types';
 import {
     deleteCardsByLanguage,
@@ -17,7 +17,7 @@ import { JAPANESE_BEGINNER_DECK } from '@/features/deck/data/japaneseBeginnerDec
 import { SPANISH_BEGINNER_DECK } from '@/features/deck/data/spanishBeginnerDeck';
 
 export const useAccountManagement = () => {
-    const { settings } = useSettings();
+    const settings = useSettingsStore(s => s.settings);
     const queryClient = useQueryClient();
     const [confirmResetDeck, setConfirmResetDeck] = useState(false);
     const [confirmResetAccount, setConfirmResetAccount] = useState(false);
