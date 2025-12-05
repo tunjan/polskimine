@@ -121,13 +121,13 @@ export const StudySession: React.FC<StudySessionProps> = ({
     onUpdateCard(updatedCard);
   }, [currentCard, onUpdateCard]);
 
-  const handleDelete = useCallback(() => {
+  const handleDelete = useCallback(async () => {
     if (!currentCard) return;
     if (confirm('Are you sure you want to delete this card?')) {
-      // First update the session state to show the next card
+      // First delete from the database (await to ensure it completes)
+      await onDeleteCard(currentCard.id);
+      // Then update the session state to show the next card
       removeCardFromSession(currentCard.id);
-      // Then delete from the database
-      onDeleteCard(currentCard.id);
     }
   }, [currentCard, removeCardFromSession, onDeleteCard]);
 

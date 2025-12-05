@@ -35,8 +35,7 @@ export const useStudySession = ({
 
 
   const isProcessingRef = useRef(false);
-
-
+  
   useEffect(() => {
     if (!isInitialized.current && dueCards.length > 0) {
       let sortedCards = [...dueCards];
@@ -258,7 +257,7 @@ export const useStudySession = ({
     : 0;
 
   // Remove a card from the session queue (e.g., when deleted)
-  // This does NOT pull from reserves since the card wasn't reviewed
+  // If deleting a new card, pull from reserves to maintain the daily new card count
   const removeCardFromSession = useCallback((cardId: string) => {
     // We do NOT block this with isProcessingRef because if a card is deleted externally
     // or via a separate control, we MUST update the session state to avoid crashing on a missing card.
@@ -269,7 +268,17 @@ export const useStudySession = ({
       const index = prev.findIndex((c) => c.id === cardId);
       if (index === -1) return prev;
 
-      const newCards = prev.filter((c) => c.id !== cardId);
+      const deletedCard = prev[index];
+      const wasNewCard = isNewCard(deletedCard);
+      
+      let newCards = prev.filter((c) => c.id !== cardId);
+
+      // If we deleted a new card and have reserves, pull the next new card
+      if (wasNewCard && reserveCards.length > 0) {
+        const nextNew = reserveCards[0];
+        newCards = [...newCards, nextNew];
+        setReserveCards((prevReserve) => prevReserve.slice(1));
+      }
 
       // Adjust currentIndex if needed
       if (index < currentIndex) {
@@ -291,7 +300,7 @@ export const useStudySession = ({
 
       return newCards;
     });
-  }, [currentIndex]);
+  }, [currentIndex, reserveCards]);
 
   return {
     sessionCards,
