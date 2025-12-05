@@ -19,7 +19,7 @@ const DialogOverlay = React.forwardRef<
   <DialogPrimitive.Overlay
     ref={ref}
     className={cn(
-      "fixed inset-0 z-50 bg-black/40 dark:bg-black/60",
+      "fixed inset-0 z-50 bg-black/50 dark:bg-black/70 backdrop-blur-sm",
       className
     )}
     {...props}
@@ -36,13 +36,31 @@ const DialogContent = React.forwardRef<
     <DialogPrimitive.Content
       ref={ref}
       className={cn(
-        "fixed left-[50%] top-[50%] z-50 grid w-[95vw] max-w-lg translate-x-[-50%] translate-y-[-50%] gap-5 border border-border bg-background p-6 rounded-lg",
+        "fixed left-[50%] top-[50%] z-50 grid w-[95vw] max-w-lg translate-x-[-50%] translate-y-[-50%] gap-5 border-2 border-amber-700/30 dark:border-amber-600/25 bg-card p-6 animate-genshin-fade-in",
         className
       )}
       {...props}
     >
+      {/* Ornate corner decorations */}
+      <span className="absolute -top-px -left-px w-4 h-4 pointer-events-none">
+        <span className="absolute top-0 left-0 w-full h-0.5 bg-amber-500/70" />
+        <span className="absolute top-0 left-0 h-full w-0.5 bg-amber-500/70" />
+      </span>
+      <span className="absolute -top-px -right-px w-4 h-4 pointer-events-none">
+        <span className="absolute top-0 right-0 w-full h-0.5 bg-amber-500/70" />
+        <span className="absolute top-0 right-0 h-full w-0.5 bg-amber-500/70" />
+      </span>
+      <span className="absolute -bottom-px -left-px w-4 h-4 pointer-events-none">
+        <span className="absolute bottom-0 left-0 w-full h-0.5 bg-amber-500/70" />
+        <span className="absolute bottom-0 left-0 h-full w-0.5 bg-amber-500/70" />
+      </span>
+      <span className="absolute -bottom-px -right-px w-4 h-4 pointer-events-none">
+        <span className="absolute bottom-0 right-0 w-full h-0.5 bg-amber-500/70" />
+        <span className="absolute bottom-0 right-0 h-full w-0.5 bg-amber-500/70" />
+      </span>
+
       {children}
-      <DialogPrimitive.Close className="absolute right-4 top-4 rounded-sm p-1.5 opacity-60 transition-opacity hover:opacity-100 focus:outline-none disabled:pointer-events-none">
+      <DialogPrimitive.Close className="absolute right-4 top-4 p-1.5 text-amber-700/60 dark:text-amber-400/60 hover:text-amber-600 dark:hover:text-amber-400 transition-colors focus:outline-none disabled:pointer-events-none">
         <X className="h-4 w-4" />
         <span className="sr-only">Close</span>
       </DialogPrimitive.Close>
@@ -86,8 +104,7 @@ const DialogTitle = React.forwardRef<
   <DialogPrimitive.Title
     ref={ref}
     className={cn(
-
-      "text-lg font-semibold leading-none tracking-tight",
+      "text-lg font-serif font-semibold leading-none tracking-wide text-amber-800 dark:text-amber-300",
       className
     )}
     {...props}
@@ -101,7 +118,6 @@ const DialogDescription = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <DialogPrimitive.Description
     ref={ref}
-
     className={cn("text-sm text-muted-foreground", className)}
     {...props}
   />

@@ -3,7 +3,6 @@ import { Card, Language } from '@/types';
 import { escapeRegExp, parseFurigana, cn } from '@/lib/utils';
 import { ttsService } from '@/services/tts';
 import { useSettings } from '@/contexts/SettingsContext';
-import { useSabotage } from '@/contexts/SabotageContext';
 import { useCardText } from '@/features/deck/hooks/useCardText';
 import { Play, Sparkles, Quote, Mic, Volume2, Plus } from 'lucide-react';
 import { ButtonLoader } from '@/components/ui/game-ui';
@@ -30,11 +29,11 @@ const FuriganaText: React.FC<{
 }> = ({ text, className = '', processText = (t) => t }) => {
   const segments = parseFurigana(text);
   const hasFurigana = segments.some(s => s.furigana);
-  
+
   if (!hasFurigana) {
     return <span className={className}>{processText(text)}</span>;
   }
-  
+
   return (
     <span className={cn(className, "leading-[1.6]")}>
       {segments.map((segment, i) => {
@@ -64,20 +63,19 @@ export const Flashcard = React.memo<FlashcardProps>(({
   onAddCard
 }) => {
   const { settings } = useSettings();
-  const { isCursedWith } = useSabotage();
   const { displayedTranslation, isGaslit, processText } = useCardText(card);
   const [isRevealed, setIsRevealed] = useState(!blindMode);
   const [playSlow, setPlaySlow] = useState(false);
   const playSlowRef = React.useRef(playSlow);
   const hasSpokenRef = React.useRef<string | null>(null);
 
-  
+
   const [selection, setSelection] = useState<{ text: string; top: number; left: number } | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [analysisResult, setAnalysisResult] = useState<{ originalText: string; definition: string; partOfSpeech: string; contextMeaning: string } | null>(null);
   const [isAnalysisOpen, setIsAnalysisOpen] = useState(false);
-  
-  
+
+
   const [isGeneratingCard, setIsGeneratingCard] = useState(false);
 
   useEffect(() => { setIsRevealed(!blindMode); }, [card.id, blindMode]);
@@ -120,11 +118,12 @@ export const Flashcard = React.memo<FlashcardProps>(({
     if (hasSpokenRef.current !== card.id) {
       hasSpokenRef.current = null;
     }
-    if (autoPlayAudio && hasSpokenRef.current !== card.id) {
+    // Only auto-play audio when the card is flipped (showing the back)
+    if (autoPlayAudio && isFlipped && hasSpokenRef.current !== card.id) {
       speak();
       hasSpokenRef.current = card.id;
     }
-  }, [card.id, autoPlayAudio, speak]);
+  }, [card.id, autoPlayAudio, isFlipped, speak]);
 
   const handleMouseUp = useCallback(() => {
     const sel = window.getSelection();
@@ -185,7 +184,7 @@ export const Flashcard = React.memo<FlashcardProps>(({
     setIsGeneratingCard(true);
     try {
       const result = await aiService.generateSentenceForWord(selection.text, language, settings.geminiApiKey);
-      
+
       let targetSentence = result.targetSentence;
       if (language === 'japanese' && result.furigana) {
         targetSentence = parseFurigana(result.furigana).map(s => s.text).join("");
@@ -248,7 +247,7 @@ export const Flashcard = React.memo<FlashcardProps>(({
       };
 
       return (
-        <div 
+        <div
           onClick={handleReveal}
           onKeyDown={handleKeyDown}
           role="button"
@@ -280,16 +279,16 @@ export const Flashcard = React.memo<FlashcardProps>(({
       );
     }
 
-    
+
     if (!isFlipped && card.targetWord && !settings.showWholeSentenceOnFront) {
-      
+
       if (language === 'japanese') {
         const segments = parseFurigana(card.targetWord);
         const hasFurigana = segments.some(s => s.furigana);
         if (hasFurigana) {
           return (
-            <FuriganaText 
-              text={card.targetWord} 
+            <FuriganaText
+              text={card.targetWord}
               className={baseClasses}
               processText={processText}
             />
@@ -299,23 +298,43 @@ export const Flashcard = React.memo<FlashcardProps>(({
       return <p className={baseClasses}>{processText(card.targetWord)}</p>;
     }
 
-    const furiganaSource = card.furigana || card.targetSentence;
+    // For Japanese: check both furigana field AND targetSentence for kanji readings
+    // The AI sometimes embeds readings directly in targetSentence like "唐辛子[とうがらし]"
+    const hasFuriganaInDedicatedField = card.furigana && /\[.+?\]/.test(card.furigana);
+    const hasFuriganaInSentence = card.targetSentence && /\[.+?\]/.test(card.targetSentence);
+
+    // Prefer dedicated furigana field if it has markup and substantial content
+    // Otherwise use targetSentence which may have embedded furigana
+    let furiganaSource: string | undefined;
+    if (hasFuriganaInDedicatedField) {
+      const furiganaPlainText = parseFurigana(card.furigana!).map(s => s.text).join('');
+      const sentencePlainText = card.targetSentence || '';
+      if (furiganaPlainText.length >= sentencePlainText.length * 0.5) {
+        furiganaSource = card.furigana;
+      }
+    }
+    if (!furiganaSource && hasFuriganaInSentence) {
+      furiganaSource = card.targetSentence;
+    }
+    if (!furiganaSource) {
+      furiganaSource = card.targetSentence;
+    }
     if (language === 'japanese' && furiganaSource) {
       const segments = parseFurigana(furiganaSource);
       const hasFurigana = segments.some(s => s.furigana);
-      
+
       if (hasFurigana) {
-        
-        const targetWordPlain = card.targetWord 
+
+        const targetWordPlain = card.targetWord
           ? parseFurigana(card.targetWord).map(s => s.text).join('')
           : null;
-        
+
         // Build a map of which segments are part of the target word
         // by finding the target word in the concatenated sentence
         const segmentTexts = segments.map(s => s.text);
         const fullText = segmentTexts.join('');
         const targetIndices = new Set<number>();
-        
+
         if (targetWordPlain) {
           const targetStart = fullText.indexOf(targetWordPlain);
           if (targetStart !== -1) {
@@ -332,7 +351,7 @@ export const Flashcard = React.memo<FlashcardProps>(({
             }
           }
         }
-        
+
         return (
           <div className={cn(baseClasses, "leading-[1.6]")}>
             {segments.map((segment, i) => {
@@ -355,7 +374,7 @@ export const Flashcard = React.memo<FlashcardProps>(({
     }
 
     if (card.targetWord) {
-      
+
       const targetWordPlain = parseFurigana(card.targetWord).map(s => s.text).join('');
       // Use word boundaries to match only complete words, not substrings within words
       const wordBoundaryRegex = new RegExp(`(\\b${escapeRegExp(targetWordPlain)}\\b)`, 'gi');
@@ -372,13 +391,10 @@ export const Flashcard = React.memo<FlashcardProps>(({
     }
 
     return <p className={baseClasses}>{displayedSentence}</p>;
-  }, [displayedSentence, card.targetWord, card.furigana, isRevealed, language, isCursedWith, fontSizeClass, blindMode, speak, isFlipped]);
+  }, [displayedSentence, card.targetWord, card.furigana, isRevealed, language, fontSizeClass, blindMode, speak, isFlipped]);
 
   const containerClasses = cn(
-    "relative w-full max-w-7xl mx-auto flex flex-col items-center justify-center h-full",
-    isCursedWith('rotate') && "rotate-180",
-    isCursedWith('comic_sans') && "font-['Comic_Sans_MS']",
-    isCursedWith('blur') && "animate-pulse blur-[1px]"
+    "relative w-full max-w-7xl mx-auto flex flex-col items-center justify-center h-full"
   );
 
   return (
@@ -389,7 +405,7 @@ export const Flashcard = React.memo<FlashcardProps>(({
           "absolute inset-8 md:inset-16 pointer-events-none transition-all duration-700",
           isFlipped && "scale-[1.02]"
         )}>
-          
+
         </div>
 
         {/* Main content */}
@@ -412,7 +428,7 @@ export const Flashcard = React.memo<FlashcardProps>(({
         {/* Translation reveal with enhanced game-styled animation */}
         {isFlipped && (
           <div className="absolute top-1/2 left-0 right-0 bottom-4  flex flex-col items-center gap-3 z-0 pointer-events-none overflow-y-auto">
-            
+
             {/* Decorative divider */}
             <div className="flex items-center gap-3 mb-2 animate-in fade-in duration-500">
               <span className="w-8 h-px bg-linear-to-r from-transparent to-primary/30" />
@@ -425,7 +441,7 @@ export const Flashcard = React.memo<FlashcardProps>(({
                 {card.targetWord && (
                   <div className="flex flex-col items-center gap-0.5 mb-1">
                     <div className="flex items-center gap-2">
-                      <FuriganaText 
+                      <FuriganaText
                         text={card.targetWord}
                         className="text-xl md:text-2xl font-light text-primary/90"
                         processText={processText}
@@ -439,7 +455,7 @@ export const Flashcard = React.memo<FlashcardProps>(({
                 )}
 
                 <div className="max-w-3xl">
-                  
+
                   <p className={cn(
                     "text-base md:text-xl text-foreground/70 font-light italic text-center leading-relaxed text-balance transition-colors duration-300",
                     isGaslit ? "text-destructive/70" : "group-hover:text-foreground/85"
@@ -457,7 +473,7 @@ export const Flashcard = React.memo<FlashcardProps>(({
 
             {card.notes && (
               <div className="mt-2 pointer-events-auto shrink-0 px-6">
-                <FuriganaText 
+                <FuriganaText
                   text={card.notes}
                   className="text-xs font-ui font-light text-foreground text-center tracking-wide leading-relaxed block"
                   processText={processText}

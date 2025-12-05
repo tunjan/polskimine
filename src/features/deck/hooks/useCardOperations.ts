@@ -9,7 +9,7 @@ import {
   saveAllCards,
 } from '@/services/db/repositories/cardRepository';
 import { useDeck } from '@/contexts/DeckContext';
-import { supabase } from '@/lib/supabase';
+import { db } from '@/services/db/dexie';
 
 interface CardOperations {
   addCard: (card: Card) => Promise<void>;
@@ -101,16 +101,13 @@ export const useCardOperations = (): CardOperations => {
   const prioritizeCards = useCallback(
     async (ids: string[]) => {
       try {
-
-        const { error } = await supabase
-          .from('cards')
-          .update({ due_date: new Date(0).toISOString() })
-          .in('id', ids);
-
-        if (error) throw error;
+        // Update cards directly in Dexie
+        await db.cards
+          .where('id')
+          .anyOf(ids)
+          .modify({ dueDate: new Date(0).toISOString() });
 
         await queryClient.invalidateQueries({ queryKey: ['cards'] });
-
         await queryClient.invalidateQueries({ queryKey: ['dueCards'] });
         refreshDeckData();
         toast.success(`${ids.length} card${ids.length === 1 ? '' : 's'} moved to top of queue`);

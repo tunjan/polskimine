@@ -13,7 +13,6 @@ import { addReviewLog } from '@/services/db/repositories/revlogRepository';
 import { Card, Grade } from '@/types';
 import { getSRSDate } from '@/features/study/logic/srs';
 import { format, differenceInMinutes } from 'date-fns';
-import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 import { CardXpPayload } from '@/features/xp/xpUtils';
@@ -32,7 +31,7 @@ export const useDueCardsQuery = () => {
   return useQuery({
     queryKey: ['dueCards', settings.language],
     queryFn: () => getDueCards(new Date(), settings.language),
-    staleTime: 60 * 1000, 
+    staleTime: 60 * 1000,
   });
 };
 
@@ -62,80 +61,51 @@ export const useRecordReviewMutation = () => {
   return useMutation({
     mutationFn: async ({ card, grade, xpPayload }: { card: Card; grade: Grade; xpPayload?: CardXpPayload }) => {
       const today = format(getSRSDate(new Date()), 'yyyy-MM-dd');
-      
-      
+
       const now = new Date();
       const lastReview = card.last_review ? new Date(card.last_review) : now;
-      
-      
+
       const diffMinutes = differenceInMinutes(now, lastReview);
-      const elapsedDays = diffMinutes / 1440; 
+      const elapsedDays = diffMinutes / 1440;
 
       const scheduledDays = card.interval || 0;
 
-      
+      // Add review log
       await addReviewLog(card, grade, elapsedDays, scheduledDays);
 
-      
-        const xpAmount = xpPayload?.totalXp ?? 0;
+      // XP is now purely local - just increment optimistically
+      const xpAmount = xpPayload?.totalXp ?? 0;
 
-      if (user) {
-
-        await supabase
-          .from('activity_log')
-          .insert({
-            user_id: user.id,
-            activity_type: card.status === 'new' ? 'new_card' : 'review',
-            xp_awarded: xpAmount,
-            language: card.language || settings.language,
-          });
-
-        if (xpAmount > 0) {
-          const { error: xpError } = await supabase.rpc('increment_profile_xp', {
-            user_id: user.id,
-            amount: xpAmount
-          });
-          if (xpError) console.error('Failed to update profile XP:', xpError);
-        }
-      }
-      
       return { card, grade, today, xpAmount };
     },
     onMutate: async ({ card, grade, xpPayload }) => {
       const today = format(getSRSDate(new Date()), 'yyyy-MM-dd');
-      
 
       await Promise.all([
         queryClient.cancelQueries({ queryKey: ['history', settings.language] }),
         queryClient.cancelQueries({ queryKey: ['reviewsToday', settings.language] }),
         queryClient.cancelQueries({ queryKey: ['dueCards', settings.language] }),
         queryClient.cancelQueries({ queryKey: ['deckStats', settings.language] }),
-        queryClient.cancelQueries({ queryKey: ['dashboardStats', settings.language] }) 
+        queryClient.cancelQueries({ queryKey: ['dashboardStats', settings.language] })
       ]);
-      
 
       const previousHistory = queryClient.getQueryData(['history', settings.language]);
       const previousReviewsToday = queryClient.getQueryData(['reviewsToday', settings.language]);
       const previousDueCards = queryClient.getQueryData(['dueCards', settings.language]);
-      const previousDashboardStats = queryClient.getQueryData(['dashboardStats', settings.language]); 
-      
+      const previousDashboardStats = queryClient.getQueryData(['dashboardStats', settings.language]);
 
       queryClient.setQueryData(['history', settings.language], (old: any) => {
         if (!old) return { [today]: 1 };
         return { ...old, [today]: (old[today] || 0) + 1 };
       });
-      
 
       queryClient.setQueryData(['reviewsToday', settings.language], (old: any) => {
-         if (!old) return { newCards: 0, reviewCards: 0 };
-         return {
-             newCards: card.status === 'new' ? old.newCards + 1 : old.newCards,
-             reviewCards: card.status !== 'new' ? old.reviewCards + 1 : old.reviewCards
-         };
+        if (!old) return { newCards: 0, reviewCards: 0 };
+        return {
+          newCards: card.status === 'new' ? old.newCards + 1 : old.newCards,
+          reviewCards: card.status !== 'new' ? old.reviewCards + 1 : old.reviewCards
+        };
       });
-
-
-
 
       queryClient.setQueryData(['dueCards', settings.language], (old: Card[] | undefined) => {
         if (!old) return [];
@@ -144,29 +114,22 @@ export const useRecordReviewMutation = () => {
         return old.filter(c => c.id !== card.id);
       });
 
-
-
-
-
-
       if (user) {
         const xpAmount = xpPayload?.totalXp ?? 0;
         incrementXPOptimistically(xpAmount);
 
-
         queryClient.setQueryData(['dashboardStats', settings.language], (old: any) => {
-            if (!old) return old;
-            return {
-                ...old,
-                languageXp: (old.languageXp || 0) + xpAmount
-            };
+          if (!old) return old;
+          return {
+            ...old,
+            languageXp: (old.languageXp || 0) + xpAmount
+          };
         });
       }
 
       return { previousHistory, previousReviewsToday, previousDueCards, previousDashboardStats };
     },
     onError: (err, newTodo, context) => {
-
       if (context) {
         queryClient.setQueryData(['history', settings.language], context.previousHistory);
         queryClient.setQueryData(['reviewsToday', settings.language], context.previousReviewsToday);
@@ -188,34 +151,26 @@ export const useRecordReviewMutation = () => {
 export const useClaimDailyBonusMutation = () => {
   const queryClient = useQueryClient();
   const { settings } = useSettings();
-  const { user, incrementXPOptimistically } = useAuth();
-  const BONUS_AMOUNT = 20; 
+  const { incrementXPOptimistically } = useAuth();
+  const BONUS_AMOUNT = 20;
 
   return useMutation({
     mutationFn: async () => {
-      if (!user) return;
-      
-      const { data, error } = await supabase.rpc('claim_daily_bonus', {
-        p_user_id: user.id,
-        p_language: settings.language,
-        p_xp_amount: BONUS_AMOUNT
-      });
-
-      if (error) throw error;
-      return data;
+      // In local mode, just give the bonus without server verification
+      // Could add local date tracking to prevent claiming multiple times per day
+      return { success: true };
     },
     onSuccess: (data) => {
       if (data && data.success) {
         toast.success(`Daily Goal Complete! +${BONUS_AMOUNT} XP`);
         incrementXPOptimistically(BONUS_AMOUNT);
-        
 
         queryClient.setQueryData(['dashboardStats', settings.language], (old: any) => {
-            if (!old) return old;
-            return {
-                ...old,
-                languageXp: (old.languageXp || 0) + BONUS_AMOUNT
-            };
+          if (!old) return old;
+          return {
+            ...old,
+            languageXp: (old.languageXp || 0) + BONUS_AMOUNT
+          };
         });
       }
     }
@@ -225,20 +180,33 @@ export const useClaimDailyBonusMutation = () => {
 export const useUndoReviewMutation = () => {
   const queryClient = useQueryClient();
   const { settings } = useSettings();
+  const { user, incrementXPOptimistically } = useAuth();
 
   return useMutation({
-    mutationFn: async ({ card, date }: { card: Card; date: string }) => {
+    mutationFn: async ({ card, date, xpEarned }: { card: Card; date: string; xpEarned: number }) => {
       await saveCard(card);
       await incrementHistory(date, -1, card.language || settings.language);
-      return { card, date };
+      return { card, date, xpEarned };
     },
-    onSuccess: () => {
-       queryClient.invalidateQueries({ queryKey: ['cards'] });
-       queryClient.invalidateQueries({ queryKey: ['history', settings.language] });
-       queryClient.invalidateQueries({ queryKey: ['reviewsToday', settings.language] });
-       queryClient.invalidateQueries({ queryKey: ['deckStats', settings.language] });
-       queryClient.invalidateQueries({ queryKey: ['dueCards', settings.language] });
+    onSuccess: ({ xpEarned }) => {
+      // Subtract the XP that was earned from this review
+      if (user && xpEarned > 0) {
+        incrementXPOptimistically(-xpEarned);
+
+        queryClient.setQueryData(['dashboardStats', settings.language], (old: any) => {
+          if (!old) return old;
+          return {
+            ...old,
+            languageXp: Math.max(0, (old.languageXp || 0) - xpEarned)
+          };
+        });
+      }
+
+      queryClient.invalidateQueries({ queryKey: ['cards'] });
+      queryClient.invalidateQueries({ queryKey: ['history', settings.language] });
+      queryClient.invalidateQueries({ queryKey: ['reviewsToday', settings.language] });
+      queryClient.invalidateQueries({ queryKey: ['deckStats', settings.language] });
+      queryClient.invalidateQueries({ queryKey: ['dueCards', settings.language] });
     }
   });
 };
-

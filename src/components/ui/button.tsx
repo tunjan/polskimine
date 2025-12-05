@@ -5,28 +5,29 @@ import { cva, type VariantProps } from "class-variance-authority"
 import { cn } from "@/lib/utils"
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-sm text-sm font-medium transition-colors disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:ring-1 focus-visible:ring-ring aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive",
+  "relative inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm font-medium transition-all duration-200 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:ring-1 focus-visible:ring-amber-500/50 font-ui uppercase tracking-wider",
   {
     variants: {
       variant: {
-        default: "bg-primary text-primary-foreground hover:bg-primary/90",
+        default:
+          "bg-amber-600/15 text-amber-700 dark:text-amber-400 border-2 border-amber-600/50 hover:bg-amber-600/25 hover:border-amber-500/70 active:bg-amber-600/35",
         destructive:
-          "bg-destructive text-white hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40 dark:bg-destructive/60",
+          "bg-destructive/10 text-destructive border-2 border-destructive/50 hover:bg-destructive/20 hover:border-destructive/70 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40",
         outline:
-          "border border-border bg-transparent hover:bg-accent hover:text-accent-foreground",
+          "border-2 border-amber-700/30 dark:border-amber-600/25 bg-transparent hover:bg-amber-600/10 hover:border-amber-600/50 text-foreground",
         secondary:
-          "bg-secondary text-secondary-foreground hover:bg-secondary/80",
+          "bg-secondary/50 text-foreground border border-border hover:bg-secondary/70 hover:border-amber-700/30",
         ghost:
-          "hover:bg-accent/50 hover:text-accent-foreground",
-        link: "text-primary underline-offset-4 hover:underline",
+          "hover:bg-amber-600/10 hover:text-amber-700 dark:hover:text-amber-400 border border-transparent hover:border-amber-700/20",
+        link: "text-amber-600 dark:text-amber-400 underline-offset-4 hover:underline",
       },
       size: {
-        default: "h-9 px-4 py-2 has-[>svg]:px-3",
-        sm: "h-8 rounded-md gap-1.5 px-3 has-[>svg]:px-2.5",
-        lg: "h-10 rounded-md px-6 has-[>svg]:px-4",
-        icon: "size-9",
+        default: "h-10 px-5 py-2",
+        sm: "h-8 gap-1.5 px-4 text-xs",
+        lg: "h-12 px-8 text-sm",
+        icon: "size-10",
         "icon-sm": "size-8",
-        "icon-lg": "size-10",
+        "icon-lg": "size-12",
       },
     },
     defaultVariants: {
@@ -58,4 +59,3 @@ function Button({
 }
 
 export { Button, buttonVariants }
-

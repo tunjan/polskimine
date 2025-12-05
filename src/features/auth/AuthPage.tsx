@@ -1,54 +1,49 @@
 import React, { useState } from 'react';
-import { ArrowRight, Command, ArrowLeft, Mail, Lock, User as UserIcon } from 'lucide-react';
+import { ArrowRight, Command, ArrowLeft, User as UserIcon } from 'lucide-react';
 import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
 import { useSettings } from '@/contexts/SettingsContext';
 import { LanguageLevelSelector, DeckGenerationStep, AuthLayout } from './components';
+import { LanguageSelector } from './components/LanguageSelector';
 import { generateInitialDeck } from '@/features/deck/services/deckGeneration';
 import { saveAllCards } from '@/services/db/repositories/cardRepository';
 import { updateUserSettings } from '@/services/db/repositories/settingsRepository';
-import { Difficulty } from '@/types';
-import { GamePanel, GameButton, GameInput, GameDivider, GameLoader } from '@/components/ui/game-ui';
+import { Difficulty, Card, Language } from '@/types';
+import { GamePanel, GameButton, GameInput, GameLoader } from '@/components/ui/game-ui';
+import { POLISH_BEGINNER_DECK } from '@/features/deck/data/polishBeginnerDeck';
+import { NORWEGIAN_BEGINNER_DECK } from '@/features/deck/data/norwegianBeginnerDeck';
+import { JAPANESE_BEGINNER_DECK } from '@/features/deck/data/japaneseBeginnerDeck';
+import { SPANISH_BEGINNER_DECK } from '@/features/deck/data/spanishBeginnerDeck';
+import { v4 as uuidv4 } from 'uuid';
 
-type SignupStep = 'credentials' | 'level' | 'deck';
+type SetupStep = 'username' | 'language' | 'level' | 'deck';
 
 export const AuthPage: React.FC = () => {
-  const { signInWithGoogle, signInWithEmail, signUpWithEmail, user, markInitialDeckGenerated } = useAuth();
-  const { settings } = useSettings();
-  const [mode, setMode] = useState<'signin' | 'signup'>('signin');
+  const { createLocalProfile, markInitialDeckGenerated } = useAuth();
+  const { settings, updateSettings } = useSettings();
   const [loading, setLoading] = useState(false);
 
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
   const [username, setUsername] = useState('');
-
-  const [signupStep, setSignupStep] = useState<SignupStep>('credentials');
+  const [setupStep, setSetupStep] = useState<SetupStep>('username');
   const [selectedLevel, setSelectedLevel] = useState<Difficulty | null>(null);
 
-  const handleSignIn = async (e: React.FormEvent) => {
+  const handleUsernameSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (loading) return;
-    setLoading(true);
-
-    try {
-      await signInWithEmail(email, password);
-      toast.success('Session established.');
-    } catch (error: any) {
-      toast.error(error.message || 'Authentication failed');
-    } finally {
-      setLoading(false);
+    if (!username.trim() || username.length < 3) {
+      toast.error('Username must be at least 3 characters');
+      return;
     }
+    setSetupStep('language');
   };
 
-  const handleSignUpCredentials = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (loading) return;
-    setSignupStep('level');
+  const handleLanguageSelected = (language: Language) => {
+    updateSettings({ language });
+    setSetupStep('level');
   };
 
   const handleLevelSelected = (level: Difficulty) => {
     setSelectedLevel(level);
-    setSignupStep('deck');
+    setSetupStep('deck');
   };
 
   const handleDeckSetup = async (useAI: boolean, apiKey?: string) => {
@@ -56,25 +51,42 @@ export const AuthPage: React.FC = () => {
     setLoading(true);
 
     try {
-      const authData = await signUpWithEmail(email, password, username, selectedLevel);
+      // Create local profile
+      await createLocalProfile(username.trim(), selectedLevel);
 
-      if (!authData.user) {
-        throw new Error('Failed to create account');
+      // Save API key if provided
+      if (useAI && apiKey) {
+        await updateUserSettings('local-user', { geminiApiKey: apiKey });
       }
 
-      const userId = authData.user.id;
+      // Generate or load deck
+      let cards: Card[] = [];
 
       if (useAI && apiKey) {
-        await updateUserSettings(userId, { geminiApiKey: apiKey });
-        const cards = await generateInitialDeck({
+        cards = await generateInitialDeck({
           language: settings.language,
           proficiencyLevel: selectedLevel,
           apiKey,
         });
-        await saveAllCards(cards);
         toast.success(`Generated ${cards.length} personalized cards!`);
       } else {
-        toast.success('Account created! Loading beginner course...');
+        // Load static beginner deck
+        const rawDeck =
+          settings.language === 'norwegian' ? NORWEGIAN_BEGINNER_DECK :
+            (settings.language === 'japanese' ? JAPANESE_BEGINNER_DECK :
+              (settings.language === 'spanish' ? SPANISH_BEGINNER_DECK : POLISH_BEGINNER_DECK));
+
+        cards = rawDeck.map(c => ({
+          ...c,
+          id: uuidv4(),
+          dueDate: new Date().toISOString(),
+          tags: [...(c.tags || []), selectedLevel]
+        }));
+        toast.success(`Loaded ${cards.length} starter cards!`);
+      }
+
+      if (cards.length > 0) {
+        await saveAllCards(cards);
       }
 
       await markInitialDeckGenerated();
@@ -88,47 +100,20 @@ export const AuthPage: React.FC = () => {
   // Render helpers
   const renderHeader = () => (
     <div className="text-center mb-8">
-      <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-amber-500/10 border-2 border-amber-500/20 flex items-center justify-center text-amber-500">
+      <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-amber-400/10 border-2 border-amber-400/20 flex items-center justify-center text-amber-400">
         <Command size={32} />
       </div>
       <h1 className="text-2xl font-bold tracking-tight font-ui uppercase text-foreground">
         LinguaFlow
       </h1>
       <p className="text-sm text-muted-foreground mt-2 font-medium">
-        {mode === 'signin' ? 'Welcome back, Traveler' : 'Begin your journey'}
+        Begin your journey
       </p>
     </div>
   );
 
-  const renderSignIn = () => (
-    <form onSubmit={handleSignIn} className="space-y-4">
-      <GameInput
-        label="Email"
-        type="email"
-        placeholder="Enter your email"
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-        icon={<Mail size={16} />}
-        required
-      />
-      <GameInput
-        label="Password"
-        type="password"
-        placeholder="Enter your password"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-        icon={<Lock size={16} />}
-        required
-      />
-      
-      <GameButton type="submit" className="w-full mt-2" disabled={loading}>
-        {loading ? <GameLoader size="sm" /> : 'Sign In'}
-      </GameButton>
-    </form>
-  );
-
-  const renderSignUpCredentials = () => (
-    <form onSubmit={handleSignUpCredentials} className="space-y-4">
+  const renderUsernameStep = () => (
+    <form onSubmit={handleUsernameSubmit} className="space-y-4">
       <GameInput
         label="Username"
         type="text"
@@ -137,75 +122,78 @@ export const AuthPage: React.FC = () => {
         onChange={(e) => setUsername(e.target.value)}
         icon={<UserIcon size={16} />}
         required
+        minLength={3}
+        maxLength={20}
       />
-      <GameInput
-        label="Email"
-        type="email"
-        placeholder="Enter your email"
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-        icon={<Mail size={16} />}
-        required
-      />
-      <GameInput
-        label="Password"
-        type="password"
-        placeholder="Create a password"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-        icon={<Lock size={16} />}
-        required
-      />
-      
+
       <GameButton type="submit" className="w-full mt-2">
         Continue <ArrowRight size={16} />
       </GameButton>
     </form>
   );
 
-  if (loading && signupStep === 'deck') {
+  if (loading && setupStep === 'deck') {
     return (
       <AuthLayout>
         <GamePanel variant="ornate" className="text-center py-12">
           <GameLoader size="lg" text="Forging your deck..." />
           <p className="mt-6 text-muted-foreground text-sm max-w-xs mx-auto">
-            Consulting the archives to prepare your personalized learning path.
+            Preparing your personalized learning path.
           </p>
         </GamePanel>
       </AuthLayout>
     );
   }
 
-  if (mode === 'signup' && signupStep === 'level') {
+  if (setupStep === 'language') {
     return (
       <AuthLayout className="max-w-2xl">
         <GamePanel variant="ornate" showCorners>
           <div className="mb-6 flex items-center gap-4">
-            <GameButton variant="ghost" size="sm" onClick={() => setSignupStep('credentials')}>
+            <GameButton variant="ghost" size="sm" onClick={() => setSetupStep('username')}>
               <ArrowLeft size={16} /> Back
             </GameButton>
-            <h2 className="text-xl font-bold font-ui uppercase">Select Proficiency</h2>
+            <h2 className="text-xl font-bold font-ui uppercase">Select Language</h2>
           </div>
-          <LanguageLevelSelector 
-            selectedLevel={selectedLevel} 
-            onSelectLevel={handleLevelSelected} 
+          <LanguageSelector
+            selectedLanguage={settings.language}
+            onSelectLanguage={handleLanguageSelected}
           />
         </GamePanel>
       </AuthLayout>
     );
   }
 
-  if (mode === 'signup' && signupStep === 'deck') {
+  if (setupStep === 'level') {
     return (
       <AuthLayout className="max-w-2xl">
         <GamePanel variant="ornate" showCorners>
           <div className="mb-6 flex items-center gap-4">
-            <GameButton variant="ghost" size="sm" onClick={() => setSignupStep('level')}>
+            <GameButton variant="ghost" size="sm" onClick={() => setSetupStep('language')}>
+              <ArrowLeft size={16} /> Back
+            </GameButton>
+            <h2 className="text-xl font-bold font-ui uppercase">Select Proficiency</h2>
+          </div>
+          <LanguageLevelSelector
+            selectedLevel={selectedLevel}
+            onSelectLevel={handleLevelSelected}
+          />
+        </GamePanel>
+      </AuthLayout>
+    );
+  }
+
+  if (setupStep === 'deck') {
+    return (
+      <AuthLayout className="max-w-2xl">
+        <GamePanel variant="ornate" showCorners>
+          <div className="mb-6 flex items-center gap-4">
+            <GameButton variant="ghost" size="sm" onClick={() => setSetupStep('level')}>
               <ArrowLeft size={16} /> Back
             </GameButton>
             <h2 className="text-xl font-bold font-ui uppercase">Deck Configuration</h2>
           </div>
-          <DeckGenerationStep 
+          <DeckGenerationStep
             language={settings.language}
             proficiencyLevel={selectedLevel!}
             onComplete={handleDeckSetup}
@@ -219,37 +207,14 @@ export const AuthPage: React.FC = () => {
     <AuthLayout>
       <GamePanel variant="ornate" showCorners className="py-8 px-6 md:px-8">
         {renderHeader()}
+        {renderUsernameStep()}
 
-        {mode === 'signin' ? renderSignIn() : renderSignUpCredentials()}
-
-        <GameDivider />
-
-        <div className="space-y-4">
-          <GameButton 
-            variant="secondary" 
-            className="w-full" 
-            onClick={signInWithGoogle}
-            disabled={loading}
-          >
-            <Command size={16} /> Continue with Google
-          </GameButton>
-
-          <div className="text-center">
-            <button
-              onClick={() => {
-                setMode(mode === 'signin' ? 'signup' : 'signin');
-                setSignupStep('credentials');
-              }}
-              className="text-xs text-muted-foreground hover:text-amber-500 transition-colors font-medium uppercase tracking-wider"
-            >
-              {mode === 'signin' 
-                ? "Don't have an account? Join the guild" 
-                : "Already a member? Sign in"}
-            </button>
-          </div>
+        <div className="mt-6 text-center">
+          <p className="text-xs text-muted-foreground">
+            Your data is stored locally on this device
+          </p>
         </div>
       </GamePanel>
     </AuthLayout>
   );
 };
-

@@ -212,12 +212,12 @@ export const Dashboard: React.FC<DashboardProps> = ({
               >
                 {/* Quest header */}
                 <div className="flex items-center gap-3 mb-6">
-                  <div className="w-12 h-12 flex items-center justify-center bg-amber-600/15 border-2 border-amber-700/50">
-                    <BookOpen className="w-5 h-5 text-amber-600 dark:text-amber-400" />
+                  <div className="w-12 h-12 flex items-center justify-center bg-amber-500/15 border-2 border-amber-600/50">
+                    <BookOpen className="w-5 h-5 text-amber-500 dark:text-amber-300" />
                   </div>
                   <div className="flex-1">
                     <div className="flex items-center gap-2">
-                      <span className="text-[10px] text-amber-600 dark:text-amber-400 font-bold uppercase tracking-[0.2em]">Daily Commission</span>
+                      <span className="text-[10px] text-amber-500 dark:text-amber-300 font-bold uppercase tracking-[0.2em]">Daily Commission</span>
                      
                     </div>
                     <h2 className="text-xl font-semibold text-foreground tracking-wide mt-1">
@@ -231,9 +231,9 @@ export const Dashboard: React.FC<DashboardProps> = ({
                   <div className="text-center">
                     <div className="relative inline-flex items-center justify-center w-24 h-24 md:w-28 md:h-28 mb-6">
                       {/* Outer diamond */}
-                      <div className="absolute inset-0 border-2 border-amber-700/40 rotate-45" />
+                      <div className="absolute inset-0 border-2 border-amber-600/40 rotate-45" />
                       {/* Inner diamond */}
-                      <div className="absolute inset-2.5 border border-amber-700/25 rotate-45" />
+                      <div className="absolute inset-2.5 border border-amber-600/25 rotate-45" />
                       {/* Number */}
                       <span className="text-5xl md:text-6xl font-semibold text-foreground tabular-nums relative z-10 font-serif">
                         {stats.due}
@@ -248,8 +248,8 @@ export const Dashboard: React.FC<DashboardProps> = ({
                 {/* Reward preview */}
                 <div className="grid grid-cols-2 gap-4 mb-6 pt-4 border-t border-border/30">
                   <div className="flex items-center gap-3 p-3 bg-muted/20 border border-border/30">
-                    <div className="w-10 h-10 flex items-center justify-center border border-amber-700/30 bg-amber-600/10">
-                      <Star className="w-5 h-5 text-amber-500" fill="currentColor" />
+                    <div className="w-10 h-10 flex items-center justify-center border border-amber-600/30 bg-amber-500/10">
+                      <Star className="w-5 h-5 text-amber-400" fill="currentColor" />
                     </div>
                     <div>
                       <p className="text-lg font-semibold text-foreground tabular-nums">{stats.newDue}</p>
@@ -275,19 +275,19 @@ export const Dashboard: React.FC<DashboardProps> = ({
                     "group relative w-full py-4 px-6 overflow-hidden",
                     "transition-all duration-300",
                     stats.due > 0 
-                      ? "border-2 border-amber-700/60 hover:border-amber-700 bg-amber-600/10 hover:bg-amber-600/20" 
+                      ? "border-2 border-amber-600/60 hover:border-amber-600 bg-amber-500/10 hover:bg-amber-500/20" 
                       : "border-2 border-pine-500/40 bg-pine-500/10 cursor-not-allowed"
                   )}
                 >
                   
                   {stats.due > 0 ? (
                     <div className="flex items-center justify-center gap-4">
-                      <span className="w-10 h-0.5 bg-amber-600/50 group-hover:w-14 group-hover:bg-amber-400 transition-all duration-300" />
-                      <span className="text-lg font-bold tracking-[0.3em] text-amber-600 dark:text-amber-400 uppercase">
+                      <span className="w-10 h-0.5 bg-amber-500/50 group-hover:w-14 group-hover:bg-amber-300 transition-all duration-300" />
+                      <span className="text-lg font-bold tracking-[0.3em] text-amber-500 dark:text-amber-300 uppercase">
                         Begin
                       </span>
-                      <ChevronRight className="w-5 h-5 text-amber-600 dark:text-amber-400 group-hover:translate-x-1 transition-transform" />
-                      <span className="w-10 h-0.5 bg-amber-600/50 group-hover:w-14 group-hover:bg-amber-400 transition-all duration-300" />
+                      <ChevronRight className="w-5 h-5 text-amber-500 dark:text-amber-300 group-hover:translate-x-1 transition-transform" />
+                      <span className="w-10 h-0.5 bg-amber-500/50 group-hover:w-14 group-hover:bg-amber-300 transition-all duration-300" />
                     </div>
                   ) : (
                     <div className="flex items-center justify-center gap-3 text-pine-500">
@@ -301,7 +301,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
               </GamePanel>
 
               {/* Streak Display */}
-              <GamePanel size="md" glowOnHover className="bg-linear-to-r from-card to-orange-500/5">
+              <GamePanel size="md" glowOnHover className="bg-linear-to-r from-card to-amber-500/5">
                 <StreakDisplay
                   currentStreak={stats.streak}
                   lastSevenDays={lastSevenDays}
@@ -482,10 +482,10 @@ const colorConfig = {
     accent: 'bg-sky-500',
   },
   amber: {
-    border: 'border-amber-700/30 hover:border-amber-700/50',
-    bg: 'bg-amber-600/10',
-    text: 'text-amber-500',
-    accent: 'bg-amber-600',
+    border: 'border-amber-600/30 hover:border-amber-600/50',
+    bg: 'bg-amber-500/10',
+    text: 'text-amber-400',
+    accent: 'bg-amber-500',
   },
   violet: {
     border: 'border-violet-500/30 hover:border-violet-500/50',

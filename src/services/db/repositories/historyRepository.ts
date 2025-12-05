@@ -1,45 +1,22 @@
-import { supabase } from '@/lib/supabase';
+import { db } from '@/services/db/dexie';
 import { ReviewHistory } from '@/types';
 import { format } from 'date-fns';
 
 type Language = keyof ReviewHistory | string;
 
 export const getHistory = async (language?: Language): Promise<ReviewHistory> => {
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return {};
+  // Get review logs
+  let logs = await db.revlog.toArray();
 
-  
-  let cardIds: Set<string> | null = null;
+  // If language specified, filter by cards in that language
   if (language) {
-    const { data: cardsData, error: cardsError } = await supabase
-      .from('cards')
-      .select('id')
-      .eq('user_id', user.id)
-      .eq('language', language);
-    
-    if (!cardsError && cardsData) {
-      cardIds = new Set(cardsData.map(c => c.id));
-    }
+    const cards = await db.cards.where('language').equals(language).toArray();
+    const cardIds = new Set(cards.map(c => c.id));
+    logs = logs.filter(log => cardIds.has(log.card_id));
   }
 
-  
-  const { data, error } = await supabase
-    .from('revlog')
-    .select('created_at, card_id')
-    .eq('user_id', user.id);
-  
-  if (error) {
-    console.error('Failed to fetch history', error);
-    return {};
-  }
-
-  
-  return (data || []).reduce<ReviewHistory>((acc, entry) => {
-    
-    if (cardIds && !cardIds.has(entry.card_id)) {
-      return acc;
-    }
-
+  // Build history object
+  return logs.reduce<ReviewHistory>((acc, entry) => {
     const dateKey = format(new Date(entry.created_at), 'yyyy-MM-dd');
     acc[dateKey] = (acc[dateKey] || 0) + 1;
     return acc;
@@ -51,25 +28,24 @@ export const incrementHistory = async (
   delta: number = 1,
   language: Language = 'polish'
 ) => {
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return;
+  // Get existing history entry
+  const existing = await db.history.get({ date, language });
 
-  const { error } = await supabase.rpc('increment_study_history', { 
-    p_user_id: user.id, 
-    p_date: date, 
-    p_language: language, 
-    p_delta: delta 
-  });
-  
-  if (error) console.error('Failed to sync history', error);
+  if (existing) {
+    await db.history.update([date, language], {
+      count: existing.count + delta
+    });
+  } else {
+    await db.history.add({
+      date,
+      language,
+      count: delta
+    });
+  }
 };
 
 export const saveFullHistory = async (history: ReviewHistory, language: Language = 'polish') => {
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return;
-
   const entries = Object.entries(history).map(([date, count]) => ({
-    user_id: user.id,
     date,
     language,
     count
@@ -77,33 +53,13 @@ export const saveFullHistory = async (history: ReviewHistory, language: Language
 
   if (entries.length === 0) return;
 
-  const { error } = await supabase
-    .from('study_history')
-    .upsert(entries, { onConflict: 'user_id, date, language' });
-
-  if (error) {
-    console.error('Failed to save full history', error);
-    throw error;
-  }
+  await db.history.bulkPut(entries);
 };
 
 export const clearHistory = async (language?: Language) => {
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return;
-
-  let query = supabase
-    .from('study_history')
-    .delete()
-    .eq('user_id', user.id);
-
   if (language) {
-    query = query.eq('language', language);
-  }
-
-  const { error } = await query;
-
-  if (error) {
-    console.error('Failed to clear history', error);
-    throw error;
+    await db.history.where('language').equals(language).delete();
+  } else {
+    await db.history.clear();
   }
 };

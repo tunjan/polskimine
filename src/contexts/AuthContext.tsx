@@ -1,25 +1,17 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import type { Session, User } from '@supabase/supabase-js';
-import { supabase } from '@/lib/supabase';
+import { db, LocalProfile, generateId } from '@/services/db/dexie';
 import { toast } from 'sonner';
-import { Capacitor } from '@capacitor/core';
-import { Browser } from '@capacitor/browser';
-interface Profile {
+
+// Simplified user interface for local app
+interface LocalUser {
   id: string;
-  username: string | null;
-  xp: number;     // Lifetime accumulation for Ranking
-  points: number; // Spendable currency for Sabotage
-  level: number;
-  avatar_url?: string | null;
-  updated_at?: string | null;
-  language_level?: string | null; // User's proficiency level (A1, A2, B1, B2, C1, C2)
-  initial_deck_generated?: boolean; // Whether user completed initial deck setup
+  email?: string;
 }
 
 interface AuthContextType {
-  session: Session | null;
-  user: User | null;
-  profile: Profile | null;
+  session: null; // No cloud sessions
+  user: LocalUser | null;
+  profile: LocalProfile | null;
   signInWithGoogle: () => Promise<void>;
   signOut: () => Promise<void>;
   signInWithEmail: (email: string, password: string) => Promise<void>;
@@ -29,266 +21,161 @@ interface AuthContextType {
   markInitialDeckGenerated: () => Promise<void>;
   loading: boolean;
   incrementXPOptimistically: (amount: number) => void;
+  // New local-only methods
+  createLocalProfile: (username: string, languageLevel?: string) => Promise<void>;
 }
 
-// Helper for timeout
-const withTimeout = <T,>(promise: Promise<T>, ms: number, label: string): Promise<T> => {
-    return Promise.race([
-        promise,
-        new Promise<T>((_, reject) => setTimeout(() => reject(new Error(`${label} timeout`)), ms))
-    ]);
-};
+const LOCAL_USER_ID = 'local-user';
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [session, setSession] = useState<Session | null>(null);
-  const [user, setUser] = useState<User | null>(null);
-  const [profile, setProfile] = useState<Profile | null>(null);
+  const [user, setUser] = useState<LocalUser | null>(null);
+  const [profile, setProfile] = useState<LocalProfile | null>(null);
   const [loading, setLoading] = useState(true);
 
-  const fetchProfile = React.useCallback(async (userId: string) => {
-    const { data, error } = await supabase
-      .from('profiles')
-      .select('*')
-      .eq('id', userId)
-      .single();
-
-    if (error) {
-      console.error('Failed to load profile', error);
-      return;
-    }
-
-    const safeData = {
-      ...data,
-      points: data.points ?? 0
-    };
-
-    setProfile(safeData as Profile);
-  }, []);
-
+  // Load local profile on mount
   useEffect(() => {
-    let isMounted = true;
-
-    const loadSession = async () => {
+    const loadProfile = async () => {
       try {
-        // Timeout after 5 seconds to prevent infinite loading
-        const timeoutPromise = new Promise((_, reject) => 
-          setTimeout(() => reject(new Error('Session load timeout')), 5000)
-        );
+        const existingProfile = await db.profile.get(LOCAL_USER_ID);
 
-        const sessionPromise = supabase.auth.getSession();
-        
-        const { data } = await Promise.race([sessionPromise, timeoutPromise]) as any;
-        
-        if (!isMounted) return;
-        
-        const nextSession = data.session;
-        setSession(nextSession);
-        setUser(nextSession?.user ?? null);
-        
-        if (nextSession?.user) {
-          // FIX: Add timeout to profile fetch
-          await withTimeout(fetchProfile(nextSession.user.id), 10000, 'Profile load');
+        if (existingProfile) {
+          setUser({ id: LOCAL_USER_ID });
+          setProfile(existingProfile);
         } else {
+          // No profile = user needs to create one
+          setUser(null);
           setProfile(null);
         }
       } catch (error) {
-        console.error('Unexpected error loading session:', error);
-        // If timeout or error, we assume no session or let the user retry via UI
+        console.error('Failed to load profile:', error);
       } finally {
-        if (isMounted) {
-          setLoading(false);
-        }
+        setLoading(false);
       }
     };
 
-    loadSession();
+    loadProfile();
+  }, []);
 
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange(async (_event, nextSession) => {
-      if (!isMounted) return;
-      setSession(nextSession);
-      setUser(nextSession?.user ?? null);
-      
-      if (nextSession?.user) {
-        // We await here to ensure profile is loaded before potential UI updates
-        // though this runs after the initial load usually.
-        await fetchProfile(nextSession.user.id);
-      } else {
-        setProfile(null);
-      }
-      
-      // Ensure loading is false after any auth state change
-      setLoading(false);
-    });
-
-    return () => {
-      isMounted = false;
-      subscription.unsubscribe();
+  // Create a local profile (replaces sign up)
+  const createLocalProfile = async (username: string, languageLevel?: string) => {
+    const newProfile: LocalProfile = {
+      id: LOCAL_USER_ID,
+      username,
+      xp: 0,
+      points: 0,
+      level: 1,
+      language_level: languageLevel,
+      initial_deck_generated: false,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
     };
-  }, [fetchProfile]);
 
+    await db.profile.put(newProfile);
+    setUser({ id: LOCAL_USER_ID });
+    setProfile(newProfile);
+    toast.success('Profile created!');
+  };
 
-  useEffect(() => {
-    let isMounted = true;
-
-    if (user) {
-      fetchProfile(user.id);
-    } else {
-      setProfile(null);
-    }
-
-    const channel = supabase
-      .channel('profile_changes')
-      .on(
-        'postgres_changes',
-        {
-          event: 'UPDATE',
-          schema: 'public',
-          table: 'profiles',
-          filter: user ? `id=eq.${user.id}` : undefined,
-        },
-        (payload) => {
-          if (!isMounted) return;
-          const newProfile = payload.new as Profile;
-          setProfile((prev) => {
-            if (!prev) return newProfile;
-
-            if (prev.xp > newProfile.xp || prev.points > newProfile.points) {
-              return prev;
-            }
-            return newProfile;
-          });
-        }
-      )
-      .subscribe();
-
-    return () => {
-      isMounted = false;
-      supabase.removeChannel(channel);
-    };
-  }, [user, fetchProfile]);
-
+  // Legacy methods - redirect to local profile creation
   const signInWithGoogle = async () => {
-    const redirectTo = Capacitor.isNativePlatform()
-      ? 'com.linguaflow.app://auth/callback'
-      : window.location.origin;
+    // In local mode, just show a message
+    toast.info('This is a local app. Please create a profile.');
+  };
 
-    const { data, error } = await supabase.auth.signInWithOAuth({ // <--- Destructure 'data'
-      provider: 'google',
-      options: {
-        redirectTo,
-        skipBrowserRedirect: Capacitor.isNativePlatform()
-      },
-    });
+  const signInWithEmail = async (_email: string, _password: string) => {
+    toast.info('This is a local app. Please create a profile.');
+  };
 
-    if (error) {
-      toast.error(error.message);
-      return;
-    }
-
-    if (Capacitor.isNativePlatform() && data?.url) {
-      await Browser.open({ url: data.url, windowName: '_self' });
-    }
+  const signUpWithEmail = async (_email: string, _password: string, username: string, languageLevel?: string) => {
+    await createLocalProfile(username, languageLevel);
+    return { user: { id: LOCAL_USER_ID } };
   };
 
   const signOut = async () => {
-    const { error } = await supabase.auth.signOut();
-    if (error) {
-      toast.error(error.message);
-      return;
-    }
+    // Clear profile and user state
+    await db.profile.delete(LOCAL_USER_ID);
+    setUser(null);
+    setProfile(null);
     toast.success('Signed out');
   };
 
-  const signInWithEmail = async (email: string, password: string) => {
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
-    if (error) {
-      toast.error(error.message);
-      throw error;
-    }
-  };
+  const updateUsername = async (newUsername: string) => {
+    if (!profile) return;
 
-  const signUpWithEmail = async (email: string, password: string, username: string, languageLevel?: string) => {
-    const { data, error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        data: { username, language_level: languageLevel },
-      },
+    await db.profile.update(LOCAL_USER_ID, {
+      username: newUsername,
+      updated_at: new Date().toISOString()
     });
 
-    if (error) {
-      toast.error(error.message);
-      throw error;
-    }
-
-    return data;
-  };
-
-  const updateUsername = async (newUsername: string) => {
-    if (!user) return;
-
-    const { error } = await supabase
-      .from('profiles')
-      .update({ username: newUsername })
-      .eq('id', user.id);
-
-    if (error) {
-      toast.error('Failed to update username');
-      throw error;
-    }
-
-    // Manually update local state to trigger re-render in App.tsx immediately
-    setProfile((prev) => prev ? { ...prev, username: newUsername } : null);
+    setProfile(prev => prev ? { ...prev, username: newUsername } : null);
   };
 
   const updateLanguageLevel = async (level: string) => {
-    if (!user) return;
-    const { error } = await supabase
-      .from('profiles')
-      .update({ language_level: level })
-      .eq('id', user.id);
-    
-    if (error) throw error;
+    if (!profile) return;
+
+    await db.profile.update(LOCAL_USER_ID, {
+      language_level: level,
+      updated_at: new Date().toISOString()
+    });
+
     setProfile(prev => prev ? { ...prev, language_level: level } : null);
   };
 
   const incrementXPOptimistically = (amount: number) => {
     if (!profile) return;
 
+    const newXP = (profile.xp || 0) + amount;
+    const newLevel = Math.floor(Math.sqrt(newXP / 100)) + 1;
+
     setProfile(prev => {
       if (!prev) return null;
       return {
         ...prev,
-        xp: (prev.xp || 0) + amount,
+        xp: newXP,
         points: (prev.points || 0) + amount,
-        level: Math.floor(Math.sqrt(((prev.xp || 0) + amount) / 100)) + 1
+        level: newLevel
       };
     });
+
+    // Persist to DB
+    db.profile.update(LOCAL_USER_ID, {
+      xp: newXP,
+      points: (profile.points || 0) + amount,
+      level: newLevel,
+      updated_at: new Date().toISOString()
+    }).catch(console.error);
   };
 
   const markInitialDeckGenerated = async () => {
-    if (!user) return;
+    // Always update database - don't check profile state as it may be stale
+    // when called immediately after createLocalProfile
+    await db.profile.update(LOCAL_USER_ID, {
+      initial_deck_generated: true,
+      updated_at: new Date().toISOString()
+    });
 
-    const { error } = await supabase
-      .from('profiles')
-      .update({ initial_deck_generated: true })
-      .eq('id', user.id);
-
-    if (error) {
-      console.error('Failed to mark initial deck as generated:', error);
-      return;
-    }
-
-    setProfile((prev) => prev ? { ...prev, initial_deck_generated: true } : null);
+    setProfile(prev => prev ? { ...prev, initial_deck_generated: true } : null);
   };
 
   return (
     <AuthContext.Provider
-      value={{ session, user, profile, signInWithGoogle, signOut, signInWithEmail, signUpWithEmail, updateUsername, updateLanguageLevel, loading, incrementXPOptimistically, markInitialDeckGenerated }}
+      value={{
+        session: null,
+        user,
+        profile,
+        signInWithGoogle,
+        signOut,
+        signInWithEmail,
+        signUpWithEmail,
+        updateUsername,
+        updateLanguageLevel,
+        loading,
+        incrementXPOptimistically,
+        markInitialDeckGenerated,
+        createLocalProfile
+      }}
     >
       {children}
     </AuthContext.Provider>

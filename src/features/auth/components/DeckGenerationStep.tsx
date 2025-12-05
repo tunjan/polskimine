@@ -61,20 +61,20 @@ export const DeckGenerationStep: React.FC<DeckGenerationStepProps> = ({
                     disabled={loading}
                     className={cn(
                         'group relative w-full text-left p-4 border-2 transition-all duration-200',
-                        'hover:bg-amber-500/5 hover:border-amber-500/30 disabled:opacity-50',
+                        'hover:bg-amber-400/5 hover:border-amber-400/30 disabled:opacity-50',
                         selectedOption === 'ai'
-                            ? 'border-amber-500 bg-amber-500/10'
+                            ? 'border-amber-400 bg-amber-400/10'
                             : 'border-border/40 bg-card'
                     )}
                 >
                     <div className="flex items-start gap-3">
-                        <div className="mt-1 w-8 h-8 bg-amber-500/10 border border-amber-500/20 rotate-45 flex items-center justify-center">
-                            <Sparkles size={16} className="text-amber-500 -rotate-45" />
+                        <div className="mt-1 w-8 h-8 bg-amber-400/10 border border-amber-400/20 rotate-45 flex items-center justify-center">
+                            <Sparkles size={16} className="text-amber-400 -rotate-45" />
                         </div>
                         <div className="flex-1 space-y-1 ml-2">
                             <div className={cn(
                                 "text-sm font-ui font-bold uppercase tracking-wider",
-                                selectedOption === 'ai' ? "text-amber-500" : "text-foreground"
+                                selectedOption === 'ai' ? "text-amber-400" : "text-foreground"
                             )}>
                                 AI-Generated Deck
                             </div>
@@ -87,10 +87,10 @@ export const DeckGenerationStep: React.FC<DeckGenerationStepProps> = ({
                     
                     {selectedOption === 'ai' && (
                         <>
-                            <span className="absolute top-0 left-0 w-2 h-2 border-t-2 border-l-2 border-amber-500" />
-                            <span className="absolute top-0 right-0 w-2 h-2 border-t-2 border-r-2 border-amber-500" />
-                            <span className="absolute bottom-0 left-0 w-2 h-2 border-b-2 border-l-2 border-amber-500" />
-                            <span className="absolute bottom-0 right-0 w-2 h-2 border-b-2 border-r-2 border-amber-500" />
+                            <span className="absolute top-0 left-0 w-2 h-2 border-t-2 border-l-2 border-amber-400" />
+                            <span className="absolute top-0 right-0 w-2 h-2 border-t-2 border-r-2 border-amber-400" />
+                            <span className="absolute bottom-0 left-0 w-2 h-2 border-b-2 border-l-2 border-amber-400" />
+                            <span className="absolute bottom-0 right-0 w-2 h-2 border-b-2 border-r-2 border-amber-400" />
                         </>
                     )}
                 </button>
@@ -102,20 +102,20 @@ export const DeckGenerationStep: React.FC<DeckGenerationStepProps> = ({
                     disabled={loading}
                     className={cn(
                         'group relative w-full text-left p-4 border-2 transition-all duration-200',
-                        'hover:bg-amber-500/5 hover:border-amber-500/30 disabled:opacity-50',
+                        'hover:bg-amber-400/5 hover:border-amber-400/30 disabled:opacity-50',
                         selectedOption === 'default'
-                            ? 'border-amber-500 bg-amber-500/10'
+                            ? 'border-amber-400 bg-amber-400/10'
                             : 'border-border/40 bg-card'
                     )}
                 >
                     <div className="flex items-start gap-3">
-                        <div className="mt-1 w-8 h-8 bg-amber-500/10 border border-amber-500/20 rotate-45 flex items-center justify-center">
-                            <BookOpen size={16} className="text-amber-500 -rotate-45" />
+                        <div className="mt-1 w-8 h-8 bg-amber-400/10 border border-amber-400/20 rotate-45 flex items-center justify-center">
+                            <BookOpen size={16} className="text-amber-400 -rotate-45" />
                         </div>
                         <div className="flex-1 space-y-1 ml-2">
                             <div className={cn(
                                 "text-sm font-ui font-bold uppercase tracking-wider",
-                                selectedOption === 'default' ? "text-amber-500" : "text-foreground"
+                                selectedOption === 'default' ? "text-amber-400" : "text-foreground"
                             )}>
                                 Standard Course
                             </div>
@@ -127,10 +127,10 @@ export const DeckGenerationStep: React.FC<DeckGenerationStepProps> = ({
                     
                     {selectedOption === 'default' && (
                         <>
-                            <span className="absolute top-0 left-0 w-2 h-2 border-t-2 border-l-2 border-amber-500" />
-                            <span className="absolute top-0 right-0 w-2 h-2 border-t-2 border-r-2 border-amber-500" />
-                            <span className="absolute bottom-0 left-0 w-2 h-2 border-b-2 border-l-2 border-amber-500" />
-                            <span className="absolute bottom-0 right-0 w-2 h-2 border-b-2 border-r-2 border-amber-500" />
+                            <span className="absolute top-0 left-0 w-2 h-2 border-t-2 border-l-2 border-amber-400" />
+                            <span className="absolute top-0 right-0 w-2 h-2 border-t-2 border-r-2 border-amber-400" />
+                            <span className="absolute bottom-0 left-0 w-2 h-2 border-b-2 border-l-2 border-amber-400" />
+                            <span className="absolute bottom-0 right-0 w-2 h-2 border-b-2 border-r-2 border-amber-400" />
                         </>
                     )}
                 </button>

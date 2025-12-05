@@ -38,9 +38,9 @@ export const LanguageLevelSelector: React.FC<LanguageLevelSelectorProps> = ({
                         onClick={() => onSelectLevel(level)}
                         className={cn(
                             'group relative w-full text-left p-4 border-2 transition-all duration-200',
-                            'hover:bg-amber-500/5 hover:border-amber-500/30',
+                            'hover:bg-amber-400/5 hover:border-amber-400/30',
                             selectedLevel === level
-                                ? 'border-amber-500 bg-amber-500/10'
+                                ? 'border-amber-400 bg-amber-400/10'
                                 : 'border-border/40 bg-card'
                         )}
                     >
@@ -49,8 +49,8 @@ export const LanguageLevelSelector: React.FC<LanguageLevelSelectorProps> = ({
                                 className={cn(
                                     'mt-0.5 w-5 h-5 flex items-center justify-center transition-colors rotate-45 border',
                                     selectedLevel === level
-                                        ? 'border-amber-500 bg-amber-500'
-                                        : 'border-muted-foreground/30 group-hover:border-amber-500/50'
+                                        ? 'border-amber-400 bg-amber-400'
+                                        : 'border-muted-foreground/30 group-hover:border-amber-400/50'
                                 )}
                             >
                                 {selectedLevel === level && (
@@ -62,7 +62,7 @@ export const LanguageLevelSelector: React.FC<LanguageLevelSelectorProps> = ({
                                 <div className="flex items-baseline gap-2">
                                     <span className={cn(
                                         "text-sm font-ui font-bold uppercase tracking-wider",
-                                        selectedLevel === level ? "text-amber-500" : "text-foreground"
+                                        selectedLevel === level ? "text-amber-400" : "text-foreground"
                                     )}>
                                         {level}
                                     </span>
@@ -79,10 +79,10 @@ export const LanguageLevelSelector: React.FC<LanguageLevelSelectorProps> = ({
                         {/* Corner accents for selected item */}
                         {selectedLevel === level && (
                             <>
-                                <span className="absolute top-0 left-0 w-2 h-2 border-t-2 border-l-2 border-amber-500" />
-                                <span className="absolute top-0 right-0 w-2 h-2 border-t-2 border-r-2 border-amber-500" />
-                                <span className="absolute bottom-0 left-0 w-2 h-2 border-b-2 border-l-2 border-amber-500" />
-                                <span className="absolute bottom-0 right-0 w-2 h-2 border-b-2 border-r-2 border-amber-500" />
+                                <span className="absolute top-0 left-0 w-2 h-2 border-t-2 border-l-2 border-amber-400" />
+                                <span className="absolute top-0 right-0 w-2 h-2 border-t-2 border-r-2 border-amber-400" />
+                                <span className="absolute bottom-0 left-0 w-2 h-2 border-b-2 border-l-2 border-amber-400" />
+                                <span className="absolute bottom-0 right-0 w-2 h-2 border-b-2 border-r-2 border-amber-400" />
                             </>
                         )}
                     </button>

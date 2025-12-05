@@ -1,11 +1,20 @@
-import { supabase } from '@/lib/supabase';
-import type { GameQuestion } from '@/types/multiplayer';
+// Direct Gemini API calls - no Supabase edge functions
 
 // Types for Gemini API interactions
 interface GeminiRequestBody {
-  prompt: string;
-  apiKey: string;
-  responseSchema?: GeminiResponseSchema;
+  contents: Array<{
+    parts: Array<{ text: string }>;
+  }>;
+  generationConfig?: {
+    responseMimeType?: string;
+    responseSchema?: any;
+  };
+}
+
+interface GeminiSchemaProperty {
+  type: 'STRING' | 'NUMBER' | 'BOOLEAN' | 'OBJECT' | 'ARRAY';
+  enum?: string[];
+  description?: string;
 }
 
 interface GeminiResponseSchema {
@@ -13,12 +22,6 @@ interface GeminiResponseSchema {
   properties?: Record<string, GeminiSchemaProperty>;
   items?: GeminiResponseSchema;
   required?: string[];
-}
-
-interface GeminiSchemaProperty {
-  type: 'STRING' | 'NUMBER' | 'BOOLEAN' | 'OBJECT' | 'ARRAY';
-  enum?: string[];
-  description?: string;
 }
 
 // Type for generated card data from AI
@@ -43,13 +46,13 @@ interface BatchGenerationOptions {
   difficultyMode?: 'beginner' | 'immersive';
 }
 
-function extractJSON(text: string): string {
+const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent';
 
+function extractJSON(text: string): string {
   const jsonBlockMatch = text.match(/```(?:json)?\s*([\s\S]*?)\s*```/i);
   if (jsonBlockMatch) {
     return jsonBlockMatch[1];
   }
-
 
   const firstOpenBrace = text.indexOf('{');
   const firstOpenBracket = text.indexOf('[');
@@ -62,7 +65,6 @@ function extractJSON(text: string): string {
   }
 
   if (firstOpen !== -1) {
-
     const lastCloseBrace = text.lastIndexOf('}');
     const lastCloseBracket = text.lastIndexOf(']');
     const lastClose = Math.max(lastCloseBrace, lastCloseBracket);
@@ -80,37 +82,54 @@ async function callGemini(prompt: string, apiKey: string, responseSchema?: Gemin
     throw new Error('Gemini API Key is missing. Please add it in Settings.');
   }
 
-  const body: GeminiRequestBody = { prompt, apiKey };
+  const body: GeminiRequestBody = {
+    contents: [{
+      parts: [{ text: prompt }]
+    }]
+  };
+
   if (responseSchema) {
-    body.responseSchema = responseSchema;
+    body.generationConfig = {
+      responseMimeType: 'application/json',
+      responseSchema
+    };
   }
 
-  const { data, error } = await supabase.functions.invoke('generate-card', {
-    body: JSON.stringify(body),
+  const response = await fetch(`${GEMINI_API_URL}?key=${apiKey}`, {
+    method: 'POST',
     headers: {
       'Content-Type': 'application/json'
-    }
+    },
+    body: JSON.stringify(body)
   });
 
-  if (error) {
-    console.error("AI Service Error:", error);
-
-    try {
-      const errorBody = error instanceof Response ? await error.json() : null;
-      if (errorBody?.error) throw new Error(errorBody.error);
-    } catch (_) {
-      // Ignore parse errors
-    }
-    throw new Error('AI Service failed. Check console for details.');
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}));
+    console.error("Gemini API Error:", errorData);
+    throw new Error(errorData.error?.message || 'AI Service failed. Check your API key.');
   }
 
-  return data.text;
+  const data = await response.json();
+
+  // Extract text from response
+  const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
+  if (!text) {
+    throw new Error('No response from AI');
+  }
+
+  return text;
 }
 
 export const aiService = {
   async translateText(text: string, language: 'polish' | 'norwegian' | 'japanese' | 'spanish' = 'polish', apiKey: string): Promise<string> {
     const langName = language === 'norwegian' ? 'Norwegian' : (language === 'japanese' ? 'Japanese' : (language === 'spanish' ? 'Spanish' : 'Polish'));
-    const prompt = `Translate the following ${langName} text to English. Provide only the translation, no explanations.\n\nText: "${text}"`;
+    const prompt = `
+      Role: Expert Translator.
+      Task: Translate the following ${langName} text to English.
+      Constraint: Provide ONLY the direct English translation. No detailed explanations, no markdown, no conversational filler.
+      
+      Text: "${text}"
+    `;
     return await callGemini(prompt, apiKey);
   },
 
@@ -120,20 +139,31 @@ export const aiService = {
     contextMeaning: string;
   }> {
     const langName = language === 'norwegian' ? 'Norwegian' : (language === 'japanese' ? 'Japanese' : (language === 'spanish' ? 'Spanish' : 'Polish'));
+
+    // Define strict schema
+    const responseSchema: GeminiResponseSchema = {
+      type: 'OBJECT',
+      properties: {
+        definition: { type: 'STRING' },
+        partOfSpeech: { type: 'STRING' },
+        contextMeaning: { type: 'STRING' }
+      },
+      required: ['definition', 'partOfSpeech', 'contextMeaning']
+    };
+
     const prompt = `
-      Analyze the ${langName} word "${word}" in the context of the sentence: "${contextSentence}".
-      Return a JSON object with the following fields:
-      - definition: The general English definition of the word.
-      - partOfSpeech: The part of speech (noun, verb, adjective, etc.) and grammatical case/form if applicable.
-      - contextMeaning: The specific meaning of the word in this context.
+      Role: Expert Language Tutor.
+      Task: Analyze the ${langName} word "${word}" in the context of the sentence: "${contextSentence}".
       
-      Return ONLY the JSON object, no markdown formatting.
+      Requirements:
+      - definition: A concise, context-relevant English definition (max 10 words).
+      - partOfSpeech: The part of speech (noun, verb, adjective, etc.) AND the specific grammatical form/case used in the sentence if applicable.
+      - contextMeaning: The specific nuance or meaning of the word *exactly* as it is used in this sentence.
     `;
 
-    const result = await callGemini(prompt, apiKey);
+    const result = await callGemini(prompt, apiKey, responseSchema);
     try {
-      const cleanResult = extractJSON(result);
-      return JSON.parse(cleanResult);
+      return JSON.parse(result);
     } catch (e) {
       console.error("Failed to parse AI response", e);
       return {
@@ -153,37 +183,55 @@ export const aiService = {
     furigana?: string;
   }> {
     const langName = language === 'norwegian' ? 'Norwegian' : (language === 'japanese' ? 'Japanese' : (language === 'spanish' ? 'Spanish' : 'Polish'));
-    
+
+    const responseSchema: GeminiResponseSchema = {
+      type: 'OBJECT',
+      properties: {
+        targetSentence: { type: 'STRING' },
+        nativeTranslation: { type: 'STRING' },
+        targetWordTranslation: { type: 'STRING' },
+        targetWordPartOfSpeech: {
+          type: 'STRING',
+          enum: ["noun", "verb", "adjective", "adverb", "pronoun"]
+        },
+        notes: { type: 'STRING' },
+        ...(language === 'japanese' ? { furigana: { type: 'STRING' } } : {})
+      },
+      required: ['targetSentence', 'nativeTranslation', 'targetWordTranslation', 'targetWordPartOfSpeech', 'notes']
+    };
+
     let prompt = `
-      Generate a natural, practical ${langName} sentence that uses the word "${targetWord}".
-      The sentence should be useful for a language learner and demonstrate common usage of the word.
+      Role: Native Speaker & Language Teacher.
+      Task: Generate a practical, natural ${langName} sentence using the word "${targetWord}".
       
-      Return a JSON object with:
-      - targetSentence: A natural ${langName} sentence containing the word "${targetWord}".
-      - nativeTranslation: The English translation of the sentence.
-      - targetWordTranslation: English translation of the target word "${targetWord}".
-      - targetWordPartOfSpeech: The part of speech (must be exactly one of: "noun", "verb", "adjective", "adverb", or "pronoun").
-      - notes: Brief grammar notes about the word's usage in this sentence (max 1-2 sentences).
+      Guidelines:
+      - The sentence must be colloquially natural but grammatically correct.
+      - Useful for a learner (A2/B1 level).
+      - Context should make the meaning of "${targetWord}" clear.
+      
+      Fields:
+      - targetSentence: A natural ${langName} sentence containing "${targetWord}".
+      - nativeTranslation: Natural English translation.
+      - targetWordTranslation: English translation of "${targetWord}".
+      - targetWordPartOfSpeech: Exactly one of: "noun", "verb", "adjective", "adverb", "pronoun".
+      - notes: A brief, helpful grammar note about how the word is functioning in this specific sentence (e.g. case usage, conjugation). Max 2 sentences.
     `;
 
     if (language === 'japanese') {
       prompt += `
-      - furigana: The sentence with furigana in the format "Kanji[reading]". Example: "私[わたし]は..."
+      - furigana: The FULL targetSentence with furigana in the format "Kanji[reading]" for ALL Kanji. 
+        Example: "私[わたし]は 日本語[にほんご]を 勉強[べんきょう]しています。" (Ensure the brackets are correct).
       `;
     }
 
-    prompt += `
-      Return ONLY the JSON object, no markdown formatting.
-    `;
-
-    const result = await callGemini(prompt, apiKey);
+    const result = await callGemini(prompt, apiKey, responseSchema);
     try {
-      const cleanResult = extractJSON(result);
-      return JSON.parse(cleanResult);
+      return JSON.parse(result);
     } catch (e) {
       console.error("Failed to parse AI response", e);
       throw new Error("Failed to generate sentence for word");
     }
+    // Removed old catch block that used extractJSON
   },
 
   async generateCardContent(sentence: string, language: 'polish' | 'norwegian' | 'japanese' | 'spanish' = 'polish', apiKey: string): Promise<{
@@ -196,30 +244,44 @@ export const aiService = {
   }> {
     const langName = language === 'norwegian' ? 'Norwegian' : (language === 'japanese' ? 'Japanese' : (language === 'spanish' ? 'Spanish' : 'Polish'));
 
+    const responseSchema: GeminiResponseSchema = {
+      type: 'OBJECT',
+      properties: {
+        translation: { type: 'STRING' },
+        targetWord: { type: 'STRING' },
+        targetWordTranslation: { type: 'STRING' },
+        targetWordPartOfSpeech: {
+          type: 'STRING',
+          enum: ["noun", "verb", "adjective", "adverb", "pronoun"]
+        },
+        notes: { type: 'STRING' },
+        ...(language === 'japanese' ? { furigana: { type: 'STRING' } } : {})
+      },
+      required: ['translation', 'targetWord', 'targetWordTranslation', 'targetWordPartOfSpeech', 'notes']
+    };
+
     let prompt = `
-      Analyze the following ${langName} sentence for a flashcard: "${sentence}".
-      Return a JSON object with:
-      - translation: The natural English translation.
-      - targetWord: The key vocabulary word being taught in the sentence. MUST be one of: noun, verb, adjective, adverb, or pronoun.
+      Role: Expert Language Teacher.
+      Task: Create a high-quality flashcard from this ${langName} sentence: "${sentence}".
+      
+      Fields:
+      - translation: Natural, idiomatic English translation.
+      - targetWord: The single most important vocabulary word in the sentence (lemma form if possible, or the word as is if more appropriate for beginners).
       - targetWordTranslation: English translation of the target word.
-      - targetWordPartOfSpeech: The part of speech of the target word (noun, verb, adjective, adverb, or pronoun).
-      - notes: Brief grammar notes, explaining any interesting cases, conjugations, or idioms used in the sentence. Keep it concise (max 2-3 sentences).
+      - targetWordPartOfSpeech: One of: noun, verb, adjective, adverb, pronoun.
+      - notes: Concise grammar explanation (max 2 sentences). specific to this sentence's structure or the target word's usage.
     `;
 
     if (language === 'japanese') {
       prompt += `
-      - furigana: The sentence with furigana in the format "Kanji[reading]". Example: "私[わたし]は 日本語[にほんご]を 勉強[べんきょう]しています。"
+      - furigana: The FULL sentence with furigana in format "Kanji[reading]" for ALL Kanji. 
+        Example: "私[わたし]は 日本語[にほんご]を 勉強[べんきょう]しています。"
       `;
     }
 
-    prompt += `
-      Return ONLY the JSON object, no markdown formatting.
-    `;
-
-    const result = await callGemini(prompt, apiKey);
+    const result = await callGemini(prompt, apiKey, responseSchema);
     try {
-      const cleanResult = extractJSON(result);
-      return JSON.parse(cleanResult);
+      return JSON.parse(result);
     } catch (e) {
       console.error("Failed to parse AI response", e);
       return {
@@ -229,46 +291,73 @@ export const aiService = {
     }
   },
 
-  async generateQuiz(prompt: string, apiKey: string): Promise<GameQuestion[]> {
-    const result = await callGemini(prompt, apiKey);
-    try {
-      const cleanResult = extractJSON(result);
-      const parsed = JSON.parse(cleanResult);
-      return Array.isArray(parsed) ? parsed : [];
-    } catch (e) {
-      console.error('Failed to parse quiz response', e);
-      return [];
-    }
-  },
-
-  async generateBatchCards({ 
-    instructions, 
-    count, 
-    language, 
-    apiKey, 
-    learnedWords, 
+  async generateBatchCards({
+    instructions,
+    count,
+    language,
+    apiKey,
+    learnedWords,
     proficiencyLevel = 'A1',
-    difficultyMode = 'immersive' 
+    difficultyMode = 'immersive'
   }: BatchGenerationOptions & { apiKey: string }): Promise<GeneratedCardData[]> {
     const langName = language === 'norwegian' ? 'Norwegian' : (language === 'japanese' ? 'Japanese' : (language === 'spanish' ? 'Spanish' : 'Polish'));
 
-    // Logic: If 'beginner' mode selected, force scaffolding
-    const progressionRules = difficultyMode === 'beginner' 
-      ? `
-        CRITICAL PROGRESSION RULES (Zero-to-Hero):
-        1. First 30% of cards: SINGLE WORDS ONLY (Nouns/Verbs). Max 1-2 words.
-        2. Middle 40% of cards: SHORT PHRASES (Subject+Verb). Max 3-4 words.
-        3. Last 30% of cards: SIMPLE SENTENCES. Max 5-6 words.
+    const hasLearnedWords = learnedWords && learnedWords.length > 0;
+
+    let progressionRules = '';
+
+    if (difficultyMode === 'beginner') {
+      if (hasLearnedWords) {
+        // CONTINUOUS PROGRESSION (Day 2+)
+        progressionRules = `
+        CRITICAL PROGRESSION RULES (Continued Learning / Duolingo Style):
+        This is a SEQUENTIAL LESSON extending the user's existing knowledge.
+
+        User ALREADY KNOWS: ${learnedWords!.length} words.
         
-        Grammar Constraint: Strictly ${proficiencyLevel} level.
-        `
-      : `
-        Constraint: Natural sentences suitable for ${proficiencyLevel} level. 
-        Variety: Mix statements, questions, and mild imperatives.
+        1.  **NO SINGLE WORDS**: Do NOT generate cards with just 1 word. The user is past that stage.
+        2.  **Contextual Learning**: precise target is to combine [Previously Learned Word] + [NEW Word].
+        3.  **Progression**:
+            - Cards 1-5: Simple 2-3 word phrases using *mostly* known words + 1 NEW word.
+            - Cards 6-10: Complete simple sentences (Subject-Verb-Object). 
+        
+        INTERNAL STATE REQUIREMENT:
+        - Track "Introduced Vocabulary".
+        - **Constraint**: A card should NOT contain more than 1 unknown word (a word that is NOT in "LearnedWords" and NOT in "Introduced Vocabulary").
         `;
+      } else {
+        // DAY 1 (Absolute Beginner)
+        progressionRules = `
+        CRITICAL PROGRESSION RULES (Zero-to-Hero / Duolingo Style):
+        This is a SEQUENTIAL LESSON. Card N must build upon Cards 1...(N-1).
+
+        1.  **Card 1-2**: Foundation. ABSOLUTE BASICS. 1-2 words max. (e.g., "Mother", "Water", "Yes").
+        2.  **Card 3-5**: very Simple combinations. Max 2-3 words. Reuse words from Cards 1-2. (e.g., "My mother", "Yes, water").
+        3.  **Card 6-10**: Basic sentences. Max 3-5 words. STRICTLY REUSE specific vocabulary from previous cards + introduce ONLY 1 new word per card.
+        
+        INTERNAL STATE REQUIREMENT:
+        - Track the "Introduced Vocabulary" list internally as you generate.
+        - **Constraint**: A card should not contain more than 1 unknown word (a word not in learned/introduced list).
+        `;
+      }
+    } else {
+      // Immersive Mode
+      progressionRules = `
+        CRITICAL: Each card MUST contain a COMPLETE, NATURAL SENTENCE in targetSentence.
+        - The sentence must demonstrate vivid, real usage of the target vocabulary word.
+        - Never return just the word alone — always wrap it in a meaningful context.
+        - Sentence complexity should match ${proficiencyLevel} level.
+        - Variety: Mix statements, questions, and mild imperatives. Avoid repetitive sentence structures (e.g., don't start every sentence with "I").
+        `;
+    }
 
     const knownWordsContext = learnedWords && learnedWords.length > 0
-      ? `Avoid teaching these words (User already knows them): [${learnedWords.slice(0, 100).join(", ")}]`
+      ? `
+        KNOWN VOCABULARY (For Context Only - DO NOT Teach These Again):
+        [${learnedWords.slice(0, 150).join(", ")}]... (and potentially others).
+        
+        Use these known words to build sentences, but the "targetWord" (the one being taught) to be a NEW word.
+        `
       : "User has NO prior vocabulary. Start from scratch.";
 
     // Define the schema for a single card with proper typing
@@ -277,9 +366,9 @@ export const aiService = {
       nativeTranslation: { type: "STRING" },
       targetWord: { type: "STRING" },
       targetWordTranslation: { type: "STRING" },
-      targetWordPartOfSpeech: { 
-        type: "STRING", 
-        enum: ["noun", "verb", "adjective", "adverb", "pronoun"] 
+      targetWordPartOfSpeech: {
+        type: "STRING",
+        enum: ["noun", "verb", "adjective", "adverb", "pronoun"]
       },
       grammaticalCase: { type: "STRING" },
       gender: { type: "STRING" },
@@ -290,7 +379,10 @@ export const aiService = {
 
     // Add furigana for Japanese
     if (language === 'japanese') {
-      cardSchemaProperties.furigana = { type: "STRING" };
+      cardSchemaProperties.furigana = {
+        type: "STRING",
+        description: "The FULL targetSentence with kanji readings in Kanji[reading] format for ALL kanji characters"
+      };
       requiredFields.push("furigana");
     }
 
@@ -307,11 +399,17 @@ export const aiService = {
     };
 
     let prompt = `
-      Role: Expert ${langName} curriculum designer.
-      Task: Generate a JSON Array of ${count} flashcards.
+      Role: Expert ${langName} curriculum designer & Native Speaker.
+      Task: Generate a JSON Array of ${count} high-quality flashcards.
       Topic: "${instructions}"
       
       ${progressionRules}
+      
+      Style Guidelines:
+      - Tone: Natural, friendly, helpful.
+      - **Vocabulary Strategy**: CUMULATIVE. Repetition is good. If you taught "Apple" in card 1, use "Apple" in card 3 ("Red apple").
+      - Avoid: Complex grammar, rare words, or throwing the user into the deep end.
+      - Content: tangible, visual, and concrete concepts first (objects, family, basic actions).
       
       ${knownWordsContext}
       
@@ -325,7 +423,7 @@ export const aiService = {
           "targetWordPartOfSpeech": "noun|verb|adjective|adverb|pronoun",
           "grammaticalCase": "nominative|genitive|...", 
           "gender": "masculine|feminine|neuter",
-          "notes": "Explain the grammar of the target word in this specific context."${language === 'japanese' ? ',\n          "furigana": "Kanji[reading] format"' : ''}
+          "notes": "Explain the grammar of the target word in this specific context."${language === 'japanese' ? ',\n          "furigana": "The FULL targetSentence with Kanji[reading] format for ALL kanji. Example: 私[わたし]は 日本語[にほんご]を 勉強[べんきょう]しています"' : ''}
         }
       ]
 
@@ -335,7 +433,6 @@ export const aiService = {
     const result = await callGemini(prompt, apiKey, responseSchema);
 
     try {
-      // With response_schema, Gemini returns valid JSON directly - no need for extractJSON
       const parsed = JSON.parse(result);
       return Array.isArray(parsed) ? parsed : [];
     } catch (e) {

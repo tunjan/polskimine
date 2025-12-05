@@ -31,7 +31,7 @@ export function GameMenuItem({
           "absolute -top-0.5 -left-0.5 w-2 h-2 pointer-events-none transition-all duration-200 ease-out",
           "opacity-0 scale-75 group-hover/game-item:opacity-100 group-hover/game-item:scale-100",
           "border-l-2 border-t-2",
-          isActive ? "border-terracotta opacity-100 scale-100" : "border-foreground/60"
+          isActive ? "border-amber-500 opacity-100 scale-100" : "border-foreground/60"
         )}
       />
       {/* Top Right */}
@@ -40,7 +40,7 @@ export function GameMenuItem({
           "absolute -top-0.5 -right-0.5 w-2 h-2 pointer-events-none transition-all duration-200 ease-out delay-[25ms]",
           "opacity-0 scale-75 group-hover/game-item:opacity-100 group-hover/game-item:scale-100",
           "border-r-2 border-t-2",
-          isActive ? "border-terracotta opacity-100 scale-100" : "border-foreground/60"
+          isActive ? "border-amber-500 opacity-100 scale-100" : "border-foreground/60"
         )}
       />
       {/* Bottom Left */}
@@ -49,7 +49,7 @@ export function GameMenuItem({
           "absolute -bottom-0.5 -left-0.5 w-2 h-2 pointer-events-none transition-all duration-200 ease-out delay-[50ms]",
           "opacity-0 scale-75 group-hover/game-item:opacity-100 group-hover/game-item:scale-100",
           "border-l-2 border-b-2",
-          isActive ? "border-terracotta opacity-100 scale-100" : "border-foreground/60"
+          isActive ? "border-amber-500 opacity-100 scale-100" : "border-foreground/60"
         )}
       />
       {/* Bottom Right */}
@@ -58,7 +58,7 @@ export function GameMenuItem({
           "absolute -bottom-0.5 -right-0.5 w-2 h-2 pointer-events-none transition-all duration-200 ease-out delay-[75ms]",
           "opacity-0 scale-75 group-hover/game-item:opacity-100 group-hover/game-item:scale-100",
           "border-r-2 border-b-2",
-          isActive ? "border-terracotta opacity-100 scale-100" : "border-foreground/60"
+          isActive ? "border-amber-500 opacity-100 scale-100" : "border-foreground/60"
         )}
       />
       
@@ -90,7 +90,7 @@ export function GameMenuItemDiamond({
         className={cn(
           "absolute top-1 left-1 w-1.5 h-1.5 pointer-events-none transition-all duration-200 ease-out rotate-45",
           "opacity-0 -translate-x-1 -translate-y-1 group-hover/game-item:opacity-100 group-hover/game-item:translate-x-0 group-hover/game-item:translate-y-0",
-          isActive ? "bg-terracotta opacity-100 translate-x-0 translate-y-0" : "bg-foreground/60"
+          isActive ? "bg-amber-500 opacity-100 translate-x-0 translate-y-0" : "bg-foreground/60"
         )}
       />
       {/* Top Right */}
@@ -98,7 +98,7 @@ export function GameMenuItemDiamond({
         className={cn(
           "absolute top-1 right-1 w-1.5 h-1.5 pointer-events-none transition-all duration-200 ease-out delay-[25ms] rotate-45",
           "opacity-0 translate-x-1 -translate-y-1 group-hover/game-item:opacity-100 group-hover/game-item:translate-x-0 group-hover/game-item:translate-y-0",
-          isActive ? "bg-terracotta opacity-100 translate-x-0 translate-y-0" : "bg-foreground/60"
+          isActive ? "bg-amber-500 opacity-100 translate-x-0 translate-y-0" : "bg-foreground/60"
         )}
       />
       {/* Bottom Left */}
@@ -106,7 +106,7 @@ export function GameMenuItemDiamond({
         className={cn(
           "absolute bottom-1 left-1 w-1.5 h-1.5 pointer-events-none transition-all duration-200 ease-out delay-[50ms] rotate-45",
           "opacity-0 -translate-x-1 translate-y-1 group-hover/game-item:opacity-100 group-hover/game-item:translate-x-0 group-hover/game-item:translate-y-0",
-          isActive ? "bg-terracotta opacity-100 translate-x-0 translate-y-0" : "bg-foreground/60"
+          isActive ? "bg-amber-500 opacity-100 translate-x-0 translate-y-0" : "bg-foreground/60"
         )}
       />
       {/* Bottom Right */}
@@ -114,7 +114,7 @@ export function GameMenuItemDiamond({
         className={cn(
           "absolute bottom-1 right-1 w-1.5 h-1.5 pointer-events-none transition-all duration-200 ease-out delay-[75ms] rotate-45",
           "opacity-0 translate-x-1 translate-y-1 group-hover/game-item:opacity-100 group-hover/game-item:translate-x-0 group-hover/game-item:translate-y-0",
-          isActive ? "bg-terracotta opacity-100 translate-x-0 translate-y-0" : "bg-foreground/60"
+          isActive ? "bg-amber-500 opacity-100 translate-x-0 translate-y-0" : "bg-foreground/60"
         )}
       />
       
@@ -155,7 +155,7 @@ export function GameMenuItemChevron({
           d="M2 2 L2 6 L3 6 L3 3 L6 3 L6 2 Z" 
           className={cn(
             "transition-colors",
-            isActive ? "fill-terracotta" : "fill-foreground/60 group-hover/game-item:fill-foreground/80"
+            isActive ? "fill-amber-500" : "fill-foreground/60 group-hover/game-item:fill-foreground/80"
           )}
         />
       </svg>
@@ -174,7 +174,7 @@ export function GameMenuItemChevron({
           d="M10 2 L10 6 L9 6 L9 3 L6 3 L6 2 Z" 
           className={cn(
             "transition-colors",
-            isActive ? "fill-terracotta" : "fill-foreground/60 group-hover/game-item:fill-foreground/80"
+            isActive ? "fill-amber-500" : "fill-foreground/60 group-hover/game-item:fill-foreground/80"
           )}
         />
       </svg>
@@ -193,7 +193,7 @@ export function GameMenuItemChevron({
           d="M2 10 L2 6 L3 6 L3 9 L6 9 L6 10 Z" 
           className={cn(
             "transition-colors",
-            isActive ? "fill-terracotta" : "fill-foreground/60 group-hover/game-item:fill-foreground/80"
+            isActive ? "fill-amber-500" : "fill-foreground/60 group-hover/game-item:fill-foreground/80"
           )}
         />
       </svg>
@@ -212,7 +212,7 @@ export function GameMenuItemChevron({
           d="M10 10 L10 6 L9 6 L9 9 L6 9 L6 10 Z" 
           className={cn(
             "transition-colors",
-            isActive ? "fill-terracotta" : "fill-foreground/60 group-hover/game-item:fill-foreground/80"
+            isActive ? "fill-amber-500" : "fill-foreground/60 group-hover/game-item:fill-foreground/80"
           )}
         />
       </svg>

@@ -1,4 +1,4 @@
-import { supabase } from '@/lib/supabase';
+import { db, generateId, RevlogEntry } from '@/services/db/dexie';
 import { ReviewLog, Card, Grade } from '@/types';
 import { State } from 'ts-fsrs';
 
@@ -12,62 +12,39 @@ const mapGradeToNumber = (grade: Grade): number => {
 };
 
 export const addReviewLog = async (
-  card: Card, 
-  grade: Grade, 
+  card: Card,
+  grade: Grade,
   elapsedDays: number,
   scheduledDays: number
 ) => {
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return;
-
-  const { error } = await supabase.from('revlog').insert({
-    user_id: user.id,
+  const entry: RevlogEntry = {
+    id: generateId(),
     card_id: card.id,
     grade: mapGradeToNumber(grade),
-    state: card.state ?? State.New, 
+    state: card.state ?? State.New,
     elapsed_days: elapsedDays,
     scheduled_days: scheduledDays,
     stability: card.stability ?? 0,
     difficulty: card.difficulty ?? 0,
     created_at: new Date().toISOString()
-  });
+  };
 
-  if (error) console.error('Failed to log review:', error);
+  await db.revlog.add(entry);
 };
 
 export const getAllReviewLogs = async (language?: string): Promise<ReviewLog[]> => {
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return [];
+  // Get all review logs
+  let logs = await db.revlog.toArray();
 
-  
-  let cardIds: Set<string> | null = null;
+  // If language specified, filter by cards in that language
   if (language) {
-    const { data: cardsData, error: cardsError } = await supabase
-      .from('cards')
-      .select('id')
-      .eq('user_id', user.id)
-      .eq('language', language);
-    
-    if (!cardsError && cardsData) {
-      cardIds = new Set(cardsData.map(c => c.id));
-    }
+    const cards = await db.cards.where('language').equals(language).toArray();
+    const cardIds = new Set(cards.map(c => c.id));
+    logs = logs.filter(log => cardIds.has(log.card_id));
   }
 
-  
-  const { data, error } = await supabase
-    .from('revlog')
-    .select('*')
-    .eq('user_id', user.id)
-    .order('created_at', { ascending: true });
+  // Sort by created_at ascending
+  logs.sort((a, b) => a.created_at.localeCompare(b.created_at));
 
-  if (error) throw error;
-
-  
-  const logs = (data || []).filter(log => {
-    if (cardIds && !cardIds.has(log.card_id)) return false;
-    return true;
-  });
-  
   return logs as unknown as ReviewLog[];
 };
-

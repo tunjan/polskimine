@@ -1,35 +1,26 @@
 import { Card } from '@/types';
 import { getSRSDate } from '@/features/study/logic/srs';
-import { supabase } from '@/lib/supabase';
+import { db, generateId } from '@/services/db/dexie';
 import { SRS_CONFIG } from '@/constants';
 
 type Language = Card['language'];
 
-const ensureUser = async () => {
-  const { data, error } = await supabase.auth.getUser();
-  if (error) throw error;
-  const userId = data.user?.id;
-  if (!userId) {
-    throw new Error('User not logged in');
-  }
-  return userId;
-};
-
+// Map DB format to Card type (still useful for consistency)
 export const mapToCard = (data: any): Card => ({
   id: data.id,
-  targetSentence: data.target_sentence,
-  targetWord: data.target_word || undefined,
-  targetWordTranslation: data.target_word_translation || undefined,
-  targetWordPartOfSpeech: data.target_word_part_of_speech || undefined,
-  nativeTranslation: data.native_translation,
+  targetSentence: data.targetSentence,
+  targetWord: data.targetWord || undefined,
+  targetWordTranslation: data.targetWordTranslation || undefined,
+  targetWordPartOfSpeech: data.targetWordPartOfSpeech || undefined,
+  nativeTranslation: data.nativeTranslation,
   furigana: data.furigana || undefined,
   notes: data.notes ?? '',
   tags: data.tags ?? undefined,
   language: data.language,
   status: data.status,
   interval: data.interval ?? 0,
-  easeFactor: data.ease_factor ?? 2.5,
-  dueDate: data.due_date,
+  easeFactor: data.easeFactor ?? 2.5,
+  dueDate: data.dueDate,
   stability: data.stability ?? undefined,
   difficulty: data.difficulty ?? undefined,
   elapsed_days: data.elapsed_days ?? undefined,
@@ -39,209 +30,154 @@ export const mapToCard = (data: any): Card => ({
   state: data.state ?? undefined,
   last_review: data.last_review ?? undefined,
   first_review: data.first_review ?? undefined,
-  learningStep: data.learning_step ?? undefined,
-  leechCount: data.leech_count ?? undefined,
-  isLeech: data.is_leech ?? false,
-});
-
-const mapToDB = (card: Card, userId: string) => ({
-  id: card.id,
-  user_id: userId,
-  target_sentence: card.targetSentence,
-  target_word: card.targetWord ?? null,
-  target_word_translation: card.targetWordTranslation ?? null,
-  target_word_part_of_speech: card.targetWordPartOfSpeech ?? null,
-  native_translation: card.nativeTranslation,
-  furigana: card.furigana ?? null,
-  notes: card.notes ?? '',
-  language: card.language || 'polish',
-  status: card.status,
-  interval: card.interval ?? 0,
-  ease_factor: card.easeFactor ?? 2.5,
-  due_date: card.dueDate,
-  stability: card.stability ?? 0,
-  difficulty: card.difficulty ?? 0,
-  elapsed_days: card.elapsed_days ?? 0,
-  scheduled_days: card.scheduled_days ?? 0,
-  reps: card.reps ?? 0,
-  lapses: card.lapses ?? 0,
-  state: card.state ?? null,
-  last_review: card.last_review ?? null,
-  first_review: card.first_review ?? null,
-  learning_step: card.learningStep ?? null,
-  leech_count: card.leechCount ?? 0,
-  is_leech: card.isLeech ?? false,
-  tags: card.tags ?? null,
+  learningStep: data.learningStep ?? undefined,
+  leechCount: data.leechCount ?? undefined,
+  isLeech: data.isLeech ?? false,
 });
 
 export const getCards = async (): Promise<Card[]> => {
-  const userId = await ensureUser();
-  const { data, error } = await supabase
-    .from('cards')
-    .select('*')
-    .eq('user_id', userId)
-    .order('created_at', { ascending: true });
-
-  if (error) throw error;
-  return (data ?? []).map(mapToCard);
+  const cards = await db.cards.toArray();
+  return cards;
 };
 
 export const getAllCardsByLanguage = async (language: Language): Promise<Card[]> => {
-  const userId = await ensureUser();
-  const { data, error } = await supabase
-    .from('cards')
-    .select('*')
-    .eq('user_id', userId)
-    .eq('language', language)
-    .order('created_at', { ascending: true });
-
-  if (error) throw error;
-  return (data ?? []).map(mapToCard);
+  const cards = await db.cards.where('language').equals(language).toArray();
+  return cards;
 };
 
 export const getCardsForRetention = async (language: Language): Promise<Partial<Card>[]> => {
-  const userId = await ensureUser();
-  const { data, error } = await supabase
-    .from('cards')
-    .select('id, due_date, status, stability, state')
-    .eq('user_id', userId)
-    .eq('language', language)
-    .order('created_at', { ascending: true });
+  const cards = await db.cards
+    .where('language')
+    .equals(language)
+    .toArray();
 
-  if (error) throw error;
-  return (data ?? []) as Partial<Card>[];
+  return cards.map(c => ({
+    id: c.id,
+    dueDate: c.dueDate,
+    status: c.status,
+    stability: c.stability,
+    state: c.state
+  }));
 };
 
+export const getCardsForDashboard = async (language: Language): Promise<Array<{
+  id: string;
+  dueDate: string | null;
+  status: string;
+  stability: number | null;
+  state: number | null
+}>> => {
+  const cards = await db.cards
+    .where('language')
+    .equals(language)
+    .toArray();
 
-export const getCardsForDashboard = async (language: Language): Promise<Array<{ id: string; dueDate: string | null; status: string; stability: number | null; state: number | null }>> => {
-  const userId = await ensureUser();
-  const { data, error } = await supabase
-    .from('cards')
-    .select('id, due_date, status, stability, state')
-    .eq('user_id', userId)
-    .eq('language', language)
-    .order('created_at', { ascending: true });
-  if (error) throw error;
-  
-  return (data ?? []).map((item: any) => ({
-    id: item.id,
-    dueDate: item.due_date,
-    status: item.status,
-    stability: item.stability,
-    state: item.state
+  return cards.map(card => ({
+    id: card.id,
+    dueDate: card.dueDate,
+    status: card.status,
+    stability: card.stability ?? null,
+    state: card.state ?? null
   }));
 };
 
 export const saveCard = async (card: Card) => {
-  const userId = await ensureUser();
-  const payload = mapToDB(card, userId);
-  const { error } = await supabase.from('cards').upsert(payload);
-  if (error) throw error;
+  // Ensure card has an ID
+  if (!card.id) {
+    card.id = generateId();
+  }
+  await db.cards.put(card);
 };
 
 export const deleteCard = async (id: string) => {
-  const { error } = await supabase.from('cards').delete().eq('id', id);
-  if (error) throw error;
+  await db.cards.delete(id);
 };
 
 export const deleteCardsBatch = async (ids: string[]) => {
   if (!ids.length) return;
-  const { error } = await supabase.from('cards').delete().in('id', ids);
-  if (error) throw error;
+  await db.cards.bulkDelete(ids);
 };
 
 export const saveAllCards = async (cards: Card[]) => {
   if (!cards.length) return;
-  const userId = await ensureUser();
-  const payload = cards.map((card) => mapToDB(card, userId));
 
-  const BATCH_SIZE = 100;
-  for (let i = 0; i < payload.length; i += BATCH_SIZE) {
-    const chunk = payload.slice(i, i + BATCH_SIZE);
-    const { error } = await supabase.from('cards').upsert(chunk);
-    if (error) throw error;
-  }
+  // Ensure all cards have IDs
+  const cardsWithIds = cards.map(card => ({
+    ...card,
+    id: card.id || generateId()
+  }));
+
+  await db.cards.bulkPut(cardsWithIds);
 };
 
 export const clearAllCards = async () => {
-  const userId = await ensureUser();
-  const { error } = await supabase.from('cards').delete().eq('user_id', userId);
-  if (error) throw error;
+  await db.cards.clear();
 };
 
 export const getDueCards = async (now: Date, language: Language): Promise<Card[]> => {
-  const userId = await ensureUser();
   const srsToday = getSRSDate(now);
   const cutoffDate = new Date(srsToday);
   cutoffDate.setDate(cutoffDate.getDate() + 1);
-
   cutoffDate.setHours(SRS_CONFIG.CUTOFF_HOUR);
 
-  const { data, error } = await supabase
-    .from('cards')
-    .select('*')
-    .eq('user_id', userId)
-    .eq('language', language)
-    .neq('status', 'known')
-    .lte('due_date', cutoffDate.toISOString())
-    .order('due_date', { ascending: true })
-    .limit(1000);
+  const cutoffISO = cutoffDate.toISOString();
 
-  if (error) throw error;
-  return (data ?? []).map(mapToCard);
+  // Get all cards for language that are not 'known' and due before cutoff
+  const cards = await db.cards
+    .where('language')
+    .equals(language)
+    .filter(card => card.status !== 'known' && card.dueDate <= cutoffISO)
+    .toArray();
+
+  // Sort by due date
+  return cards.sort((a, b) => a.dueDate.localeCompare(b.dueDate));
 };
 
 export const getCramCards = async (limit: number, tag?: string, language?: Language): Promise<Card[]> => {
-  const userId = await ensureUser();
+  let cards = await db.cards
+    .where('language')
+    .equals(language || 'polish')
+    .toArray();
 
-  const { data, error } = await supabase.rpc('get_random_cards', {
-    p_user_id: userId,
-    p_language: language || 'polish',
-    p_limit: limit,
-    p_tag: tag || null,
-  });
-  if (error) throw error;
-  return (data ?? []).map(mapToCard);
+  // Filter by tag if provided
+  if (tag) {
+    cards = cards.filter(c => c.tags?.includes(tag));
+  }
+
+  // Shuffle and limit
+  const shuffled = cards.sort(() => Math.random() - 0.5);
+  return shuffled.slice(0, limit);
 };
 
 export const deleteCardsByLanguage = async (language: Language) => {
-  const userId = await ensureUser();
-  const { error } = await supabase
-    .from('cards')
-    .delete()
-    .eq('language', language)
-    .eq('user_id', userId);
-
-  if (error) throw error;
+  await db.cards.where('language').equals(language).delete();
 };
 
 export const getCardSignatures = async (language: Language): Promise<Array<{ target_sentence: string; language: string }>> => {
-  const userId = await ensureUser();
-  const { data, error } = await supabase
-    .from('cards')
-    .select('target_sentence, language')
-    .eq('user_id', userId)
-    .eq('language', language);
+  const cards = await db.cards
+    .where('language')
+    .equals(language)
+    .toArray();
 
-  if (error) throw error;
-  return data ?? [];
+  return cards.map(c => ({
+    target_sentence: c.targetSentence,
+    language: c.language
+  }));
 };
 
 export const getTags = async (language?: Language): Promise<string[]> => {
-  const userId = await ensureUser();
-  let query = supabase.from('cards').select('tags').eq('user_id', userId);
+  let cards: Card[];
 
   if (language) {
-    query = query.eq('language', language);
+    cards = await db.cards.where('language').equals(language).toArray();
+  } else {
+    cards = await db.cards.toArray();
   }
 
-  const { data, error } = await query;
-  if (error) throw error;
-
   const uniqueTags = new Set<string>();
-  (data ?? []).forEach((row) => {
-    if (row.tags) {
-      row.tags.forEach((tag: string) => uniqueTags.add(tag));
+  cards.forEach((card) => {
+    if (card.tags) {
+      card.tags.forEach((tag: string) => uniqueTags.add(tag));
     }
   });
 
@@ -249,21 +185,15 @@ export const getTags = async (language?: Language): Promise<string[]> => {
 };
 
 export const getLearnedWords = async (language: Language): Promise<string[]> => {
-  const userId = await ensureUser();
-  const { data, error } = await supabase
-    .from('cards')
-    .select('target_word')
-    .eq('user_id', userId)
-    .eq('language', language)
-    .neq('status', 'new')
-    .not('target_word', 'is', null);
+  const cards = await db.cards
+    .where('language')
+    .equals(language)
+    .filter(card => card.status !== 'new' && card.targetWord != null)
+    .toArray();
 
-  if (error) throw error;
-  
-  const words = (data ?? [])
-    .map((row: any) => row.target_word)
-    .filter((word: string | null) => word !== null) as string[];
-    
+  const words = cards
+    .map(card => card.targetWord)
+    .filter((word): word is string => word !== null && word !== undefined);
+
   return [...new Set(words)];
 };
-

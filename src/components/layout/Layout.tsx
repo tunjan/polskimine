@@ -8,9 +8,6 @@ import {
   LogOut,
   Plus,
   Zap,
-  Skull,
-  Trophy,
-  Swords,
   ChevronUp,
   Check,
   Command
@@ -21,8 +18,6 @@ import { useCardOperations } from '@/features/deck/hooks/useCardOperations';
 import { AddCardModal } from '@/features/deck/components/AddCardModal';
 import { SettingsModal } from '@/features/settings/components/SettingsModal';
 import { CramModal } from '@/features/study/components/CramModal';
-import { SabotageStore } from '@/features/sabotage/SabotageStore';
-import { SabotageNotification } from '@/features/sabotage/SabotageNotification';
 import {
   Sidebar,
   SidebarContent,
@@ -52,7 +47,6 @@ import clsx from 'clsx';
 interface NavActionProps {
   onOpenAdd: () => void;
   onOpenCram: () => void;
-  onOpenSabotage: () => void;
   onOpenSettings: () => void;
   onCloseMobileMenu?: () => void;
 }
@@ -62,13 +56,12 @@ interface NavActionProps {
 const AppSidebar: React.FC<NavActionProps> = ({
   onOpenAdd,
   onOpenCram,
-  onOpenSabotage,
   onOpenSettings,
   onCloseMobileMenu
 }) => {
   const location = useLocation();
   const { settings, updateSettings } = useSettings();
-  const { signOut, user } = useAuth();
+  const { signOut, user, profile } = useAuth();
 
   const languages = [
     { code: 'polish', name: 'Polish', Flag: PolishFlag },
@@ -83,19 +76,16 @@ const AppSidebar: React.FC<NavActionProps> = ({
     { to: '/', icon: LayoutDashboard, label: 'Overview' },
     { to: '/cards', icon: ListIcon, label: 'Index' },
     { to: '/study', icon: GraduationCap, label: 'Study' },
-    { to: '/leaderboard', icon: Trophy, label: 'Leaderboard' },
-    { to: '/multiplayer', icon: Swords, label: 'Deck Wars' },
   ];
 
   const toolItems = [
     { icon: Plus, label: 'Add Entry', onClick: () => { onOpenAdd(); onCloseMobileMenu?.(); } },
     { icon: Zap, label: 'Cram Mode', onClick: () => { onOpenCram(); onCloseMobileMenu?.(); } },
-    { icon: Skull, label: 'Sabotage', onClick: () => { onOpenSabotage(); onCloseMobileMenu?.(); } },
   ];
 
   return (
     <Sidebar collapsible="icon" className="border-r-0">
-    
+
       <SidebarHeader className="p-4 pb-2">
         <div className="flex items-center justify-between group-data-[collapsible=icon]:justify-center">
           <div className="flex items-center gap-2 overflow-hidden transition-all group-data-[collapsible=icon]:w-0 group-data-[collapsible=icon]:opacity-0">
@@ -113,9 +103,7 @@ const AppSidebar: React.FC<NavActionProps> = ({
           <SidebarGroupContent>
             <SidebarMenu className="gap-0.5 group-data-[collapsible=icon]:gap-1">
               {mainNavItems.map((item) => {
-                const isActive = item.to === '/multiplayer'
-                  ? location.pathname.startsWith(item.to)
-                  : location.pathname === item.to;
+                const isActive = location.pathname === item.to;
 
                 return (
                   <SidebarMenuItem key={item.to}>
@@ -125,8 +113,8 @@ const AppSidebar: React.FC<NavActionProps> = ({
                       onClick={onCloseMobileMenu}
                       className={clsx(
                         "relative h-9 px-3 rounded-none transition-all duration-200 text-[13px] tracking-wide group-data-[collapsible=icon]:px-0 group-data-[collapsible=icon]:justify-center",
-                        isActive 
-                          ? "text-foreground bg-transparent font-medium" 
+                        isActive
+                          ? "text-foreground bg-transparent font-medium"
                           : "text-muted-foreground hover:text-foreground hover:bg-transparent"
                       )}
                     >
@@ -166,7 +154,7 @@ const AppSidebar: React.FC<NavActionProps> = ({
             <SidebarMenu className="gap-0.5 group-data-[collapsible=icon]:gap-1">
               {toolItems.map((item) => (
                 <SidebarMenuItem key={item.label}>
-                  <SidebarMenuButton 
+                  <SidebarMenuButton
                     onClick={item.onClick}
                     className="h-8 px-3 rounded-none transition-all duration-200 text-muted-foreground hover:text-foreground hover:bg-transparent text-[13px] tracking-wide group-data-[collapsible=icon]:px-0 group-data-[collapsible=icon]:justify-center"
                   >
@@ -185,13 +173,13 @@ const AppSidebar: React.FC<NavActionProps> = ({
         <div className="flex items-center gap-2 mb-3 group-data-[collapsible=icon]:hidden">
           <div className="h-px flex-1 bg-gradient-to-r from-border/40 to-transparent" />
         </div>
-        
+
         <SidebarMenu className="gap-0.5">
           {/* Language Selector */}
           <SidebarMenuItem>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <SidebarMenuButton 
+                <SidebarMenuButton
                   className="h-8 px-3 rounded-none hover:bg-transparent text-[13px] tracking-wide text-muted-foreground hover:text-foreground group-data-[collapsible=icon]:px-0 group-data-[collapsible=icon]:justify-center"
                 >
                   <div className="w-4 h-3 rounded-[1px] overflow-hidden border border-border/30 shrink-0">
@@ -225,7 +213,7 @@ const AppSidebar: React.FC<NavActionProps> = ({
 
           {/* Settings */}
           <SidebarMenuItem>
-            <SidebarMenuButton 
+            <SidebarMenuButton
               onClick={() => { onOpenSettings(); onCloseMobileMenu?.(); }}
               className="h-8 px-3 rounded-none text-muted-foreground hover:text-foreground hover:bg-transparent text-[13px] tracking-wide group-data-[collapsible=icon]:px-0 group-data-[collapsible=icon]:justify-center"
             >
@@ -236,14 +224,14 @@ const AppSidebar: React.FC<NavActionProps> = ({
         </SidebarMenu>
 
         {/* User Info */}
-        {user && (
+        {profile && (
           <div className="px-3 py-2 group-data-[collapsible=icon]:hidden mt-1">
             <p className="text-[10px] text-muted-foreground/50 truncate tracking-wide uppercase">
-              {user.email}
+              {profile.username}
             </p>
           </div>
         )}
-        
+
         {/* Logout */}
         <SidebarMenu className="gap-0">
           <SidebarMenuItem>
@@ -282,106 +270,68 @@ const MobileBottomNav: React.FC = () => {
           <div className="h-px flex-1 bg-linear-to-l from-transparent via-primary/30 to-primary/50" />
         </div>
 
-        <div className="flex items-center justify-between h-16 px-4 max-w-md mx-auto relative">
+        <div className="flex items-center justify-around h-16 px-4 max-w-md mx-auto relative">
           {/* Left Nav Items */}
-          <div className="flex items-center gap-1">
-            {navItems.map((item) => {
-              const isActive = location.pathname === item.to;
-              return (
-                <Link
-                  key={item.to}
-                  to={item.to}
-                  className="relative flex flex-col items-center justify-center w-14 h-14 group"
-                >
-                  {/* Active indicator - diamond shape */}
-                  {isActive && (
-                    <div className="absolute top-1 w-1 h-1 rotate-45 bg-primary" />
-                  )}
-                  
-                  {/* Icon container with subtle frame on active */}
-                  <div className={clsx(
-                    "relative flex items-center justify-center w-8 h-8 transition-all",
-                    isActive && "before:absolute before:inset-0 before:border before:border-primary/20 before:rotate-45"
-                  )}>
-                    <item.icon
-                      size={18}
-                      strokeWidth={isActive ? 1.5 : 1.2}
-                      className={clsx(
-                        "transition-all relative z-10",
-                        isActive ? "text-foreground" : "text-muted-foreground group-hover:text-foreground"
-                      )}
-                    />
-                  </div>
-                  
-                  {/* Label */}
-                  <span className={clsx(
-                    "text-[9px] uppercase tracking-widest mt-0.5 transition-colors",
-                    isActive ? "text-foreground" : "text-muted-foreground/70 group-hover:text-muted-foreground"
-                  )}>
-                    {item.label}
-                  </span>
-                </Link>
-              );
-            })}
-          </div>
+          {navItems.map((item) => {
+            const isActive = location.pathname === item.to;
+            return (
+              <Link
+                key={item.to}
+                to={item.to}
+                className="relative flex flex-col items-center justify-center w-14 h-14 group"
+              >
+                {/* Active indicator - diamond shape */}
+                {isActive && (
+                  <div className="absolute top-1 w-1 h-1 rotate-45 bg-primary" />
+                )}
+
+                {/* Icon container with subtle frame on active */}
+                <div className={clsx(
+                  "relative flex items-center justify-center w-8 h-8 transition-all",
+                  isActive && "before:absolute before:inset-0 before:border before:border-primary/20 before:rotate-45"
+                )}>
+                  <item.icon
+                    size={18}
+                    strokeWidth={isActive ? 1.5 : 1.2}
+                    className={clsx(
+                      "transition-all relative z-10",
+                      isActive ? "text-foreground" : "text-muted-foreground group-hover:text-foreground"
+                    )}
+                  />
+                </div>
+
+                {/* Label */}
+                <span className={clsx(
+                  "text-[9px] uppercase tracking-widest mt-0.5 transition-colors",
+                  isActive ? "text-foreground" : "text-muted-foreground/70 group-hover:text-muted-foreground"
+                )}>
+                  {item.label}
+                </span>
+              </Link>
+            );
+          })}
 
           {/* Center FAB (Study) - Subtle Genshin-inspired style */}
-          <div className="absolute left-1/2 -translate-x-1/2 -top-3">
-            <Link
-              to="/study"
-              className="group relative flex items-center justify-center"
-            >
-              {/* Main button - smaller diamond */}
-              <div className="relative w-10 h-10 bg-background border border-primary/40 rotate-45 flex items-center justify-center transition-all group-hover:border-primary group-hover:bg-primary/5 group-active:scale-95">
-                <GraduationCap 
-                  size={18} 
-                  strokeWidth={1.5} 
-                  className="-rotate-45 text-primary/80 transition-all group-hover:text-primary group-hover:scale-105" 
-                />
-              </div>
-            </Link>
-          </div>
-
-          {/* Right Nav Items */}
-          <div className="flex items-center gap-1">
-            <Link
-              to="/leaderboard"
-              className="relative flex flex-col items-center justify-center w-14 h-14 group"
-            >
-              {/* Active indicator - diamond shape */}
-              {location.pathname === '/leaderboard' && (
-                <div className="absolute top-1 w-1 h-1 rotate-45 bg-primary" />
-              )}
-              
-              <div className={clsx(
-                "relative flex items-center justify-center w-8 h-8 transition-all",
-                location.pathname === '/leaderboard' && "before:absolute before:inset-0 before:border before:border-primary/20 before:rotate-45"
-              )}>
-                <Trophy
-                  size={18}
-                  strokeWidth={location.pathname === '/leaderboard' ? 1.5 : 1.2}
-                  className={clsx(
-                    "transition-all relative z-10",
-                    location.pathname === '/leaderboard' ? "text-foreground" : "text-muted-foreground group-hover:text-foreground"
-                  )}
-                />
-              </div>
-              
-              <span className={clsx(
-                "text-[9px] uppercase tracking-widest mt-0.5 transition-colors",
-                location.pathname === '/leaderboard' ? "text-foreground" : "text-muted-foreground/70 group-hover:text-muted-foreground"
-              )}>
-                Rank
-              </span>
-            </Link>
-
-            {/* Menu Trigger */}
-            <div className="relative flex flex-col items-center justify-center w-14 h-14">
-              <SidebarTrigger className="flex items-center justify-center w-8 h-8 hover:bg-transparent [&>svg]:w-[18px] [&>svg]:h-[18px] [&>svg]:stroke-[1.2]" />
-              <span className="text-[9px] uppercase tracking-widest mt-0.5 text-muted-foreground/70">
-                Menu
-              </span>
+          <Link
+            to="/study"
+            className="group relative flex items-center justify-center"
+          >
+            {/* Main button - smaller diamond */}
+            <div className="relative w-10 h-10 bg-background border border-primary/40 rotate-45 flex items-center justify-center transition-all group-hover:border-primary group-hover:bg-primary/5 group-active:scale-95">
+              <GraduationCap
+                size={18}
+                strokeWidth={1.5}
+                className="-rotate-45 text-primary/80 transition-all group-hover:text-primary group-hover:scale-105"
+              />
             </div>
+          </Link>
+
+          {/* Menu Trigger */}
+          <div className="relative flex flex-col items-center justify-center w-14 h-14">
+            <SidebarTrigger className="flex items-center justify-center w-8 h-8 hover:bg-transparent [&>svg]:w-[18px] [&>svg]:h-[18px] [&>svg]:stroke-[1.2]" />
+            <span className="text-[9px] uppercase tracking-widest mt-0.5 text-muted-foreground/70">
+              Menu
+            </span>
           </div>
         </div>
       </div>
@@ -398,49 +348,64 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isCramModalOpen, setIsCramModalOpen] = useState(false);
-  const [isSabotageOpen, setIsSabotageOpen] = useState(false);
 
   const isStudyMode = location.pathname === '/study';
 
   const sidebarProps: NavActionProps = {
     onOpenAdd: () => setIsAddModalOpen(true),
     onOpenCram: () => setIsCramModalOpen(true),
-    onOpenSabotage: () => setIsSabotageOpen(true),
     onOpenSettings: () => setIsSettingsOpen(true),
   };
 
-  
+
   if (isStudyMode) {
     return (
       <div className="min-h-screen bg-background text-foreground font-sans">
         <main className="min-h-screen p-0">
           {children}
-          <SabotageNotification />
         </main>
 
         {/* Global Modals */}
         <AddCardModal isOpen={isAddModalOpen} onClose={() => setIsAddModalOpen(false)} onAdd={addCard} />
         <SettingsModal isOpen={isSettingsOpen} onClose={() => setIsSettingsOpen(false)} />
         <CramModal isOpen={isCramModalOpen} onClose={() => setIsCramModalOpen(false)} />
-        <SabotageStore isOpen={isSabotageOpen} onClose={() => setIsSabotageOpen(false)} />
       </div>
     );
   }
 
   return (
     <SidebarProvider>
-      <div className="min-h-screen bg-background text-foreground font-sans flex w-full">
+      <div className="h-screen w-full bg-background text-foreground font-sans flex overflow-hidden">
 
         {/* Desktop Sidebar */}
         <AppSidebar {...sidebarProps} />
 
         {/* Main Content */}
-        <div className="flex-1 flex flex-col">
+        <div className="flex-1 flex flex-col min-w-0 min-h-0">
           {/* Main Content Area */}
-          <main className="flex-1 pb-16 md:pb-0">
-            <div className="w-full h-full mx-auto max-w-6xl py-2 md:p-8">
-              {children}
-              <SabotageNotification />
+          <main className="flex-1 relative overflow-hidden flex flex-col pb-16 md:pb-0">
+            {/* 
+              We use a scrollable container for standard pages. 
+              Routes that need to control their own scrolling (like CardsRoute) 
+              should fill this container and manage overflow themselves.
+              
+              To support both, we'll make this container flex-1.
+              If the child (CardsRoute) is h-full, it takes full height.
+              If the child is normal content, it might overflow, so we generally want overflow-y-auto here.
+              BUT CardsRoute needs to NOT have parent scroll.
+              
+              Solution: overflow-y-auto on this container. 
+              CardsRoute will be h-full (min-h-full) which means it won't trigger scroll unless it grows?
+              Actually, if CardsRoute is h-full, we don't want this container to scroll.
+              
+              Let's try standard app layout:
+              Outer: static
+              Inner: overflow-y-auto
+            */}
+            <div className="w-full h-full md:p-8 pt-2 overflow-y-auto md:overflow-y-auto [&:has(.page-full-height)]:overflow-hidden">
+              <div className="w-full max-w-6xl mx-auto min-h-full [&:has(.page-full-height)]:h-full">
+                {children}
+              </div>
             </div>
           </main>
 
@@ -453,7 +418,6 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
       <AddCardModal isOpen={isAddModalOpen} onClose={() => setIsAddModalOpen(false)} onAdd={addCard} />
       <SettingsModal isOpen={isSettingsOpen} onClose={() => setIsSettingsOpen(false)} />
       <CramModal isOpen={isCramModalOpen} onClose={() => setIsCramModalOpen(false)} />
-      <SabotageStore isOpen={isSabotageOpen} onClose={() => setIsSabotageOpen(false)} />
     </SidebarProvider>
   );
 };

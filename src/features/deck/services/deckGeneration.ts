@@ -19,18 +19,18 @@ export async function generateInitialDeck(options: GenerateInitialDeckOptions): 
     try {
         const totalCards = 50;
         const batchSize = 10;
-        
+
         // Create 5 varied prompts to ensure diversity
         const topics = [
-            "Greetings and Introductions",
-            "Ordering Food and Drinks",
-            "Travel and Directions",
-            "Hobbies and Free Time",
-            "Emergency and Health"
+            "Casual Greetings & Meeting New Friends (informal)",
+            "Ordering Coffee, Pastries & Restaurant Basics",
+            "Navigating the City & Public Transport Survival",
+            "Talking about Hobbies, Movies & Weekend Plans",
+            "Essential Health & Emergency Phrases (Safety First)"
         ];
 
         // Fire 5 parallel requests for 10 cards each
-        const promises = topics.map((topic) => 
+        const promises = topics.map((topic) =>
             aiService.generateBatchCards({
                 language: options.language,
                 instructions: `Generate content for ${options.proficiencyLevel} level. Topic: ${topic}. Ensure sentences are practical and varied.`,
@@ -56,6 +56,8 @@ export async function generateInitialDeck(options: GenerateInitialDeckOptions): 
             targetWord: card.targetWord,
             targetWordTranslation: card.targetWordTranslation,
             targetWordPartOfSpeech: card.targetWordPartOfSpeech,
+            gender: card.gender,
+            grammaticalCase: card.grammaticalCase,
             notes: card.notes,
             furigana: card.furigana,
             language: options.language,

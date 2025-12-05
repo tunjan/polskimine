@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo, useRef } from "react";
-import { ArrowRight, Sparkles, X } from "lucide-react";
-import { Dialog, DialogContent, DialogTitle, DialogDescription, DialogClose } from "@/components/ui/dialog";
+import { ArrowRight, Sparkles, Scroll, BookOpen, PenLine, Languages, Tag, FileText } from "lucide-react";
+import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Card } from "@/types";
 import { v4 as uuidv4 } from "uuid";
 import { toast } from "sonner";
@@ -14,6 +14,41 @@ interface AddCardModalProps {
     onAdd: (card: Card) => void;
     initialCard?: Card;
 }
+
+/** Ornate corner accent SVG - Genshin-style decorative frame corner */
+const GenshinCorner = ({ className }: { className?: string }) => (
+    <svg
+        width="40"
+        height="40"
+        viewBox="0 0 40 40"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+        className={className}
+    >
+        {/* Primary Corner Bracket */}
+        <path d="M0 0H30V1.5H1.5V30H0V0Z" fill="currentColor" />
+        {/* Secondary Inner Bracket */}
+        <path d="M4 4H20V5H5V20H4V4Z" fill="currentColor" opacity="0.5" />
+        {/* Small Accents along top */}
+        <rect x="24" y="4" width="3" height="1" fill="currentColor" opacity="0.4" />
+        {/* Small Accents along side */}
+        <rect x="4" y="24" width="1" height="3" fill="currentColor" opacity="0.4" />
+        {/* Floating diamonds at ends */}
+        <path d="M34 1L35 2L34 3L33 2Z" fill="currentColor" opacity="0.5" />
+        <path d="M1 34L2 35L1 36L0 35Z" fill="currentColor" opacity="0.5" />
+    </svg>
+);
+
+/** Diamond divider - Genshin-style ornamental separator */
+const DiamondDivider = ({ className }: { className?: string }) => (
+    <div className={cn("flex items-center gap-2", className)}>
+        <span className="flex-1 h-px bg-amber-600/30" />
+        <span className="w-1.5 h-1.5 rotate-45 bg-amber-600/50" />
+        <span className="w-2 h-2 rotate-45 border border-amber-600/60" />
+        <span className="w-1.5 h-1.5 rotate-45 bg-amber-600/50" />
+        <span className="flex-1 h-px bg-amber-600/30" />
+    </div>
+);
 
 export const AddCardModal: React.FC<AddCardModalProps> = ({ isOpen, onClose, onAdd, initialCard }) => {
     const { settings } = useSettings();
@@ -40,9 +75,8 @@ export const AddCardModal: React.FC<AddCardModalProps> = ({ isOpen, onClose, onA
     useEffect(() => {
         if (isOpen && !wasOpen.current) {
             if (initialCard) {
-                const isJapanese = initialCard.language === 'japanese' || (!initialCard.language && settings.language === 'japanese');
                 setForm({
-                    sentence: (isJapanese && initialCard.furigana) ? initialCard.furigana : initialCard.targetSentence,
+                    sentence: initialCard.targetSentence,
                     targetWord: initialCard.targetWord || "",
                     targetWordTranslation: initialCard.targetWordTranslation || "",
                     targetWordPartOfSpeech: initialCard.targetWordPartOfSpeech || "",
@@ -53,7 +87,7 @@ export const AddCardModal: React.FC<AddCardModalProps> = ({ isOpen, onClose, onA
             } else {
                 setForm({ sentence: "", targetWord: "", targetWordTranslation: "", targetWordPartOfSpeech: "", translation: "", notes: "", furigana: "" });
             }
-            
+
             setTimeout(() => {
                 if (textareaRef.current) {
                     textareaRef.current.focus();
@@ -143,18 +177,18 @@ export const AddCardModal: React.FC<AddCardModalProps> = ({ isOpen, onClose, onA
         if (targetLanguage === 'japanese') {
             const segments = parseFurigana(form.sentence);
             return (
-                <div className="mt-4 text-xl font-light text-muted-foreground/60 select-none">
+                <div className="mt-4 text-xl font-light text-amber-100/60 dark:text-amber-200/50 select-none">
                     {segments.map((segment, i) => {
                         const isTarget = form.targetWord && segment.text === form.targetWord;
                         if (segment.furigana) {
                             return (
                                 <ruby key={i} className="group mr-1" style={{ rubyAlign: 'center' }}>
-                                    <span className={isTarget ? "text-primary/90 font-normal border-b border-primary/30 pb-0.5" : "text-foreground"}>{segment.text}</span>
-                                    <rt className="text-xs text-muted-foreground/50 font-normal select-none font-ui tracking-wide text-center" style={{ textAlign: 'center' }}>{segment.furigana}</rt>
+                                    <span className={isTarget ? "text-amber-500 font-normal border-b-2 border-amber-500/50 pb-0.5" : "text-foreground"}>{segment.text}</span>
+                                    <rt className="text-xs text-amber-400/50 font-normal select-none font-ui tracking-wide text-center" style={{ textAlign: 'center' }}>{segment.furigana}</rt>
                                 </ruby>
                             );
                         }
-                        return <span key={i} className={isTarget ? "text-primary/90 font-normal border-b border-primary/30 pb-0.5" : ""}>{segment.text}</span>;
+                        return <span key={i} className={isTarget ? "text-amber-500 font-normal border-b-2 border-amber-500/50 pb-0.5" : ""}>{segment.text}</span>;
                     })}
                 </div>
             );
@@ -163,52 +197,94 @@ export const AddCardModal: React.FC<AddCardModalProps> = ({ isOpen, onClose, onA
         if (!form.targetWord) return null;
         const parts = form.sentence.split(new RegExp(`(${escapeRegExp(form.targetWord)})`, "gi"));
         return (
-            <div className="mt-4 text-xl font-light text-muted-foreground/60 select-none">
-                {parts.map((part, i) => part.toLowerCase() === form.targetWord.toLowerCase() ? <span key={i} className="text-primary/90 font-normal border-b border-primary/30 pb-0.5">{part}</span> : <span key={i}>{part}</span>)}
+            <div className="mt-4 text-xl font-light text-amber-100/60 dark:text-amber-200/50 select-none">
+                {parts.map((part, i) => part.toLowerCase() === form.targetWord.toLowerCase() ? <span key={i} className="text-amber-500 font-normal border-b-2 border-amber-500/50 pb-0.5">{part}</span> : <span key={i}>{part}</span>)}
             </div>
         );
     }, [form.sentence, form.targetWord, settings.language, initialCard]);
 
     return (
         <Dialog open={isOpen} onOpenChange={onClose}>
-            <DialogContent className="sm:max-w-2xl p-0 bg-card border border-border gap-0 overflow-hidden max-h-[85vh] overflow-y-auto">
-                
+            <DialogContent className="sm:max-w-2xl p-0 bg-card border-2 border-amber-700/30 dark:border-amber-600/25 gap-0 overflow-hidden animate-genshin-fade-in [&>button]:z-30 [&>button]:right-5 [&>button]:top-5">
+
+                {/* Ornate Corner Decorations */}
+                <GenshinCorner className="absolute -top-px -left-px text-amber-500/70 dark:text-amber-400/60 pointer-events-none z-20" />
+                <GenshinCorner className="absolute -top-px -right-px text-amber-500/70 dark:text-amber-400/60 pointer-events-none z-20 rotate-90" />
+                <GenshinCorner className="absolute -bottom-px -left-px text-amber-500/70 dark:text-amber-400/60 pointer-events-none z-20 -rotate-90" />
+                <GenshinCorner className="absolute -bottom-px -right-px text-amber-500/70 dark:text-amber-400/60 pointer-events-none z-20 rotate-180" />
+
+                {/* Inner decorative frame */}
+                <div className="absolute inset-3 border border-amber-700/15 dark:border-amber-600/10 pointer-events-none z-10" />
 
                 <DialogDescription className="sr-only">Form to add or edit a flashcard</DialogDescription>
 
-                <form onSubmit={handleSubmit} className="flex flex-col h-full">
+                <form onSubmit={handleSubmit} className="flex flex-col h-full relative z-0">
 
-                    {/* Top Section: Sentence Input */}
-                    <div className="px-6 pt-8 pb-6 bg-muted/5 relative border-b border-border/30">
+                    {/* Top Section: Header with ornate styling - pr-12 gives space for close button */}
+                    <div className="px-8 pr-14 pt-8 pb-6 bg-gradient-to-b from-amber-600/5 to-transparent dark:from-amber-400/5 relative border-b border-amber-700/20 dark:border-amber-600/15">
+
+                        {/* Header Row */}
                         <div className="flex justify-between items-center mb-6">
-                            <DialogTitle className="flex items-center gap-2 text-[11px] font-ui font-medium uppercase tracking-[0.2em] text-muted-foreground/60">
-                                <span className="w-1.5 h-1.5 rotate-45 bg-primary/50" />
-                                {initialCard ? "Edit Entry" : "New Entry"}
+                            <DialogTitle className="flex items-center gap-3">
+                                <div className="flex items-center gap-2">
+                                    <span className="w-2 h-2 rotate-45 border border-amber-600/60" />
+                                    <span className="w-4 h-px bg-amber-600/40" />
+                                </div>
+                                <div className="flex items-center gap-2">
+                                    <Scroll size={16} className="text-amber-500/70" />
+                                    <span className="font-serif text-base tracking-[0.15em] text-amber-700 dark:text-amber-400/90 uppercase">
+                                        {initialCard ? "Edit Entry" : "New Entry"}
+                                    </span>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                    <span className="w-4 h-px bg-amber-600/40" />
+                                    <span className="w-2 h-2 rotate-45 border border-amber-600/60" />
+                                </div>
                             </DialogTitle>
+
+                            {/* Auto-Fill Button - Genshin Style */}
                             <button
                                 type="button"
                                 onClick={handleAutoFill}
                                 disabled={isGenerating || !form.sentence}
                                 className={cn(
-                                    "relative flex items-center gap-2 text-[10px] font-ui font-medium uppercase tracking-[0.15em] px-3 py-1.5 border border-transparent hover:border-primary/30 hover:bg-primary/5 transition-all duration-300",
-                                    isGenerating ? "text-primary animate-pulse" : "text-primary/80 hover:text-primary"
+                                    "group relative flex items-center gap-2.5 px-4 py-2",
+                                    "border border-amber-600/40 hover:border-amber-500/60",
+                                    "bg-amber-600/5 hover:bg-amber-600/15",
+                                    "transition-all duration-200",
+                                    "disabled:opacity-40 disabled:cursor-not-allowed",
+                                    isGenerating && "animate-border-flow"
                                 )}
                             >
                                 {/* Button corner accents */}
-                                <span className="absolute -top-px -left-px w-1.5 h-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
-                                    <span className="absolute top-0 left-0 w-full h-px bg-primary/60" />
-                                    <span className="absolute top-0 left-0 h-full w-px bg-primary/60" />
+                                <span className="absolute -top-px -left-px w-2 h-2">
+                                    <span className="absolute top-0 left-0 w-full h-px bg-amber-500/60" />
+                                    <span className="absolute top-0 left-0 h-full w-px bg-amber-500/60" />
                                 </span>
-                                <Sparkles size={12} strokeWidth={2} />
-                                {isGenerating ? "Analyzing..." : "Auto-Fill"}
+                                <span className="absolute -bottom-px -right-px w-2 h-2">
+                                    <span className="absolute bottom-0 right-0 w-full h-px bg-amber-500/60" />
+                                    <span className="absolute bottom-0 right-0 h-full w-px bg-amber-500/60" />
+                                </span>
+
+                                <Sparkles size={14} className={cn(
+                                    "transition-all duration-200",
+                                    isGenerating ? "text-amber-400 animate-pulse" : "text-amber-500/80 group-hover:text-amber-500"
+                                )} />
+                                <span className={cn(
+                                    "text-[10px] font-ui font-semibold uppercase tracking-[0.15em]",
+                                    isGenerating ? "text-amber-400" : "text-amber-600 dark:text-amber-400/80 group-hover:text-amber-500"
+                                )}>
+                                    {isGenerating ? "Analyzing..." : "Auto-Fill"}
+                                </span>
                             </button>
                         </div>
 
+                        {/* Sentence Input Area */}
                         <div className="relative">
                             <textarea
                                 ref={textareaRef}
                                 placeholder="Type your sentence here..."
-                                className="w-full text-2xl md:text-3xl font-light bg-transparent border-none outline-none placeholder:text-muted-foreground/20 resize-none overflow-hidden p-0 leading-tight tracking-tight text-foreground min-h-[80px]"
+                                className="w-full text-2xl md:text-3xl font-light bg-transparent border-none outline-none placeholder:text-amber-700/20 dark:placeholder:text-amber-400/15 resize-none overflow-hidden p-0 leading-tight tracking-tight text-foreground min-h-[80px]"
                                 value={form.sentence}
                                 onChange={e => setForm({ ...form, sentence: e.target.value })}
                                 rows={1}
@@ -218,57 +294,73 @@ export const AddCardModal: React.FC<AddCardModalProps> = ({ isOpen, onClose, onA
                         </div>
                     </div>
 
-                    {/* Bottom Section: Details */}
-                    <div className="px-6 py-6 space-y-6 bg-card">
+                    {/* Ornate Divider */}
+                    <DiamondDivider className="mx-8 my-1" />
+
+                    {/* Bottom Section: Form Fields with Genshin styling */}
+                    <div className="px-8 py-6 space-y-6 bg-card">
+
+                        {/* Translation & Target Word Row */}
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
+                            {/* Translation Field */}
                             <div className="space-y-3 group">
-                                <label className="flex items-center gap-2 text-[10px] font-ui font-medium uppercase tracking-[0.2em] text-muted-foreground/50 group-focus-within:text-primary/70 transition-colors">
-                                    <span className="w-1 h-1 rotate-45 bg-muted-foreground/30 group-focus-within:bg-primary/50 transition-colors" />
+                                <label className="flex items-center gap-2.5 text-[10px] font-ui font-semibold uppercase tracking-[0.2em] text-amber-700/50 dark:text-amber-400/50 group-focus-within:text-amber-600 dark:group-focus-within:text-amber-400 transition-colors">
+                                    <Languages size={12} className="opacity-70" />
+                                    <span className="w-1 h-1 rotate-45 bg-amber-600/30 group-focus-within:bg-amber-500/60 transition-colors" />
                                     Translation
                                 </label>
                                 <input
                                     value={form.translation}
                                     onChange={e => setForm({ ...form, translation: e.target.value })}
                                     placeholder="e.g., This is a house."
-                                    className="w-full bg-transparent border-b border-border/40 p-2 text-lg font-light text-foreground placeholder:text-muted-foreground/20 focus:outline-none focus:border-primary/50 transition-colors"
+                                    className="w-full bg-transparent border-b-2 border-amber-700/20 dark:border-amber-600/15 p-2 text-lg font-light text-foreground placeholder:text-muted-foreground/20 focus:outline-none focus:border-amber-500/50 transition-colors"
                                 />
                             </div>
+
+                            {/* Target Word Field */}
                             <div className="space-y-3 group">
-                                <label className="flex items-center gap-2 text-[10px] font-ui font-medium uppercase tracking-[0.2em] text-muted-foreground/50 group-focus-within:text-primary/70 transition-colors">
-                                    <span className="w-1 h-1 rotate-45 bg-muted-foreground/30 group-focus-within:bg-primary/50 transition-colors" />
+                                <label className="flex items-center gap-2.5 text-[10px] font-ui font-semibold uppercase tracking-[0.2em] text-amber-700/50 dark:text-amber-400/50 group-focus-within:text-amber-600 dark:group-focus-within:text-amber-400 transition-colors">
+                                    <BookOpen size={12} className="opacity-70" />
+                                    <span className="w-1 h-1 rotate-45 bg-amber-600/30 group-focus-within:bg-amber-500/60 transition-colors" />
                                     Target Word
                                 </label>
                                 <input
                                     value={form.targetWord}
                                     onChange={e => setForm({ ...form, targetWord: e.target.value })}
                                     placeholder="e.g., house"
-                                    className="w-full bg-transparent border-b border-border/40 p-2 text-lg font-light text-foreground placeholder:text-muted-foreground/20 focus:outline-none focus:border-primary/50 transition-colors"
+                                    className="w-full bg-transparent border-b-2 border-amber-700/20 dark:border-amber-600/15 p-2 text-lg font-light text-foreground placeholder:text-muted-foreground/20 focus:outline-none focus:border-amber-500/50 transition-colors"
                                 />
                             </div>
                         </div>
 
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-10">
+                        {/* Target Word Translation & Part of Speech Row */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
+                            {/* Target Word Translation */}
                             <div className="space-y-3 group">
-                                <label className="flex items-center gap-2 text-[10px] font-ui font-medium uppercase tracking-[0.2em] text-muted-foreground/50 group-focus-within:text-primary/70 transition-colors">
-                                    <span className="w-1 h-1 rotate-45 bg-muted-foreground/30 group-focus-within:bg-primary/50 transition-colors" />
-                                    Target Word Translation
+                                <label className="flex items-center gap-2.5 text-[10px] font-ui font-semibold uppercase tracking-[0.2em] text-amber-700/50 dark:text-amber-400/50 group-focus-within:text-amber-600 dark:group-focus-within:text-amber-400 transition-colors">
+                                    <PenLine size={12} className="opacity-70" />
+                                    <span className="w-1 h-1 rotate-45 bg-amber-600/30 group-focus-within:bg-amber-500/60 transition-colors" />
+                                    Word Translation
                                 </label>
                                 <input
                                     value={form.targetWordTranslation}
                                     onChange={e => setForm({ ...form, targetWordTranslation: e.target.value })}
                                     placeholder="e.g., house"
-                                    className="w-full bg-transparent border-b border-border/40 p-2 text-lg font-light text-foreground placeholder:text-muted-foreground/20 focus:outline-none focus:border-primary/50 transition-colors"
+                                    className="w-full bg-transparent border-b-2 border-amber-700/20 dark:border-amber-600/15 p-2 text-lg font-light text-foreground placeholder:text-muted-foreground/20 focus:outline-none focus:border-amber-500/50 transition-colors"
                                 />
                             </div>
+
+                            {/* Part of Speech */}
                             <div className="space-y-3 group">
-                                <label className="flex items-center gap-2 text-[10px] font-ui font-medium uppercase tracking-[0.2em] text-muted-foreground/50 group-focus-within:text-primary/70 transition-colors">
-                                    <span className="w-1 h-1 rotate-45 bg-muted-foreground/30 group-focus-within:bg-primary/50 transition-colors" />
+                                <label className="flex items-center gap-2.5 text-[10px] font-ui font-semibold uppercase tracking-[0.2em] text-amber-700/50 dark:text-amber-400/50 group-focus-within:text-amber-600 dark:group-focus-within:text-amber-400 transition-colors">
+                                    <Tag size={12} className="opacity-70" />
+                                    <span className="w-1 h-1 rotate-45 bg-amber-600/30 group-focus-within:bg-amber-500/60 transition-colors" />
                                     Part of Speech
                                 </label>
                                 <select
                                     value={form.targetWordPartOfSpeech}
                                     onChange={e => setForm({ ...form, targetWordPartOfSpeech: e.target.value })}
-                                    className="w-full bg-transparent border-b border-border/40 p-2 text-lg font-light text-foreground placeholder:text-muted-foreground/20 focus:outline-none focus:border-primary/50 transition-colors"
+                                    className="w-full bg-card border-b-2 border-amber-700/20 dark:border-amber-600/15 p-2 text-lg font-light text-foreground focus:outline-none focus:border-amber-500/50 transition-colors cursor-pointer"
                                 >
                                     <option value="" disabled>Select POS</option>
                                     <option value="noun">Noun</option>
@@ -280,34 +372,51 @@ export const AddCardModal: React.FC<AddCardModalProps> = ({ isOpen, onClose, onA
                             </div>
                         </div>
 
+                        {/* Context Notes */}
                         <div className="space-y-3 group">
-                            <label className="flex items-center gap-2 text-[10px] font-ui font-medium uppercase tracking-[0.2em] text-muted-foreground/50 group-focus-within:text-primary/70 transition-colors">
-                                <span className="w-1 h-1 rotate-45 bg-muted-foreground/30 group-focus-within:bg-primary/50 transition-colors" />
+                            <label className="flex items-center gap-2.5 text-[10px] font-ui font-semibold uppercase tracking-[0.2em] text-amber-700/50 dark:text-amber-400/50 group-focus-within:text-amber-600 dark:group-focus-within:text-amber-400 transition-colors">
+                                <FileText size={12} className="opacity-70" />
+                                <span className="w-1 h-1 rotate-45 bg-amber-600/30 group-focus-within:bg-amber-500/60 transition-colors" />
                                 Context Notes
                             </label>
                             <textarea
                                 value={form.notes}
                                 onChange={e => setForm({ ...form, notes: e.target.value })}
                                 placeholder="Add any usage notes or context..."
-                                className="w-full bg-transparent border-b border-border/40 p-2 text-base font-light text-foreground placeholder:text-muted-foreground/20 focus:outline-none focus:border-primary/50 transition-colors resize-none min-h-[60px]"
+                                className="w-full bg-transparent border-b-2 border-amber-700/20 dark:border-amber-600/15 p-2 text-base font-light text-foreground placeholder:text-muted-foreground/20 focus:outline-none focus:border-amber-500/50 transition-colors resize-none min-h-[60px]"
                             />
                         </div>
 
-                        <div className="flex justify-end pt-2">
+                        {/* Submit Button - Genshin Primary Button Style */}
+                        <div className="flex justify-end pt-4">
                             <button
                                 type="submit"
-                                className="group relative inline-flex items-center gap-3 bg-primary/10 text-primary/60 border rounded-sm border-primary px-8 py-3.5 text-[11px] font-ui font-medium uppercase tracking-[0.2em] hover:bg-primary/20 transition-all duration-300"
+                                className="group relative inline-flex items-center gap-3 bg-amber-600/15 hover:bg-amber-600/25 active:bg-amber-600/35 text-amber-700 dark:text-amber-400 border-2 border-amber-600/50 hover:border-amber-500/70 px-8 py-3.5 transition-all duration-200"
                             >
                                 {/* Button corner accents */}
-                                <span className="absolute -top-px -left-px w-2 h-2">
-                                    <span className="absolute top-0 left-0 w-full h-px bg-primary-foreground/30" />
-                                    <span className="absolute top-0 left-0 h-full w-px bg-primary-foreground/30" />
+                                <span className="absolute -top-0.5 -left-0.5 w-3 h-3">
+                                    <span className="absolute top-0 left-0 w-full h-0.5 bg-amber-500" />
+                                    <span className="absolute top-0 left-0 h-full w-0.5 bg-amber-500" />
                                 </span>
-                                <span className="absolute -bottom-px -right-px w-2 h-2">
-                                    <span className="absolute bottom-0 right-0 w-full h-px bg-primary-foreground/30" />
-                                    <span className="absolute bottom-0 right-0 h-full w-px bg-primary-foreground/30" />
+                                <span className="absolute -top-0.5 -right-0.5 w-3 h-3">
+                                    <span className="absolute top-0 right-0 w-full h-0.5 bg-amber-500" />
+                                    <span className="absolute top-0 right-0 h-full w-0.5 bg-amber-500" />
                                 </span>
-                                <span>Save Entry</span>
+                                <span className="absolute -bottom-0.5 -left-0.5 w-3 h-3">
+                                    <span className="absolute bottom-0 left-0 w-full h-0.5 bg-amber-500" />
+                                    <span className="absolute bottom-0 left-0 h-full w-0.5 bg-amber-500" />
+                                </span>
+                                <span className="absolute -bottom-0.5 -right-0.5 w-3 h-3">
+                                    <span className="absolute bottom-0 right-0 w-full h-0.5 bg-amber-500" />
+                                    <span className="absolute bottom-0 right-0 h-full w-0.5 bg-amber-500" />
+                                </span>
+
+                                {/* Diamond accent */}
+                                <span className="w-1.5 h-1.5 rotate-45 bg-amber-500/70 group-hover:bg-amber-500 transition-colors" />
+
+                                <span className="text-[11px] font-serif font-semibold uppercase tracking-[0.2em]">
+                                    Save Entry
+                                </span>
                                 <ArrowRight size={14} className="transition-transform duration-300 group-hover:translate-x-1" />
                             </button>
                         </div>

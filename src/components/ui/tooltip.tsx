@@ -34,7 +34,7 @@ function TooltipTrigger({
 
 function TooltipContent({
   className,
-  sideOffset = 0,
+  sideOffset = 4,
   children,
   ...props
 }: React.ComponentProps<typeof TooltipPrimitive.Content>) {
@@ -44,17 +44,29 @@ function TooltipContent({
         data-slot="tooltip-content"
         sideOffset={sideOffset}
         className={cn(
-          "bg-foreground text-background animate-in fade-in-0 zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 z-50 w-fit origin-(--radix-tooltip-content-transform-origin) rounded-md px-3 py-1.5 text-xs text-balance",
+          "relative z-50 w-fit origin-(--radix-tooltip-content-transform-origin) px-3 py-2 text-xs",
+          "bg-card border-2 border-amber-700/30 dark:border-amber-600/25 text-foreground",
+          "animate-in fade-in-0 zoom-in-95",
+          "data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95",
+          "data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2",
           className
         )}
         {...props}
       >
+        {/* Corner accents */}
+        <span className="absolute -top-px -left-px w-2 h-2 pointer-events-none">
+          <span className="absolute top-0 left-0 w-full h-px bg-amber-500/60" />
+          <span className="absolute top-0 left-0 h-full w-px bg-amber-500/60" />
+        </span>
+        <span className="absolute -bottom-px -right-px w-2 h-2 pointer-events-none">
+          <span className="absolute bottom-0 right-0 w-full h-px bg-amber-500/60" />
+          <span className="absolute bottom-0 right-0 h-full w-px bg-amber-500/60" />
+        </span>
+
         {children}
-        <TooltipPrimitive.Arrow className="bg-foreground fill-foreground z-50 size-2.5 translate-y-[calc(-50%_-_2px)] rotate-45 rounded-[2px]" />
       </TooltipPrimitive.Content>
     </TooltipPrimitive.Portal>
   )
 }
 
 export { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider }
-

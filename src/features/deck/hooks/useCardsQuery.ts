@@ -1,6 +1,6 @@
 import { useQuery, keepPreviousData } from '@tanstack/react-query';
-import { supabase } from '@/lib/supabase';
 import { useSettings } from '@/contexts/SettingsContext';
+import { db } from '@/services/db/dexie';
 import { mapToCard } from '@/services/db/repositories/cardRepository';
 
 export const useCardsQuery = (page = 0, pageSize = 50, searchTerm = '') => {
@@ -10,28 +10,36 @@ export const useCardsQuery = (page = 0, pageSize = 50, searchTerm = '') => {
   return useQuery({
     queryKey: ['cards', language, page, pageSize, searchTerm],
     queryFn: async () => {
-      let query = supabase
-        .from('cards')
-        .select('*', { count: 'exact' })
-        .eq('language', language)
-        .order('created_at', { ascending: false });
+      // Get all cards for language
+      let cards = await db.cards
+        .where('language')
+        .equals(language)
+        .toArray();
 
+      // Simple search filter if searchTerm provided
       if (searchTerm) {
-        query = query.textSearch('fts', searchTerm, { 
-          type: 'websearch',
-          config: 'simple' 
-        });
+        const term = searchTerm.toLowerCase();
+        cards = cards.filter(c =>
+          c.targetSentence?.toLowerCase().includes(term) ||
+          c.nativeTranslation?.toLowerCase().includes(term) ||
+          c.targetWord?.toLowerCase().includes(term) ||
+          c.notes?.toLowerCase().includes(term)
+        );
       }
-      
-      const { data, count, error } = await query.range(page * pageSize, (page + 1) * pageSize - 1);
-      
-      if (error) throw error;
+
+      // Sort by dueDate descending (newest first)
+      cards.sort((a, b) => b.dueDate.localeCompare(a.dueDate));
+
+      // Paginate
+      const start = page * pageSize;
+      const end = start + pageSize;
+      const paginatedCards = cards.slice(start, end);
 
       return {
-        data: (data ?? []).map(mapToCard),
-        count: count ?? 0
+        data: paginatedCards,
+        count: cards.length
       };
     },
-    placeholderData: keepPreviousData, 
+    placeholderData: keepPreviousData,
   });
 };

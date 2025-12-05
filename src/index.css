@@ -10,67 +10,67 @@
    ============================================================================= */
 
 @theme {
-  /* Zero radius for flat geometric look */
-  --radius-sm: 0px;
-  --radius-md: 0px;
-  --radius-lg: 0px;
-  --radius-xl: 0px;
-  --radius-DEFAULT: 0px;
+    /* Zero radius for flat geometric look */
+    --radius-sm: 0px;
+    --radius-md: 0px;
+    --radius-lg: 0px;
+    --radius-xl: 0px;
+    --radius-DEFAULT: 0px;
 
-  /* Genshin-style fonts: Cinzel for headers, Noto Sans for body */
-  --font-serif: 'Cinzel', 'Times New Roman', serif;
-  --font-sans: 'Noto Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+    /* Genshin-style fonts: Cinzel for headers, Noto Sans for body */
+    --font-serif: 'Cinzel', 'Times New Roman', serif;
+    --font-sans: 'Noto Sans', -apple-system, BlinkMacSystemFont, sans-serif;
 
-  /* Color mappings */
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --color-card: var(--card);
-  --color-card-foreground: var(--foreground);
-  --color-popover: var(--card);
-  --color-popover-foreground: var(--foreground);
-  --color-primary: var(--primary);
-  --color-primary-foreground: var(--primary-foreground);
-  --color-secondary: var(--secondary);
-  --color-secondary-foreground: var(--foreground);
-  --color-muted: var(--muted);
-  --color-muted-foreground: var(--muted-foreground);
-  --color-accent: var(--accent);
-  --color-accent-foreground: var(--foreground);
-  --color-destructive: var(--destructive);
-  --color-destructive-foreground: var(--primary-foreground);
-  --color-border: var(--border);
-  --color-input: var(--border);
-  --color-ring: var(--primary);
+    /* Color mappings */
+    --color-background: var(--background);
+    --color-foreground: var(--foreground);
+    --color-card: var(--card);
+    --color-card-foreground: var(--foreground);
+    --color-popover: var(--card);
+    --color-popover-foreground: var(--foreground);
+    --color-primary: var(--primary);
+    --color-primary-foreground: var(--primary-foreground);
+    --color-secondary: var(--secondary);
+    --color-secondary-foreground: var(--foreground);
+    --color-muted: var(--muted);
+    --color-muted-foreground: var(--muted-foreground);
+    --color-accent: var(--accent);
+    --color-accent-foreground: var(--foreground);
+    --color-destructive: var(--destructive);
+    --color-destructive-foreground: var(--primary-foreground);
+    --color-border: var(--border);
+    --color-input: var(--border);
+    --color-ring: var(--primary);
 
-  /* Charts - Genshin element colors */
-  --color-chart-1: var(--primary);
-  --color-chart-2: var(--chart-2);
-  --color-chart-3: var(--chart-3);
-  --color-chart-4: var(--chart-4);
-  --color-chart-5: var(--chart-5);
+    /* Charts - Genshin element colors */
+    --color-chart-1: var(--primary);
+    --color-chart-2: var(--chart-2);
+    --color-chart-3: var(--chart-3);
+    --color-chart-4: var(--chart-4);
+    --color-chart-5: var(--chart-5);
 
-  /* Sidebar */
-  --color-sidebar: var(--background);
-  --color-sidebar-foreground: var(--foreground);
-  --color-sidebar-primary: var(--primary);
-  --color-sidebar-primary-foreground: var(--primary-foreground);
-  --color-sidebar-accent: var(--accent);
-  --color-sidebar-accent-foreground: var(--foreground);
-  --color-sidebar-border: var(--border);
-  --color-sidebar-ring: var(--primary);
+    /* Sidebar */
+    --color-sidebar: var(--background);
+    --color-sidebar-foreground: var(--foreground);
+    --color-sidebar-primary: var(--primary);
+    --color-sidebar-primary-foreground: var(--primary-foreground);
+    --color-sidebar-accent: var(--accent);
+    --color-sidebar-accent-foreground: var(--foreground);
+    --color-sidebar-border: var(--border);
+    --color-sidebar-ring: var(--primary);
 
-  /* Custom Pine Palette */
-  --color-pine-50: #f1fcf5;
-  --color-pine-100: #e0f9e8;
-  --color-pine-200: #c3f2d4;
-  --color-pine-300: #93e6b6;
-  --color-pine-400: #5bd293;
-  --color-pine-500: #34b376;
-  --color-pine-600: #25915f;
-  --color-pine-700: #20734d;
-  --color-pine-800: #1d5b3f;
-  --color-pine-900: #194b35;
-  --color-pine-950: #0d291e;
+    /* Custom Pine Palette */
+    --color-pine-50: #f1fcf5;
+    --color-pine-100: #e0f9e8;
+    --color-pine-200: #c3f2d4;
+    --color-pine-300: #93e6b6;
+    --color-pine-400: #5bd293;
+    --color-pine-500: #34b376;
+    --color-pine-600: #25915f;
+    --color-pine-700: #20734d;
+    --color-pine-800: #1d5b3f;
+    --color-pine-900: #194b35;
+    --color-pine-950: #0d291e;
 }
 
 /* =============================================================================
@@ -80,67 +80,97 @@
    ============================================================================= */
 
 @layer base {
-  :root {
-    --radius: 0px;
+    :root {
+        --radius: 0px;
 
-    /* === LIGHT THEME - Genshin Parchment Style === */
-    --background: oklch(0.97 0.008 85);           /* Warm cream parchment */
-    --foreground: oklch(0.18 0.02 50);            /* Rich warm brown text */
-    --card: oklch(0.985 0.006 85);                /* Clean warm white */
-    --primary: oklch(0.62 0.17 70);               /* Rich amber gold - more orange */
-    --primary-foreground: oklch(0.98 0.005 85);   /* White text on gold */
-    --secondary: oklch(0.93 0.012 80);            /* Warm beige */
-    --muted: oklch(0.90 0.01 80);                 /* Subtle muted */
-    --muted-foreground: oklch(0.40 0.02 60);      /* Visible muted text */
-    --accent: oklch(90.256% 0.02623 76.734);                /* Golden accent */
-    --border: oklch(0.78 0.05 70);                /* Golden amber border */
-    --destructive: oklch(0.55 0.20 25);           /* Pyro red */
+        /* === LIGHT THEME - Genshin Parchment Style === */
+        --background: oklch(0.97 0.008 85);
+        /* Warm cream parchment */
+        --foreground: oklch(0.18 0.02 50);
+        /* Rich warm brown text */
+        --card: oklch(0.985 0.006 85);
+        /* Clean warm white */
+        --primary: oklch(0.62 0.17 70);
+        /* Rich amber gold - more orange */
+        --primary-foreground: oklch(0.98 0.005 85);
+        /* White text on gold */
+        --secondary: oklch(0.93 0.012 80);
+        /* Warm beige */
+        --muted: oklch(0.90 0.01 80);
+        /* Subtle muted */
+        --muted-foreground: oklch(0.40 0.02 60);
+        /* Visible muted text */
+        --accent: oklch(90.256% 0.02623 76.734);
+        /* Golden accent */
+        --border: oklch(0.78 0.05 70);
+        /* Golden amber border */
+        --destructive: oklch(0.55 0.20 25);
+        /* Pyro red */
 
-    /* Chart colors - Genshin element inspired */
-    --chart-2: oklch(0.48 0.18 245);              /* Hydro blue */
-    --chart-3: oklch(0.52 0.20 140);              /* Dendro green */
-    --chart-4: oklch(0.48 0.22 25);               /* Pyro red */
-    --chart-5: oklch(0.55 0.18 285);              /* Electro purple */
+        /* Chart colors - Genshin element inspired */
+        --chart-2: oklch(0.48 0.18 245);
+        /* Hydro blue */
+        --chart-3: oklch(0.52 0.20 140);
+        /* Dendro green */
+        --chart-4: oklch(0.48 0.22 25);
+        /* Pyro red */
+        --chart-5: oklch(0.55 0.18 285);
+        /* Electro purple */
 
-    --sidebar: oklch(0.94 0.015 72);
-    --sidebar-foreground: oklch(0.15 0.025 35);
-    --sidebar-primary: oklch(0.58 0.19 55);
-    --sidebar-primary-foreground: oklch(0.98 0.005 80);
-    --sidebar-accent: oklch(0.90 0.02 68);
-    --sidebar-accent-foreground: oklch(0.15 0.025 35);
-    --sidebar-border: oklch(0.75 0.03 65);
-    --sidebar-ring: oklch(0.58 0.19 55);
-  }
+        --sidebar: oklch(0.94 0.015 72);
+        --sidebar-foreground: oklch(0.15 0.025 35);
+        --sidebar-primary: oklch(0.58 0.19 55);
+        --sidebar-primary-foreground: oklch(0.98 0.005 80);
+        --sidebar-accent: oklch(0.90 0.02 68);
+        --sidebar-accent-foreground: oklch(0.15 0.025 35);
+        --sidebar-border: oklch(0.75 0.03 65);
+        --sidebar-ring: oklch(0.58 0.19 55);
+    }
 
-  .dark {
-    /* === DARK THEME - Genshin Night Menu Style === */
-    --background: oklch(0.14 0.02 260);           /* Deep night blue */
-    --foreground: oklch(0.95 0.008 80);           /* Warm white text */
-    --card: oklch(0.18 0.025 255);                /* Elevated card */
-    --primary: oklch(0.72 0.16 70);               /* Bright golden amber */
-    --primary-foreground: oklch(0.12 0.02 260);   /* Dark on gold */
-    --secondary: oklch(0.22 0.02 258);            /* Subtle elevation */
-    --muted: oklch(0.25 0.018 255);               /* Visible muted bg */
-    --muted-foreground: oklch(0.68 0.015 75);     /* Clear muted text */
-    --accent: oklch(0.28 0.03 260);               /* Night accent */
-    --border: oklch(0.35 0.04 70);                /* Amber-tinted border */
-    --destructive: oklch(0.58 0.20 25);           /* Pyro red */
+    .dark {
+        /* === DARK THEME - Genshin Night Menu Style === */
+        --background: oklch(0.14 0.02 260);
+        /* Deep night blue */
+        --foreground: oklch(0.95 0.008 80);
+        /* Warm white text */
+        --card: oklch(0.18 0.025 255);
+        /* Elevated card */
+        --primary: oklch(0.72 0.16 70);
+        /* Bright golden amber */
+        --primary-foreground: oklch(0.12 0.02 260);
+        /* Dark on gold */
+        --secondary: oklch(0.22 0.02 258);
+        /* Subtle elevation */
+        --muted: oklch(0.25 0.018 255);
+        /* Visible muted bg */
+        --muted-foreground: oklch(0.68 0.015 75);
+        /* Clear muted text */
+        --accent: oklch(0.28 0.03 260);
+        /* Night accent */
+        --border: oklch(0.35 0.04 70);
+        /* Amber-tinted border */
+        --destructive: oklch(0.58 0.20 25);
+        /* Pyro red */
 
-    /* Chart colors - Genshin elements (brighter for dark mode) */
-    --chart-2: oklch(0.60 0.18 245);              /* Hydro blue */
-    --chart-3: oklch(0.62 0.20 140);              /* Dendro green */
-    --chart-4: oklch(0.58 0.22 25);               /* Pyro red */
-    --chart-5: oklch(0.65 0.18 285);              /* Electro purple */
+        /* Chart colors - Genshin elements (brighter for dark mode) */
+        --chart-2: oklch(0.60 0.18 245);
+        /* Hydro blue */
+        --chart-3: oklch(0.62 0.20 140);
+        /* Dendro green */
+        --chart-4: oklch(0.58 0.22 25);
+        /* Pyro red */
+        --chart-5: oklch(0.65 0.18 285);
+        /* Electro purple */
 
-    --sidebar: oklch(0.14 0.022 250);
-    --sidebar-foreground: oklch(0.92 0.012 75);
-    --sidebar-primary: oklch(0.70 0.18 65);
-    --sidebar-primary-foreground: oklch(0.12 0.02 250);
-    --sidebar-accent: oklch(0.24 0.03 252);
-    --sidebar-accent-foreground: oklch(0.92 0.012 75);
-    --sidebar-border: oklch(0.30 0.03 250);
-    --sidebar-ring: oklch(0.70 0.18 65);
-  }
+        --sidebar: oklch(0.14 0.022 250);
+        --sidebar-foreground: oklch(0.92 0.012 75);
+        --sidebar-primary: oklch(0.70 0.18 65);
+        --sidebar-primary-foreground: oklch(0.12 0.02 250);
+        --sidebar-accent: oklch(0.24 0.03 252);
+        --sidebar-accent-foreground: oklch(0.92 0.012 75);
+        --sidebar-border: oklch(0.30 0.03 250);
+        --sidebar-ring: oklch(0.70 0.18 65);
+    }
 }
 
 /* =============================================================================
@@ -148,118 +178,111 @@
    ============================================================================= */
 
 @layer base {
-  * {
-    @apply border-border outline-ring/50;
-  }
+    * {
+        @apply border-border outline-ring/50;
+    }
 
-  html {
-    @apply overflow-x-hidden scroll-smooth;
-    scrollbar-width: thin;
-    scrollbar-color: var(--muted-foreground) transparent;
-  }
+    html {
+        @apply overflow-x-hidden scroll-smooth;
+        scrollbar-width: thin;
+        scrollbar-color: var(--muted-foreground) transparent;
+    }
 
-  body {
-    @apply bg-background text-foreground antialiased overflow-x-hidden;
-    font-family: var(--font-sans);
-    font-feature-settings: "rlig" 1, "calt" 1;
-    font-weight: 400;
-    width: 100vw;
-    max-width: 100%;
-    letter-spacing: 0.01em;
-    line-height: 1.6;
-  }
+    body {
+        @apply bg-background text-foreground antialiased overflow-x-hidden;
+        font-family: var(--font-sans);
+        font-feature-settings: "rlig" 1, "calt" 1;
+        font-weight: 400;
+        width: 100vw;
+        max-width: 100%;
+        letter-spacing: 0.01em;
+        line-height: 1.6;
+    }
 
-  #root {
-    @apply overflow-x-hidden;
-    width: 100%;
-    max-width: 100vw;
-  }
+    #root {
+        @apply overflow-x-hidden;
+        width: 100%;
+        max-width: 100vw;
+    }
 
-  /* Genshin-style text selection */
-  ::selection {
-    @apply bg-primary/25 text-foreground;
-  }
+    /* Genshin-style text selection */
+    ::selection {
+        @apply bg-primary/25 text-foreground;
+    }
 
-  .dark ::selection {
-    @apply bg-primary/30 text-foreground;
-  }
+    .dark ::selection {
+        @apply bg-primary/30 text-foreground;
+    }
 
-  /* Genshin-style Scrollbar */
-  ::-webkit-scrollbar {
-    width: 6px;
-    height: 6px;
-  }
+    /* Headers use Cinzel for that fantasy RPG feel */
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6 {
+        font-family: var(--font-serif);
+        @apply tracking-wide font-medium;
+    }
 
-  ::-webkit-scrollbar-track {
-    background: transparent;
-  }
+    h1 {
+        @apply text-3xl md:text-4xl tracking-wider;
+    }
 
-  ::-webkit-scrollbar-thumb {
-    @apply bg-muted-foreground/20 hover:bg-primary/60 transition-colors;
-    border-radius: 0px; /* Flat geometric look */
-  }
+    h2 {
+        @apply text-2xl md:text-3xl tracking-wide;
+    }
 
-  /* Headers use Cinzel for that fantasy RPG feel */
-  h1, h2, h3, h4, h5, h6 {
-    font-family: var(--font-serif);
-    @apply tracking-wide font-medium;
-  }
+    h3 {
+        @apply text-xl md:text-2xl;
+    }
 
-  h1 {
-    @apply text-3xl md:text-4xl tracking-wider;
-  }
+    /* Links with Genshin-style hover */
+    a {
+        @apply transition-colors duration-200;
+    }
 
-  h2 {
-    @apply text-2xl md:text-3xl tracking-wide;
-  }
+    a:hover {
+        @apply text-primary;
+    }
 
-  h3 {
-    @apply text-xl md:text-2xl;
-  }
+    /* Buttons and interactive elements - flat with borders */
+    button,
+    [role="button"] {
+        @apply transition-all duration-150;
+    }
 
-  /* Links with Genshin-style hover */
-  a {
-    @apply transition-colors duration-200;
-  }
+    /* Input fields - flat geometric style */
+    input,
+    textarea,
+    select {
+        @apply bg-card border border-border;
+        @apply focus:border-primary focus:outline-none;
+        @apply transition-colors duration-150;
+    }
 
-  a:hover {
-    @apply text-primary;
-  }
+    /* Scrollbar styling for Genshin aesthetic */
+    ::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+    }
 
-  /* Buttons and interactive elements - flat with borders */
-  button, [role="button"] {
-    @apply transition-all duration-150;
-  }
+    ::-webkit-scrollbar-track {
+        @apply bg-muted/30;
+    }
 
-  /* Input fields - flat geometric style */
-  input, textarea, select {
-    @apply bg-card border border-border;
-    @apply focus:border-primary focus:outline-none;
-    @apply transition-colors duration-150;
-  }
+    ::-webkit-scrollbar-thumb {
+        @apply bg-border hover:bg-primary/50;
+        border: 1px solid transparent;
+    }
 
-  /* Scrollbar styling for Genshin aesthetic */
-  ::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
-  }
+    .dark ::-webkit-scrollbar-track {
+        @apply bg-muted/20;
+    }
 
-  ::-webkit-scrollbar-track {
-    @apply bg-muted/30;
-  }
-
-  ::-webkit-scrollbar-thumb {
-    @apply bg-border hover:bg-primary/50;
-    border: 1px solid transparent;
-  }
-
-  .dark ::-webkit-scrollbar-track {
-    @apply bg-muted/20;
-  }
-
-  .dark ::-webkit-scrollbar-thumb {
-    @apply bg-border hover:bg-primary/40;
-  }
+    .dark ::-webkit-scrollbar-thumb {
+        @apply bg-border hover:bg-primary/40;
+    }
 }
 
 /* =============================================================================
@@ -267,93 +290,94 @@
    ============================================================================= */
 
 @layer utilities {
-  /* Typography */
-  .font-ui {
-    font-family: var(--font-sans);
-    letter-spacing: 0.02em;
-  }
 
-  .font-editorial {
-    font-family: var(--font-serif);
-    letter-spacing: 0.05em;
-  }
+    /* Typography */
+    .font-ui {
+        font-family: var(--font-sans);
+        letter-spacing: 0.02em;
+    }
 
-  /* Genshin-style title text */
-  .font-genshin-title {
-    font-family: var(--font-serif);
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-  }
+    .font-editorial {
+        font-family: var(--font-serif);
+        letter-spacing: 0.05em;
+    }
 
-  /* Scrollbar hiding */
-  .no-scrollbar::-webkit-scrollbar {
-    display: none;
-  }
+    /* Genshin-style title text */
+    .font-genshin-title {
+        font-family: var(--font-serif);
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+    }
 
-  .no-scrollbar {
-    -ms-overflow-style: none;
-    scrollbar-width: none;
-  }
+    /* Scrollbar hiding */
+    .no-scrollbar::-webkit-scrollbar {
+        display: none;
+    }
 
-  /* Genshin-style decorative borders */
-  .genshin-border {
-    position: relative;
-    border: 1px solid var(--border);
-  }
+    .no-scrollbar {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+    }
 
-  .genshin-border::before,
-  .genshin-border::after {
-    content: '';
-    position: absolute;
-    width: 8px;
-    height: 8px;
-    border: 2px solid var(--primary);
-    transform: rotate(45deg);
-  }
+    /* Genshin-style decorative borders */
+    .genshin-border {
+        position: relative;
+        border: 1px solid var(--border);
+    }
 
-  .genshin-border::before {
-    top: -5px;
-    left: -5px;
-    border-right: none;
-    border-bottom: none;
-  }
+    .genshin-border::before,
+    .genshin-border::after {
+        content: '';
+        position: absolute;
+        width: 8px;
+        height: 8px;
+        border: 2px solid var(--primary);
+        transform: rotate(45deg);
+    }
 
-  .genshin-border::after {
-    bottom: -5px;
-    right: -5px;
-    border-left: none;
-    border-top: none;
-  }
+    .genshin-border::before {
+        top: -5px;
+        left: -5px;
+        border-right: none;
+        border-bottom: none;
+    }
 
-  /* Genshin-style golden accent line */
-  .genshin-accent-line {
-    position: relative;
-  }
+    .genshin-border::after {
+        bottom: -5px;
+        right: -5px;
+        border-left: none;
+        border-top: none;
+    }
 
-  .genshin-accent-line::after {
-    content: '';
-    position: absolute;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    height: 2px;
-    background: linear-gradient(90deg, transparent, var(--primary), transparent);
-  }
+    /* Genshin-style golden accent line */
+    .genshin-accent-line {
+        position: relative;
+    }
 
-  /* Diamond marker utility */
-  .diamond-marker {
-    position: relative;
-  }
+    .genshin-accent-line::after {
+        content: '';
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        height: 2px;
+        background: linear-gradient(90deg, transparent, var(--primary), transparent);
+    }
 
-  .diamond-marker::before {
-    content: '';
-    display: inline-block;
-    width: 6px;
-    height: 6px;
-    background: var(--primary);
-    transform: rotate(45deg);
-    margin-right: 8px;
-  }
+    /* Diamond marker utility */
+    .diamond-marker {
+        position: relative;
+    }
+
+    .diamond-marker::before {
+        content: '';
+        display: inline-block;
+        width: 6px;
+        height: 6px;
+        background: var(--primary);
+        transform: rotate(45deg);
+        margin-right: 8px;
+    }
 }
 
 /* =============================================================================
@@ -362,325 +386,420 @@
 
 /* Sabotage animations */
 @keyframes wiggle {
-  0%, 100% { transform: rotate(-3deg); }
-  50% { transform: rotate(3deg); }
+
+    0%,
+    100% {
+        transform: rotate(-3deg);
+    }
+
+    50% {
+        transform: rotate(3deg);
+    }
 }
 
 @keyframes shake {
-  0%, 100% { transform: translateX(0); }
-  20% { transform: translateX(-6px); }
-  40% { transform: translateX(6px); }
-  60% { transform: translateX(-4px); }
-  80% { transform: translateX(4px); }
+
+    0%,
+    100% {
+        transform: translateX(0);
+    }
+
+    20% {
+        transform: translateX(-6px);
+    }
+
+    40% {
+        transform: translateX(6px);
+    }
+
+    60% {
+        transform: translateX(-4px);
+    }
+
+    80% {
+        transform: translateX(4px);
+    }
 }
 
 /* Genshin-style golden glow pulse */
 @keyframes pulse-glow {
-  0%, 100% { 
-    box-shadow: 0 0 0 0 oklch(0.75 0.15 75 / 0);
-  }
-  50% { 
-    box-shadow: 0 0 20px -5px oklch(0.75 0.15 75 / 0.4);
-  }
+
+    0%,
+    100% {
+        box-shadow: 0 0 0 0 oklch(0.75 0.15 75 / 0);
+    }
+
+    50% {
+        box-shadow: 0 0 20px -5px oklch(0.75 0.15 75 / 0.4);
+    }
 }
 
 /* Shimmer effect for loading states */
 @keyframes shimmer {
-  0% { transform: translateX(-100%); }
-  100% { transform: translateX(100%); }
+    0% {
+        transform: translateX(-100%);
+    }
+
+    100% {
+        transform: translateX(100%);
+    }
 }
 
 /* Floating animation for decorative elements */
 @keyframes float {
-  0%, 100% { 
-    transform: translateY(0) rotate(45deg); 
-    opacity: 0.6;
-  }
-  50% { 
-    transform: translateY(-8px) rotate(45deg); 
-    opacity: 1;
-  }
+
+    0%,
+    100% {
+        transform: translateY(0) rotate(45deg);
+        opacity: 0.6;
+    }
+
+    50% {
+        transform: translateY(-8px) rotate(45deg);
+        opacity: 1;
+    }
 }
 
 /* Corner accent pulse */
 @keyframes corner-pulse {
-  0%, 100% { opacity: 0.5; }
-  50% { opacity: 1; }
+
+    0%,
+    100% {
+        opacity: 0.5;
+    }
+
+    50% {
+        opacity: 1;
+    }
 }
 
 /* Genshin menu fade in */
 @keyframes genshin-fade-in {
-  0% { 
-    opacity: 0; 
-    transform: translateY(10px);
-  }
-  100% { 
-    opacity: 1; 
-    transform: translateY(0);
-  }
+    0% {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 /* Diamond spin animation */
 @keyframes diamond-spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
 }
 
 /* Border flow animation */
 @keyframes border-flow {
-  0% { 
-    border-color: oklch(0.75 0.15 75 / 0.3);
-  }
-  50% { 
-    border-color: oklch(0.75 0.15 75 / 0.7);
-  }
-  100% { 
-    border-color: oklch(0.75 0.15 75 / 0.3);
-  }
+    0% {
+        border-color: oklch(0.75 0.15 75 / 0.3);
+    }
+
+    50% {
+        border-color: oklch(0.75 0.15 75 / 0.7);
+    }
+
+    100% {
+        border-color: oklch(0.75 0.15 75 / 0.3);
+    }
 }
 
 /* Scale in from center */
 @keyframes scale-in {
-  0% {
-    opacity: 0;
-    transform: scale(0.95);
-  }
-  100% {
-    opacity: 1;
-    transform: scale(1);
-  }
+    0% {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+
+    100% {
+        opacity: 1;
+        transform: scale(1);
+    }
 }
 
 /* Flame flicker for streak icon */
 @keyframes flame-flicker {
-  0%, 100% { 
-    transform: scale(1) rotate(0deg);
-    filter: brightness(1);
-  }
-  25% { 
-    transform: scale(1.05) rotate(-2deg);
-    filter: brightness(1.1);
-  }
-  50% { 
-    transform: scale(0.98) rotate(1deg);
-    filter: brightness(0.95);
-  }
-  75% { 
-    transform: scale(1.02) rotate(-1deg);
-    filter: brightness(1.05);
-  }
+
+    0%,
+    100% {
+        transform: scale(1) rotate(0deg);
+        filter: brightness(1);
+    }
+
+    25% {
+        transform: scale(1.05) rotate(-2deg);
+        filter: brightness(1.1);
+    }
+
+    50% {
+        transform: scale(0.98) rotate(1deg);
+        filter: brightness(0.95);
+    }
+
+    75% {
+        transform: scale(1.02) rotate(-1deg);
+        filter: brightness(1.05);
+    }
 }
 
 /* Animation utility classes */
-.animate-shake { animation: shake 0.5s ease-in-out; }
-.animate-pulse-glow { animation: pulse-glow 2s ease-in-out infinite; }
-.animate-shimmer { animation: shimmer 2s ease-in-out infinite; }
-.animate-float { animation: float 4s ease-in-out infinite; }
-.animate-corner-pulse { animation: corner-pulse 2s ease-in-out infinite; }
-.animate-genshin-fade-in { animation: genshin-fade-in 0.3s ease-out; }
-.animate-diamond-spin { animation: diamond-spin 3s linear infinite; }
-.animate-border-flow { animation: border-flow 2s ease-in-out infinite; }
-.animate-scale-in { animation: scale-in 0.2s ease-out; }
-.animate-flame-flicker { animation: flame-flicker 0.5s ease-in-out infinite; }
+.animate-shake {
+    animation: shake 0.5s ease-in-out;
+}
+
+.animate-pulse-glow {
+    animation: pulse-glow 2s ease-in-out infinite;
+}
+
+.animate-shimmer {
+    animation: shimmer 2s ease-in-out infinite;
+}
+
+.animate-float {
+    animation: float 4s ease-in-out infinite;
+}
+
+.animate-corner-pulse {
+    animation: corner-pulse 2s ease-in-out infinite;
+}
+
+.animate-genshin-fade-in {
+    animation: genshin-fade-in 0.3s ease-out;
+}
+
+.animate-diamond-spin {
+    animation: diamond-spin 3s linear infinite;
+}
+
+.animate-border-flow {
+    animation: border-flow 2s ease-in-out infinite;
+}
+
+.animate-scale-in {
+    animation: scale-in 0.2s ease-out;
+}
+
+.animate-flame-flicker {
+    animation: flame-flicker 0.5s ease-in-out infinite;
+}
 
 /* =============================================================================
    GENSHIN COMPONENT STYLES
    ============================================================================= */
 
 @layer components {
-  /* Genshin-style panel with ornate corners */
-  .genshin-panel {
-    @apply relative bg-card border border-border p-4;
-    /* Add a subtle inner glow */
-    box-shadow: inset 0 0 20px -10px var(--primary);
-  }
 
-  .genshin-panel::before {
-    content: '';
-    @apply absolute inset-0 pointer-events-none z-10;
-    --c-size: 24px;
-    --c-width: 2px;
-    --c-color: var(--primary);
-    
-    background:
-      /* Top Left */
-      linear-gradient(135deg, var(--c-color) 6px, transparent 6px) 0 0,
-      linear-gradient(to right, var(--c-color) var(--c-width), transparent var(--c-width)) 0 0,
-      linear-gradient(to bottom, var(--c-color) var(--c-width), transparent var(--c-width)) 0 0,
-      
-      /* Top Right */
-      linear-gradient(225deg, var(--c-color) 6px, transparent 6px) 100% 0,
-      linear-gradient(to left, var(--c-color) var(--c-width), transparent var(--c-width)) 100% 0,
-      linear-gradient(to bottom, var(--c-color) var(--c-width), transparent var(--c-width)) 100% 0,
+    /* Genshin-style panel with ornate corners */
+    .genshin-panel {
+        @apply relative bg-card border border-border p-4;
+        /* Add a subtle inner glow */
+        box-shadow: inset 0 0 20px -10px var(--primary);
+    }
 
-      /* Bottom Left */
-      linear-gradient(45deg, var(--c-color) 6px, transparent 6px) 0 100%,
-      linear-gradient(to right, var(--c-color) var(--c-width), transparent var(--c-width)) 0 100%,
-      linear-gradient(to top, var(--c-color) var(--c-width), transparent var(--c-width)) 0 100%,
+    .genshin-panel::before {
+        content: '';
+        @apply absolute inset-0 pointer-events-none z-10;
+        opacity: 0.8;
+    }
 
-      /* Bottom Right */
-      linear-gradient(-45deg, var(--c-color) 6px, transparent 6px) 100% 100%,
-      linear-gradient(to left, var(--c-color) var(--c-width), transparent var(--c-width)) 100% 100%,
-      linear-gradient(to top, var(--c-color) var(--c-width), transparent var(--c-width)) 100% 100%;
-      
-    background-size: var(--c-size) var(--c-size);
-    background-repeat: no-repeat;
-    opacity: 0.8;
-  }
+    .genshin-panel::after {
+        content: '';
+        @apply absolute inset-0 pointer-events-none;
+        /* Decorative mid-points */
 
-  .genshin-panel::after {
-    content: '';
-    @apply absolute inset-0 pointer-events-none;
-    /* Decorative mid-points */
-    background:
-      /* Top Center Diamond */
-      radial-gradient(circle, var(--primary) 2px, transparent 2px) top center,
-      /* Bottom Center Diamond */
-      radial-gradient(circle, var(--primary) 2px, transparent 2px) bottom center;
-    background-size: 100% 100%;
-    background-repeat: no-repeat;
-    opacity: 0.6;
-  }
+        background-size: 100% 100%;
+        background-repeat: no-repeat;
+        opacity: 0.6;
+    }
 
-  /* Genshin menu item - like Paimon menu items */
-  .genshin-menu-item {
-    @apply relative flex items-center gap-4 p-4;
-    @apply bg-card/80 border-l-2 border-transparent;
-    @apply hover:bg-primary/5 hover:border-l-primary;
-    @apply transition-all duration-200 cursor-pointer;
-  }
+    /* Genshin menu item - like Paimon menu items */
+    .genshin-menu-item {
+        @apply relative flex items-center gap-4 p-4;
+        @apply bg-card/80 border-l-2 border-transparent;
+        @apply hover:bg-primary/5 hover:border-l-primary;
+        @apply transition-all duration-200 cursor-pointer;
+    }
 
-  .genshin-menu-item::after {
-    content: '';
-    @apply absolute right-4 top-1/2 -translate-y-1/2;
-    @apply w-1.5 h-1.5 rotate-45 bg-primary/0;
-    @apply transition-all duration-200;
-  }
+    .genshin-menu-item::after {
+        content: '';
+        @apply absolute right-4 top-1/2 -translate-y-1/2;
+        @apply w-1.5 h-1.5 rotate-45 bg-primary/0;
+        @apply transition-all duration-200;
+    }
 
-  .genshin-menu-item:hover::after {
-    @apply bg-primary/60;
-  }
+    .genshin-menu-item:hover::after {
+        @apply bg-primary/60;
+    }
 
-  /* Vision element badge (like character element icons) */
-  .genshin-vision {
-    @apply relative w-10 h-10 flex items-center justify-center;
-    @apply border-2 border-primary/40 bg-primary/10;
-    clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
-  }
+    /* Vision element badge (like character element icons) */
+    .genshin-vision {
+        @apply relative w-10 h-10 flex items-center justify-center;
+        @apply border-2 border-primary/40 bg-primary/10;
+        clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+    }
 
-  /* Genshin attribute row - like stat displays */
-  .genshin-attr-row {
-    @apply flex items-center justify-between py-2.5;
-    @apply border-b border-border/30 last:border-0;
-  }
+    /* Genshin attribute row - like stat displays */
+    .genshin-attr-row {
+        @apply flex items-center justify-between py-2.5;
+        @apply border-b border-border/30 last:border-0;
+    }
 
-  .genshin-attr-row .attr-label {
-    @apply text-xs text-muted-foreground font-medium tracking-wide;
-  }
+    .genshin-attr-row .attr-label {
+        @apply text-xs text-muted-foreground font-medium tracking-wide;
+    }
 
-  .genshin-attr-row .attr-value {
-    @apply text-sm font-semibold text-foreground tabular-nums;
-  }
+    .genshin-attr-row .attr-value {
+        @apply text-sm font-semibold text-foreground tabular-nums;
+    }
 
-  /* Character-style nameplate */
-  .genshin-nameplate {
-    @apply relative inline-flex items-center gap-3 px-5 py-2;
-    @apply bg-card border border-border;
-  }
+    /* Character-style nameplate */
+    .genshin-nameplate {
+        @apply relative inline-flex items-center gap-3 px-5 py-2;
+        @apply bg-card border border-border;
+    }
 
-  .genshin-nameplate::before,
-  .genshin-nameplate::after {
-    content: '';
-    @apply absolute top-1/2 -translate-y-1/2 w-3 h-3;
-    @apply border-2 border-primary/50 rotate-45;
-  }
+    .genshin-nameplate::before,
+    .genshin-nameplate::after {
+        content: '';
+        @apply absolute top-1/2 -translate-y-1/2 w-3 h-3;
+        @apply border-2 border-primary/50 rotate-45;
+    }
 
-  .genshin-nameplate::before {
-    @apply -left-1.5;
-  }
+    .genshin-nameplate::before {
+        @apply -left-1.5;
+    }
 
-  .genshin-nameplate::after {
-    @apply -right-1.5;
-  }
+    .genshin-nameplate::after {
+        @apply -right-1.5;
+    }
 
-  /* Quest/Mission style notification */
-  .genshin-quest-badge {
-    @apply relative inline-flex items-center gap-2 px-3 py-1.5;
-    @apply bg-primary/10 border border-primary/30;
-    @apply text-xs font-semibold text-primary uppercase tracking-wider;
-  }
+    /* Quest/Mission style notification */
+    .genshin-quest-badge {
+        @apply relative inline-flex items-center gap-2 px-3 py-1.5;
+        @apply bg-primary/10 border border-primary/30;
+        @apply text-xs font-semibold text-primary uppercase tracking-wider;
+    }
 
-  .genshin-quest-badge::before {
-    content: '';
-    @apply w-1.5 h-1.5 rotate-45 bg-primary;
-  }
+    .genshin-quest-badge::before {
+        content: '';
+        @apply w-1.5 h-1.5 rotate-45 bg-primary;
+    }
 
-  /* Genshin-style button */
-  .genshin-button {
-    @apply relative px-6 py-3 bg-primary/90 text-primary-foreground font-semibold;
-    @apply uppercase tracking-widest text-sm;
-    @apply border-2 border-primary;
-    @apply hover:bg-primary active:bg-primary/80;
-    @apply transition-all duration-150;
-  }
+    /* Genshin-style button */
+    .genshin-button {
+        @apply relative px-6 py-3 bg-primary/10 text-foreground font-semibold;
+        @apply uppercase tracking-widest text-sm;
+        @apply border-2 border-primary;
+        @apply hover:bg-primary active:bg-primary/80;
+        @apply transition-all duration-150;
+    }
 
-  .genshin-button::before,
-  .genshin-button::after {
-    content: '';
-    @apply absolute w-2 h-2 border-2 border-primary-foreground/50;
-    @apply opacity-0 transition-opacity duration-150;
-  }
+    .genshin-button::before,
+    .genshin-button::after {
+        content: '';
+        @apply absolute w-2 h-2 border-2 border-primary-foreground/50;
+        @apply opacity-0 transition-opacity duration-150;
+    }
 
-  .genshin-button::before {
-    @apply -top-1 -left-1 border-r-0 border-b-0;
-  }
+    .genshin-button::before {
+        @apply -top-1 -left-1 border-r-0 border-b-0;
+    }
 
-  .genshin-button::after {
-    @apply -bottom-1 -right-1 border-l-0 border-t-0;
-  }
+    .genshin-button::after {
+        @apply -bottom-1 -right-1 border-l-0 border-t-0;
+    }
 
-  .genshin-button:hover::before,
-  .genshin-button:hover::after {
-    @apply opacity-100;
-  }
+    .genshin-button:hover::before,
+    .genshin-button:hover::after {
+        @apply opacity-100;
+    }
 
-  /* Genshin-style divider */
-  .genshin-divider {
-    @apply flex items-center gap-3 my-6;
-  }
+    /* Genshin-style divider */
+    .genshin-divider {
+        @apply flex items-center gap-3 my-6;
+    }
 
-  .genshin-divider::before,
-  .genshin-divider::after {
-    content: '';
-    @apply flex-1 h-px bg-border;
-  }
+    .genshin-divider::before,
+    .genshin-divider::after {
+        content: '';
+        @apply flex-1 h-px bg-border;
+    }
 
-  .genshin-divider-diamond {
-    @apply w-2 h-2 bg-primary/50 rotate-45;
-  }
+    .genshin-divider-diamond {
+        @apply w-2 h-2 bg-primary/50 rotate-45;
+    }
 
-  /* Genshin-style stat card */
-  .genshin-stat {
-    @apply relative bg-card border border-border p-4;
-  }
+    /* Genshin-style stat card */
+    .genshin-stat {
+        @apply relative bg-card border border-border p-4;
+    }
 
-  .genshin-stat::before {
-    content: '';
-    @apply absolute top-0 left-4 right-4 h-0.5 bg-primary/60;
-  }
+    .genshin-stat::before {
+        content: '';
+        @apply absolute top-0 left-4 right-4 h-0.5 bg-primary/60;
+    }
 
-  /* Ornate header with lines */
-  .genshin-header {
-    @apply flex items-center gap-4;
-  }
+    /* Ornate header with lines */
+    .genshin-header {
+        @apply flex items-center gap-4;
+    }
 
-  .genshin-header::before {
-    content: '';
-    @apply w-3 h-3 border-2 border-primary/60 rotate-45;
-  }
+    .genshin-header::before {
+        content: '';
+        @apply w-3 h-3 border-2 border-primary/60 rotate-45;
+    }
 
-  .genshin-header::after {
-    content: '';
-    @apply flex-1 h-px bg-border;
-  }
+    .genshin-header::after {
+        content: '';
+        @apply flex-1 h-px bg-border;
+    }
+
+    /* Genshin Toast Notification */
+    .genshin-toast {
+        @apply !relative !overflow-visible;
+        @apply !bg-card !text-foreground !border !border-border;
+        @apply !shadow-lg !shadow-black/10;
+        @apply !rounded-none;
+        @apply !font-serif !tracking-wide;
+        @apply !pl-6 !pr-8 !py-4;
+        /* Extra padding for aesthetics */
+    }
+
+    /* Left accent line */
+    .genshin-toast::before {
+        content: '';
+        @apply absolute left-0 top-0 bottom-0 w-1 bg-primary;
+    }
+
+    /* Corner decorative elements - Top Right */
+    .genshin-toast::after {
+        content: '';
+        @apply absolute -top-1 -right-1 w-3 h-3;
+        @apply border-t-2 border-r-2 border-primary;
+    }
+
+    /* Type specific styling */
+    .genshin-toast[data-type="error"]::before {
+        @apply !bg-destructive;
+    }
+
+    .genshin-toast[data-type="error"]::after {
+        @apply !border-destructive;
+    }
+
+    .genshin-toast[data-type="success"]::before {
+        @apply !bg-primary;
+    }
+
+    .genshin-toast[data-type="success"]::after {
+        @apply !border-primary;
+    }
 }

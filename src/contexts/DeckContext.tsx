@@ -46,8 +46,8 @@ const DeckDispatchContext = createContext<DeckDispatch | undefined>(undefined);
 export const DeckProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const queryClient = useQueryClient();
   const { settings } = useSettings();
-  
-  const { user } = useAuth(); 
+
+  const { user } = useAuth();
 
   const { data: dbStats, isLoading: statsLoading } = useDeckStatsQuery();
   const { data: dueCards, isLoading: dueCardsLoading } = useDueCardsQuery();
@@ -57,7 +57,7 @@ export const DeckProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const recordReviewMutation = useRecordReviewMutation();
   const undoReviewMutation = useUndoReviewMutation();
 
-  const [lastReview, setLastReview] = useState<{ card: Card; date: string } | null>(null);
+  const [lastReview, setLastReview] = useState<{ card: Card; date: string; xpEarned: number } | null>(null);
 
   const isLoading = statsLoading || dueCardsLoading || reviewsLoading || historyLoading;
 
@@ -68,7 +68,7 @@ export const DeckProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     // Sort dates once for efficient processing
     const sortedDates = Object.keys(history).sort();
-    
+
     const totalReviews = Object.values(history).reduce(
       (acc, val) => acc + (typeof val === 'number' ? val : 0),
       0
@@ -172,7 +172,8 @@ export const DeckProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const recordReview = useCallback(async (oldCard: Card, grade: Grade, xpPayload?: CardXpPayload) => {
     const today = getUTCDateString(getSRSDate(new Date()));
-    setLastReview({ card: oldCard, date: today });
+    const xpEarned = xpPayload?.totalXp ?? 0;
+    setLastReview({ card: oldCard, date: today, xpEarned });
 
     try {
       await recordReviewMutation.mutateAsync({ card: oldCard, grade, xpPayload });
@@ -185,10 +186,10 @@ export const DeckProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const undoReview = useCallback(async () => {
     if (!lastReview) return;
-    const { card, date } = lastReview;
+    const { card, date, xpEarned } = lastReview;
 
     try {
-      await undoReviewMutation.mutateAsync({ card, date });
+      await undoReviewMutation.mutateAsync({ card, date, xpEarned });
       setLastReview(null);
       toast.success('Review undone');
     } catch (error) {
