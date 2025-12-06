@@ -4,7 +4,7 @@ import { Card } from '@/types';
 import { format, formatDistanceToNow, parseISO, isValid } from 'date-fns';
 import { Activity, Clock, Target, Zap, X as XIcon, History, Calendar } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { GenshinCorners, DiamondDivider, InnerFrame } from '@/components/game/GamePanel';
+import { OrnateSeparator } from '@/components/ui/separator';
 
 
 interface CardHistoryModalProps {
@@ -52,7 +52,7 @@ const TimelineEvent = ({ label, dateStr }: { label: string, dateStr?: string }) 
     <div className="relative group flex items-center justify-between py-3 border-b border-amber-700/10 last:border-0 hover:bg-amber-600/5 px-2 transition-colors rounded-sm">
       <div className="flex items-center gap-3">
         <span className="w-1.5 h-1.5 rotate-45 bg-amber-500/40 group-hover:bg-amber-500 transition-colors" />
-        <span className="text-xs font-serif uppercase tracking-[0.1em] text-muted-foreground group-hover:text-amber-700 dark:group-hover:text-amber-400 transition-colors">{label}</span>
+        <span className="text-xs font-serif uppercase tracking-widest text-muted-foreground group-hover:text-amber-700 dark:group-hover:text-amber-400 transition-colors">{label}</span>
       </div>
       <div className="text-right flex flex-col items-end">
         <span className="text-sm font-medium text-foreground/90 tabular-nums">{format(date, 'PPP')}</span>
@@ -82,12 +82,10 @@ export const CardHistoryModal: React.FC<CardHistoryModalProps> = ({ card, isOpen
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-2xl max-h-[85vh] flex flex-col p-0 bg-gradient-to-b from-background via-background to-card border-2 border-amber-700/30 dark:border-amber-600/25 overflow-hidden gap-0 [&>button]:hidden">
-        {/* Ornate Genshin corners */}
-        <GenshinCorners />
+      <DialogContent className="sm:max-w-2xl max-h-[85vh] flex flex-col p-0 bg-linear-to-b from-background via-background to-card border-2 border-amber-700/30 dark:border-amber-600/25 overflow-hidden gap-0 [&>button]:hidden">
+        {/* Ornate Genshin corners removed */}
 
-        {/* Inner decorative frame */}
-        <InnerFrame />
+        {/* Inner decorative frame removed */}
 
         {/* Floating diamond decorations */}
         <span className="absolute top-6 left-1/2 -translate-x-1/2 w-2 h-2 rotate-45 bg-amber-500/20 pointer-events-none z-10 animate-pulse" />
@@ -135,7 +133,7 @@ export const CardHistoryModal: React.FC<CardHistoryModalProps> = ({ card, isOpen
               </div>
             </div>
 
-            <DiamondDivider className="mb-8" />
+            <OrnateSeparator className="mb-8" />
 
             <div className="space-y-4 text-center">
               <h2 className="text-3xl md:text-4xl font-serif tracking-wide text-foreground leading-tight">
@@ -190,7 +188,7 @@ export const CardHistoryModal: React.FC<CardHistoryModalProps> = ({ card, isOpen
               <h3 className="text-[10px] font-serif uppercase tracking-[0.15em] text-muted-foreground">
                 Chronicle
               </h3>
-              <span className="flex-1 h-px bg-gradient-to-r from-amber-600/20 to-transparent" />
+              <span className="flex-1 h-px bg-linear-to-r from-amber-600/20 to-transparent" />
             </div>
 
             <div className="space-y-1 relative z-10">

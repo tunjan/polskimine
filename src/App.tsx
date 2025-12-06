@@ -2,7 +2,7 @@ import React from 'react';
 import { AppProviders } from '@/app/AppProviders';
 import { AppRouter } from '@/app/AppRouter';
 import { usePlatformSetup } from '@/hooks/usePlatformSetup';
-import { useProfile } from '@/contexts/ProfileContext';
+import { useProfile } from '@/features/profile/hooks/useProfile';
 import { useAuth } from '@/contexts/AuthContext';
 import { AuthPage } from '@/features/auth/AuthPage';
 import { UsernameSetup } from '@/features/auth/UsernameSetup';

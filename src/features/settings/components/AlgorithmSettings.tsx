@@ -9,7 +9,11 @@ import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
 import { getAllReviewLogs } from '@/services/db/repositories/revlogRepository';
 import { optimizeFSRS } from '@/lib/fsrsOptimizer';
-import { GamePanel, GameSectionHeader, GameDivider, GameButton, GameProgressBar } from '@/components/ui/game-ui';
+import { Card } from '@/components/ui/card';
+import { SectionHeader } from '@/components/ui/section-header';
+import { OrnateSeparator } from '@/components/ui/separator';
+import { Button } from '@/components/ui/button';
+import { Progress } from '@/components/ui/progress';
 
 interface AlgorithmSettingsProps {
   localSettings: UserSettings;
@@ -38,9 +42,9 @@ export const AlgorithmSettings: React.FC<AlgorithmSettingsProps> = ({
         return;
       }
       const currentW = localSettings.fsrs.w || FSRS_DEFAULTS.w;
-      
+
       const worker = new Worker(new URL('../../../workers/fsrs.worker.ts', import.meta.url), { type: 'module' });
-      
+
       worker.onmessage = (e) => {
         const { type, progress, w, error } = e.data;
         if (type === 'progress') {
@@ -68,12 +72,12 @@ export const AlgorithmSettings: React.FC<AlgorithmSettingsProps> = ({
   return (
     <div className="space-y-8 max-w-2xl">
       {/* Retention Target Section */}
-      <GameSectionHeader 
-        title="Retention Target" 
+      <SectionHeader
+        title="Retention Target"
         subtitle="Target accuracy for scheduled reviews"
         icon={<Target className="w-4 h-4" strokeWidth={1.5} />}
       />
-      <GamePanel variant="highlight" size="lg" glowOnHover>
+      <Card variant="highlight" size="lg">
         <div className="space-y-6">
           <div className="flex justify-between items-center">
             <div className="flex items-center gap-2">
@@ -86,7 +90,7 @@ export const AlgorithmSettings: React.FC<AlgorithmSettingsProps> = ({
               {Math.round(localSettings.fsrs.request_retention * 100)}<span className="text-xl text-muted-foreground/40">%</span>
             </span>
           </div>
-          
+
           <div className="space-y-4">
             <Slider
               min={0.7} max={0.99} step={0.01}
@@ -104,17 +108,17 @@ export const AlgorithmSettings: React.FC<AlgorithmSettingsProps> = ({
             </div>
           </div>
         </div>
-      </GamePanel>
+      </Card>
 
-      <GameDivider />
+      <OrnateSeparator />
 
       {/* Optimization Section */}
-      <GameSectionHeader 
-        title="Optimization" 
+      <SectionHeader
+        title="Optimization"
         subtitle="Personalize algorithm parameters"
         icon={<Wand2 className="w-4 h-4" strokeWidth={1.5} />}
       />
-      <GamePanel variant="default" size="md" glowOnHover>
+      <Card variant="default" size="md">
         <div className="space-y-4">
           <div className="flex items-center justify-between mb-2">
             <p className="text-sm text-muted-foreground font-light leading-relaxed">
@@ -127,35 +131,35 @@ export const AlgorithmSettings: React.FC<AlgorithmSettingsProps> = ({
 
           {isOptimizing ? (
             <div className="space-y-3">
-              <GameProgressBar 
-                value={progress} 
-                variant="xp" 
+              <div className="text-xs text-muted-foreground font-ui mb-1 uppercase tracking-wider">Processing review data</div>
+              <Progress
+                value={progress}
+                variant="xp"
                 size="sm"
-                label="Processing review data"
               />
             </div>
           ) : (
-            <GameButton 
+            <Button
               onClick={handleOptimize}
               variant="secondary"
               className="w-full"
             >
               <Wand2 size={14} strokeWidth={1.5} /> Optimize Parameters
-            </GameButton>
+            </Button>
           )}
         </div>
-      </GamePanel>
+      </Card>
 
-      <GameDivider />
+      <OrnateSeparator />
 
       {/* Advanced Settings Section */}
-      <GameSectionHeader 
-        title="Advanced" 
+      <SectionHeader
+        title="Advanced"
         subtitle="Fine-tune scheduling behavior"
         icon={<Settings className="w-4 h-4" strokeWidth={1.5} />}
       />
       <div className="space-y-3">
-        <GamePanel variant="stat" size="sm" className="hover:border-primary/40 transition-colors">
+        <Card variant="stat" size="sm" className="hover:border-primary/40 transition-colors">
           <div className="space-y-3">
             <div className="flex items-center gap-2">
               <span className="w-1.5 h-1.5 rotate-45 bg-primary/40" />
@@ -174,9 +178,9 @@ export const AlgorithmSettings: React.FC<AlgorithmSettingsProps> = ({
               }
             />
           </div>
-        </GamePanel>
+        </Card>
 
-        <GamePanel variant="stat" size="sm" className="hover:border-primary/40 transition-colors">
+        <Card variant="stat" size="sm" className="hover:border-primary/40 transition-colors">
           <div className="flex items-center justify-between gap-6">
             <div className="flex-1">
               <div className="flex items-center gap-2 mb-1">
@@ -192,14 +196,14 @@ export const AlgorithmSettings: React.FC<AlgorithmSettingsProps> = ({
               }
             />
           </div>
-        </GamePanel>
+        </Card>
       </div>
 
       {/* Reset Button */}
       <div className="pt-4">
-        <button 
+        <button
           onClick={() => setLocalSettings(prev => ({ ...prev, fsrs: { ...prev.fsrs, w: FSRS_DEFAULTS.w } }))}
-          className="text-xs font-ui uppercase tracking-[0.1em] text-muted-foreground/40 hover:text-destructive/70 transition-colors flex items-center gap-2"
+          className="text-xs font-ui uppercase tracking-widest text-muted-foreground/40 hover:text-destructive/70 transition-colors flex items-center gap-2"
         >
           <RefreshCw size={11} strokeWidth={1.5} /> Reset to Default Parameters
         </button>

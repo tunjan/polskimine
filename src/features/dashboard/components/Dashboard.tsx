@@ -19,19 +19,17 @@ import { DeckStats, ReviewHistory, Card as CardType } from '@/types';
 
 import { useSettingsStore } from '@/stores/useSettingsStore';
 import { useAuth } from '@/contexts/AuthContext';
-import { useProfile } from '@/contexts/ProfileContext';
+import { useProfile } from '@/features/profile/hooks/useProfile';
 import { getRevlogStats } from '@/services/db/repositories/statsRepository';
 import { getLevelProgress, cn } from '@/lib/utils';
 
-import {
-  GamePanel,
-  GameSectionHeader,
-  GameDivider,
-  LevelBadge,
-  StreakDisplay,
-  GameEmptyState,
-  getRankForLevel
-} from '@/components/ui/game-ui';
+import { Card } from '@/components/ui/card';
+import { SectionHeader } from '@/components/ui/section-header';
+import { OrnateSeparator } from '@/components/ui/separator';
+import { LevelBadge, getRankForLevel } from '@/components/ui/level-badge';
+import { StreakDisplay } from '@/components/ui/streak-display';
+import { EmptyState } from '@/components/ui/empty-state';
+import { GenshinCorners } from '@/components/ui/decorative';
 
 import { MusicControl } from './MusicControl';
 import { Heatmap } from './Heatmap';
@@ -110,12 +108,12 @@ export const Dashboard: React.FC<DashboardProps> = ({
 
             {/* Left: Character Card / Profile */}
             <div className="relative">
-              <GamePanel
+              <Card
                 variant="ornate"
                 size="md"
-                showCorners
                 className="h-full bg-linear-to-br from-card via-card to-primary/5"
               >
+                <GenshinCorners />
                 {/* Top accent line */}
                 <div className="absolute top-0 left-8 right-8 h-0.5 bg-linear-to-r from-transparent via-primary/60 to-transparent" />
 
@@ -198,7 +196,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
                     <span className="absolute right-0 top-0 bottom-0 w-0.5 bg-primary/30" />
                   </div>
                 </div>
-              </GamePanel>
+              </Card>
             </div>
 
             {/* Right: Mission Panel */}
@@ -398,29 +396,29 @@ export const Dashboard: React.FC<DashboardProps> = ({
               </div>
 
               {/* Streak Display */}
-              <GamePanel size="md" glowOnHover className="bg-linear-to-r from-card to-amber-500/5">
+              <Card size="md" className="bg-linear-to-r from-card to-amber-500/5 transition-colors duration-200 hover:bg-muted/5">
                 <StreakDisplay
                   currentStreak={stats.streak}
                   lastSevenDays={lastSevenDays}
                   isAtRisk={isStreakAtRisk}
                 />
-              </GamePanel>
+              </Card>
             </div>
           </div>
         </section>
 
-        <GameDivider />
+        <OrnateSeparator />
 
         {/* === CARD COLLECTION === */}
         <section className="mb-8 md:mb-10">
-          <GameSectionHeader
+          <SectionHeader
             title="Card Collection"
             subtitle="Your vocabulary inventory"
             icon={<BookOpen className="w-4 h-4" strokeWidth={1.5} />}
           />
 
           {hasNoCards ? (
-            <GameEmptyState
+            <EmptyState
               icon={BookOpen}
               title="Empty Inventory"
               description="Your card collection is empty. Add cards to start building your vocabulary."
@@ -462,43 +460,43 @@ export const Dashboard: React.FC<DashboardProps> = ({
 
         {/* === ADVENTURE LOG === */}
         <section className="mb-8 md:mb-10">
-          <GameSectionHeader
+          <SectionHeader
             title="Adventure Log"
             subtitle="Your study history over time"
             icon={<Activity className="w-4 h-4" strokeWidth={1.5} />}
           />
 
           {hasNoActivity ? (
-            <GameEmptyState
+            <EmptyState
               icon={Activity}
               title="No Adventures Yet"
               description="Complete your first study session to begin logging your journey."
               action={{ label: 'Start Adventure', onClick: onStartSession }}
             />
           ) : (
-            <GamePanel size="md">
+            <Card size="md">
               <Heatmap history={history} />
-            </GamePanel>
+            </Card>
           )}
         </section>
 
         {/* === ATTRIBUTES === */}
         <section className="mb-8 md:mb-10">
-          <GameSectionHeader
+          <SectionHeader
             title="Attributes"
             subtitle="Performance metrics and trends"
             icon={<Sparkles className="w-4 h-4" strokeWidth={1.5} />}
           />
 
           {hasNoActivity ? (
-            <GameEmptyState
+            <EmptyState
               icon={Sparkles}
               title="Stats Locked"
               description="Complete some reviews to unlock performance attributes."
             />
           ) : (
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-5">
-              <GamePanel size="md">
+              <Card size="md">
                 <ChartHeader
                   icon={<Activity className="w-3.5 h-3.5 text-sky-500" />}
                   title="Review Volume"
@@ -512,9 +510,9 @@ export const Dashboard: React.FC<DashboardProps> = ({
                     <ChartEmpty />
                   )}
                 </div>
-              </GamePanel>
+              </Card>
 
-              <GamePanel size="md">
+              <Card size="md">
                 <ChartHeader
                   icon={<Target className="w-3.5 h-3.5 text-pine-500" />}
                   title="Retention Rate"
@@ -531,29 +529,29 @@ export const Dashboard: React.FC<DashboardProps> = ({
                     <ChartEmpty />
                   )}
                 </div>
-              </GamePanel>
+              </Card>
             </div>
           )}
         </section>
 
         {/* === DECK ANALYSIS === */}
         <section className="mb-8">
-          <GameSectionHeader
+          <SectionHeader
             title="Deck Analysis"
             subtitle="Card stability and health metrics"
             icon={<Zap className="w-4 h-4" strokeWidth={1.5} />}
           />
 
           {hasNoCards ? (
-            <GameEmptyState
+            <EmptyState
               icon={Activity}
               title="No Data"
               description="Add cards to your deck to see analysis metrics."
             />
           ) : (
-            <GamePanel size="md">
+            <Card size="md">
               <RetentionStats cards={cards} />
-            </GamePanel>
+            </Card>
           )}
         </section>
       </div>

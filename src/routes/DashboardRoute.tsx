@@ -2,14 +2,14 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { Dashboard } from '@/features/dashboard/components/Dashboard';
-import { useDeck } from '@/contexts/DeckContext';
+import { useDeckStats } from '@/features/deck/hooks/useDeckStats';
 import { useSettingsStore } from '@/stores/useSettingsStore';
 import { getDashboardStats } from '@/services/db/repositories/statsRepository';
 import { getCardsForDashboard } from '@/services/db/repositories/cardRepository';
-import { GameLoadingScreen } from '@/components/ui/game-ui';
+import { LoadingScreen } from '@/components/ui/loading';
 
 export const DashboardRoute: React.FC = () => {
-  const { history, stats } = useDeck();
+  const { history, stats } = useDeckStats();
   const settings = useSettingsStore(s => s.settings);
   const navigate = useNavigate();
 
@@ -24,7 +24,7 @@ export const DashboardRoute: React.FC = () => {
   });
 
   if (isStatsLoading || isCardsLoading) {
-    return <GameLoadingScreen title="Loading" subtitle="Preparing your dashboard" />;
+    return <LoadingScreen title="Loading Dashboard" subtitle="Fetching your progress..." />;
   }
 
   if (isStatsError || isCardsError) {

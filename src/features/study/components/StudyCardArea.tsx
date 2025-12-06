@@ -3,7 +3,7 @@ import { Card, Language } from '@/types';
 import { Flashcard } from './Flashcard';
 import { StudyFeedback } from './StudyFeedback';
 import { XpFeedback } from '@/features/xp/hooks/useXpSession';
-import { GenshinCorners } from '@/components/game/GamePanel';
+
 
 interface StudyCardAreaProps {
     feedback: XpFeedback | null;
@@ -37,8 +37,7 @@ export const StudyCardArea: React.FC<StudyCardAreaProps> = React.memo(({
                 }}
             />
 
-            {/* Ornate corner frames */}
-            <GenshinCorners className="text-amber-600/80 dark:text-amber-400/20 hidden md:block" zIndex="z-10" />
+
 
             {/* Decorative side accents - enhanced */}
             <span className="absolute left-0 top-1/2 -translate-y-1/2 hidden md:flex flex-col items-center gap-2">

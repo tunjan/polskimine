@@ -1,19 +1,19 @@
 import * as React from "react"
 import { cn } from "@/lib/utils"
 
-export interface GameSectionHeaderProps extends React.HTMLAttributes<HTMLDivElement> {
+export interface SectionHeaderProps extends React.HTMLAttributes<HTMLDivElement> {
     title: string
     subtitle?: string
     icon?: React.ReactNode
 }
 
-export function GameSectionHeader({
+export function SectionHeader({
     title,
     subtitle,
     icon,
     className,
     ...props
-}: GameSectionHeaderProps) {
+}: SectionHeaderProps) {
     return (
         <div className={cn("mb-5 md:mb-6", className)} {...props}>
             <div className="flex items-center gap-4 mb-1.5">

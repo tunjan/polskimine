@@ -10,10 +10,6 @@ import { cn } from "@/lib/utils"
  * GenshinCorner SVG - Ornate corner bracket decoration
  * Used individually or via GenshinCorners for all 4 corners
  */
-/**
- * GenshinCorner SVG - Ornate corner bracket decoration
- * Optimized single-path SVG for reduced DOM complexity
- */
 export const GenshinCorner = ({ className, ...props }: React.ComponentProps<"svg">) => (
     <svg
         width="48"
@@ -29,18 +25,6 @@ export const GenshinCorner = ({ className, ...props }: React.ComponentProps<"svg
             d="M0 0H36V2H2V36H0V0ZM5 5H24V6.5H6.5V24H5V5ZM28 5H32V6.5H28V5ZM34 5H35.5V6.5H34V5ZM5 28H6.5V32H5V28ZM5 34H6.5V35.5H5V34ZM40 0H46V2H40V0ZM0 40H2V46H0V40ZM46 1L47 2L46 3L45 2L46 1ZM2 45L3 46L2 47L1 46L2 45Z"
             fill="currentColor"
         />
-        {/* Opacity layers can be handled by multiple paths if needed, strictly merged above assumes solid. 
-            Original had opacities: 
-            Main corner: 1.0
-            Inner bracket: 0.6
-            Accents: 0.5
-            Distant rects: 0.4
-            Diamonds: 0.6
-            
-            To convert to single path, we lose varying opacities unless we use group opacity or separate paths.
-            For performance, 2-3 paths is still better than 10 rects.
-            Let's keep distinct opacities by grouping them into a few paths.
-        */}
     </svg>
 )
 
@@ -113,7 +97,7 @@ export const DiamondDivider = ({ className, variant = 'default' }: DiamondDivide
     return (
         <div className={cn("relative flex items-center justify-center w-full gap-3 py-1", className)}>
             {/* Left Line */}
-            <div className={cn("flex-1 h-px bg-gradient-to-l to-transparent", lineColor)} />
+            <div className={cn("flex-1 h-px bg-linear-to-l to-transparent", lineColor)} />
 
             {/* Center Diamonds Container */}
             <div className="flex items-center gap-1.5">
@@ -123,7 +107,7 @@ export const DiamondDivider = ({ className, variant = 'default' }: DiamondDivide
             </div>
 
             {/* Right Line */}
-            <div className={cn("flex-1 h-px bg-gradient-to-r to-transparent", lineColor)} />
+            <div className={cn("flex-1 h-px bg-linear-to-r to-transparent", lineColor)} />
         </div>
     )
 }

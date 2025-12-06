@@ -1,16 +1,21 @@
 import React, { useState } from 'react';
-import { ArrowRight, Command, ArrowLeft, User as UserIcon } from 'lucide-react';
+import { ArrowRight, ArrowLeft, User as UserIcon } from 'lucide-react';
 import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
-import { useProfile } from '@/contexts/ProfileContext';
+import { useProfile } from '@/features/profile/hooks/useProfile';
 import { useSettingsStore } from '@/stores/useSettingsStore';
 import { LanguageLevelSelector, DeckGenerationStep, AuthLayout } from './components';
 import { LanguageSelector } from './components/LanguageSelector';
 import { generateInitialDeck } from '@/features/deck/services/deckGeneration';
 import { saveAllCards } from '@/services/db/repositories/cardRepository';
 import { updateUserSettings } from '@/services/db/repositories/settingsRepository';
-import { Difficulty, Card, Language, LanguageId } from '@/types';
-import { GamePanel, GameButton, GameInput, GameLoader } from '@/components/ui/game-ui';
+import { Difficulty, Card as CardType, Language, LanguageId } from '@/types';
+import { Loader } from '@/components/ui/loading';
+import { Card } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { GenshinCorners } from '@/components/ui/decorative';
 import { POLISH_BEGINNER_DECK } from '@/features/deck/data/polishBeginnerDeck';
 import { NORWEGIAN_BEGINNER_DECK } from '@/features/deck/data/norwegianBeginnerDeck';
 import { JAPANESE_BEGINNER_DECK } from '@/features/deck/data/japaneseBeginnerDeck';
@@ -61,7 +66,7 @@ export const AuthPage: React.FC = () => {
         await updateUserSettings('local-user', { geminiApiKey: apiKey });
       }
 
-      let cards: Card[] = [];
+      let cards: CardType[] = [];
 
       if (useAI && apiKey) {
         cards = await generateInitialDeck({
@@ -115,33 +120,44 @@ export const AuthPage: React.FC = () => {
 
   const renderUsernameStep = () => (
     <form onSubmit={handleUsernameSubmit} className="space-y-4">
-      <GameInput
-        label="Username"
-        type="text"
-        placeholder="Choose a username"
-        value={username}
-        onChange={(e) => setUsername(e.target.value)}
-        icon={<UserIcon size={16} />}
-        required
-        minLength={3}
-        maxLength={20}
-      />
+      <div className="space-y-1.5">
+        <Label htmlFor="username" className="text-xs font-medium text-muted-foreground font-ui uppercase tracking-wider ml-1">
+          Username
+        </Label>
+        <div className="relative group/input">
+          <Input
+            id="username"
+            type="text"
+            placeholder="Choose a username"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+            className="pl-11"
+            required
+            minLength={3}
+            maxLength={20}
+          />
+          <div className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground group-focus-within/input:text-amber-500 transition-colors">
+            <UserIcon size={16} />
+          </div>
+        </div>
+      </div>
 
-      <GameButton type="submit" className="w-full mt-2">
+      <Button type="submit" className="w-full mt-2">
         Continue <ArrowRight size={16} />
-      </GameButton>
+      </Button>
     </form>
   );
 
   if (loading && setupStep === 'deck') {
     return (
       <AuthLayout>
-        <GamePanel variant="ornate" className="text-center py-12">
-          <GameLoader size="lg" text="Forging your deck..." />
-          <p className="mt-6 text-muted-foreground text-sm max-w-xs mx-auto">
+        <Card variant="ornate" className="text-center py-12">
+          <Loader size="lg" />
+          <h3 className="mt-4 text-lg font-medium tracking-wide font-ui">Forging your deck...</h3>
+          <p className="mt-2 text-muted-foreground text-sm max-w-xs mx-auto">
             Preparing your personalized learning path.
           </p>
-        </GamePanel>
+        </Card>
       </AuthLayout>
     );
   }
@@ -149,18 +165,19 @@ export const AuthPage: React.FC = () => {
   if (setupStep === 'language') {
     return (
       <AuthLayout className="max-w-2xl">
-        <GamePanel variant="ornate" showCorners>
+        <Card variant="ornate">
+          <GenshinCorners />
           <div className="mb-6 flex items-center gap-4">
-            <GameButton variant="ghost" size="sm" onClick={() => setSetupStep('username')}>
+            <Button variant="ghost" size="sm" onClick={() => setSetupStep('username')}>
               <ArrowLeft size={16} /> Back
-            </GameButton>
+            </Button>
             <h2 className="text-xl font-bold font-ui uppercase">Select Language</h2>
           </div>
           <LanguageSelector
             selectedLanguage={settings.language}
             onSelect={handleLanguageSelected}
           />
-        </GamePanel>
+        </Card>
       </AuthLayout>
     );
   }
@@ -168,18 +185,19 @@ export const AuthPage: React.FC = () => {
   if (setupStep === 'level') {
     return (
       <AuthLayout className="max-w-2xl">
-        <GamePanel variant="ornate" showCorners>
+        <Card variant="ornate">
+          <GenshinCorners />
           <div className="mb-6 flex items-center gap-4">
-            <GameButton variant="ghost" size="sm" onClick={() => setSetupStep('language')}>
+            <Button variant="ghost" size="sm" onClick={() => setSetupStep('language')}>
               <ArrowLeft size={16} /> Back
-            </GameButton>
+            </Button>
             <h2 className="text-xl font-bold font-ui uppercase">Select Proficiency</h2>
           </div>
           <LanguageLevelSelector
             selectedLevel={selectedLevel}
             onSelectLevel={handleLevelSelected}
           />
-        </GamePanel>
+        </Card>
       </AuthLayout>
     );
   }
@@ -187,11 +205,12 @@ export const AuthPage: React.FC = () => {
   if (setupStep === 'deck') {
     return (
       <AuthLayout className="max-w-2xl">
-        <GamePanel variant="ornate" showCorners>
+        <Card variant="ornate">
+          <GenshinCorners />
           <div className="mb-6 flex items-center gap-4">
-            <GameButton variant="ghost" size="sm" onClick={() => setSetupStep('level')}>
+            <Button variant="ghost" size="sm" onClick={() => setSetupStep('level')}>
               <ArrowLeft size={16} /> Back
-            </GameButton>
+            </Button>
             <h2 className="text-xl font-bold font-ui uppercase">Deck Configuration</h2>
           </div>
           <DeckGenerationStep
@@ -199,14 +218,15 @@ export const AuthPage: React.FC = () => {
             proficiencyLevel={selectedLevel!}
             onComplete={handleDeckSetup}
           />
-        </GamePanel>
+        </Card>
       </AuthLayout>
     );
   }
 
   return (
     <AuthLayout>
-      <GamePanel variant="ornate" showCorners className="py-8 px-6 md:px-8">
+      <Card variant="ornate" className="py-8 px-6 md:px-8">
+        <GenshinCorners />
         {renderHeader()}
         {renderUsernameStep()}
 
@@ -215,7 +235,7 @@ export const AuthPage: React.FC = () => {
             Your data is stored locally on this device
           </p>
         </div>
-      </GamePanel>
+      </Card>
     </AuthLayout>
   );
 };

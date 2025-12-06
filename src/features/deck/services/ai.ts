@@ -1,4 +1,5 @@
 import { LanguageId } from '@/types';
+import { parseAIJSON } from '@/utils/jsonParser';
 
 interface GeminiRequestBody {
   contents: Array<{
@@ -45,35 +46,6 @@ interface BatchGenerationOptions {
 }
 
 const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent';
-
-function extractJSON(text: string): string {
-  const jsonBlockMatch = text.match(/```(?:json)?\s*([\s\S]*?)\s*```/i);
-  if (jsonBlockMatch) {
-    return jsonBlockMatch[1];
-  }
-
-  const firstOpenBrace = text.indexOf('{');
-  const firstOpenBracket = text.indexOf('[');
-
-  let firstOpen = -1;
-  if (firstOpenBrace !== -1 && firstOpenBracket !== -1) {
-    firstOpen = Math.min(firstOpenBrace, firstOpenBracket);
-  } else {
-    firstOpen = Math.max(firstOpenBrace, firstOpenBracket);
-  }
-
-  if (firstOpen !== -1) {
-    const lastCloseBrace = text.lastIndexOf('}');
-    const lastCloseBracket = text.lastIndexOf(']');
-    const lastClose = Math.max(lastCloseBrace, lastCloseBracket);
-
-    if (lastClose > firstOpen) {
-      return text.substring(firstOpen, lastClose + 1);
-    }
-  }
-
-  return text;
-}
 
 async function callGemini(prompt: string, apiKey: string, responseSchema?: GeminiResponseSchema): Promise<string> {
   if (!apiKey) {
@@ -145,9 +117,8 @@ export const aiService = {
     `;
 
     const result = await callGemini(prompt, apiKey, responseSchema);
-    const cleanedResult = extractJSON(result);
     try {
-      const parsed = JSON.parse(cleanedResult);
+      const parsed = parseAIJSON<{ lemma: string }>(result);
       return parsed.lemma || word;
     } catch (e) {
       console.error("Failed to parse lemmatize response", e);
@@ -195,11 +166,10 @@ export const aiService = {
     `;
 
     const result = await callGemini(prompt, apiKey, responseSchema);
-    const cleanedResult = extractJSON(result);
     try {
-      return JSON.parse(cleanedResult);
+      return parseAIJSON(result);
     } catch (e) {
-      console.error("Failed to parse AI response", e, "\nRaw:", result, "\nCleaned:", cleanedResult);
+      console.error("Failed to parse AI response", e, "\nRaw:", result);
       return {
         definition: "Failed to analyze",
         partOfSpeech: "Unknown",
@@ -259,11 +229,10 @@ export const aiService = {
     }
 
     const result = await callGemini(prompt, apiKey, responseSchema);
-    const cleanedResult = extractJSON(result);
     try {
-      return JSON.parse(cleanedResult);
+      return parseAIJSON(result);
     } catch (e) {
-      console.error("Failed to parse AI response", e, "\nRaw:", result, "\nCleaned:", cleanedResult);
+      console.error("Failed to parse AI response", e, "\nRaw:", result);
       throw new Error("Failed to generate sentence for word");
     }
   },
@@ -314,11 +283,10 @@ export const aiService = {
     }
 
     const result = await callGemini(prompt, apiKey, responseSchema);
-    const cleanedResult = extractJSON(result);
     try {
-      return JSON.parse(cleanedResult);
+      return parseAIJSON(result);
     } catch (e) {
-      console.error("Failed to parse AI response", e, "\nRaw:", result, "\nCleaned:", cleanedResult);
+      console.error("Failed to parse AI response", e, "\nRaw:", result);
       return {
         translation: "",
         notes: ""
@@ -465,12 +433,11 @@ export const aiService = {
 
     const result = await callGemini(prompt, apiKey, responseSchema);
 
-    const cleanedResult = extractJSON(result);
     try {
-      const parsed = JSON.parse(cleanedResult);
+      const parsed = parseAIJSON<GeneratedCardData[]>(result);
       return Array.isArray(parsed) ? parsed : [];
     } catch (e) {
-      console.error("Failed to parse AI batch response", e, "\nRaw:", result, "\nCleaned:", cleanedResult);
+      console.error("Failed to parse AI batch response", e, "\nRaw:", result);
       throw new Error("Failed to generate valid cards");
     }
   }

@@ -4,7 +4,10 @@ import { UserSettings } from '@/types';
 import { EditorialSelect } from '@/components/form/EditorialSelect';
 import { EditorialInput } from '@/components/form/EditorialInput';
 import { Slider } from '@/components/ui/slider';
-import { GamePanel, GameSectionHeader, GameDivider, GameButton } from '@/components/ui/game-ui';
+import { Card } from '@/components/ui/card';
+import { SectionHeader } from '@/components/ui/section-header';
+import { OrnateSeparator } from '@/components/ui/separator';
+import { Button } from '@/components/ui/button';
 
 interface VoiceOption { id: string; name: string; }
 
@@ -27,12 +30,12 @@ export const AudioSettings: React.FC<AudioSettingsProps> = ({
   return (
     <div className="space-y-8 max-w-2xl">
       {/* Speech Provider Section */}
-      <GameSectionHeader 
-        title="Speech Provider" 
+      <SectionHeader
+        title="Speech Provider"
         subtitle="Text-to-speech engine configuration"
         icon={<Mic className="w-4 h-4" strokeWidth={1.5} />}
       />
-      <GamePanel variant="default" size="md" glowOnHover>
+      <Card variant="default" size="md">
         <div className="space-y-4">
           <div className="flex items-center gap-2 mb-3">
             <span className="w-1.5 h-1.5 rotate-45 bg-primary/40" />
@@ -87,17 +90,17 @@ export const AudioSettings: React.FC<AudioSettingsProps> = ({
             )}
           </div>
         )}
-      </GamePanel>
+      </Card>
 
-      <GameDivider />
+      <OrnateSeparator />
 
       {/* Voice Selection Section */}
-      <GameSectionHeader 
-        title="Voice Selection" 
+      <SectionHeader
+        title="Voice Selection"
         subtitle="Choose and test your preferred voice"
         icon={<Volume2 className="w-4 h-4" strokeWidth={1.5} />}
       />
-      <GamePanel variant="default" size="md" glowOnHover>
+      <Card variant="default" size="md">
         <div className="space-y-4">
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2">
@@ -106,13 +109,13 @@ export const AudioSettings: React.FC<AudioSettingsProps> = ({
                 Voice
               </label>
             </div>
-            <GameButton 
-              variant="ghost" 
+            <Button
+              variant="ghost"
               size="sm"
               onClick={onTestAudio}
             >
               <Volume2 size={14} strokeWidth={1.5} /> Test Voice
-            </GameButton>
+            </Button>
           </div>
           <EditorialSelect
             value={localSettings.tts.voiceURI || 'default'}
@@ -121,18 +124,18 @@ export const AudioSettings: React.FC<AudioSettingsProps> = ({
             className="font-ui"
           />
         </div>
-      </GamePanel>
+      </Card>
 
-      <GameDivider />
+      <OrnateSeparator />
 
       {/* Playback Settings */}
-      <GameSectionHeader 
-        title="Playback" 
+      <SectionHeader
+        title="Playback"
         subtitle="Audio speed and volume controls"
         icon={<Gauge className="w-4 h-4" strokeWidth={1.5} />}
       />
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <GamePanel variant="stat" size="md" glowOnHover>
+        <Card variant="stat" size="md">
           <div className="space-y-4">
             <div className="flex justify-between items-baseline">
               <div className="flex items-center gap-2">
@@ -148,9 +151,9 @@ export const AudioSettings: React.FC<AudioSettingsProps> = ({
               className="py-3"
             />
           </div>
-        </GamePanel>
-        
-        <GamePanel variant="stat" size="md" glowOnHover>
+        </Card>
+
+        <Card variant="stat" size="md">
           <div className="space-y-4">
             <div className="flex justify-between items-baseline">
               <div className="flex items-center gap-2">
@@ -166,9 +169,8 @@ export const AudioSettings: React.FC<AudioSettingsProps> = ({
               className="py-3"
             />
           </div>
-        </GamePanel>
+        </Card>
       </div>
     </div>
   );
 };
-

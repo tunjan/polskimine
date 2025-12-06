@@ -1,6 +1,6 @@
 import React from 'react';
 import { Sparkles, Plus } from 'lucide-react';
-import { ButtonLoader } from '@/components/game';
+import { ButtonLoader } from '@/components/ui/loading';
 
 interface SelectionMenuProps {
     top: number;

@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { ChevronLeft, ChevronRight, Search, X, Plus, Sparkles, BookOpen, Zap, Trash2, Filter, Bookmark, AlertTriangle } from 'lucide-react';
 
-import { useDeck } from '@/contexts/DeckContext';
+import { useDeckStats } from '@/features/deck/hooks/useDeckStats';
 import { useSettingsStore } from '@/stores/useSettingsStore';
 import { Card, CardStatus } from '@/types';
 import { AddCardModal } from '@/features/deck/components/AddCardModal';
@@ -10,12 +10,12 @@ import { CardHistoryModal } from '@/features/deck/components/CardHistoryModal';
 import { CardList } from '@/features/deck/components/CardList';
 import { useCardOperations } from '@/features/deck/hooks/useCardOperations';
 import { useCardsQuery, CardFilters } from '@/features/deck/hooks/useCardsQuery';
-import { GamePanel, GameButton, GameDivider, GameLoader } from '@/components/ui/game-ui';
+
 import { cn } from '@/lib/utils';
 
 export const CardsRoute: React.FC = () => {
   const settings = useSettingsStore(s => s.settings);
-  const { stats } = useDeck();
+  const { stats } = useDeckStats();
   const { addCard, addCardsBatch, updateCard, deleteCard, deleteCardsBatch, prioritizeCards } = useCardOperations();
 
   const [searchTerm, setSearchTerm] = useState('');

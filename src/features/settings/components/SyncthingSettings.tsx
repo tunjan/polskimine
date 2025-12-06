@@ -1,6 +1,7 @@
 import React from 'react';
 import { RefreshCw, Save, Download, FolderSync, Clock } from 'lucide-react';
-import { GamePanel, GameSectionHeader, GameButton } from '@/components/ui/game-ui';
+import { Card } from '@/components/ui/card';
+import { SectionHeader } from '@/components/ui/section-header';
 
 interface SyncthingSettingsProps {
     onSave: () => void;
@@ -35,14 +36,14 @@ export const SyncthingSettings: React.FC<SyncthingSettingsProps> = ({
 
     return (
         <div className="space-y-6">
-            <GameSectionHeader
+            <SectionHeader
                 title="Syncthing Sync"
                 subtitle="Sync data between devices using a shared file"
                 icon={<FolderSync className="w-4 h-4" strokeWidth={1.5} />}
             />
 
             {/* Last Sync Status */}
-            <GamePanel variant="stat" size="sm" className="border-border/30">
+            <Card variant="stat" size="sm" className="border-border/30">
                 <div className="flex items-center gap-3">
                     <Clock className="w-4 h-4 text-muted-foreground/60" strokeWidth={1.5} />
                     <div className="flex-1">
@@ -50,16 +51,16 @@ export const SyncthingSettings: React.FC<SyncthingSettingsProps> = ({
                         <p className="text-sm font-ui text-foreground">{formatLastSync(lastSync)}</p>
                     </div>
                 </div>
-            </GamePanel>
+            </Card>
 
             {/* Sync Actions */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {/* Save Changes Button */}
-                <GamePanel
+                <Card
                     variant="default"
                     size="md"
-                    glowOnHover={!isSaving}
-                    className={`cursor-pointer group ${isSaving ? 'opacity-50 pointer-events-none' : ''}`}
+                    isInteractive={!isSaving}
+                    className={`group ${isSaving ? 'opacity-50 pointer-events-none' : ''}`}
                     onClick={onSave}
                 >
                     <div className="flex flex-col items-center text-center space-y-3 py-2">
@@ -75,14 +76,14 @@ export const SyncthingSettings: React.FC<SyncthingSettingsProps> = ({
                             </p>
                         </div>
                     </div>
-                </GamePanel>
+                </Card>
 
                 {/* Load from Sync File Button */}
-                <GamePanel
+                <Card
                     variant="default"
                     size="md"
-                    glowOnHover={!isLoading}
-                    className={`cursor-pointer group ${isLoading ? 'opacity-50 pointer-events-none' : ''}`}
+                    isInteractive={!isLoading}
+                    className={`group ${isLoading ? 'opacity-50 pointer-events-none' : ''}`}
                     onClick={onLoad}
                 >
                     <div className="flex flex-col items-center text-center space-y-3 py-2">
@@ -98,11 +99,11 @@ export const SyncthingSettings: React.FC<SyncthingSettingsProps> = ({
                             </p>
                         </div>
                     </div>
-                </GamePanel>
+                </Card>
             </div>
 
             {/* Instructions */}
-            <GamePanel variant="stat" size="sm" className="border-border/20">
+            <Card variant="stat" size="sm" className="border-border/20">
                 <div className="flex items-start gap-3">
                     <span className="w-1.5 h-1.5 rotate-45 bg-muted-foreground/30 mt-1.5 shrink-0" />
                     <div className="text-xs text-muted-foreground/50 font-light leading-relaxed space-y-2">
@@ -118,7 +119,7 @@ export const SyncthingSettings: React.FC<SyncthingSettingsProps> = ({
                         </p>
                     </div>
                 </div>
-            </GamePanel>
+            </Card>
         </div>
     );
 };

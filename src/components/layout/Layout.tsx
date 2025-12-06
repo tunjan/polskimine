@@ -15,10 +15,10 @@ import {
 } from 'lucide-react';
 import { useSettingsStore } from '@/stores/useSettingsStore';
 import { useAuth } from '@/contexts/AuthContext';
-import { useProfile } from '@/contexts/ProfileContext';
+import { useProfile } from '@/features/profile/hooks/useProfile';
 import { useCardOperations } from '@/features/deck/hooks/useCardOperations';
 import { AddCardModal } from '@/features/deck/components/AddCardModal';
-import { SettingsModal } from '@/features/settings/components/SettingsModal';
+
 import { CramModal } from '@/features/study/components/CramModal';
 import { LanguageId } from '@/types';
 import {
@@ -51,7 +51,7 @@ import { useSyncthingSync } from '@/features/settings/hooks/useSyncthingSync';
 interface NavActionProps {
   onOpenAdd: () => void;
   onOpenCram: () => void;
-  onOpenSettings: () => void;
+
   onSyncSave: () => void;
   isSyncing: boolean;
   onCloseMobileMenu?: () => void;
@@ -62,7 +62,7 @@ interface NavActionProps {
 const AppSidebar: React.FC<NavActionProps> = ({
   onOpenAdd,
   onOpenCram,
-  onOpenSettings,
+
   onSyncSave,
   isSyncing,
   onCloseMobileMenu
@@ -224,11 +224,13 @@ const AppSidebar: React.FC<NavActionProps> = ({
           {/* Settings */}
           <SidebarMenuItem>
             <SidebarMenuButton
-              onClick={() => { onOpenSettings(); onCloseMobileMenu?.(); }}
+              asChild
               className="h-8 px-3 rounded-none text-muted-foreground hover:text-foreground hover:bg-transparent text-[13px] tracking-wide group-data-[collapsible=icon]:px-0 group-data-[collapsible=icon]:justify-center"
             >
-              <Settings size={14} strokeWidth={1.25} className="shrink-0" />
-              <span className="group-data-[collapsible=icon]:hidden">Settings</span>
+              <Link to="/settings" onClick={onCloseMobileMenu}>
+                <Settings size={14} strokeWidth={1.25} className="shrink-0" />
+                <span className="group-data-[collapsible=icon]:hidden">Settings</span>
+              </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
@@ -357,7 +359,7 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
   const { saveToSyncFile, isSaving: isSyncing } = useSyncthingSync();
 
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
-  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+
   const [isCramModalOpen, setIsCramModalOpen] = useState(false);
 
   const isStudyMode = location.pathname === '/study';
@@ -365,7 +367,7 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
   const sidebarProps: NavActionProps = {
     onOpenAdd: () => setIsAddModalOpen(true),
     onOpenCram: () => setIsCramModalOpen(true),
-    onOpenSettings: () => setIsSettingsOpen(true),
+
     onSyncSave: saveToSyncFile,
     isSyncing,
   };
@@ -380,7 +382,7 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
 
         {/* Global Modals */}
         <AddCardModal isOpen={isAddModalOpen} onClose={() => setIsAddModalOpen(false)} onAdd={addCard} />
-        <SettingsModal isOpen={isSettingsOpen} onClose={() => setIsSettingsOpen(false)} />
+
         <CramModal isOpen={isCramModalOpen} onClose={() => setIsCramModalOpen(false)} />
       </div>
     );
@@ -429,7 +431,7 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
 
       {/* Global Modals */}
       <AddCardModal isOpen={isAddModalOpen} onClose={() => setIsAddModalOpen(false)} onAdd={addCard} />
-      <SettingsModal isOpen={isSettingsOpen} onClose={() => setIsSettingsOpen(false)} />
+
       <CramModal isOpen={isCramModalOpen} onClose={() => setIsCramModalOpen(false)} />
     </SidebarProvider>
   );

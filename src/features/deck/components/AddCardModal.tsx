@@ -7,7 +7,8 @@ import { toast } from "sonner";
 import { aiService } from "@/features/deck/services/ai";
 import { escapeRegExp, parseFurigana, cn } from "@/lib/utils";
 import { useSettingsStore } from "@/stores/useSettingsStore";
-import { GenshinCorners, DiamondDivider, CornerAccents } from "@/components/game/GamePanel";
+import { Button } from "@/components/ui/button";
+import { OrnateSeparator } from "@/components/ui/separator";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -126,8 +127,9 @@ export const AddCardModal: React.FC<AddCardModalProps> = ({ isOpen, onClose, onA
 
                 toast.success("Content generated");
             }
-        } catch (e) {
-            if (isMounted.current) toast.error("Generation failed");
+        } catch (e: any) {
+            console.error("Auto-fill error:", e);
+            if (isMounted.current) toast.error(e.message || "Generation failed");
         } finally {
             if (isMounted.current) setIsGenerating(false);
         }
@@ -208,18 +210,16 @@ export const AddCardModal: React.FC<AddCardModalProps> = ({ isOpen, onClose, onA
         <Dialog open={isOpen} onOpenChange={onClose}>
             <DialogContent className="sm:max-w-2xl p-0 bg-card border-2 border-amber-700/30 dark:border-amber-600/25 gap-0 overflow-hidden animate-genshin-fade-in [&>button]:z-30 [&>button]:right-5 [&>button]:top-5">
 
-                {/* Ornate Corner Decorations */}
-                <GenshinCorners className="text-amber-500/70 dark:text-amber-400/60" />
+                {/* Ornate Corner Decorations removed */}
 
-                {/* Inner decorative frame */}
-                <div className="absolute inset-3 border border-amber-700/15 dark:border-amber-600/10 pointer-events-none z-10" />
+                {/* Inner decorative frame removed */}
 
                 <DialogDescription className="sr-only">Form to add or edit a flashcard</DialogDescription>
 
                 <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col h-full relative z-0">
 
                     {/* Top Section: Header with ornate styling - pr-12 gives space for close button */}
-                    <div className="px-8 pr-14 pt-8 pb-6 bg-gradient-to-br from-amber-600/10 via-transparent to-transparent dark:from-amber-400/10">
+                    <div className="px-8 pr-14 pt-8 pb-6 bg-linear-to-br from-amber-600/10 via-transparent to-transparent dark:from-amber-400/10">
 
                         {/* Header Row */}
                         <div className="flex justify-between items-center mb-6">
@@ -241,33 +241,24 @@ export const AddCardModal: React.FC<AddCardModalProps> = ({ isOpen, onClose, onA
                             </DialogTitle>
 
                             {/* Auto-Fill Button - Genshin Style */}
-                            <button
+                            <Button
                                 type="button"
                                 onClick={handleAutoFill}
                                 disabled={isGenerating || !watchedSentence}
+                                variant="secondary"
                                 className={cn(
-                                    "group relative flex items-center gap-2.5 px-4 py-2",
-                                    "border border-amber-800/80 hover:border-amber-500/60",
-                                    "bg-amber-600/5 hover:bg-amber-600/15",
-                                    "transition-all duration-200",
-                                    "disabled:opacity-40 disabled:cursor-not-allowed",
-                                    isGenerating && "animate-border-flow"
+                                    "gap-2.5",
+                                    isGenerating && "opacity-80"
                                 )}
                             >
-                                {/* Button corner accents */}
-                                <CornerAccents className="border-amber-900/80" />
-
                                 <Sparkles size={14} className={cn(
                                     "transition-all duration-200",
-                                    isGenerating ? "text-amber-800 animate-pulse" : "text-amber-800/80 group-hover:text-amber-500"
+                                    isGenerating ? "animate-pulse" : ""
                                 )} />
-                                <span className={cn(
-                                    "text-[10px] font-ui font-semibold uppercase tracking-[0.15em]",
-                                    isGenerating ? "text-amber-800" : "text-amber-800/80 group-hover:text-amber-500"
-                                )}>
+                                <span className="text-[10px] font-semibold uppercase tracking-wider">
                                     {isGenerating ? "Analyzing..." : "Auto-Fill"}
                                 </span>
-                            </button>
+                            </Button>
                         </div>
 
                         {/* Sentence Input Area */}
@@ -290,10 +281,10 @@ export const AddCardModal: React.FC<AddCardModalProps> = ({ isOpen, onClose, onA
                     </div>
 
                     {/* Ornate Divider */}
-                    <DiamondDivider className="mx-8 my-1" />
+                    <OrnateSeparator className="mx-8 my-1" />
 
                     {/* Bottom Section: Form Fields with Genshin styling */}
-                    <div className="px-8 py-6 space-y-6 bg-gradient-to-tl from-amber-600/10 via-transparent to-transparent dark:from-amber-400/10">
+                    <div className="px-8 py-6 space-y-6 bg-linear-to-tl from-amber-600/10 via-transparent to-transparent dark:from-amber-400/10">
 
                         {/* Translation & Target Word Row */}
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
@@ -381,21 +372,14 @@ export const AddCardModal: React.FC<AddCardModalProps> = ({ isOpen, onClose, onA
 
                         {/* Submit Button - Genshin Primary Button Style */}
                         <div className="flex justify-end pt-4">
-                            <button
+                            <Button
                                 type="submit"
-                                className="group relative inline-flex items-center gap-3 bg-amber-600/15 hover:bg-amber-600/25 active:bg-amber-600/35 text-amber-700 dark:text-amber-400 border-2 border-amber-600/50 hover:border-amber-500/70 px-8 py-3.5 transition-all duration-200"
+                                variant="default"
+                                className="gap-3"
                             >
-                                {/* Button corner accents */}
-                                <CornerAccents position="all" size="md" className="border-amber-500" />
-
-                                {/* Diamond accent */}
-                                <span className="w-1.5 h-1.5 rotate-45 bg-amber-500/70 group-hover:bg-amber-500 transition-colors" />
-
-                                <span className="text-[11px] font-serif font-semibold uppercase tracking-[0.2em]">
-                                    Save Entry
-                                </span>
+                                <span>Save Entry</span>
                                 <ArrowRight size={14} className="transition-transform duration-300 group-hover:translate-x-1" />
-                            </button>
+                            </Button>
                         </div>
                     </div>
                 </form>

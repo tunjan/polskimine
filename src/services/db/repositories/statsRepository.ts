@@ -2,6 +2,11 @@ import { getSRSDate } from '@/features/study/logic/srs';
 import { SRS_CONFIG } from '@/constants';
 import { db } from '@/services/db/dexie';
 import { differenceInCalendarDays, parseISO, addDays, format, subDays, startOfDay, parse } from 'date-fns';
+import {
+  getCardsForDashboard,
+  getDashboardCounts,
+  getDueCards
+} from './cardRepository';
 
 export const getDashboardStats = async (language?: string) => {
   const counts = { new: 0, learning: 0, graduated: 0, known: 0 };
@@ -122,6 +127,19 @@ export const getDashboardStats = async (language?: string) => {
 };
 
 export const getStats = async (language?: string) => {
+  if (language) {
+    const counts = await getDashboardCounts(language as any);
+    return {
+      total: counts.total,
+      due: counts.hueDue,
+      learned: counts.learned
+    };
+  }
+
+  // Fallback for global stats (if needed, or just sum up)
+  // For now, keeping old logic for global or creating a global aggregator if needed.
+  // Assuming 'language' is always passed for deck stats.
+  // If no language, use old slow method or implement global counter.
 
   const srsToday = getSRSDate(new Date());
   const cutoffDate = new Date(srsToday);
@@ -129,36 +147,14 @@ export const getStats = async (language?: string) => {
   cutoffDate.setHours(SRS_CONFIG.CUTOFF_HOUR);
   const cutoffIso = cutoffDate.toISOString();
 
-  let total = 0;
-  let due = 0;
-  let learned = 0;
-
-  if (language) {
-    total = await db.cards.where('language').equals(language).count();
-
-
-    due = await db.cards
-      .where('dueDate').below(cutoffIso)
-      .filter(c => c.language === language && c.status !== 'known')
-      .count();
-
-    learned = await db.cards.where('[language+status]').anyOf(
-      [language, 'graduated'],
-      [language, 'known']
-    ).count();
-
-  } else {
-    total = await db.cards.count();
-
-    due = await db.cards
-      .where('dueDate').below(cutoffIso)
-      .filter(c => c.status !== 'known')
-      .count();
-
-    learned = await db.cards
-      .where('status').anyOf('graduated', 'known')
-      .count();
-  }
+  const total = await db.cards.count();
+  const due = await db.cards
+    .where('dueDate').below(cutoffIso)
+    .filter(c => c.status !== 'known')
+    .count();
+  const learned = await db.cards
+    .where('status').anyOf('graduated', 'known')
+    .count();
 
   return { total, due, learned };
 };

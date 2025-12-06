@@ -3,7 +3,10 @@ import { Sparkles, BookOpen } from 'lucide-react';
 import { motion } from "framer-motion";
 import { Difficulty, Language, LanguageId } from '@/types';
 import { cn } from '@/lib/utils';
-import { GameButton, GameInput, GameLoader } from '@/components/ui/game-ui';
+import { ButtonLoader } from '@/components/ui/loading';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 
 interface DeckGenerationStepProps {
     language: Language;
@@ -153,14 +156,19 @@ export const DeckGenerationStep: React.FC<DeckGenerationStepProps> = ({
             {/* API Key Input */}
             {selectedOption === 'ai' && (
                 <div className="animate-in fade-in slide-in-from-top-2 duration-200">
-                    <GameInput
-                        label="Gemini API Key"
-                        type="password"
-                        placeholder="Enter your API key"
-                        value={apiKey}
-                        onChange={(e) => setApiKey(e.target.value)}
-                        error={error}
-                    />
+                    <div className="space-y-1.5">
+                        <Label htmlFor="apiKey" className="text-xs font-medium text-muted-foreground font-ui uppercase tracking-wider ml-1">
+                            Gemini API Key
+                        </Label>
+                        <Input
+                            id="apiKey"
+                            type="password"
+                            placeholder="Enter your API key"
+                            value={apiKey}
+                            onChange={(e) => setApiKey(e.target.value)}
+                        />
+                        {error && <p className="text-destructive text-xs ml-1">{error}</p>}
+                    </div>
                     <p className="text-[10px] text-muted-foreground mt-2">
                         Your key is stored locally and only used for deck generation.
                     </p>
@@ -170,17 +178,17 @@ export const DeckGenerationStep: React.FC<DeckGenerationStepProps> = ({
             {/* Action Button */}
             {selectedOption && (
                 <div className="pt-2 animate-in fade-in slide-in-from-bottom-2 duration-200">
-                    <GameButton
+                    <Button
                         onClick={handleGenerate}
                         disabled={loading}
                         className="w-full"
                     >
                         {loading ? (
-                            <GameLoader size="sm" />
+                            <ButtonLoader />
                         ) : (
                             selectedOption === 'ai' ? 'Generate Deck' : 'Start Learning'
                         )}
-                    </GameButton>
+                    </Button>
                 </div>
             )}
         </div>

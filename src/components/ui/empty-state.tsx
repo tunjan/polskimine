@@ -1,9 +1,9 @@
 import * as React from "react"
 import { cn } from "@/lib/utils"
-import { GamePanel } from "./GamePanel"
-import { GameButton } from "./GameButton"
+import { Card } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
 
-export interface GameEmptyStateProps {
+export interface EmptyStateProps {
     icon: React.ElementType
     title: string
     description: string
@@ -14,15 +14,15 @@ export interface GameEmptyStateProps {
     className?: string
 }
 
-export function GameEmptyState({
+export function EmptyState({
     icon: Icon,
     title,
     description,
     action,
     className
-}: GameEmptyStateProps) {
+}: EmptyStateProps) {
     return (
-        <GamePanel className={cn("relative overflow-hidden", className)}>
+        <Card className={cn("relative overflow-hidden p-0", className)}>
             {/* Subtle diamond pattern background */}
             <div className="absolute inset-0 opacity-[0.03] pointer-events-none">
                 <div className="absolute inset-0" style={{
@@ -57,15 +57,15 @@ export function GameEmptyState({
                 </p>
 
                 {action && (
-                    <GameButton
+                    <Button
                         variant="secondary"
                         size="sm"
                         onClick={action.onClick}
                     >
                         {action.label}
-                    </GameButton>
+                    </Button>
                 )}
             </div>
-        </GamePanel>
+        </Card>
     )
 }

@@ -1,7 +1,7 @@
 import React, { createContext, useContext } from 'react';
 import { db } from '@/services/db/dexie';
 import { useAuth } from './AuthContext';
-import { useProfile } from './ProfileContext';
+import { useProfile } from '@/features/profile/hooks/useProfile';
 
 interface GamificationContextType {
     incrementXP: (amount: number) => void;

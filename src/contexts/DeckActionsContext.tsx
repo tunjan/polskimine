@@ -6,7 +6,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { getUTCDateString } from '@/constants';
 import { getSRSDate } from '@/features/study/logic/srs';
-import { useSessionDispatch } from './SessionContext';
+import { useDeckStore } from '@/stores/useDeckStore';
 
 interface DeckDispatch {
     recordReview: (card: Card, grade: Grade, xpPayload?: CardXpPayload) => Promise<void>;
@@ -20,14 +20,13 @@ export const DeckActionsProvider: React.FC<{ children: React.ReactNode }> = ({ c
     const queryClient = useQueryClient();
     const recordReviewMutation = useRecordReviewMutation();
     const undoReviewMutation = useUndoReviewMutation();
-    const { setLastReview, getLastReview, clearLastReview } = useSessionDispatch();
 
     const recordReview = useCallback(async (oldCard: Card, grade: Grade, xpPayload?: CardXpPayload) => {
         const today = getUTCDateString(getSRSDate(new Date()));
         const xpEarned = xpPayload?.totalXp ?? 0;
 
         // Optimistically update session state
-        setLastReview({ card: oldCard, date: today, xpEarned });
+        useDeckStore.getState().setLastReview({ card: oldCard, date: today, xpEarned });
 
         try {
             await recordReviewMutation.mutateAsync({ card: oldCard, grade, xpPayload });
@@ -35,27 +34,27 @@ export const DeckActionsProvider: React.FC<{ children: React.ReactNode }> = ({ c
             console.error("Failed to record review", error);
             toast.error("Failed to save review progress");
             // Revert session state if failed (check if it's still the same review)
-            const currentLast = getLastReview();
+            const currentLast = useDeckStore.getState().lastReview;
             if (currentLast?.card.id === oldCard.id) {
-                clearLastReview();
+                useDeckStore.getState().clearLastReview();
             }
         }
-    }, [recordReviewMutation, setLastReview, getLastReview, clearLastReview]);
+    }, [recordReviewMutation]);
 
     const undoReview = useCallback(async () => {
-        const lastReview = getLastReview();
+        const lastReview = useDeckStore.getState().lastReview;
         if (!lastReview) return;
         const { card, date, xpEarned } = lastReview;
 
         try {
             await undoReviewMutation.mutateAsync({ card, date, xpEarned });
-            clearLastReview();
+            useDeckStore.getState().clearLastReview();
             toast.success('Review undone');
         } catch (error) {
             console.error("Failed to undo review", error);
             toast.error("Failed to undo review");
         }
-    }, [getLastReview, undoReviewMutation, clearLastReview]);
+    }, [undoReviewMutation]);
 
     const refreshDeckData = useCallback(() => {
         queryClient.invalidateQueries({ queryKey: ['deckStats'] });

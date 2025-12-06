@@ -4,13 +4,11 @@ import { Capacitor } from '@capacitor/core';
 import { BrowserRouter, HashRouter } from 'react-router-dom';
 import { Toaster } from 'sonner';
 
-import { SessionProvider } from '@/contexts/SessionContext';
+
 import { DeckActionsProvider } from '@/contexts/DeckActionsContext';
-import { DeckStatsProvider } from '@/contexts/DeckStatsContext';
 import { ThemeProvider } from '@/contexts/ThemeContext';
 import { MusicProvider } from '@/contexts/MusicContext';
 import { AuthProvider } from '@/contexts/AuthContext';
-import { ProfileProvider } from '@/contexts/ProfileContext';
 import { GamificationProvider } from '@/contexts/GamificationContext';
 import { ErrorBoundary } from '@/components/common/ErrorBoundary';
 import { SettingsSync } from '@/features/settings/components/SettingsSync';
@@ -34,22 +32,16 @@ export const AppProviders: React.FC<AppProvidersProps> = ({ children }) => {
                 <ErrorBoundary>
                     <AuthProvider>
                         <SettingsSync />
-                        <ProfileProvider>
-                            <GamificationProvider>
-                                <SessionProvider>
-                                    <DeckActionsProvider>
-                                        <DeckStatsProvider>
-                                            <MusicProvider>
-                                                <Router>
-                                                    {children}
-                                                    <Toaster position="bottom-right" expand={true} />
-                                                </Router>
-                                            </MusicProvider>
-                                        </DeckStatsProvider>
-                                    </DeckActionsProvider>
-                                </SessionProvider>
-                            </GamificationProvider>
-                        </ProfileProvider>
+                        <GamificationProvider>
+                            <DeckActionsProvider>
+                                <MusicProvider>
+                                    <Router>
+                                        {children}
+                                        <Toaster position="bottom-right" expand={true} />
+                                    </Router>
+                                </MusicProvider>
+                            </DeckActionsProvider>
+                        </GamificationProvider>
                     </AuthProvider>
                 </ErrorBoundary>
             </ThemeProvider>

@@ -3,35 +3,20 @@ import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Slider } from '@/components/ui/slider';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
+import { Button } from '@/components/ui/button';
+import { OrnateSeparator } from '@/components/ui/separator';
 import { Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip';
-import { Sparkles, Check, X as XIcon, ArrowRight, BookOpen, Info, ChevronDown, Star, Scroll } from 'lucide-react';
+import { Sparkles, Check, X as XIcon, ArrowRight, BookOpen, Info, ChevronDown, Star, Scroll, Loader2 } from 'lucide-react';
 import { aiService } from '@/features/deck/services/ai';
 import { useSettingsStore } from '@/stores/useSettingsStore';
-import { useProfile } from '@/contexts/ProfileContext';
+import { useProfile } from '@/features/profile/hooks/useProfile';
 import { getLearnedWords } from '@/services/db/repositories/cardRepository';
 import { Card } from '@/types';
 import { v4 as uuidv4 } from 'uuid';
 import { toast } from 'sonner';
 import { parseFurigana, cn } from '@/lib/utils';
 import { Textarea } from '@/components/ui/textarea';
-import { GenshinCorners, DiamondDivider, InnerFrame } from '@/components/game/GamePanel';
 import { useIsMobile } from '@/hooks/use-mobile';
-
-
-
-const GenshinLoader = () => (
-    <div className="relative w-10 h-10">
-        <div
-            className="absolute inset-0 border-2 border-amber-500/30 rotate-45"
-            style={{ animation: 'spin 4s linear infinite' }}
-        />
-        <div
-            className="absolute inset-1.5 border-2 border-amber-500/50 rotate-45"
-            style={{ animation: 'spin 3s linear infinite reverse' }}
-        />
-        <span className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-2 h-2 bg-amber-500 rotate-45 animate-pulse" />
-    </div>
-);
 
 
 
@@ -114,8 +99,9 @@ export const GenerateCardsModal: React.FC<GenerateCardsModalProps> = ({ isOpen, 
             setGeneratedData(uniqueResults);
             setSelectedIndices(new Set(uniqueResults.map((_, i) => i)));
             setStep('preview');
-        } catch (e) {
-            toast.error("Failed to generate cards. Try again.");
+        } catch (e: any) {
+            console.error("Generation error:", e);
+            toast.error(e.message || "Failed to generate cards. Try again.");
         } finally {
             setLoading(false);
         }
@@ -216,8 +202,9 @@ export const GenerateCardsModal: React.FC<GenerateCardsModalProps> = ({ isOpen, 
             setSelectedIndices(new Set(uniqueResults.map((_, i) => i)));
             setStep('preview');
 
-        } catch (e) {
-            toast.error("Failed to generate smart lesson. Try again.");
+        } catch (e: any) {
+            console.error("Smart lesson error:", e);
+            toast.error(e.message || "Failed to generate smart lesson. Try again.");
         } finally {
             setLoading(false);
         }
@@ -233,14 +220,12 @@ export const GenerateCardsModal: React.FC<GenerateCardsModalProps> = ({ isOpen, 
     return (
         <Dialog open={isOpen} onOpenChange={resetAndClose}>
             <DialogContent className={cn(
-                "p-0 bg-gradient-to-b from-background via-background to-card border-2 border-amber-700/30 dark:border-amber-600/25 overflow-hidden gap-0 [&>button]:hidden",
+                "p-0 bg-linear-to-b from-background via-background to-card border-2 border-amber-700/30 dark:border-amber-600/25 overflow-hidden gap-0 [&>button]:hidden",
                 isMobile ? "max-w-[95vw] max-h-[90vh]" : "sm:max-w-4xl"
             )}>
-                {/* Ornate Genshin corners */}
-                <GenshinCorners />
+                {/* Ornate Genshin corners removed */}
 
-                {/* Inner decorative frame */}
-                <InnerFrame />
+                {/* Inner decorative frame removed */}
 
                 {/* Floating diamond decorations */}
                 <span className={cn(
@@ -258,7 +243,7 @@ export const GenerateCardsModal: React.FC<GenerateCardsModalProps> = ({ isOpen, 
                 )}>
                     {/* Sidebar / Info Panel - Genshin Menu Style */}
                     <div className={cn(
-                        "bg-gradient-to-b from-card/50 to-muted/20 flex flex-col relative overflow-hidden",
+                        "bg-linear-to-b from-card/50 to-muted/20 flex flex-col relative overflow-hidden",
                         isMobile
                             ? "w-full p-4 border-b border-amber-700/20 dark:border-amber-600/15"
                             : "w-1/3 p-6 justify-between border-r border-amber-700/20 dark:border-amber-600/15"
@@ -305,7 +290,7 @@ export const GenerateCardsModal: React.FC<GenerateCardsModalProps> = ({ isOpen, 
                                 </div>
                             </div>
 
-                            <DiamondDivider className={isMobile ? "mb-3" : "mb-6"} />
+                            <OrnateSeparator className={isMobile ? "mb-3" : "mb-6"} />
 
                             <div className={cn("space-y-6", isMobile && "space-y-4")}>
                                 {/* Target Language Display */}
@@ -604,46 +589,31 @@ export const GenerateCardsModal: React.FC<GenerateCardsModalProps> = ({ isOpen, 
                                     "flex justify-center gap-4",
                                     isMobile ? "mt-4 flex-col gap-3" : "mt-8"
                                 )}>
-                                    <button
+                                    <Button
                                         onClick={handleSmartLesson}
                                         disabled={loading}
+                                        variant="secondary"
                                         className={cn(
-                                            "relative group/btn inline-flex items-center justify-center gap-3",
-                                            "bg-indigo-900/40 hover:bg-indigo-800/60 text-indigo-900",
-                                            "border border-indigo-600/60 hover:border-indigo-400/60",
-                                            "uppercase tracking-[0.1em] text-xs font-serif font-medium",
-                                            "transition-all duration-200",
-                                            "disabled:opacity-40 disabled:cursor-not-allowed",
-                                            isMobile ? "px-4 py-3 order-2" : "px-6 py-4"
+                                            "gap-2",
+                                            isMobile ? "w-full order-2" : ""
                                         )}
                                     >
-                                        <Sparkles size={16} className="text-indigo-900" />
+                                        <Sparkles size={16} />
                                         <span>Smart Lesson</span>
-                                    </button>
+                                    </Button>
 
-                                    <button
+                                    <Button
                                         onClick={handleGenerate}
                                         disabled={loading || !instructions}
+                                        variant="default"
                                         className={cn(
-                                            "relative group/btn inline-flex items-center justify-center gap-3",
-                                            "bg-amber-600/90 hover:bg-amber-600 text-white dark:text-amber-950",
-                                            "border-2 border-amber-500",
-                                            "uppercase tracking-[0.2em] text-sm font-serif font-semibold",
-                                            "transition-all duration-200",
-                                            "disabled:opacity-40 disabled:cursor-not-allowed",
-                                            "hover:shadow-[0_0_20px_-5px] hover:shadow-amber-500/40",
-                                            isMobile ? "px-6 py-3 order-1" : "px-10 py-4"
+                                            "gap-2 min-w-[140px]",
+                                            isMobile ? "w-full order-1" : ""
                                         )}
                                     >
-                                        {/* Button corner accents */}
-                                        <span className="absolute -top-1 -left-1 w-3 h-0.5 bg-white/50 opacity-0 group-hover/btn:opacity-100 transition-opacity" />
-                                        <span className="absolute -top-1 -left-1 w-0.5 h-3 bg-white/50 opacity-0 group-hover/btn:opacity-100 transition-opacity" />
-                                        <span className="absolute -bottom-1 -right-1 w-3 h-0.5 bg-white/50 opacity-0 group-hover/btn:opacity-100 transition-opacity" />
-                                        <span className="absolute -bottom-1 -right-1 w-0.5 h-3 bg-white/50 opacity-0 group-hover/btn:opacity-100 transition-opacity" />
-
                                         {loading ? (
                                             <>
-                                                <GenshinLoader />
+                                                <Loader2 className="animate-spin" size={16} />
                                                 <span>Forging...</span>
                                             </>
                                         ) : (
@@ -652,7 +622,7 @@ export const GenerateCardsModal: React.FC<GenerateCardsModalProps> = ({ isOpen, 
                                                 <span>Generate</span>
                                             </>
                                         )}
-                                    </button>
+                                    </Button>
                                 </div>
                             </div>
                         ) : (
@@ -681,7 +651,7 @@ export const GenerateCardsModal: React.FC<GenerateCardsModalProps> = ({ isOpen, 
                                     </button>
                                 </div>
 
-                                <DiamondDivider className={isMobile ? "mb-3" : "mb-4"} />
+                                <OrnateSeparator className={isMobile ? "mb-3" : "mb-4"} />
 
                                 {/* Cards List - Genshin menu item style */}
                                 <div className={cn(

@@ -9,13 +9,12 @@ const LOADING_TIPS = [
     "Say the words out loud for better retention."
 ];
 
-export interface GameLoaderProps {
+export interface LoaderProps {
     size?: 'sm' | 'md' | 'lg'
-    text?: string
     className?: string
 }
 
-export function GameLoader({ size = 'md', className }: GameLoaderProps) {
+export function Loader({ size = 'md', className }: LoaderProps) {
     const sizeConfig = {
         sm: { container: 'w-12 h-12', inner: 'inset-1.5', diamond: 'w-1.5 h-1.5' },
         md: { container: 'w-20 h-20', inner: 'inset-3', diamond: 'w-2 h-2' },
@@ -34,7 +33,7 @@ export function GameLoader({ size = 'md', className }: GameLoaderProps) {
     )
 }
 
-export function CornerOrnament() {
+function CornerOrnament() {
     return (
         <svg width="100" height="100" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M0 0H50V2H2V50H0V0Z" fill="currentColor" />
@@ -51,19 +50,19 @@ export function CornerOrnament() {
     )
 }
 
-export interface GameLoadingScreenProps {
+export interface LoadingScreenProps {
     title?: string
     subtitle?: string
     showTip?: boolean
     className?: string
 }
 
-export function GameLoadingScreen({
+export function LoadingScreen({
     title = "Loading",
     subtitle,
     showTip = true,
     className
-}: GameLoadingScreenProps) {
+}: LoadingScreenProps) {
     const [tipIndex] = React.useState(() => Math.floor(Math.random() * LOADING_TIPS.length))
     const tip = LOADING_TIPS[tipIndex]
 

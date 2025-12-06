@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { ArrowRight, User } from 'lucide-react';
-import { ButtonLoader } from '@/components/game';
+import { ButtonLoader } from '@/components/ui/loading';
 import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
 

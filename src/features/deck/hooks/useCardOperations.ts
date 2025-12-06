@@ -8,7 +8,7 @@ import {
   saveCard,
   saveAllCards,
 } from '@/services/db/repositories/cardRepository';
-import { useDeck } from '@/contexts/DeckContext';
+import { useDeckActions } from '@/contexts/DeckActionsContext';
 import { db } from '@/services/db/dexie';
 
 interface CardOperations {
@@ -21,7 +21,7 @@ interface CardOperations {
 }
 
 export const useCardOperations = (): CardOperations => {
-  const { refreshDeckData } = useDeck();
+  const { refreshDeckData } = useDeckActions();
   const queryClient = useQueryClient();
 
   const addCard = useCallback(

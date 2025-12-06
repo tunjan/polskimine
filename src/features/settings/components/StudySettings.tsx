@@ -4,7 +4,9 @@ import { UserSettings } from '@/types';
 import { EditorialInput } from '@/components/form/EditorialInput';
 import { LANGUAGE_NAMES } from '@/constants';
 import { Switch } from '@/components/ui/switch';
-import { GamePanel, GameSectionHeader, GameDivider } from '@/components/ui/game-ui';
+import { Card } from '@/components/ui/card';
+import { SectionHeader } from '@/components/ui/section-header';
+import { OrnateSeparator } from '@/components/ui/separator';
 
 interface StudySettingsProps {
   localSettings: UserSettings;
@@ -19,23 +21,23 @@ export const StudySettings: React.FC<StudySettingsProps> = ({ localSettings, set
   return (
     <div className="space-y-8 max-w-2xl">
       {/* Info Banner */}
-      <GamePanel variant="stat" size="sm" className="border-primary/20">
+      <Card variant="stat" size="sm" className="border-primary/20">
         <div className="flex items-center gap-3">
           <span className="w-1.5 h-1.5 rotate-45 bg-primary/60" />
           <p className="text-sm text-muted-foreground font-light leading-relaxed">
             Daily study configuration for <span className="text-foreground font-medium">{currentLangName}</span>. Limits reset at 4:00 AM.
           </p>
         </div>
-      </GamePanel>
+      </Card>
 
       {/* Daily Limits Section */}
-      <GameSectionHeader
+      <SectionHeader
         title="Daily Limits"
         subtitle="Maximum cards per day"
         icon={<Target className="w-4 h-4" strokeWidth={1.5} />}
       />
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <GamePanel variant="highlight" size="md" glowOnHover>
+        <Card variant="highlight" size="md">
           <div className="space-y-4 text-center">
             <div className="flex items-center justify-center gap-2">
               <span className="w-1.5 h-1.5 rotate-45 bg-amber-500/60" />
@@ -57,9 +59,9 @@ export const StudySettings: React.FC<StudySettingsProps> = ({ localSettings, set
             />
             <p className="text-xs text-muted-foreground/60 font-light">Unseen vocabulary</p>
           </div>
-        </GamePanel>
+        </Card>
 
-        <GamePanel variant="highlight" size="md" glowOnHover>
+        <Card variant="highlight" size="md">
           <div className="space-y-4 text-center">
             <div className="flex items-center justify-center gap-2">
               <span className="w-1.5 h-1.5 rotate-45 bg-sky-500/60" />
@@ -81,19 +83,19 @@ export const StudySettings: React.FC<StudySettingsProps> = ({ localSettings, set
             />
             <p className="text-xs text-muted-foreground/60 font-light">Due for review</p>
           </div>
-        </GamePanel>
+        </Card>
       </div>
 
-      <GameDivider />
+      <OrnateSeparator />
 
       {/* Study Preferences Section */}
-      <GameSectionHeader
+      <SectionHeader
         title="Study Preferences"
         subtitle="Session behavior options"
         icon={<ToggleLeft className="w-4 h-4" strokeWidth={1.5} />}
       />
       <div className="space-y-3">
-        <GamePanel variant="stat" size="sm" className="hover:border-primary/40 transition-colors">
+        <Card variant="stat" size="sm" className="hover:border-primary/40 transition-colors">
           <div className="flex items-center justify-between gap-6">
             <div className="flex-1">
               <div className="flex items-center gap-2 mb-1">
@@ -112,9 +114,9 @@ export const StudySettings: React.FC<StudySettingsProps> = ({ localSettings, set
               <option value="mixed" className="bg-background text-foreground">Mixed</option>
             </select>
           </div>
-        </GamePanel>
+        </Card>
 
-        <GamePanel variant="stat" size="sm" className="hover:border-primary/40 transition-colors">
+        <Card variant="stat" size="sm" className="hover:border-primary/40 transition-colors">
           <div className="flex items-center justify-between gap-6">
             <div className="flex-1">
               <div className="flex items-center gap-2 mb-1">
@@ -130,9 +132,9 @@ export const StudySettings: React.FC<StudySettingsProps> = ({ localSettings, set
               }
             />
           </div>
-        </GamePanel>
+        </Card>
 
-        <GamePanel variant="stat" size="sm" className="hover:border-primary/40 transition-colors">
+        <Card variant="stat" size="sm" className="hover:border-primary/40 transition-colors">
           <div className="flex items-center justify-between gap-6">
             <div className="flex-1">
               <div className="flex items-center gap-2 mb-1">
@@ -148,9 +150,9 @@ export const StudySettings: React.FC<StudySettingsProps> = ({ localSettings, set
               }
             />
           </div>
-        </GamePanel>
+        </Card>
 
-        <GamePanel variant="stat" size="sm" className="hover:border-primary/40 transition-colors">
+        <Card variant="stat" size="sm" className="hover:border-primary/40 transition-colors">
           <div className="flex items-center justify-between gap-6">
             <div className="flex-1">
               <div className="flex items-center gap-2 mb-1">
@@ -166,7 +168,7 @@ export const StudySettings: React.FC<StudySettingsProps> = ({ localSettings, set
               }
             />
           </div>
-        </GamePanel>
+        </Card>
       </div>
     </div>
   );

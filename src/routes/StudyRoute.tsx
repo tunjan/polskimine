@@ -2,7 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Card, Grade } from '@/types';
 import { StudySession } from '@/features/study/components/StudySession';
-import { useDeck } from '@/contexts/DeckContext';
+import { useDeckActions } from '@/contexts/DeckActionsContext';
+import { useDeckStats } from '@/features/deck/hooks/useDeckStats';
+import { useDeckStore } from '@/stores/useDeckStore';
 import { useSettingsStore } from '@/stores/useSettingsStore';
 import { useCardOperations } from '@/features/deck/hooks/useCardOperations';
 import { isNewCard } from '@/services/studyLimits';
@@ -13,11 +15,15 @@ import {
 import { getTodayReviewStats } from '@/services/db/repositories/statsRepository';
 import { useClaimDailyBonusMutation } from '@/features/deck/hooks/useDeckQueries';
 import { CardXpPayload } from '@/features/xp/xpUtils';
-import { GameLoadingScreen } from '@/components/ui/game-ui';
+import { LoadingScreen } from '@/components/ui/loading';
 import { toast } from 'sonner';
 
 export const StudyRoute: React.FC = () => {
-  const { recordReview, undoReview, canUndo, stats } = useDeck();
+  const { recordReview, undoReview } = useDeckActions();
+  const { stats } = useDeckStats();
+  const lastReview = useDeckStore(state => state.lastReview);
+  const canUndo = !!lastReview;
+
   const { updateCard, deleteCard, addCard } = useCardOperations();
   const settings = useSettingsStore(s => s.settings);
   const claimBonus = useClaimDailyBonusMutation();
@@ -143,7 +149,7 @@ export const StudyRoute: React.FC = () => {
   };
 
   if (isLoading) {
-    return <GameLoadingScreen title="Preparing" subtitle="Setting up your study session" />;
+    return <LoadingScreen title="Loading Session" subtitle="Preparing your cards..." />;
   }
 
   if (error) {

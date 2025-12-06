@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useSettingsStore } from '@/stores/useSettingsStore';
 import { useAuth } from '@/contexts/AuthContext';
-import { useProfile } from '@/contexts/ProfileContext';
+import { useProfile } from '@/features/profile/hooks/useProfile';
 import { LanguageLevelSelector } from './components/LanguageLevelSelector';
 import { LanguageSelector } from './components/LanguageSelector';
 import { DeckGenerationStep } from './components/DeckGenerationStep';

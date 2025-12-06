@@ -1,17 +1,17 @@
 import React, { useMemo } from 'react';
 import { BookOpen } from 'lucide-react';
-import { Card } from '@/types';
+import { Card as CardModel } from '@/types';
 import { DataTable } from '@/components/ui/data-table';
 import { getCardColumns } from './CardTableColumns';
-import { GamePanel } from '@/components/ui/game-ui';
+import { Card } from '@/components/ui/card';
 import { RowSelectionState } from '@tanstack/react-table';
 
 interface CardListProps {
-  cards: Card[];
+  cards: CardModel[];
   searchTerm: string;
-  onEditCard: (card: Card) => void;
+  onEditCard: (card: CardModel) => void;
   onDeleteCard: (id: string) => void;
-  onViewHistory: (card: Card) => void;
+  onViewHistory: (card: CardModel) => void;
   onPrioritizeCard: (id: string) => void;
   selectedIds: Set<string>;
   onToggleSelect: (id: string, index: number, isShift: boolean) => void;
@@ -84,7 +84,7 @@ export const CardList: React.FC<CardListProps> = ({
   if (cards.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center h-[60vh]">
-        <GamePanel className="p-6 md:p-14 border-dashed flex flex-col items-center justify-center text-center max-w-md" glowOnHover>
+        <Card variant="stat" className="p-6 md:p-14 border-dashed flex flex-col items-center justify-center text-center max-w-md">
           {/* Decorative container with diamond shape */}
           <div className="relative mb-8">
             <div className="w-20 h-20 border border-border/60 flex items-center justify-center rotate-45">
@@ -117,12 +117,12 @@ export const CardList: React.FC<CardListProps> = ({
           {/* Decorative line */}
           <div className="flex items-center gap-2 mt-6 w-full max-w-[200px]">
             <span className="w-1.5 h-1.5 rotate-45 bg-border/60" />
-            <span className="flex-1 h-px bg-gradient-to-r from-border/60 via-border/40 to-transparent" />
+            <span className="flex-1 h-px bg-linear-to-r from-border/60 via-border/40 to-transparent" />
             <span className="w-1 h-1 rotate-45 bg-border/40" />
-            <span className="flex-1 h-px bg-gradient-to-l from-border/60 via-border/40 to-transparent" />
+            <span className="flex-1 h-px bg-linear-to-l from-border/60 via-border/40 to-transparent" />
             <span className="w-1.5 h-1.5 rotate-45 bg-border/60" />
           </div>
-        </GamePanel>
+        </Card>
       </div>
     );
   }
