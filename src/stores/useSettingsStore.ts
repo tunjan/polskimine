@@ -62,42 +62,6 @@ export const DEFAULT_SETTINGS: UserSettings = {
 };
 
 const getInitialSettings = (): UserSettings => {
-    if (typeof window === 'undefined') return DEFAULT_SETTINGS;
-    try {
-        const saved = localStorage.getItem('language_mining_settings');
-        if (saved) {
-            const parsed = JSON.parse(saved);
-
-            let migratedDailyNewLimits = parsed.dailyNewLimits;
-            if (typeof parsed.dailyNewLimit === 'number') {
-                migratedDailyNewLimits = createLimits(parsed.dailyNewLimit);
-            }
-            let migratedDailyReviewLimits = parsed.dailyReviewLimits;
-            if (typeof parsed.dailyReviewLimit === 'number') {
-                migratedDailyReviewLimits = createLimits(parsed.dailyReviewLimit);
-            }
-
-            let validCardOrder = parsed.cardOrder;
-            if (validCardOrder !== 'newFirst' && validCardOrder !== 'reviewFirst' && validCardOrder !== 'mixed') {
-                validCardOrder = DEFAULT_SETTINGS.cardOrder;
-            }
-
-            return {
-                ...DEFAULT_SETTINGS,
-                ...parsed,
-                dailyNewLimits: migratedDailyNewLimits || DEFAULT_SETTINGS.dailyNewLimits,
-                dailyReviewLimits: migratedDailyReviewLimits || DEFAULT_SETTINGS.dailyReviewLimits,
-                fsrs: { ...DEFAULT_SETTINGS.fsrs, ...(parsed.fsrs || {}) },
-                tts: { ...DEFAULT_SETTINGS.tts, ...(parsed.tts || {}) },
-                languageColors: { ...DEFAULT_SETTINGS.languageColors, ...(parsed.languageColors || {}) },
-                geminiApiKey: '',
-                cardOrder: validCardOrder,
-                learningSteps: parsed.learningSteps || [1, 10],
-            };
-        }
-    } catch (e) {
-        console.error('Failed to parse settings', e);
-    }
     return DEFAULT_SETTINGS;
 };
 

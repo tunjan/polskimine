@@ -1,6 +1,6 @@
 import { ReviewLog } from '@/types';
 
-export const DECAY = -0.5;
+export const DECAY = -0.6;
 export const FACTOR = 0.9 ** (1 / DECAY) - 1;
 
 export const getRetrievability = (elapsedDays: number, stability: number): number => {

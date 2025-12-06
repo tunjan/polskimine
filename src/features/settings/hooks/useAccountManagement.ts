@@ -62,9 +62,6 @@ export const useAccountManagement = () => {
             await db.settings.clear();
             await db.aggregated_stats.clear();
 
-            localStorage.removeItem('language_mining_settings');
-            localStorage.removeItem('linguaflow_api_keys');
-
             toast.success("Account reset successfully. Restarting...");
             queryClient.clear();
             setTimeout(() => window.location.reload(), 1500);

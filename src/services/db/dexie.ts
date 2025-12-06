@@ -38,6 +38,9 @@ export type LocalSettings = Partial<UserSettings> & {
     googleTtsApiKey?: string;
     azureTtsApiKey?: string;
     azureRegion?: string;
+    deviceId?: string;
+    syncPath?: string;
+    lastSync?: string;
 };
 
 export interface AggregatedStat {

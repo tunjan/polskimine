@@ -4,7 +4,7 @@ import { Share } from '@capacitor/share';
 import { db } from '@/services/db/dexie';
 import { getCards, saveAllCards, clearAllCards } from '@/services/db/repositories/cardRepository';
 import { getHistory, saveFullHistory, clearHistory } from '@/services/db/repositories/historyRepository';
-import { getFullSettings } from '@/services/db/repositories/settingsRepository';
+import { getFullSettings, getSystemSetting, setSystemSetting } from '@/services/db/repositories/settingsRepository';
 import { UserSettings, Card } from '@/types';
 
 export interface SyncData {
@@ -49,23 +49,23 @@ const SYNC_FILENAME = 'linguaflow-sync.json';
 
 let cachedFileHandle: FileSystemFileHandle | null = null;
 
-const getDeviceId = (): string => {
-    const storageKey = 'linguaflow_device_id';
-    let deviceId = localStorage.getItem(storageKey);
+const getDeviceId = async (): Promise<string> => {
+    const storageKey = 'deviceId';
+    let deviceId = await getSystemSetting<string>(storageKey);
     if (!deviceId) {
         deviceId = crypto.randomUUID();
-        localStorage.setItem(storageKey, deviceId);
+        await setSystemSetting(storageKey, deviceId);
     }
     return deviceId;
 };
 
-export const getSyncFilePath = (): string => {
-    const customPath = localStorage.getItem('linguaflow_sync_path');
+export const getSyncFilePath = async (): Promise<string> => {
+    const customPath = await getSystemSetting<string>('syncPath');
     return customPath || SYNC_FILENAME;
 };
 
-export const setSyncFilePath = (path: string): void => {
-    localStorage.setItem('linguaflow_sync_path', path);
+export const setSyncFilePath = async (path: string): Promise<void> => {
+    await setSystemSetting('syncPath', path);
 };
 
 export const clearSyncFileHandle = (): void => {
@@ -95,7 +95,7 @@ export const exportSyncData = async (settings: Partial<UserSettings>): Promise<S
     return {
         version: 3,
         lastSynced: new Date().toISOString(),
-        deviceId: getDeviceId(),
+        deviceId: await getDeviceId(),
         cards,
         history,
         revlog,
@@ -109,7 +109,7 @@ export const saveSyncFile = async (settings: Partial<UserSettings>): Promise<{ s
     try {
         const syncData = await exportSyncData(settings);
         const jsonContent = JSON.stringify(syncData, null, 2);
-        const filename = getSyncFilePath();
+        const filename = await getSyncFilePath();
 
         if (Capacitor.isNativePlatform()) {
             const tempFilename = `linguaflow-backup-${Date.now()}.json`;
@@ -195,7 +195,7 @@ export const saveSyncFile = async (settings: Partial<UserSettings>): Promise<{ s
 
 export const loadSyncFile = async (): Promise<{ success: boolean; data?: SyncData; error?: string }> => {
     try {
-        const filename = getSyncFilePath();
+        const filename = await getSyncFilePath();
 
         if (Capacitor.isNativePlatform()) {
             try {
@@ -244,7 +244,7 @@ export const loadSyncFile = async (): Promise<{ success: boolean; data?: SyncDat
 
 export const checkSyncFile = async (): Promise<{ exists: boolean; lastSynced?: string; deviceId?: string }> => {
     try {
-        const filename = getSyncFilePath();
+        const filename = await getSyncFilePath();
 
         if (Capacitor.isNativePlatform()) {
             try {
@@ -344,10 +344,10 @@ export const importSyncData = async (
     }
 };
 
-export const getLastSyncTime = (): string | null => {
-    return localStorage.getItem('linguaflow_last_sync');
+export const getLastSyncTime = async (): Promise<string | null> => {
+    return await getSystemSetting<string>('lastSync') || null;
 };
 
-export const setLastSyncTime = (time: string): void => {
-    localStorage.setItem('linguaflow_last_sync', time);
+export const setLastSyncTime = async (time: string): Promise<void> => {
+    await setSystemSetting('lastSync', time);
 };
