@@ -55,99 +55,23 @@ export const calculateNextReview = (
   const f = getFSRS(settings);
   const now = new Date();
 
-  // --- CUSTOM LEARNING STEPS LOGIC ---
-  const isLearningPhase = card.status === 'new' || card.status === 'learning';
-
-  if (isLearningPhase) {
-    const currentStep = card.learningStep ?? 0;
-
-    // Calculate new step index based on grade
-    let nextStep = currentStep;
-    let newStatus: CardStatus = card.status;
-    let intervalMinutes = 0;
-    let graduation = false;
-
-    switch (grade) {
-      case 'Again':
-        nextStep = 0;
-        newStatus = 'learning';
-        intervalMinutes = learningSteps[0];
-        break;
-      case 'Hard':
-        // Repeat current step
-        nextStep = currentStep;
-        newStatus = 'learning';
-        intervalMinutes = learningSteps[currentStep] || learningSteps[0];
-        break;
-      case 'Good':
-        nextStep = currentStep + 1;
-        if (nextStep >= learningSteps.length) {
-          graduation = true;
-        } else {
-          newStatus = 'learning';
-          intervalMinutes = learningSteps[nextStep];
-        }
-        break;
-      case 'Easy':
-        graduation = true;
-        break;
-    }
-
-    if (!graduation) {
-      // Keep in learning phase
-      // We still run FSRS to update memory state (D/S) for tracking, but override schedule
-      // Note: we treat it as 'No change' or 'Again' to FSRS if strict implementation, 
-      // but here we just want to update D/S. 
-
-      // Issue: ts-fsrs assumes state transitions.
-      // Minimal impact approach: Just calculate D/S for the *future* Review state, 
-      // but strictly set due date.
-
-      // Actually, we should probably initialize FSRS state if it's new
-      let state = card.state ?? State.New;
-      if (card.status === 'new') state = State.New;
-
-      const rating = mapGradeToRating(grade);
-
-      // Create dummy FSRS card to get next D/S if possible, 
-      // but FSRS might be aggressive. 
-      // Let's rely on manual scheduling for learning and ONLY verify D/S on graduation.
-      // However, we want 'elapsed_days' etc to be correct.
-
-      const scheduledDate = addMinutes(now, intervalMinutes);
-
-      return {
-        ...card,
-        status: 'learning',
-        state: state === State.New ? State.Learning : state, // Transition New -> Learning
-        learningStep: nextStep,
-        dueDate: scheduledDate.toISOString(),
-        interval: 0, // Interval in days is 0 for intraday
-        scheduled_days: 0,
-        // We don't update stability/difficulty heavily during learning steps in this simple implementation
-        // or we could let FSRS run but ignore dates.
-        last_review: now.toISOString(),
-        reps: (card.reps || 0) + 1,
-        lapses: grade === 'Again' ? (card.lapses || 0) + 1 : (card.lapses || 0),
-      };
-    }
-    // If graduation, fall through to FSRS logic below...
-    // But we need to ensure FSRS sees it as a transition from Learning -> Review
-  }
-
-  // --- FSRS LOGIC (Regular Review or Graduation) ---
+  // --- PURE FSRS LOGIC ---
 
   let currentState = card.state;
   if (currentState === undefined) {
     if (card.status === 'new') currentState = State.New;
     else if (card.status === 'learning') currentState = State.Learning;
+    else if (card.status === 'graduated') currentState = State.Review;
     else currentState = State.Review;
   }
 
   const lastReviewDate = card.last_review ? new Date(card.last_review) : undefined;
 
 
-  if (currentState === State.Review && !lastReviewDate) {
+  if ((currentState === State.Review || currentState === State.Learning || currentState === State.Relearning) && !lastReviewDate) {
+    // If missing last_review but in active state, fallback to New to avoid FSRS errors,
+    // or set last_review to now (but that implies a review just happened).
+    // Safest is to treat as New if data is corrupted.
     currentState = State.New;
   }
 
@@ -163,24 +87,39 @@ export const calculateNextReview = (
     last_review: lastReviewDate
   } as FSRSCard;
 
-  const rating = mapGradeToRating(grade);
 
   const schedulingCards = f.repeat(fsrsCard, now);
+
+  // Rating: Again=0, Hard=1, Good=2, Easy=3
+  const rating = mapGradeToRating(grade);
   const log = schedulingCards[rating].card;
 
-  const isNew = currentState === State.New || (card.reps || 0) === 0;
+  // Determine App Status based on FSRS State
   const tentativeStatus = mapStateToStatus(log.state);
 
-  const status = card.status === 'graduated' && tentativeStatus === 'learning' && grade !== 'Again'
-    ? 'graduated'
-    : tentativeStatus;
-
+  // Check for Leech
   const totalLapses = log.lapses;
   let isLeech = card.isLeech || false;
 
-  if (totalLapses > 8) {
+  // Simple Leech threshold
+  if (totalLapses > 8 && !isLeech) {
     isLeech = true;
   }
+
+  // CRITICAL: FSRS returns integer scheduled_days for learning steps (0), 
+  // so we must calculate the precise fractional interval from due date for accurate optimization data.
+  const nowMs = now.getTime();
+  const dueMs = log.due.getTime();
+  const diffMs = dueMs - nowMs;
+  // Ensure non-negative interval (if due is in past, it's 0)
+  const preciseInterval = Math.max(0, diffMs / (24 * 60 * 60 * 1000));
+
+  // Use precise interval if scheduled_days is 0 (intraday) or mismatch is significant?
+  // Actually, let's always use precise interval for consistency in data analysis,
+  // BUT FSRS optimizer might expect integers for 'scheduled_days' if it strictly follows Anki format?
+  // Anki's RevLog uses 'ivl' which is integer days (positive) or negative seconds (learning).
+  // But ts-fsrs optimizer example often uses float days.
+  // We will store precise float days in scheduled_days and interval.
 
   return {
     ...card,
@@ -188,15 +127,15 @@ export const calculateNextReview = (
     stability: log.stability,
     difficulty: log.difficulty,
     elapsed_days: log.elapsed_days,
-    scheduled_days: log.scheduled_days,
+    scheduled_days: preciseInterval, // Store fractional days!
     reps: log.reps,
     lapses: log.lapses,
     state: log.state,
     last_review: log.last_review ? log.last_review.toISOString() : now.toISOString(),
-    first_review: card.first_review || (isNew ? now.toISOString() : undefined),
-    status,
-    interval: log.scheduled_days,
-    learningStep: undefined, // Clear learning step on graduation/review
+    first_review: card.first_review || ((card.reps || 0) === 0 ? now.toISOString() : undefined),
+    status: tentativeStatus,
+    interval: preciseInterval, // Store fractional days!
+    learningStep: undefined, // We no longer strictly track "steps" index, FSRS handles state
     leechCount: totalLapses,
     isLeech
   };
@@ -210,15 +149,17 @@ export const isCardDue = (card: Card, now: Date = new Date()): boolean => {
 
   const due = new Date(card.dueDate);
 
-  // For learning cards (intraday), use strict timing
-  if (card.status === 'learning' || card.state === State.Learning || card.state === State.Relearning) {
+  // For short intervals (< 1 day), use STRICT timing. 
+  // This covers Learning, Relearning, and intraday reviews.
+  // We use 0.9 days as cutoff to be safe.
+  if (card.interval < 0.9) {
     return due <= now;
   }
 
+  // For truly long-term cards (>= 1 day), we allow the "Next Day" leniency
+  // so users can review cards scheduled for 11pm at 9am the next valid "SRS Day".
   const srsToday = getSRSDate(now);
   const nextSRSDay = addDays(srsToday, 1);
 
-  // For Review cards (interday), they are due if they fall within the current SRS day (before tomorrow's cutoff)
-  // This allows "Review First" to pick them up even if they are technically due later in the day.
   return isBefore(due, nextSRSDay);
 };
