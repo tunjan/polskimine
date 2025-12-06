@@ -2,6 +2,7 @@ import { useCallback, useEffect, useReducer, useMemo } from 'react';
 import { Card, Grade, UserSettings } from '@/types';
 import { calculateNextReview, isCardDue } from '@/features/study/logic/srs';
 import { isNewCard } from '@/services/studyLimits';
+import { sortCards } from '../logic/cardSorter';
 
 interface UseStudySessionParams {
   dueCards: Card[];
@@ -235,24 +236,8 @@ export const useStudySession = ({
   // Sort cards on initial load
   useEffect(() => {
     if (dueCards.length > 0) {
-      let sortedCards = [...dueCards];
-      if (settings.cardOrder === 'newFirst') {
-        sortedCards.sort((a, b) => {
-          const aIsNew = isNewCard(a);
-          const bIsNew = isNewCard(b);
-          if (aIsNew && !bIsNew) return -1;
-          if (!aIsNew && bIsNew) return 1;
-          return 0;
-        });
-      } else if (settings.cardOrder === 'reviewFirst') {
-        sortedCards.sort((a, b) => {
-          const aIsNew = isNewCard(a);
-          const bIsNew = isNewCard(b);
-          if (!aIsNew && bIsNew) return -1;
-          if (aIsNew && !bIsNew) return 1;
-          return 0;
-        });
-      }
+      const order = settings.cardOrder || 'newFirst';
+      const sortedCards = sortCards(dueCards, order);
 
       dispatch({ type: 'INIT', cards: sortedCards, reserve: initialReserve });
     }

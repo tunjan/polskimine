@@ -2,6 +2,8 @@ import { Card } from '@/types';
 
 export type CardOrder = 'newFirst' | 'reviewFirst' | 'mixed';
 
+import { isNewCard } from '@/services/studyLimits';
+
 export const sortCards = (cards: Card[], order: CardOrder): Card[] => {
     if (cards.length === 0) return [];
 
@@ -24,8 +26,8 @@ export const sortCards = (cards: Card[], order: CardOrder): Card[] => {
         return dateSorted;
     }
 
-    const newCards = dateSorted.filter(c => c.status === 'new');
-    const reviewCards = dateSorted.filter(c => c.status !== 'new');
+    const newCards = dateSorted.filter(c => isNewCard(c));
+    const reviewCards = dateSorted.filter(c => !isNewCard(c));
 
     if (order === 'newFirst') {
         return [...newCards, ...reviewCards];
