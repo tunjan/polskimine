@@ -64,20 +64,32 @@ export const calculateNextReview = (
 
     if (grade === 'Again') {
       nextStep = 0;
-      nextIntervalMinutes = learningStepsMinutes[0];
+      nextIntervalMinutes = learningStepsMinutes[0] ?? 1;
     } else if (grade === 'Hard') {
-      nextIntervalMinutes = learningStepsMinutes[currentStep];
+      // Safe access with fallback - currentStep might be out of bounds
+      nextIntervalMinutes = learningStepsMinutes[currentStep]
+        ?? learningStepsMinutes[learningStepsMinutes.length - 1]
+        ?? 1;
     } else if (grade === 'Good') {
       nextStep = currentStep + 1;
       if (nextStep >= learningStepsMinutes.length) {
+        // Will graduate - handled below by falling through to FSRS
       } else {
-        nextIntervalMinutes = learningStepsMinutes[nextStep];
+        nextIntervalMinutes = learningStepsMinutes[nextStep] ?? 1;
       }
     } else if (grade === 'Easy') {
+      // Will graduate - handled below by falling through to FSRS
     }
 
     if ((grade === 'Again' || grade === 'Hard') || (grade === 'Good' && nextStep < learningStepsMinutes.length)) {
-      const nextDue = addMinutes(now, nextIntervalMinutes);
+      let nextDue = addMinutes(now, nextIntervalMinutes);
+
+      // Safety check for invalid dates
+      if (isNaN(nextDue.getTime())) {
+        console.error('[SRS] Invalid learning step interval', { nextIntervalMinutes, grade, card });
+        nextDue = addMinutes(now, 1); // Fallback to 1 minute
+      }
+
       const intervalDays = nextIntervalMinutes / (24 * 60);
 
       return {
@@ -152,14 +164,14 @@ export const calculateNextReview = (
 
   return {
     ...card,
-    dueDate: log.due.toISOString(),
+    dueDate: !isNaN(log.due.getTime()) ? log.due.toISOString() : addMinutes(now, 10).toISOString(),
     stability: log.stability,
     difficulty: log.difficulty,
     elapsed_days: log.elapsed_days,
     scheduled_days: scheduledDaysInt, precise_interval: preciseInterval, reps: log.reps,
     lapses: log.lapses,
     state: log.state,
-    last_review: log.last_review ? log.last_review.toISOString() : now.toISOString(),
+    last_review: (log.last_review && !isNaN(log.last_review.getTime())) ? log.last_review.toISOString() : now.toISOString(),
     first_review: card.first_review || ((card.reps || 0) === 0 ? now.toISOString() : undefined),
     status: tentativeStatus,
     interval: preciseInterval, learningStep: undefined, leechCount: totalLapses,

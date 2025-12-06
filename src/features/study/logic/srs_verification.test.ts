@@ -91,4 +91,15 @@ describe('SRS Optimization Verification', () => {
         const ids = new Set(sorted.map(c => c.id));
         expect(ids.size).toBe(100);
     });
+
+    it('should not crash when calculating review with invalid inputs (regression test)', () => {
+        // Trigger NaN interval by graduating to a NaN step
+        // [1, NaN]: First step is 1, second is NaN.
+        // Card starts at step 0 (implicit). 'Good' moves to step 1 (NaN).
+        const result = calculateNextReview(mockCard, 'Good', mockSettings, [1, NaN]);
+
+        // Should return a valid date (fallback to now/safe default) and not throw
+        expect(new Date(result.dueDate).toString()).not.toBe('Invalid Date');
+        expect(() => new Date(result.dueDate).toISOString()).not.toThrow();
+    });
 });
