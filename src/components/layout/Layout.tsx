@@ -417,8 +417,8 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
               Outer: static
               Inner: overflow-y-auto
             */}
-            <div className="w-full h-full p-4 md:p-8 pt-4 md:pt-8 overflow-y-auto md:overflow-y-auto [&:has(.page-full-height)]:overflow-hidden [&:has(.page-full-height)]:p-0 md:[&:has(.page-full-height)]:p-0">
-              <div className="w-full max-w-6xl mx-auto min-h-full [&:has(.page-full-height)]:h-full">
+            <div className="w-full h-full overflow-y-auto md:overflow-y-auto [&:has(.page-full-height)]:overflow-hidden [&:has(.page-full-height)]:p-0 md:[&:has(.page-full-height)]:p-0">
+              <div className="w-full min-h-full [&:has(.page-full-height)]:h-full">
                 {children}
               </div>
             </div>
