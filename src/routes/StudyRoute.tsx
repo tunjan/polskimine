@@ -17,6 +17,7 @@ import { useClaimDailyBonusMutation } from '@/features/deck/hooks/useDeckQueries
 import { CardXpPayload } from '@/features/xp/xpUtils';
 import { LoadingScreen } from '@/components/ui/loading';
 import { toast } from 'sonner';
+import { sortCards, CardOrder } from '@/features/study/logic/cardSorter';
 
 export const StudyRoute: React.FC = () => {
   const { recordReview, undoReview } = useDeckActions();
@@ -95,7 +96,10 @@ export const StudyRoute: React.FC = () => {
             }
           }
 
-          setSessionCards(active);
+          // Apply card order preference
+          const sortedActive = sortCards(active, (settings.cardOrder as CardOrder) || 'newFirst');
+
+          setSessionCards(sortedActive);
           setReserveCards(reserve);
         }
       } catch (err) {
