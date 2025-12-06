@@ -4,7 +4,6 @@ import { Capacitor } from '@capacitor/core';
 export const usePlatformSetup = () => {
     useEffect(() => {
         if (Capacitor.isNativePlatform()) {
-            console.log('Running on native platform');
         }
     }, []);
 };

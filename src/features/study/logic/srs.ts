@@ -90,8 +90,8 @@ export const calculateNextReview = (
     // nextIntervalMinutes is intentionally unused; FSRS calculates the graduation interval
 
     // Stay in learning if we haven't completed all learning steps yet
-    // Graduate when nextStep >= length (i.e., after completing the last step)
-    if ((grade === 'Again' || grade === 'Hard') || (grade === 'Good' && nextStep < learningStepsMinutes.length)) {
+    // Graduate when nextStep > length (i.e., after completing the last step)
+    if ((grade === 'Again' || grade === 'Hard') || (grade === 'Good' && nextStep <= learningStepsMinutes.length)) {
       let nextDue = addMinutes(now, nextIntervalMinutes);
 
       // Safety check for invalid dates
@@ -125,6 +125,12 @@ export const calculateNextReview = (
     else if (card.status === 'learning') currentState = State.Learning;
     else if (card.status === 'graduated') currentState = State.Review;
     else currentState = State.Review;
+  }
+
+  // If we are graduating from custom learning steps (isLearningPhase is false but status is learning/new),
+  // we must treat it as a New card for FSRS to initialize Stability/Difficulty.
+  if (!isLearningPhase && (card.status === 'learning' || card.status === 'new')) {
+    currentState = State.New;
   }
 
   const lastReviewDate = card.last_review ? new Date(card.last_review) : undefined;

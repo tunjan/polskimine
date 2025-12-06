@@ -71,7 +71,6 @@ export class LinguaFlowDB extends Dexie {
             settings: 'id',
             aggregated_stats: 'id, [language+metric], updated_at'
         }).upgrade(async (tx) => {
-            console.log('[Migration] Starting aggregated_stats backfill...');
 
             const allCards = await tx.table<Card>('cards').toArray();
             const languages = Array.from(new Set(allCards.map(c => c.language)));
@@ -107,7 +106,6 @@ export class LinguaFlowDB extends Dexie {
                     }
                 ]);
 
-                console.log(`[Migration] Backfilled stats for ${language}: ${totalXp} XP, ${totalReviews} reviews`);
             }
 
             let globalXp = 0;
@@ -134,7 +132,6 @@ export class LinguaFlowDB extends Dexie {
                 }
             ]);
 
-            console.log('[Migration] Aggregated stats backfill complete!');
         });
 
         this.cards.hook('deleting', (primKey, obj, transaction) => {

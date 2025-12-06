@@ -65,7 +65,6 @@ export async function migrateLocalSettingsToDatabase(userId: string): Promise<bo
 
         await db.settings.put(merged);
 
-        console.log('Migrated settings to IndexedDB');
         return true;
     } catch (error) {
         console.error('Failed to migrate settings:', error);

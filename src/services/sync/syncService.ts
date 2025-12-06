@@ -133,7 +133,6 @@ export const saveSyncFile = async (settings: Partial<UserSettings>): Promise<{ s
                 dialogTitle: 'Save backup file to...'
             });
 
-            console.log('[Sync] Shared file for saving:', uri.uri);
             return { success: true, path: uri.uri };
         } else {
             if ('showSaveFilePicker' in window) {

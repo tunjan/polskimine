@@ -71,19 +71,14 @@ export const OnboardingFlow: React.FC = () => {
 
 
       if (cards.length > 0) {
-        console.log('[OnboardingFlow] Saving', cards.length, 'cards...');
         await saveAllCards(cards);
         toast.success(`Loaded ${cards.length} cards into your deck.`);
-        console.log('[OnboardingFlow] Cards saved.');
       }
 
 
-      console.log('[OnboardingFlow] Marking initial deck as generated...');
       await markInitialDeckGenerated();
-      console.log('[OnboardingFlow] Initial deck marked as generated.');
 
       setTimeout(() => {
-        console.log('[OnboardingFlow] Redirection fallback triggered. Reloading...');
         window.location.reload();
       }, 2000);
 

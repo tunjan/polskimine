@@ -93,8 +93,6 @@ export const GenerateCardsModal: React.FC<GenerateCardsModalProps> = ({ isOpen, 
                 toast.info(`Filtered out ${results.length - uniqueResults.length} duplicate words.`);
             }
 
-            console.log('AI Generated Cards:', uniqueResults);
-            console.log('First card sample:', uniqueResults[0]);
 
             setGeneratedData(uniqueResults);
             setSelectedIndices(new Set(uniqueResults.map((_, i) => i)));
@@ -139,8 +137,6 @@ export const GenerateCardsModal: React.FC<GenerateCardsModalProps> = ({ isOpen, 
                 } as Card;
             });
 
-        console.log('Cards being saved:', cardsToSave);
-        console.log('First card to save:', cardsToSave[0]);
 
         onAddCards(cardsToSave);
         toast.success(`Added ${cardsToSave.length} cards to deck`);
