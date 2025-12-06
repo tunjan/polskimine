@@ -54,11 +54,14 @@ export const calculateNextReview = (
   learningSteps: number[] = [1, 10]): Card => {
   const now = new Date();
   const learningStepsMinutes = learningSteps.length > 0 ? learningSteps : [1, 10];
-  // Clamp currentStep to valid bounds (0 to length-1)
+  // rawStep is the actual saved learning step (may be >= length when ready to graduate)
   const rawStep = card.learningStep ?? 0;
+  // currentStep is clamped for array access only
   const currentStep = Math.max(0, Math.min(rawStep, learningStepsMinutes.length - 1));
 
-  const isLearningPhase = (card.status === 'new' || card.status === 'learning') && currentStep < learningStepsMinutes.length;
+  // Use rawStep (not clamped) to determine graduation eligibility
+  // When rawStep >= length, the card has completed all learning steps and should graduate
+  const isLearningPhase = (card.status === 'new' || card.status === 'learning') && rawStep < learningStepsMinutes.length;
 
   if (isLearningPhase) {
 
@@ -75,15 +78,19 @@ export const calculateNextReview = (
         ?? 1;
     } else if (grade === 'Good') {
       nextStep = currentStep + 1;
-      if (nextStep >= learningStepsMinutes.length) {
+      if (nextStep > learningStepsMinutes.length) {
         // Will graduate - handled below by falling through to FSRS
       } else {
-        nextIntervalMinutes = learningStepsMinutes[nextStep] ?? 1;
+        // Use CURRENT step's interval, not next step's
+        // This ensures step 0 → 1 min, step 1 → 10 min, etc.
+        nextIntervalMinutes = learningStepsMinutes[currentStep] ?? 1;
       }
     }
     // For 'Easy' during learning: graduate immediately by falling through to FSRS
     // nextIntervalMinutes is intentionally unused; FSRS calculates the graduation interval
 
+    // Stay in learning if we haven't completed all learning steps yet
+    // Graduate when nextStep >= length (i.e., after completing the last step)
     if ((grade === 'Again' || grade === 'Hard') || (grade === 'Good' && nextStep < learningStepsMinutes.length)) {
       let nextDue = addMinutes(now, nextIntervalMinutes);
 
