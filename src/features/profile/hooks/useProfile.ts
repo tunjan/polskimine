@@ -18,30 +18,7 @@ export const useProfile = () => {
         staleTime: Infinity, // Profile doesn't change often from outside
     });
 
-    const createProfileMutation = useMutation({
-        mutationFn: async ({ username, languageLevel }: { username: string; languageLevel?: string }) => {
-            if (!user?.id) throw new Error('No user authenticated');
 
-            const newProfile: LocalProfile = {
-                id: user.id,
-                username,
-                xp: 0,
-                points: 0,
-                level: 1,
-                language_level: languageLevel,
-                initial_deck_generated: false,
-                created_at: new Date().toISOString(),
-                updated_at: new Date().toISOString(),
-            };
-
-            await db.profile.put(newProfile);
-            return newProfile;
-        },
-        onSuccess: (newProfile) => {
-            queryClient.setQueryData(['profile', user?.id], newProfile);
-            toast.success('Profile created!');
-        },
-    });
 
     const updateUsernameMutation = useMutation({
         mutationFn: async (newUsername: string) => {
@@ -103,8 +80,7 @@ export const useProfile = () => {
         profile: profileQuery.data ?? null,
         loading: profileQuery.isLoading,
         error: profileQuery.error,
-        createLocalProfile: (username: string, languageLevel?: string) =>
-            createProfileMutation.mutateAsync({ username, languageLevel }),
+
         updateUsername: (username: string) => updateUsernameMutation.mutateAsync(username),
         updateLanguageLevel: (level: string) => updateLanguageLevelMutation.mutateAsync(level),
         markInitialDeckGenerated: (userId?: string) => markInitialDeckGeneratedMutation.mutateAsync(userId),

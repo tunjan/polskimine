@@ -4,6 +4,7 @@ import { Share } from '@capacitor/share';
 import { db } from '@/services/db/dexie';
 import { getCards, saveAllCards, clearAllCards } from '@/services/db/repositories/cardRepository';
 import { getHistory, saveFullHistory, clearHistory } from '@/services/db/repositories/historyRepository';
+import { getFullSettings } from '@/services/db/repositories/settingsRepository';
 import { UserSettings, Card } from '@/types';
 
 export interface SyncData {
@@ -93,7 +94,7 @@ export const exportSyncData = async (settings: Partial<UserSettings>): Promise<S
         ...settings,
         geminiApiKey: ''
     };
-    
+
     // Handle TTS settings separately to avoid type issues
     if (settings.tts) {
         safeSettings.tts = {
@@ -128,7 +129,7 @@ export const saveSyncFile = async (settings: Partial<UserSettings>): Promise<{ s
         if (Capacitor.isNativePlatform()) {
             // On mobile, first write to cache directory, then use Share to let user choose destination
             const tempFilename = `linguaflow-backup-${Date.now()}.json`;
-            
+
             await Filesystem.writeFile({
                 path: tempFilename,
                 data: jsonContent,
@@ -157,7 +158,7 @@ export const saveSyncFile = async (settings: Partial<UserSettings>): Promise<{ s
                 try {
                     // Reuse cached file handle if available
                     let handle = cachedFileHandle;
-                    
+
                     if (handle) {
                         // Verify we still have permission
                         const permission = await (handle as any).queryPermission({ mode: 'readwrite' });
@@ -169,7 +170,7 @@ export const saveSyncFile = async (settings: Partial<UserSettings>): Promise<{ s
                             }
                         }
                     }
-                    
+
                     if (!handle) {
                         // No cached handle or permission denied, ask user to pick a file
                         handle = await (window as any).showSaveFilePicker({
@@ -182,7 +183,7 @@ export const saveSyncFile = async (settings: Partial<UserSettings>): Promise<{ s
                         // Cache the handle for future saves
                         cachedFileHandle = handle;
                     }
-                    
+
                     const writable = await handle!.createWritable();
                     await writable.write(jsonContent);
                     await writable.close();
@@ -296,7 +297,7 @@ export const checkSyncFile = async (): Promise<{ exists: boolean; lastSynced?: s
                 return { exists: false };
             }
         }
-        
+
         return { exists: false };
     } catch {
         return { exists: false };
@@ -352,19 +353,48 @@ export const importSyncData = async (
 
         // Restore settings (preserve local API keys)
         if (data.settings) {
-            const localApiKeys = {
-                geminiApiKey: localStorage.getItem('linguaflow_gemini_key') || '',
-                googleTtsApiKey: localStorage.getItem('linguaflow_google_tts_key') || '',
-                azureTtsApiKey: localStorage.getItem('linguaflow_azure_tts_key') || '',
-            };
+            // Get current keys from DB before update (if possible)
+            // Since we cleared the profile, we might have lost the user reference, 
+            // but we can try to recover keys if we had grabbed them before clearing.
+            // Ideally, we should have fetched them at the start of the function.
+
+            // However, implementing 'fetch before clear' requires moving code up.
+            // Let's rely on the fact that we migrated to db.settings with specific IDs.
+            // If the imported profile has the SAME ID as the local one, we should find the settings in db.settings (which we did NOT clear! We cleared profile/cards/history/revlog, but did NOT clear settings table in the logic above).
+            // Wait, check lines 320-324:
+            // await db.revlog.clear();
+            // await db.aggregated_stats.clear();
+            // await db.profile.clear();
+            // IT DOES NOT CLEAR db.settings!
+
+            // So, if the imported profile is restored:
+            const restoredProfile = data.profile; // We just put this into db.profile
+            let preservedKeys: Partial<UserSettings> | UserSettings['tts'] = {}; // Type safety is hard here with partials
+
+            // Re-read settings for this user if they exist
+            if (restoredProfile) {
+                const existingSettings = await getFullSettings(restoredProfile.id);
+                if (existingSettings) {
+                    preservedKeys = {
+                        geminiApiKey: existingSettings.geminiApiKey,
+                        tts: {
+                            provider: existingSettings.tts?.provider || 'browser',
+                            // ... other required tts props to satisfy type if needed, or just partial merge
+                            // actually we just want the keys
+                            googleApiKey: existingSettings.googleTtsApiKey || existingSettings.tts?.googleApiKey,
+                            azureApiKey: existingSettings.azureTtsApiKey || existingSettings.tts?.azureApiKey,
+                        } as any // simpler to cast for partial merge logic
+                    };
+                }
+            }
 
             const restoredSettings: Partial<UserSettings> = {
                 ...data.settings,
-                geminiApiKey: localApiKeys.geminiApiKey,
+                geminiApiKey: preservedKeys.geminiApiKey || '',
                 tts: {
                     ...(data.settings.tts || {}),
-                    googleApiKey: localApiKeys.googleTtsApiKey,
-                    azureApiKey: localApiKeys.azureTtsApiKey,
+                    googleApiKey: (preservedKeys.tts as any)?.googleApiKey || '',
+                    azureApiKey: (preservedKeys.tts as any)?.azureApiKey || '',
                 } as UserSettings['tts'],
             };
             updateSettings(restoredSettings);

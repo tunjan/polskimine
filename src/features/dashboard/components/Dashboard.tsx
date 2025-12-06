@@ -300,7 +300,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
                     </div>
 
                     <div className="grid grid-cols-2 gap-3 mb-4">
-                      <div className="relative group/reward bg-gradient-to-br from-amber-500/10 to-transparent border border-amber-700/30 p-3 hover:border-amber-600/50 transition-colors">
+                      <div className="relative group/reward bg-linear-to-br from-amber-500/10 to-transparent border border-amber-700/30 p-3 hover:border-amber-600/50 transition-colors">
                         <div className="flex items-center gap-3">
                           <div className="relative w-10 h-10 flex items-center justify-center bg-amber-500/10 rounded-4xl">
 
@@ -391,7 +391,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
                   </div>
 
                   {/* Bottom ornate border */}
-                  <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-transparent via-amber-700/60 to-transparent" />
+                  <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-linear-to-r from-transparent via-amber-700/60 to-transparent" />
                 </div>
               </div>
 

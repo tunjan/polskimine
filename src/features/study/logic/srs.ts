@@ -131,12 +131,15 @@ export const isCardDue = (card: Card, now: Date = new Date()): boolean => {
 
   const due = new Date(card.dueDate);
 
+  // For learning cards (intraday), use strict timing
   if (card.status === 'learning' || card.state === State.Learning || card.state === State.Relearning) {
     return due <= now;
   }
 
   const srsToday = getSRSDate(now);
+  const nextSRSDay = addDays(srsToday, 1);
 
-
-  return isBefore(due, srsToday) || due <= now;
+  // For Review cards (interday), they are due if they fall within the current SRS day (before tomorrow's cutoff)
+  // This allows "Review First" to pick them up even if they are technically due later in the day.
+  return isBefore(due, nextSRSDay);
 };

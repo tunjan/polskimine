@@ -152,7 +152,7 @@ const AppSidebar: React.FC<NavActionProps> = ({
 
         {/* Genshin-style separator with diamond */}
         <div className="flex items-center gap-2 my-3 mx-1 group-data-[collapsible=icon]:hidden">
-          <div className="w-full h-[1px] bg-linear-to-r from-transparent via-border/50 to-transparent my-2" />
+          <div className="w-full h-px bg-linear-to-r from-transparent via-border/50 to-transparent my-2" />
         </div>
 
         {/* Tools Section */}
@@ -181,7 +181,7 @@ const AppSidebar: React.FC<NavActionProps> = ({
       <SidebarFooter className="p-3 pt-0">
         {/* Genshin-style top separator */}
         <div className="flex items-center gap-2 mb-3 group-data-[collapsible=icon]:hidden">
-          <div className="h-px flex-1 bg-gradient-to-r from-border/40 to-transparent" />
+          <div className="h-px flex-1 bg-linear-to-r from-border/40 to-transparent" />
         </div>
 
         <SidebarMenu className="gap-0.5">

@@ -27,11 +27,7 @@ const cardVariants = cva(
     },
     defaultVariants: {
       variant: "default",
-      size: "none", // Default to none so existing usages without size (using padding classes) aren't broken, or check usage. 
-      // Wait, existing Card doesn't have padding by default on the container, it's usually in CardHeader/Content.
-      // GamePanel DOES have padding on the container.
-      // To be safe for existing Card usages, let's default size to 'none' and let consumers add padding, 
-      // BUT for GamePanel migration we'll need to specify size.
+      size: "none", // Default to none so existing usages without size (using padding classes) aren't broken, or check usage.       // BUT for GamePanel migration we'll need to specify size.
       isInteractive: false,
     },
   }

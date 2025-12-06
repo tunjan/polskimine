@@ -25,8 +25,8 @@ import { v4 as uuidv4 } from 'uuid';
 type SetupStep = 'username' | 'language' | 'level' | 'deck';
 
 export const AuthPage: React.FC = () => {
-  const { createLocalProfile, markInitialDeckGenerated } = useProfile();
-  const { login } = useAuth();
+  const { markInitialDeckGenerated } = useProfile();
+  const { login, signUpWithEmail } = useAuth();
 
   const settings = useSettingsStore(s => s.settings);
   const updateSettings = useSettingsStore(s => s.updateSettings);
@@ -60,7 +60,8 @@ export const AuthPage: React.FC = () => {
     setLoading(true);
 
     try {
-      await createLocalProfile(username.trim(), selectedLevel);
+      // Create profile and authenticate in one step
+      await signUpWithEmail('local', 'local', username.trim(), selectedLevel);
 
       if (useAI && apiKey) {
         await updateUserSettings('local-user', { geminiApiKey: apiKey });
@@ -151,7 +152,7 @@ export const AuthPage: React.FC = () => {
   if (loading && setupStep === 'deck') {
     return (
       <AuthLayout>
-        <Card variant="ornate" className="text-center py-12">
+        <Card variant="ornate" size="lg" className="text-center py-12">
           <Loader size="lg" />
           <h3 className="mt-4 text-lg font-medium tracking-wide font-ui">Forging your deck...</h3>
           <p className="mt-2 text-muted-foreground text-sm max-w-xs mx-auto">
@@ -165,7 +166,7 @@ export const AuthPage: React.FC = () => {
   if (setupStep === 'language') {
     return (
       <AuthLayout className="max-w-2xl">
-        <Card variant="ornate">
+        <Card variant="ornate" size="lg">
           <GenshinCorners />
           <div className="mb-6 flex items-center gap-4">
             <Button variant="ghost" size="sm" onClick={() => setSetupStep('username')}>
@@ -185,7 +186,7 @@ export const AuthPage: React.FC = () => {
   if (setupStep === 'level') {
     return (
       <AuthLayout className="max-w-2xl">
-        <Card variant="ornate">
+        <Card variant="ornate" size="lg">
           <GenshinCorners />
           <div className="mb-6 flex items-center gap-4">
             <Button variant="ghost" size="sm" onClick={() => setSetupStep('language')}>
@@ -205,7 +206,7 @@ export const AuthPage: React.FC = () => {
   if (setupStep === 'deck') {
     return (
       <AuthLayout className="max-w-2xl">
-        <Card variant="ornate">
+        <Card variant="ornate" size="lg">
           <GenshinCorners />
           <div className="mb-6 flex items-center gap-4">
             <Button variant="ghost" size="sm" onClick={() => setSetupStep('level')}>
@@ -225,7 +226,7 @@ export const AuthPage: React.FC = () => {
 
   return (
     <AuthLayout>
-      <Card variant="ornate" className="py-8 px-6 md:px-8">
+      <Card variant="ornate" size="lg" className="py-8 px-6 md:px-8">
         <GenshinCorners />
         {renderHeader()}
         {renderUsernameStep()}

@@ -1,5 +1,5 @@
 import Dexie, { Table } from 'dexie';
-import { Card, ReviewLog } from '@/types';
+import { Card, ReviewLog, UserSettings } from '@/types';
 import { State } from 'ts-fsrs';
 
 export interface LocalProfile {
@@ -32,13 +32,13 @@ export interface HistoryEntry {
     count: number;
 }
 
-export interface LocalSettings {
+export type LocalSettings = Partial<UserSettings> & {
     id: string;
-    gemini_api_key?: string;
-    google_tts_api_key?: string;
-    azure_tts_api_key?: string;
-    azure_region?: string;
-}
+    geminiApiKey?: string;
+    googleTtsApiKey?: string;
+    azureTtsApiKey?: string;
+    azureRegion?: string;
+};
 
 export interface AggregatedStat {
     id: string;          // composite key: `${language}:${metric}` or `global:${metric}`

@@ -29,13 +29,10 @@ export const sortCards = (cards: Card[], order: CardOrder): Card[] => {
     const newCards = dateSorted.filter(c => isNewCard(c));
     const reviewCards = dateSorted.filter(c => !isNewCard(c));
 
-    if (order === 'newFirst') {
-        return [...newCards, ...reviewCards];
-    }
-
     if (order === 'reviewFirst') {
         return [...reviewCards, ...newCards];
     }
 
-    return dateSorted;
+    // Default to 'newFirst' for safety (and for 'newFirst' case)
+    return [...newCards, ...reviewCards];
 };

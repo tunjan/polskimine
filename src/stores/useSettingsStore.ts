@@ -77,6 +77,12 @@ const getInitialSettings = (): UserSettings => {
                 migratedDailyReviewLimits = createLimits(parsed.dailyReviewLimit);
             }
 
+            // Validate cardOrder
+            let validCardOrder = parsed.cardOrder;
+            if (validCardOrder !== 'newFirst' && validCardOrder !== 'reviewFirst' && validCardOrder !== 'mixed') {
+                validCardOrder = DEFAULT_SETTINGS.cardOrder;
+            }
+
             return {
                 ...DEFAULT_SETTINGS,
                 ...parsed,
@@ -86,6 +92,7 @@ const getInitialSettings = (): UserSettings => {
                 tts: { ...DEFAULT_SETTINGS.tts, ...(parsed.tts || {}) },
                 languageColors: { ...DEFAULT_SETTINGS.languageColors, ...(parsed.languageColors || {}) },
                 geminiApiKey: '',
+                cardOrder: validCardOrder,
             };
         }
     } catch (e) {
