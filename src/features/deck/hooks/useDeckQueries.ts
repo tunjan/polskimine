@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useSettingsStore } from '@/stores/useSettingsStore';
+import { db } from '@/services/db/dexie';
 import {
   getStats as fetchStats,
   getTodayReviewStats,
@@ -61,7 +62,7 @@ export const useRecordReviewMutation = () => {
   const { incrementXP } = useGamification();
 
   return useMutation({
-    mutationFn: async ({ card, grade, xpPayload }: { card: Card; grade: Grade; xpPayload?: CardXpPayload }) => {
+    mutationFn: async ({ card, newCard, grade, xpPayload }: { card: Card; newCard: Card; grade: Grade; xpPayload?: CardXpPayload }) => {
       const today = format(getSRSDate(new Date()), 'yyyy-MM-dd');
 
       const now = new Date();
@@ -72,11 +73,16 @@ export const useRecordReviewMutation = () => {
 
       const scheduledDays = card.interval || 0;
 
-      await addReviewLog(card, grade, elapsedDays, scheduledDays);
+      await db.transaction('rw', [db.cards, db.revlog, db.aggregated_stats, db.history], async () => {
+        await saveCard(newCard); // Save the updated card state
+        await addReviewLog(card, grade, elapsedDays, scheduledDays);
+        await incrementHistory(today, 1, card.language || settings.language);
+      });
 
       const xpAmount = xpPayload?.totalXp ?? 0;
 
-      return { card, grade, today, xpAmount };
+      // Return newCard as the result card
+      return { card: newCard, grade, today, xpAmount };
     },
     onMutate: async ({ card, grade, xpPayload }) => {
       const today = format(getSRSDate(new Date()), 'yyyy-MM-dd');

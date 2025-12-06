@@ -9,7 +9,7 @@ import { getSRSDate } from '@/features/study/logic/srs';
 import { useDeckStore } from '@/stores/useDeckStore';
 
 interface DeckDispatch {
-    recordReview: (card: Card, grade: Grade, xpPayload?: CardXpPayload) => Promise<void>;
+    recordReview: (oldCard: Card, newCard: Card, grade: Grade, xpPayload?: CardXpPayload) => Promise<void>;
     undoReview: () => Promise<void>;
     refreshDeckData: () => void;
 }
@@ -21,15 +21,17 @@ export const DeckActionsProvider: React.FC<{ children: React.ReactNode }> = ({ c
     const recordReviewMutation = useRecordReviewMutation();
     const undoReviewMutation = useUndoReviewMutation();
 
-    const recordReview = useCallback(async (oldCard: Card, grade: Grade, xpPayload?: CardXpPayload) => {
+    const recordReview = useCallback(async (oldCard: Card, newCard: Card, grade: Grade, xpPayload?: CardXpPayload) => {
         const today = getUTCDateString(getSRSDate(new Date()));
         const xpEarned = xpPayload?.totalXp ?? 0;
 
         // Optimistically update session state
+        // Note: We might want to store newCard here? But logic typically uses the card *before* review for history/stats?
+        // Actually, for "undo", we need the state *before* the review.
         useDeckStore.getState().setLastReview({ card: oldCard, date: today, xpEarned });
 
         try {
-            await recordReviewMutation.mutateAsync({ card: oldCard, grade, xpPayload });
+            await recordReviewMutation.mutateAsync({ card: oldCard, newCard, grade, xpPayload });
         } catch (error) {
             console.error("Failed to record review", error);
             toast.error("Failed to save review progress");

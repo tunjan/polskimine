@@ -48,7 +48,7 @@ export interface AggregatedStat {
     updated_at: string;  // ISO timestamp
 }
 
-class LinguaFlowDB extends Dexie {
+export class LinguaFlowDB extends Dexie {
     cards!: Table<Card>;
     revlog!: Table<RevlogEntry>;
     history!: Table<HistoryEntry>;
@@ -148,6 +148,14 @@ class LinguaFlowDB extends Dexie {
             ]);
 
             console.log('[Migration] Aggregated stats backfill complete!');
+        });
+
+        // Cascade delete: When a card is deleted, delete its review logs
+        this.cards.hook('deleting', (primKey, obj, transaction) => {
+            // Delete associated revlogs
+            // The transaction must include 'revlog' table for this to work.
+            // This requires that the caller (deleteCard) initiates a transaction covering both tables.
+            return this.revlog.where('card_id').equals(primKey).delete();
         });
     }
 }

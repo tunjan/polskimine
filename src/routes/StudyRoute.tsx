@@ -139,9 +139,9 @@ export const StudyRoute: React.FC = () => {
     setSessionCards(prev => prev.filter(c => c.id !== id));
   };
 
-  const handleRecordReview = async (card: Card, grade: Grade, xpPayload?: CardXpPayload) => {
+  const handleRecordReview = async (card: Card, newCard: Card, grade: Grade, xpPayload?: CardXpPayload) => {
     if (!isCramMode) {
-      await recordReview(card, grade, xpPayload);
+      await recordReview(card, newCard, grade, xpPayload);
     }
   };
 

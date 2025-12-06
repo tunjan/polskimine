@@ -86,6 +86,7 @@ export interface UserSettings {
   ignoreLearningStepsWhenNoCards: boolean;
   binaryRatingMode: boolean;
   cardOrder: 'newFirst' | 'reviewFirst' | 'mixed';
+  learningSteps: number[]; // Array of minutes, e.g. [1, 10, 60]
   tts: TTSSettings;
   fsrs: {
     request_retention: number;

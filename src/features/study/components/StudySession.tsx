@@ -11,6 +11,7 @@ import { StudyCardArea } from './StudyCardArea';
 import { StudySessionSummary } from './StudySessionSummary';
 import { StudySessionWaiting } from './StudySessionWaiting';
 import { useStudyShortcuts } from '../hooks/useStudyShortcuts';
+import { useReviewIntervals } from '../hooks/useReviewIntervals';
 
 const gradeToRatingMap: Record<Grade, CardRating> = {
   Again: 'again',
@@ -40,7 +41,7 @@ interface StudySessionProps {
   reserveCards?: Card[];
   onUpdateCard: (card: Card) => void;
   onDeleteCard: (id: string) => void;
-  onRecordReview: (oldCard: Card, grade: Grade, xpPayload?: CardXpPayload) => void;
+  onRecordReview: (oldCard: Card, newCard: Card, grade: Grade, xpPayload?: CardXpPayload) => void;
   onExit: () => void;
   onComplete?: () => void;
   onUndo?: () => void;
@@ -71,7 +72,7 @@ export const StudySession: React.FC<StudySessionProps> = ({
 
   const lastXpEarnedRef = React.useRef<number>(0);
 
-  const enhancedRecordReview = useCallback((card: Card, grade: Grade) => {
+  const enhancedRecordReview = useCallback((card: Card, updatedCard: Card, grade: Grade) => {
     const rating = mapGradeToRating(grade);
     const xpResult = processCardResult(rating);
     lastXpEarnedRef.current = xpResult.totalXp;
@@ -83,7 +84,7 @@ export const StudySession: React.FC<StudySessionProps> = ({
       dailyStreak,
       multiplierLabel: multiplierInfo.label
     };
-    onRecordReview(card, grade, payload);
+    onRecordReview(card, updatedCard, grade, payload);
   }, [onRecordReview, processCardResult, sessionStreak, isCramMode, dailyStreak, multiplierInfo]);
 
   const handleUndoWithXp = useCallback(() => {
@@ -160,6 +161,8 @@ export const StudySession: React.FC<StudySessionProps> = ({
     }
     return { label: 'REV', className: 'text-green-700 border-green-700/20 bg-green-700/5' };
   }, [currentCard, isCramMode]);
+
+  const intervals = useReviewIntervals(currentCard, settings);
 
   useStudyShortcuts({
     currentCardId: currentCard?.id,
@@ -256,6 +259,7 @@ export const StudySession: React.FC<StudySessionProps> = ({
         isProcessing={isProcessing}
         binaryRatingMode={settings.binaryRatingMode}
         onGrade={handleGrade}
+        intervals={intervals}
       />
 
       <AddCardModal

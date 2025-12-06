@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Wand2, RefreshCw, Target, Sliders, Settings } from 'lucide-react';
+import { Wand2, RefreshCw, Target, Sliders, Settings, Download, Upload } from 'lucide-react';
 import { UserSettings } from '@/types';
 import { FSRS_DEFAULTS } from '@/constants';
 import { Slider } from '@/components/ui/slider';
@@ -14,6 +14,9 @@ import { SectionHeader } from '@/components/ui/section-header';
 import { OrnateSeparator } from '@/components/ui/separator';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
+import { exportRevlogToCSV } from '@/features/settings/logic/optimizer';
+import { db } from '@/services/db/dexie';
+import { Textarea } from '@/components/ui/textarea';
 
 interface AlgorithmSettingsProps {
   localSettings: UserSettings;
@@ -29,6 +32,26 @@ export const AlgorithmSettings: React.FC<AlgorithmSettingsProps> = ({
   const [isOptimizing, setIsOptimizing] = useState(false);
   const [progress, setProgress] = useState(0);
   const [report, setReport] = useState<{ reviews: number; } | null>(null);
+  const [manualWeights, setManualWeights] = useState(localSettings.fsrs.w.join(', '));
+  const [showManual, setShowManual] = useState(false);
+
+  const handleExport = async () => {
+    try {
+      await exportRevlogToCSV(db);
+      toast.success("RevLog exported to CSV");
+    } catch (e) {
+      console.error(e);
+      toast.error("Export failed");
+    }
+  };
+
+  const handleWeightsChange = (val: string) => {
+    setManualWeights(val);
+    const weights = val.split(/[\s,]+/).map(s => parseFloat(s.trim())).filter(n => !isNaN(n));
+    if (weights.length === 19) {
+      setLocalSettings(prev => ({ ...prev, fsrs: { ...prev.fsrs, w: weights } }));
+    }
+  };
 
   const handleOptimize = async () => {
     if (!user) return;
@@ -139,13 +162,39 @@ export const AlgorithmSettings: React.FC<AlgorithmSettingsProps> = ({
               />
             </div>
           ) : (
-            <Button
-              onClick={handleOptimize}
-              variant="secondary"
-              className="w-full"
-            >
-              <Wand2 size={14} strokeWidth={1.5} /> Optimize Parameters
-            </Button>
+            <div className="flex flex-col gap-2">
+              <Button
+                onClick={handleOptimize}
+                variant="secondary"
+                className="w-full"
+              >
+                <Wand2 size={14} strokeWidth={1.5} /> Quick Optimize (In-Browser)
+              </Button>
+
+              <div className="grid grid-cols-2 gap-2">
+                <Button onClick={handleExport} variant="outline" className="w-full text-xs">
+                  <Download size={12} className="mr-2" /> Export Data
+                </Button>
+                <Button onClick={() => setShowManual(!showManual)} variant="outline" className="w-full text-xs box-border">
+                  <Sliders size={12} className="mr-2" /> Manual Params
+                </Button>
+              </div>
+
+              {showManual && (
+                <div className="pt-2 animate-in fade-in slide-in-from-top-1">
+                  <p className="text-[10px] text-muted-foreground mb-1 uppercase tracking-wider">Parameters (w)</p>
+                  <Textarea
+                    value={manualWeights}
+                    onChange={(e) => handleWeightsChange(e.target.value)}
+                    className="font-mono text-xs bg-muted/30 min-h-[80px]"
+                    placeholder="0.4, 0.6, 2.4, ..."
+                  />
+                  <p className="text-[10px] text-muted-foreground/60 mt-1">
+                    Paste the 19 comma-separated weights from the FSRS optimizer output here.
+                  </p>
+                </div>
+              )}
+            </div>
           )}
         </div>
       </Card>

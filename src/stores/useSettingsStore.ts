@@ -42,6 +42,7 @@ export const DEFAULT_SETTINGS: UserSettings = {
     ignoreLearningStepsWhenNoCards: false,
     binaryRatingMode: false,
     cardOrder: 'newFirst',
+    learningSteps: [1, 10], // 1m, 10m default
     geminiApiKey: '',
     tts: {
         provider: 'browser',
@@ -93,6 +94,7 @@ const getInitialSettings = (): UserSettings => {
                 languageColors: { ...DEFAULT_SETTINGS.languageColors, ...(parsed.languageColors || {}) },
                 geminiApiKey: '',
                 cardOrder: validCardOrder,
+                learningSteps: parsed.learningSteps || [1, 10],
             };
         }
     } catch (e) {
@@ -101,7 +103,7 @@ const getInitialSettings = (): UserSettings => {
     return DEFAULT_SETTINGS;
 };
 
-interface SettingsState {
+export interface SettingsState {
     settings: UserSettings;
     settingsLoading: boolean;
     updateSettings: (newSettings: Partial<UserSettings>) => void;
@@ -125,6 +127,7 @@ export const useSettingsStore = create<SettingsState>((set) => ({
                 languageColors: { ...state.settings.languageColors, ...(newSettings.languageColors || {}) },
                 dailyNewLimits: { ...state.settings.dailyNewLimits, ...(newSettings.dailyNewLimits || {}) },
                 dailyReviewLimits: { ...state.settings.dailyReviewLimits, ...(newSettings.dailyReviewLimits || {}) },
+                learningSteps: newSettings.learningSteps || state.settings.learningSteps,
             },
         })),
 

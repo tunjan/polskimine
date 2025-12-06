@@ -8,6 +8,7 @@ interface StudyFooterProps {
     isProcessing: boolean;
     binaryRatingMode: boolean;
     onGrade: (grade: Grade) => void;
+    intervals?: Record<Grade, string>;
 }
 
 export const StudyFooter: React.FC<StudyFooterProps> = React.memo(({
@@ -16,6 +17,7 @@ export const StudyFooter: React.FC<StudyFooterProps> = React.memo(({
     isProcessing,
     binaryRatingMode,
     onGrade,
+    intervals,
 }) => {
     return (
         <footer className="relative shrink-0 pb-[env(safe-area-inset-bottom)] border-t border-amber-600/10">
@@ -70,6 +72,7 @@ export const StudyFooter: React.FC<StudyFooterProps> = React.memo(({
                                 intent="danger"
                                 onClick={() => onGrade('Again')}
                                 disabled={isProcessing}
+                                interval={intervals?.Again}
                             />
                             <GameAnswerButton
                                 label="Good"
@@ -77,6 +80,7 @@ export const StudyFooter: React.FC<StudyFooterProps> = React.memo(({
                                 intent="success"
                                 onClick={() => onGrade('Good')}
                                 disabled={isProcessing}
+                                interval={intervals?.Good}
                             />
                         </div>
                     ) : (
@@ -87,6 +91,7 @@ export const StudyFooter: React.FC<StudyFooterProps> = React.memo(({
                                 intent="danger"
                                 onClick={() => onGrade('Again')}
                                 disabled={isProcessing}
+                                interval={intervals?.Again}
                             />
                             <GameAnswerButton
                                 label="Hard"
@@ -94,6 +99,7 @@ export const StudyFooter: React.FC<StudyFooterProps> = React.memo(({
                                 intent="warning"
                                 onClick={() => onGrade('Hard')}
                                 disabled={isProcessing}
+                                interval={intervals?.Hard}
                             />
                             <GameAnswerButton
                                 label="Good"
@@ -101,6 +107,7 @@ export const StudyFooter: React.FC<StudyFooterProps> = React.memo(({
                                 intent="success"
                                 onClick={() => onGrade('Good')}
                                 disabled={isProcessing}
+                                interval={intervals?.Good}
                             />
                             <GameAnswerButton
                                 label="Easy"
@@ -108,6 +115,7 @@ export const StudyFooter: React.FC<StudyFooterProps> = React.memo(({
                                 intent="info"
                                 onClick={() => onGrade('Easy')}
                                 disabled={isProcessing}
+                                interval={intervals?.Easy}
                             />
                         </div>
                     )
@@ -117,12 +125,13 @@ export const StudyFooter: React.FC<StudyFooterProps> = React.memo(({
     );
 });
 
-const GameAnswerButton = React.memo(({ label, shortcut, intent, onClick, disabled }: {
+const GameAnswerButton = React.memo(({ label, shortcut, intent, onClick, disabled, interval }: {
     label: string;
     shortcut: string;
     intent: 'danger' | 'warning' | 'success' | 'info';
     onClick: () => void;
     disabled: boolean;
+    interval?: string;
 }) => {
     const [isPressed, setIsPressed] = useState(false);
 
@@ -185,7 +194,7 @@ const GameAnswerButton = React.memo(({ label, shortcut, intent, onClick, disable
                 colors.glow,
                 isPressed && "scale-95",
                 disabled && "opacity-90 cursor-not-allowed"
-            )}  
+            )}
         >
             {/* Gradient background on hover */}
             <div className={clsx(
@@ -230,6 +239,16 @@ const GameAnswerButton = React.memo(({ label, shortcut, intent, onClick, disable
             )}>
                 {label}
             </span>
+
+            {/* Interval hint */}
+            {interval && (
+                <span className={clsx(
+                    "absolute top-2 text-[10px] font-medium font-ui opacity-0 group-hover:opacity-80 transition-opacity duration-200",
+                    colors.text
+                )}>
+                    {interval}
+                </span>
+            )}
 
             {/* Shortcut hint */}
             <span className="absolute bottom-2 text-[8px] font-ui text-muted-foreground/20 opacity-0 group-hover:opacity-60 transition-all duration-200 tracking-wider">

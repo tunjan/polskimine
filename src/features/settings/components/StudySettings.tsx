@@ -1,5 +1,5 @@
 import React from 'react';
-import { Target, ListOrdered, ToggleLeft } from 'lucide-react';
+import { Target, ListOrdered, ToggleLeft, Clock } from 'lucide-react';
 import { UserSettings } from '@/types';
 import { EditorialInput } from '@/components/form/EditorialInput';
 import { LANGUAGE_NAMES } from '@/constants';
@@ -17,6 +17,15 @@ export const StudySettings: React.FC<StudySettingsProps> = ({ localSettings, set
   const currentLangName = LANGUAGE_NAMES[localSettings.language];
   const currentDailyNew = localSettings.dailyNewLimits?.[localSettings.language] ?? 0;
   const currentDailyReview = localSettings.dailyReviewLimits?.[localSettings.language] ?? 0;
+  const [stepsInput, setStepsInput] = React.useState(localSettings.learningSteps?.join(' ') || '1 10');
+
+  const handleStepsChange = (val: string) => {
+    setStepsInput(val);
+    const steps = val.split(/[\s,]+/).map(s => parseInt(s.trim(), 10)).filter(n => !isNaN(n) && n > 0);
+    if (steps.length > 0) {
+      setLocalSettings(prev => ({ ...prev, learningSteps: steps }));
+    }
+  };
 
   return (
     <div className="space-y-8 max-w-2xl">
@@ -95,6 +104,25 @@ export const StudySettings: React.FC<StudySettingsProps> = ({ localSettings, set
         icon={<ToggleLeft className="w-4 h-4" strokeWidth={1.5} />}
       />
       <div className="space-y-3">
+        <Card variant="stat" size="sm" className="hover:border-primary/40 transition-colors">
+          <div className="flex items-center justify-between gap-6">
+            <div className="flex-1">
+              <div className="flex items-center gap-2 mb-1">
+                <Clock className="w-4 h-4 text-muted-foreground/60" strokeWidth={1.5} />
+                <span className="text-sm font-light text-foreground font-ui">Learning Steps</span>
+              </div>
+              <p className="text-xs text-muted-foreground/60 font-light pl-6">Minutes between reviews (e.g. "1 10")</p>
+            </div>
+            <EditorialInput
+              type="text"
+              value={stepsInput}
+              className="w-32 bg-transparent border-0 border-b border-border/30 text-sm font-ui focus:outline-none focus:border-primary/60 transition-colors py-1 px-1 text-right text-foreground font-light"
+              onChange={(e) => handleStepsChange(e.target.value)}
+              placeholder="1 10"
+            />
+          </div>
+        </Card>
+
         <Card variant="stat" size="sm" className="hover:border-primary/40 transition-colors">
           <div className="flex items-center justify-between gap-6">
             <div className="flex-1">

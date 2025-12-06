@@ -9,7 +9,7 @@ interface UseStudySessionParams {
   reserveCards?: Card[];
   settings: UserSettings;
   onUpdateCard: (card: Card) => void;
-  onRecordReview: (card: Card, grade: Grade) => void;
+  onRecordReview: (card: Card, updatedCard: Card, grade: Grade) => void;
   canUndo?: boolean;
   onUndo?: () => void;
 }
@@ -267,9 +267,9 @@ export const useStudySession = ({
     dispatch({ type: 'START_PROCESSING' });
 
     try {
-      const updatedCard = calculateNextReview(currentCard, grade, settings.fsrs);
-      await onUpdateCard(updatedCard);
-      await onRecordReview(currentCard, grade);
+      const updatedCard = calculateNextReview(currentCard, grade, settings.fsrs, settings.learningSteps);
+      // await onUpdateCard(updatedCard); // Removed: handled in transaction now
+      await onRecordReview(currentCard, updatedCard, grade);
 
       const isLast = state.currentIndex === state.cards.length - 1;
       const addedCardId = updatedCard.status === 'learning' && !isLast ? updatedCard.id : null;
@@ -279,7 +279,7 @@ export const useStudySession = ({
       console.error("Grade failed", e);
       dispatch({ type: 'GRADE_FAILURE' });
     }
-  }, [state.status, state.currentIndex, state.cards, currentCard, settings.fsrs, onUpdateCard, onRecordReview]);
+  }, [state.status, state.currentIndex, state.cards, currentCard, settings.fsrs, onRecordReview]);
 
   const handleMarkKnown = useCallback(async () => {
     // Allow Mark Known from IDLE (front) or FLIPPED?

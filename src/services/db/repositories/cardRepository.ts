@@ -122,12 +122,16 @@ export const saveCard = async (card: Card) => {
 };
 
 export const deleteCard = async (id: string) => {
-  await db.cards.delete(id);
+  await db.transaction('rw', [db.cards, db.revlog], async () => {
+    await db.cards.delete(id);
+  });
 };
 
 export const deleteCardsBatch = async (ids: string[]) => {
   if (!ids.length) return;
-  await db.cards.bulkDelete(ids);
+  await db.transaction('rw', [db.cards, db.revlog], async () => {
+    await db.cards.bulkDelete(ids);
+  });
 };
 
 export const saveAllCards = async (cards: Card[]) => {
