@@ -90,10 +90,10 @@
         /* Rich warm brown text */
         --card: oklch(0.985 0.006 85);
         /* Clean warm white */
-        --primary: oklch(0.62 0.17 70);
-        /* Rich amber gold - more orange */
-        --primary-foreground: oklch(0.98 0.005 85);
-        /* White text on gold */
+        --primary: oklch(0.60 0.18 70);
+        /* Rich amber gold - slightly darkened for better presence */
+        --primary-foreground: oklch(0.15 0.04 60);
+        /* Dark warm brown text on gold background - providing high contrast */
         --secondary: oklch(0.93 0.012 80);
         /* Warm beige */
         --muted: oklch(0.90 0.01 80);

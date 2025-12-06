@@ -60,7 +60,7 @@ const StatusBadge = ({ status }: { status: string }) => {
     return (
         <span
             className={cn(
-                "relative inline-flex items-center gap-1.5 px-2.5 py-1 text-[10px] font-medium uppercase tracking-wider transition-all border rounded-sm",
+                "relative inline-flex items-center gap-1.5 px-2.5 py-1 text-[11px] font-medium uppercase tracking-wider transition-all border rounded-sm",
                 // Corner accents via pseudo-elements
                 "before:absolute before:-top-px before:-left-px before:w-1.5 before:h-1.5 before:border-t-2 before:border-l-2 before:border-current before:opacity-40 before:pointer-events-none",
                 "after:absolute after:-bottom-px after:-right-px after:w-1.5 after:h-1.5 after:border-b-2 after:border-r-2 after:border-current after:opacity-40 after:pointer-events-none",
@@ -90,7 +90,7 @@ const ScheduleCell = ({ dateStr, status, interval }: { dateStr: string, status: 
         return (
             <div className="inline-flex items-center gap-1.5 px-2 py-1 bg-amber-500/10 border border-amber-500/50 text-amber-500 rounded-sm">
                 <Zap className="w-3 h-3" strokeWidth={2} fill="currentColor" />
-                <span className="text-[10px] uppercase tracking-wider font-bold">Priority</span>
+                <span className="text-[11px] uppercase tracking-wider font-bold">Priority</span>
             </div>
         )
     }
@@ -105,7 +105,7 @@ const ScheduleCell = ({ dateStr, status, interval }: { dateStr: string, status: 
             )}>
                 {format(date, 'MMM d')}
             </p>
-            <p className="text-[10px] text-muted-foreground uppercase tracking-wide">
+            <p className="text-[11px] text-muted-foreground uppercase tracking-wide">
                 {interval > 0 && `${interval}d • `}
                 {formatDistanceToNow(date, { addSuffix: true })}
             </p>
@@ -235,7 +235,7 @@ export function getCardColumns(actions: ColumnActions): ColumnDef<Card>[] {
                     <div className="space-y-0.5">
                         <p className="font-medium text-foreground text-base">{word}</p>
                         {pos && (
-                            <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-medium">{pos}</p>
+                            <p className="text-[11px] text-muted-foreground uppercase tracking-wider font-medium">{pos}</p>
                         )}
                     </div>
                 )

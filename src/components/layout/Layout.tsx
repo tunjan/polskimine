@@ -157,7 +157,7 @@ const AppSidebar: React.FC<NavActionProps> = ({
 
         {/* Tools Section */}
         <SidebarGroup className="px-0 py-2 group-data-[collapsible=icon]:py-2">
-          <SidebarGroupLabel className="text-[10px] uppercase tracking-widest text-muted-foreground/50 px-3 mb-2 group-data-[collapsible=icon]:hidden">
+          <SidebarGroupLabel className="text-[11px] uppercase tracking-widest text-muted-foreground/50 px-3 mb-2 group-data-[collapsible=icon]:hidden">
             Actions
           </SidebarGroupLabel>
           <SidebarGroupContent>
@@ -238,7 +238,7 @@ const AppSidebar: React.FC<NavActionProps> = ({
         {/* User Info */}
         {profile && (
           <div className="px-3 py-2 group-data-[collapsible=icon]:hidden mt-1">
-            <p className="text-[10px] text-muted-foreground/50 truncate tracking-wide uppercase">
+            <p className="text-[11px] text-muted-foreground/50 truncate tracking-wide uppercase">
               {profile.username}
             </p>
           </div>
@@ -263,7 +263,11 @@ const AppSidebar: React.FC<NavActionProps> = ({
 
 
 
-const MobileBottomNav: React.FC = () => {
+interface MobileNavProps {
+  onOpenAdd: () => void;
+}
+
+const MobileBottomNav: React.FC<MobileNavProps> = ({ onOpenAdd }) => {
   const location = useLocation();
 
   const navItems = [
@@ -314,7 +318,7 @@ const MobileBottomNav: React.FC = () => {
 
                 {/* Label */}
                 <span className={clsx(
-                  "text-[9px] uppercase tracking-widest mt-0.5 transition-colors",
+                  "text-[10px] uppercase tracking-widest mt-0.5 transition-colors",
                   isActive ? "text-foreground" : "text-muted-foreground/70 group-hover:text-muted-foreground"
                 )}>
                   {item.label}
@@ -338,10 +342,27 @@ const MobileBottomNav: React.FC = () => {
             </div>
           </Link>
 
+          {/* Add Button */}
+          <button
+            onClick={onOpenAdd}
+            className="relative flex flex-col items-center justify-center w-14 h-14 group"
+          >
+            <div className="relative flex items-center justify-center w-8 h-8 transition-all">
+              <Plus
+                size={20}
+                strokeWidth={1.5}
+                className="text-muted-foreground group-hover:text-foreground transition-all"
+              />
+            </div>
+            <span className="text-[10px] uppercase tracking-widest mt-0.5 text-muted-foreground/70 group-hover:text-muted-foreground transition-colors">
+              Add
+            </span>
+          </button>
+
           {/* Menu Trigger */}
           <div className="relative flex flex-col items-center justify-center w-14 h-14">
             <SidebarTrigger className="flex items-center justify-center w-8 h-8 hover:bg-transparent [&>svg]:w-[18px] [&>svg]:h-[18px] [&>svg]:stroke-[1.2]" />
-            <span className="text-[9px] uppercase tracking-widest mt-0.5 text-muted-foreground/70">
+            <span className="text-[10px] uppercase tracking-widest mt-0.5 text-muted-foreground/70">
               Menu
             </span>
           </div>
@@ -425,7 +446,7 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
           </main>
 
           {/* Mobile Navigation */}
-          <MobileBottomNav />
+          <MobileBottomNav onOpenAdd={() => setIsAddModalOpen(true)} />
         </div>
       </div>
 

@@ -39,10 +39,10 @@ export const GeneralSettings: React.FC<GeneralSettingsProps> = ({
         <div className="space-y-4">
           <div className="flex items-center gap-2 mb-3">
             <span className="w-1.5 h-1.5 rotate-45 bg-primary/40" />
-            <label className="text-[10px] text-muted-foreground uppercase tracking-[0.15em] font-light font-ui">
+            <label className="text-[11px] text-muted-foreground uppercase tracking-[0.15em] font-light font-ui">
               Display Name
             </label>
-            <span className="text-[9px] text-primary/60 uppercase tracking-wider ml-auto font-ui">Public</span>
+            <span className="text-[10px] text-primary/60 uppercase tracking-wider ml-auto font-ui">Public</span>
           </div>
           <Input
             value={username}
@@ -69,7 +69,7 @@ export const GeneralSettings: React.FC<GeneralSettingsProps> = ({
           <div className="space-y-4">
             <div className="flex items-center gap-2 mb-3">
               <span className="w-1.5 h-1.5 rotate-45 bg-primary/40" />
-              <label className="text-[10px] text-muted-foreground uppercase tracking-[0.15em] font-light font-ui">
+              <label className="text-[11px] text-muted-foreground uppercase tracking-[0.15em] font-light font-ui">
                 Active Course
               </label>
             </div>
@@ -93,7 +93,7 @@ export const GeneralSettings: React.FC<GeneralSettingsProps> = ({
         <Card variant="default" size="md">
           <div className="flex items-center gap-2 mb-3">
             <span className="w-1.5 h-1.5 rotate-45 bg-primary/40" />
-            <label className="text-[10px] text-muted-foreground uppercase tracking-[0.15em] font-light font-ui">
+            <label className="text-[11px] text-muted-foreground uppercase tracking-[0.15em] font-light font-ui">
               Proficiency Level
             </label>
           </div>
@@ -114,7 +114,7 @@ export const GeneralSettings: React.FC<GeneralSettingsProps> = ({
           <div className="space-y-4">
             <div className="flex items-center gap-2 mb-3">
               <span className="w-1.5 h-1.5 rotate-45 bg-primary/40" />
-              <label className="text-[10px] text-muted-foreground uppercase tracking-[0.15em] font-light font-ui">
+              <label className="text-[11px] text-muted-foreground uppercase tracking-[0.15em] font-light font-ui">
                 Theme Accent
               </label>
             </div>
@@ -147,7 +147,7 @@ export const GeneralSettings: React.FC<GeneralSettingsProps> = ({
         <div className="space-y-4">
           <div className="flex items-center gap-2 mb-3">
             <span className="w-1.5 h-1.5 rotate-45 bg-primary/40" />
-            <label className="text-[10px] text-muted-foreground uppercase tracking-[0.15em] font-light font-ui">
+            <label className="text-[11px] text-muted-foreground uppercase tracking-[0.15em] font-light font-ui">
               API Key
             </label>
           </div>

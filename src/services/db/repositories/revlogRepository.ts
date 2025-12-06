@@ -1,6 +1,7 @@
 import { db, generateId, RevlogEntry } from '@/services/db/dexie';
 import { ReviewLog, Card, Grade } from '@/types';
 import { State } from 'ts-fsrs';
+import { incrementStat } from './aggregatedStatsRepository';
 
 const mapGradeToNumber = (grade: Grade): number => {
   switch (grade) {
@@ -30,10 +31,6 @@ export const addReviewLog = async (
   };
 
   await db.revlog.add(entry);
-
-  // Increment aggregated stats atomically
-  // Import incrementStat dynamically to avoid circular dependency
-  const { incrementStat } = await import('./aggregatedStatsRepository');
 
   // Increment language-specific stats
   await incrementStat(card.language, 'total_xp', 10);

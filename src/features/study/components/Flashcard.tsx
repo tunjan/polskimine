@@ -317,7 +317,7 @@ export const Flashcard = React.memo<FlashcardProps>(({
                   </p>
                 </div>
                 {isGaslit && (
-                  <span className="absolute -top-5 -right-6 text-[8px] font-ui font-medium uppercase text-destructive/60 tracking-widest rotate-12 opacity-70">
+                  <span className="absolute -top-5 -right-6 text-[10px] font-ui font-medium uppercase text-destructive/60 tracking-widest rotate-12 opacity-70">
                     Suspicious
                   </span>
                 )}

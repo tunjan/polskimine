@@ -14,9 +14,9 @@ export const Heatmap: React.FC<HeatmapProps> = ({ history }) => {
     const days = [];
 
     let startDate = subDays(today, 364);
-    const dayOfWeek = startDate.getDay(); 
-    startDate = subDays(startDate, dayOfWeek); 
-    
+    const dayOfWeek = startDate.getDay();
+    startDate = subDays(startDate, dayOfWeek);
+
     const totalDays = 53 * 7;
 
     for (let i = 0; i < totalDays; i++) {
@@ -32,8 +32,8 @@ export const Heatmap: React.FC<HeatmapProps> = ({ history }) => {
     return days;
   }, [history]);
 
-  
-  
+
+
   const getColorStyle = (count: number): string => {
     if (count === 0) return 'bg-muted/30';
     if (count <= 2) return 'bg-pine-200 dark:bg-pine-900';
@@ -42,7 +42,7 @@ export const Heatmap: React.FC<HeatmapProps> = ({ history }) => {
     return 'bg-pine-600 dark:bg-pine-400';
   };
 
-  
+
   const stats = useMemo(() => {
     const today = startOfDay(new Date());
     const last7Days = Array.from({ length: 7 }).map((_, i) => {
@@ -50,10 +50,10 @@ export const Heatmap: React.FC<HeatmapProps> = ({ history }) => {
       const dateKey = format(date, 'yyyy-MM-dd');
       return history[dateKey] || 0;
     });
-    
+
     const weekTotal = last7Days.reduce((sum, count) => sum + count, 0);
     const activeDays = last7Days.filter(count => count > 0).length;
-    
+
     return { weekTotal, activeDays, last7Days: last7Days.reverse() };
   }, [history]);
 
@@ -63,7 +63,7 @@ export const Heatmap: React.FC<HeatmapProps> = ({ history }) => {
       <div className="md:hidden">
         <div className="flex items-center justify-between mb-4">
           <div>
-            <p className="text-[10px] text-muted-foreground uppercase tracking-[0.15em] font-light font-ui">
+            <p className="text-[11px] text-muted-foreground uppercase tracking-[0.15em] font-light font-ui">
               This Week
             </p>
             <p className="text-2xl font-light text-foreground tabular-nums">
@@ -71,7 +71,7 @@ export const Heatmap: React.FC<HeatmapProps> = ({ history }) => {
             </p>
           </div>
           <div className="text-right">
-            <p className="text-[10px] text-muted-foreground uppercase tracking-[0.15em] font-light font-ui">
+            <p className="text-[11px] text-muted-foreground uppercase tracking-[0.15em] font-light font-ui">
               Active Days
             </p>
             <p className="text-2xl font-light text-foreground tabular-nums">
@@ -79,23 +79,23 @@ export const Heatmap: React.FC<HeatmapProps> = ({ history }) => {
             </p>
           </div>
         </div>
-        
+
         {/* Mini week view for mobile */}
         <div className="flex gap-1.5 justify-between">
           {stats.last7Days.map((count, i) => {
             const date = subDays(new Date(), 6 - i);
             return (
               <div key={i} className="flex-1 flex flex-col items-center gap-1">
-                <span className="text-[9px] text-muted-foreground font-ui">
+                <span className="text-[10px] text-muted-foreground font-ui">
                   {format(date, 'EEE').charAt(0)}
                 </span>
-                <div 
+                <div
                   className={clsx(
                     "w-full aspect-square rounded-sm transition-colors",
                     getColorStyle(count)
                   )}
                 />
-                <span className="text-[9px] text-muted-foreground tabular-nums">
+                <span className="text-[10px] text-muted-foreground tabular-nums">
                   {count}
                 </span>
               </div>
@@ -118,10 +118,10 @@ export const Heatmap: React.FC<HeatmapProps> = ({ history }) => {
                     )}
                   />
                 </TooltipTrigger>
-                <TooltipContent 
+                <TooltipContent
                   className="bg-card text-foreground px-4 py-2.5 rounded-xl border border-border"
                 >
-                  <div className="text-[10px] uppercase tracking-[0.15em] text-muted-foreground mb-1 font-ui">
+                  <div className="text-xs uppercase tracking-[0.15em] text-muted-foreground mb-1 font-ui">
                     {format(day.date, 'MMM d, yyyy')}
                   </div>
                   <div className="text-sm font-light tabular-nums">
@@ -132,9 +132,9 @@ export const Heatmap: React.FC<HeatmapProps> = ({ history }) => {
             ))}
           </div>
         </div>
-        
+
         {/* Legend */}
-        <div className="flex items-center justify-end gap-2 mt-3 text-[9px] text-muted-foreground font-ui">
+        <div className="flex items-center justify-end gap-2 mt-3 text-[10px] text-muted-foreground font-ui">
           <span>Less</span>
           <div className="flex gap-0.5">
             <div className="w-2.5 h-2.5 rounded-sm bg-muted/30" />

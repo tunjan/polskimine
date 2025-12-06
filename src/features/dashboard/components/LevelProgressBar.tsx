@@ -29,11 +29,11 @@ export const LevelProgressBar: React.FC<LevelProgressBarProps> = ({ xp, level, c
       {/* Labels */}
       <div className="flex justify-between items-end">
         <div className="flex flex-col">
-          <span className="text-[9px] font-sans uppercase tracking-widest text-muted-foreground">Current Level</span>
+          <span className="text-[10px] font-sans uppercase tracking-widest text-muted-foreground">Current Level</span>
           <span className="text-sm font-medium font-sans">{level}</span>
         </div>
         <div className="flex flex-col items-end">
-          <span className="text-[9px] font-sans uppercase tracking-widest text-muted-foreground">Next Level</span>
+          <span className="text-[10px] font-sans uppercase tracking-widest text-muted-foreground">Next Level</span>
           <span className="text-xs font-sans text-muted-foreground">-{progressData.xpRemaining.toLocaleString()} XP</span>
         </div>
       </div>

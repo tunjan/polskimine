@@ -50,7 +50,7 @@ export const StudySettings: React.FC<StudySettingsProps> = ({ localSettings, set
           <div className="space-y-4 text-center">
             <div className="flex items-center justify-center gap-2">
               <span className="w-1.5 h-1.5 rotate-45 bg-amber-500/60" />
-              <label className="text-[10px] text-muted-foreground uppercase tracking-[0.15em] font-light font-ui">
+              <label className="text-xs text-muted-foreground uppercase tracking-[0.15em] font-light font-ui">
                 New Cards
               </label>
             </div>
@@ -74,7 +74,7 @@ export const StudySettings: React.FC<StudySettingsProps> = ({ localSettings, set
           <div className="space-y-4 text-center">
             <div className="flex items-center justify-center gap-2">
               <span className="w-1.5 h-1.5 rotate-45 bg-sky-500/60" />
-              <label className="text-[10px] text-muted-foreground uppercase tracking-[0.15em] font-light font-ui">
+              <label className="text-xs text-muted-foreground uppercase tracking-[0.15em] font-light font-ui">
                 Review Cards
               </label>
             </div>

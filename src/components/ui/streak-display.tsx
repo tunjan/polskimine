@@ -73,7 +73,7 @@ export function StreakDisplay({
                             day{currentStreak === 1 ? '' : 's'}
                         </span>
                         {isAtRisk && currentStreak > 0 && (
-                            <span className="text-[10px] text-amber-500 uppercase tracking-widest font-bold font-ui animate-pulse ml-2">
+                            <span className="text-[11px] text-amber-500 uppercase tracking-widest font-bold font-ui animate-pulse ml-2">
                                 At Risk
                             </span>
                         )}
@@ -83,7 +83,7 @@ export function StreakDisplay({
                     <div className="flex gap-1.5">
                         {lastSevenDays.map((day, i) => (
                             <div key={i} className="flex flex-col items-center gap-1.5">
-                                <span className="text-[9px] text-muted-foreground/50 font-semibold font-ui uppercase">
+                                <span className="text-[10px] text-muted-foreground/50 font-semibold font-ui uppercase">
                                     {day.date.toLocaleDateString('en', { weekday: 'narrow' })}
                                 </span>
                                 <div className={cn(

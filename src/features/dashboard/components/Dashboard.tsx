@@ -183,7 +183,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
 
                 {/* Progress bar */}
                 <div className="mt-3 pt-3 border-t border-border/30">
-                  <div className="flex justify-between text-[10px] text-muted-foreground mb-2 uppercase tracking-wider font-semibold">
+                  <div className="flex justify-between text-xs text-muted-foreground mb-2 uppercase tracking-wider font-semibold">
                     <span>Progress</span>
                     <span>{Math.round(levelData.progressPercent)}%</span>
                   </div>
@@ -212,23 +212,18 @@ export const Dashboard: React.FC<DashboardProps> = ({
                   <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-amber-600/80 to-transparent" />
 
                   {/* Corner ornaments */}
-                  <svg className="absolute top-0 left-0 w-12 h-12 text-amber-600/70" viewBox="0 0 48 48" fill="none">
+                  {/* Corner ornaments - Simplified */}
+                  <svg className="absolute top-0 left-0 w-8 h-8 text-amber-600/40" viewBox="0 0 48 48" fill="none">
                     <path d="M0 0H40V2H2V40H0V0Z" fill="currentColor" />
-                    <path d="M4 4H28V5H5V28H4V4Z" fill="currentColor" opacity="0.5" />
-                    <rect x="32" y="4" width="6" height="1" fill="currentColor" opacity="0.4" />
                   </svg>
-                  <svg className="absolute top-0 right-0 w-12 h-12 text-amber-600/70 rotate-90" viewBox="0 0 48 48" fill="none">
+                  <svg className="absolute top-0 right-0 w-8 h-8 text-amber-600/40 rotate-90" viewBox="0 0 48 48" fill="none">
                     <path d="M0 0H40V2H2V40H0V0Z" fill="currentColor" />
-                    <path d="M4 4H28V5H5V28H4V4Z" fill="currentColor" opacity="0.5" />
-                    <rect x="32" y="4" width="6" height="1" fill="currentColor" opacity="0.4" />
                   </svg>
-                  <svg className="absolute bottom-0 left-0 w-12 h-12 text-amber-600/70 -rotate-90" viewBox="0 0 48 48" fill="none">
+                  <svg className="absolute bottom-0 left-0 w-8 h-8 text-amber-600/40 -rotate-90" viewBox="0 0 48 48" fill="none">
                     <path d="M0 0H40V2H2V40H0V0Z" fill="currentColor" />
-                    <path d="M4 4H28V5H5V28H4V4Z" fill="currentColor" opacity="0.5" />
                   </svg>
-                  <svg className="absolute bottom-0 right-0 w-12 h-12 text-amber-600/70 rotate-180" viewBox="0 0 48 48" fill="none">
+                  <svg className="absolute bottom-0 right-0 w-8 h-8 text-amber-600/40 rotate-180" viewBox="0 0 48 48" fill="none">
                     <path d="M0 0H40V2H2V40H0V0Z" fill="currentColor" />
-                    <path d="M4 4H28V5H5V28H4V4Z" fill="currentColor" opacity="0.5" />
                   </svg>
 
                   {/* Quest ribbon/banner */}
@@ -238,7 +233,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
                         {/* Quest type badge */}
                         <div className="items-center text-center gap-2 mb-1">
                           <span className="w-1.5 h-1.5 bg-amber-600 rotate-45 animate-pulse" />
-                          <span className="text-[10px] text-amber-600 font-bold uppercase tracking-[0.25em]">
+                          <span className="text-xs text-amber-600 font-bold uppercase tracking-[0.25em]">
                             Daily Commission
                           </span>
                           <span className="w-8 h-px bg-gradient-to-r from-amber-600/60 to-transparent" />
@@ -308,19 +303,18 @@ export const Dashboard: React.FC<DashboardProps> = ({
                           </div>
                           <div>
                             <p className="text-xl font-semibold text-foreground tabular-nums">{stats.newDue}</p>
-                            <p className="text-[10px] text-muted-foreground uppercase tracking-wider">New Cards</p>
+                            <p className="text-[11px] text-muted-foreground uppercase tracking-wider">New Cards</p>
                           </div>
                         </div>
                       </div>
 
-                      <div className="relative group/reward bg-gradient-to-br from-sky-500/10 to-transparent border border-sky-700/30 p-3 hover:border-sky-600/50 transition-colors">
+                      <div className="relative group/reward bg-gradient-to-br from-sky-500/10 to-transparent border border-sky-700/30 p-2.5 hover:border-sky-600/50 transition-colors">
                         <div className="flex items-center gap-3">
-                          <div className="relative w-10 h-10 flex items-center justify-center bg-sky-500/10 rounded-4xl">
-
-                            <Activity className="w-5 h-5 text-sky-400 " />
+                          <div className="relative w-8 h-8 flex items-center justify-center bg-sky-500/10 rounded-full">
+                            <Activity className="w-4 h-4 text-sky-400" />
                           </div>
                           <div>
-                            <p className="text-xl font-semibold text-foreground tabular-nums">{stats.reviewDue}</p>
+                            <p className="text-lg font-semibold text-foreground tabular-nums">{stats.reviewDue}</p>
                             <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Reviews</p>
                           </div>
                         </div>
@@ -339,12 +333,12 @@ export const Dashboard: React.FC<DashboardProps> = ({
                           : "cursor-not-allowed opacity-60"
                       )}
                     >
-                      {/* Button background with animated gradient */}
+                      {/* Button background - Solid Primary */}
                       <div className={cn(
                         "absolute inset-0 transition-opacity duration-300",
                         stats.due > 0
-                          ? "bg-gradient-to-r from-amber-500/20 via-amber-400/15 to-amber-500/20 group-hover/btn:from-amber-500/30 group-hover/btn:via-amber-400/25 group-hover/btn:to-amber-500/30"
-                          : "bg-gradient-to-r from-emerald-500/20 via-emerald-400/15 to-emerald-500/20"
+                          ? "bg-primary shadow-lg group-hover/btn:bg-primary/90"
+                          : "bg-muted cursor-not-allowed"
                       )} />
 
                       {/* Borders */}
@@ -371,8 +365,8 @@ export const Dashboard: React.FC<DashboardProps> = ({
                           <div className="flex items-center justify-center gap-4">
                             <span className="w-6 h-px bg-amber-500/50 group-hover/btn:w-10 group-hover/btn:bg-amber-400 transition-all duration-300" />
                             <span className="w-1.5 h-1.5 rotate-45 bg-amber-500 opacity-60" />
-                            <span className="text-base font-bold tracking-[0.35em] text-amber-600 dark:text-amber-300 uppercase">
-                              Navigate
+                            <span className="text-base font-bold tracking-[0.2em] text-amber-950 dark:text-amber-100 uppercase">
+                              Start Commission
                             </span>
 
                             <span className="w-1.5 h-1.5 rotate-45 bg-amber-500 opacity-60" />
@@ -636,7 +630,7 @@ function InventorySlot({ icon, label, value, description, color, onClick }: Inve
       </div>
 
       {/* Label */}
-      <p className="text-[10px] text-muted-foreground uppercase tracking-[0.15em] font-semibold mb-1">
+      <p className="text-xs text-muted-foreground uppercase tracking-[0.15em] font-semibold mb-1">
         {label}
       </p>
 

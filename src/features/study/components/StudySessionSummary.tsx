@@ -63,7 +63,7 @@ export const StudySessionSummary: React.FC<StudySessionSummaryProps> = ({
                         <div className="flex flex-col items-center gap-1">
                             <Target size={16} className="text-amber-500/60" strokeWidth={1.5} />
                             <span className="text-2xl font-light text-foreground tabular-nums">{cardsReviewed}</span>
-                            <span className="text-[8px] font-ui uppercase tracking-wider text-muted-foreground/50">Cards</span>
+                            <span className="text-[10px] font-ui uppercase tracking-wider text-muted-foreground/50">Cards</span>
                         </div>
                     </div>
 
@@ -79,7 +79,7 @@ export const StudySessionSummary: React.FC<StudySessionSummaryProps> = ({
                         <div className="flex flex-col items-center gap-1">
                             <Zap size={16} className="text-amber-500" strokeWidth={1.5} />
                             <span className="text-2xl font-light text-amber-500 tabular-nums">+{sessionXp}</span>
-                            <span className="text-[8px] font-ui uppercase tracking-wider text-amber-500/60">XP Earned</span>
+                            <span className="text-[10px] font-ui uppercase tracking-wider text-amber-500/60">XP Earned</span>
                         </div>
                     </div>
 
@@ -91,7 +91,7 @@ export const StudySessionSummary: React.FC<StudySessionSummaryProps> = ({
                         <div className="flex flex-col items-center gap-1">
                             <Sparkles size={16} className="text-amber-500/60" strokeWidth={1.5} />
                             <span className="text-2xl font-light text-foreground tabular-nums">{sessionStreak}</span>
-                            <span className="text-[8px] font-ui uppercase tracking-wider text-muted-foreground/50">Best Streak</span>
+                            <span className="text-[10px] font-ui uppercase tracking-wider text-muted-foreground/50">Best Streak</span>
                         </div>
                     </div>
                 </div>

@@ -105,9 +105,9 @@ export const AlgorithmSettings: React.FC<AlgorithmSettingsProps> = ({
           <div className="flex justify-between items-center">
             <div className="flex items-center gap-2">
               <span className="w-1.5 h-1.5 rotate-45 bg-primary/60" />
-              <span className="text-[10px] text-muted-foreground uppercase tracking-[0.15em] font-light font-ui">
+              <label className="text-[11px] text-muted-foreground uppercase tracking-[0.15em] font-light font-ui">
                 Target Retention
-              </span>
+              </label>
             </div>
             <span className="text-5xl md:text-6xl font-light tabular-nums text-foreground">
               {Math.round(localSettings.fsrs.request_retention * 100)}<span className="text-xl text-muted-foreground/40">%</span>
@@ -125,7 +125,7 @@ export const AlgorithmSettings: React.FC<AlgorithmSettingsProps> = ({
               }
               className="py-3"
             />
-            <div className="flex justify-between text-[10px] font-ui text-muted-foreground/50 uppercase tracking-wider">
+            <div className="flex justify-between text-xs font-ui text-muted-foreground/50 uppercase tracking-wider">
               <span>Faster Reviews</span>
               <span>Higher Accuracy</span>
             </div>
@@ -148,7 +148,7 @@ export const AlgorithmSettings: React.FC<AlgorithmSettingsProps> = ({
               Analyzes {report ? `${report.reviews} review records` : 'your review history'} to calculate personalized parameters.
             </p>
             {report && (
-              <span className="text-[10px] font-ui uppercase tracking-[0.15em] text-pine-500">Complete</span>
+              <span className="text-xs font-ui uppercase tracking-[0.15em] text-pine-500">Complete</span>
             )}
           </div>
 
@@ -182,14 +182,14 @@ export const AlgorithmSettings: React.FC<AlgorithmSettingsProps> = ({
 
               {showManual && (
                 <div className="pt-2 animate-in fade-in slide-in-from-top-1">
-                  <p className="text-[10px] text-muted-foreground mb-1 uppercase tracking-wider">Parameters (w)</p>
+                  <p className="text-[11px] text-muted-foreground mb-1 uppercase tracking-wider">Parameters (w)</p>
                   <Textarea
                     value={manualWeights}
                     onChange={(e) => handleWeightsChange(e.target.value)}
                     className="font-mono text-xs bg-muted/30 min-h-[80px]"
                     placeholder="0.4, 0.6, 2.4, ..."
                   />
-                  <p className="text-[10px] text-muted-foreground/60 mt-1">
+                  <p className="text-[11px] text-muted-foreground/60 mt-1">
                     Paste the 19 comma-separated weights from the FSRS optimizer output here.
                   </p>
                 </div>

@@ -194,7 +194,7 @@ export function LoadingScreen({
                         <div className="flex items-center gap-3">
                             <span className="w-4 h-px bg-amber-600/30" />
                             <span className="w-1.5 h-1.5 rotate-45 bg-amber-600/40" />
-                            <span className="text-[10px] text-amber-500/60 uppercase tracking-[0.25em] font-semibold font-ui">
+                            <span className="text-[11px] text-amber-500/60 uppercase tracking-[0.25em] font-semibold font-ui">
                                 Tip
                             </span>
                             <span className="w-1.5 h-1.5 rotate-45 bg-amber-600/40" />

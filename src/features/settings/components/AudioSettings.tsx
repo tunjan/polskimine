@@ -60,7 +60,7 @@ export const AudioSettings: React.FC<AudioSettingsProps> = ({
             <div className="space-y-3">
               <div className="flex items-center gap-2">
                 <span className="w-1.5 h-1.5 rotate-45 bg-primary/40" />
-                <label className="text-[10px] text-muted-foreground uppercase tracking-[0.15em] font-light font-ui">
+                <label className="text-[11px] text-muted-foreground uppercase tracking-[0.15em] font-light font-ui">
                   API Credentials
                 </label>
               </div>
@@ -76,7 +76,7 @@ export const AudioSettings: React.FC<AudioSettingsProps> = ({
               <div className="space-y-3">
                 <div className="flex items-center gap-2">
                   <span className="w-1.5 h-1.5 rotate-45 bg-primary/40" />
-                  <label className="text-[10px] text-muted-foreground uppercase tracking-[0.15em] font-light font-ui">
+                  <label className="text-[11px] text-muted-foreground uppercase tracking-[0.15em] font-light font-ui">
                     Region
                   </label>
                 </div>
@@ -140,7 +140,7 @@ export const AudioSettings: React.FC<AudioSettingsProps> = ({
             <div className="flex justify-between items-baseline">
               <div className="flex items-center gap-2">
                 <span className="w-1.5 h-1.5 rotate-45 bg-primary/40" />
-                <label className="text-[10px] text-muted-foreground uppercase tracking-[0.15em] font-light font-ui">Speed</label>
+                <label className="text-[11px] text-muted-foreground uppercase tracking-[0.15em] font-light font-ui">Speed</label>
               </div>
               <span className="text-2xl font-light tabular-nums text-foreground">{localSettings.tts.rate.toFixed(1)}<span className="text-sm text-muted-foreground/40">×</span></span>
             </div>
@@ -158,7 +158,7 @@ export const AudioSettings: React.FC<AudioSettingsProps> = ({
             <div className="flex justify-between items-baseline">
               <div className="flex items-center gap-2">
                 <span className="w-1.5 h-1.5 rotate-45 bg-primary/40" />
-                <label className="text-[10px] text-muted-foreground uppercase tracking-[0.15em] font-light font-ui">Volume</label>
+                <label className="text-[11px] text-muted-foreground uppercase tracking-[0.15em] font-light font-ui">Volume</label>
               </div>
               <span className="text-2xl font-light tabular-nums text-foreground">{Math.round(localSettings.tts.volume * 100)}<span className="text-sm text-muted-foreground/40">%</span></span>
             </div>

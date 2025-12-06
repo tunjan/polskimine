@@ -35,29 +35,29 @@ export const StudyHeader: React.FC<StudyHeaderProps> = React.memo(({
     isBookmarked,
     onBookmark,
 }) => {
-    const activeColor = currentStatus?.label === 'NEW' ? 'bg-blue-500' 
-        : currentStatus?.label === 'LRN' ? 'bg-amber-500' 
-        : currentStatus?.label === 'LAPSE' ? 'bg-red-500' 
-        : currentStatus?.label === 'REV' ? 'bg-green-600' 
-        : 'bg-amber-500';
+    const activeColor = currentStatus?.label === 'NEW' ? 'bg-blue-500'
+        : currentStatus?.label === 'LRN' ? 'bg-amber-500'
+            : currentStatus?.label === 'LAPSE' ? 'bg-red-500'
+                : currentStatus?.label === 'REV' ? 'bg-green-600'
+                    : 'bg-amber-500';
 
-    const activeBorderColor = currentStatus?.label === 'NEW' ? 'border-blue-500' 
-        : currentStatus?.label === 'LRN' ? 'border-amber-700' 
-        : currentStatus?.label === 'LAPSE' ? 'border-red-500' 
-        : currentStatus?.label === 'REV' ? 'border-green-600' 
-        : 'border-amber-500';
+    const activeBorderColor = currentStatus?.label === 'NEW' ? 'border-blue-500'
+        : currentStatus?.label === 'LRN' ? 'border-amber-700'
+            : currentStatus?.label === 'LAPSE' ? 'border-red-500'
+                : currentStatus?.label === 'REV' ? 'border-green-600'
+                    : 'border-amber-500';
 
-    const activeGradientLeft = currentStatus?.label === 'NEW' ? 'from-blue-500' 
-        : currentStatus?.label === 'LRN' ? 'from-amber-700' 
-        : currentStatus?.label === 'LAPSE' ? 'from-red-500' 
-        : currentStatus?.label === 'REV' ? 'from-green-600' 
-        : 'from-amber-500';
+    const activeGradientLeft = currentStatus?.label === 'NEW' ? 'from-blue-500'
+        : currentStatus?.label === 'LRN' ? 'from-amber-700'
+            : currentStatus?.label === 'LAPSE' ? 'from-red-500'
+                : currentStatus?.label === 'REV' ? 'from-green-600'
+                    : 'from-amber-500';
 
-    const activeGradientRight = currentStatus?.label === 'NEW' ? 'from-blue-500' 
-        : currentStatus?.label === 'LRN' ? 'from-amber-700' 
-        : currentStatus?.label === 'LAPSE' ? 'from-red-500' 
-        : currentStatus?.label === 'REV' ? 'from-green-600' 
-        : 'from-amber-500';
+    const activeGradientRight = currentStatus?.label === 'NEW' ? 'from-blue-500'
+        : currentStatus?.label === 'LRN' ? 'from-amber-700'
+            : currentStatus?.label === 'LAPSE' ? 'from-red-500'
+                : currentStatus?.label === 'REV' ? 'from-green-600'
+                    : 'from-amber-500';
 
     return (
         <header className="relative h-16 md:h-20 px-4 md:px-6 flex justify-between items-center select-none shrink-0 pt-[env(safe-area-inset-top)] gap-2 ">
@@ -117,12 +117,12 @@ export const StudyHeader: React.FC<StudyHeaderProps> = React.memo(({
                 {/* XP value */}
                 <span className="relative text-sm font-ui font-medium tracking-wide text-foreground tabular-nums">
                     {sessionXp}
-                    <span className="text-[9px] uppercase tracking-wider text-muted-foreground/60 ml-1">XP</span>
+                    <span className="text-[10px] uppercase tracking-wider text-muted-foreground/60 ml-1">XP</span>
                 </span>
 
                 {/* Multiplier badge */}
                 {multiplierInfo.value > 1.0 && (
-                    <div className="flex items-center gap-1 text-[10px] text-primary font-semibold px-2 py-0.5 animate-pulse">
+                    <div className="flex items-center gap-1 text-[11px] text-primary font-semibold px-2 py-0.5 animate-pulse">
                         <TrendingUp size={10} strokeWidth={2.5} />
                         <span>×{multiplierInfo.value.toFixed(1)}</span>
                     </div>
@@ -208,13 +208,13 @@ const GameQueueStat = React.memo(({ label, count, isActive, color }: {
             <span className="absolute -top-px -left-px w-1.5 h-1.5 border-t border-l border-current opacity-60" />
             {/* Bottom-right corner */}
             <span className="absolute -bottom-px -right-px w-1.5 h-1.5 border-b border-r border-current opacity-60" />
-            
+
             {/* Diamond indicator */}
             <span className={clsx(
                 "w-1.5 h-1.5 rotate-45 transition-colors",
                 isActive ? "bg-current animate-pulse" : "bg-current/40"
             )} />
-            <span className="hidden sm:inline text-[9px] font-ui uppercase tracking-wider">{label}</span>
+            <span className="hidden sm:inline text-[10px] font-ui uppercase tracking-wider">{label}</span>
             <span className="text-xs font-ui font-medium tabular-nums">{count}</span>
 
         </div>

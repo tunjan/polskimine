@@ -185,7 +185,7 @@ export const CardsRoute: React.FC = () => {
                 >
                   <Filter className="w-4 h-4" />
                   {activeFilterCount > 0 && (
-                    <span className="absolute -top-1 -right-1 w-4 h-4 bg-primary text-primary-foreground text-[10px] font-bold flex items-center justify-center">
+                    <span className="absolute -top-1 -right-1 w-4 h-4 bg-primary text-primary-foreground text-[11px] font-bold flex items-center justify-center">
                       {activeFilterCount}
                     </span>
                   )}
@@ -345,7 +345,7 @@ export const CardsRoute: React.FC = () => {
               <span className="text-xl md:text-2xl font-medium leading-none text-primary tabular-nums font-editorial">
                 {selectedIds.size}
               </span>
-              <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-bold hidden sm:inline">Selected</span>
+              <span className="text-[11px] uppercase tracking-wider text-muted-foreground font-bold hidden sm:inline">Selected</span>
             </div>
           </div>
 

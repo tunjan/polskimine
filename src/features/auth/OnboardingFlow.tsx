@@ -102,7 +102,7 @@ export const OnboardingFlow: React.FC = () => {
       <div className="fixed top-6 right-6">
         <button
           onClick={() => signOut()}
-          className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground hover:text-destructive transition-colors flex items-center gap-2"
+          className="text-xs font-mono uppercase tracking-widest text-muted-foreground hover:text-destructive transition-colors flex items-center gap-2"
         >
           <LogOut size={14} />
           Sign Out

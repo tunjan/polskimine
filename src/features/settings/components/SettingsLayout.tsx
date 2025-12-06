@@ -70,7 +70,7 @@ export const SettingsLayout: React.FC = () => {
                 <OrnateSeparator className="my-4" />
                 <div className="flex items-center gap-2">
                     <span className="w-1.5 h-1.5 rotate-45 bg-primary/40" />
-                    <span className="text-[10px] font-ui uppercase tracking-[0.15em] text-muted-foreground/50">
+                    <span className="text-[11px] font-ui uppercase tracking-[0.15em] text-muted-foreground/50">
                         Deck: {settings.language}
                     </span>
                 </div>

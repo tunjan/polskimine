@@ -123,7 +123,7 @@ export function LevelBadge({
                                 {rank.title}
                             </span>
                             <span className={cn("w-1.5 h-1.5 rotate-45", rank.accentColor, "opacity-60")} />
-                            <span className="text-[10px] text-muted-foreground uppercase tracking-widest font-semibold font-ui">
+                            <span className="text-[11px] text-muted-foreground uppercase tracking-widest font-semibold font-ui">
                                 Lv. {level}
                             </span>
                         </div>

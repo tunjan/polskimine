@@ -54,12 +54,12 @@ export const StudyFooter: React.FC<StudyFooterProps> = React.memo(({
                         </span>
 
                         {/* Content with diamond accents */}
-                        <span className="text-[12px] font-bold font-ui uppercase tracking-[0.2em] text-muted-foreground/50 group-hover:text-amber-600/80 transition-colors duration-300">
+                        <span className="text-[13px] font-bold font-ui uppercase tracking-[0.2em] text-muted-foreground/50 group-hover:text-amber-600/80 transition-colors duration-300">
                             Show Answer
                         </span>
 
                         {/* Subtle keyboard hint */}
-                        <span className="absolute bottom-3 text-[8px] font-ui text-muted-foreground/20 opacity-0 group-hover:opacity-60 transition-all duration-300 tracking-wider">
+                        <span className="absolute bottom-3 text-[10px] font-ui text-muted-foreground/20 opacity-0 group-hover:opacity-60 transition-all duration-300 tracking-wider">
                             SPACE
                         </span>
                     </button>
@@ -243,17 +243,16 @@ const GameAnswerButton = React.memo(({ label, shortcut, intent, onClick, disable
             {/* Interval hint */}
             {interval && (
                 <span className={clsx(
-                    "absolute top-2 text-[10px] font-medium font-ui opacity-0 group-hover:opacity-80 transition-opacity duration-200",
+                    "absolute top-2 text-[11px] font-medium font-ui opacity-0 group-hover:opacity-80 transition-opacity duration-200",
                     colors.text
                 )}>
                     {interval}
                 </span>
             )}
-
             {/* Shortcut hint */}
-            <span className="absolute bottom-2 text-[8px] font-ui text-muted-foreground/20 opacity-0 group-hover:opacity-60 transition-all duration-200 tracking-wider">
+            <span className="absolute bottom-2 text-[10px] font-ui text-muted-foreground/20 opacity-0 group-hover:opacity-60 transition-all duration-200 tracking-wider" >
                 {shortcut}
-            </span>
-        </button>
+            </span >
+        </button >
     );
 });
