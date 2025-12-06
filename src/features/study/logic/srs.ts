@@ -53,7 +53,10 @@ export const calculateNextReview = (
   settings?: UserSettings['fsrs'],
   learningSteps: number[] = [1, 10]): Card => {
   const now = new Date();
-  const learningStepsMinutes = learningSteps.length > 0 ? learningSteps : [1, 10]; const currentStep = card.learningStep ?? 0;
+  const learningStepsMinutes = learningSteps.length > 0 ? learningSteps : [1, 10];
+  // Clamp currentStep to valid bounds (0 to length-1)
+  const rawStep = card.learningStep ?? 0;
+  const currentStep = Math.max(0, Math.min(rawStep, learningStepsMinutes.length - 1));
 
   const isLearningPhase = (card.status === 'new' || card.status === 'learning') && currentStep < learningStepsMinutes.length;
 
@@ -77,9 +80,9 @@ export const calculateNextReview = (
       } else {
         nextIntervalMinutes = learningStepsMinutes[nextStep] ?? 1;
       }
-    } else if (grade === 'Easy') {
-      // Will graduate - handled below by falling through to FSRS
     }
+    // For 'Easy' during learning: graduate immediately by falling through to FSRS
+    // nextIntervalMinutes is intentionally unused; FSRS calculates the graduation interval
 
     if ((grade === 'Again' || grade === 'Hard') || (grade === 'Good' && nextStep < learningStepsMinutes.length)) {
       let nextDue = addMinutes(now, nextIntervalMinutes);
@@ -186,7 +189,10 @@ export const isCardDue = (card: Card, now: Date = new Date()): boolean => {
 
   const due = new Date(card.dueDate);
 
-  if (card.interval < 0.9) {
+  // Short-interval cards (< 1 hour) use exact-time due checks (for learning steps)
+  // Longer intervals use SRS-day boundary logic
+  const ONE_HOUR_IN_DAYS = 1 / 24;
+  if (card.interval < ONE_HOUR_IN_DAYS) {
     return due <= now;
   }
 
