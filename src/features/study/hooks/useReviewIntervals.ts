@@ -15,10 +15,19 @@ export const useReviewIntervals = (
 
         const now = new Date();
         const calculate = (grade: Grade) => {
-            const next = calculateNextReview(card, grade, settings.fsrs, settings.learningSteps);
-            const due = parseISO(next.dueDate);
-            const diff = differenceInMilliseconds(due, now);
-            return formatInterval(Math.max(0, diff));
+            try {
+                const next = calculateNextReview(card, grade, settings.fsrs, settings.learningSteps);
+                const due = parseISO(next.dueDate);
+                if (isNaN(due.getTime())) {
+                    console.warn('[useReviewIntervals] Invalid dueDate from calculateNextReview:', next.dueDate);
+                    return '<1m';
+                }
+                const diff = differenceInMilliseconds(due, now);
+                return formatInterval(Math.max(0, diff));
+            } catch (error) {
+                console.error('[useReviewIntervals] Error calculating interval:', error);
+                return '<1m';
+            }
         };
 
         return {
