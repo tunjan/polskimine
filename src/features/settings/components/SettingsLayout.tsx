@@ -79,7 +79,7 @@ export const SettingsLayout: React.FC = () => {
     );
 
     return (
-        <div className="flex flex-col md:flex-row h-full bg-card md:border border-border md:overflow-hidden md:rounded-lg">
+        <div className="flex flex-col md:flex-row h-full bg-card page-full-height">
             {/* Mobile Header */}
             <div className="md:hidden flex items-center justify-between p-4 border-b border-border bg-card">
                 <div className="flex items-center gap-2">
