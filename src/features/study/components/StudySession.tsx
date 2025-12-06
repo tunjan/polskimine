@@ -130,9 +130,7 @@ export const StudySession: React.FC<StudySessionProps> = ({
     if (confirm('Are you sure you want to delete this card?')) {
       setIsDeleting(true);
       try {
-        // First delete from the database (await to ensure it completes)
         await onDeleteCard(currentCard.id);
-        // Then update the session state to show the next card
         removeCardFromSession(currentCard.id);
       } catch (error) {
         console.error("Failed to delete card", error);

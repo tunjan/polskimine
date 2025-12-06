@@ -30,17 +30,14 @@ export function useFlashcardAudio({
     const playSlowRef = useRef(playSlow);
     const hasSpokenRef = useRef<string | null>(null);
 
-    // Sync playSlowRef with state
     useEffect(() => {
         playSlowRef.current = playSlow;
     }, [playSlow]);
 
-    // Reset playSlow on card change
     useEffect(() => {
         setPlaySlow(false);
     }, [card.id]);
 
-    // Cleanup TTS on unmount or card change
     useEffect(() => {
         return () => {
             ttsService.stop();
@@ -63,7 +60,6 @@ export function useFlashcardAudio({
         setPlaySlow(prev => !prev);
     }, [card.targetSentence, language, settings.tts, getPlainTextForTTS]);
 
-    // Auto-play logic
     useEffect(() => {
         if (hasSpokenRef.current !== card.id) {
             hasSpokenRef.current = null;

@@ -41,11 +41,7 @@ export type LocalSettings = Partial<UserSettings> & {
 };
 
 export interface AggregatedStat {
-    id: string;          // composite key: `${language}:${metric}` or `global:${metric}`
-    language: string;    // language code or 'global'
-    metric: string;      // 'total_xp', 'total_reviews', etc.
-    value: number;       // the aggregated value
-    updated_at: string;  // ISO timestamp
+    id: string; language: string; metric: string; value: number; updated_at: string;
 }
 
 export class LinguaFlowDB extends Dexie {
@@ -59,7 +55,6 @@ export class LinguaFlowDB extends Dexie {
     constructor() {
         super('linguaflow-dexie');
 
-        // Version 2 schema (existing)
         this.version(2).stores({
             cards: 'id, status, language, dueDate, isBookmarked, [status+language], [language+status], [language+status+interval]',
             revlog: 'id, card_id, created_at, [card_id+created_at]',
@@ -68,7 +63,6 @@ export class LinguaFlowDB extends Dexie {
             settings: 'id'
         });
 
-        // Version 3: Add aggregated_stats table
         this.version(3).stores({
             cards: 'id, status, language, dueDate, isBookmarked, [status+language], [language+status], [language+status+interval]',
             revlog: 'id, card_id, created_at, [card_id+created_at]',
@@ -77,14 +71,11 @@ export class LinguaFlowDB extends Dexie {
             settings: 'id',
             aggregated_stats: 'id, [language+metric], updated_at'
         }).upgrade(async (tx) => {
-            // Backfill aggregated stats from existing data
             console.log('[Migration] Starting aggregated_stats backfill...');
 
-            // Get unique languages from cards
             const allCards = await tx.table<Card>('cards').toArray();
             const languages = Array.from(new Set(allCards.map(c => c.language)));
 
-            // For each language, calculate XP and total reviews
             for (const language of languages) {
                 const cardIds = new Set(
                     allCards.filter(c => c.language === language).map(c => c.id)
@@ -93,15 +84,12 @@ export class LinguaFlowDB extends Dexie {
                 let totalXp = 0;
                 let totalReviews = 0;
 
-                // Count reviews for this language
                 await tx.table<RevlogEntry>('revlog').each(log => {
                     if (cardIds.has(log.card_id)) {
-                        totalXp += 10; // 10 XP per review
-                        totalReviews++;
+                        totalXp += 10; totalReviews++;
                     }
                 });
 
-                // Write aggregated stats
                 await tx.table<AggregatedStat>('aggregated_stats').bulkAdd([
                     {
                         id: `${language}:total_xp`,
@@ -122,7 +110,6 @@ export class LinguaFlowDB extends Dexie {
                 console.log(`[Migration] Backfilled stats for ${language}: ${totalXp} XP, ${totalReviews} reviews`);
             }
 
-            // Global stats
             let globalXp = 0;
             let globalReviews = 0;
             await tx.table<RevlogEntry>('revlog').each(() => {
@@ -150,11 +137,7 @@ export class LinguaFlowDB extends Dexie {
             console.log('[Migration] Aggregated stats backfill complete!');
         });
 
-        // Cascade delete: When a card is deleted, delete its review logs
         this.cards.hook('deleting', (primKey, obj, transaction) => {
-            // Delete associated revlogs
-            // The transaction must include 'revlog' table for this to work.
-            // This requires that the caller (deleteCard) initiates a transaction covering both tables.
             return this.revlog.where('card_id').equals(primKey).delete();
         });
     }

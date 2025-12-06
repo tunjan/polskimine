@@ -199,47 +199,30 @@ export function getLevelProgress(xp: number): {
   };
 }
 
-/**
- * Finds the best match for a target word (lemma/base form) in a sentence,
- * accounting for inflected forms in languages like Polish, Norwegian, etc.
- * 
- * For example: targetWord "godzina" will match "godzinie" in the sentence
- * "O której godzinie zaczyna się film?"
- * 
- * @returns The actual word found in the sentence that matches, or null if no match
- */
 export function findInflectedWordInSentence(
   targetWord: string,
   sentence: string
 ): string | null {
   if (!targetWord || !sentence) return null;
-  
+
   const targetLower = targetWord.toLowerCase();
-  
-  // Extract all words from the sentence
+
   const words = sentence.match(/[\p{L}]+/gu) || [];
-  
-  // First, try exact match (case-insensitive)
+
   const exactMatch = words.find(w => w.toLowerCase() === targetLower);
   if (exactMatch) return exactMatch;
-  
-  // Calculate minimum stem length based on target word length
-  // For short words (≤4 chars), require at least 2 chars match
-  // For longer words, require at least 3-4 chars match
+
   const minStemLength = targetWord.length <= 4 ? 2 : Math.min(4, Math.ceil(targetWord.length * 0.5));
-  
-  // Find words that share a common prefix (stem) with the target word
-  // The longer the shared prefix, the better the match
+
   let bestMatch: string | null = null;
   let bestMatchScore = 0;
-  
+
   for (const word of words) {
     const wordLower = word.toLowerCase();
-    
-    // Find shared prefix length
+
     let sharedLength = 0;
     const maxLength = Math.min(targetLower.length, wordLower.length);
-    
+
     for (let i = 0; i < maxLength; i++) {
       if (targetLower[i] === wordLower[i]) {
         sharedLength++;
@@ -247,20 +230,18 @@ export function findInflectedWordInSentence(
         break;
       }
     }
-    
-    // Only consider if shared prefix is long enough
+
     if (sharedLength >= minStemLength) {
-      // Score based on: shared length, similarity in total length
       const lengthDiff = Math.abs(targetWord.length - word.length);
       const score = sharedLength * 10 - lengthDiff;
-      
+
       if (score > bestMatchScore) {
         bestMatchScore = score;
         bestMatch = word;
       }
     }
   }
-  
+
   return bestMatch;
 }
 

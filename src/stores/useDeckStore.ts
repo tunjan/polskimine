@@ -8,13 +8,10 @@ interface StreakStats {
 }
 
 interface DeckState {
-    // Stats
     streakStats: StreakStats;
 
-    // Session / Undo support
     lastReview: { card: Card; date: string; xpEarned: number } | null;
 
-    // Actions
     setStreakStats: (stats: StreakStats) => void;
     setLastReview: (review: { card: Card; date: string; xpEarned: number } | null) => void;
     clearLastReview: () => void;

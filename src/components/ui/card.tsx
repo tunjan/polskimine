@@ -27,8 +27,7 @@ const cardVariants = cva(
     },
     defaultVariants: {
       variant: "default",
-      size: "none", // Default to none so existing usages without size (using padding classes) aren't broken, or check usage.       // BUT for GamePanel migration we'll need to specify size.
-      isInteractive: false,
+      size: "none", isInteractive: false,
     },
   }
 )

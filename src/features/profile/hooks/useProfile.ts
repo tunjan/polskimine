@@ -15,7 +15,7 @@ export const useProfile = () => {
             return profile || null;
         },
         enabled: !!user?.id,
-        staleTime: Infinity, // Profile doesn't change often from outside
+        staleTime: Infinity,
     });
 
 
@@ -66,12 +66,9 @@ export const useProfile = () => {
             return userId;
         },
         onSuccess: (_, variablesUserId) => {
-            const targetId = variablesUserId || user?.id; // Should match usage
-            // Optimistic or query invalidation
-            queryClient.setQueryData<LocalProfile | null>(['profile', targetId], (old) =>
+            const targetId = variablesUserId || user?.id; queryClient.setQueryData<LocalProfile | null>(['profile', targetId], (old) =>
                 old ? { ...old, initial_deck_generated: true } : null
             );
-            // Invalidate to be sure
             queryClient.invalidateQueries({ queryKey: ['profile', targetId] });
         },
     });

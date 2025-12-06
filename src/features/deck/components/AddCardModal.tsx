@@ -39,7 +39,6 @@ const formSchema = z.object({
                 });
             }
         } catch (e) {
-            // Fallback
         }
     }
 });
@@ -66,7 +65,6 @@ export const AddCardModal: React.FC<AddCardModalProps> = ({ isOpen, onClose, onA
         }
     });
 
-    // Watch values for preview
     const watchedSentence = watch("sentence");
     const watchedTargetWord = watch("targetWord");
 
@@ -267,7 +265,6 @@ export const AddCardModal: React.FC<AddCardModalProps> = ({ isOpen, onClose, onA
                                 {...register("sentence")}
                                 ref={(e) => {
                                     register("sentence").ref(e);
-                                    // @ts-ignore
                                     textareaRef.current = e;
                                 }}
                                 placeholder="Type your sentence here..."

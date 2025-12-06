@@ -61,7 +61,6 @@ const StatusBadge = ({ status }: { status: string }) => {
         <span
             className={cn(
                 "relative inline-flex items-center gap-1.5 px-2.5 py-1 text-[11px] font-medium uppercase tracking-wider transition-all border rounded-sm",
-                // Corner accents via pseudo-elements
                 "before:absolute before:-top-px before:-left-px before:w-1.5 before:h-1.5 before:border-t-2 before:border-l-2 before:border-current before:opacity-40 before:pointer-events-none",
                 "after:absolute after:-bottom-px after:-right-px after:w-1.5 after:h-1.5 after:border-b-2 after:border-r-2 after:border-current after:opacity-40 after:pointer-events-none",
                 config.className
@@ -277,20 +276,6 @@ export function getCardColumns(actions: ColumnActions): ColumnDef<Card>[] {
             size: 120,
         },
 
-        // {
-        //     accessorKey: "reps",
-        //     header: ({ column }) => <SortableHeader column={column}>Reviews</SortableHeader>,
-        //     cell: ({ row }) => {
-        //         const reps = row.getValue("reps") as number
-        //         return (
-        //             <div className="flex items-center gap-2">
-        //                 <span className="w-1 h-1 rotate-45 bg-muted-foreground/30" />
-        //                 <span className="text-sm tabular-nums text-muted-foreground font-medium font-editorial">{reps || 0}</span>
-        //             </div>
-        //         )
-        //     },
-        //     size: 90,
-        // },
 
         {
             id: "actions",

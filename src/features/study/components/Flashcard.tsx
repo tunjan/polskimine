@@ -35,12 +35,10 @@ export const Flashcard = React.memo<FlashcardProps>(({
   const { displayedTranslation, isGaslit, processText } = useCardText(card);
   const { selection, handleMouseUp, clearSelection } = useTextSelection();
 
-  // Reset selection on card change
   useEffect(() => {
     clearSelection();
   }, [card.id, clearSelection]);
 
-  // Use Custom Hooks
   const { isRevealed, setIsRevealed, handleReveal, handleKeyDown } = useCardInteraction({
     cardId: card.id,
     blindMode,
@@ -136,7 +134,6 @@ export const Flashcard = React.memo<FlashcardProps>(({
       return <p className={baseClasses}>{processText(card.targetWord)}</p>;
     }
 
-    // Logic to highlight target text or render Japanese logic
     const hasFuriganaInDedicatedField = card.furigana && /\[.+?\]/.test(card.furigana);
     const hasFuriganaInSentence = card.targetSentence && /\[.+?\]/.test(card.targetSentence);
 
@@ -155,7 +152,6 @@ export const Flashcard = React.memo<FlashcardProps>(({
       furiganaSource = card.targetSentence;
     }
 
-    // If Japanese and using furigana...
     if (language === LanguageId.Japanese && furiganaSource) {
       const segments = parseFurigana(furiganaSource);
       const hasFurigana = segments.some(s => s.furigana);
@@ -170,12 +166,10 @@ export const Flashcard = React.memo<FlashcardProps>(({
         const targetIndices = new Set<number>();
 
         if (targetWordPlain) {
-          // First try exact match, then try inflected form match
           let targetStart = fullText.indexOf(targetWordPlain);
           let matchedWordLength = targetWordPlain.length;
 
           if (targetStart === -1) {
-            // Try to find inflected form
             const matchedWord = findInflectedWordInSentence(targetWordPlain, fullText);
             if (matchedWord) {
               targetStart = fullText.indexOf(matchedWord);
@@ -221,11 +215,9 @@ export const Flashcard = React.memo<FlashcardProps>(({
     if (card.targetWord) {
       const targetWordPlain = parseFurigana(card.targetWord).map(s => s.text).join('');
 
-      // Find the actual word in the sentence (handles inflected forms like godzina -> godzinie)
       const matchedWord = findInflectedWordInSentence(targetWordPlain, displayedSentence);
 
       if (matchedWord) {
-        // Use the matched word for highlighting (case-insensitive)
         const wordBoundaryRegex = new RegExp(`(\\b${escapeRegExp(matchedWord)}\\b)`, 'gi');
         const parts = displayedSentence.split(wordBoundaryRegex);
         return (
@@ -239,7 +231,6 @@ export const Flashcard = React.memo<FlashcardProps>(({
         );
       }
 
-      // Fallback: no match found, just display the sentence without highlighting
       return <p className={baseClasses}>{displayedSentence}</p>;
     }
 

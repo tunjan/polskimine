@@ -42,8 +42,7 @@ export const DEFAULT_SETTINGS: UserSettings = {
     ignoreLearningStepsWhenNoCards: false,
     binaryRatingMode: false,
     cardOrder: 'newFirst',
-    learningSteps: [1, 10], // 1m, 10m default
-    geminiApiKey: '',
+    learningSteps: [1, 10], geminiApiKey: '',
     tts: {
         provider: 'browser',
         voiceURI: null,
@@ -78,7 +77,6 @@ const getInitialSettings = (): UserSettings => {
                 migratedDailyReviewLimits = createLimits(parsed.dailyReviewLimit);
             }
 
-            // Validate cardOrder
             let validCardOrder = parsed.cardOrder;
             if (validCardOrder !== 'newFirst' && validCardOrder !== 'reviewFirst' && validCardOrder !== 'mixed') {
                 validCardOrder = DEFAULT_SETTINGS.cardOrder;

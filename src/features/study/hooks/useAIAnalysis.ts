@@ -34,7 +34,6 @@ export function useAIAnalysis({
     const [isAnalysisOpen, setIsAnalysisOpen] = useState(false);
     const [isGeneratingCard, setIsGeneratingCard] = useState(false);
 
-    // Reset analysis state on card change
     useEffect(() => {
         setAnalysisResult(null);
         setIsAnalysisOpen(false);
@@ -74,22 +73,16 @@ export function useAIAnalysis({
         }
         setIsGeneratingCard(true);
         try {
-            // First, lemmatize the selected word to get its base form
             const lemma = await aiService.lemmatizeWord(selection.text, language, apiKey);
 
-            // Check if a card with this target word (base form) already exists
             const existingCard = await getCardByTargetWord(lemma, language);
             if (existingCard) {
-                // Only show prioritize action for new cards (to avoid messing up SRS scheduling)
                 const isPrioritizable = existingCard.status === 'new';
                 toast.error(`Card already exists for "${lemma}"`, {
                     action: isPrioritizable ? {
                         label: 'Prioritize',
                         onClick: async () => {
                             try {
-                                // Determine if we are using Dexie or SQL based on db structure
-                                // Ideally this should be abstracted in a repository `updateCardDueDate`
-                                // But for now keeping logic "as is"
                                 await db.cards.where('id').equals(existingCard.id).modify({ dueDate: new Date(0).toISOString() });
                                 toast.success(`"${lemma}" moved to top of queue`);
                             } catch (e) {
@@ -111,11 +104,9 @@ export function useAIAnalysis({
                 targetSentence = parseFurigana(result.furigana).map(s => s.text).join("");
             }
 
-            // Set the due date to be the first card tomorrow (after 4am cutoff)
             const tomorrow = new Date();
             tomorrow.setDate(tomorrow.getDate() + 1);
-            tomorrow.setHours(4, 0, 0, 1); // Just after 4am cutoff to be first
-
+            tomorrow.setHours(4, 0, 0, 1);
             const newCard: Card = {
                 id: uuidv4(),
                 targetSentence,

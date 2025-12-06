@@ -215,8 +215,7 @@ class TTSService {
         if (!settings.azureApiKey || !settings.azureRegion) return;
 
         try {
-            const voiceName = settings.voiceURI || 'en-US-JennyNeural'; // Should rely on default later if needed
-
+            const voiceName = settings.voiceURI || 'en-US-JennyNeural';
             const ssml = `
                 <speak version='1.0' xml:lang='${LANG_CODE_MAP[language][0]}'>
                     <voice xml:lang='${LANG_CODE_MAP[language][0]}' xml:gender='Female' name='${voiceName}'>
@@ -266,8 +265,7 @@ class TTSService {
                 audioConfig: {
                     audioEncoding: 'MP3',
                     speakingRate: settings.rate,
-                    pitch: (settings.pitch - 1) * 20, // Approximate mapping
-                    volumeGainDb: (settings.volume - 1) * 10 // Approximate mapping
+                    pitch: (settings.pitch - 1) * 20, volumeGainDb: (settings.volume - 1) * 10
                 }
             };
 
@@ -288,7 +286,6 @@ class TTSService {
 
             const data = await response.json();
 
-            // Google Cloud TTS returns base64 encoded audio content
             const binaryString = window.atob(data.audioContent);
             const len = binaryString.length;
             const bytes = new Uint8Array(len);
@@ -332,7 +329,6 @@ class TTSService {
             this.currentSource.connect(ctx.destination);
 
             this.currentSource.onended = () => {
-                // Keep context open for reuse
                 this.currentSource = null;
             };
 

@@ -59,21 +59,18 @@ export const getCardsForRetention = async (language: Language): Promise<Partial<
   }));
 };
 
-// Optimized for Dashboard performance - returns counts only where possible
 export const getDashboardCounts = async (language: Language): Promise<{
   total: number;
   new: number;
   learned: number;
-  hueDue: number; // Cards due now
+  hueDue: number;
 }> => {
   const now = new Date();
   const srsToday = getSRSDate(now);
   const cutoffDate = new Date(srsToday);
   cutoffDate.setDate(cutoffDate.getDate() + 1);
-  cutoffDate.setHours(4); // SRS Cutoff
-  const cutoffISO = cutoffDate.toISOString();
+  cutoffDate.setHours(4); const cutoffISO = cutoffDate.toISOString();
 
-  // Parallel usage of indexes
   const [total, newCards, learned, due] = await Promise.all([
     db.cards.where('language').equals(language).count(),
     db.cards.where('[language+status]').equals([language, 'new']).count(),

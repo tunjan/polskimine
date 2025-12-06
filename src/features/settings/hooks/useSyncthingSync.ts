@@ -59,7 +59,6 @@ export const useSyncthingSync = () => {
                 return false;
             }
 
-            // Show confirmation
             const syncData = result.data;
             const confirmed = window.confirm(
                 `Load data from sync file?\n\n` +
@@ -81,10 +80,8 @@ export const useSyncthingSync = () => {
                 setLastSync(now);
                 toast.success(`Loaded ${syncData.cards.length} cards from sync file`);
 
-                // Refresh all queries
                 queryClient.invalidateQueries();
 
-                // Reload page after a short delay
                 setTimeout(() => window.location.reload(), 1000);
                 return true;
             } else {

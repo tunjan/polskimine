@@ -96,7 +96,6 @@ export const StudyRoute: React.FC = () => {
             }
           }
 
-          // Apply card order preference
           const sortedActive = sortCards(active, (settings.cardOrder as CardOrder) || 'newFirst');
 
           setSessionCards(sortedActive);

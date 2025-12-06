@@ -25,9 +25,6 @@ export const DeckActionsProvider: React.FC<{ children: React.ReactNode }> = ({ c
         const today = getUTCDateString(getSRSDate(new Date()));
         const xpEarned = xpPayload?.totalXp ?? 0;
 
-        // Optimistically update session state
-        // Note: We might want to store newCard here? But logic typically uses the card *before* review for history/stats?
-        // Actually, for "undo", we need the state *before* the review.
         useDeckStore.getState().setLastReview({ card: oldCard, date: today, xpEarned });
 
         try {
@@ -35,7 +32,6 @@ export const DeckActionsProvider: React.FC<{ children: React.ReactNode }> = ({ c
         } catch (error) {
             console.error("Failed to record review", error);
             toast.error("Failed to save review progress");
-            // Revert session state if failed (check if it's still the same review)
             const currentLast = useDeckStore.getState().lastReview;
             if (currentLast?.card.id === oldCard.id) {
                 useDeckStore.getState().clearLastReview();

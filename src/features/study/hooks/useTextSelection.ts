@@ -20,7 +20,6 @@ export const useTextSelection = () => {
         const range = sel.getRangeAt(0);
         const rect = range.getBoundingClientRect();
 
-        // Position 60px above the selection center
         setSelection({
             text,
             top: rect.top - 60,

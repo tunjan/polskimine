@@ -82,7 +82,6 @@ export const OnboardingFlow: React.FC = () => {
       await markInitialDeckGenerated();
       console.log('[OnboardingFlow] Initial deck marked as generated.');
 
-      // Fallback: If we haven't been redirected after 2 seconds, force a reload
       setTimeout(() => {
         console.log('[OnboardingFlow] Redirection fallback triggered. Reloading...');
         window.location.reload();

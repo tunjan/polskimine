@@ -13,41 +13,24 @@ export const getDashboardStats = async (language?: string) => {
   let languageXp = 0;
 
   if (language) {
-    // Parallelize independent queries for speed
-    // We use the new [language+status+interval] index for range queries on learning/graduated
-    // and [language+status] for exact matches on new/known.
 
     const [newCount, knownCount, learningCount, graduatedCount] = await Promise.all([
-      // Count 'new' cards
       db.cards.where({ language, status: 'new' }).count(),
 
-      // Count 'known' cards (explicit status)
       db.cards.where({ language, status: 'known' }).count(),
 
-      // Count 'learning' (status != new/known AND interval < 30)
-      // We approximate "learning" as cards in 'review' status with small intervals,
-      // OR cards in actual 'learning' status (if that status exists in your logic).
-      // Assuming 'review' status with interval < 30 covers the user's "learning" definition usually:
       db.cards.where('[language+status+interval]')
         .between([language, 'review', 0], [language, 'review', 30], true, false)
         .count(),
 
-      // Count 'graduated' (status != new/known AND 30 <= interval < 180)
       db.cards.where('[language+status+interval]')
         .between([language, 'review', 30], [language, 'review', 180], true, false)
         .count(),
     ]);
 
-    // XP Calculation optimization:
-    // Instead of iterating entire revlog, read from aggregated_stats table
     const xpStat = await db.aggregated_stats.get(`${language}:total_xp`);
     languageXp = xpStat?.value ?? 0;
 
-    // Note: 'known' might also include cards with interval >= 180 that aren't explicitly status='known' yet?
-    // The user's original logic had:
-    // else if (interval < 180) counts.graduated++;
-    // else counts.known++;
-    // This implies that cards with interval >= 180 are treated as known even if status is 'review'.
     const implicitKnownCount = await db.cards.where('[language+status+interval]')
       .aboveOrEqual([language, 'review', 180])
       .count();
@@ -58,18 +41,12 @@ export const getDashboardStats = async (language?: string) => {
     counts.known = knownCount + implicitKnownCount;
 
   } else {
-    // No language filter - slightly less efficient but still better than loading all
-    // We can iterate 'status' index.
 
     const [newCount, knownCountByStatus] = await Promise.all([
       db.cards.where('status').equals('new').count(),
       db.cards.where('status').equals('known').count()
     ]);
 
-    // For learning/graduated/implicitKnown, we have to scan 'review' status cards
-    // since we don't have a global [status+interval] index (only language-prefixed).
-    // We can iterate the 'status' index for 'review' and count based on interval.
-    // This is still better than `toArray()` because we only deserialize 'review' cards.
 
     let learning = 0;
     let graduated = 0;
@@ -87,12 +64,10 @@ export const getDashboardStats = async (language?: string) => {
     counts.learning = learning;
     counts.graduated = graduated;
 
-    // Global XP - read from aggregated_stats
     const globalXpStat = await db.aggregated_stats.get('global:total_xp');
     languageXp = globalXpStat?.value ?? 0;
   }
 
-  // Calculate forecast (Optimized)
   const daysToShow = 14;
   const today = startOfDay(new Date());
   const forecast = new Array(daysToShow).fill(0).map((_, i) => ({
@@ -103,15 +78,12 @@ export const getDashboardStats = async (language?: string) => {
 
   const endDate = addDays(today, daysToShow);
 
-  // Use dueDate index
   let query = db.cards.where('dueDate').between(today.toISOString(), endDate.toISOString(), true, false);
 
   if (language) {
-    // Filter by language in JS (efficient since result set is small - only immediate due cards)
     query = query.filter(c => c.language === language);
   }
 
-  // Final filter for status
   query = query.filter(c => c.status !== 'new' && c.status !== 'known');
 
   await query.each(card => {
@@ -136,10 +108,6 @@ export const getStats = async (language?: string) => {
     };
   }
 
-  // Fallback for global stats (if needed, or just sum up)
-  // For now, keeping old logic for global or creating a global aggregator if needed.
-  // Assuming 'language' is always passed for deck stats.
-  // If no language, use old slow method or implement global counter.
 
   const srsToday = getSRSDate(new Date());
   const cutoffDate = new Date(srsToday);
@@ -220,7 +188,14 @@ export const getRevlogStats = async (language: string, days = 30) => {
   }
 
   logs.forEach(log => {
-    const dateKey = format(new Date(log.created_at), 'yyyy-MM-dd');
+    // Validate date string first
+    if (!log.created_at) return;
+
+    const dateObj = new Date(log.created_at);
+    // distinct check for Invalid Date
+    if (isNaN(dateObj.getTime())) return;
+
+    const dateKey = format(dateObj, 'yyyy-MM-dd');
     const dayData = activityMap.get(dateKey);
     if (dayData) {
       dayData.count++;

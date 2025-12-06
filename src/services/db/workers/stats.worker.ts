@@ -15,8 +15,7 @@ interface ActivityWorkerInput {
 
 interface StreakWorkerInput {
   action: 'calculate_streaks';
-  history: Record<string, number>; // date string to review count
-  todayStr: string;
+  history: Record<string, number>; todayStr: string;
   yesterdayStr: string;
 }
 
@@ -26,7 +25,6 @@ self.onmessage = (e: MessageEvent<WorkerInput>) => {
   const input = e.data;
 
   if (input.action === 'calculate_activity') {
-    // Original activity calculation logic
     const { logs, days, cardIds } = input;
     const cardIdSet = new Set(cardIds);
 
@@ -78,7 +76,6 @@ self.onmessage = (e: MessageEvent<WorkerInput>) => {
       totalReviews: filteredLogs.length
     });
   } else if (input.action === 'calculate_streaks') {
-    // New streak calculation logic (moved from DeckStatsContext)
     const { history, todayStr, yesterdayStr } = input;
 
     if (!history || Object.keys(history).length === 0) {
@@ -90,16 +87,13 @@ self.onmessage = (e: MessageEvent<WorkerInput>) => {
       return;
     }
 
-    // Sort dates once for efficient processing
     const sortedDates = Object.keys(history).sort();
 
-    // Calculate total reviews
     const totalReviews = Object.values(history).reduce(
       (acc, val) => acc + (typeof val === 'number' ? val : 0),
       0
     );
 
-    // Calculate longest streak using sorted dates (O(n) instead of O(n²))
     let longestStreak = 1;
     let tempStreak = 1;
 
@@ -116,26 +110,20 @@ self.onmessage = (e: MessageEvent<WorkerInput>) => {
       }
     }
 
-    // Calculate current streak from today/yesterday backwards
     let currentStreak = 0;
 
-    // Find starting point for current streak count
     const hasToday = history[todayStr];
     const hasYesterday = history[yesterdayStr];
 
     if (hasToday || hasYesterday) {
-      // Start counting from either today or yesterday
       currentStreak = 1;
 
-      // Count consecutive days backwards using Set for O(1) lookup
       const dateSet = new Set(sortedDates);
 
-      // Start from the day before today or yesterday (whichever we found)
       const startDateStr = hasToday ? todayStr : yesterdayStr;
       let checkDate = new Date(startDateStr);
       checkDate.setDate(checkDate.getDate() - 1);
 
-      // Limit to prevent infinite loops (reasonable max: 10 years)
       const maxDays = Math.min(sortedDates.length, 3650);
 
       for (let i = 0; i < maxDays; i++) {

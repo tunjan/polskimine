@@ -56,7 +56,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const signUpWithEmail = async (_email: string, _password: string, username: string, languageLevel?: string) => {
-    // initialize new profile
     const now = new Date().toISOString();
     await db.profile.put({
       id: LOCAL_USER_ID,

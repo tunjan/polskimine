@@ -10,24 +10,19 @@ export const SettingsSync: React.FC = () => {
     const setSettingsLoading = useSettingsStore(s => s.setSettingsLoading);
     const setSettings = useSettingsStore(s => s.setSettings);
 
-    // Cloud/DB Sync
     useEffect(() => {
         const loadSettingsFromDb = async () => {
             if (authLoading || !user) return;
 
             setSettingsLoading(true);
             try {
-                // 1. Attempt migration from old localStorage (one-time)
                 await migrateLocalSettingsToDatabase(user.id);
 
-                // 2. Load from DB
                 const dbSettings = await getFullSettings(user.id);
                 if (dbSettings) {
                     setSettings(prev => ({
                         ...prev,
                         ...dbSettings,
-                        // Ensure nested objects are merged correctly if dbSettings has them
-                        // Note: dbSettings is now LocalSettings which includes Partial<UserSettings>
                         fsrs: { ...prev.fsrs, ...(dbSettings.fsrs || {}) },
                         tts: { ...prev.tts, ...(dbSettings.tts || {}) },
                         languageColors: { ...prev.languageColors, ...(dbSettings.languageColors || {}) },
@@ -45,14 +40,10 @@ export const SettingsSync: React.FC = () => {
         loadSettingsFromDb();
     }, [user, authLoading, setSettings, setSettingsLoading]);
 
-    // Save to DB on change + Update Local Cache
     useEffect(() => {
-        // 1. Update Local Cache (Sync)
         const localCache = {
             ...settings,
-            geminiApiKey: '', // Don't cache sensitive keys in the UI settings key if avoiding duplication, but logic above uses it from there.
-            // Actually useSettingsStore initializes from 'language_mining_settings', so we should put it there.
-            tts: {
+            geminiApiKey: '', tts: {
                 ...settings.tts,
                 googleApiKey: '',
                 azureApiKey: '',
@@ -60,7 +51,6 @@ export const SettingsSync: React.FC = () => {
         };
         localStorage.setItem('language_mining_settings', JSON.stringify(localCache));
 
-        // 2. Save to DB (Async, persisting everything including keys securely)
         const saveSettingsToDb = async () => {
             if (!user) return;
 
@@ -71,8 +61,7 @@ export const SettingsSync: React.FC = () => {
             }
         };
 
-        const timeoutId = setTimeout(saveSettingsToDb, 1000); // 1s debounce
-        return () => clearTimeout(timeoutId);
+        const timeoutId = setTimeout(saveSettingsToDb, 1000); return () => clearTimeout(timeoutId);
     }, [settings, user]);
 
     return null;

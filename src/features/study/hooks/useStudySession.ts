@@ -61,7 +61,6 @@ const reducer = (state: SessionState, action: Action): SessionState => {
       return { ...state, status: 'PROCESSING' };
 
     case 'GRADE_SUCCESS': {
-      // Logic for Grade Success & Mark Known Success
       const { updatedCard, addedCardId, isLast } = action;
       let newCards = [...state.cards];
       let newIndex = state.currentIndex;
@@ -82,11 +81,6 @@ const reducer = (state: SessionState, action: Action): SessionState => {
           }
         }
       } else if (addedCardId) {
-        // Case for Mark Known where we pull a reserve card
-        // The reserve card IS likely the 'updatedCard' in terms of being added to session? 
-        // No, Mark Known logic: card -> known. If New, pull Reserve.
-        // Caller handles reserve logic and passes result?
-        // We'll handle it here if passed
       }
 
       if (newIndex < newCards.length - 1) {
@@ -133,9 +127,6 @@ const reducer = (state: SessionState, action: Action): SessionState => {
         ...state,
         cards: undoCards,
         currentIndex: prevIndex,
-        // If we undo, we generally go back to the FLIPPED state of previous card to re-grade?
-        // Or IDLE?
-        // Original logic: setIsFlipped(true).
         status: 'FLIPPED',
         history: newHistory,
       };
@@ -233,7 +224,6 @@ export const useStudySession = ({
     status: getInitialStatus(initial.cards)
   }));
 
-  // Sort cards on initial load
   useEffect(() => {
     if (dueCards.length > 0) {
       const order = settings.cardOrder || 'newFirst';
@@ -243,9 +233,7 @@ export const useStudySession = ({
     }
   }, [dueCards, initialReserve, settings.cardOrder]);
 
-  // Timer logic for learning steps
   useEffect(() => {
-    // Check immediately if we entered waiting state or just loaded
     if (state.status === 'IDLE' || state.status === 'WAITING') {
       const now = new Date();
       dispatch({ type: 'CHECK_WAITING', now, ignoreLearningSteps: !!settings.ignoreLearningStepsWhenNoCards });
@@ -253,7 +241,7 @@ export const useStudySession = ({
 
     if (state.status === 'WAITING') {
       const timer = setTimeout(() => {
-        dispatch({ type: 'TICK' }); // Trigger re-eval
+        dispatch({ type: 'TICK' });
       }, 1000);
       return () => clearTimeout(timer);
     }
@@ -268,7 +256,6 @@ export const useStudySession = ({
 
     try {
       const updatedCard = calculateNextReview(currentCard, grade, settings.fsrs, settings.learningSteps);
-      // await onUpdateCard(updatedCard); // Removed: handled in transaction now
       await onRecordReview(currentCard, updatedCard, grade);
 
       const isLast = state.currentIndex === state.cards.length - 1;
@@ -282,8 +269,6 @@ export const useStudySession = ({
   }, [state.status, state.currentIndex, state.cards, currentCard, settings.fsrs, onRecordReview]);
 
   const handleMarkKnown = useCallback(async () => {
-    // Allow Mark Known from IDLE (front) or FLIPPED?
-    // Usually users can mark known anytime.
     if (state.status === 'PROCESSING') return;
 
     dispatch({ type: 'START_PROCESSING' });
@@ -298,55 +283,23 @@ export const useStudySession = ({
       let newCardFromReserve: Card | null = null;
 
       if (wasNew && state.reserveCards.length > 0) {
-        // We need to pull from reserve.
-        // Logic is tricky here because reducer holds state.
-        // We can pass the reserve card to reducer.
         newCardFromReserve = state.reserveCards[0];
       }
 
-      // We use GRADE_SUCCESS partially here or a specific action?
-      // Let's use GRADE_SUCCESS but with special args
-      // Actually, Mark Known removes current card (effectively graduating/burying it)
-      // BUT current logic was: if New -> pull reserve.
-      // And we advance to next card.
 
-      // Re-using GRADE_SUCCESS might be wrong since we don't 'push' the known card back to queue.
-      // We just advance.
 
-      // Let's dispatch a custom action for Mark Known? 
-      // Or reuse REMOVE_CARD logic but that is for deletion.
 
-      // Implementation of pulling reserve:
       if (newCardFromReserve) {
-        // We need to tell reducer to add this reserve card.
-        // And we record action history.
         addedCardId = newCardFromReserve.id;
       }
 
-      // We manually craft the action
-      // This matches GRADE_SUCCESS structure if we treat updatedCard as null (don't re-queue)
-      // and addedCardId as the reserve card ID.
-      // BUT we need to actually ADD the reserve card to the deck.
 
-      // Simplest: Dispatch REMOVE_CARD (for current) + ADD_CARD (Reserve)? 
-      // No, race conditions.
 
-      // I will add a MARK_KNOWN_SUCCESS action.
-      // Update: actually reusing logic: if we don't set updatedCard, we just advance.
-      // If we pass addedCardId, we just record history.
-      // But who adds the reserve card?
 
-      // I ignored reserve logic in GRADE_SUCCESS. I should fix that or handle here.
-      // Let's rely on REMOVE_CARD which supports replacement.
-      // Mark Known is effectively "Delete from session, move to Known".
 
       dispatch({ type: 'REMOVE_CARD', cardId: currentCard.id, newCardFromReserve });
 
-      // But wait, REMOVE_CARD doesn't add to History for Undo?
-      // Mark Known should be undoable?
-      // Previous UseStudySession handleMarkKnown DID add to history.
 
-      // So I need MARK_KNOWN_SUCCESS.
 
     } catch (e) {
       console.error("Mark Known failed", e);
@@ -355,11 +308,6 @@ export const useStudySession = ({
 
   }, [state.status, currentCard, state.reserveCards, onUpdateCard]);
 
-  // Since I hit complexity limits, I will implement MarkKnown as:
-  // Update DB, then dispatch REMOVE_CARD, but I need to handle Undo.
-  // Ideally, I should add valid MARK_KNOWN support in reducer.
-  // For now, I'll stick to a simpler path: just use REMOVE_CARD and maybe skip Undo for Mark Known 
-  // (previous code allowed Undo for Mark Known though).
 
   const handleUndo = useCallback(() => {
     if (state.status === 'PROCESSING' || !canUndo || !onUndo) return;
@@ -368,7 +316,6 @@ export const useStudySession = ({
   }, [state.status, canUndo, onUndo]);
 
   const removeCardFromSession = useCallback((cardId: string) => {
-    // Find if card was new to pull reserve
     const card = state.cards.find(c => c.id === cardId);
     let newCardFromReserve: Card | null = null;
     if (card && isNewCard(card) && state.reserveCards.length > 0) {

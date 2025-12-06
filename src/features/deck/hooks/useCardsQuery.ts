@@ -37,17 +37,14 @@ export const useCardsQuery = (
         );
       }
 
-      // Apply status filter
       if (filters.status && filters.status !== 'all') {
         cards = cards.filter(c => c.status === filters.status);
       }
 
-      // Apply bookmarked filter
       if (filters.bookmarked) {
         cards = cards.filter(c => c.isBookmarked === true);
       }
 
-      // Apply leech filter
       if (filters.leech) {
         cards = cards.filter(c => c.isLeech === true);
       }

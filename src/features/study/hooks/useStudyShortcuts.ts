@@ -30,12 +30,10 @@ export const useStudyShortcuts = ({
         const handleKeyDown = (e: KeyboardEvent) => {
             if (!currentCardId && !sessionComplete) return;
 
-            // Flip card
             if (!isFlipped && !sessionComplete && (e.code === 'Space' || e.code === 'Enter')) {
                 e.preventDefault();
                 setIsFlipped(true);
             }
-            // Grade card
             else if (isFlipped && !sessionComplete && !isProcessing) {
                 if (settings.binaryRatingMode) {
                     if (e.key === '1') {
@@ -62,13 +60,11 @@ export const useStudyShortcuts = ({
                 }
             }
 
-            // Undo
             if (e.key === 'z' && canUndo) {
                 e.preventDefault();
                 handleUndo();
             }
 
-            // Exit
             if (e.key === 'Escape') {
                 onExit();
             }

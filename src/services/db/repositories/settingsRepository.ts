@@ -16,11 +16,6 @@ export async function getUserSettings(userId: string): Promise<UserApiKeys | nul
         const settings = await db.settings.get(userId);
         if (!settings) return null;
 
-        // Return just the API keys part for compatibility, or the whole object?
-        // The current usage expects UserApiKeys in some places, but we want to store everything.
-        // Let's return the whole object cast as UserApiKeys for now to satisfy the interface,
-        // but consumers might need updating if they expect strictly only keys.
-        // Looking at usage: SettingsSync uses it to load keys.
         return settings as UserApiKeys;
     } catch (error) {
         console.error('Failed to fetch user settings:', error);
@@ -51,11 +46,9 @@ export async function updateUserSettings(userId: string, settings: Partial<Local
 
 export async function migrateLocalSettingsToDatabase(userId: string): Promise<boolean> {
     try {
-        // Check if we already have settings in DB
         const existingDb = await db.settings.get(userId);
         if (existingDb) return false;
 
-        // Load from LocalStorage
         const storedKeys = localStorage.getItem(SETTINGS_KEY);
         const storedUi = localStorage.getItem(UI_SETTINGS_KEY);
 
@@ -64,7 +57,6 @@ export async function migrateLocalSettingsToDatabase(userId: string): Promise<bo
         const apiKeys = storedKeys ? JSON.parse(storedKeys) : {};
         const uiSettings = storedUi ? JSON.parse(storedUi) : {};
 
-        // Merge and save to DB
         const merged: LocalSettings = {
             id: userId,
             ...uiSettings,
@@ -73,9 +65,6 @@ export async function migrateLocalSettingsToDatabase(userId: string): Promise<bo
 
         await db.settings.put(merged);
 
-        // Optional: Clear localStorage? 
-        // valid argument to keep them as backup for now, or clear to avoid confusion.
-        // Let's keep them for safety but maybe log it.
         console.log('Migrated settings to IndexedDB');
         return true;
     } catch (error) {

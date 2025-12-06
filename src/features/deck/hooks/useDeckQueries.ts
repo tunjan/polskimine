@@ -74,14 +74,12 @@ export const useRecordReviewMutation = () => {
       const scheduledDays = card.scheduled_days ?? card.interval ?? 0;
 
       await db.transaction('rw', [db.cards, db.revlog, db.aggregated_stats, db.history], async () => {
-        await saveCard(newCard); // Save the updated card state
-        await addReviewLog(card, grade, elapsedDays, scheduledDays);
+        await saveCard(newCard); await addReviewLog(card, grade, elapsedDays, scheduledDays);
         await incrementHistory(today, 1, card.language || settings.language);
       });
 
       const xpAmount = xpPayload?.totalXp ?? 0;
 
-      // Return newCard as the result card
       return { card: newCard, grade, today, xpAmount };
     },
     onMutate: async ({ card, grade, xpPayload }) => {

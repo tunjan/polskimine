@@ -39,32 +39,17 @@ const GeneralSettingsPage = () => {
     const { profile, updateUsername, updateLanguageLevel } = useProfile();
     const { user } = useAuth();
 
-    // Local state for username to prevent excessive updates/renders on every keystroke
-    // though the Input in GeneralSettings does that anyway.
-    // We'll pass the store setters directly and rely on GeneralSettings behavior.
 
-    // Special handling for username update to sync with ProfileContext
     const handleSetUsername = async (newUsername: string) => {
-        // Optimistic update if needed, but here we just call the API
         try {
             await updateUsername(newUsername);
             toast.success("Username updated");
         } catch (error) {
-            // Error handling usually in context
         }
     };
 
-    // Auto-save API keys when they change (handled by setSettings but we might want explicit save)
-    // Actually SettingsModal called saveApiKeys on save.
-    // With auto-save, we should probably debounce saveApiKeys or rely on the fact that
-    // updateSettings updates the store, but we need to persist critical keys to secure storage if needed.
-    // The store's updateSettings updates local storage. saveApiKeys updates Cloud/DB.
 
-    // We can use a useEffect to watch sensitive keys?
-    // Or just let the user know changes are auto-saved locally, but cloud sync might need manual trigger?
-    // useSettingsStore's saveApiKeys seems to update the user profile in DB.
 
-    // Let's implement a debounced save for API keys.
     useEffect(() => {
         const timeout = setTimeout(() => {
             if (settings.geminiApiKey || settings.tts.googleApiKey || settings.tts.azureApiKey) {
@@ -85,19 +70,12 @@ const GeneralSettingsPage = () => {
             localSettings={settings}
             setLocalSettings={setSettings}
             username={profile?.username || ''}
-            setUsername={handleSetUsername} // This might be too aggressive if Input calls it on change.
-            // If GeneralSettings uses Input onChange, we might need a debounce wrapper.
-            // Checking GeneralSettings again: yes it uses Input onChange.
-            // But wait, setUsername in SettingsModal was setting LOCAL state.
-            // Here we are calling API directly. We MUST debounce or separate state.
-            // See 'UsernameWrapper' below.
-            languageLevel={profile?.language_level || 'A1'}
+            setUsername={handleSetUsername} languageLevel={profile?.language_level || 'A1'}
             onUpdateLevel={(l) => updateLanguageLevel(l).then(() => toast.success("Level updated"))}
         />
     );
 };
 
-// Wrapper to handle local username state
 const GeneralSettingsPageWithUsername = () => {
     const { settings, setSettings, saveApiKeys } = useSettingsStore();
     const { profile, updateUsername, updateLanguageLevel } = useProfile();
@@ -139,12 +117,9 @@ const GeneralSettingsPageWithUsername = () => {
             languageLevel={profile?.language_level || 'A1'}
             onUpdateLevel={(l) => updateLanguageLevel(l).then(() => toast.success("Level updated"))}
         />
-        // Note: GeneralSettings Input doesn't expose onBlur, so we can't trigger save on blur easily without modifying it.
-        // However, we can use a debounced effect for the username too.
     );
 };
 
-// Hook for debouncing username update
 const useDebouncedUsername = (localUsername: string, updateUsername: (name: string) => Promise<void>, currentUsername?: string) => {
     useEffect(() => {
         const timeout = setTimeout(() => {
@@ -162,7 +137,6 @@ const GeneralSettingsFinal = () => {
     const { profile, updateUsername, updateLanguageLevel } = useProfile();
     const [localUsername, setLocalUsername] = useState(profile?.username || '');
 
-    // Sync local state with profile when profile loads
     useEffect(() => {
         if (profile?.username) setLocalUsername(profile.username);
     }, [profile?.username]);
@@ -230,7 +204,6 @@ const DataSettingsPage = () => {
     const { user } = useAuth();
     const { refreshDeckData } = useDeckActions();
 
-    // Data logic extraction
     const csvInputRef = useRef<HTMLInputElement>(null);
     const jsonInputRef = useRef<HTMLInputElement>(null);
     const [isRestoring, setIsRestoring] = useState(false);
@@ -336,12 +309,6 @@ const DataSettingsPage = () => {
                     } as UserSettings['tts'],
                 };
 
-                // We must use setSettings to update the global store live
-                // But setSettings expects UserSettings | func. 
-                // We'll update via updateSettings which merges.
-                // Actually we want to REPLACE most settings but merge keys.
-                // Let's rely on useSettingsStore logic.
-                // We'll manually construct the new state.
 
                 setSettings((prev) => ({
                     ...prev,
@@ -456,8 +423,7 @@ const DangerSettingsPage = () => {
                     <Button
                         onClick={handleResetDeck}
                         variant={confirmResetDeck ? 'default' : 'secondary'}
-                        className={cn( // Changed clsx to cn
-                            "w-full",
+                        className={cn("w-full",
                             confirmResetDeck && "bg-amber-500 hover:bg-orange-600"
                         )}
                     >
@@ -482,8 +448,7 @@ const DangerSettingsPage = () => {
                     <Button
                         onClick={handleResetAccount}
                         variant={confirmResetAccount ? 'destructive' : 'secondary'}
-                        className={cn( // Changed clsx to cn
-                            "w-full",
+                        className={cn("w-full",
                             confirmResetAccount && "bg-destructive hover:bg-destructive/90"
                         )}
                     >

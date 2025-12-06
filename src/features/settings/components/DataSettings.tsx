@@ -17,13 +17,11 @@ interface DataSettingsProps {
   onSyncToCloud: () => void;
   isSyncingToCloud: boolean;
   syncComplete: boolean;
-  // Syncthing sync props
   onSyncthingSave?: () => void;
   onSyncthingLoad?: () => void;
   isSyncthingSaving?: boolean;
   isSyncthingLoading?: boolean;
   lastSyncthingSync?: string | null;
-  // API key export/import options
   includeApiKeys: boolean;
   onIncludeApiKeysChange: (checked: boolean) => void;
   importApiKeys: boolean;

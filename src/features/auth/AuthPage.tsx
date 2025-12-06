@@ -60,7 +60,6 @@ export const AuthPage: React.FC = () => {
     setLoading(true);
 
     try {
-      // Create profile and authenticate in one step
       await signUpWithEmail('local', 'local', username.trim(), selectedLevel);
 
       if (useAI && apiKey) {
@@ -98,7 +97,6 @@ export const AuthPage: React.FC = () => {
       await markInitialDeckGenerated('local-user');
       await login();
 
-      // Fallback: If we haven't been redirected, force a reload to ensure app state picks up the profile
       window.location.reload();
     } catch (error: any) {
       toast.error(error.message || 'Setup failed');

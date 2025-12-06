@@ -32,11 +32,9 @@ export const addReviewLog = async (
 
   await db.revlog.add(entry);
 
-  // Increment language-specific stats
   await incrementStat(card.language, 'total_xp', 10);
   await incrementStat(card.language, 'total_reviews', 1);
 
-  // Increment global stats
   await incrementStat('global', 'total_xp', 10);
   await incrementStat('global', 'total_reviews', 1);
 };
