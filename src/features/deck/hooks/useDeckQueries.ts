@@ -71,7 +71,7 @@ export const useRecordReviewMutation = () => {
       const diffMinutes = differenceInMinutes(now, lastReview);
       const elapsedDays = diffMinutes / 1440;
 
-      const scheduledDays = card.interval || 0;
+      const scheduledDays = card.scheduled_days ?? card.interval ?? 0;
 
       await db.transaction('rw', [db.cards, db.revlog, db.aggregated_stats, db.history], async () => {
         await saveCard(newCard); // Save the updated card state

@@ -16,14 +16,15 @@ export const sortCards = (cards: Card[], order: CardOrder): Card[] => {
     });
 
     if (order === 'mixed') {
-        // Mixed usually implies "just let them mingle", but practically often means
-        // "interleaved" or "randomized".
-        // However, usually in SRS "mixed" just means "don't prioritize by type, just by due date".
-        // Since `getDueCards` returns them sorted by date, `dateSorted` is effectively "mixed"
-        // in terms of type, but strictly ordered by urgency.
-        // If we wanted true randomization we'd shuffle, but SRS usually prioritizes urgency.
-        // Let's stick with date-sorted for 'mixed' as it's the most sensible default.
-        return dateSorted;
+        // Mixed mode: Shuffle all cards to promote interleaving (Generative Learning).
+        // This breaks up "blocks" of related cards (e.g. same topic/deck) 
+        // and treats all due cards as a single pool.
+        const shuffled = [...cards];
+        for (let i = shuffled.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+        }
+        return shuffled;
     }
 
     const newCards = dateSorted.filter(c => isNewCard(c));

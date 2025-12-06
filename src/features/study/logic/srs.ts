@@ -38,6 +38,9 @@ function getFSRS(settings?: UserSettings['fsrs']) {
       maximum_interval: settings?.maximum_interval || FSRS_DEFAULTS.maximum_interval,
       w: settings?.w || FSRS_DEFAULTS.w,
       enable_fuzz: settings?.enable_fuzzing ?? FSRS_DEFAULTS.enable_fuzzing,
+      // Disable FSRS internal learning steps because we handle them manually.
+      // This ensures that when we 'fallthrough' to FSRS, it treats the card as graduating to Review.
+      learning_steps: []
     };
     const params = generatorParameters(paramsConfig);
     cachedFSRS = new FSRS(params);
@@ -52,10 +55,66 @@ export const calculateNextReview = (
   settings?: UserSettings['fsrs'],
   learningSteps: number[] = [1, 10] // Default to 1m, 10m
 ): Card => {
-  const f = getFSRS(settings);
   const now = new Date();
+  // --- MANUAL LEARNING STEP HANDLING ---
+  const learningStepsMinutes = learningSteps.length > 0 ? learningSteps : [1, 10]; // Default if empty
+  const currentStep = card.learningStep ?? 0;
 
-  // --- PURE FSRS LOGIC ---
+  // Check if we are in the manual learning phase
+  // We apply this for New cards or Learning cards that haven't exhausted steps.
+  // We assume 'learning' status implies we are in this phase if step < length.
+  const isLearningPhase = (card.status === 'new' || card.status === 'learning') && currentStep < learningStepsMinutes.length;
+
+  if (isLearningPhase) {
+    // If graduating (Easy or Good on last step), we fall through to FSRS.
+    // Otherwise, we handle intervals manually.
+
+    let nextStep = currentStep;
+    let nextIntervalMinutes = 0;
+
+    // Logic for Learning Phase
+    if (grade === 'Again') {
+      nextStep = 0;
+      nextIntervalMinutes = learningStepsMinutes[0];
+    } else if (grade === 'Hard') {
+      // Repeat current step
+      nextIntervalMinutes = learningStepsMinutes[currentStep];
+    } else if (grade === 'Good') {
+      nextStep = currentStep + 1;
+      if (nextStep >= learningStepsMinutes.length) {
+        // GRADUATE -> Fallthrough to FSRS
+      } else {
+        nextIntervalMinutes = learningStepsMinutes[nextStep];
+      }
+    } else if (grade === 'Easy') {
+      // GRADUATE -> Fallthrough to FSRS
+    }
+
+    // If we calculated a manual interval (didn't graduate)
+    if ((grade === 'Again' || grade === 'Hard') || (grade === 'Good' && nextStep < learningStepsMinutes.length)) {
+      const nextDue = addMinutes(now, nextIntervalMinutes);
+      const intervalDays = nextIntervalMinutes / (24 * 60);
+
+      return {
+        ...card,
+        dueDate: nextDue.toISOString(),
+        status: 'learning',
+        state: State.Learning, // Keep as Learning for FSRS compatibility
+        learningStep: nextStep,
+        interval: intervalDays,
+        precise_interval: intervalDays,
+        scheduled_days: 0, // Learning steps are 0 days in FSRS/Anki terms usually
+        last_review: now.toISOString(),
+        reps: (card.reps || 0) + 1,
+        lapses: grade === 'Again' ? (card.lapses || 0) + 1 : (card.lapses || 0),
+        // We do NOT update stability/difficulty yet, waiting for graduation
+      };
+    }
+  }
+
+  // --- STANDARD FSRS LOGIC (Review / Graduation) ---
+
+  const f = getFSRS(settings);
 
   let currentState = card.state;
   if (currentState === undefined) {
@@ -114,6 +173,12 @@ export const calculateNextReview = (
   // Ensure non-negative interval (if due is in past, it's 0)
   const preciseInterval = Math.max(0, diffMs / (24 * 60 * 60 * 1000));
 
+  let scheduledDaysInt = Math.round(preciseInterval);
+  // Enforce minimum 1 day for non-learning/graduated cards to prevent 0-day reviews in DB
+  if (tentativeStatus !== 'learning' && tentativeStatus !== 'new') {
+    scheduledDaysInt = Math.max(1, scheduledDaysInt);
+  }
+
   // Use precise interval if scheduled_days is 0 (intraday) or mismatch is significant?
   // Actually, let's always use precise interval for consistency in data analysis,
   // BUT FSRS optimizer might expect integers for 'scheduled_days' if it strictly follows Anki format?
@@ -127,15 +192,16 @@ export const calculateNextReview = (
     stability: log.stability,
     difficulty: log.difficulty,
     elapsed_days: log.elapsed_days,
-    scheduled_days: preciseInterval, // Store fractional days!
+    scheduled_days: scheduledDaysInt, // Store INT days for FSRS optimizer compatibility
+    precise_interval: preciseInterval, // Store fractional days for internal precision
     reps: log.reps,
     lapses: log.lapses,
     state: log.state,
     last_review: log.last_review ? log.last_review.toISOString() : now.toISOString(),
     first_review: card.first_review || ((card.reps || 0) === 0 ? now.toISOString() : undefined),
     status: tentativeStatus,
-    interval: preciseInterval, // Store fractional days!
-    learningStep: undefined, // We no longer strictly track "steps" index, FSRS handles state
+    interval: preciseInterval, // Keep legacy interval precise for isCardDue logic
+    learningStep: undefined, // Clear learning step on graduation/review
     leechCount: totalLapses,
     isLeech
   };
