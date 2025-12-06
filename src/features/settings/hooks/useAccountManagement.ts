@@ -59,6 +59,8 @@ export const useAccountManagement = () => {
             await db.revlog.clear();
             await db.history.clear();
             await db.profile.clear();
+            await db.settings.clear();
+            await db.aggregated_stats.clear();
 
             localStorage.removeItem('language_mining_settings');
             localStorage.removeItem('linguaflow_api_keys');
