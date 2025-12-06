@@ -233,7 +233,44 @@ export const loadSyncFile = async (): Promise<{ success: boolean; data?: SyncDat
                     throw e;
                 }
             } else {
-                return { success: false, error: 'File picker not available. Please use file import.' };
+                // Fallback for browsers that don't support File System Access API
+                return new Promise((resolve) => {
+                    const input = document.createElement('input');
+                    input.type = 'file';
+                    input.accept = 'application/json,.json';
+                    input.style.display = 'none';
+                    document.body.appendChild(input);
+
+                    const cleanup = () => {
+                        if (document.body.contains(input)) {
+                            document.body.removeChild(input);
+                        }
+                    };
+
+                    input.onchange = async (e: any) => {
+                        const file = e.target.files?.[0];
+                        if (file) {
+                            try {
+                                const text = await file.text();
+                                const data = JSON.parse(text) as SyncData;
+                                resolve({ success: true, data });
+                            } catch (error: any) {
+                                resolve({ success: false, error: error.message });
+                            }
+                        } else {
+                            resolve({ success: false, error: 'No file selected' });
+                        }
+                        cleanup();
+                    };
+
+                    // Handle cancellation (supported in modern browsers)
+                    input.addEventListener('cancel', () => {
+                        resolve({ success: false, error: 'Load cancelled' });
+                        cleanup();
+                    });
+
+                    input.click();
+                });
             }
         }
     } catch (error: any) {
