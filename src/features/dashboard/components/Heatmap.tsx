@@ -8,7 +8,7 @@ interface HeatmapProps {
   history: ReviewHistory;
 }
 
-export const Heatmap: React.FC<HeatmapProps> = ({ history }) => {
+export const Heatmap: React.FC<HeatmapProps> = React.memo(({ history }) => {
   const calendarData = useMemo(() => {
     const today = startOfDay(new Date());
     const days = [];
@@ -148,4 +148,4 @@ export const Heatmap: React.FC<HeatmapProps> = ({ history }) => {
       </div>
     </TooltipProvider>
   );
-};
+});

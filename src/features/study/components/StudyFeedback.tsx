@@ -3,7 +3,7 @@ import { Zap } from 'lucide-react';
 import clsx from 'clsx';
 import { XpFeedback } from '@/features/xp/hooks/useXpSession';
 
-export const StudyFeedback = ({ feedback }: { feedback: XpFeedback | null }) => {
+export const StudyFeedback = React.memo(({ feedback }: { feedback: XpFeedback | null }) => {
   const [visible, setVisible] = useState(false);
   const [currentFeedback, setCurrentFeedback] = useState<XpFeedback | null>(null);
 
@@ -19,7 +19,7 @@ export const StudyFeedback = ({ feedback }: { feedback: XpFeedback | null }) => 
   if (!currentFeedback) return null;
 
   return (
-    <div 
+    <div
       key={currentFeedback.id}
       className={clsx(
         "absolute top-20 left-1/2 -translate-x-1/2 z-30 pointer-events-none transition-all duration-500 ease-out",
@@ -29,8 +29,8 @@ export const StudyFeedback = ({ feedback }: { feedback: XpFeedback | null }) => 
       {/* Game-styled feedback panel */}
       <div className={clsx(
         "relative flex items-center gap-3 px-5 py-2.5 border backdrop-blur-sm",
-        currentFeedback.isBonus 
-          ? "bg-primary/5 border-primary/40 text-primary" 
+        currentFeedback.isBonus
+          ? "bg-primary/5 border-primary/40 text-primary"
           : "bg-card/80 border-border/40 text-muted-foreground"
       )}>
         {/* Corner accents */}
@@ -50,7 +50,7 @@ export const StudyFeedback = ({ feedback }: { feedback: XpFeedback | null }) => 
           <span className={clsx("absolute bottom-0 right-0 w-full h-0.5", currentFeedback.isBonus ? "bg-primary" : "bg-border")} />
           <span className={clsx("absolute bottom-0 right-0 h-full w-0.5", currentFeedback.isBonus ? "bg-primary" : "bg-border")} />
         </span>
-        
+
         <span className="w-1.5 h-1.5 rotate-45 bg-current" />
         <Zap size={12} className={currentFeedback.isBonus ? "fill-primary" : "fill-none"} />
         <span className="text-xs font-ui uppercase tracking-[0.2em]">
@@ -59,5 +59,5 @@ export const StudyFeedback = ({ feedback }: { feedback: XpFeedback | null }) => 
       </div>
     </div>
   );
-};
+});
 

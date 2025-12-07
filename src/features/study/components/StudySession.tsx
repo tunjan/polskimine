@@ -51,7 +51,7 @@ interface StudySessionProps {
   onAddCard?: (card: Card) => void;
 }
 
-export const StudySession: React.FC<StudySessionProps> = ({
+export const StudySession: React.FC<StudySessionProps> = React.memo(({
   dueCards,
   reserveCards = [],
   onUpdateCard,
@@ -271,5 +271,5 @@ export const StudySession: React.FC<StudySessionProps> = ({
       />
     </div>
   );
-};
+});
 
