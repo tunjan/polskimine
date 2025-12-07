@@ -4,14 +4,13 @@ import { UserSettings } from '@/types';
 import { FSRS_DEFAULTS } from '@/constants';
 import { Slider } from '@/components/ui/slider';
 import { Switch } from '@/components/ui/switch';
-import { EditorialInput } from '@/components/form/EditorialInput';
+import { Input } from '@/components/ui/input';
 import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
 import { getAllReviewLogs } from '@/services/db/repositories/revlogRepository';
 import { optimizeFSRS } from '@/lib/fsrsOptimizer';
-import { Card } from '@/components/ui/card';
-import { SectionHeader } from '@/components/ui/section-header';
-import { OrnateSeparator } from '@/components/ui/separator';
+import { Card, CardContent } from '@/components/ui/card';
+import { Separator } from '@/components/ui/separator';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { exportRevlogToCSV } from '@/features/settings/logic/optimizer';
@@ -95,17 +94,18 @@ export const AlgorithmSettings: React.FC<AlgorithmSettingsProps> = ({
   return (
     <div className="space-y-8 max-w-2xl">
       {/* Retention Target Section */}
-      <SectionHeader
-        title="Retention Target"
-        subtitle="Target accuracy for scheduled reviews"
-        icon={<Target className="w-4 h-4" strokeWidth={1.5} />}
-      />
-      <Card variant="highlight" size="lg">
-        <div className="space-y-6">
+      <div className="mb-6">
+        <h3 className="text-lg font-medium flex items-center gap-2">
+          <Target className="w-4 h-4 text-muted-foreground" strokeWidth={1.5} />
+          Retention Target
+        </h3>
+        <p className="text-sm text-muted-foreground">Target accuracy for scheduled reviews</p>
+      </div>
+      <Card>
+        <CardContent className="p-6 space-y-6">
           <div className="flex justify-between items-center">
             <div className="flex items-center gap-2">
-              <span className="w-1.5 h-1.5 rotate-45 bg-primary/60" />
-              <label className="text-[11px] text-muted-foreground uppercase tracking-[0.15em] font-light font-ui">
+              <label className="text-[11px] text-muted-foreground uppercase tracking-[0.15em] font-medium ">
                 Target Retention
               </label>
             </div>
@@ -125,40 +125,41 @@ export const AlgorithmSettings: React.FC<AlgorithmSettingsProps> = ({
               }
               className="py-3"
             />
-            <div className="flex justify-between text-xs font-ui text-muted-foreground/50 uppercase tracking-wider">
+            <div className="flex justify-between text-xs  text-muted-foreground/50 uppercase tracking-wider">
               <span>Faster Reviews</span>
               <span>Higher Accuracy</span>
             </div>
           </div>
-        </div>
+        </CardContent>
       </Card>
 
-      <OrnateSeparator />
+      <Separator className="my-8" />
 
       {/* Optimization Section */}
-      <SectionHeader
-        title="Optimization"
-        subtitle="Personalize algorithm parameters"
-        icon={<Wand2 className="w-4 h-4" strokeWidth={1.5} />}
-      />
-      <Card variant="default" size="md">
-        <div className="space-y-4">
+      <div className="mb-6">
+        <h3 className="text-lg font-medium flex items-center gap-2">
+          <Wand2 className="w-4 h-4 text-muted-foreground" strokeWidth={1.5} />
+          Optimization
+        </h3>
+        <p className="text-sm text-muted-foreground">Personalize algorithm parameters</p>
+      </div>
+      <Card>
+        <CardContent className="p-6 space-y-4">
           <div className="flex items-center justify-between mb-2">
             <p className="text-sm text-muted-foreground font-light leading-relaxed">
               Analyzes {report ? `${report.reviews} review records` : 'your review history'} to calculate personalized parameters.
             </p>
             {report && (
-              <span className="text-xs font-ui uppercase tracking-[0.15em] text-pine-500">Complete</span>
+              <span className="text-xs  uppercase tracking-[0.15em] text-pine-500">Complete</span>
             )}
           </div>
 
           {isOptimizing ? (
             <div className="space-y-3">
-              <div className="text-xs text-muted-foreground font-ui mb-1 uppercase tracking-wider">Processing review data</div>
+              <div className="text-xs text-muted-foreground  mb-1 uppercase tracking-wider">Processing review data</div>
               <Progress
                 value={progress}
-                variant="xp"
-                size="sm"
+                className="h-2"
               />
             </div>
           ) : (
@@ -196,29 +197,30 @@ export const AlgorithmSettings: React.FC<AlgorithmSettingsProps> = ({
               )}
             </div>
           )}
-        </div>
+        </CardContent>
       </Card>
 
-      <OrnateSeparator />
+      <Separator className="my-8" />
 
       {/* Advanced Settings Section */}
-      <SectionHeader
-        title="Advanced"
-        subtitle="Fine-tune scheduling behavior"
-        icon={<Settings className="w-4 h-4" strokeWidth={1.5} />}
-      />
+      <div className="mb-6">
+        <h3 className="text-lg font-medium flex items-center gap-2">
+          <Settings className="w-4 h-4 text-muted-foreground" strokeWidth={1.5} />
+          Advanced
+        </h3>
+        <p className="text-sm text-muted-foreground">Fine-tune scheduling behavior</p>
+      </div>
       <div className="space-y-3">
-        <Card variant="stat" size="sm" className="hover:border-primary/40 transition-colors">
-          <div className="space-y-3">
+        <Card className="hover:border-primary/40 transition-colors">
+          <CardContent className="p-4 space-y-3">
             <div className="flex items-center gap-2">
-              <span className="w-1.5 h-1.5 rotate-45 bg-primary/40" />
-              <label className="text-[10px] text-muted-foreground uppercase tracking-[0.15em] font-light font-ui">
+              <label className="text-[10px] text-muted-foreground uppercase tracking-[0.15em] font-medium ">
                 Maximum Interval (days)
               </label>
             </div>
-            <EditorialInput
+            <Input
               type="number"
-              className="font-mono text-sm bg-transparent border-0 border-b border-border/30 rounded-none px-0 py-2 placeholder:text-muted-foreground/30 focus-visible:border-primary/60"
+              className="font-mono text-sm bg-transparent border-0 border-b border-border/30 rounded-none px-0 py-2 placeholder:text-muted-foreground/30 focus-visible:border-primary/60 shadow-none focus-visible:ring-0"
               value={localSettings.fsrs.maximum_interval}
               onChange={(e) =>
                 setLocalSettings((prev) => ({
@@ -226,15 +228,14 @@ export const AlgorithmSettings: React.FC<AlgorithmSettingsProps> = ({
                 }))
               }
             />
-          </div>
+          </CardContent>
         </Card>
 
-        <Card variant="stat" size="sm" className="hover:border-primary/40 transition-colors">
-          <div className="flex items-center justify-between gap-6">
+        <Card className="hover:border-primary/40 transition-colors">
+          <CardContent className="p-4 flex items-center justify-between gap-6">
             <div className="flex-1">
               <div className="flex items-center gap-2 mb-1">
-                <span className="w-1 h-1 rotate-45 bg-primary/40" />
-                <span className="text-sm font-light text-foreground font-ui">Enable Fuzzing</span>
+                <span className="text-sm font-medium text-foreground ">Enable Fuzzing</span>
               </div>
               <p className="text-xs text-muted-foreground/60 font-light pl-3">Prevents clustering of due dates by adding randomness</p>
             </div>
@@ -244,18 +245,20 @@ export const AlgorithmSettings: React.FC<AlgorithmSettingsProps> = ({
                 setLocalSettings((prev) => ({ ...prev, fsrs: { ...prev.fsrs, enable_fuzzing: checked } }))
               }
             />
-          </div>
+          </CardContent>
         </Card>
       </div>
 
       {/* Reset Button */}
       <div className="pt-4">
-        <button
+        <Button
+          variant="ghost"
+          size="sm"
           onClick={() => setLocalSettings(prev => ({ ...prev, fsrs: { ...prev.fsrs, w: FSRS_DEFAULTS.w } }))}
-          className="text-xs font-ui uppercase tracking-widest text-muted-foreground/40 hover:text-destructive/70 transition-colors flex items-center gap-2"
+          className="text-xs uppercase tracking-widest text-muted-foreground/40 hover:text-destructive hover:bg-transparent h-auto p-0 flex items-center gap-2"
         >
           <RefreshCw size={11} strokeWidth={1.5} /> Reset to Default Parameters
-        </button>
+        </Button>
       </div>
     </div>
   );

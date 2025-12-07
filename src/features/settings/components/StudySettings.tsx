@@ -1,12 +1,18 @@
 import React from 'react';
 import { Target, ListOrdered, ToggleLeft, Clock } from 'lucide-react';
 import { UserSettings } from '@/types';
-import { EditorialInput } from '@/components/form/EditorialInput';
+import { Input } from '@/components/ui/input';
 import { LANGUAGE_NAMES } from '@/constants';
 import { Switch } from '@/components/ui/switch';
-import { Card } from '@/components/ui/card';
-import { SectionHeader } from '@/components/ui/section-header';
-import { OrnateSeparator } from '@/components/ui/separator';
+import { Card, CardContent } from '@/components/ui/card';
+import { Separator } from '@/components/ui/separator';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 
 interface StudySettingsProps {
   localSettings: UserSettings;
@@ -30,34 +36,34 @@ export const StudySettings: React.FC<StudySettingsProps> = ({ localSettings, set
   return (
     <div className="space-y-8 max-w-2xl">
       {/* Info Banner */}
-      <Card variant="stat" size="sm" className="border-primary/20">
-        <div className="flex items-center gap-3">
-          <span className="w-1.5 h-1.5 rotate-45 bg-primary/60" />
+      <Card className="border-primary/20">
+        <CardContent className="flex items-center gap-3 p-4">
           <p className="text-sm text-muted-foreground font-light leading-relaxed">
             Daily study configuration for <span className="text-foreground font-medium">{currentLangName}</span>. Limits reset at 4:00 AM.
           </p>
-        </div>
+        </CardContent>
       </Card>
 
       {/* Daily Limits Section */}
-      <SectionHeader
-        title="Daily Limits"
-        subtitle="Maximum cards per day"
-        icon={<Target className="w-4 h-4" strokeWidth={1.5} />}
-      />
+      <div className="mb-6">
+        <h3 className="text-lg font-medium flex items-center gap-2">
+          <Target className="w-4 h-4 text-muted-foreground" strokeWidth={1.5} />
+          Daily Limits
+        </h3>
+        <p className="text-sm text-muted-foreground">Maximum cards per day</p>
+      </div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <Card variant="highlight" size="md">
-          <div className="space-y-4 text-center">
+        <Card>
+          <CardContent className="space-y-4 text-center p-6">
             <div className="flex items-center justify-center gap-2">
-              <span className="w-1.5 h-1.5 rotate-45 bg-amber-500/60" />
-              <label className="text-xs text-muted-foreground uppercase tracking-[0.15em] font-light font-ui">
+              <label className="text-xs text-muted-foreground uppercase tracking-[0.15em] font-medium ">
                 New Cards
               </label>
             </div>
-            <EditorialInput
+            <Input
               type="number"
               value={currentDailyNew}
-              className="text-5xl md:text-6xl font-light h-auto py-2 border-0 border-b border-border/30 rounded-none px-0 focus-visible:ring-0 focus-visible:border-primary/60 tabular-nums bg-transparent transition-colors text-center"
+              className="text-5xl md:text-6xl font-light h-auto py-2 border-0 border-b border-border/30 rounded-none px-0 focus-visible:ring-0 focus-visible:border-primary/60 tabular-nums bg-transparent transition-colors text-center shadow-none"
               onChange={(event) => {
                 const val = parseInt(event.target.value, 10) || 0;
                 setLocalSettings(prev => ({
@@ -67,21 +73,20 @@ export const StudySettings: React.FC<StudySettingsProps> = ({ localSettings, set
               }}
             />
             <p className="text-xs text-muted-foreground/60 font-light">Unseen vocabulary</p>
-          </div>
+          </CardContent>
         </Card>
 
-        <Card variant="highlight" size="md">
-          <div className="space-y-4 text-center">
+        <Card>
+          <CardContent className="space-y-4 text-center p-6">
             <div className="flex items-center justify-center gap-2">
-              <span className="w-1.5 h-1.5 rotate-45 bg-sky-500/60" />
-              <label className="text-xs text-muted-foreground uppercase tracking-[0.15em] font-light font-ui">
+              <label className="text-xs text-muted-foreground uppercase tracking-[0.15em] font-medium ">
                 Review Cards
               </label>
             </div>
-            <EditorialInput
+            <Input
               type="number"
               value={currentDailyReview}
-              className="text-5xl md:text-6xl font-light h-auto py-2 border-0 border-b border-border/30 rounded-none px-0 focus-visible:ring-0 focus-visible:border-primary/60 tabular-nums bg-transparent transition-colors text-center"
+              className="text-5xl md:text-6xl font-light h-auto py-2 border-0 border-b border-border/30 rounded-none px-0 focus-visible:ring-0 focus-visible:border-primary/60 tabular-nums bg-transparent transition-colors text-center shadow-none"
               onChange={(event) => {
                 const val = parseInt(event.target.value, 10) || 0;
                 setLocalSettings(prev => ({
@@ -91,65 +96,70 @@ export const StudySettings: React.FC<StudySettingsProps> = ({ localSettings, set
               }}
             />
             <p className="text-xs text-muted-foreground/60 font-light">Due for review</p>
-          </div>
+          </CardContent>
         </Card>
       </div>
 
-      <OrnateSeparator />
+      <Separator className="my-8" />
 
       {/* Study Preferences Section */}
-      <SectionHeader
-        title="Study Preferences"
-        subtitle="Session behavior options"
-        icon={<ToggleLeft className="w-4 h-4" strokeWidth={1.5} />}
-      />
+      <div className="mb-6">
+        <h3 className="text-lg font-medium flex items-center gap-2">
+          <ToggleLeft className="w-4 h-4 text-muted-foreground" strokeWidth={1.5} />
+          Study Preferences
+        </h3>
+        <p className="text-sm text-muted-foreground">Session behavior options</p>
+      </div>
       <div className="space-y-3">
-        <Card variant="stat" size="sm" className="hover:border-primary/40 transition-colors">
-          <div className="flex items-center justify-between gap-6">
+        <Card className="hover:border-primary/40 transition-colors">
+          <CardContent className="flex items-center justify-between gap-6 p-4">
             <div className="flex-1">
               <div className="flex items-center gap-2 mb-1">
                 <Clock className="w-4 h-4 text-muted-foreground/60" strokeWidth={1.5} />
-                <span className="text-sm font-light text-foreground font-ui">Learning Steps</span>
+                <span className="text-sm font-medium text-foreground ">Learning Steps</span>
               </div>
               <p className="text-xs text-muted-foreground/60 font-light pl-6">Minutes between reviews (e.g. "1 10")</p>
             </div>
-            <EditorialInput
+            <Input
               type="text"
               value={stepsInput}
-              className="w-32 bg-transparent border-0 border-b border-border/30 text-sm font-ui focus:outline-none focus:border-primary/60 transition-colors py-1 px-1 text-right text-foreground font-light"
+              className="w-32 bg-transparent border-0 border-b border-border/30 text-sm  focus:outline-none focus:border-primary/60 transition-colors py-1 px-1 text-right text-foreground font-light shadow-none focus-visible:ring-0 rounded-none h-auto"
               onChange={(e) => handleStepsChange(e.target.value)}
               placeholder="1 10"
             />
-          </div>
+          </CardContent>
         </Card>
 
-        <Card variant="stat" size="sm" className="hover:border-primary/40 transition-colors">
-          <div className="flex items-center justify-between gap-6">
+        <Card className="hover:border-primary/40 transition-colors">
+          <CardContent className="flex items-center justify-between gap-6 p-4">
             <div className="flex-1">
               <div className="flex items-center gap-2 mb-1">
                 <ListOrdered className="w-4 h-4 text-muted-foreground/60" strokeWidth={1.5} />
-                <span className="text-sm font-light text-foreground font-ui">Card Order</span>
+                <span className="text-sm font-medium text-foreground ">Card Order</span>
               </div>
               <p className="text-xs text-muted-foreground/60 font-light pl-6">Choose presentation priority</p>
             </div>
-            <select
+            <Select
               value={localSettings.cardOrder || 'newFirst'}
-              onChange={(e) => setLocalSettings(prev => ({ ...prev, cardOrder: e.target.value as any }))}
-              className="bg-transparent border border-border/30 text-sm font-ui focus:outline-none focus:border-primary/60 transition-colors py-2 px-3 text-foreground font-light"
+              onValueChange={(value) => setLocalSettings(prev => ({ ...prev, cardOrder: value as any }))}
             >
-              <option value="newFirst" className="bg-background text-foreground">New First</option>
-              <option value="reviewFirst" className="bg-background text-foreground">Review First</option>
-              <option value="mixed" className="bg-background text-foreground">Mixed</option>
-            </select>
-          </div>
+              <SelectTrigger className="w-[140px] border-0 border-b border-border/30 rounded-none shadow-none focus:ring-0 px-2 h-8">
+                <SelectValue placeholder="Select order" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="newFirst">New First</SelectItem>
+                <SelectItem value="reviewFirst">Review First</SelectItem>
+                <SelectItem value="mixed">Mixed</SelectItem>
+              </SelectContent>
+            </Select>
+          </CardContent>
         </Card>
 
-        <Card variant="stat" size="sm" className="hover:border-primary/40 transition-colors">
-          <div className="flex items-center justify-between gap-6">
+        <Card className="hover:border-primary/40 transition-colors">
+          <CardContent className="flex items-center justify-between gap-6 p-4">
             <div className="flex-1">
               <div className="flex items-center gap-2 mb-1">
-                <span className="w-1 h-1 rotate-45 bg-primary/40" />
-                <span className="text-sm font-light text-foreground font-ui">Binary Rating</span>
+                <span className="text-sm font-medium text-foreground ">Binary Rating</span>
               </div>
               <p className="text-xs text-muted-foreground/60 font-light pl-3">Simplified pass/fail grading reduces decision fatigue</p>
             </div>
@@ -159,15 +169,14 @@ export const StudySettings: React.FC<StudySettingsProps> = ({ localSettings, set
                 setLocalSettings((prev) => ({ ...prev, binaryRatingMode: checked }))
               }
             />
-          </div>
+          </CardContent>
         </Card>
 
-        <Card variant="stat" size="sm" className="hover:border-primary/40 transition-colors">
-          <div className="flex items-center justify-between gap-6">
+        <Card className="hover:border-primary/40 transition-colors">
+          <CardContent className="flex items-center justify-between gap-6 p-4">
             <div className="flex-1">
               <div className="flex items-center gap-2 mb-1">
-                <span className="w-1 h-1 rotate-45 bg-primary/40" />
-                <span className="text-sm font-light text-foreground font-ui">Full Sentence Front</span>
+                <span className="text-sm font-medium text-foreground ">Full Sentence Front</span>
               </div>
               <p className="text-xs text-muted-foreground/60 font-light pl-3">Show the full sentence on the front of the card instead of just the target word</p>
             </div>
@@ -177,15 +186,14 @@ export const StudySettings: React.FC<StudySettingsProps> = ({ localSettings, set
                 setLocalSettings((prev) => ({ ...prev, showWholeSentenceOnFront: checked }))
               }
             />
-          </div>
+          </CardContent>
         </Card>
 
-        <Card variant="stat" size="sm" className="hover:border-primary/40 transition-colors">
-          <div className="flex items-center justify-between gap-6">
+        <Card className="hover:border-primary/40 transition-colors">
+          <CardContent className="flex items-center justify-between gap-6 p-4">
             <div className="flex-1">
               <div className="flex items-center gap-2 mb-1">
-                <span className="w-1 h-1 rotate-45 bg-primary/40" />
-                <span className="text-sm font-light text-foreground font-ui">Skip Learning Wait</span>
+                <span className="text-sm font-medium text-foreground ">Skip Learning Wait</span>
               </div>
               <p className="text-xs text-muted-foreground/60 font-light pl-3">Continue reviewing other due cards instead of waiting for learning steps to cool down</p>
             </div>
@@ -195,7 +203,7 @@ export const StudySettings: React.FC<StudySettingsProps> = ({ localSettings, set
                 setLocalSettings((prev) => ({ ...prev, ignoreLearningStepsWhenNoCards: checked }))
               }
             />
-          </div>
+          </CardContent>
         </Card>
       </div>
     </div>

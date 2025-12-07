@@ -1,4 +1,5 @@
 import React, { useMemo, useEffect } from 'react';
+import { Badge } from '@/components/ui/badge';
 import { Card, Language, LanguageId } from '@/types';
 import { escapeRegExp, parseFurigana, cn, findInflectedWordInSentence } from '@/lib/utils';
 import { useSettingsStore } from '@/stores/useSettingsStore';
@@ -11,6 +12,7 @@ import { SelectionMenu } from '@/features/study/components/SelectionMenu';
 import { useFlashcardAudio } from '@/features/study/hooks/useFlashcardAudio';
 import { useAIAnalysis } from '@/features/study/hooks/useAIAnalysis';
 import { useCardInteraction } from '@/features/study/hooks/useCardInteraction';
+import { Button } from '@/components/ui/button';
 
 interface FlashcardProps {
   card: Card;
@@ -74,11 +76,11 @@ export const Flashcard = React.memo<FlashcardProps>(({
 
   const fontSizeClass = useMemo(() => {
     const len = displayedSentence.length;
-    if (len < 6) return "text-5xl md:text-7xl tracking-tight font-light";
-    if (len < 15) return "text-4xl md:text-6xl tracking-tight font-light";
-    if (len < 30) return "text-3xl md:text-5xl tracking-tight font-extralight";
-    if (len < 60) return "text-2xl md:text-4xl tracking-normal font-extralight";
-    return "text-xl md:text-3xl font-extralight tracking-normal";
+    if (len < 6) return "text-5xl md:text-7xl font-normal tracking-tight";
+    if (len < 15) return "text-4xl md:text-6xl font-normal tracking-tight";
+    if (len < 30) return "text-3xl md:text-5xl font-light";
+    if (len < 60) return "text-2xl md:text-4xl font-light";
+    return "text-xl md:text-3xl font-light";
   }, [displayedSentence]);
 
   const RenderedSentence = useMemo(() => {
@@ -98,21 +100,14 @@ export const Flashcard = React.memo<FlashcardProps>(({
           className="cursor-pointer group flex flex-col items-center gap-8 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2 focus-visible:ring-offset-background"
         >
           {blindMode && (
-            <button
-              onClick={(e) => { e.stopPropagation(); speak(); }}
-              className="relative p-6 bg-card/50 border border-border/30 hover:border-primary/40 hover:bg-primary/5 transition-all duration-300 group/btn"
+            <Button
+              variant="outline"
+              size="icon"
+              className="h-20 w-20 rounded-xl"
+              onClick={(e: React.MouseEvent) => { e.stopPropagation(); speak(); }}
             >
-              {/* Corner accents */}
-              <span className="absolute -top-px -left-px w-2 h-2">
-                <span className="absolute top-0 left-0 w-full h-px bg-primary/30 group-hover/btn:bg-primary/60 transition-colors" />
-                <span className="absolute top-0 left-0 h-full w-px bg-primary/30 group-hover/btn:bg-primary/60 transition-colors" />
-              </span>
-              <span className="absolute -bottom-px -right-px w-2 h-2">
-                <span className="absolute bottom-0 right-0 w-full h-px bg-primary/30 group-hover/btn:bg-primary/60 transition-colors" />
-                <span className="absolute bottom-0 right-0 h-full w-px bg-primary/30 group-hover/btn:bg-primary/60 transition-colors" />
-              </span>
-              <Mic size={28} strokeWidth={1} className="text-muted-foreground group-hover/btn:text-primary transition-colors" />
-            </button>
+              <Mic size={28} strokeWidth={1} className="text-muted-foreground hover:text-foreground transition-colors" />
+            </Button>
           )}
           <p className={cn(baseClasses, "blur-3xl opacity-5 group-hover:opacity-10 transition-all duration-500")}>
             {(card.targetWord && !settings.showWholeSentenceOnFront) ? processText(card.targetWord) : displayedSentence}
@@ -244,13 +239,7 @@ export const Flashcard = React.memo<FlashcardProps>(({
   return (
     <>
       <div className={containerClasses} onMouseUp={handleMouseUp} onTouchEnd={handleMouseUp}>
-        {/* Genshin-styled ornate frame */}
-        <div className={cn(
-          "absolute inset-4 md:inset-12 pointer-events-none transition-all duration-700",
-          isFlipped && ""
-        )}>
 
-        </div>
 
         {/* Main content */}
         <div className={cn(
@@ -260,30 +249,25 @@ export const Flashcard = React.memo<FlashcardProps>(({
           {RenderedSentence}
 
           {isRevealed && (
-            <button
+            <Button
+              variant="ghost"
+              size="icon"
               onClick={speak}
-              className="group relative flex items-center justify-center text-muted-foreground/40 hover:text-primary/70 transition-all duration-300 mt-6"
+              className="mt-6 text-muted-foreground/40 hover:text-primary/70"
             >
-              <Volume2 size={20} strokeWidth={1.5} className={cn("transition-all duration-300", playSlow && "text-primary")} />
-            </button>
+              <Volume2 size={24} strokeWidth={1.5} className={cn("transition-all duration-300", playSlow && "text-primary")} />
+            </Button>
           )}
         </div>
 
-        {/* Translation reveal with enhanced game-styled animation */}
+        {/* Translation reveal */}
         {isFlipped && (
           <div className="absolute top-1/2 left-0 right-0 bottom-4 text-center flex flex-col items-center gap-3 z-0 pointer-events-none overflow-y-auto">
 
-            {/* Decorative divider - Genshin style */}
-            <div className="flex items-center gap-3 my-3 animate-in fade-in duration-500">
-              <span className="w-12 h-px bg-linear-to-r from-transparent to-amber-600/80" />
-              <span className="w-1.5 h-1.5 rotate-45 border border-amber-600/80" />
-              <span className="w-1 h-1 rotate-45 bg-amber-600/80" />
-              <span className="w-1.5 h-1.5 rotate-45 border border-amber-600/80" />
-              <span className="w-12 h-px bg-linear-to-l from-transparent to-amber-600/80" />
-            </div>
+
 
             {showTranslation && (
-              <div className="relative group pointer-events-auto px-8 md:px-16 shrink-0 flex flex-col items-center gap-1 animate-in fade-in slide-in-from-bottom-4 duration-700 fill-mode-backwards">
+              <div className="relative group pointer-events-auto px-8 md:px-16 shrink-0 flex flex-col items-center gap-1 animate-in fade-in slide-in-from-bottom-4 duration-700">
                 {card.targetWord && (
                   <div className="flex flex-col items-center gap-0.5 mb-1">
                     <div className="flex items-center gap-2">
@@ -308,9 +292,9 @@ export const Flashcard = React.memo<FlashcardProps>(({
                   </p>
                 </div>
                 {isGaslit && (
-                  <span className="absolute -top-5 -right-6 text-[10px] font-ui font-medium uppercase text-destructive/60 tracking-widest rotate-12 opacity-70">
+                  <Badge variant="destructive" className="absolute -top-6 -right-8 opacity-80">
                     Suspicious
-                  </span>
+                  </Badge>
                 )}
               </div>
             )}
@@ -319,7 +303,7 @@ export const Flashcard = React.memo<FlashcardProps>(({
               <div className="mt-2 pointer-events-auto shrink-0 px-6">
                 <FuriganaRenderer
                   text={card.notes}
-                  className="text-xs font-ui font-light text-foreground text-center tracking-wide leading-relaxed block"
+                  className="text-xs  font-light text-foreground text-center tracking-wide leading-relaxed block"
                   processText={processText}
                 />
               </div>

@@ -3,6 +3,8 @@ import { ArrowRight, User } from 'lucide-react';
 import { ButtonLoader } from '@/components/ui/loading';
 import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
 
 export const UsernameSetup: React.FC = () => {
   const { updateUsername, user } = useAuth();
@@ -44,8 +46,8 @@ export const UsernameSetup: React.FC = () => {
 
         <form onSubmit={handleSubmit} className="space-y-12">
           <div className="relative group">
-            <input
-              className="w-full bg-transparent border-b border-border py-4 text-2xl md:text-3xl font-light outline-none transition-all focus:border-foreground placeholder:text-muted-foreground/20 rounded-none text-foreground"
+            <Input
+              className="w-full bg-transparent border-b border-border border-t-0 border-x-0 px-0 py-4 text-2xl md:text-3xl font-light outline-none transition-all focus-visible:ring-0 focus:border-foreground placeholder:text-muted-foreground/20 rounded-none text-foreground h-auto shadow-none"
               placeholder="Type name..."
               value={username}
               onChange={(e) => setUsername(e.target.value)}
@@ -67,8 +69,9 @@ export const UsernameSetup: React.FC = () => {
               ID: {user?.email}
             </div>
 
-            <button
+            <Button
               type="submit"
+              variant="ghost"
               className="group flex items-center gap-3 text-sm font-medium hover:text-foreground/70 transition-colors disabled:opacity-50"
               disabled={isSubmitting || !username}
             >
@@ -78,7 +81,7 @@ export const UsernameSetup: React.FC = () => {
               ) : (
                 <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
               )}
-            </button>
+            </Button>
           </div>
         </form>
       </div>

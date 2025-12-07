@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Save, Check, Loader2 } from 'lucide-react';
 import { useSyncthingSync } from '@/features/settings/hooks/useSyncthingSync';
+import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
 interface FloatingSyncButtonProps {
@@ -31,11 +32,12 @@ export const FloatingSyncButton: React.FC<FloatingSyncButtonProps> = ({
     };
 
     return (
-        <button
+        <Button
             onClick={handleSave}
             disabled={isSaving}
+            variant="ghost"
             className={cn(
-                'fixed z-50 flex items-center gap-2 px-4 py-3',
+                'fixed z-50 flex items-center gap-2 px-4 py-6 h-auto',
                 'bg-card/95 backdrop-blur-sm border border-border/50',
                 'hover:border-primary/50 hover:bg-card transition-all duration-200',
                 'shadow-lg shadow-black/20',
@@ -49,21 +51,21 @@ export const FloatingSyncButton: React.FC<FloatingSyncButtonProps> = ({
             {isSaving ? (
                 <>
                     <Loader2 className="w-4 h-4 animate-spin text-primary" />
-                    <span className="text-sm font-ui text-muted-foreground">Saving...</span>
+                    <span className="text-sm  text-muted-foreground">Saving...</span>
                 </>
             ) : showSuccess ? (
                 <>
                     <Check className="w-4 h-4 text-green-500" />
-                    <span className="text-sm font-ui text-green-500">Saved!</span>
+                    <span className="text-sm  text-green-500">Saved!</span>
                 </>
             ) : (
                 <>
                     <Save className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors" />
-                    <span className="text-sm font-ui text-muted-foreground group-hover:text-foreground transition-colors">
+                    <span className="text-sm  text-muted-foreground group-hover:text-foreground transition-colors">
                         Save Changes
                     </span>
                 </>
             )}
-        </button>
+        </Button>
     );
 };

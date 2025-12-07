@@ -7,6 +7,7 @@ import { useSettingsStore } from '@/stores/useSettingsStore';
 import { getDashboardStats } from '@/services/db/repositories/statsRepository';
 import { getCardsForDashboard } from '@/services/db/repositories/cardRepository';
 import { LoadingScreen } from '@/components/ui/loading';
+import { Button } from '@/components/ui/button';
 
 export const DashboardRoute: React.FC = () => {
   const { history, stats } = useDeckStats();
@@ -31,7 +32,7 @@ export const DashboardRoute: React.FC = () => {
     return (
       <div className="p-8 text-center">
         <h2 className="text-red-500">Failed to load dashboard data.</h2>
-        <button onClick={() => window.location.reload()} className="mt-4 btn">Retry</button>
+        <Button onClick={() => window.location.reload()} className="mt-4">Retry</Button>
       </div>
     );
   }

@@ -16,6 +16,7 @@ import { getTodayReviewStats } from '@/services/db/repositories/statsRepository'
 import { useClaimDailyBonusMutation } from '@/features/deck/hooks/useDeckQueries';
 import { CardXpPayload } from '@/features/xp/xpUtils';
 import { LoadingScreen } from '@/components/ui/loading';
+import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { sortCards, CardOrder } from '@/features/study/logic/cardSorter';
 
@@ -164,12 +165,12 @@ export const StudyRoute: React.FC = () => {
           </div>
           <h2 className="text-lg font-medium">Failed to load study session</h2>
           <p className="text-sm text-muted-foreground">{error}</p>
-          <button
+          <Button
             onClick={() => navigate('/')}
-            className="mt-2 px-4 py-2 bg-primary text-primary-foreground rounded-md text-sm"
+            size="default"
           >
             Return to Dashboard
-          </button>
+          </Button>
         </div>
       </div>
     );

@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
-import { Dialog, DialogContent } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import { Slider } from '@/components/ui/slider';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
-import { OrnateSeparator } from '@/components/ui/separator';
-import { Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip';
-import { Sparkles, Check, X as XIcon, ArrowRight, BookOpen, Info, ChevronDown, Star, Scroll, Loader2 } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Separator } from '@/components/ui/separator';
+import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from '@/components/ui/tooltip';
+import { Sparkles, Check, ArrowRight, BookOpen, Info, Scroll, Loader2, RotateCcw } from 'lucide-react';
 import { aiService } from '@/features/deck/services/ai';
 import { useSettingsStore } from '@/stores/useSettingsStore';
 import { useProfile } from '@/features/profile/hooks/useProfile';
@@ -14,10 +15,9 @@ import { getLearnedWords } from '@/services/db/repositories/cardRepository';
 import { Card } from '@/types';
 import { v4 as uuidv4 } from 'uuid';
 import { toast } from 'sonner';
-import { parseFurigana, cn } from '@/lib/utils';
+import { cn } from '@/lib/utils';
 import { Textarea } from '@/components/ui/textarea';
 import { useIsMobile } from '@/hooks/use-mobile';
-
 
 
 interface GenerateCardsModalProps {
@@ -38,9 +38,7 @@ export const GenerateCardsModal: React.FC<GenerateCardsModalProps> = ({ isOpen, 
     const [useLearnedWords, setUseLearnedWords] = useState(false);
     const [difficultyMode, setDifficultyMode] = useState<'beginner' | 'immersive'>('immersive');
     const [selectedLevel, setSelectedLevel] = useState<string>(profile?.language_level || 'A1');
-    const [showLevelDropdown, setShowLevelDropdown] = useState(false);
 
-    const levels = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'];
     const levelDescriptions: Record<string, string> = {
         'A1': 'Beginner',
         'A2': 'Elementary',
@@ -216,529 +214,237 @@ export const GenerateCardsModal: React.FC<GenerateCardsModalProps> = ({ isOpen, 
     return (
         <Dialog open={isOpen} onOpenChange={resetAndClose}>
             <DialogContent className={cn(
-                "p-0 bg-linear-to-b from-background via-background to-card border-2 border-amber-700/30 dark:border-amber-600/25 overflow-hidden gap-0 [&>button]:hidden",
-                isMobile ? "max-w-[95vw] max-h-[90vh]" : "sm:max-w-4xl"
+                "max-w-4xl p-0 overflow-hidden",
+                isMobile ? "h-screen max-h-screen" : "max-h-[85vh] h-[650px]"
             )}>
-                {/* Ornate Genshin corners removed */}
+                <div className="flex flex-col h-full">
+                    {step === 'config' ? (
+                        <>
+                            <DialogHeader className="px-6 py-4 border-b shrink-0">
+                                <DialogTitle className="flex items-center gap-2">
+                                    <Sparkles className="h-5 w-5 text-primary" />
+                                    Card Generator
+                                </DialogTitle>
+                                <DialogDescription>
+                                    Generate AI-powered flashcards for <strong>{settings.language}</strong> learning.
+                                </DialogDescription>
+                            </DialogHeader>
 
-                {/* Inner decorative frame removed */}
-
-                {/* Floating diamond decorations */}
-                <span className={cn(
-                    "absolute left-1/2 -translate-x-1/2 w-2 h-2 rotate-45 bg-amber-500/20 pointer-events-none z-10 animate-pulse",
-                    isMobile ? "top-3" : "top-6"
-                )} />
-                <span className={cn(
-                    "absolute left-1/2 -translate-x-1/2 w-2 h-2 rotate-45 bg-amber-500/20 pointer-events-none z-10 animate-pulse",
-                    isMobile ? "bottom-3" : "bottom-6"
-                )} style={{ animationDelay: '0.5s' }} />
-
-                <div className={cn(
-                    "flex",
-                    isMobile ? "flex-col h-[85vh] overflow-y-auto" : "flex-row h-[620px]"
-                )}>
-                    {/* Sidebar / Info Panel - Genshin Menu Style */}
-                    <div className={cn(
-                        "bg-linear-to-b from-card/50 to-muted/20 flex flex-col relative overflow-hidden",
-                        isMobile
-                            ? "w-full p-4 border-b border-amber-700/20 dark:border-amber-600/15"
-                            : "w-1/3 p-6 justify-between border-r border-amber-700/20 dark:border-amber-600/15"
-                    )}>
-                        {/* Decorative sidebar pattern */}
-                        <div className="absolute inset-0 pointer-events-none overflow-hidden">
-                            {[...Array(5)].map((_, i) => (
-                                <span
-                                    key={i}
-                                    className="absolute w-1 h-1 bg-amber-500/10 rotate-45"
-                                    style={{
-                                        left: `${20 + i * 15}%`,
-                                        top: `${10 + i * 18}%`,
-                                    }}
-                                />
-                            ))}
-                        </div>
-
-                        {/* Header with Genshin-style ornament */}
-                        <div>
-                            <div className={cn(
-                                "flex items-center",
-                                isMobile ? "gap-3 mb-4" : "gap-6 mb-8"
-                            )}>
-                                <div className="relative">
-                                    <div className={cn(
-                                        "flex items-center justify-center border-2 border-amber-600/40 bg-amber-600/10 rotate-45",
-                                        isMobile ? "w-8 h-8" : "w-10 h-10"
-                                    )}>
-                                        <Scroll size={isMobile ? 16 : 20} className="text-amber-500 -rotate-45" strokeWidth={1.5} />
-                                    </div>
-                                    {/* Corner accents on icon */}
-                                    <span className="absolute -top-1 -left-1 w-2 h-0.5 bg-amber-500/60" />
-                                    <span className="absolute -top-1 -left-1 w-0.5 h-2 bg-amber-500/60" />
-                                    <span className="absolute -bottom-1 -right-1 w-2 h-0.5 bg-amber-500/60" />
-                                    <span className="absolute -bottom-1 -right-1 w-0.5 h-2 bg-amber-500/60" />
-                                </div>
-                                <div>
-                                    <span className="text-[10px] font-serif uppercase tracking-[0.2em] text-amber-600/70 dark:text-amber-500/60 block">Arcane Forge</span>
-                                    <span className={cn(
-                                        "font-serif tracking-wide text-foreground",
-                                        isMobile ? "text-base" : "text-lg"
-                                    )}>Card Synthesis</span>
-                                </div>
-                            </div>
-
-                            <OrnateSeparator className={isMobile ? "mb-3" : "mb-6"} />
-
-                            <div className={cn("space-y-6", isMobile && "space-y-4")}>
-                                {/* Target Language Display */}
-                                <div className={cn(
-                                    "genshin-attr-row flex-col items-center gap-1",
-                                    isMobile && "flex-row justify-between"
-                                )}>
-                                    <span className="text-[10px] uppercase tracking-[0.15em] text-muted-foreground font-medium">Target Language</span>
-                                    <span className={cn(
-                                        "font-serif capitalize text-foreground tracking-wide",
-                                        isMobile ? "text-lg" : "text-2xl"
-                                    )}>{settings.language}</span>
-                                </div>
-
-                                {step === 'config' && (
-                                    <div className={cn(
-                                        "animate-genshin-fade-in",
-                                        isMobile ? "grid grid-cols-2 gap-3" : "space-y-5"
-                                    )}>
-                                        {/* Card Quantity */}
-                                        <div className={cn(
-                                            "border-l-2 border-amber-600/30 pl-4",
-                                            isMobile && "col-span-1"
-                                        )}>
-                                            <h3 className="text-[10px] uppercase tracking-[0.15em] text-muted-foreground mb-2 font-medium flex items-center gap-2">
-                                                <Star size={10} className="text-amber-500/60" />
-                                                Quantity
-                                            </h3>
-                                            <div className={cn(
-                                                "flex items-baseline gap-2",
-                                                isMobile ? "mb-2" : "mb-3"
-                                            )}>
-                                                <span className={cn(
-                                                    "font-serif text-amber-600 dark:text-amber-500 tabular-nums",
-                                                    isMobile ? "text-2xl" : "text-4xl"
-                                                )}>{count[0]}</span>
-                                                <span className="text-sm text-muted-foreground">cards</span>
-                                            </div>
-                                            <Slider
-                                                value={count}
-                                                onValueChange={setCount}
-                                                min={3}
-                                                max={100}
-                                                step={1}
-                                                className="py-2"
-                                            />
-                                        </div>
-
-                                        {/* i+1 Toggle */}
-                                        <div className={cn(
-                                            "flex items-center gap-3 pl-4 py-2",
-                                            isMobile && "col-span-1 items-start flex-col gap-2"
-                                        )}>
-                                            <Switch
-                                                id="learned-words"
-                                                checked={useLearnedWords}
-                                                onCheckedChange={setUseLearnedWords}
-                                            />
-                                            <Label htmlFor="learned-words" className={cn(
-                                                "text-sm text-muted-foreground cursor-pointer",
-                                                isMobile && "text-xs"
-                                            )}>
-                                                Use Learned Words (i+1)
-                                            </Label>
-                                        </div>
-
-                                        {/* Level Selector - Genshin dropdown style */}
-                                        <div className={cn(
-                                            "relative pl-4",
-                                            isMobile && "col-span-1"
-                                        )}>
-                                            <h3 className="text-[10px] uppercase tracking-[0.15em] text-muted-foreground mb-2 font-medium flex items-center gap-2">
-                                                <Star size={10} className="text-amber-500/60" />
-                                                Mastery Level
-                                            </h3>
-                                            <button
-                                                onClick={() => setShowLevelDropdown(!showLevelDropdown)}
-                                                className={cn(
-                                                    "w-full flex items-center justify-between py-2.5 px-4 text-sm border border-amber-700/30 dark:border-amber-600/20 bg-card/50 hover:border-amber-600/50 transition-all group",
-                                                    isMobile && "py-2 px-3"
-                                                )}
-                                            >
-                                                <span className="flex items-center gap-2">
-                                                    <span className="w-6 h-6 flex items-center justify-center">
-                                                        <span className="text-[10px] font-bold text-amber-600 dark:text-amber-500 ">{selectedLevel}</span>
-                                                    </span>
-                                                    {!isMobile && <span className="text-muted-foreground text-xs">{levelDescriptions[selectedLevel]}</span>}
-                                                </span>
-                                                <ChevronDown size={14} className={cn(
-                                                    "text-amber-500/60 transition-transform",
-                                                    showLevelDropdown && "rotate-180"
-                                                )} />
-                                            </button>
-                                            {showLevelDropdown && (
-                                                <div className={cn(
-                                                    "absolute left-4 right-0 mb-1 border border-amber-700/30 dark:border-amber-600/20 bg-card z-50 shadow-lg",
-                                                    isMobile ? "top-full mt-1" : "bottom-full"
-                                                )}>
-                                                    {levels.map((level) => (
-                                                        <button
-                                                            key={level}
-                                                            onClick={() => {
-                                                                setSelectedLevel(level);
-                                                                setShowLevelDropdown(false);
-                                                            }}
-                                                            className={cn(
-                                                                "w-full flex items-center gap-3 py-2.5 px-4 text-sm text-left hover:bg-amber-600/10 transition-colors",
-                                                                selectedLevel === level && "bg-amber-600/15 border-l-2 border-amber-500",
-                                                                isMobile && "py-2 px-3"
-                                                            )}
-                                                        >
-                                                            <span className="w-5 h-5 flex items-center justify-center border border-amber-600/40 rotate-45">
-                                                                <span className="text-[9px] font-bold text-amber-600 dark:text-amber-500 -rotate-45">{level}</span>
-                                                            </span>
-                                                            <span className="text-muted-foreground text-xs">{levelDescriptions[level]}</span>
-                                                        </button>
-                                                    ))}
+                            <div className="flex-1 overflow-auto">
+                                <div className="grid md:grid-cols-3 h-full">
+                                    {/* Sidebar Config */}
+                                    <div className="bg-muted/10 p-6 space-y-6 border-r md:col-span-1">
+                                        <div className="space-y-4">
+                                            <div className="space-y-3">
+                                                <div className="flex items-center justify-between">
+                                                    <Label>Quantity: {count[0]}</Label>
                                                 </div>
-                                            )}
-                                        </div>
+                                                <Slider
+                                                    value={count}
+                                                    onValueChange={setCount}
+                                                    min={3}
+                                                    max={50}
+                                                    step={1}
+                                                />
+                                            </div>
 
-                                        {/* Progression Mode */}
-                                        <div className={cn(
-                                            "pl-4",
-                                            isMobile && "col-span-1"
-                                        )}>
-                                            <h3 className="text-[10px] uppercase tracking-[0.15em] text-muted-foreground mb-2 font-medium flex items-center gap-2">
-                                                <Star size={10} className="text-amber-500/60" />
-                                                Learning Path
-                                            </h3>
-                                            <div className={cn(
-                                                "grid gap-2",
-                                                isMobile ? "grid-cols-1" : "grid-cols-2"
-                                            )}>
-                                                <Tooltip>
-                                                    <TooltipTrigger asChild>
-                                                        <button
-                                                            onClick={() => setDifficultyMode('beginner')}
-                                                            className={cn(
-                                                                "relative py-3 px-2 text-xs uppercase tracking-wider border transition-all flex flex-col items-center gap-1",
-                                                                difficultyMode === 'beginner'
-                                                                    ? "bg-amber-600/15 border-amber-600/50 text-amber-600 dark:text-amber-500"
-                                                                    : "bg-card/30 border-amber-700/20 dark:border-amber-600/15 text-muted-foreground hover:border-amber-600/40"
-                                                            )}
-                                                        >
-                                                            {difficultyMode === 'beginner' && (
-                                                                <>
-                                                                    <span className="absolute -top-px -left-px w-2 h-0.5 bg-amber-500" />
-                                                                    <span className="absolute -top-px -left-px w-0.5 h-2 bg-amber-500" />
-                                                                    <span className="absolute -bottom-px -right-px w-2 h-0.5 bg-amber-500" />
-                                                                    <span className="absolute -bottom-px -right-px w-0.5 h-2 bg-amber-500" />
-                                                                </>
-                                                            )}
-                                                            <span className="font-serif text-[10px]">Zero to Hero</span>
-                                                            <Info size={10} className="opacity-50" />
-                                                        </button>
-                                                    </TooltipTrigger>
-                                                    <TooltipContent side="top" className="max-w-xs">
-                                                        <p className="font-medium mb-1">Zero to Hero Path</p>
-                                                        <p className="text-xs opacity-80">Starts with single words, then short phrases, building up to complete sentences.</p>
-                                                    </TooltipContent>
-                                                </Tooltip>
-                                                <Tooltip>
-                                                    <TooltipTrigger asChild>
-                                                        <button
-                                                            onClick={() => setDifficultyMode('immersive')}
-                                                            className={cn(
-                                                                "relative py-3 px-2 text-xs uppercase tracking-wider border transition-all flex flex-col items-center gap-1",
-                                                                difficultyMode === 'immersive'
-                                                                    ? "bg-amber-600/15 border-amber-600/50 text-amber-600 dark:text-amber-500"
-                                                                    : "bg-card/30 border-amber-700/20 dark:border-amber-600/15 text-muted-foreground hover:border-amber-600/40"
-                                                            )}
-                                                        >
-                                                            {difficultyMode === 'immersive' && (
-                                                                <>
-                                                                    <span className="absolute -top-px -left-px w-2 h-0.5 bg-amber-500" />
-                                                                    <span className="absolute -top-px -left-px w-0.5 h-2 bg-amber-500" />
-                                                                    <span className="absolute -bottom-px -right-px w-2 h-0.5 bg-amber-500" />
-                                                                    <span className="absolute -bottom-px -right-px w-0.5 h-2 bg-amber-500" />
-                                                                </>
-                                                            )}
-                                                            <span className="font-serif text-[10px]">Immersive</span>
-                                                            <Info size={10} className="opacity-50" />
-                                                        </button>
-                                                    </TooltipTrigger>
-                                                    <TooltipContent side="top" className="max-w-xs">
-                                                        <p className="font-medium mb-1">Immersive Path</p>
-                                                        <p className="text-xs opacity-80">Every card contains a complete, natural sentence for context-rich learning.</p>
-                                                    </TooltipContent>
-                                                </Tooltip>
+                                            <div className="space-y-2">
+                                                <Label>Proficiency Level</Label>
+                                                <Select value={selectedLevel} onValueChange={setSelectedLevel}>
+                                                    <SelectTrigger>
+                                                        <SelectValue />
+                                                    </SelectTrigger>
+                                                    <SelectContent>
+                                                        {Object.entries(levelDescriptions).map(([lvl, desc]) => (
+                                                            <SelectItem key={lvl} value={lvl}>
+                                                                <span className="font-medium mr-2">{lvl}</span>
+                                                                <span className="text-muted-foreground text-xs">{desc}</span>
+                                                            </SelectItem>
+                                                        ))}
+                                                    </SelectContent>
+                                                </Select>
+                                            </div>
+
+                                            <div className="space-y-2">
+                                                <Label>Learning Path</Label>
+                                                <div className="grid grid-cols-2 gap-2">
+                                                    <Button
+                                                        variant={difficultyMode === 'beginner' ? 'default' : 'outline'}
+                                                        size="sm"
+                                                        onClick={() => setDifficultyMode('beginner')}
+                                                        className="h-auto flex-col py-2 gap-1"
+                                                    >
+                                                        <span className="text-xs font-semibold">Zero to Hero</span>
+                                                        <span className="text-[10px] opacity-70">Single words</span>
+                                                    </Button>
+                                                    <Button
+                                                        variant={difficultyMode === 'immersive' ? 'default' : 'outline'}
+                                                        size="sm"
+                                                        onClick={() => setDifficultyMode('immersive')}
+                                                        className="h-auto flex-col py-2 gap-1"
+                                                    >
+                                                        <span className="text-xs font-semibold">Immersive</span>
+                                                        <span className="text-[10px] opacity-70">Full sentences</span>
+                                                    </Button>
+                                                </div>
+                                            </div>
+
+                                            <div className="flex items-center space-x-2 pt-2">
+                                                <Switch
+                                                    id="learned-words"
+                                                    checked={useLearnedWords}
+                                                    onCheckedChange={setUseLearnedWords}
+                                                />
+                                                <Label htmlFor="learned-words" className="text-sm font-normal">
+                                                    Include Learned Words (i+1)
+                                                </Label>
                                             </div>
                                         </div>
                                     </div>
-                                )}
 
-                                {step === 'preview' && (
-                                    <div className={cn(
-                                        "animate-genshin-fade-in border-l-2 border-amber-600/30 pl-4",
-                                        isMobile && "flex items-center justify-between"
-                                    )}>
-                                        <h3 className="text-[10px] uppercase tracking-[0.15em] text-muted-foreground mb-2 font-medium flex items-center gap-2">
-                                            <Star size={10} className="text-amber-500/60" />
-                                            Selected
-                                        </h3>
-                                        <div className="flex items-baseline gap-2">
-                                            <span className={cn(
-                                                "font-serif text-amber-600 dark:text-amber-500 tabular-nums",
-                                                isMobile ? "text-2xl" : "text-4xl"
-                                            )}>{selectedIndices.size}</span>
-                                            <span className="text-sm text-muted-foreground">of {generatedData.length}</span>
+                                    {/* Main Input Area */}
+                                    <div className="p-6 md:col-span-2 flex flex-col gap-6">
+                                        <div className="space-y-2">
+                                            <Label htmlFor="instructions" className="text-base font-semibold">
+                                                Topic or Scenario
+                                            </Label>
+                                            <p className="text-sm text-muted-foreground">
+                                                Describe what you want to learn. Be specific about context and vocabulary.
+                                            </p>
+                                            <Textarea
+                                                id="instructions"
+                                                value={instructions}
+                                                onChange={(e) => setInstructions(e.target.value)}
+                                                placeholder="e.g. I want to learn how to order coffee in a busy cafe, focusing on polite expressions..."
+                                                className="h-40 resize-none text-base p-4"
+                                            />
+                                        </div>
+
+                                        <div className="flex flex-col gap-3 mt-auto">
+                                            <Button
+                                                onClick={handleGenerate}
+                                                disabled={loading || !instructions}
+                                                className="w-full"
+                                                size="lg"
+                                            >
+                                                {loading ? (
+                                                    <>
+                                                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                                        Generating...
+                                                    </>
+                                                ) : (
+                                                    <>
+                                                        <Sparkles className="mr-2 h-4 w-4" />
+                                                        Generate Cards
+                                                    </>
+                                                )}
+                                            </Button>
+
+                                            <div className="relative">
+                                                <div className="absolute inset-0 flex items-center">
+                                                    <span className="w-full border-t" />
+                                                </div>
+                                                <div className="relative flex justify-center text-xs uppercase">
+                                                    <span className="bg-background px-2 text-muted-foreground">Or</span>
+                                                </div>
+                                            </div>
+
+                                            <Button
+                                                onClick={handleSmartLesson}
+                                                disabled={loading}
+                                                variant="outline"
+                                                className="w-full"
+                                            >
+                                                <BookOpen className="mr-2 h-4 w-4" />
+                                                Create Smart Lesson from Progress
+                                            </Button>
                                         </div>
                                     </div>
-                                )}
-                            </div>
-                        </div>
-
-
-                    </div>
-
-                    {/* Main Content Area */}
-                    <div className={cn(
-                        "flex-1 flex flex-col bg-gradient-to-br from-card/30 via-transparent to-amber-600/5 relative",
-                        isMobile ? "p-4" : "p-8"
-                    )}>
-                        {/* Close button with Genshin styling */}
-                        <div className={cn(
-                            "absolute z-10",
-                            isMobile ? "top-2 right-2" : "top-4 right-4"
-                        )}>
-                            <button
-                                onClick={resetAndClose}
-                                className="relative w-10 h-10 flex items-center justify-center text-muted-foreground hover:text-amber-600 dark:hover:text-amber-500 border border-transparent hover:border-amber-600/30 bg-card/50 hover:bg-amber-600/10 transition-all group"
-                            >
-                                <span className="absolute -top-px -left-px w-2 h-0.5 bg-amber-500/0 group-hover:bg-amber-500/60 transition-all" />
-                                <span className="absolute -top-px -left-px w-0.5 h-2 bg-amber-500/0 group-hover:bg-amber-500/60 transition-all" />
-                                <span className="absolute -bottom-px -right-px w-2 h-0.5 bg-amber-500/0 group-hover:bg-amber-500/60 transition-all" />
-                                <span className="absolute -bottom-px -right-px w-0.5 h-2 bg-amber-500/0 group-hover:bg-amber-500/60 transition-all" />
-                                <XIcon size={18} strokeWidth={1.5} />
-                            </button>
-                        </div>
-
-                        {step === 'config' ? (
-                            <div className={cn(
-                                "flex-1 flex flex-col justify-center w-full animate-genshin-fade-in",
-                                isMobile ? "max-w-full" : "max-w-xl mx-auto"
-                            )}>
-                                {/* Header section */}
-                                <div className={cn(
-                                    "text-center",
-                                    isMobile ? "mb-4" : "mb-8"
-                                )}>
-                                    <div className={cn(
-                                        "flex items-center justify-center gap-4 mb-4",
-                                        isMobile && "gap-2 mb-2"
-                                    )}>
-                                        <span className={cn("h-px bg-amber-600/30", isMobile ? "w-8" : "w-12")} />
-                                        <span className="w-2.5 h-2.5 rotate-45 border border-amber-600/50" />
-                                        <span className={cn("h-px bg-amber-600/30", isMobile ? "w-8" : "w-12")} />
-                                    </div>
-                                    <h2 className={cn(
-                                        "font-serif text-foreground mb-2 tracking-wide",
-                                        isMobile ? "text-lg" : "text-2xl"
-                                    )}>What would you like to learn?</h2>
-                                    <p className={cn(
-                                        "text-muted-foreground/70",
-                                        isMobile ? "text-xs" : "text-sm"
-                                    )}>Describe the topic, scenario, or vocabulary you wish to master</p>
-                                </div>
-
-                                {/* Textarea with Genshin styling */}
-                                <div className="relative group">
-                                    {/* Genshin corner accents */}
-                                    <span className="absolute -top-px -left-px w-4 h-0.5 bg-amber-500/40 group-focus-within:bg-amber-500/80 transition-colors z-10" />
-                                    <span className="absolute -top-px -left-px w-0.5 h-4 bg-amber-500/40 group-focus-within:bg-amber-500/80 transition-colors z-10" />
-                                    <span className="absolute -top-px -right-px w-4 h-0.5 bg-amber-500/40 group-focus-within:bg-amber-500/80 transition-colors z-10" />
-                                    <span className="absolute -top-px -right-px w-0.5 h-4 bg-amber-500/40 group-focus-within:bg-amber-500/80 transition-colors z-10" />
-                                    <span className="absolute -bottom-px -left-px w-4 h-0.5 bg-amber-500/40 group-focus-within:bg-amber-500/80 transition-colors z-10" />
-                                    <span className="absolute -bottom-px -left-px w-0.5 h-4 bg-amber-500/40 group-focus-within:bg-amber-500/80 transition-colors z-10" />
-                                    <span className="absolute -bottom-px -right-px w-4 h-0.5 bg-amber-500/40 group-focus-within:bg-amber-500/80 transition-colors z-10" />
-                                    <span className="absolute -bottom-px -right-px w-0.5 h-4 bg-amber-500/40 group-focus-within:bg-amber-500/80 transition-colors z-10" />
-
-                                    <Textarea
-                                        value={instructions}
-                                        onChange={(e) => setInstructions(e.target.value)}
-                                        placeholder="e.g. I want to learn how to order coffee in a busy cafe, focusing on polite expressions..."
-                                        className={cn(
-                                            "bg-card/50 border border-amber-700/20 dark:border-amber-600/15 resize-none focus-visible:ring-0 focus-visible:border-amber-600/40 placeholder:text-muted-foreground/30 leading-relaxed",
-                                            isMobile ? "h-24 max-h-24 text-sm p-4" : "h-40 max-h-40 text-base p-6"
-                                        )}
-                                        autoFocus
-                                    />
-                                </div>
-
-                                {/* Generate Button - Genshin style */}
-                                <div className={cn(
-                                    "flex justify-center gap-4",
-                                    isMobile ? "mt-4 flex-col gap-3" : "mt-8"
-                                )}>
-                                    <Button
-                                        onClick={handleSmartLesson}
-                                        disabled={loading}
-                                        variant="secondary"
-                                        className={cn(
-                                            "gap-2",
-                                            isMobile ? "w-full order-2" : ""
-                                        )}
-                                    >
-                                        <Sparkles size={16} />
-                                        <span>Smart Lesson</span>
-                                    </Button>
-
-                                    <Button
-                                        onClick={handleGenerate}
-                                        disabled={loading || !instructions}
-                                        variant="default"
-                                        className={cn(
-                                            "gap-2 min-w-[140px]",
-                                            isMobile ? "w-full order-1" : ""
-                                        )}
-                                    >
-                                        {loading ? (
-                                            <>
-                                                <Loader2 className="animate-spin" size={16} />
-                                                <span>Forging...</span>
-                                            </>
-                                        ) : (
-                                            <>
-                                                <Sparkles size={18} />
-                                                <span>Generate</span>
-                                            </>
-                                        )}
-                                    </Button>
                                 </div>
                             </div>
-                        ) : (
-                            <div className="flex-1 flex flex-col h-full animate-genshin-fade-in">
-                                {/* Preview Header */}
-                                <div className={cn(
-                                    "flex justify-between items-center",
-                                    isMobile ? "mb-3" : "mb-5"
-                                )}>
-                                    <div className="flex items-center gap-3">
-                                        <span className="w-2 h-2 rotate-45 bg-amber-500/60" />
-                                        <h2 className={cn(
-                                            "font-serif text-foreground tracking-wide",
-                                            isMobile ? "text-base" : "text-xl"
-                                        )}>Review Cards</h2>
-                                    </div>
-                                    <button
-                                        onClick={() => setStep('config')}
-                                        className={cn(
-                                            "uppercase tracking-[0.1em] text-muted-foreground hover:text-amber-600 dark:hover:text-amber-500 transition-colors flex items-center gap-2",
-                                            isMobile ? "text-[10px]" : "text-xs"
-                                        )}
-                                    >
-                                        <span className="w-1 h-1 rotate-45 bg-current" />
-                                        Edit Instructions
-                                    </button>
+                        </>
+                    ) : (
+                        <>
+                            <DialogHeader className="px-6 py-4 border-b shrink-0 flex flex-row items-center justify-between">
+                                <div>
+                                    <DialogTitle>Review Generated Cards</DialogTitle>
+                                    <DialogDescription>
+                                        Select the cards you want to add to your deck.
+                                    </DialogDescription>
                                 </div>
+                                <Button variant="ghost" size="sm" onClick={() => setStep('config')} className="gap-2">
+                                    <RotateCcw className="h-4 w-4" />
+                                    Edit Params
+                                </Button>
+                            </DialogHeader>
 
-                                <OrnateSeparator className={isMobile ? "mb-3" : "mb-4"} />
+                            <div className="flex-1 overflow-auto p-6">
+                                <div className="space-y-3">
+                                    <div className="flex items-center justify-between mb-2">
+                                        <span className="text-sm text-muted-foreground">
+                                            Selected: <span className="text-foreground font-medium">{selectedIndices.size}</span>
+                                        </span>
+                                        <div className="flex gap-2">
+                                            <Button
+                                                variant="outline"
+                                                size="sm"
+                                                onClick={() => setSelectedIndices(new Set(generatedData.map((_, i) => i)))}
+                                            >
+                                                Select All
+                                            </Button>
+                                            <Button
+                                                variant="outline"
+                                                size="sm"
+                                                onClick={() => setSelectedIndices(new Set())}
+                                            >
+                                                Deselect All
+                                            </Button>
+                                        </div>
+                                    </div>
 
-                                {/* Cards List - Genshin menu item style */}
-                                <div className={cn(
-                                    "flex-1 overflow-y-auto space-y-2",
-                                    isMobile ? "-mr-2 pr-2" : "-mr-4 pr-4"
-                                )}>
                                     {generatedData.map((card, idx) => (
                                         <div
                                             key={idx}
                                             onClick={() => toggleSelection(idx)}
                                             className={cn(
-                                                "relative border transition-all duration-200 cursor-pointer group",
-                                                isMobile ? "p-3" : "p-5",
+                                                "p-4 rounded-lg border transition-all cursor-pointer flex items-start gap-4",
                                                 selectedIndices.has(idx)
-                                                    ? "bg-amber-600/10 border-amber-600/40 dark:border-amber-500/30"
-                                                    : "bg-card/30 border-amber-700/15 dark:border-amber-600/10 hover:bg-card/50 hover:border-amber-700/30 opacity-60 hover:opacity-100"
+                                                    ? "bg-primary/5 border-primary"
+                                                    : "bg-card border-border hover:border-primary/50"
                                             )}
                                         >
-                                            {/* Selected corner accents */}
-                                            {selectedIndices.has(idx) && (
-                                                <>
-                                                    <span className="absolute -top-px -left-px w-3 h-0.5 bg-amber-500" />
-                                                    <span className="absolute -top-px -left-px w-0.5 h-3 bg-amber-500" />
-                                                    <span className="absolute -bottom-px -right-px w-3 h-0.5 bg-amber-500" />
-                                                    <span className="absolute -bottom-px -right-px w-0.5 h-3 bg-amber-500" />
-                                                </>
-                                            )}
-
-                                            <div className={cn(
-                                                "flex justify-between items-start",
-                                                isMobile ? "gap-2" : "gap-4"
-                                            )}>
-                                                <div className="space-y-1.5 flex-1">
-                                                    <div className={cn(
-                                                        "text-foreground",
-                                                        isMobile ? "text-sm" : "text-base"
-                                                    )}>{card.targetSentence}</div>
-                                                    <div className={cn(
-                                                        "text-muted-foreground/70",
-                                                        isMobile ? "text-xs" : "text-sm"
-                                                    )}>{card.nativeTranslation}</div>
-                                                </div>
-
-                                                {/* Genshin-style checkbox */}
-                                                <div className={cn(
-                                                    "relative w-6 h-6 border flex items-center justify-center transition-all shrink-0 rotate-45",
+                                            <div
+                                                className={cn(
+                                                    "w-5 h-5 rounded-sm border flex items-center justify-center shrink-0 mt-1",
                                                     selectedIndices.has(idx)
-                                                        ? "bg-amber-600 border-amber-500"
-                                                        : "border-amber-700/30 dark:border-amber-600/20 group-hover:border-amber-600/50"
-                                                )}>
-                                                    {selectedIndices.has(idx) && (
-                                                        <span className="w-2 h-2 bg-white dark:bg-amber-950" />
-                                                    )}
+                                                        ? "bg-primary border-primary text-primary-foreground"
+                                                        : "border-muted-foreground"
+                                                )}
+                                            >
+                                                {selectedIndices.has(idx) && <Check className="h-3.5 w-3.5" />}
+                                            </div>
+                                            <div className="space-y-1">
+                                                <p className="font-medium text-foreground">{card.targetSentence}</p>
+                                                <p className="text-sm text-muted-foreground">{card.nativeTranslation}</p>
+                                                <div className="text-xs text-muted-foreground/70 mt-2 flex gap-2">
+                                                    <span className="bg-muted px-1.5 py-0.5 rounded">{card.targetWord}</span>
+                                                    <span>•</span>
+                                                    <span className="italic">{card.targetWordTranslation}</span>
                                                 </div>
                                             </div>
                                         </div>
                                     ))}
                                 </div>
-
-                                {/* Save Button */}
-                                <div className={cn(
-                                    "border-t border-amber-700/20 dark:border-amber-600/15 flex justify-end",
-                                    isMobile ? "pt-4 mt-3" : "pt-6 mt-4"
-                                )}>
-                                    <button
-                                        onClick={handleSave}
-                                        disabled={selectedIndices.size === 0}
-                                        className={cn(
-                                            "relative group/btn inline-flex items-center gap-3",
-                                            "bg-amber-600/90 hover:bg-amber-600 text-white dark:text-amber-950",
-                                            "border-2 border-amber-500",
-                                            "uppercase tracking-[0.2em] text-sm font-serif font-semibold",
-                                            "transition-all duration-200",
-                                            "disabled:opacity-40 disabled:cursor-not-allowed",
-                                            "hover:shadow-[0_0_20px_-5px] hover:shadow-amber-500/40",
-                                            isMobile ? "px-6 py-3 w-full justify-center" : "px-10 py-4"
-                                        )}
-                                    >
-                                        {/* Button corner accents */}
-                                        <span className="absolute -top-1 -left-1 w-3 h-0.5 bg-white/50 opacity-0 group-hover/btn:opacity-100 transition-opacity" />
-                                        <span className="absolute -top-1 -left-1 w-0.5 h-3 bg-white/50 opacity-0 group-hover/btn:opacity-100 transition-opacity" />
-                                        <span className="absolute -bottom-1 -right-1 w-3 h-0.5 bg-white/50 opacity-0 group-hover/btn:opacity-100 transition-opacity" />
-                                        <span className="absolute -bottom-1 -right-1 w-0.5 h-3 bg-white/50 opacity-0 group-hover/btn:opacity-100 transition-opacity" />
-
-                                        <span>Save to Deck</span>
-                                        <ArrowRight size={18} />
-                                    </button>
-                                </div>
                             </div>
-                        )}
-                    </div>
+
+                            <DialogFooter className="px-6 py-4 border-t bg-muted/10 shrink-0">
+                                <Button variant="outline" onClick={resetAndClose}>Cancel</Button>
+                                <Button onClick={handleSave} disabled={selectedIndices.size === 0}>
+                                    Save {selectedIndices.size} Cards to Deck
+                                </Button>
+                            </DialogFooter>
+                        </>
+                    )}
                 </div>
             </DialogContent>
         </Dialog>

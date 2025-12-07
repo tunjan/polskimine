@@ -1,7 +1,6 @@
 import React from 'react';
 import { LineChart, Line, XAxis, YAxis, ReferenceLine } from 'recharts';
 import { ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
-import { useChartColors } from '@/hooks/useChartColors';
 
 interface TrueRetentionChartProps {
   data: { date: string; rate: number | null }[];
@@ -9,13 +8,12 @@ interface TrueRetentionChartProps {
 }
 
 export const TrueRetentionChart: React.FC<TrueRetentionChartProps> = ({ data, targetRetention }) => {
-  const colors = useChartColors();
   const targetPercent = targetRetention * 100;
 
   const chartConfig = {
     rate: {
       label: "Pass Rate",
-      color: "hsl(var(--foreground))",
+      color: "hsl(var(--primary))",
     },
   } satisfies ChartConfig
 
@@ -52,20 +50,21 @@ export const TrueRetentionChart: React.FC<TrueRetentionChartProps> = ({ data, ta
           <LineChart data={data} margin={{ top: 5, right: 5, left: -25, bottom: 0 }}>
             <XAxis
               dataKey="date"
-              tick={{ fontSize: 9, fill: colors.mutedForeground, fontFamily: 'monospace', opacity: 0.5 }}
-              axisLine={false}
               tickLine={false}
+              axisLine={false}
+              tickMargin={10}
               interval={4}
-              dy={12}
+              className="text-[9px] font-mono uppercase opacity-50 text-muted-foreground"
             />
             <YAxis
               domain={[0, 100]}
-              tick={{ fontSize: 9, fill: colors.mutedForeground, fontFamily: 'monospace', opacity: 0.5 }}
-              axisLine={false}
               tickLine={false}
+              axisLine={false}
+              tickMargin={10}
+              className="text-[9px] font-mono uppercase opacity-50 text-muted-foreground"
             />
             <ChartTooltip
-              cursor={{ stroke: colors.foreground, strokeWidth: 1, opacity: 0.1 }}
+              cursor={{ stroke: "hsl(var(--muted-foreground))", strokeWidth: 1, opacity: 0.1 }}
               content={
                 <ChartTooltipContent
                   hideLabel
@@ -88,7 +87,7 @@ export const TrueRetentionChart: React.FC<TrueRetentionChartProps> = ({ data, ta
                 />
               }
             />
-            <ReferenceLine y={targetPercent} stroke={colors.mutedForeground} strokeDasharray="4 4" opacity={0.3} strokeWidth={1} />
+            <ReferenceLine y={targetPercent} stroke="hsl(var(--muted-foreground))" strokeDasharray="4 4" opacity={0.3} strokeWidth={1} />
             <Line
               type="monotone"
               dataKey="rate"

@@ -12,6 +12,7 @@ import { generateInitialDeck } from '@/features/deck/services/deckGeneration';
 import { saveAllCards } from '@/services/db/repositories/cardRepository';
 import { Command, LogOut } from 'lucide-react';
 import { POLISH_BEGINNER_DECK } from '@/features/deck/data/polishBeginnerDeck';
+import { Button } from '@/components/ui/button';
 import { NORWEGIAN_BEGINNER_DECK } from '@/features/deck/data/norwegianBeginnerDeck';
 import { JAPANESE_BEGINNER_DECK } from '@/features/deck/data/japaneseBeginnerDeck';
 import { SPANISH_BEGINNER_DECK } from '@/features/deck/data/spanishBeginnerDeck';
@@ -119,13 +120,14 @@ export const OnboardingFlow: React.FC = () => {
 
       {/* Header / Nav */}
       <div className="fixed top-6 right-6">
-        <button
+        <Button
+          variant="ghost"
           onClick={() => signOut()}
-          className="text-xs font-mono uppercase tracking-widest text-muted-foreground hover:text-destructive transition-colors flex items-center gap-2"
+          className="text-xs font-mono uppercase tracking-widest text-muted-foreground hover:text-destructive transition-colors flex items-center gap-2 h-auto p-2"
         >
           <LogOut size={14} />
           Sign Out
-        </button>
+        </Button>
       </div>
 
       <div className="w-full max-w-[320px] flex flex-col gap-12 animate-in fade-in slide-in-from-bottom-4 duration-700">
@@ -160,12 +162,13 @@ export const OnboardingFlow: React.FC = () => {
               selectedLevel={selectedLevel}
               onSelectLevel={handleLevelSelected}
             />
-            <button
+            <Button
+              variant="link"
               onClick={() => setStep('language')}
-              className="text-xs text-muted-foreground hover:text-foreground transition-colors text-center"
+              className="text-xs text-muted-foreground hover:text-foreground transition-colors text-center h-auto p-0"
             >
               Back to Language Selection
-            </button>
+            </Button>
           </div>
         )}
 
@@ -176,12 +179,13 @@ export const OnboardingFlow: React.FC = () => {
               proficiencyLevel={selectedLevel}
               onComplete={handleDeckComplete}
             />
-            <button
+            <Button
+              variant="link"
               onClick={() => setStep('level')}
-              className="text-xs text-muted-foreground hover:text-foreground transition-colors text-center"
+              className="text-xs text-muted-foreground hover:text-foreground transition-colors text-center h-auto p-0"
             >
               Back to Level Selection
-            </button>
+            </Button>
           </div>
         )}
 

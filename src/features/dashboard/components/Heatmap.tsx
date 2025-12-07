@@ -36,10 +36,10 @@ export const Heatmap: React.FC<HeatmapProps> = React.memo(({ history }) => {
 
   const getColorStyle = (count: number): string => {
     if (count === 0) return 'bg-muted/30';
-    if (count <= 2) return 'bg-pine-200 dark:bg-pine-900';
-    if (count <= 5) return 'bg-pine-400 dark:bg-pine-700';
-    if (count <= 9) return 'bg-pine-500 dark:bg-pine-500';
-    return 'bg-pine-600 dark:bg-pine-400';
+    if (count <= 2) return 'bg-emerald-200 dark:bg-emerald-900';
+    if (count <= 5) return 'bg-emerald-400 dark:bg-emerald-700';
+    if (count <= 9) return 'bg-emerald-500 dark:bg-emerald-500';
+    return 'bg-emerald-600 dark:bg-emerald-400';
   };
 
 
@@ -63,7 +63,7 @@ export const Heatmap: React.FC<HeatmapProps> = React.memo(({ history }) => {
       <div className="md:hidden">
         <div className="flex items-center justify-between mb-4">
           <div>
-            <p className="text-[11px] text-muted-foreground uppercase tracking-[0.15em] font-light font-ui">
+            <p className="text-[11px] text-muted-foreground uppercase tracking-[0.15em] font-light ">
               This Week
             </p>
             <p className="text-2xl font-light text-foreground tabular-nums">
@@ -71,7 +71,7 @@ export const Heatmap: React.FC<HeatmapProps> = React.memo(({ history }) => {
             </p>
           </div>
           <div className="text-right">
-            <p className="text-[11px] text-muted-foreground uppercase tracking-[0.15em] font-light font-ui">
+            <p className="text-[11px] text-muted-foreground uppercase tracking-[0.15em] font-light ">
               Active Days
             </p>
             <p className="text-2xl font-light text-foreground tabular-nums">
@@ -86,7 +86,7 @@ export const Heatmap: React.FC<HeatmapProps> = React.memo(({ history }) => {
             const date = subDays(new Date(), 6 - i);
             return (
               <div key={i} className="flex-1 flex flex-col items-center gap-1">
-                <span className="text-[10px] text-muted-foreground font-ui">
+                <span className="text-[10px] text-muted-foreground ">
                   {format(date, 'EEE').charAt(0)}
                 </span>
                 <div
@@ -121,7 +121,7 @@ export const Heatmap: React.FC<HeatmapProps> = React.memo(({ history }) => {
                 <TooltipContent
                   className="bg-card text-foreground px-4 py-2.5 rounded-xl border border-border"
                 >
-                  <div className="text-xs uppercase tracking-[0.15em] text-muted-foreground mb-1 font-ui">
+                  <div className="text-xs uppercase tracking-[0.15em] text-muted-foreground mb-1 ">
                     {format(day.date, 'MMM d, yyyy')}
                   </div>
                   <div className="text-sm font-light tabular-nums">
@@ -134,7 +134,7 @@ export const Heatmap: React.FC<HeatmapProps> = React.memo(({ history }) => {
         </div>
 
         {/* Legend */}
-        <div className="flex items-center justify-end gap-2 mt-3 text-[10px] text-muted-foreground font-ui">
+        <div className="flex items-center justify-end gap-2 mt-3 text-[10px] text-muted-foreground ">
           <span>Less</span>
           <div className="flex gap-0.5">
             <div className="w-2.5 h-2.5 rounded-sm bg-muted/30" />

@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import { Zap } from 'lucide-react';
 import clsx from 'clsx';
 import { XpFeedback } from '@/features/xp/hooks/useXpSession';
-import { LCorners } from '@/components/ui/decorative';
 
 export const StudyFeedback = React.memo(({ feedback }: { feedback: XpFeedback | null }) => {
   const [visible, setVisible] = useState(false);
@@ -27,22 +26,15 @@ export const StudyFeedback = React.memo(({ feedback }: { feedback: XpFeedback | 
         visible ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-2"
       )}
     >
-      {/* Game-styled feedback panel */}
+      {/* Feedback panel */}
       <div className={clsx(
-        "relative flex items-center gap-3 px-5 py-2.5 border backdrop-blur-sm",
+        "relative flex items-center gap-3 px-4 py-2 rounded-md border shadow-sm bg-background",
         currentFeedback.isBonus
-          ? "bg-primary/5 border-primary/40 text-primary"
-          : "bg-card/80 border-border/40 text-muted-foreground"
+          ? "border-primary/20 text-primary"
+          : "border-border text-foreground"
       )}>
-        <LCorners
-          positions="all"
-          size="md"
-          className={currentFeedback.isBonus ? "bg-primary" : "bg-border"}
-        />
-
-        <span className="w-1.5 h-1.5 rotate-45 bg-current" />
-        <Zap size={12} className={currentFeedback.isBonus ? "fill-primary" : "fill-none"} />
-        <span className="text-xs font-ui uppercase tracking-[0.2em]">
+        <Zap size={14} className={currentFeedback.isBonus ? "fill-primary" : "fill-none"} />
+        <span className="text-sm font-medium">
           {currentFeedback.message}
         </span>
       </div>

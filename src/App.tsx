@@ -1,4 +1,6 @@
 import React from 'react';
+import { Button } from "@/components/ui/button";
+import { LoadingScreen } from "@/components/ui/loading";
 import { AppProviders } from '@/app/AppProviders';
 import { AppRouter } from '@/app/AppRouter';
 import { usePlatformSetup } from '@/hooks/usePlatformSetup';
@@ -16,14 +18,7 @@ const AppContent: React.FC = () => {
   const loading = authLoading || profileLoading;
 
   if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
-        <div className="flex flex-col items-center gap-3">
-          <div className="animate-spin rounded-full h-4 w-4 border border-foreground/20 border-t-foreground" />
-          <span className="text-[10px] font-sans uppercase tracking-widest text-muted-foreground">Loading</span>
-        </div>
-      </div>
-    );
+    return <LoadingScreen />;
   }
 
   if (!user) {
@@ -35,12 +30,14 @@ const AppContent: React.FC = () => {
       <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="flex flex-col items-center gap-3">
           <p className="text-sm font-sans text-muted-foreground">Profile not found.</p>
-          <button
+          <Button
+            variant="link"
+            size="sm"
             onClick={() => window.location.reload()}
-            className="text-xs font-sans uppercase tracking-widest text-primary hover:underline"
+            className="text-xs font-sans uppercase tracking-widest text-primary"
           >
             Retry
-          </button>
+          </Button>
         </div>
       </div>
     );

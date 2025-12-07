@@ -1,6 +1,6 @@
 import * as React from "react"
 import { cn } from "@/lib/utils"
-import { CornerOrnament } from "@/components/ui/decorative"
+import { Loader2 } from "lucide-react"
 
 const LOADING_TIPS = [
     "Reviewing daily keeps the streak alive!",
@@ -16,21 +16,14 @@ export interface LoaderProps {
 }
 
 export function Loader({ size = 'md', className }: LoaderProps) {
-    const sizeConfig = {
-        sm: { container: 'w-12 h-12', inner: 'inset-1.5', diamond: 'w-1.5 h-1.5' },
-        md: { container: 'w-20 h-20', inner: 'inset-3', diamond: 'w-2 h-2' },
-        lg: { container: 'w-28 h-28', inner: 'inset-4', diamond: 'w-3 h-3' }
+    const sizeClasses = {
+        sm: 'h-4 w-4',
+        md: 'h-8 w-8',
+        lg: 'h-12 w-12'
     }
 
-    const config = sizeConfig[size]
-
     return (
-        <div className={cn("flex flex-col items-center justify-center gap-5", className)}>
-            <div className={cn("relative", config.container)}>
-                <span className={cn("absolute border-2 border-amber-600/30 rotate-45 animate-spin", config.inner)} style={{ animationDuration: '3s' }} />
-                <span className={cn("absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-amber-600 rotate-45", config.diamond)} />
-            </div>
-        </div>
+        <Loader2 className={cn("animate-spin text-primary", sizeClasses[size], className)} />
     )
 }
 
@@ -52,139 +45,30 @@ export function LoadingScreen({
 
     return (
         <div className={cn(
-            "fixed inset-0 z-50 flex flex-col items-center justify-center",
-            "bg-background",
+            "fixed inset-0 z-50 flex flex-col items-center justify-center bg-background",
             className
         )}>
-            {/* Corner ornaments */}
-            <div className="absolute inset-0 overflow-hidden pointer-events-none">
-                <div className="absolute top-6 left-6 text-amber-500/10">
-                    <CornerOrnament />
-                </div>
-                <div className="absolute top-6 right-6 text-amber-500/10 rotate-90">
-                    <CornerOrnament />
-                </div>
-                <div className="absolute bottom-6 left-6 text-amber-500/10 -rotate-90">
-                    <CornerOrnament />
-                </div>
-                <div className="absolute bottom-6 right-6 text-amber-500/10 rotate-180">
-                    <CornerOrnament />
-                </div>
+            <div className="flex flex-col items-center gap-6 px-6">
+                <Loader size="lg" />
 
-                {/* Subtle floating diamonds */}
-                {[...Array(8)].map((_, i) => (
-                    <span
-                        key={i}
-                        className="absolute w-1.5 h-1.5 bg-amber-600/15 rotate-45 animate-float"
-                        style={{
-                            left: `${10 + i * 12}%`,
-                            top: `${15 + (i % 4) * 20}%`,
-                            animationDelay: `${i * 0.3}s`,
-                            animationDuration: `${4 + i * 0.4}s`
-                        }}
-                    />
-                ))}
-            </div>
-
-            {/* Main content */}
-            <div className="relative flex flex-col items-center gap-10 px-6">
-                {/* Central geometric loader */}
-                <div className="relative w-36 h-36">
-                    {/* Outer square - slow rotation */}
-                    <div
-                        className="absolute inset-0 border-2 border-amber-700/20 rotate-45"
-                        style={{ animation: 'spin 10s linear infinite' }}
-                    />
-
-                    {/* Second square with corner dots */}
-                    <div
-                        className="absolute inset-4 rotate-45"
-                        style={{ animation: 'spin 7s linear infinite reverse' }}
-                    >
-                        <div className="absolute inset-0 border-2 border-amber-700/30" />
-                        <span className="absolute -top-1 -left-1 w-2 h-2 bg-amber-600/40" />
-                        <span className="absolute -top-1 -right-1 w-2 h-2 bg-amber-600/40" />
-                        <span className="absolute -bottom-1 -left-1 w-2 h-2 bg-amber-600/40" />
-                        <span className="absolute -bottom-1 -right-1 w-2 h-2 bg-amber-600/40" />
-                    </div>
-
-                    {/* Third square */}
-                    <div
-                        className="absolute inset-8 border-2 border-amber-700/40 rotate-45"
-                        style={{ animation: 'spin 5s linear infinite' }}
-                    />
-
-                    {/* Fourth square */}
-                    <div
-                        className="absolute inset-12 border-2 border-amber-700/60 rotate-45"
-                        style={{ animation: 'spin 4s linear infinite reverse' }}
-                    />
-
-                    {/* Inner diamond */}
-                    <div className="absolute inset-[56px] bg-amber-600/20 rotate-45" />
-
-                    {/* Center point */}
-                    <span
-                        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-3 h-3 bg-amber-600 rotate-45 animate-pulse"
-                    />
-
-                    {/* Orbiting accent */}
-                    <div className="absolute inset-0 animate-spin" style={{ animationDuration: '3s' }}>
-                        <span className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-2 w-2 h-2 bg-amber-600/70 rotate-45" />
-                    </div>
-                </div>
-
-                {/* Title section */}
-                <div className="flex flex-col items-center gap-4 text-center">
-                    <div className="flex items-center gap-5">
-                        <div className="flex items-center gap-1">
-                            <span className="w-2 h-2 rotate-45 border border-amber-700/40" />
-                            <span className="w-16 h-px bg-amber-600/30" />
-                        </div>
-
-                        <h2 className="text-xl font-semibold text-foreground tracking-[0.25em] uppercase font-ui">
-                            {title}
-                        </h2>
-
-                        <div className="flex items-center gap-1">
-                            <span className="w-16 h-px bg-amber-600/30" />
-                            <span className="w-2 h-2 rotate-45 border border-amber-700/40" />
-                        </div>
-                    </div>
+                <div className="flex flex-col items-center gap-2 text-center">
+                    <h2 className="text-xl font-semibold text-foreground">
+                        {title}
+                    </h2>
 
                     {subtitle && (
-                        <p className="text-sm text-muted-foreground/70 font-medium">
+                        <p className="text-sm text-muted-foreground">
                             {subtitle}
                         </p>
                     )}
-
-                    {/* Loading dots */}
-                    <div className="flex items-center gap-2 mt-2">
-                        {[0, 1, 2].map((i) => (
-                            <span
-                                key={i}
-                                className="w-1.5 h-1.5 bg-amber-600/60 rotate-45 animate-pulse"
-                                style={{ animationDelay: `${i * 0.25}s` }}
-                            />
-                        ))}
-                    </div>
                 </div>
             </div>
 
-            {/* Bottom tip section */}
             {showTip && (
-                <div className="absolute bottom-14 left-0 right-0 px-8">
-                    <div className="max-w-md mx-auto flex flex-col items-center gap-3">
-                        <div className="flex items-center gap-3">
-                            <span className="w-4 h-px bg-amber-600/30" />
-                            <span className="w-1.5 h-1.5 rotate-45 bg-amber-600/40" />
-                            <span className="text-[11px] text-amber-500/60 uppercase tracking-[0.25em] font-semibold font-ui">
-                                Tip
-                            </span>
-                            <span className="w-1.5 h-1.5 rotate-45 bg-amber-600/40" />
-                            <span className="w-4 h-px bg-amber-600/30" />
-                        </div>
-                        <p className="text-sm text-muted-foreground/50 text-center font-medium italic font-editorial">
+                <div className="absolute bottom-12 left-0 right-0 px-8">
+                    <div className="max-w-md mx-auto text-center">
+                        <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">Tip</p>
+                        <p className="text-sm text-muted-foreground italic">
                             "{tip}"
                         </p>
                     </div>
@@ -196,11 +80,6 @@ export function LoadingScreen({
 
 export function ButtonLoader({ className }: { className?: string }) {
     return (
-        <span
-            className={cn("inline-flex items-center justify-center w-4 h-4 animate-spin", className)}
-            style={{ animationDuration: '0.7s' }}
-        >
-            <span className="w-2 h-2 bg-current rotate-45 opacity-80" />
-        </span>
+        <Loader2 className={cn("h-4 w-4 animate-spin", className)} />
     )
 }

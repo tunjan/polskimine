@@ -1,4 +1,5 @@
 import React from 'react';
+import { Button } from '@/components/ui/button';
 
 interface StudySessionWaitingProps {
     onExit: () => void;
@@ -12,12 +13,13 @@ export const StudySessionWaiting: React.FC<StudySessionWaitingProps> = ({ onExit
                     <h2 className="text-2xl font-light tracking-tight text-foreground">Waiting for learning steps...</h2>
                     <p className="text-sm text-muted-foreground">Cards are cooling down. Take a short break.</p>
                 </div>
-                <button
+                <Button
                     onClick={onExit}
-                    className="px-6 py-2 text-sm font-medium bg-secondary text-secondary-foreground hover:bg-secondary/80 transition-colors"
+                    variant="secondary"
+                    className="px-6"
                 >
                     Exit Session
-                </button>
+                </Button>
             </div>
         </div>
     );

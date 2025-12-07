@@ -30,7 +30,7 @@ import { AlgorithmSettings } from '../components/AlgorithmSettings';
 import { DataSettings } from '../components/DataSettings';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { OrnateSeparator } from '@/components/ui/separator';
+import { Separator } from '@/components/ui/separator';
 import { cn } from '@/lib/utils';
 import { ChevronLeft, LogOut, Settings, User, Globe, Moon, Volume2, Mic, Target, Database, Github, Wand2, ToggleLeft, Activity, Trash2, Check, Skull, AlertCircle } from 'lucide-react';
 
@@ -402,19 +402,18 @@ const DangerSettingsPage = () => {
     return (
         <div className="space-y-8 max-w-2xl animate-in fade-in slide-in-from-bottom-2 duration-500">
             <div className="flex items-center gap-3 mb-6">
-                <span className="w-2 h-2 rotate-45 bg-destructive/60" />
-                <h2 className="text-lg font-medium text-foreground tracking-tight font-ui">Danger Zone</h2>
-                <span className="flex-1 h-px bg-gradient-to-r from-destructive/30 via-border/30 to-transparent" />
+                <h2 className="text-lg font-medium text-foreground tracking-tight ">Danger Zone</h2>
+                <span className="flex-1 h-px bg-linear-to-r from-destructive/30 via-border/30 to-transparent" />
             </div>
 
-            <Card variant="default" size="md" className="border-amber-500/30 hover:border-amber-500/50 transition-colors">
+            <Card className="border-primary/30 hover:border-primary/50 transition-colors p-6">
                 <div className="space-y-4">
                     <div className="flex items-start gap-4">
-                        <div className="w-10 h-10 bg-amber-500/10 flex items-center justify-center">
-                            <AlertCircle className="text-amber-500" size={18} strokeWidth={1.5} />
+                        <div className="w-10 h-10 bg-primary/10 flex items-center justify-center rounded-full">
+                            <AlertCircle className="text-primary" size={18} strokeWidth={1.5} />
                         </div>
                         <div className="flex-1 space-y-2">
-                            <h4 className="text-sm font-medium text-foreground font-ui tracking-wide">Reset Current Deck</h4>
+                            <h4 className="text-sm font-medium text-foreground  tracking-wide">Reset Current Deck</h4>
                             <p className="text-xs text-muted-foreground font-light leading-relaxed">
                                 Delete all cards, history, and progress for <span className="text-foreground">{settings.language}</span>. Restores beginner course.
                             </p>
@@ -424,7 +423,7 @@ const DangerSettingsPage = () => {
                         onClick={handleResetDeck}
                         variant={confirmResetDeck ? 'default' : 'secondary'}
                         className={cn("w-full",
-                            confirmResetDeck && "bg-amber-500 hover:bg-orange-600"
+                            confirmResetDeck && "bg-primary hover:bg-orange-600"
                         )}
                     >
                         {confirmResetDeck ? "Confirm Reset" : "Reset Deck"}
@@ -432,16 +431,16 @@ const DangerSettingsPage = () => {
                 </div>
             </Card>
 
-            <OrnateSeparator />
+            <Separator className="my-8" />
 
-            <Card variant="default" size="md" className="border-destructive/30 hover:border-destructive/50 transition-colors">
-                <div className="space-y-4"> {/* Added a wrapper div for consistency and correct structure */}
+            <Card className="border-destructive/30 hover:border-destructive/50 transition-colors p-6">
+                <div className="space-y-4">
                     <div className="flex items-center gap-4 mb-4">
                         <div className="w-10 h-10 rounded-full bg-destructive/10 flex items-center justify-center border border-destructive/20">
                             <Trash2 className="w-5 h-5 text-destructive" strokeWidth={1.5} />
                         </div>
                         <div>
-                            <h3 className="font-ui font-medium text-foreground">Delete Account</h3>
+                            <h3 className=" font-medium text-foreground">Delete Account</h3>
                             <p className="text-xs text-muted-foreground/60 font-light max-w-[280px]">Permanently remove all data</p>
                         </div>
                     </div>
@@ -454,7 +453,7 @@ const DangerSettingsPage = () => {
                     >
                         {confirmResetAccount ? "Confirm Complete Reset" : "Reset Everything"}
                     </Button>
-                </div> {/* Closing the added space-y-4 div */}
+                </div>
             </Card >
         </div >
     );

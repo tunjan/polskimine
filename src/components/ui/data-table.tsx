@@ -124,14 +124,14 @@ export function DataTable<TData, TValue>({
 
     return (
         <div className="flex flex-col h-full space-y-4">
-            {/* Genshin-styled Table Container */}
-            <div className="relative flex-1 min-h-0 overflow-auto genshin-panel !p-0 bg-card/50">
+            {/* Standard Table Container */}
+            <div className="relative flex-1 min-h-0 overflow-auto border rounded-md">
                 <Table>
-                    <TableHeader className="sticky top-0 bg-card/95 backdrop-blur-sm z-10 shadow-sm shadow-black/5">
+                    <TableHeader className="sticky top-0 bg-background z-10">
                         {table.getHeaderGroups().map((headerGroup) => (
-                            <TableRow key={headerGroup.id} className="border-b border-primary/20 hover:bg-transparent">
+                            <TableRow key={headerGroup.id}>
                                 {headerGroup.headers.map((header) => (
-                                    <TableHead key={header.id} className="relative h-11 text-muted-foreground font-medium tracking-wide">
+                                    <TableHead key={header.id} className="relative h-11 text-muted-foreground font-medium">
                                         {header.isPlaceholder
                                             ? null
                                             : flexRender(
@@ -151,9 +151,9 @@ export function DataTable<TData, TValue>({
                                     data-state={row.getIsSelected() && "selected"}
                                     onClick={() => onRowClick?.(row.original)}
                                     className={cn(
-                                        "cursor-pointer transition-all duration-200 group border-b border-border/40 last:border-0",
-                                        "hover:bg-primary/5",
-                                        row.getIsSelected() && "bg-primary/10 hover:bg-primary/15"
+                                        "cursor-pointer transition-colors group",
+                                        "hover:bg-muted/50",
+                                        row.getIsSelected() && "bg-muted"
                                     )}
                                 >
                                     {row.getVisibleCells().map((cell) => (
@@ -167,10 +167,7 @@ export function DataTable<TData, TValue>({
                             <TableRow>
                                 <TableCell colSpan={columns.length} className="h-24 text-center">
                                     <div className="flex flex-col items-center justify-center gap-2 text-muted-foreground py-12">
-                                        <div className="w-12 h-12 border border-border/50 rotate-45 flex items-center justify-center mb-4">
-                                            <span className="w-6 h-6 border border-border/50 rotate-45" />
-                                        </div>
-                                        <span className="text-lg font-editorial text-foreground">No results found</span>
+                                        <span className="text-lg font-medium text-foreground">No results found</span>
                                         <p className="text-sm text-muted-foreground">Try adjusting your search or filters</p>
                                     </div>
                                 </TableCell>
@@ -180,25 +177,22 @@ export function DataTable<TData, TValue>({
                 </Table>
             </div>
 
-            {/* Pagination Controls - Genshin Styled */}
+            {/* Pagination Controls */}
             <div className="flex items-center justify-between px-2">
                 <div className="flex items-center gap-3">
-                    <div className="flex items-center gap-2 px-3 py-1.5 bg-primary/5 border border-primary/20 rounded-sm">
-                        <span className="w-1.5 h-1.5 rotate-45 bg-primary" />
-                        <span className="text-xs text-primary font-bold tracking-wide uppercase">
-                            {table.getFilteredSelectedRowModel().rows.length} Selected
-                        </span>
+                    <div className="text-sm text-muted-foreground">
+                        {table.getFilteredSelectedRowModel().rows.length} row(s) selected
                     </div>
                 </div>
 
                 <div className="flex items-center gap-6">
-                    <div className="flex items-center gap-2 text-sm text-muted-foreground font-ui">
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
                         <span>Page</span>
-                        <span className="text-foreground font-bold tabular-nums font-editorial text-lg">
+                        <span className="text-foreground font-medium tabular-nums">
                             {table.getState().pagination.pageIndex + 1}
                         </span>
-                        <span className="text-xs uppercase tracking-wider">of</span>
-                        <span className="text-foreground font-bold tabular-nums font-editorial text-lg">
+                        <span>of</span>
+                        <span className="text-foreground font-medium tabular-nums">
                             {table.getPageCount()}
                         </span>
                     </div>
@@ -208,9 +202,9 @@ export function DataTable<TData, TValue>({
                             onClick={() => table.previousPage()}
                             disabled={!table.getCanPreviousPage()}
                             className={cn(
-                                "genshin-button !py-1.5 !px-4 !text-xs flex items-center gap-2",
-                                "!bg-card hover:!bg-primary/10 !text-foreground !border-border hover:!border-primary",
-                                "disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-card disabled:hover:border-border"
+                                "inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50",
+                                "border border-input bg-background shadow-sm hover:bg-accent hover:text-accent-foreground",
+                                "h-8 px-4"
                             )}
                         >
                             Previous
@@ -219,9 +213,9 @@ export function DataTable<TData, TValue>({
                             onClick={() => table.nextPage()}
                             disabled={!table.getCanNextPage()}
                             className={cn(
-                                "genshin-button !py-1.5 !px-4 !text-xs flex items-center gap-2",
-                                "!bg-card hover:!bg-primary/10 !text-foreground !border-border hover:!border-primary",
-                                "disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-card disabled:hover:border-border"
+                                "inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50",
+                                "border border-input bg-background shadow-sm hover:bg-accent hover:text-accent-foreground",
+                                "h-8 px-4"
                             )}
                         >
                             Next

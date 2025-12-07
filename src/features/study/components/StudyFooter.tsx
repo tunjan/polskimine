@@ -1,6 +1,8 @@
-import React, { useState } from 'react';
-import clsx from 'clsx';
+import React from 'react';
 import { Grade } from '@/types';
+import { Button } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
+import { RotateCcw, Clock, ThumbsUp, Sparkles, Eye } from 'lucide-react';
 
 interface StudyFooterProps {
     isFlipped: boolean;
@@ -20,99 +22,71 @@ export const StudyFooter: React.FC<StudyFooterProps> = React.memo(({
     intervals,
 }) => {
     return (
-        <footer className="relative shrink-0 pb-[env(safe-area-inset-bottom)] border-t border-amber-600/10">
-            {/* Top decorative accent */}
-            <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center gap-2">
-                <span className="w-8 h-px bg-amber-500/20" />
-                <span className="w-1.5 h-1.5 rotate-45 bg-amber-500/30" />
-                <span className="w-8 h-px bg-amber-500/20" />
-            </div>
-
-            <div className="h-24 md:h-28 w-full max-w-4xl mx-auto py-6 px-8 md:px-16">
+        <footer className="relative shrink-0 pb-[env(safe-area-inset-bottom)] bg-linear-to-t from-muted/30 to-background border-t border-border/30">
+            <div className="min-h-20 md:min-h-24 h-auto w-full max-w-3xl mx-auto py-4 px-4 md:px-6 flex flex-col">
                 {!isFlipped ? (
-                    <button
+                    <Button
                         onClick={() => setIsFlipped(true)}
                         disabled={isProcessing}
-                        className="group relative w-full h-full flex items-center justify-center border-2 border-amber-700/30 hover:border-amber-500/30 bg-card/30 hover:bg-amber-500/5 transition-all duration-300"
+                        variant="default"
+                        className="w-full flex-1 text-base md:text-lg font-semibold rounded-xl bg-primary hover:bg-primary/90 shadow-lg shadow-primary/20 transition-all hover:scale-[1.01] active:scale-[0.99]"
                     >
-                        {/* Corner brackets on hover */}
-                        <span className="absolute -top-px -left-px w-4 h-4 opacity-0 group-hover:opacity-100 transition-opacity">
-                            <span className="absolute top-0 left-0 w-full h-0.5 bg-amber-500/60" />
-                            <span className="absolute top-0 left-0 h-full w-0.5 bg-amber-500/60" />
-                        </span>
-                        <span className="absolute -top-px -right-px w-4 h-4 opacity-0 group-hover:opacity-100 transition-opacity">
-                            <span className="absolute top-0 right-0 w-full h-0.5 bg-amber-500/60" />
-                            <span className="absolute top-0 right-0 h-full w-0.5 bg-amber-500/60" />
-                        </span>
-                        <span className="absolute -bottom-px -left-px w-4 h-4 opacity-0 group-hover:opacity-100 transition-opacity">
-                            <span className="absolute bottom-0 left-0 w-full h-0.5 bg-amber-500/60" />
-                            <span className="absolute bottom-0 left-0 h-full w-0.5 bg-amber-500/60" />
-                        </span>
-                        <span className="absolute -bottom-px -right-px w-4 h-4 opacity-0 group-hover:opacity-100 transition-opacity">
-                            <span className="absolute bottom-0 right-0 w-full h-0.5 bg-amber-500/60" />
-                            <span className="absolute bottom-0 right-0 h-full w-0.5 bg-amber-500/60" />
-                        </span>
-
-                        {/* Content with diamond accents */}
-                        <span className="text-[13px] font-bold font-ui uppercase tracking-[0.2em] text-muted-foreground/50 group-hover:text-amber-600/80 transition-colors duration-300">
-                            Show Answer
-                        </span>
-
-                        {/* Subtle keyboard hint */}
-                        <span className="absolute bottom-3 text-[10px] font-ui text-muted-foreground/20 opacity-0 group-hover:opacity-60 transition-all duration-300 tracking-wider">
+                        <Eye size={18} className="mr-2" />
+                        Show Answer
+                        <kbd className="ml-3 px-2 py-0.5 text-[10px] font-medium bg-primary-foreground/20 rounded border border-primary-foreground/10 max-md:hidden">
                             SPACE
-                        </span>
-                    </button>
+                        </kbd>
+                    </Button>
                 ) : (
                     binaryRatingMode ? (
-                        <div className="grid grid-cols-2 h-full w-full gap-4 md:gap-8 items-center">
-                            <GameAnswerButton
+                        <div className="grid grid-cols-2 w-full gap-3 flex-1">
+                            <AnswerButton
                                 label="Again"
                                 shortcut="1"
-                                intent="danger"
+                                grade="Again"
                                 onClick={() => onGrade('Again')}
                                 disabled={isProcessing}
                                 interval={intervals?.Again}
                             />
-                            <GameAnswerButton
+                            <AnswerButton
                                 label="Good"
                                 shortcut="Space"
-                                intent="success"
+                                grade="Good"
                                 onClick={() => onGrade('Good')}
                                 disabled={isProcessing}
                                 interval={intervals?.Good}
                             />
                         </div>
                     ) : (
-                        <div className="grid grid-cols-4 h-full w-full gap-2 md:gap-4 items-center">
-                            <GameAnswerButton
+                        <div className="grid grid-cols-4 w-full gap-2 md:gap-3 flex-1">
+                            <AnswerButton
                                 label="Again"
                                 shortcut="1"
-                                intent="danger"
+                                grade="Again"
                                 onClick={() => onGrade('Again')}
                                 disabled={isProcessing}
                                 interval={intervals?.Again}
                             />
-                            <GameAnswerButton
+                            <AnswerButton
                                 label="Hard"
                                 shortcut="2"
-                                intent="warning"
+                                grade="Hard"
                                 onClick={() => onGrade('Hard')}
                                 disabled={isProcessing}
                                 interval={intervals?.Hard}
                             />
-                            <GameAnswerButton
+                            <AnswerButton
                                 label="Good"
                                 shortcut="3"
-                                intent="success"
+                                grade="Good"
                                 onClick={() => onGrade('Good')}
                                 disabled={isProcessing}
                                 interval={intervals?.Good}
                             />
-                            <GameAnswerButton
+                            <AnswerButton
                                 label="Easy"
                                 shortcut="4"
-                                intent="info"
+                                grade="Easy"
                                 onClick={() => onGrade('Easy')}
                                 disabled={isProcessing}
                                 interval={intervals?.Easy}
@@ -125,134 +99,63 @@ export const StudyFooter: React.FC<StudyFooterProps> = React.memo(({
     );
 });
 
-const GameAnswerButton = React.memo(({ label, shortcut, intent, onClick, disabled, interval }: {
+const gradeStyles: Record<Grade, { bg: string; hover: string; text: string }> = {
+    Again: {
+        bg: 'bg-red-500/10 border-red-800/20',
+        hover: 'hover:bg-red-500/20 hover:border-red-500/30',
+        text: 'text-red-700 dark:text-red-400',
+    },
+    Hard: {
+        bg: 'bg-amber-500/10 border-amber-800/20',
+        hover: 'hover:bg-amber-500/20 hover:border-amber-500/30',
+        text: 'text-amber-700 dark:text-amber-400',
+    },
+    Good: {
+        bg: 'bg-green-500/10 border-green-800/20',
+        hover: 'hover:bg-green-500/20 hover:border-green-500/30',
+        text: 'text-green-700 dark:text-green-400',
+    },
+    Easy: {
+        bg: 'bg-emerald-500/10 border-emerald-800/20',
+        hover: 'hover:bg-emerald-500/20 hover:border-emerald-500/30',
+        text: 'text-emerald-700 dark:text-emerald-400',
+    },
+};
+
+const AnswerButton = React.memo(({ label, shortcut, grade, className, onClick, disabled, interval }: {
     label: string;
     shortcut: string;
-    intent: 'danger' | 'warning' | 'success' | 'info';
+    grade: Grade;
+    className?: string;
     onClick: () => void;
     disabled: boolean;
     interval?: string;
 }) => {
-    const [isPressed, setIsPressed] = useState(false);
-
-    const colorMap = {
-        danger: {
-            text: 'text-red-800/70',
-            hover: 'hover:text-red-500',
-            border: 'hover:border-red-500/40',
-            bg: 'hover:bg-red-500/5',
-            accent: 'bg-red-500',
-            glow: 'shadow-red-500/20',
-            gradient: 'from-red-500/10 to-transparent'
-        },
-        warning: {
-            text: 'text-amber-800/70',
-            hover: 'hover:text-amber-500',
-            border: 'hover:border-amber-500/40',
-            bg: 'hover:bg-amber-500/5',
-            accent: 'bg-amber-500',
-            glow: 'shadow-amber-500/20',
-            gradient: 'from-amber-500/10 to-transparent'
-        },
-        success: {
-            text: 'text-pine-800/70',
-            hover: 'hover:text-pine-500',
-            border: 'hover:border-pine-500/40',
-            bg: 'hover:bg-pine-500/5',
-            accent: 'bg-pine-500',
-            glow: 'shadow-pine-500/20',
-            gradient: 'from-pine-500/10 to-transparent'
-        },
-        info: {
-            text: 'text-blue-800/70',
-            hover: 'hover:text-blue-500',
-            border: 'hover:border-blue-500/40',
-            bg: 'hover:bg-blue-500/5',
-            accent: 'bg-blue-500',
-            glow: 'shadow-blue-500/20',
-            gradient: 'from-blue-500/10 to-transparent'
-        }
-    };
-    const colors = colorMap[intent];
-
-    const handleClick = () => {
-        if (disabled) return;
-        setIsPressed(true);
-        setTimeout(() => setIsPressed(false), 150);
-        onClick();
-    };
+    const style = gradeStyles[grade];
 
     return (
-        <button
-            onClick={handleClick}
+        <Button
+            onClick={onClick}
             disabled={disabled}
-            className={clsx(
-                "group relative flex flex-col items-center justify-center h-full w-full outline-none select-none overflow-hidden",
-                "border border-border/80 bg-card transition-all duration-200",
-                colors.border, colors.bg,
-                "hover:shadow-lg",
-                colors.glow,
-                isPressed && "scale-95",
-                disabled && "opacity-90 cursor-not-allowed"
+            variant="outline"
+            className={cn(
+                "h-full flex flex-col items-center justify-center gap-0.5 rounded-xl border-2 transition-all",
+                "hover:scale-[1.02] active:scale-[0.98]",
+                style.bg,
+                style.hover,
+                style.text,
+                className
             )}
         >
-            {/* Gradient background on hover */}
-            <div className={clsx(
-                "absolute inset-0 bg-linear-to-t opacity-0 group-hover:opacity-100 transition-opacity duration-300",
-                colors.gradient
-            )} />
-
-            {/* Corner accents on hover */}
-            <span className={clsx("absolute -top-px -left-px w-2.5 h-2.5 opacity-0 group-hover:opacity-100 transition-opacity")}>
-                <span className={clsx("absolute top-0 left-0 w-full h-px", colors.accent)} />
-                <span className={clsx("absolute top-0 left-0 h-full w-px", colors.accent)} />
-            </span>
-            <span className={clsx("absolute -top-px -right-px w-2.5 h-2.5 opacity-0 group-hover:opacity-100 transition-opacity")}>
-                <span className={clsx("absolute top-0 right-0 w-full h-px", colors.accent)} />
-                <span className={clsx("absolute top-0 right-0 h-full w-px", colors.accent)} />
-            </span>
-            <span className={clsx("absolute -bottom-px -left-px w-2.5 h-2.5 opacity-0 group-hover:opacity-100 transition-opacity")}>
-                <span className={clsx("absolute bottom-0 left-0 w-full h-px", colors.accent)} />
-                <span className={clsx("absolute bottom-0 left-0 h-full w-px", colors.accent)} />
-            </span>
-            <span className={clsx("absolute -bottom-px -right-px w-2.5 h-2.5 opacity-0 group-hover:opacity-100 transition-opacity")}>
-                <span className={clsx("absolute bottom-0 right-0 w-full h-px", colors.accent)} />
-                <span className={clsx("absolute bottom-0 right-0 h-full w-px", colors.accent)} />
-            </span>
-
-            {/* Diamond accent with glow */}
-            <div className="relative mb-2">
-                <span className={clsx(
-                    "w-1.5 h-1.5 rotate-45 opacity-40 group-hover:opacity-100 transition-all duration-200 block",
-                    colors.accent
-                )} />
-                <span className={clsx(
-                    "absolute inset-0 w-1.5 h-1.5 rotate-45 opacity-0 group-hover:opacity-60 blur-sm transition-opacity",
-                    colors.accent
-                )} />
-            </div>
-
-            {/* Label */}
-            <span className={clsx(
-                "relative text-sm font-ui uppercase tracking-[0.15em] transition-all duration-200",
-                colors.text, colors.hover
-            )}>
-                {label}
-            </span>
-
-            {/* Interval hint */}
+            <span className="text-sm md:text-base font-bold">{label}</span>
             {interval && (
-                <span className={clsx(
-                    "absolute top-2 text-[11px] font-medium font-ui opacity-0 group-hover:opacity-80 transition-opacity duration-200",
-                    colors.text
-                )}>
+                <span className="text-[10px] md:text-xs font-medium opacity-60">
                     {interval}
                 </span>
             )}
-            {/* Shortcut hint */}
-            <span className="absolute bottom-2 text-[10px] font-ui text-muted-foreground/20 opacity-0 group-hover:opacity-60 transition-all duration-200 tracking-wider" >
+            <kbd className="text-[9px] font-medium opacity-40 bg-foreground/5 px-1.5 py-0.5 rounded mt-0.5 max-md:hidden">
                 {shortcut}
-            </span >
-        </button >
+            </kbd>
+        </Button>
     );
 });

@@ -1,13 +1,19 @@
 import React from 'react';
 import { Volume2, Mic, Gauge } from 'lucide-react';
 import { UserSettings } from '@/types';
-import { EditorialSelect } from '@/components/form/EditorialSelect';
-import { EditorialInput } from '@/components/form/EditorialInput';
+import { Input } from '@/components/ui/input';
 import { Slider } from '@/components/ui/slider';
-import { Card } from '@/components/ui/card';
-import { SectionHeader } from '@/components/ui/section-header';
-import { OrnateSeparator } from '@/components/ui/separator';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Separator } from '@/components/ui/separator';
 import { Button } from '@/components/ui/button';
+import { Label } from '@/components/ui/label';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 
 interface VoiceOption { id: string; name: string; }
 
@@ -28,147 +34,143 @@ export const AudioSettings: React.FC<AudioSettingsProps> = ({
     setLocalSettings((prev) => ({ ...prev, tts: { ...prev.tts, ...partial } }));
 
   return (
-    <div className="space-y-8 max-w-2xl">
+    <div className="space-y-6 max-w-2xl">
       {/* Speech Provider Section */}
-      <SectionHeader
-        title="Speech Provider"
-        subtitle="Text-to-speech engine configuration"
-        icon={<Mic className="w-4 h-4" strokeWidth={1.5} />}
-      />
-      <Card variant="default" size="md">
-        <div className="space-y-4">
-          <div className="flex items-center gap-2 mb-3">
-            <span className="w-1.5 h-1.5 rotate-45 bg-primary/40" />
-            <label className="text-[10px] text-muted-foreground uppercase tracking-[0.15em] font-light font-ui">
-              Provider
-            </label>
+      <div>
+        <h3 className="text-lg font-medium">Speech Provider</h3>
+        <p className="text-sm text-muted-foreground">Text-to-speech engine configuration</p>
+      </div>
+      <Card>
+        <CardContent className="pt-6 space-y-4">
+          <div className="space-y-2">
+            <Label>Provider</Label>
+            <Select
+              value={localSettings.tts.provider}
+              onValueChange={(value) => updateTts({ provider: value as any, voiceURI: null })}
+            >
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Select provider" />
+              </SelectTrigger>
+              <SelectContent>
+                {[
+                  { value: 'browser', label: 'Browser Native' },
+                  { value: 'google', label: 'Google Cloud TTS' },
+                  { value: 'azure', label: 'Microsoft Azure' },
+                ].map((option) => (
+                  <SelectItem key={option.value} value={option.value}>
+                    {option.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
-          <EditorialSelect
-            value={localSettings.tts.provider}
-            onChange={(value) => updateTts({ provider: value as any, voiceURI: null })}
-            options={[
-              { value: 'browser', label: 'Browser Native' },
-              { value: 'google', label: 'Google Cloud TTS' },
-              { value: 'azure', label: 'Microsoft Azure' },
-            ]}
-            className="font-ui"
-          />
-        </div>
 
-        {localSettings.tts.provider !== 'browser' && (
-          <div className="space-y-5 pt-6 mt-6 border-t border-border/30 animate-in fade-in slide-in-from-top-2 duration-300">
-            <div className="space-y-3">
-              <div className="flex items-center gap-2">
-                <span className="w-1.5 h-1.5 rotate-45 bg-primary/40" />
-                <label className="text-[11px] text-muted-foreground uppercase tracking-[0.15em] font-light font-ui">
-                  API Credentials
-                </label>
-              </div>
-              <EditorialInput
-                type="password"
-                placeholder={localSettings.tts.provider === 'google' ? "Google Cloud API key" : "Azure subscription key"}
-                value={localSettings.tts.provider === 'google' ? localSettings.tts.googleApiKey : localSettings.tts.azureApiKey}
-                onChange={(e) => updateTts(localSettings.tts.provider === 'google' ? { googleApiKey: e.target.value } : { azureApiKey: e.target.value })}
-                className="font-mono"
-              />
-            </div>
-            {localSettings.tts.provider === 'azure' && (
-              <div className="space-y-3">
-                <div className="flex items-center gap-2">
-                  <span className="w-1.5 h-1.5 rotate-45 bg-primary/40" />
-                  <label className="text-[11px] text-muted-foreground uppercase tracking-[0.15em] font-light font-ui">
-                    Region
-                  </label>
-                </div>
-                <EditorialInput
-                  placeholder="e.g., eastus, westeurope"
-                  value={localSettings.tts.azureRegion}
-                  onChange={(e) => updateTts({ azureRegion: e.target.value })}
+          {localSettings.tts.provider !== 'browser' && (
+            <div className="pt-4 space-y-4 border-t mt-4">
+              <div className="space-y-2">
+                <Label>API Credentials</Label>
+                <Input
+                  type="password"
+                  placeholder={localSettings.tts.provider === 'google' ? "Google Cloud API key" : "Azure subscription key"}
+                  value={localSettings.tts.provider === 'google' ? localSettings.tts.googleApiKey : localSettings.tts.azureApiKey}
+                  onChange={(e) => updateTts(localSettings.tts.provider === 'google' ? { googleApiKey: e.target.value } : { azureApiKey: e.target.value })}
                   className="font-mono"
                 />
               </div>
-            )}
-          </div>
-        )}
+              {localSettings.tts.provider === 'azure' && (
+                <div className="space-y-2">
+                  <Label>Region</Label>
+                  <Input
+                    placeholder="e.g., eastus, westeurope"
+                    value={localSettings.tts.azureRegion}
+                    onChange={(e) => updateTts({ azureRegion: e.target.value })}
+                    className="font-mono"
+                  />
+                </div>
+              )}
+            </div>
+          )}
+        </CardContent>
       </Card>
 
-      <OrnateSeparator />
+      <Separator />
 
       {/* Voice Selection Section */}
-      <SectionHeader
-        title="Voice Selection"
-        subtitle="Choose and test your preferred voice"
-        icon={<Volume2 className="w-4 h-4" strokeWidth={1.5} />}
-      />
-      <Card variant="default" size="md">
-        <div className="space-y-4">
-          <div className="flex items-center justify-between mb-3">
-            <div className="flex items-center gap-2">
-              <span className="w-1.5 h-1.5 rotate-45 bg-primary/40" />
-              <label className="text-[10px] text-muted-foreground uppercase tracking-[0.15em] font-light font-ui">
-                Voice
-              </label>
+      <div>
+        <h3 className="text-lg font-medium">Voice Selection</h3>
+        <p className="text-sm text-muted-foreground">Choose and test your preferred voice</p>
+      </div>
+      <Card>
+        <CardContent className="pt-6 space-y-4">
+          <div className="flex justify-between items-end gap-4">
+            <div className="flex-1 space-y-2">
+              <Label>Voice</Label>
+              <Select
+                value={localSettings.tts.voiceURI || 'default'}
+                onValueChange={(value) => updateTts({ voiceURI: value === 'default' ? null : value })}
+              >
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Select voice" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="default">System Default</SelectItem>
+                  {availableVoices.map(v => (
+                    <SelectItem key={v.id} value={v.id}>{v.name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
             <Button
-              variant="ghost"
-              size="sm"
+              variant="outline"
               onClick={onTestAudio}
             >
-              <Volume2 size={14} strokeWidth={1.5} /> Test Voice
+              <Volume2 className="mr-2 h-4 w-4" />
+              Test Voice
             </Button>
           </div>
-          <EditorialSelect
-            value={localSettings.tts.voiceURI || 'default'}
-            onChange={(value) => updateTts({ voiceURI: value === 'default' ? null : value })}
-            options={[{ value: 'default', label: 'System Default' }, ...availableVoices.map(v => ({ value: v.id, label: v.name }))]}
-            className="font-ui"
-          />
-        </div>
+        </CardContent>
       </Card>
 
-      <OrnateSeparator />
+      <Separator />
 
       {/* Playback Settings */}
-      <SectionHeader
-        title="Playback"
-        subtitle="Audio speed and volume controls"
-        icon={<Gauge className="w-4 h-4" strokeWidth={1.5} />}
-      />
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <Card variant="stat" size="md">
-          <div className="space-y-4">
-            <div className="flex justify-between items-baseline">
-              <div className="flex items-center gap-2">
-                <span className="w-1.5 h-1.5 rotate-45 bg-primary/40" />
-                <label className="text-[11px] text-muted-foreground uppercase tracking-[0.15em] font-light font-ui">Speed</label>
-              </div>
-              <span className="text-2xl font-light tabular-nums text-foreground">{localSettings.tts.rate.toFixed(1)}<span className="text-sm text-muted-foreground/40">×</span></span>
+      <div>
+        <h3 className="text-lg font-medium">Playback</h3>
+        <p className="text-sm text-muted-foreground">Audio speed and volume controls</p>
+      </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <Card>
+          <CardHeader>
+            <CardTitle>Speed</CardTitle>
+            <CardDescription>Adjust playback rate</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="flex justify-between items-center">
+              <span className="text-2xl font-light">{localSettings.tts.rate.toFixed(1)}x</span>
             </div>
             <Slider
               min={0.5} max={2} step={0.1}
               value={[localSettings.tts.rate]}
               onValueChange={([v]) => updateTts({ rate: v })}
-              className="py-3"
             />
-          </div>
+          </CardContent>
         </Card>
 
-        <Card variant="stat" size="md">
-          <div className="space-y-4">
-            <div className="flex justify-between items-baseline">
-              <div className="flex items-center gap-2">
-                <span className="w-1.5 h-1.5 rotate-45 bg-primary/40" />
-                <label className="text-[11px] text-muted-foreground uppercase tracking-[0.15em] font-light font-ui">Volume</label>
-              </div>
-              <span className="text-2xl font-light tabular-nums text-foreground">{Math.round(localSettings.tts.volume * 100)}<span className="text-sm text-muted-foreground/40">%</span></span>
+        <Card>
+          <CardHeader>
+            <CardTitle>Volume</CardTitle>
+            <CardDescription>Adjust output volume</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="flex justify-between items-center">
+              <span className="text-2xl font-light">{Math.round(localSettings.tts.volume * 100)}%</span>
             </div>
             <Slider
               min={0} max={1} step={0.1}
               value={[localSettings.tts.volume]}
               onValueChange={([v]) => updateTts({ volume: v })}
-              className="py-3"
             />
-          </div>
+          </CardContent>
         </Card>
       </div>
     </div>

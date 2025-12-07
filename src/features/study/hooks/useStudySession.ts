@@ -34,7 +34,8 @@ type Action =
   | { type: 'UNDO'; }
   | { type: 'TICK' }
   | { type: 'REMOVE_CARD'; cardId: string; newCardFromReserve?: Card | null }
-  | { type: 'CHECK_WAITING'; now: Date; ignoreLearningSteps: boolean };
+  | { type: 'CHECK_WAITING'; now: Date; ignoreLearningSteps: boolean }
+  | { type: 'UPDATE_CARD'; card: Card };
 
 const getInitialStatus = (cards: Card[]): SessionStatus => {
   return cards.length > 0 ? 'IDLE' : 'COMPLETE';
@@ -198,6 +199,12 @@ const reducer = (state: SessionState, action: Action): SessionState => {
       };
     }
 
+    case 'UPDATE_CARD': {
+      const { card } = action;
+      const newCards = state.cards.map(c => c.id === card.id ? card : c);
+      return { ...state, cards: newCards };
+    }
+
     default:
       return state;
   }
@@ -324,6 +331,10 @@ export const useStudySession = ({
     dispatch({ type: 'REMOVE_CARD', cardId, newCardFromReserve });
   }, [state.cards, state.reserveCards]);
 
+  const updateCardInSession = useCallback((card: Card) => {
+    dispatch({ type: 'UPDATE_CARD', card });
+  }, []);
+
   const setIsFlipped = (flipped: boolean) => {
     if (flipped) dispatch({ type: 'FLIP' });
   };
@@ -346,6 +357,7 @@ export const useStudySession = ({
     handleUndo,
     progress: state.cards.length ? (state.currentIndex / state.cards.length) * 100 : 0,
     removeCardFromSession,
+    updateCardInSession,
     setIsFlipped
   };
 };

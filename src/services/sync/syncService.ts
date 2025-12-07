@@ -89,6 +89,12 @@ export const exportSyncData = async (settings: Partial<UserSettings>): Promise<S
         };
     }
 
+    // Export profile without username (username is device-specific)
+    const profileForExport = profiles.length > 0 ? {
+        ...profiles[0],
+        username: undefined,  // Don't export username
+    } : null;
+
     return {
         version: 3,
         lastSynced: new Date().toISOString(),
@@ -97,7 +103,7 @@ export const exportSyncData = async (settings: Partial<UserSettings>): Promise<S
         history,
         revlog,
         settings: safeSettings,
-        profile: profiles.length > 0 ? profiles[0] : null,
+        profile: profileForExport,
         aggregatedStats
     };
 };
@@ -245,11 +251,15 @@ export const importSyncData = async (
             return { success: false, error: 'Invalid sync data: missing cards' };
         }
 
+        // Get existing profile before clearing to preserve id and username
+        const existingProfiles = await db.profile.toArray();
+        const existingProfile = existingProfiles.length > 0 ? existingProfiles[0] : null;
+
         await clearAllCards();
         await clearHistory();
         await db.revlog.clear();
         await db.aggregated_stats.clear();
-        await db.profile.clear();
+        // Don't clear profile - we'll merge instead
 
         if (data.cards.length > 0) {
             await saveAllCards(data.cards);
@@ -265,8 +275,17 @@ export const importSyncData = async (
             await db.revlog.bulkPut(data.revlog);
         }
 
-        if (data.profile) {
-            await db.profile.put(data.profile);
+        // Merge imported profile with existing profile, preserving id and username
+        if (data.profile && existingProfile) {
+            const mergedProfile = {
+                ...data.profile,
+                id: existingProfile.id,  // Keep existing id
+                username: existingProfile.username,  // Keep existing username
+            };
+            await db.profile.put(mergedProfile);
+        } else if (existingProfile) {
+            // If no profile in import data, keep existing profile
+            // (profile already exists, nothing to do)
         }
 
         if (data.aggregatedStats && Array.isArray(data.aggregatedStats)) {

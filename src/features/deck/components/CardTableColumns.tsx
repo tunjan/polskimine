@@ -27,6 +27,7 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { cn } from "@/lib/utils"
 import { formatDistanceToNow, parseISO, isValid, format } from "date-fns"
 import { formatInterval } from "@/utils/formatInterval"
+import { Button } from "@/components/ui/button"
 
 const StatusBadge = ({ status }: { status: string }) => {
     const statusConfig: Record<string, {
@@ -52,7 +53,7 @@ const StatusBadge = ({ status }: { status: string }) => {
         known: {
             label: 'Mastered',
             icon: <CheckCircle2 className="w-3 h-3" strokeWidth={1.5} />,
-            className: 'text-amber-400 bg-amber-500/10 border-amber-500/30'
+            className: 'text-primary bg-primary/10 border-primary/30'
         },
     }
 
@@ -61,9 +62,7 @@ const StatusBadge = ({ status }: { status: string }) => {
     return (
         <span
             className={cn(
-                "relative inline-flex items-center gap-1.5 px-2.5 py-1 text-[11px] font-medium uppercase tracking-wider transition-all border rounded-sm",
-                "before:absolute before:-top-px before:-left-px before:w-1.5 before:h-1.5 before:border-t-2 before:border-l-2 before:border-current before:opacity-40 before:pointer-events-none",
-                "after:absolute after:-bottom-px after:-right-px after:w-1.5 after:h-1.5 after:border-b-2 after:border-r-2 after:border-current after:opacity-40 after:pointer-events-none",
+                "relative inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium transition-all border rounded-sm",
                 config.className
             )}
         >
@@ -78,7 +77,7 @@ const ScheduleCell = ({ dateStr, status, interval }: { dateStr: string, status: 
         return (
             <div className="flex items-center gap-2 text-muted-foreground">
                 <Sparkles className="w-3 h-3" strokeWidth={1.5} />
-                <span className="text-xs font-medium uppercase tracking-wider">Awaiting</span>
+                <span className="text-xs font-medium">Awaiting</span>
             </div>
         )
     }
@@ -88,9 +87,9 @@ const ScheduleCell = ({ dateStr, status, interval }: { dateStr: string, status: 
 
     if (date.getFullYear() === 1970) {
         return (
-            <div className="inline-flex items-center gap-1.5 px-2 py-1 bg-amber-500/10 border border-amber-500/50 text-amber-500 rounded-sm">
+            <div className="inline-flex items-center gap-1.5 px-2 py-1 bg-primary/10 border border-primary/50 text-primary rounded-sm">
                 <Zap className="w-3 h-3" strokeWidth={2} fill="currentColor" />
-                <span className="text-[11px] uppercase tracking-wider font-bold">Priority</span>
+                <span className="text-xs font-bold">Priority</span>
             </div>
         )
     }
@@ -100,12 +99,12 @@ const ScheduleCell = ({ dateStr, status, interval }: { dateStr: string, status: 
     return (
         <div className="space-y-0.5">
             <p className={cn(
-                "text-sm font-medium tabular-nums font-editorial",
+                "text-sm font-medium tabular-nums ",
                 isPast ? "text-destructive" : "text-foreground"
             )}>
                 {format(date, 'MMM d')}
             </p>
-            <p className="text-[11px] text-muted-foreground uppercase tracking-wide">
+            <p className="text-xs text-muted-foreground">
                 {interval > 0 && `${formatInterval(interval * 24 * 60 * 60 * 1000)} • `}
                 {formatDistanceToNow(date, { addSuffix: true })}
             </p>
@@ -123,11 +122,11 @@ const SortableHeader = ({
     const isSorted = column.getIsSorted()
 
     return (
-        <button
+        <Button
+            variant="ghost"
             onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-            className="flex items-center gap-2 hover:text-primary transition-colors group"
+            className="flex items-center gap-2 hover:text-primary transition-colors group h-8 px-2 font-bold"
         >
-            <span className="w-1 h-1 rotate-45 bg-primary/40 group-hover:bg-primary transition-colors" />
             {children}
             {isSorted === "asc" ? (
                 <ArrowUp className="w-3 h-3 text-primary" />
@@ -136,7 +135,8 @@ const SortableHeader = ({
             ) : (
                 <ArrowUpDown className="w-3 h-3 opacity-40 group-hover:opacity-100 transition-opacity" />
             )}
-        </button>
+        </Button>
+
     )
 }
 
@@ -235,7 +235,7 @@ export function getCardColumns(actions: ColumnActions): ColumnDef<Card>[] {
                     <div className="space-y-0.5">
                         <p className="font-medium text-foreground text-base">{word}</p>
                         {pos && (
-                            <p className="text-[11px] text-muted-foreground uppercase tracking-wider font-medium">{pos}</p>
+                            <p className="text-xs text-muted-foreground font-medium">{pos}</p>
                         )}
                     </div>
                 )

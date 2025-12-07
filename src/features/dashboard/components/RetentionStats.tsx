@@ -1,37 +1,22 @@
 import React, { useMemo, useState } from 'react';
-import { Card } from '@/types';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Card as CardType } from '@/types';
+import { Button } from '@/components/ui/button';
 import {
   BarChart,
   Bar,
   XAxis,
-  Tooltip,
-  ResponsiveContainer,
-  Cell,
+  CartesianGrid,
 } from 'recharts';
 import { differenceInCalendarDays, parseISO, format, addDays, addMonths, eachMonthOfInterval } from 'date-fns';
-import { useChartColors } from '@/hooks/useChartColors';
-import clsx from 'clsx';
+import { ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
 
 interface RetentionStatsProps {
-  cards: Card[];
-}
-
-interface ChartDataItem {
-  label: string;
-  count: number;
-  fullDate?: Date;
-}
-
-interface CustomTooltipProps {
-  active?: boolean;
-  payload?: Array<{ value: number; payload: ChartDataItem }>;
-  label?: string;
+  cards: CardType[];
 }
 
 export const RetentionStats: React.FC<RetentionStatsProps> = React.memo(({ cards }) => {
-  const colors = useChartColors();
   const [forecastRange, setForecastRange] = useState<'7d' | '1m' | '1y'>('7d');
-
 
   const forecastData = useMemo(() => {
     const today = new Date();
@@ -89,102 +74,100 @@ export const RetentionStats: React.FC<RetentionStatsProps> = React.memo(({ cards
     return buckets;
   }, [cards]);
 
-  const CustomTooltip = ({ active, payload, label }: CustomTooltipProps) => {
-    if (active && payload && payload.length) {
-      return (
-        <div className="bg-foreground text-background px-4 py-3 rounded-md">
-          <div className="text-[9px] font-mono uppercase tracking-[0.2em] opacity-50">{label}</div>
-          <div className="text-sm font-normal tabular-nums mt-1">{payload[0].value}</div>
-        </div>
-      );
-    }
-    return null;
-  };
+  const forecastConfig = {
+    count: {
+      label: "Cards",
+      color: "hsl(var(--primary))",
+    },
+  } satisfies ChartConfig
+
+  const stabilityConfig = {
+    count: {
+      label: "Cards",
+      color: "hsl(var(--primary))",
+    },
+  } satisfies ChartConfig
 
   if (!cards || cards.length === 0) {
     return (
-      <div className="flex items-center justify-center h-32 text-xs text-muted-foreground font-light font-ui">
+      <div className="flex items-center justify-center h-32 text-xs text-muted-foreground font-light ">
         No data available
       </div>
     );
   }
 
   return (
-    <>
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
       {/* Forecast Chart */}
-      <div className="flex flex-col h-48 md:h-56 min-w-0 w-full">
-        <div className="flex items-baseline justify-between mb-6 md:mb-8 min-w-0 gap-2">
-          <h3 className="text-[9px] font-mono uppercase tracking-[0.25em] text-muted-foreground/50 truncate">Workload Forecast</h3>
-          <div className="flex gap-3 md:gap-6 shrink-0">
+      <Card className="flex flex-col">
+        <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
+          <CardTitle className="text-base font-medium">Workload Forecast</CardTitle>
+          <div className="flex gap-1">
             {(['7d', '1m', '1y'] as const).map((range) => (
-              <button
+              <Button
                 key={range}
+                variant={forecastRange === range ? "secondary" : "ghost"}
+                size="sm"
                 onClick={() => setForecastRange(range)}
-                className={clsx(
-                  "text-[9px] font-mono uppercase tracking-[0.2em] transition-all pb-1",
-                  forecastRange === range
-                    ? "text-foreground border-b-2 border-primary"
-                    : "text-muted-foreground/40 hover:text-muted-foreground"
-                )}
+                className="h-7 px-2 text-xs"
               >
                 {range}
-              </button>
+              </Button>
             ))}
           </div>
-        </div>
-
-        <div className="flex-1 w-full min-w-0 overflow-hidden">
-          <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={forecastData} margin={{ top: 0, right: 0, left: -20, bottom: 0 }}>
-              <XAxis
-                dataKey="label"
-                tick={{ fontSize: 9, fill: colors.mutedForeground, fontFamily: 'monospace', opacity: 0.5 }}
-                axisLine={false}
-                tickLine={false}
-                interval={forecastRange === '1m' ? 2 : 0}
-                dy={12}
-              />
-              <Tooltip content={<CustomTooltip />} cursor={{ fill: colors.foreground, opacity: 0.05 }} />
-              <Bar dataKey="count" radius={[0, 0, 0, 0]} maxBarSize={28}>
-                {forecastData.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={colors.foreground} fillOpacity={0.7} />
-                ))}
-              </Bar>
-            </BarChart>
-          </ResponsiveContainer>
-        </div>
-      </div>
+        </CardHeader>
+        <CardContent>
+          <div className="h-[200px] w-full">
+            <ChartContainer config={forecastConfig} className="h-full w-full">
+              <BarChart data={forecastData} margin={{ top: 10, right: 0, left: 0, bottom: 0 }}>
+                <CartesianGrid vertical={false} strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.4} />
+                <XAxis
+                  dataKey="label"
+                  tickLine={false}
+                  axisLine={false}
+                  tickMargin={10}
+                  tickFormatter={(value) => value}
+                  className="text-xs text-muted-foreground"
+                />
+                <ChartTooltip
+                  cursor={{ fill: "hsl(var(--muted))", opacity: 0.1 }}
+                  content={<ChartTooltipContent hideLabel />}
+                />
+                <Bar dataKey="count" fill="var(--color-count)" radius={[4, 4, 0, 0]} maxBarSize={40} />
+              </BarChart>
+            </ChartContainer>
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Stability Chart */}
-      <div className="flex flex-col h-48 md:h-56 min-w-0 w-full mt-8">
-        <div className="flex flex-col sm:flex-row items-start sm:items-baseline justify-between mb-6 md:mb-8 min-w-0 gap-2">
-          <h3 className="text-[9px] font-mono uppercase tracking-[0.25em] text-muted-foreground/50 truncate">Memory Stability</h3>
-          <div className="text-[9px] font-mono text-muted-foreground/40 uppercase tracking-[0.2em] shrink-0">
-            Retention Interval
+      <Card className="flex flex-col">
+        <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
+          <CardTitle className="text-base font-medium">Memory Stability</CardTitle>
+          <CardDescription className="text-xs">Retention Interval</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="h-[200px] w-full">
+            <ChartContainer config={stabilityConfig} className="h-full w-full">
+              <BarChart data={stabilityData} margin={{ top: 10, right: 0, left: 0, bottom: 0 }}>
+                <CartesianGrid vertical={false} strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.4} />
+                <XAxis
+                  dataKey="label"
+                  tickLine={false}
+                  axisLine={false}
+                  tickMargin={10}
+                  className="text-xs text-muted-foreground"
+                />
+                <ChartTooltip
+                  cursor={{ fill: "hsl(var(--muted))", opacity: 0.1 }}
+                  content={<ChartTooltipContent hideLabel />}
+                />
+                <Bar dataKey="count" fill="var(--color-count)" radius={[4, 4, 0, 0]} maxBarSize={40} />
+              </BarChart>
+            </ChartContainer>
           </div>
-        </div>
-
-        <div className="flex-1 w-full min-w-0 overflow-hidden">
-          <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={stabilityData} margin={{ top: 0, right: 0, left: -20, bottom: 0 }}>
-              <XAxis
-                dataKey="label"
-                tick={{ fontSize: 9, fill: colors.mutedForeground, fontFamily: 'monospace', opacity: 0.5 }}
-                axisLine={false}
-                tickLine={false}
-                interval={0}
-                dy={12}
-              />
-              <Tooltip content={<CustomTooltip />} cursor={{ fill: colors.foreground, opacity: 0.05 }} />
-              <Bar dataKey="count" radius={[0, 0, 0, 0]} maxBarSize={28}>
-                {stabilityData.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={colors.foreground} fillOpacity={0.4 + (index * 0.07)} />
-                ))}
-              </Bar>
-            </BarChart>
-          </ResponsiveContainer>
-        </div>
-      </div>
-    </>
+        </CardContent>
+      </Card>
+    </div>
   );
 });

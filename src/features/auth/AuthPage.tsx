@@ -11,11 +11,11 @@ import { saveAllCards } from '@/services/db/repositories/cardRepository';
 import { updateUserSettings } from '@/services/db/repositories/settingsRepository';
 import { Difficulty, Card as CardType, Language, LanguageId } from '@/types';
 import { Loader } from '@/components/ui/loading';
-import { Card } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { GenshinCorners } from '@/components/ui/decorative';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { POLISH_BEGINNER_DECK } from '@/features/deck/data/polishBeginnerDeck';
 import { NORWEGIAN_BEGINNER_DECK } from '@/features/deck/data/norwegianBeginnerDeck';
 import { JAPANESE_BEGINNER_DECK } from '@/features/deck/data/japaneseBeginnerDeck';
@@ -191,7 +191,7 @@ export const AuthPage: React.FC = () => {
 
   const renderHeader = () => (
     <div className="text-center my-8">
-      <h1 className="text-2xl font-bold tracking-tight font-ui uppercase text-foreground">
+      <h1 className="text-2xl font-bold tracking-tight text-foreground">
         LinguaFlow
       </h1>
       <p className="text-sm text-muted-foreground mt-2 font-medium">
@@ -203,28 +203,12 @@ export const AuthPage: React.FC = () => {
   const renderAuthStep = () => (
     <form onSubmit={handleAuthSubmit} className="space-y-4">
       {/* Auth Mode Toggle */}
-      <div className="flex rounded-lg bg-muted/50 p-1 mb-6">
-        <button
-          type="button"
-          onClick={() => setAuthMode('login')}
-          className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-all ${authMode === 'login'
-            ? 'bg-background text-foreground shadow-sm'
-            : 'text-muted-foreground hover:text-foreground'
-            }`}
-        >
-          Sign In
-        </button>
-        <button
-          type="button"
-          onClick={() => setAuthMode('register')}
-          className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-all ${authMode === 'register'
-            ? 'bg-background text-foreground shadow-sm'
-            : 'text-muted-foreground hover:text-foreground'
-            }`}
-        >
-          Register
-        </button>
-      </div>
+      <Tabs value={authMode} onValueChange={(val) => setAuthMode(val as AuthMode)} className="mb-6">
+        <TabsList className="grid w-full grid-cols-2">
+          <TabsTrigger value="login">Sign In</TabsTrigger>
+          <TabsTrigger value="register">Register</TabsTrigger>
+        </TabsList>
+      </Tabs>
 
       {/* Existing users hint */}
       {authMode === 'login' && existingUsers.length > 0 && (
@@ -237,7 +221,7 @@ export const AuthPage: React.FC = () => {
       )}
 
       <div className="space-y-1.5">
-        <Label htmlFor="username" className="text-xs font-medium text-muted-foreground font-ui uppercase tracking-wider ml-1">
+        <Label htmlFor="username" className="text-xs font-medium text-muted-foreground ml-1">
           Username
         </Label>
         <div className="relative group/input">
@@ -252,14 +236,14 @@ export const AuthPage: React.FC = () => {
             minLength={3}
             maxLength={20}
           />
-          <div className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground group-focus-within/input:text-amber-500 transition-colors">
+          <div className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground group-focus-within/input:text-primary transition-colors">
             <UserIcon size={16} />
           </div>
         </div>
       </div>
 
       <div className="space-y-1.5">
-        <Label htmlFor="password" className="text-xs font-medium text-muted-foreground font-ui uppercase tracking-wider ml-1">
+        <Label htmlFor="password" className="text-xs font-medium text-muted-foreground ml-1">
           Password
         </Label>
         <div className="relative group/input">
@@ -273,7 +257,7 @@ export const AuthPage: React.FC = () => {
             required
             minLength={4}
           />
-          <div className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground group-focus-within/input:text-amber-500 transition-colors">
+          <div className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground group-focus-within/input:text-primary transition-colors">
             <Lock size={16} />
           </div>
         </div>
@@ -281,7 +265,7 @@ export const AuthPage: React.FC = () => {
 
       {authMode === 'register' && (
         <div className="space-y-1.5">
-          <Label htmlFor="confirmPassword" className="text-xs font-medium text-muted-foreground font-ui uppercase tracking-wider ml-1">
+          <Label htmlFor="confirmPassword" className="text-xs font-medium text-muted-foreground ml-1">
             Confirm Password
           </Label>
           <div className="relative group/input">
@@ -295,7 +279,7 @@ export const AuthPage: React.FC = () => {
               required
               minLength={4}
             />
-            <div className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground group-focus-within/input:text-amber-500 transition-colors">
+            <div className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground group-focus-within/input:text-primary transition-colors">
               <Lock size={16} />
             </div>
           </div>
@@ -317,9 +301,9 @@ export const AuthPage: React.FC = () => {
   if (loading && setupStep === 'deck') {
     return (
       <AuthLayout>
-        <Card variant="ornate" size="lg" className="text-center py-12">
+        <Card className="text-center py-12 p-6">
           <Loader size="lg" />
-          <h3 className="mt-4 text-lg font-medium tracking-wide font-ui">Forging your deck...</h3>
+          <h3 className="mt-4 text-lg font-medium tracking-wide ">Forging your deck...</h3>
           <p className="mt-2 text-muted-foreground text-sm max-w-xs mx-auto">
             Preparing your personalized learning path.
           </p>
@@ -331,13 +315,12 @@ export const AuthPage: React.FC = () => {
   if (setupStep === 'language') {
     return (
       <AuthLayout className="max-w-2xl">
-        <Card variant="ornate" size="lg">
-          <GenshinCorners />
+        <Card className="p-6">
           <div className="mb-6 flex items-center gap-4">
             <Button variant="ghost" size="sm" onClick={() => setSetupStep('auth')}>
               <ArrowLeft size={16} /> Back
             </Button>
-            <h2 className="text-xl font-bold font-ui uppercase">Select Languages</h2>
+            <h2 className="text-xl font-bold">Select Languages</h2>
           </div>
           <LanguageSelector
             selectedLanguages={selectedLanguages}
@@ -352,13 +335,12 @@ export const AuthPage: React.FC = () => {
   if (setupStep === 'level') {
     return (
       <AuthLayout className="max-w-2xl">
-        <Card variant="ornate" size="lg">
-          <GenshinCorners />
+        <Card className="p-6">
           <div className="mb-6 flex items-center gap-4">
             <Button variant="ghost" size="sm" onClick={() => setSetupStep('language')}>
               <ArrowLeft size={16} /> Back
             </Button>
-            <h2 className="text-xl font-bold font-ui uppercase">Select Proficiency</h2>
+            <h2 className="text-xl font-bold">Select Proficiency</h2>
           </div>
           <LanguageLevelSelector
             selectedLevel={selectedLevel}
@@ -372,13 +354,12 @@ export const AuthPage: React.FC = () => {
   if (setupStep === 'deck') {
     return (
       <AuthLayout className="max-w-2xl">
-        <Card variant="ornate" size="lg">
-          <GenshinCorners />
+        <Card className="p-6">
           <div className="mb-6 flex items-center gap-4">
             <Button variant="ghost" size="sm" onClick={() => setSetupStep('level')}>
               <ArrowLeft size={16} /> Back
             </Button>
-            <h2 className="text-xl font-bold font-ui uppercase">Deck Configuration</h2>
+            <h2 className="text-xl font-bold">Deck Configuration</h2>
           </div>
           <DeckGenerationStep
             languages={selectedLanguages}
@@ -392,8 +373,7 @@ export const AuthPage: React.FC = () => {
 
   return (
     <AuthLayout>
-      <Card variant="ornate" size="lg" className="py-8 px-6 md:px-8">
-        <GenshinCorners />
+      <Card className="py-8 px-6 md:px-8">
         {renderHeader()}
         {renderAuthStep()}
 

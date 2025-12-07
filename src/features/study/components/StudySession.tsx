@@ -1,5 +1,6 @@
 import React, { useMemo, useCallback, useState } from 'react';
 import { Card, Grade } from '@/types';
+import { Progress } from '@/components/ui/progress';
 import { useSettingsStore } from '@/stores/useSettingsStore';
 import { useStudySession } from '../hooks/useStudySession';
 import { useXpSession } from '@/features/xp/hooks/useXpSession';
@@ -109,6 +110,7 @@ export const StudySession: React.FC<StudySessionProps> = React.memo(({
     isProcessing,
     isWaiting,
     removeCardFromSession,
+    updateCardInSession,
   } = useStudySession({
     dueCards,
     reserveCards,
@@ -123,7 +125,8 @@ export const StudySession: React.FC<StudySessionProps> = React.memo(({
     if (!currentCard) return;
     const updatedCard = { ...currentCard, isBookmarked: pressed };
     onUpdateCard(updatedCard);
-  }, [currentCard, onUpdateCard]);
+    updateCardInSession(updatedCard);
+  }, [currentCard, onUpdateCard, updateCardInSession]);
 
   const handleDelete = useCallback(async () => {
     if (!currentCard) return;
@@ -144,20 +147,20 @@ export const StudySession: React.FC<StudySessionProps> = React.memo(({
 
   const currentStatus = useMemo(() => {
     if (!currentCard) return null;
-    if (isCramMode) return { label: 'CRAM', className: 'text-purple-500 border-purple-500/20 bg-purple-500/5' };
+    if (isCramMode) return { label: 'CRAM', className: 'text-chart-5 border-chart-5/20 bg-chart-5/10' };
 
     const s = currentCard.state;
 
     if (s === 0 || (s === undefined && currentCard.status === 'new')) {
-      return { label: 'NEW', className: 'text-blue-500 border-blue-500/20 bg-blue-500/5' };
+      return { label: 'NEW', className: 'text-chart-1 border-chart-1/20 bg-chart-1/10' };
     }
     if (s === 1 || (s === undefined && currentCard.status === 'learning')) {
-      return { label: 'LRN', className: 'text-amber-500 border-amber-500/20 bg-amber-500/5' };
+      return { label: 'LRN', className: 'text-chart-2 border-chart-2/20 bg-chart-2/10' };
     }
     if (s === 3) {
-      return { label: 'LAPSE', className: 'text-red-500 border-red-500/20 bg-red-500/5' };
+      return { label: 'LAPSE', className: 'text-destructive border-destructive/20 bg-destructive/10' };
     }
-    return { label: 'REV', className: 'text-green-700 border-green-700/20 bg-green-700/5' };
+    return { label: 'REV', className: 'text-chart-3 border-chart-3/20 bg-chart-3/10' };
   }, [currentCard, isCramMode]);
 
   const intervals = useReviewIntervals(currentCard, settings);
@@ -196,32 +199,8 @@ export const StudySession: React.FC<StudySessionProps> = React.memo(({
   return (
     <div className="fixed inset-0 z-50 bg-background flex flex-col overflow-hidden">
 
-      {/* Genshin-styled progress bar */}
-      <div className="relative h-2 w-full bg-card border-b border-amber-600/10 overflow-hidden">
-        {/* Decorative end caps */}
-        <span className="absolute left-2 top-1/2 -translate-y-1/2 w-1 h-1 rotate-45 bg-amber-500/40 z-10" />
-        <span className="absolute right-2 top-1/2 -translate-y-1/2 w-1 h-1 rotate-45 bg-amber-500/40 z-10" />
-
-        {/* Progress fill with amber gradient */}
-        <div
-          className="absolute h-full bg-linear-to-r from-amber-600/80 via-amber-500/60 to-amber-400/40 transition-all duration-700 ease-out"
-          style={{ width: `${progress}%` }}
-        />
-        {/* Animated shine overlay */}
-        <div
-          className="absolute top-0 h-full bg-linear-to-r from-transparent via-white/20 to-transparent w-12 transition-all duration-700"
-          style={{
-            left: `${Math.max(0, progress - 6)}%`,
-            opacity: progress > 0 ? 1 : 0
-          }}
-        />
-        {/* Progress end glow point */}
-        {progress > 0 && (
-          <div
-            className="absolute top-1/2 -translate-y-1/2 w-1.5 h-1.5 rotate-45 bg-amber-500 shadow-[0_0_8px_2px] shadow-amber-500/50 transition-all duration-700"
-            style={{ left: `calc(${progress}% - 3px)` }}
-          />
-        )}
+      <div className="relative h-2 w-full bg-card border-b border-primary/10 overflow-hidden">
+        <Progress value={progress} className="h-full w-full rounded-none" />
       </div>
 
       <StudyHeader

@@ -4,6 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Slider } from "@/components/ui/slider";
+import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
 import { useSettingsStore } from "@/stores/useSettingsStore";
 import { getTags } from "@/services/db/repositories/cardRepository";
@@ -83,18 +84,18 @@ export const CramModal = ({ isOpen, onClose }: CramModalProps) => {
                 </div>
 
                 <div className="p-4 bg-secondary/20 border-t border-border flex justify-end gap-3">
-                    <button
+                    <Button
+                        variant="ghost"
                         onClick={onClose}
-                        className="px-4 py-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
                     >
                         Cancel
-                    </button>
-                    <button
+                    </Button>
+                    <Button
                         onClick={handleStart}
-                        className="flex items-center gap-2 bg-primary text-primary-foreground px-5 py-2 text-sm font-medium hover:bg-primary/90 transition-colors rounded-md "
+                        className="gap-2"
                     >
                         Start Session <ArrowRight size={14} />
-                    </button>
+                    </Button>
                 </div>
             </DialogContent>
         </Dialog>

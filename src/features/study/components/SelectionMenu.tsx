@@ -1,7 +1,7 @@
 import React from 'react';
 import { Sparkles, Plus } from 'lucide-react';
 import { ButtonLoader } from '@/components/ui/loading';
-import { LCorners } from '@/components/ui/decorative';
+import { Button } from '@/components/ui/button';
 
 interface SelectionMenuProps {
     top: number;
@@ -26,26 +26,28 @@ export const SelectionMenu: React.FC<SelectionMenuProps> = ({
             style={{ top, left }}
             onMouseDown={(e) => e.preventDefault()}
         >
-            <button
+            <Button
+                variant="outline"
+                size="sm"
                 onClick={onAnalyze}
                 disabled={isAnalyzing || isGeneratingCard}
-                className="relative bg-card text-foreground px-5 py-2.5 border border-primary/30 hover:border-primary/50 hover:bg-primary/5 transition-all duration-200 text-[10px] font-ui font-medium uppercase tracking-[0.15em] flex items-center gap-2.5"
+                className="bg-card shadow-sm gap-2"
             >
-                <LCorners positions="diagonal" size="md" className="bg-primary" />
-                {isAnalyzing ? <ButtonLoader /> : <Sparkles size={11} strokeWidth={2} className="text-primary" />}
+                {isAnalyzing ? <ButtonLoader /> : <Sparkles size={14} className="text-primary" />}
                 <span>Analyze</span>
-            </button>
+            </Button>
 
             {onGenerateCard && (
-                <button
+                <Button
+                    variant="outline"
+                    size="sm"
                     onClick={onGenerateCard}
                     disabled={isAnalyzing || isGeneratingCard}
-                    className="relative bg-card text-foreground px-5 py-2.5 border border-primary/30 hover:border-primary/50 hover:bg-primary/5 transition-all duration-200 text-[10px] font-ui font-medium uppercase tracking-[0.15em] flex items-center gap-2.5"
+                    className="bg-card shadow-sm gap-2"
                 >
-                    <LCorners positions="diagonal" size="md" className="bg-primary" />
-                    {isGeneratingCard ? <ButtonLoader /> : <Plus size={11} strokeWidth={2} className="text-primary" />}
+                    {isGeneratingCard ? <ButtonLoader /> : <Plus size={14} className="text-primary" />}
                     <span>Create Card</span>
-                </button>
+                </Button>
             )}
         </div>
     );
