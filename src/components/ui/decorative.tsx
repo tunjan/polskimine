@@ -149,3 +149,142 @@ export const InnerFrame = ({ className }: { className?: string }) => (
         className
     )} />
 )
+
+// ============================================================================
+// L-shaped Corner Accents
+// ============================================================================
+
+interface LCornerProps {
+    position: 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right'
+    size?: 'xs' | 'sm' | 'md' | 'lg'
+    thickness?: 'thin' | 'medium'
+    className?: string
+}
+
+const sizeMap = {
+    xs: 'w-1 h-1',
+    sm: 'w-1.5 h-1.5',
+    md: 'w-2 h-2',
+    lg: 'w-4 h-4'
+}
+
+const thicknessMap = {
+    thin: 'h-px w-px',      // for the lines
+    medium: 'h-0.5 w-0.5'   // thicker lines
+}
+
+const positionConfig = {
+    'top-left': {
+        wrapper: '-top-px -left-px',
+        line1: 'absolute top-0 left-0 w-full',
+        line2: 'absolute top-0 left-0 h-full'
+    },
+    'top-right': {
+        wrapper: '-top-px -right-px',
+        line1: 'absolute top-0 right-0 w-full',
+        line2: 'absolute top-0 right-0 h-full'
+    },
+    'bottom-left': {
+        wrapper: '-bottom-px -left-px',
+        line1: 'absolute bottom-0 left-0 w-full',
+        line2: 'absolute bottom-0 left-0 h-full'
+    },
+    'bottom-right': {
+        wrapper: '-bottom-px -right-px',
+        line1: 'absolute bottom-0 right-0 w-full',
+        line2: 'absolute bottom-0 right-0 h-full'
+    }
+}
+
+export const LCorner = ({
+    position,
+    size = 'sm',
+    thickness = 'thin',
+    className = 'bg-amber-500/60'
+}: LCornerProps) => {
+    const config = positionConfig[position]
+    const lineHeight = thickness === 'thin' ? 'h-px' : 'h-0.5'
+    const lineWidth = thickness === 'thin' ? 'w-px' : 'w-0.5'
+
+    return (
+        <span className={cn("absolute pointer-events-none", sizeMap[size], config.wrapper)}>
+            <span className={cn(config.line1, lineHeight, className)} />
+            <span className={cn(config.line2, lineWidth, className)} />
+        </span>
+    )
+}
+
+interface LCornersProps {
+    positions?: 'all' | 'diagonal' | 'top' | 'bottom'
+    size?: 'xs' | 'sm' | 'md' | 'lg'
+    thickness?: 'thin' | 'medium'
+    className?: string
+}
+
+export const LCorners = ({
+    positions = 'diagonal',
+    size = 'sm',
+    thickness = 'thin',
+    className
+}: LCornersProps) => {
+    const cornerProps = { size, thickness, className }
+
+    if (positions === 'diagonal') {
+        return (
+            <>
+                <LCorner position="top-left" {...cornerProps} />
+                <LCorner position="bottom-right" {...cornerProps} />
+            </>
+        )
+    }
+
+    if (positions === 'top') {
+        return (
+            <>
+                <LCorner position="top-left" {...cornerProps} />
+                <LCorner position="top-right" {...cornerProps} />
+            </>
+        )
+    }
+
+    if (positions === 'bottom') {
+        return (
+            <>
+                <LCorner position="bottom-left" {...cornerProps} />
+                <LCorner position="bottom-right" {...cornerProps} />
+            </>
+        )
+    }
+
+    // 'all'
+    return (
+        <>
+            <LCorner position="top-left" {...cornerProps} />
+            <LCorner position="top-right" {...cornerProps} />
+            <LCorner position="bottom-left" {...cornerProps} />
+            <LCorner position="bottom-right" {...cornerProps} />
+        </>
+    )
+}
+
+// ============================================================================
+// Corner Ornament (SVG decorative corner for loading screens)
+// ============================================================================
+
+export function CornerOrnament({ className }: { className?: string }) {
+    return (
+        <svg width="100" height="100" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" className={className}>
+            <path d="M0 0H50V2H2V50H0V0Z" fill="currentColor" />
+            <path d="M0 0H60V1H1V60H0V0Z" fill="currentColor" opacity="0.5" />
+            <rect x="8" y="8" width="6" height="6" fill="none" stroke="currentColor" strokeWidth="1" />
+            <path d="M11 11L13 13L11 15L9 13Z" fill="currentColor" opacity="0.6" />
+            <rect x="20" y="8" width="12" height="2" fill="currentColor" opacity="0.4" />
+            <rect x="8" y="20" width="2" height="12" fill="currentColor" opacity="0.4" />
+            <path d="M40 2L42 4L40 6L38 4Z" fill="currentColor" opacity="0.5" />
+            <path d="M2 40L4 38L6 40L4 42Z" fill="currentColor" opacity="0.5" />
+            <rect x="50" y="0" width="8" height="1" fill="currentColor" opacity="0.3" />
+            <rect x="0" y="50" width="1" height="8" fill="currentColor" opacity="0.3" />
+        </svg>
+    )
+}
+

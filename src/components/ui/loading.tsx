@@ -1,5 +1,6 @@
 import * as React from "react"
 import { cn } from "@/lib/utils"
+import { CornerOrnament } from "@/components/ui/decorative"
 
 const LOADING_TIPS = [
     "Reviewing daily keeps the streak alive!",
@@ -30,23 +31,6 @@ export function Loader({ size = 'md', className }: LoaderProps) {
                 <span className={cn("absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-amber-600 rotate-45", config.diamond)} />
             </div>
         </div>
-    )
-}
-
-function CornerOrnament() {
-    return (
-        <svg width="100" height="100" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M0 0H50V2H2V50H0V0Z" fill="currentColor" />
-            <path d="M0 0H60V1H1V60H0V0Z" fill="currentColor" opacity="0.5" />
-            <rect x="8" y="8" width="6" height="6" fill="none" stroke="currentColor" strokeWidth="1" />
-            <path d="M11 11L13 13L11 15L9 13Z" fill="currentColor" opacity="0.6" />
-            <rect x="20" y="8" width="12" height="2" fill="currentColor" opacity="0.4" />
-            <rect x="8" y="20" width="2" height="12" fill="currentColor" opacity="0.4" />
-            <path d="M40 2L42 4L40 6L38 4Z" fill="currentColor" opacity="0.5" />
-            <path d="M2 40L4 38L6 40L4 42Z" fill="currentColor" opacity="0.5" />
-            <rect x="50" y="0" width="8" height="1" fill="currentColor" opacity="0.3" />
-            <rect x="0" y="50" width="1" height="8" fill="currentColor" opacity="0.3" />
-        </svg>
     )
 }
 

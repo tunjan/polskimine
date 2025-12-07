@@ -1,5 +1,6 @@
 import * as React from "react"
 import { cn } from "@/lib/utils"
+import { CornerAccents } from "@/components/ui/decorative"
 
 export interface StreakDisplayProps {
     currentStreak: number
@@ -27,14 +28,9 @@ export function StreakDisplay({
                             : "border-border/30"
                     )} />
 
-                    {/* Small corner accents */}
+                    {/* Corner accents using shared component */}
                     {currentStreak > 0 && (
-                        <>
-                            <div className="absolute -top-0.5 -left-0.5 w-2 h-2 border-t-2 border-l-2 border-orange-500/60" />
-                            <div className="absolute -top-0.5 -right-0.5 w-2 h-2 border-t-2 border-r-2 border-orange-500/60" />
-                            <div className="absolute -bottom-0.5 -left-0.5 w-2 h-2 border-b-2 border-l-2 border-orange-500/60" />
-                            <div className="absolute -bottom-0.5 -right-0.5 w-2 h-2 border-b-2 border-r-2 border-orange-500/60" />
-                        </>
+                        <CornerAccents position="all" size="sm" className="border-orange-500/60" />
                     )}
 
                     {/* Inner content */}

@@ -2,6 +2,7 @@ import * as React from "react"
 import * as TooltipPrimitive from "@radix-ui/react-tooltip"
 
 import { cn } from "@/lib/utils"
+import { LCorners } from "@/components/ui/decorative"
 
 function TooltipProvider({
   delayDuration = 0,
@@ -53,15 +54,7 @@ function TooltipContent({
         )}
         {...props}
       >
-        {/* Corner accents */}
-        <span className="absolute -top-px -left-px w-2 h-2 pointer-events-none">
-          <span className="absolute top-0 left-0 w-full h-px bg-amber-500/60" />
-          <span className="absolute top-0 left-0 h-full w-px bg-amber-500/60" />
-        </span>
-        <span className="absolute -bottom-px -right-px w-2 h-2 pointer-events-none">
-          <span className="absolute bottom-0 right-0 w-full h-px bg-amber-500/60" />
-          <span className="absolute bottom-0 right-0 h-full w-px bg-amber-500/60" />
-        </span>
+        <LCorners positions="diagonal" size="md" />
 
         {children}
       </TooltipPrimitive.Content>
@@ -70,3 +63,4 @@ function TooltipContent({
 }
 
 export { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider }
+

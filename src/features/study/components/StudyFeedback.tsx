@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Zap } from 'lucide-react';
 import clsx from 'clsx';
 import { XpFeedback } from '@/features/xp/hooks/useXpSession';
+import { LCorners } from '@/components/ui/decorative';
 
 export const StudyFeedback = React.memo(({ feedback }: { feedback: XpFeedback | null }) => {
   const [visible, setVisible] = useState(false);
@@ -33,23 +34,11 @@ export const StudyFeedback = React.memo(({ feedback }: { feedback: XpFeedback | 
           ? "bg-primary/5 border-primary/40 text-primary"
           : "bg-card/80 border-border/40 text-muted-foreground"
       )}>
-        {/* Corner accents */}
-        <span className="absolute -top-px -left-px w-2 h-2 pointer-events-none">
-          <span className={clsx("absolute top-0 left-0 w-full h-0.5", currentFeedback.isBonus ? "bg-primary" : "bg-border")} />
-          <span className={clsx("absolute top-0 left-0 h-full w-0.5", currentFeedback.isBonus ? "bg-primary" : "bg-border")} />
-        </span>
-        <span className="absolute -top-px -right-px w-2 h-2 pointer-events-none">
-          <span className={clsx("absolute top-0 right-0 w-full h-0.5", currentFeedback.isBonus ? "bg-primary" : "bg-border")} />
-          <span className={clsx("absolute top-0 right-0 h-full w-0.5", currentFeedback.isBonus ? "bg-primary" : "bg-border")} />
-        </span>
-        <span className="absolute -bottom-px -left-px w-2 h-2 pointer-events-none">
-          <span className={clsx("absolute bottom-0 left-0 w-full h-0.5", currentFeedback.isBonus ? "bg-primary" : "bg-border")} />
-          <span className={clsx("absolute bottom-0 left-0 h-full w-0.5", currentFeedback.isBonus ? "bg-primary" : "bg-border")} />
-        </span>
-        <span className="absolute -bottom-px -right-px w-2 h-2 pointer-events-none">
-          <span className={clsx("absolute bottom-0 right-0 w-full h-0.5", currentFeedback.isBonus ? "bg-primary" : "bg-border")} />
-          <span className={clsx("absolute bottom-0 right-0 h-full w-0.5", currentFeedback.isBonus ? "bg-primary" : "bg-border")} />
-        </span>
+        <LCorners
+          positions="all"
+          size="md"
+          className={currentFeedback.isBonus ? "bg-primary" : "bg-border"}
+        />
 
         <span className="w-1.5 h-1.5 rotate-45 bg-current" />
         <Zap size={12} className={currentFeedback.isBonus ? "fill-primary" : "fill-none"} />

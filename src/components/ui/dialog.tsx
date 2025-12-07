@@ -3,6 +3,7 @@ import * as DialogPrimitive from "@radix-ui/react-dialog"
 import { X } from "lucide-react"
 
 import { cn } from "@/lib/utils"
+import { LCorners } from "@/components/ui/decorative"
 
 const Dialog = DialogPrimitive.Root
 
@@ -41,23 +42,7 @@ const DialogContent = React.forwardRef<
       )}
       {...props}
     >
-      {/* Ornate corner decorations */}
-      <span className="absolute -top-px -left-px w-4 h-4 pointer-events-none">
-        <span className="absolute top-0 left-0 w-full h-0.5 bg-amber-500/70" />
-        <span className="absolute top-0 left-0 h-full w-0.5 bg-amber-500/70" />
-      </span>
-      <span className="absolute -top-px -right-px w-4 h-4 pointer-events-none">
-        <span className="absolute top-0 right-0 w-full h-0.5 bg-amber-500/70" />
-        <span className="absolute top-0 right-0 h-full w-0.5 bg-amber-500/70" />
-      </span>
-      <span className="absolute -bottom-px -left-px w-4 h-4 pointer-events-none">
-        <span className="absolute bottom-0 left-0 w-full h-0.5 bg-amber-500/70" />
-        <span className="absolute bottom-0 left-0 h-full w-0.5 bg-amber-500/70" />
-      </span>
-      <span className="absolute -bottom-px -right-px w-4 h-4 pointer-events-none">
-        <span className="absolute bottom-0 right-0 w-full h-0.5 bg-amber-500/70" />
-        <span className="absolute bottom-0 right-0 h-full w-0.5 bg-amber-500/70" />
-      </span>
+      <LCorners positions="all" size="lg" thickness="medium" className="bg-amber-500/70" />
 
       {children}
       <DialogPrimitive.Close className="absolute right-4 top-4 p-1.5 text-amber-700/60 dark:text-amber-400/60 hover:text-amber-600 dark:hover:text-amber-400 transition-colors focus:outline-none disabled:pointer-events-none">

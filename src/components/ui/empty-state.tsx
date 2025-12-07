@@ -52,7 +52,7 @@ export function EmptyState({
                 <h3 className="text-sm font-semibold text-foreground mb-2.5 font-ui tracking-wide uppercase">
                     {title}
                 </h3>
-                <p className="text-xs text-muted-foreground/70 font-medium max-w-64 mb-6">
+                <p className="text-xs text-muted-foreground font-medium max-w-64 mb-6">
                     {description}
                 </p>
 
