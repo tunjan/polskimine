@@ -1,6 +1,4 @@
 import { Language, TTSSettings, TTSProvider } from "@/types";
-import { Capacitor } from '@capacitor/core';
-import { TextToSpeech } from '@capacitor-community/text-to-speech';
 import { toast } from 'sonner';
 
 const LANG_CODE_MAP: Record<Language, string[]> = {
@@ -50,20 +48,6 @@ class TTSService {
 
     async getAvailableVoices(language: Language, settings: TTSSettings): Promise<VoiceOption[]> {
         const validCodes = LANG_CODE_MAP[language];
-
-        if (Capacitor.isNativePlatform() && settings.provider === 'browser') {
-            try {
-                const { languages } = await TextToSpeech.getSupportedLanguages();
-                return [{
-                    id: 'default',
-                    name: 'System Default',
-                    lang: validCodes[0],
-                    provider: 'browser'
-                }];
-            } catch (e) {
-                return [];
-            }
-        }
 
         if (settings.provider === 'browser') {
             return this.browserVoices
@@ -143,22 +127,6 @@ class TTSService {
     }
 
     private async speakBrowser(text: string, language: Language, settings: TTSSettings) {
-        if (Capacitor.isNativePlatform()) {
-            try {
-                await TextToSpeech.speak({
-                    text,
-                    lang: LANG_CODE_MAP[language][0],
-                    rate: settings.rate,
-                    pitch: settings.pitch,
-                    volume: settings.volume,
-                    category: 'ambient',
-                });
-            } catch (e) {
-                console.error("Native TTS failed", e);
-            }
-            return;
-        }
-
         if (!('speechSynthesis' in window)) return;
 
         window.speechSynthesis.cancel();
@@ -348,12 +316,6 @@ class TTSService {
         if (this.resumeInterval) {
             clearInterval(this.resumeInterval);
             this.resumeInterval = null;
-        }
-
-        if (Capacitor.isNativePlatform()) {
-            try {
-                await TextToSpeech.stop();
-            } catch (e) { }
         }
 
         if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
