@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Sparkles, BookOpen } from 'lucide-react';
 import { motion } from "framer-motion";
-import { Difficulty, Language, LanguageId } from '@/types';
+import { Difficulty, Language, LanguageId, LANGUAGE_LABELS } from '@/types';
 import { cn } from '@/lib/utils';
 import { ButtonLoader } from '@/components/ui/loading';
 import { Button } from '@/components/ui/button';
@@ -9,15 +9,15 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 
 interface DeckGenerationStepProps {
-    language: Language;
+    languages: Language[];
     proficiencyLevel: Difficulty;
-    onComplete: (language: Language, useAI: boolean, apiKey?: string) => Promise<void>;
+    onComplete: (languages: Language[], useAI: boolean, apiKey?: string) => Promise<void>;
 }
 
 type DeckOption = 'ai' | 'default' | null;
 
 export const DeckGenerationStep: React.FC<DeckGenerationStepProps> = ({
-    language,
+    languages,
     proficiencyLevel,
     onComplete,
 }) => {
@@ -36,37 +36,27 @@ export const DeckGenerationStep: React.FC<DeckGenerationStepProps> = ({
         setError('');
 
         try {
-            await onComplete(language, selectedOption === 'ai', selectedOption === 'ai' ? apiKey : undefined);
+            await onComplete(languages, selectedOption === 'ai', selectedOption === 'ai' ? apiKey : undefined);
         } catch (err: any) {
             setError(err.message || 'Failed to complete setup');
             setLoading(false);
         }
     };
 
-    const getLanguagePrompt = (lang: Language) => {
-        switch (lang) {
-            case LanguageId.Polish:
-                return "Generate a starter deck for learning Polish (A1 level). Include basic greetings, numbers, and essential verbs.";
-            case LanguageId.Norwegian:
-                return "Generate a starter deck for learning Norwegian (Bokmål). Include common phrases and daily vocabulary.";
-            case LanguageId.Japanese:
-                return "Generate a starter deck for learning Japanese (N5 level). Include hiragana/katakana basics and simple kanji.";
-            case LanguageId.Spanish:
-                return "Generate a starter deck for learning Spanish (A1 level). Include essential travel phrases and core vocabulary.";
-            default:
-                return "Generate a starter deck for learning this language.";
-        }
-    };
-    const languageName = language === LanguageId.Norwegian ? 'Norwegian' :
-        (language === LanguageId.Japanese ? 'Japanese' :
-            (language === LanguageId.Spanish ? 'Spanish' : 'Polish'));
+    const languageNames = languages.map(lang => LANGUAGE_LABELS[lang] || lang).join(', ');
+    const languageCount = languages.length;
 
     return (
         <div className="space-y-6">
             <div className="space-y-2">
                 <p className="text-xs font-ui text-muted-foreground uppercase tracking-wider">
-                    Choose how to start learning {languageName} at {proficiencyLevel} level.
+                    Choose how to start learning {languageCount > 1 ? `${languageCount} languages` : languageNames} at {proficiencyLevel} level.
                 </p>
+                {languageCount > 1 && (
+                    <p className="text-xs text-muted-foreground/70">
+                        Selected: {languageNames}
+                    </p>
+                )}
             </div>
 
             {/* Options */}
@@ -93,10 +83,10 @@ export const DeckGenerationStep: React.FC<DeckGenerationStepProps> = ({
                                 "text-sm font-ui font-bold uppercase tracking-wider",
                                 selectedOption === 'ai' ? "text-amber-400" : "text-foreground"
                             )}>
-                                AI-Generated Deck
+                                AI-Generated Decks
                             </div>
                             <p className="text-xs text-muted-foreground/80 leading-relaxed">
-                                Generate 50 personalized flashcards using Gemini AI, tailored to {proficiencyLevel} level.
+                                Generate 50 personalized flashcards per language using Gemini AI, tailored to {proficiencyLevel} level.
                                 Requires your API key.
                             </p>
                         </div>
@@ -134,10 +124,10 @@ export const DeckGenerationStep: React.FC<DeckGenerationStepProps> = ({
                                 "text-sm font-ui font-bold uppercase tracking-wider",
                                 selectedOption === 'default' ? "text-amber-400" : "text-foreground"
                             )}>
-                                Standard Course
+                                Standard Courses
                             </div>
                             <p className="text-xs text-muted-foreground/80 leading-relaxed">
-                                Start with our curated beginner deck. Best for getting started quickly.
+                                Start with our curated beginner decks for {languageCount > 1 ? 'each language' : 'this language'}. Best for getting started quickly.
                             </p>
                         </div>
                     </div>
@@ -186,7 +176,9 @@ export const DeckGenerationStep: React.FC<DeckGenerationStepProps> = ({
                         {loading ? (
                             <ButtonLoader />
                         ) : (
-                            selectedOption === 'ai' ? 'Generate Deck' : 'Start Learning'
+                            selectedOption === 'ai'
+                                ? `Generate ${languageCount} Deck${languageCount > 1 ? 's' : ''}`
+                                : 'Start Learning'
                         )}
                     </Button>
                 </div>
@@ -194,4 +186,3 @@ export const DeckGenerationStep: React.FC<DeckGenerationStepProps> = ({
         </div>
     );
 };
-

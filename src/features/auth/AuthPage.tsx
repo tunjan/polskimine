@@ -20,11 +20,20 @@ import { POLISH_BEGINNER_DECK } from '@/features/deck/data/polishBeginnerDeck';
 import { NORWEGIAN_BEGINNER_DECK } from '@/features/deck/data/norwegianBeginnerDeck';
 import { JAPANESE_BEGINNER_DECK } from '@/features/deck/data/japaneseBeginnerDeck';
 import { SPANISH_BEGINNER_DECK } from '@/features/deck/data/spanishBeginnerDeck';
+import { GERMAN_BEGINNER_DECK } from '@/features/deck/data/germanBeginnerDeck';
 import { v4 as uuidv4 } from 'uuid';
 import { LocalUser } from '@/services/db/dexie';
 
 type AuthMode = 'login' | 'register';
 type SetupStep = 'auth' | 'language' | 'level' | 'deck';
+
+const BEGINNER_DECKS: Record<Language, CardType[]> = {
+  [LanguageId.Polish]: POLISH_BEGINNER_DECK,
+  [LanguageId.Norwegian]: NORWEGIAN_BEGINNER_DECK,
+  [LanguageId.Japanese]: JAPANESE_BEGINNER_DECK,
+  [LanguageId.Spanish]: SPANISH_BEGINNER_DECK,
+  [LanguageId.German]: GERMAN_BEGINNER_DECK,
+};
 
 export const AuthPage: React.FC = () => {
   const { markInitialDeckGenerated } = useProfile();
@@ -42,6 +51,7 @@ export const AuthPage: React.FC = () => {
   const [setupStep, setSetupStep] = useState<SetupStep>('auth');
   const [selectedLevel, setSelectedLevel] = useState<Difficulty | null>(null);
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+  const [selectedLanguages, setSelectedLanguages] = useState<Language[]>([]);
 
   useEffect(() => {
     const loadUsers = async () => {
@@ -106,9 +116,19 @@ export const AuthPage: React.FC = () => {
     }
   };
 
-  const handleLanguageSelected = (language: Language) => {
-    updateSettings({ language });
-    setSetupStep('level');
+  const handleLanguageToggle = (language: Language) => {
+    setSelectedLanguages(prev =>
+      prev.includes(language)
+        ? prev.filter(l => l !== language)
+        : [...prev, language]
+    );
+  };
+
+  const handleLanguageContinue = () => {
+    if (selectedLanguages.length > 0) {
+      updateSettings({ language: selectedLanguages[0] });
+      setSetupStep('level');
+    }
   };
 
   const handleLevelSelected = (level: Difficulty) => {
@@ -116,7 +136,7 @@ export const AuthPage: React.FC = () => {
     setSetupStep('deck');
   };
 
-  const handleDeckSetup = async (language: Language, useAI: boolean, apiKey?: string) => {
+  const handleDeckSetup = async (languages: Language[], useAI: boolean, apiKey?: string) => {
     if (!selectedLevel || !currentUserId) return;
     setLoading(true);
 
@@ -125,36 +145,38 @@ export const AuthPage: React.FC = () => {
         await updateUserSettings(currentUserId, { geminiApiKey: apiKey });
       }
 
-      let cards: CardType[] = [];
+      let allCards: CardType[] = [];
 
       if (useAI && apiKey) {
-        cards = await generateInitialDeck({
-          language,
-          proficiencyLevel: selectedLevel,
-          apiKey,
-        });
-        toast.success(`Generated ${cards.length} personalized cards!`);
+        for (const language of languages) {
+          const languageCards = await generateInitialDeck({
+            language,
+            proficiencyLevel: selectedLevel,
+            apiKey,
+          });
+          allCards = [...allCards, ...languageCards];
+        }
+        toast.success(`Generated ${allCards.length} personalized cards for ${languages.length} language${languages.length > 1 ? 's' : ''}!`);
       } else {
-        const rawDeck =
-          language === LanguageId.Norwegian ? NORWEGIAN_BEGINNER_DECK :
-            (language === LanguageId.Japanese ? JAPANESE_BEGINNER_DECK :
-              (language === LanguageId.Spanish ? SPANISH_BEGINNER_DECK : POLISH_BEGINNER_DECK));
-
-        cards = rawDeck.map(c => ({
-          ...c,
-          id: uuidv4(),
-          dueDate: new Date().toISOString(),
-          tags: [...(c.tags || []), selectedLevel],
-          user_id: currentUserId // Associate cards with the user
-        }));
-        toast.success(`Loaded ${cards.length} starter cards!`);
+        for (const language of languages) {
+          const rawDeck = BEGINNER_DECKS[language] || [];
+          const languageCards = rawDeck.map(c => ({
+            ...c,
+            id: uuidv4(),
+            dueDate: new Date().toISOString(),
+            tags: [...(c.tags || []), selectedLevel],
+            user_id: currentUserId
+          }));
+          allCards = [...allCards, ...languageCards];
+        }
+        toast.success(`Loaded ${allCards.length} starter cards for ${languages.length} language${languages.length > 1 ? 's' : ''}!`);
       }
 
       // Add user_id to all cards
-      cards = cards.map(c => ({ ...c, user_id: currentUserId }));
+      allCards = allCards.map(c => ({ ...c, user_id: currentUserId }));
 
-      if (cards.length > 0) {
-        await saveAllCards(cards);
+      if (allCards.length > 0) {
+        await saveAllCards(allCards);
       }
 
       await markInitialDeckGenerated(currentUserId);
@@ -315,11 +337,12 @@ export const AuthPage: React.FC = () => {
             <Button variant="ghost" size="sm" onClick={() => setSetupStep('auth')}>
               <ArrowLeft size={16} /> Back
             </Button>
-            <h2 className="text-xl font-bold font-ui uppercase">Select Language</h2>
+            <h2 className="text-xl font-bold font-ui uppercase">Select Languages</h2>
           </div>
           <LanguageSelector
-            selectedLanguage={settings.language}
-            onSelect={handleLanguageSelected}
+            selectedLanguages={selectedLanguages}
+            onToggle={handleLanguageToggle}
+            onContinue={handleLanguageContinue}
           />
         </Card>
       </AuthLayout>
@@ -358,7 +381,7 @@ export const AuthPage: React.FC = () => {
             <h2 className="text-xl font-bold font-ui uppercase">Deck Configuration</h2>
           </div>
           <DeckGenerationStep
-            language={settings.language}
+            languages={selectedLanguages}
             proficiencyLevel={selectedLevel!}
             onComplete={handleDeckSetup}
           />
