@@ -133,9 +133,9 @@ export const StudyRoute: React.FC = () => {
 
   const handleDeleteCard = async (id: string) => {
     await deleteCard(id);
-
-
-    setSessionCards(prev => prev.filter(c => c.id !== id));
+    // Note: Don't call setSessionCards here - it would trigger useStudySession's 
+    // INIT effect and reset all learning progress. The removeCardFromSession 
+    // function in StudySession handles the UI state update correctly.
   };
 
   const handleRecordReview = async (card: Card, newCard: Card, grade: Grade, xpPayload?: CardXpPayload) => {
