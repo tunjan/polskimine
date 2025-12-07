@@ -11,7 +11,8 @@ import {
   ChevronUp,
   Check,
   Command,
-  Save
+  Save,
+  Download
 } from 'lucide-react';
 import { useSettingsStore } from '@/stores/useSettingsStore';
 import { useAuth } from '@/contexts/AuthContext';
@@ -53,7 +54,9 @@ interface NavActionProps {
   onOpenCram: () => void;
 
   onSyncSave: () => void;
+  onSyncLoad: () => void;
   isSyncing: boolean;
+  isSyncingLoad: boolean;
   onCloseMobileMenu?: () => void;
 }
 
@@ -64,7 +67,9 @@ const AppSidebar: React.FC<NavActionProps> = ({
   onOpenCram,
 
   onSyncSave,
+  onSyncLoad,
   isSyncing,
+  isSyncingLoad,
   onCloseMobileMenu
 }) => {
   const location = useLocation();
@@ -93,6 +98,7 @@ const AppSidebar: React.FC<NavActionProps> = ({
     { icon: Plus, label: 'Add Entry', onClick: () => { onOpenAdd(); onCloseMobileMenu?.(); } },
     { icon: Zap, label: 'Cram Mode', onClick: () => { onOpenCram(); onCloseMobileMenu?.(); } },
     { icon: Save, label: isSyncing ? 'Saving...' : 'Save Changes', onClick: () => { if (!isSyncing) { onSyncSave(); } }, disabled: isSyncing },
+    { icon: Download, label: isSyncingLoad ? 'Loading...' : 'Import Changes', onClick: () => { if (!isSyncingLoad) { onSyncLoad(); } }, disabled: isSyncingLoad },
   ];
 
   return (
@@ -377,7 +383,7 @@ const MobileBottomNav: React.FC<MobileNavProps> = ({ onOpenAdd }) => {
 export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { addCard } = useCardOperations();
   const location = useLocation();
-  const { saveToSyncFile, isSaving: isSyncing } = useSyncthingSync();
+  const { saveToSyncFile, loadFromSyncFile, isSaving: isSyncing, isLoading: isSyncingLoad } = useSyncthingSync();
 
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
 
@@ -390,7 +396,9 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
     onOpenCram: () => setIsCramModalOpen(true),
 
     onSyncSave: saveToSyncFile,
+    onSyncLoad: loadFromSyncFile,
     isSyncing,
+    isSyncingLoad,
   };
 
 

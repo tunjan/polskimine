@@ -23,7 +23,6 @@ export const MusicProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
     if (isPlaying) {
       audioRef.current.play().catch(e => {
-        console.log("Autoplay prevented:", e);
         setIsPlaying(false);
       });
     }

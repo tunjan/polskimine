@@ -44,13 +44,38 @@ export async function updateUserSettings(userId: string, settings: Partial<Local
     }
 }
 
+export async function getSystemSetting<T>(key: keyof LocalSettings, userId: string = 'local-user'): Promise<T | undefined> {
+    try {
+        const settings = await db.settings.get(userId);
+        return settings?.[key] as T;
+    } catch (error) {
+        console.error(`Failed to fetch system setting ${key}:`, error);
+        return undefined;
+    }
+}
+
+export async function setSystemSetting(key: keyof LocalSettings, value: any, userId: string = 'local-user'): Promise<void> {
+    try {
+        const existing = await db.settings.get(userId) || { id: userId };
+        await db.settings.put({ ...existing, [key]: value });
+    } catch (error) {
+        console.error(`Failed to update system setting ${key}:`, error);
+        throw error;
+    }
+}
+
 export async function migrateLocalSettingsToDatabase(userId: string): Promise<boolean> {
     try {
         const existingDb = await db.settings.get(userId);
-        if (existingDb) return false;
-
+        
         const storedKeys = localStorage.getItem(SETTINGS_KEY);
         const storedUi = localStorage.getItem(UI_SETTINGS_KEY);
+
+        if (existingDb) {
+             if (storedKeys) localStorage.removeItem(SETTINGS_KEY);
+             if (storedUi) localStorage.removeItem(UI_SETTINGS_KEY);
+             return false;
+        }
 
         if (!storedKeys && !storedUi) return false;
 
@@ -64,8 +89,10 @@ export async function migrateLocalSettingsToDatabase(userId: string): Promise<bo
         };
 
         await db.settings.put(merged);
+        
+        localStorage.removeItem(SETTINGS_KEY);
+        localStorage.removeItem(UI_SETTINGS_KEY);
 
-        console.log('Migrated settings to IndexedDB');
         return true;
     } catch (error) {
         console.error('Failed to migrate settings:', error);

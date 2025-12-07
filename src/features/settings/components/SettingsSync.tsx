@@ -12,13 +12,15 @@ export const SettingsSync: React.FC = () => {
 
     useEffect(() => {
         const loadSettingsFromDb = async () => {
-            if (authLoading || !user) return;
+            if (authLoading) return;
+            
+            const userId = user?.id || 'local-user';
 
             setSettingsLoading(true);
             try {
-                await migrateLocalSettingsToDatabase(user.id);
+                await migrateLocalSettingsToDatabase(userId);
 
-                const dbSettings = await getFullSettings(user.id);
+                const dbSettings = await getFullSettings(userId);
                 if (dbSettings) {
                     setSettings(prev => ({
                         ...prev,
@@ -41,21 +43,11 @@ export const SettingsSync: React.FC = () => {
     }, [user, authLoading, setSettings, setSettingsLoading]);
 
     useEffect(() => {
-        const localCache = {
-            ...settings,
-            geminiApiKey: '', tts: {
-                ...settings.tts,
-                googleApiKey: '',
-                azureApiKey: '',
-            }
-        };
-        localStorage.setItem('language_mining_settings', JSON.stringify(localCache));
-
         const saveSettingsToDb = async () => {
-            if (!user) return;
+            const userId = user?.id || 'local-user';
 
             try {
-                await updateUserSettings(user.id, settings);
+                await updateUserSettings(userId, settings);
             } catch (e) {
                 console.error('Failed to save settings to DB', e);
             }

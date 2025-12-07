@@ -26,6 +26,7 @@ import {
 import { Checkbox } from "@/components/ui/checkbox"
 import { cn } from "@/lib/utils"
 import { formatDistanceToNow, parseISO, isValid, format } from "date-fns"
+import { formatInterval } from "@/utils/formatInterval"
 
 const StatusBadge = ({ status }: { status: string }) => {
     const statusConfig: Record<string, {
@@ -105,7 +106,7 @@ const ScheduleCell = ({ dateStr, status, interval }: { dateStr: string, status: 
                 {format(date, 'MMM d')}
             </p>
             <p className="text-[11px] text-muted-foreground uppercase tracking-wide">
-                {interval > 0 && `${interval}d • `}
+                {interval > 0 && `${formatInterval(interval * 24 * 60 * 60 * 1000)} • `}
                 {formatDistanceToNow(date, { addSuffix: true })}
             </p>
         </div>

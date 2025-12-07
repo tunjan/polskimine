@@ -337,7 +337,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
                       <div className={cn(
                         "absolute inset-0 transition-opacity duration-300",
                         stats.due > 0
-                          ? "bg-primary shadow-lg group-hover/btn:bg-primary/90"
+                          ? "bg-primary/50 shadow-lg group-hover/btn:bg-primary/90"
                           : "bg-muted cursor-not-allowed"
                       )} />
 
@@ -363,14 +363,14 @@ export const Dashboard: React.FC<DashboardProps> = ({
                       <div className="relative py-4 px-6">
                         {stats.due > 0 ? (
                           <div className="flex items-center justify-center gap-4">
-                            <span className="w-6 h-px bg-amber-500/50 group-hover/btn:w-10 group-hover/btn:bg-amber-400 transition-all duration-300" />
-                            <span className="w-1.5 h-1.5 rotate-45 bg-amber-500 opacity-60" />
+                            <span className="w-6 h-px bg-amber-800/50 group-hover/btn:w-10 group-hover/btn:bg-amber-400 transition-all duration-300" />
+                            <span className="w-1.5 h-1.5 rotate-45 bg-amber-800 opacity-60" />
                             <span className="text-base font-bold tracking-[0.2em] text-amber-950 dark:text-amber-100 uppercase">
                               Start Commission
                             </span>
 
-                            <span className="w-1.5 h-1.5 rotate-45 bg-amber-500 opacity-60" />
-                            <span className="w-6 h-px bg-amber-500/50 group-hover/btn:w-10 group-hover/btn:bg-amber-400 transition-all duration-300" />
+                            <span className="w-1.5 h-1.5 rotate-45 bg-amber-800 opacity-60" />
+                            <span className="w-6 h-px bg-amber-800/50 group-hover/btn:w-10 group-hover/btn:bg-amber-400 transition-all duration-300" />
                           </div>
                         ) : (
                           <div className="flex items-center justify-center gap-3">
