@@ -53,9 +53,8 @@ export const getAllCardsByLanguage = async (language: Language): Promise<Card[]>
   if (!userId) return [];
 
   const cards = await db.cards
-    .where('language')
-    .equals(language)
-    .filter(c => c.user_id === userId)
+    .where('[user_id+language]')
+    .equals([userId, language])
     .toArray();
   return cards;
 };
@@ -65,9 +64,8 @@ export const getCardsForRetention = async (language: Language): Promise<Partial<
   if (!userId) return [];
 
   const cards = await db.cards
-    .where('language')
-    .equals(language)
-    .filter(c => c.user_id === userId)
+    .where('[user_id+language]')
+    .equals([userId, language])
     .toArray();
 
   return cards.map(c => ({
@@ -96,9 +94,8 @@ export const getDashboardCounts = async (language: Language): Promise<{
   const cutoffISO = cutoffDate.toISOString();
 
   const allCards = await db.cards
-    .where('language')
-    .equals(language)
-    .filter(c => c.user_id === userId)
+    .where('[user_id+language]')
+    .equals([userId, language])
     .toArray();
 
   const total = allCards.length;
@@ -125,9 +122,8 @@ export const getCardsForDashboard = async (language: Language): Promise<Array<{
   if (!userId) return [];
 
   const cards = await db.cards
-    .where('language')
-    .equals(language)
-    .filter(c => c.user_id === userId)
+    .where('[user_id+language]')
+    .equals([userId, language])
     .toArray();
 
   return cards.map(card => ({
@@ -197,9 +193,9 @@ export const getDueCards = async (now: Date, language: Language): Promise<Card[]
   const cutoffISO = cutoffDate.toISOString();
 
   const cards = await db.cards
-    .where('language')
-    .equals(language)
-    .filter(card => card.user_id === userId && card.status !== 'known' && card.dueDate <= cutoffISO)
+    .where('[user_id+language]')
+    .equals([userId, language])
+    .filter(card => card.status !== 'known' && card.dueDate <= cutoffISO)
     .toArray();
 
   return cards.sort((a, b) => a.dueDate.localeCompare(b.dueDate));
@@ -210,9 +206,8 @@ export const getCramCards = async (limit: number, tag?: string, language?: Langu
   if (!userId) return [];
 
   let cards = await db.cards
-    .where('language')
-    .equals(language || LanguageId.Polish)
-    .filter(c => c.user_id === userId)
+    .where('[user_id+language]')
+    .equals([userId, language || LanguageId.Polish])
     .toArray();
 
   if (tag) {
@@ -228,9 +223,8 @@ export const deleteCardsByLanguage = async (language: Language) => {
   if (!userId) return;
 
   const cardsToDelete = await db.cards
-    .where('language')
-    .equals(language)
-    .filter(c => c.user_id === userId)
+    .where('[user_id+language]')
+    .equals([userId, language])
     .toArray();
 
   const ids = cardsToDelete.map(c => c.id);
@@ -244,9 +238,8 @@ export const getCardSignatures = async (language: Language): Promise<Array<{ tar
   if (!userId) return [];
 
   const cards = await db.cards
-    .where('language')
-    .equals(language)
-    .filter(c => c.user_id === userId)
+    .where('[user_id+language]')
+    .equals([userId, language])
     .toArray();
 
   return cards.map(c => ({
@@ -263,9 +256,8 @@ export const getTags = async (language?: Language): Promise<string[]> => {
 
   if (language) {
     cards = await db.cards
-      .where('language')
-      .equals(language)
-      .filter(c => c.user_id === userId)
+      .where('[user_id+language]')
+      .equals([userId, language])
       .toArray();
   } else {
     cards = await db.cards
@@ -289,9 +281,9 @@ export const getLearnedWords = async (language: Language): Promise<string[]> => 
   if (!userId) return [];
 
   const cards = await db.cards
-    .where('language')
-    .equals(language)
-    .filter(card => card.user_id === userId && card.status !== 'new' && card.targetWord != null)
+    .where('[user_id+language]')
+    .equals([userId, language])
+    .filter(card => card.status !== 'new' && card.targetWord != null)
     .toArray();
 
   const words = cards
@@ -307,9 +299,9 @@ export const getCardByTargetWord = async (targetWord: string, language: Language
 
   const lowerWord = targetWord.toLowerCase();
   const cards = await db.cards
-    .where('language')
-    .equals(language)
-    .filter(card => card.user_id === userId && card.targetWord?.toLowerCase() === lowerWord)
+    .where('[user_id+language]')
+    .equals([userId, language])
+    .filter(card => card.targetWord?.toLowerCase() === lowerWord)
     .toArray();
 
   return cards[0];

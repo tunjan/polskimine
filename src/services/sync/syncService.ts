@@ -1,6 +1,3 @@
-import { Capacitor } from '@capacitor/core';
-import { Filesystem, Directory, Encoding } from '@capacitor/filesystem';
-import { Share } from '@capacitor/share';
 import { db } from '@/services/db/dexie';
 import { getCards, saveAllCards, clearAllCards } from '@/services/db/repositories/cardRepository';
 import { getHistory, saveFullHistory, clearHistory } from '@/services/db/repositories/historyRepository';
@@ -111,81 +108,56 @@ export const saveSyncFile = async (settings: Partial<UserSettings>): Promise<{ s
         const jsonContent = JSON.stringify(syncData, null, 2);
         const filename = await getSyncFilePath();
 
-        if (Capacitor.isNativePlatform()) {
-            const tempFilename = `linguaflow-backup-${Date.now()}.json`;
+        if ('showSaveFilePicker' in window) {
+            try {
+                let handle = cachedFileHandle;
 
-            await Filesystem.writeFile({
-                path: tempFilename,
-                data: jsonContent,
-                directory: Directory.Cache,
-                encoding: Encoding.UTF8
-            });
-
-            const uri = await Filesystem.getUri({
-                path: tempFilename,
-                directory: Directory.Cache
-            });
-
-            await Share.share({
-                title: 'LinguaFlow Backup',
-                text: 'Save your LinguaFlow backup data',
-                url: uri.uri,
-                dialogTitle: 'Save backup file to...'
-            });
-
-            return { success: true, path: uri.uri };
-        } else {
-            if ('showSaveFilePicker' in window) {
-                try {
-                    let handle = cachedFileHandle;
-
-                    if (handle) {
-                        const permission = await (handle as any).queryPermission({ mode: 'readwrite' });
-                        if (permission !== 'granted') {
-                            const requestResult = await (handle as any).requestPermission({ mode: 'readwrite' });
-                            if (requestResult !== 'granted') {
-                                handle = null;
-                            }
+                if (handle) {
+                    const permission = await (handle as any).queryPermission({ mode: 'readwrite' });
+                    if (permission !== 'granted') {
+                        const requestResult = await (handle as any).requestPermission({ mode: 'readwrite' });
+                        if (requestResult !== 'granted') {
+                            handle = null;
                         }
                     }
-
-                    if (!handle) {
-                        handle = await (window as any).showSaveFilePicker({
-                            suggestedName: filename,
-                            types: [{
-                                description: 'JSON Files',
-                                accept: { 'application/json': ['.json'] }
-                            }]
-                        });
-                        cachedFileHandle = handle;
-                    }
-
-                    const writable = await handle!.createWritable();
-                    await writable.write(jsonContent);
-                    await writable.close();
-                    return { success: true, path: handle!.name };
-                } catch (e: any) {
-                    if (e.name === 'AbortError') {
-                        return { success: false, error: 'Save cancelled' };
-                    }
-                    if (cachedFileHandle) {
-                        cachedFileHandle = null;
-                        return saveSyncFile(settings);
-                    }
-                    throw e;
                 }
-            } else {
-                const blob = new Blob([jsonContent], { type: 'application/json' });
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = filename;
-                document.body.appendChild(a);
-                a.click();
-                document.body.removeChild(a);
-                URL.revokeObjectURL(url);
-                return { success: true, path: filename };
+
+                if (!handle) {
+                    handle = await (window as any).showSaveFilePicker({
+                        suggestedName: filename,
+                        types: [{
+                            description: 'JSON Files',
+                            accept: { 'application/json': ['.json'] }
+                        }]
+                    });
+                    cachedFileHandle = handle;
+                }
+
+                const writable = await handle!.createWritable();
+                await writable.write(jsonContent);
+                await writable.close();
+                return { success: true, path: handle!.name };
+            } catch (e: any) {
+                if (e.name === 'AbortError') {
+                    return { success: false, error: 'Save cancelled' };
+                }
+                if (cachedFileHandle) {
+                    cachedFileHandle = null;
+                    return saveSyncFile(settings);
+                }
+                throw e;
             }
+        } else {
+            const blob = new Blob([jsonContent], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            return { success: true, path: filename };
         }
     } catch (error: any) {
         console.error('[Sync] Save failed:', error);
@@ -195,83 +167,63 @@ export const saveSyncFile = async (settings: Partial<UserSettings>): Promise<{ s
 
 export const loadSyncFile = async (): Promise<{ success: boolean; data?: SyncData; error?: string }> => {
     try {
-        const filename = await getSyncFilePath();
-
-        if (Capacitor.isNativePlatform()) {
+        if ('showOpenFilePicker' in window) {
             try {
-                const result = await Filesystem.readFile({
-                    path: filename,
-                    directory: Directory.Documents,
-                    encoding: Encoding.UTF8
+                const [handle] = await (window as any).showOpenFilePicker({
+                    types: [{
+                        description: 'JSON Files',
+                        accept: { 'application/json': ['.json'] }
+                    }]
                 });
-
-                const data = JSON.parse(result.data as string) as SyncData;
+                const file = await handle.getFile();
+                const text = await file.text();
+                const data = JSON.parse(text) as SyncData;
                 return { success: true, data };
             } catch (e: any) {
-                if (e.message?.includes('not exist') || e.message?.includes('No such file')) {
-                    return { success: false, error: 'No sync file found' };
+                if (e.name === 'AbortError') {
+                    return { success: false, error: 'Load cancelled' };
                 }
                 throw e;
             }
         } else {
-            if ('showOpenFilePicker' in window) {
-                try {
-                    const [handle] = await (window as any).showOpenFilePicker({
-                        types: [{
-                            description: 'JSON Files',
-                            accept: { 'application/json': ['.json'] }
-                        }]
-                    });
-                    const file = await handle.getFile();
-                    const text = await file.text();
-                    const data = JSON.parse(text) as SyncData;
-                    return { success: true, data };
-                } catch (e: any) {
-                    if (e.name === 'AbortError') {
-                        return { success: false, error: 'Load cancelled' };
+            // Fallback for browsers that don't support File System Access API
+            return new Promise((resolve) => {
+                const input = document.createElement('input');
+                input.type = 'file';
+                input.accept = 'application/json,.json';
+                input.style.display = 'none';
+                document.body.appendChild(input);
+
+                const cleanup = () => {
+                    if (document.body.contains(input)) {
+                        document.body.removeChild(input);
                     }
-                    throw e;
-                }
-            } else {
-                // Fallback for browsers that don't support File System Access API
-                return new Promise((resolve) => {
-                    const input = document.createElement('input');
-                    input.type = 'file';
-                    input.accept = 'application/json,.json';
-                    input.style.display = 'none';
-                    document.body.appendChild(input);
+                };
 
-                    const cleanup = () => {
-                        if (document.body.contains(input)) {
-                            document.body.removeChild(input);
+                input.onchange = async (e: any) => {
+                    const file = e.target.files?.[0];
+                    if (file) {
+                        try {
+                            const text = await file.text();
+                            const data = JSON.parse(text) as SyncData;
+                            resolve({ success: true, data });
+                        } catch (error: any) {
+                            resolve({ success: false, error: error.message });
                         }
-                    };
+                    } else {
+                        resolve({ success: false, error: 'No file selected' });
+                    }
+                    cleanup();
+                };
 
-                    input.onchange = async (e: any) => {
-                        const file = e.target.files?.[0];
-                        if (file) {
-                            try {
-                                const text = await file.text();
-                                const data = JSON.parse(text) as SyncData;
-                                resolve({ success: true, data });
-                            } catch (error: any) {
-                                resolve({ success: false, error: error.message });
-                            }
-                        } else {
-                            resolve({ success: false, error: 'No file selected' });
-                        }
-                        cleanup();
-                    };
-
-                    // Handle cancellation (supported in modern browsers)
-                    input.addEventListener('cancel', () => {
-                        resolve({ success: false, error: 'Load cancelled' });
-                        cleanup();
-                    });
-
-                    input.click();
+                // Handle cancellation (supported in modern browsers)
+                input.addEventListener('cancel', () => {
+                    resolve({ success: false, error: 'Load cancelled' });
+                    cleanup();
                 });
-            }
+
+                input.click();
+            });
         }
     } catch (error: any) {
         console.error('[Sync] Load failed:', error);
@@ -280,31 +232,8 @@ export const loadSyncFile = async (): Promise<{ success: boolean; data?: SyncDat
 };
 
 export const checkSyncFile = async (): Promise<{ exists: boolean; lastSynced?: string; deviceId?: string }> => {
-    try {
-        const filename = await getSyncFilePath();
-
-        if (Capacitor.isNativePlatform()) {
-            try {
-                const result = await Filesystem.readFile({
-                    path: filename,
-                    directory: Directory.Documents,
-                    encoding: Encoding.UTF8
-                });
-                const data = JSON.parse(result.data as string) as SyncData;
-                return {
-                    exists: true,
-                    lastSynced: data.lastSynced,
-                    deviceId: data.deviceId
-                };
-            } catch {
-                return { exists: false };
-            }
-        }
-
-        return { exists: false };
-    } catch {
-        return { exists: false };
-    }
+    // Web platform cannot check for sync file existence without user interaction
+    return { exists: false };
 };
 
 export const importSyncData = async (

@@ -5,6 +5,7 @@ import { FSRS, Card as FSRSCard, Rating, State, generatorParameters } from 'ts-f
 
 let cachedFSRS: FSRS | null = null;
 let lastConfig: UserSettings['fsrs'] | null = null;
+let lastWHash: string | null = null;
 
 export const getSRSDate = (date: Date = new Date()): Date => {
 
@@ -27,11 +28,15 @@ const mapStateToStatus = (state: State): CardStatus => {
 };
 
 function getFSRS(settings?: UserSettings['fsrs']) {
+  const currentWHash = settings?.w ? JSON.stringify(settings.w) : null;
+
   if (!cachedFSRS ||
     lastConfig?.request_retention !== settings?.request_retention ||
     lastConfig?.maximum_interval !== settings?.maximum_interval ||
-    lastConfig?.w !== settings?.w ||
+    lastWHash !== currentWHash ||
     lastConfig?.enable_fuzzing !== settings?.enable_fuzzing) {
+
+    lastWHash = currentWHash;
 
     const paramsConfig = {
       request_retention: settings?.request_retention || FSRS_DEFAULTS.request_retention,

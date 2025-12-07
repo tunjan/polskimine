@@ -1,7 +1,6 @@
 import React from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { Capacitor } from '@capacitor/core';
-import { BrowserRouter, HashRouter } from 'react-router-dom';
+import { BrowserRouter } from 'react-router-dom';
 import { Toaster } from 'sonner';
 
 
@@ -24,7 +23,6 @@ interface AppProvidersProps {
 }
 
 export const AppProviders: React.FC<AppProvidersProps> = ({ children }) => {
-    const Router = Capacitor.isNativePlatform() ? HashRouter : BrowserRouter;
 
     return (
         <QueryClientProvider client={queryClient}>
@@ -35,10 +33,10 @@ export const AppProviders: React.FC<AppProvidersProps> = ({ children }) => {
                         <GamificationProvider>
                             <DeckActionsProvider>
                                 <MusicProvider>
-                                    <Router>
+                                    <BrowserRouter>
                                         {children}
                                         <Toaster position="bottom-right" expand={true} />
-                                    </Router>
+                                    </BrowserRouter>
                                 </MusicProvider>
                             </DeckActionsProvider>
                         </GamificationProvider>
