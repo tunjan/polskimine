@@ -5,34 +5,36 @@ import { differenceInCalendarDays, parseISO, addDays, format, subDays, startOfDa
 import {
   getCardsForDashboard,
   getDashboardCounts,
-  getDueCards
+  getDueCards,
+  getCurrentUserId
 } from './cardRepository';
 
 export const getDashboardStats = async (language?: string) => {
+  const userId = getCurrentUserId();
   const counts = { new: 0, learning: 0, graduated: 0, known: 0 };
   let languageXp = 0;
 
-  if (language) {
-
+  if (language && userId) {
+    // Use optimized composite index queries with user_id
     const [newCount, knownCount, learningCount, graduatedCount] = await Promise.all([
-      db.cards.where({ language, status: 'new' }).count(),
-
-      db.cards.where({ language, status: 'known' }).count(),
-
+      db.cards.where('[user_id+language+status]').equals([userId, language, 'new']).count(),
+      db.cards.where('[user_id+language+status]').equals([userId, language, 'known']).count(),
       db.cards.where('[language+status+interval]')
         .between([language, 'review', 0], [language, 'review', 30], true, false)
+        .filter(c => c.user_id === userId)
         .count(),
-
       db.cards.where('[language+status+interval]')
         .between([language, 'review', 30], [language, 'review', 180], true, false)
+        .filter(c => c.user_id === userId)
         .count(),
     ]);
 
-    const xpStat = await db.aggregated_stats.get(`${language}:total_xp`);
+    const xpStat = await db.aggregated_stats.get(`${userId}:${language}:total_xp`);
     languageXp = xpStat?.value ?? 0;
 
     const implicitKnownCount = await db.cards.where('[language+status+interval]')
       .aboveOrEqual([language, 'review', 180])
+      .filter(c => c.user_id === userId)
       .count();
 
     counts.new = newCount;
@@ -128,35 +130,45 @@ export const getStats = async (language?: string) => {
 };
 
 export const getTodayReviewStats = async (language?: string) => {
+  const userId = getCurrentUserId();
+  if (!userId) return { newCards: 0, reviewCards: 0 };
+
   const srsToday = getSRSDate(new Date());
   const rangeStart = new Date(srsToday);
   rangeStart.setHours(rangeStart.getHours() + SRS_CONFIG.CUTOFF_HOUR);
   const rangeEnd = new Date(rangeStart);
   rangeEnd.setDate(rangeEnd.getDate() + 1);
 
-
-  let logsCollection = db.revlog.where('created_at').between(
-    rangeStart.toISOString(),
-    rangeEnd.toISOString(),
-    true,
-    false
-  );
+  // Use user_id+created_at composite index for efficient filtering
+  const logs = await db.revlog
+    .where('[user_id+created_at]')
+    .between(
+      [userId, rangeStart.toISOString()],
+      [userId, rangeEnd.toISOString()],
+      true,
+      false
+    )
+    .toArray();
 
   let newCards = 0;
   let reviewCards = 0;
 
   if (language) {
-    const cardIds = await db.cards.where('language').equals(language).primaryKeys();
+    // Get card IDs for this language using composite index
+    const cardIds = await db.cards
+      .where('[user_id+language]')
+      .equals([userId, language])
+      .primaryKeys();
     const cardIdSet = new Set(cardIds);
 
-    await logsCollection.each(entry => {
+    logs.forEach(entry => {
       if (cardIdSet.has(entry.card_id)) {
         if (entry.state === 0) newCards++;
         else reviewCards++;
       }
     });
   } else {
-    await logsCollection.each(entry => {
+    logs.forEach(entry => {
       if (entry.state === 0) newCards++;
       else reviewCards++;
     });
@@ -166,15 +178,23 @@ export const getTodayReviewStats = async (language?: string) => {
 };
 
 export const getRevlogStats = async (language: string, days = 30) => {
+  const userId = getCurrentUserId();
+  if (!userId) return { activity: [], grades: [], retention: [] };
+
   const startDate = startOfDay(subDays(new Date(), days - 1));
   const startDateIso = startDate.toISOString();
 
-  const cardIds = await db.cards.where('language').equals(language).primaryKeys();
+  // Use composite index for efficient user+language card lookup
+  const cardIds = await db.cards
+    .where('[user_id+language]')
+    .equals([userId, language])
+    .primaryKeys();
   const cardIdSet = new Set(cardIds);
 
-
+  // Use composite index for user+created_at range query
   const logs = await db.revlog
-    .where('created_at').aboveOrEqual(startDateIso)
+    .where('[user_id+created_at]')
+    .between([userId, startDateIso], [userId, '\uffff'], true, true)
     .filter(log => cardIdSet.has(log.card_id))
     .toArray();
 

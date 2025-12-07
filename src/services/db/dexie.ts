@@ -164,6 +164,17 @@ export class LinguaFlowDB extends Dexie {
             users: 'id, &username' // &username makes it unique
         });
 
+        // Version 5: Optimized indexes for efficient queries
+        this.version(5).stores({
+            cards: 'id, status, language, dueDate, isBookmarked, user_id, [status+language], [language+status], [language+status+interval], [user_id+language], [user_id+status+language], [user_id+language+status], [user_id+language+dueDate]',
+            revlog: 'id, card_id, user_id, created_at, [card_id+created_at], [user_id+created_at]',
+            history: '[date+language], [user_id+date+language], [user_id+language], date, language, user_id',
+            profile: 'id',
+            settings: 'id',
+            aggregated_stats: 'id, [language+metric], [user_id+language+metric], updated_at',
+            users: 'id, &username'
+        });
+
         this.cards.hook('deleting', (primKey, obj, transaction) => {
             return this.revlog.where('card_id').equals(primKey).delete();
         });
