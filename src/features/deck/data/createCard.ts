@@ -59,3 +59,12 @@ export const createSpanishCard = (
   notes: string = ''
 ): Card => createCard(LanguageId.Spanish, sentence, translation, targetWord, notes);
 
+export const createGermanCard = (
+  sentence: string,
+  translation: string,
+  targetWord?: string,
+  notes: string = '',
+  targetWordTranslation?: string,
+  targetWordPartOfSpeech?: string
+): Card => createCard(LanguageId.German, sentence, translation, targetWord, notes, targetWordTranslation, targetWordPartOfSpeech);
+

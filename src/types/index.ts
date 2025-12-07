@@ -40,6 +40,7 @@ export interface Card extends Omit<Partial<FSRSCard>, 'due' | 'last_review'> {
   isLeech?: boolean;
   isBookmarked?: boolean;
   precise_interval?: number;
+  user_id?: string; // Added for multi-user support
 }
 
 export type Grade = 'Again' | 'Hard' | 'Good' | 'Easy';

@@ -2,8 +2,16 @@ import Dexie, { Table } from 'dexie';
 import { Card, ReviewLog, UserSettings } from '@/types';
 import { State } from 'ts-fsrs';
 
-export interface LocalProfile {
+// User account for authentication
+export interface LocalUser {
     id: string;
+    username: string;
+    passwordHash: string;
+    created_at: string;
+}
+
+export interface LocalProfile {
+    id: string; // This is the user_id
     username: string;
     xp: number;
     points: number;
@@ -17,6 +25,7 @@ export interface LocalProfile {
 export interface RevlogEntry {
     id: string;
     card_id: string;
+    user_id?: string; // Added for multi-user
     grade: number;
     state: State;
     elapsed_days: number;
@@ -29,11 +38,12 @@ export interface RevlogEntry {
 export interface HistoryEntry {
     date: string;
     language: string;
+    user_id?: string; // Added for multi-user
     count: number;
 }
 
 export type LocalSettings = Partial<UserSettings> & {
-    id: string;
+    id: string; // This is the user_id
     geminiApiKey?: string;
     googleTtsApiKey?: string;
     azureTtsApiKey?: string;
@@ -41,7 +51,12 @@ export type LocalSettings = Partial<UserSettings> & {
 };
 
 export interface AggregatedStat {
-    id: string; language: string; metric: string; value: number; updated_at: string;
+    id: string;
+    language: string;
+    user_id?: string; // Added for multi-user
+    metric: string;
+    value: number;
+    updated_at: string;
 }
 
 export class LinguaFlowDB extends Dexie {
@@ -51,6 +66,7 @@ export class LinguaFlowDB extends Dexie {
     profile!: Table<LocalProfile>;
     settings!: Table<LocalSettings>;
     aggregated_stats!: Table<AggregatedStat>;
+    users!: Table<LocalUser>; // New users table
 
     constructor() {
         super('linguaflow-dexie');
@@ -137,6 +153,17 @@ export class LinguaFlowDB extends Dexie {
             console.log('[Migration] Aggregated stats backfill complete!');
         });
 
+        // Version 4: Multi-user support
+        this.version(4).stores({
+            cards: 'id, status, language, dueDate, isBookmarked, user_id, [status+language], [language+status], [language+status+interval], [user_id+language], [user_id+status+language]',
+            revlog: 'id, card_id, user_id, created_at, [card_id+created_at]',
+            history: '[date+language], date, language, user_id', // Keep original primary key
+            profile: 'id',
+            settings: 'id',
+            aggregated_stats: 'id, [language+metric], [user_id+language+metric], updated_at',
+            users: 'id, &username' // &username makes it unique
+        });
+
         this.cards.hook('deleting', (primKey, obj, transaction) => {
             return this.revlog.where('card_id').equals(primKey).delete();
         });
@@ -144,6 +171,15 @@ export class LinguaFlowDB extends Dexie {
 }
 
 export const db = new LinguaFlowDB();
+
+// Password hashing utility using SHA-256
+export const hashPassword = async (password: string): Promise<string> => {
+    const encoder = new TextEncoder();
+    const data = encoder.encode(password);
+    const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+};
 
 export const generateId = (): string => {
     if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {

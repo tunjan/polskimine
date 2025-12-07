@@ -2,11 +2,12 @@ import React from 'react';
 import { Check } from 'lucide-react';
 import { Language, LanguageId } from '@/types';
 import { cn } from '@/lib/utils';
-import { LANGUAGE_NAMES } from '@/constants';
+import { Button } from '@/components/ui/button';
 
 interface LanguageSelectorProps {
-    selectedLanguage: Language | null;
-    onSelect: (lang: Language) => void;
+    selectedLanguages: Language[];
+    onToggle: (lang: Language) => void;
+    onContinue: () => void;
 }
 
 const LANGUAGES: { id: Language; name: string; flag: string }[] = [
@@ -18,14 +19,18 @@ const LANGUAGES: { id: Language; name: string; flag: string }[] = [
 ];
 
 export const LanguageSelector: React.FC<LanguageSelectorProps> = ({
-    selectedLanguage,
-    onSelect,
+    selectedLanguages,
+    onToggle,
+    onContinue,
 }) => {
+    const isSelected = (id: Language) => selectedLanguages.includes(id);
+    const canContinue = selectedLanguages.length > 0;
+
     return (
         <div className="space-y-4">
             <div className="space-y-2">
                 <p className="text-xs font-ui text-muted-foreground uppercase tracking-wider">
-                    Select the language you want to learn.
+                    Select the languages you want to learn.
                 </p>
             </div>
 
@@ -34,11 +39,11 @@ export const LanguageSelector: React.FC<LanguageSelectorProps> = ({
                     <button
                         key={id}
                         type="button"
-                        onClick={() => onSelect(id)}
+                        onClick={() => onToggle(id)}
                         className={cn(
                             'group relative w-full text-left p-4 border-2 transition-all duration-200',
                             'hover:bg-amber-400/5 hover:border-amber-400/30',
-                            selectedLanguage === id
+                            isSelected(id)
                                 ? 'border-amber-400 bg-amber-400/10'
                                 : 'border-border/40 bg-card'
                         )}
@@ -47,12 +52,12 @@ export const LanguageSelector: React.FC<LanguageSelectorProps> = ({
                             <div
                                 className={cn(
                                     'mt-0.5 w-5 h-5 flex items-center justify-center transition-colors rotate-45 border',
-                                    selectedLanguage === id
+                                    isSelected(id)
                                         ? 'border-amber-400 bg-amber-400'
                                         : 'border-muted-foreground/30 group-hover:border-amber-400/50'
                                 )}
                             >
-                                {selectedLanguage === id && (
+                                {isSelected(id) && (
                                     <Check size={12} className="text-background -rotate-45" strokeWidth={3} />
                                 )}
                             </div>
@@ -62,7 +67,7 @@ export const LanguageSelector: React.FC<LanguageSelectorProps> = ({
                                     <span className="text-lg">{flag}</span>
                                     <span className={cn(
                                         "text-sm font-ui font-bold uppercase tracking-wider",
-                                        selectedLanguage === id ? "text-amber-400" : "text-foreground"
+                                        isSelected(id) ? "text-amber-400" : "text-foreground"
                                     )}>
                                         {name}
                                     </span>
@@ -71,7 +76,7 @@ export const LanguageSelector: React.FC<LanguageSelectorProps> = ({
                         </div>
 
                         {/* Corner accents for selected item */}
-                        {selectedLanguage === id && (
+                        {isSelected(id) && (
                             <>
                                 <span className="absolute top-0 left-0 w-2 h-2 border-t-2 border-l-2 border-amber-400" />
                                 <span className="absolute top-0 right-0 w-2 h-2 border-t-2 border-r-2 border-amber-400" />
@@ -82,6 +87,14 @@ export const LanguageSelector: React.FC<LanguageSelectorProps> = ({
                     </button>
                 ))}
             </div>
+
+            {canContinue && (
+                <div className="pt-2 animate-in fade-in slide-in-from-bottom-2 duration-200">
+                    <Button onClick={onContinue} className="w-full">
+                        Continue ({selectedLanguages.length} selected)
+                    </Button>
+                </div>
+            )}
         </div>
     );
 };

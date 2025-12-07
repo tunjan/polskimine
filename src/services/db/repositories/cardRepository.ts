@@ -3,7 +3,12 @@ import { getSRSDate } from '@/features/study/logic/srs';
 import { db, generateId } from '@/services/db/dexie';
 import { SRS_CONFIG } from '@/constants';
 
+const SESSION_KEY = 'linguaflow_current_user';
 
+// Get current user ID from session storage
+export const getCurrentUserId = (): string | null => {
+  return localStorage.getItem(SESSION_KEY);
+};
 
 export const mapToCard = (data: any): Card => ({
   id: data.id,
@@ -32,22 +37,37 @@ export const mapToCard = (data: any): Card => ({
   learningStep: data.learningStep ?? undefined,
   leechCount: data.leechCount ?? undefined,
   isLeech: data.isLeech ?? false,
+  user_id: data.user_id ?? undefined,
 });
 
 export const getCards = async (): Promise<Card[]> => {
-  const cards = await db.cards.toArray();
+  const userId = getCurrentUserId();
+  if (!userId) return [];
+
+  const cards = await db.cards.where('user_id').equals(userId).toArray();
   return cards;
 };
 
 export const getAllCardsByLanguage = async (language: Language): Promise<Card[]> => {
-  const cards = await db.cards.where('language').equals(language).toArray();
+  const userId = getCurrentUserId();
+  if (!userId) return [];
+
+  const cards = await db.cards
+    .where('language')
+    .equals(language)
+    .filter(c => c.user_id === userId)
+    .toArray();
   return cards;
 };
 
 export const getCardsForRetention = async (language: Language): Promise<Partial<Card>[]> => {
+  const userId = getCurrentUserId();
+  if (!userId) return [];
+
   const cards = await db.cards
     .where('language')
     .equals(language)
+    .filter(c => c.user_id === userId)
     .toArray();
 
   return cards.map(c => ({
@@ -65,22 +85,26 @@ export const getDashboardCounts = async (language: Language): Promise<{
   learned: number;
   hueDue: number;
 }> => {
+  const userId = getCurrentUserId();
+  if (!userId) return { total: 0, new: 0, learned: 0, hueDue: 0 };
+
   const now = new Date();
   const srsToday = getSRSDate(now);
   const cutoffDate = new Date(srsToday);
   cutoffDate.setDate(cutoffDate.getDate() + 1);
-  cutoffDate.setHours(4); const cutoffISO = cutoffDate.toISOString();
+  cutoffDate.setHours(4);
+  const cutoffISO = cutoffDate.toISOString();
 
-  const [total, newCards, learned, due] = await Promise.all([
-    db.cards.where('language').equals(language).count(),
-    db.cards.where('[language+status]').equals([language, 'new']).count(),
-    db.cards.where('[language+status]').equals([language, 'known']).count(),
-    db.cards
-      .where('language')
-      .equals(language)
-      .filter(card => card.status !== 'known' && card.dueDate <= cutoffISO)
-      .count()
-  ]);
+  const allCards = await db.cards
+    .where('language')
+    .equals(language)
+    .filter(c => c.user_id === userId)
+    .toArray();
+
+  const total = allCards.length;
+  const newCards = allCards.filter(c => c.status === 'new').length;
+  const learned = allCards.filter(c => c.status === 'known').length;
+  const due = allCards.filter(c => c.status !== 'known' && c.dueDate <= cutoffISO).length;
 
   return {
     total,
@@ -97,9 +121,13 @@ export const getCardsForDashboard = async (language: Language): Promise<Array<{
   stability: number | null;
   state: number | null
 }>> => {
+  const userId = getCurrentUserId();
+  if (!userId) return [];
+
   const cards = await db.cards
     .where('language')
     .equals(language)
+    .filter(c => c.user_id === userId)
     .toArray();
 
   return cards.map(card => ({
@@ -112,8 +140,13 @@ export const getCardsForDashboard = async (language: Language): Promise<Array<{
 };
 
 export const saveCard = async (card: Card) => {
+  const userId = getCurrentUserId();
   if (!card.id) {
     card.id = generateId();
+  }
+  // Ensure user_id is set
+  if (!card.user_id && userId) {
+    card.user_id = userId;
   }
   await db.cards.put(card);
 };
@@ -133,20 +166,29 @@ export const deleteCardsBatch = async (ids: string[]) => {
 
 export const saveAllCards = async (cards: Card[]) => {
   if (!cards.length) return;
+  const userId = getCurrentUserId();
 
   const cardsWithIds = cards.map(card => ({
     ...card,
-    id: card.id || generateId()
+    id: card.id || generateId(),
+    user_id: card.user_id || userId || undefined
   }));
 
   await db.cards.bulkPut(cardsWithIds);
 };
 
 export const clearAllCards = async () => {
-  await db.cards.clear();
+  const userId = getCurrentUserId();
+  if (!userId) return;
+
+  // Only clear cards for current user
+  await db.cards.where('user_id').equals(userId).delete();
 };
 
 export const getDueCards = async (now: Date, language: Language): Promise<Card[]> => {
+  const userId = getCurrentUserId();
+  if (!userId) return [];
+
   const srsToday = getSRSDate(now);
   const cutoffDate = new Date(srsToday);
   cutoffDate.setDate(cutoffDate.getDate() + 1);
@@ -157,16 +199,20 @@ export const getDueCards = async (now: Date, language: Language): Promise<Card[]
   const cards = await db.cards
     .where('language')
     .equals(language)
-    .filter(card => card.status !== 'known' && card.dueDate <= cutoffISO)
+    .filter(card => card.user_id === userId && card.status !== 'known' && card.dueDate <= cutoffISO)
     .toArray();
 
   return cards.sort((a, b) => a.dueDate.localeCompare(b.dueDate));
 };
 
 export const getCramCards = async (limit: number, tag?: string, language?: Language): Promise<Card[]> => {
+  const userId = getCurrentUserId();
+  if (!userId) return [];
+
   let cards = await db.cards
     .where('language')
     .equals(language || LanguageId.Polish)
+    .filter(c => c.user_id === userId)
     .toArray();
 
   if (tag) {
@@ -178,13 +224,29 @@ export const getCramCards = async (limit: number, tag?: string, language?: Langu
 };
 
 export const deleteCardsByLanguage = async (language: Language) => {
-  await db.cards.where('language').equals(language).delete();
+  const userId = getCurrentUserId();
+  if (!userId) return;
+
+  const cardsToDelete = await db.cards
+    .where('language')
+    .equals(language)
+    .filter(c => c.user_id === userId)
+    .toArray();
+
+  const ids = cardsToDelete.map(c => c.id);
+  if (ids.length > 0) {
+    await db.cards.bulkDelete(ids);
+  }
 };
 
 export const getCardSignatures = async (language: Language): Promise<Array<{ target_sentence: string; language: string }>> => {
+  const userId = getCurrentUserId();
+  if (!userId) return [];
+
   const cards = await db.cards
     .where('language')
     .equals(language)
+    .filter(c => c.user_id === userId)
     .toArray();
 
   return cards.map(c => ({
@@ -194,12 +256,22 @@ export const getCardSignatures = async (language: Language): Promise<Array<{ tar
 };
 
 export const getTags = async (language?: Language): Promise<string[]> => {
+  const userId = getCurrentUserId();
+  if (!userId) return [];
+
   let cards: Card[];
 
   if (language) {
-    cards = await db.cards.where('language').equals(language).toArray();
+    cards = await db.cards
+      .where('language')
+      .equals(language)
+      .filter(c => c.user_id === userId)
+      .toArray();
   } else {
-    cards = await db.cards.toArray();
+    cards = await db.cards
+      .where('user_id')
+      .equals(userId)
+      .toArray();
   }
 
   const uniqueTags = new Set<string>();
@@ -213,10 +285,13 @@ export const getTags = async (language?: Language): Promise<string[]> => {
 };
 
 export const getLearnedWords = async (language: Language): Promise<string[]> => {
+  const userId = getCurrentUserId();
+  if (!userId) return [];
+
   const cards = await db.cards
     .where('language')
     .equals(language)
-    .filter(card => card.status !== 'new' && card.targetWord != null)
+    .filter(card => card.user_id === userId && card.status !== 'new' && card.targetWord != null)
     .toArray();
 
   const words = cards
@@ -227,11 +302,14 @@ export const getLearnedWords = async (language: Language): Promise<string[]> => 
 };
 
 export const getCardByTargetWord = async (targetWord: string, language: Language): Promise<Card | undefined> => {
+  const userId = getCurrentUserId();
+  if (!userId) return undefined;
+
   const lowerWord = targetWord.toLowerCase();
   const cards = await db.cards
     .where('language')
     .equals(language)
-    .filter(card => card.targetWord?.toLowerCase() === lowerWord)
+    .filter(card => card.user_id === userId && card.targetWord?.toLowerCase() === lowerWord)
     .toArray();
 
   return cards[0];

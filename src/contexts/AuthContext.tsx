@@ -1,86 +1,125 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { db } from '@/services/db/dexie';
+import { db, hashPassword, generateId, LocalUser } from '@/services/db/dexie';
 import { toast } from 'sonner';
 
-interface LocalUser {
+interface AuthUser {
   id: string;
-  email?: string;
-  username?: string;
+  username: string;
 }
 
 interface AuthContextType {
-  user: LocalUser | null;
+  user: AuthUser | null;
   loading: boolean;
-  signInWithGoogle: () => Promise<void>;
+  register: (username: string, password: string) => Promise<{ user: AuthUser }>;
+  login: (username: string, password: string) => Promise<void>;
   signOut: () => Promise<void>;
-  signInWithEmail: (email: string, password: string) => Promise<void>;
-  signUpWithEmail: (email: string, password: string, username: string, languageLevel?: string) => Promise<any>;
   updateUsername: (username: string) => Promise<void>;
-  login: () => Promise<void>;
+  getRegisteredUsers: () => Promise<LocalUser[]>;
 }
 
-const LOCAL_USER_ID = 'local-user';
+const SESSION_KEY = 'linguaflow_current_user';
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [user, setUser] = useState<LocalUser | null>(null);
+  const [user, setUser] = useState<AuthUser | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const checkSession = async () => {
+    const restoreSession = async () => {
       try {
-        const profile = await db.profile.get(LOCAL_USER_ID);
-
-        if (profile) {
-          setUser({ id: LOCAL_USER_ID, email: 'local-user', username: profile.username });
-        } else {
-          setUser(null);
+        const savedUserId = localStorage.getItem(SESSION_KEY);
+        if (savedUserId) {
+          const existingUser = await db.users.get(savedUserId);
+          if (existingUser) {
+            setUser({ id: existingUser.id, username: existingUser.username });
+          } else {
+            localStorage.removeItem(SESSION_KEY);
+          }
         }
       } catch (error) {
-        console.error('Failed to check session:', error);
+        console.error('Failed to restore session:', error);
       } finally {
         setLoading(false);
       }
     };
 
-    checkSession();
+    restoreSession();
   }, []);
 
-  const signInWithGoogle = async () => {
-    toast.info('This is a local app. Please create a profile.');
-  };
+  const register = async (username: string, password: string): Promise<{ user: AuthUser }> => {
+    // Check if username already exists
+    const existingUser = await db.users.where('username').equals(username).first();
+    if (existingUser) {
+      throw new Error('Username already exists');
+    }
 
-  const signInWithEmail = async (_email: string, _password: string) => {
-    toast.info('This is a local app. Please create a profile.');
-  };
-
-  const signUpWithEmail = async (_email: string, _password: string, username: string, languageLevel?: string) => {
+    const userId = generateId();
+    const passwordHash = await hashPassword(password);
     const now = new Date().toISOString();
+
+    // Create user account
+    await db.users.add({
+      id: userId,
+      username,
+      passwordHash,
+      created_at: now
+    });
+
+    // Create profile for the user
     await db.profile.put({
-      id: LOCAL_USER_ID,
+      id: userId,
       username,
       xp: 0,
       points: 0,
       level: 1,
-      language_level: languageLevel || 'beginner',
       created_at: now,
       updated_at: now
     });
 
-    setUser({ id: LOCAL_USER_ID, email: 'local-user', username });
-    return { user: { id: LOCAL_USER_ID } };
+    // Save session
+    localStorage.setItem(SESSION_KEY, userId);
+
+    const authUser = { id: userId, username };
+    setUser(authUser);
+
+    return { user: authUser };
+  };
+
+  const login = async (username: string, password: string): Promise<void> => {
+    const existingUser = await db.users.where('username').equals(username).first();
+
+    if (!existingUser) {
+      throw new Error('User not found');
+    }
+
+    const passwordHash = await hashPassword(password);
+    if (existingUser.passwordHash !== passwordHash) {
+      throw new Error('Invalid password');
+    }
+
+    // Save session
+    localStorage.setItem(SESSION_KEY, existingUser.id);
+    setUser({ id: existingUser.id, username: existingUser.username });
+
+    toast.success(`Welcome back, ${existingUser.username}!`);
   };
 
   const updateUsername = async (username: string) => {
-    const now = new Date().toISOString();
-    const exists = await db.profile.get(LOCAL_USER_ID);
+    if (!user) throw new Error('No user logged in');
 
+    const now = new Date().toISOString();
+
+    // Update user account
+    await db.users.update(user.id, { username });
+
+    // Update profile
+    const exists = await db.profile.get(user.id);
     if (exists) {
-      await db.profile.update(LOCAL_USER_ID, { username, updated_at: now });
+      await db.profile.update(user.id, { username, updated_at: now });
     } else {
       await db.profile.put({
-        id: LOCAL_USER_ID,
+        id: user.id,
         username,
         xp: 0,
         points: 0,
@@ -90,13 +129,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       });
     }
 
-    setUser(prev => prev ? { ...prev, username } : { id: LOCAL_USER_ID, email: 'local-user', username });
+    setUser(prev => prev ? { ...prev, username } : null);
   };
 
   const signOut = async () => {
-    await db.profile.delete(LOCAL_USER_ID);
+    localStorage.removeItem(SESSION_KEY);
     setUser(null);
     toast.success('Signed out');
+  };
+
+  const getRegisteredUsers = async (): Promise<LocalUser[]> => {
+    return await db.users.toArray();
   };
 
   return (
@@ -104,17 +147,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       value={{
         user,
         loading,
-        signInWithGoogle,
+        register,
+        login,
         signOut,
-        signInWithEmail,
-        signUpWithEmail,
         updateUsername,
-        login: async () => {
-          const profile = await db.profile.get(LOCAL_USER_ID);
-          if (profile) {
-            setUser({ id: LOCAL_USER_ID, email: 'local-user', username: profile.username });
-          }
-        }
+        getRegisteredUsers
       }}
     >
       {children}

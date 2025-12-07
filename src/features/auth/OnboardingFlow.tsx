@@ -15,19 +15,39 @@ import { POLISH_BEGINNER_DECK } from '@/features/deck/data/polishBeginnerDeck';
 import { NORWEGIAN_BEGINNER_DECK } from '@/features/deck/data/norwegianBeginnerDeck';
 import { JAPANESE_BEGINNER_DECK } from '@/features/deck/data/japaneseBeginnerDeck';
 import { SPANISH_BEGINNER_DECK } from '@/features/deck/data/spanishBeginnerDeck';
+import { GERMAN_BEGINNER_DECK } from '@/features/deck/data/germanBeginnerDeck';
 import { v4 as uuidv4 } from 'uuid';
+
+const BEGINNER_DECKS: Record<Language, Card[]> = {
+  [LanguageId.Polish]: POLISH_BEGINNER_DECK,
+  [LanguageId.Norwegian]: NORWEGIAN_BEGINNER_DECK,
+  [LanguageId.Japanese]: JAPANESE_BEGINNER_DECK,
+  [LanguageId.Spanish]: SPANISH_BEGINNER_DECK,
+  [LanguageId.German]: GERMAN_BEGINNER_DECK,
+};
 
 export const OnboardingFlow: React.FC = () => {
   const { user, signOut } = useAuth();
   const { markInitialDeckGenerated } = useProfile();
-  const settings = useSettingsStore(s => s.settings);
   const updateSettings = useSettingsStore(s => s.updateSettings);
   const [step, setStep] = useState<'language' | 'level' | 'deck'>('language');
+  const [selectedLanguages, setSelectedLanguages] = useState<Language[]>([]);
   const [selectedLevel, setSelectedLevel] = useState<Difficulty | null>(null);
 
-  const handleLanguageSelected = (language: Language) => {
-    updateSettings({ language });
-    setStep('level');
+  const handleLanguageToggle = (language: Language) => {
+    setSelectedLanguages(prev =>
+      prev.includes(language)
+        ? prev.filter(l => l !== language)
+        : [...prev, language]
+    );
+  };
+
+  const handleLanguageContinue = () => {
+    if (selectedLanguages.length > 0) {
+      // Set the first selected language as the primary language
+      updateSettings({ language: selectedLanguages[0] });
+      setStep('level');
+    }
   };
 
   const handleLevelSelected = (level: Difficulty) => {
@@ -35,48 +55,50 @@ export const OnboardingFlow: React.FC = () => {
     setStep('deck');
   };
 
-  const handleDeckComplete = async (language: Language, useAI: boolean, apiKey?: string) => {
+  const handleDeckComplete = async (languages: Language[], useAI: boolean, apiKey?: string) => {
     if (!user || !selectedLevel) return;
 
     try {
-
       if (useAI && apiKey) {
         await updateUserSettings(user.id, { geminiApiKey: apiKey });
       }
 
-
-      let cards: Card[] = [];
+      let allCards: Card[] = [];
 
       if (useAI && apiKey) {
-        cards = await generateInitialDeck({
-          language,
-          proficiencyLevel: selectedLevel,
-          apiKey,
-        });
+        // For AI generation, generate for all selected languages
+        for (const language of languages) {
+          const languageCards = await generateInitialDeck({
+            language,
+            proficiencyLevel: selectedLevel,
+            apiKey,
+          });
+          allCards = [...allCards, ...languageCards];
+        }
       } else {
-
-        const rawDeck =
-          language === LanguageId.Norwegian ? NORWEGIAN_BEGINNER_DECK :
-            (language === LanguageId.Japanese ? JAPANESE_BEGINNER_DECK :
-              (language === LanguageId.Spanish ? SPANISH_BEGINNER_DECK : POLISH_BEGINNER_DECK));
-
-        cards = rawDeck.map(c => ({
-          ...c,
-          id: uuidv4(),
-          dueDate: new Date().toISOString(),
-          tags: [...(c.tags || []), selectedLevel]
-        }));
+        // Load default decks for all selected languages
+        for (const language of languages) {
+          const rawDeck = BEGINNER_DECKS[language] || [];
+          const languageCards = rawDeck.map(c => ({
+            ...c,
+            id: uuidv4(),
+            dueDate: new Date().toISOString(),
+            tags: [...(c.tags || []), selectedLevel],
+            user_id: user.id
+          }));
+          allCards = [...allCards, ...languageCards];
+        }
       }
 
+      // Ensure all cards have user_id
+      allCards = allCards.map(c => ({ ...c, user_id: user.id }));
 
-
-      if (cards.length > 0) {
-        console.log('[OnboardingFlow] Saving', cards.length, 'cards...');
-        await saveAllCards(cards);
-        toast.success(`Loaded ${cards.length} cards into your deck.`);
+      if (allCards.length > 0) {
+        console.log('[OnboardingFlow] Saving', allCards.length, 'cards across', languages.length, 'languages...');
+        await saveAllCards(allCards);
+        toast.success(`Loaded ${allCards.length} cards for ${languages.length} language${languages.length > 1 ? 's' : ''}.`);
         console.log('[OnboardingFlow] Cards saved.');
       }
-
 
       console.log('[OnboardingFlow] Marking initial deck as generated...');
       await markInitialDeckGenerated();
@@ -117,7 +139,7 @@ export const OnboardingFlow: React.FC = () => {
           </div>
           <div className="space-y-1">
             <h1 className="text-2xl font-light tracking-tight text-foreground">
-              {step === 'language' ? 'Select Language.' : (step === 'level' ? 'Proficiency Level.' : 'Initialize Deck.')}
+              {step === 'language' ? 'Select Languages.' : (step === 'level' ? 'Proficiency Level.' : 'Initialize Decks.')}
             </h1>
             <p className="text-xs font-mono text-muted-foreground">
               {step === 'language' ? 'Step 1 of 3' : (step === 'level' ? 'Step 2 of 3' : 'Step 3 of 3')}
@@ -128,8 +150,9 @@ export const OnboardingFlow: React.FC = () => {
         {/* Steps */}
         {step === 'language' && (
           <LanguageSelector
-            selectedLanguage={settings.language}
-            onSelect={handleLanguageSelected}
+            selectedLanguages={selectedLanguages}
+            onToggle={handleLanguageToggle}
+            onContinue={handleLanguageContinue}
           />
         )}
 
@@ -151,7 +174,7 @@ export const OnboardingFlow: React.FC = () => {
         {step === 'deck' && selectedLevel && (
           <div className="flex flex-col gap-6">
             <DeckGenerationStep
-              language={settings.language}
+              languages={selectedLanguages}
               proficiencyLevel={selectedLevel}
               onComplete={handleDeckComplete}
             />

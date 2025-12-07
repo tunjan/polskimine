@@ -2,6 +2,7 @@ import { db, generateId, RevlogEntry } from '@/services/db/dexie';
 import { ReviewLog, Card, Grade } from '@/types';
 import { State } from 'ts-fsrs';
 import { incrementStat } from './aggregatedStatsRepository';
+import { getCurrentUserId } from './cardRepository';
 
 const mapGradeToNumber = (grade: Grade): number => {
   switch (grade) {
@@ -18,9 +19,12 @@ export const addReviewLog = async (
   elapsedDays: number,
   scheduledDays: number
 ) => {
+  const userId = getCurrentUserId();
+
   const entry: RevlogEntry = {
     id: generateId(),
     card_id: card.id,
+    user_id: userId || undefined,
     grade: mapGradeToNumber(grade),
     state: card.state ?? State.New,
     elapsed_days: elapsedDays,
@@ -41,10 +45,20 @@ export const addReviewLog = async (
 
 
 export const getAllReviewLogs = async (language?: string): Promise<ReviewLog[]> => {
-  let logs = await db.revlog.toArray();
+  const userId = getCurrentUserId();
+  if (!userId) return [];
+
+  let logs = await db.revlog
+    .where('user_id')
+    .equals(userId)
+    .toArray();
 
   if (language) {
-    const cards = await db.cards.where('language').equals(language).toArray();
+    const cards = await db.cards
+      .where('language')
+      .equals(language)
+      .filter(c => c.user_id === userId)
+      .toArray();
     const cardIds = new Set(cards.map(c => c.id));
     logs = logs.filter(log => cardIds.has(log.card_id));
   }

@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { ArrowRight, ArrowLeft, User as UserIcon } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { ArrowRight, ArrowLeft, User as UserIcon, Lock, Users } from 'lucide-react';
 import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
 import { useProfile } from '@/features/profile/hooks/useProfile';
@@ -21,28 +21,89 @@ import { NORWEGIAN_BEGINNER_DECK } from '@/features/deck/data/norwegianBeginnerD
 import { JAPANESE_BEGINNER_DECK } from '@/features/deck/data/japaneseBeginnerDeck';
 import { SPANISH_BEGINNER_DECK } from '@/features/deck/data/spanishBeginnerDeck';
 import { v4 as uuidv4 } from 'uuid';
+import { LocalUser } from '@/services/db/dexie';
 
-type SetupStep = 'username' | 'language' | 'level' | 'deck';
+type AuthMode = 'login' | 'register';
+type SetupStep = 'auth' | 'language' | 'level' | 'deck';
 
 export const AuthPage: React.FC = () => {
   const { markInitialDeckGenerated } = useProfile();
-  const { login, signUpWithEmail } = useAuth();
+  const { register, login, getRegisteredUsers } = useAuth();
 
   const settings = useSettingsStore(s => s.settings);
   const updateSettings = useSettingsStore(s => s.updateSettings);
   const [loading, setLoading] = useState(false);
 
+  const [authMode, setAuthMode] = useState<AuthMode>('register');
   const [username, setUsername] = useState('');
-  const [setupStep, setSetupStep] = useState<SetupStep>('username');
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [existingUsers, setExistingUsers] = useState<LocalUser[]>([]);
+  const [setupStep, setSetupStep] = useState<SetupStep>('auth');
   const [selectedLevel, setSelectedLevel] = useState<Difficulty | null>(null);
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
 
-  const handleUsernameSubmit = async (e: React.FormEvent) => {
+  useEffect(() => {
+    const loadUsers = async () => {
+      const users = await getRegisteredUsers();
+      setExistingUsers(users);
+      // If there are existing users, default to login mode
+      if (users.length > 0) {
+        setAuthMode('login');
+      }
+    };
+    loadUsers();
+  }, [getRegisteredUsers]);
+
+  const handleAuthSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!username.trim() || username.length < 3) {
-      toast.error('Username must be at least 3 characters');
-      return;
+
+    if (authMode === 'register') {
+      if (!username.trim() || username.length < 3) {
+        toast.error('Username must be at least 3 characters');
+        return;
+      }
+      if (!password || password.length < 4) {
+        toast.error('Password must be at least 4 characters');
+        return;
+      }
+      if (password !== confirmPassword) {
+        toast.error('Passwords do not match');
+        return;
+      }
+
+      setLoading(true);
+      try {
+        const result = await register(username.trim(), password);
+        setCurrentUserId(result.user.id);
+        toast.success('Account created!');
+        setSetupStep('language');
+      } catch (error: any) {
+        toast.error(error.message || 'Registration failed');
+      } finally {
+        setLoading(false);
+      }
+    } else {
+      // Login
+      if (!username.trim()) {
+        toast.error('Please enter your username');
+        return;
+      }
+      if (!password) {
+        toast.error('Please enter your password');
+        return;
+      }
+
+      setLoading(true);
+      try {
+        await login(username.trim(), password);
+        // Login successful - AuthContext sets user state, App.tsx will re-render
+      } catch (error: any) {
+        toast.error(error.message || 'Login failed');
+      } finally {
+        setLoading(false);
+      }
     }
-    setSetupStep('language');
   };
 
   const handleLanguageSelected = (language: Language) => {
@@ -56,14 +117,12 @@ export const AuthPage: React.FC = () => {
   };
 
   const handleDeckSetup = async (language: Language, useAI: boolean, apiKey?: string) => {
-    if (!selectedLevel) return;
+    if (!selectedLevel || !currentUserId) return;
     setLoading(true);
 
     try {
-      await signUpWithEmail('local', 'local', username.trim(), selectedLevel);
-
       if (useAI && apiKey) {
-        await updateUserSettings('local-user', { geminiApiKey: apiKey });
+        await updateUserSettings(currentUserId, { geminiApiKey: apiKey });
       }
 
       let cards: CardType[] = [];
@@ -85,17 +144,20 @@ export const AuthPage: React.FC = () => {
           ...c,
           id: uuidv4(),
           dueDate: new Date().toISOString(),
-          tags: [...(c.tags || []), selectedLevel]
+          tags: [...(c.tags || []), selectedLevel],
+          user_id: currentUserId // Associate cards with the user
         }));
         toast.success(`Loaded ${cards.length} starter cards!`);
       }
+
+      // Add user_id to all cards
+      cards = cards.map(c => ({ ...c, user_id: currentUserId }));
 
       if (cards.length > 0) {
         await saveAllCards(cards);
       }
 
-      await markInitialDeckGenerated('local-user');
-      await login();
+      await markInitialDeckGenerated(currentUserId);
 
       window.location.reload();
     } catch (error: any) {
@@ -107,18 +169,51 @@ export const AuthPage: React.FC = () => {
 
   const renderHeader = () => (
     <div className="text-center my-8">
-
       <h1 className="text-2xl font-bold tracking-tight font-ui uppercase text-foreground">
         LinguaFlow
       </h1>
       <p className="text-sm text-muted-foreground mt-2 font-medium">
-        Begin your journey
+        {authMode === 'login' ? 'Welcome back' : 'Begin your journey'}
       </p>
     </div>
   );
 
-  const renderUsernameStep = () => (
-    <form onSubmit={handleUsernameSubmit} className="space-y-4">
+  const renderAuthStep = () => (
+    <form onSubmit={handleAuthSubmit} className="space-y-4">
+      {/* Auth Mode Toggle */}
+      <div className="flex rounded-lg bg-muted/50 p-1 mb-6">
+        <button
+          type="button"
+          onClick={() => setAuthMode('login')}
+          className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-all ${authMode === 'login'
+            ? 'bg-background text-foreground shadow-sm'
+            : 'text-muted-foreground hover:text-foreground'
+            }`}
+        >
+          Sign In
+        </button>
+        <button
+          type="button"
+          onClick={() => setAuthMode('register')}
+          className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-all ${authMode === 'register'
+            ? 'bg-background text-foreground shadow-sm'
+            : 'text-muted-foreground hover:text-foreground'
+            }`}
+        >
+          Register
+        </button>
+      </div>
+
+      {/* Existing users hint */}
+      {authMode === 'login' && existingUsers.length > 0 && (
+        <div className="flex items-center gap-2 text-xs text-muted-foreground bg-muted/30 rounded-lg px-3 py-2 mb-4">
+          <Users size={14} />
+          <span>
+            {existingUsers.length} user{existingUsers.length > 1 ? 's' : ''} registered: {existingUsers.map(u => u.username).join(', ')}
+          </span>
+        </div>
+      )}
+
       <div className="space-y-1.5">
         <Label htmlFor="username" className="text-xs font-medium text-muted-foreground font-ui uppercase tracking-wider ml-1">
           Username
@@ -127,7 +222,7 @@ export const AuthPage: React.FC = () => {
           <Input
             id="username"
             type="text"
-            placeholder="Choose a username"
+            placeholder={authMode === 'login' ? 'Enter your username' : 'Choose a username'}
             value={username}
             onChange={(e) => setUsername(e.target.value)}
             className="pl-11"
@@ -141,8 +236,58 @@ export const AuthPage: React.FC = () => {
         </div>
       </div>
 
-      <Button type="submit" className="w-full mt-2">
-        Continue <ArrowRight size={16} />
+      <div className="space-y-1.5">
+        <Label htmlFor="password" className="text-xs font-medium text-muted-foreground font-ui uppercase tracking-wider ml-1">
+          Password
+        </Label>
+        <div className="relative group/input">
+          <Input
+            id="password"
+            type="password"
+            placeholder="Enter password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            className="pl-11"
+            required
+            minLength={4}
+          />
+          <div className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground group-focus-within/input:text-amber-500 transition-colors">
+            <Lock size={16} />
+          </div>
+        </div>
+      </div>
+
+      {authMode === 'register' && (
+        <div className="space-y-1.5">
+          <Label htmlFor="confirmPassword" className="text-xs font-medium text-muted-foreground font-ui uppercase tracking-wider ml-1">
+            Confirm Password
+          </Label>
+          <div className="relative group/input">
+            <Input
+              id="confirmPassword"
+              type="password"
+              placeholder="Confirm password"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              className="pl-11"
+              required
+              minLength={4}
+            />
+            <div className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground group-focus-within/input:text-amber-500 transition-colors">
+              <Lock size={16} />
+            </div>
+          </div>
+        </div>
+      )}
+
+      <Button type="submit" className="w-full mt-2" disabled={loading}>
+        {loading ? (
+          <Loader size="sm" />
+        ) : (
+          <>
+            {authMode === 'login' ? 'Sign In' : 'Create Account'} <ArrowRight size={16} />
+          </>
+        )}
       </Button>
     </form>
   );
@@ -167,7 +312,7 @@ export const AuthPage: React.FC = () => {
         <Card variant="ornate" size="lg">
           <GenshinCorners />
           <div className="mb-6 flex items-center gap-4">
-            <Button variant="ghost" size="sm" onClick={() => setSetupStep('username')}>
+            <Button variant="ghost" size="sm" onClick={() => setSetupStep('auth')}>
               <ArrowLeft size={16} /> Back
             </Button>
             <h2 className="text-xl font-bold font-ui uppercase">Select Language</h2>
@@ -227,7 +372,7 @@ export const AuthPage: React.FC = () => {
       <Card variant="ornate" size="lg" className="py-8 px-6 md:px-8">
         <GenshinCorners />
         {renderHeader()}
-        {renderUsernameStep()}
+        {renderAuthStep()}
 
         <div className="mt-6 text-center">
           <p className="text-xs text-muted-foreground">
