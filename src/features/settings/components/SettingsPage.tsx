@@ -18,7 +18,6 @@ import {
   Check,
   Wand2,
   RefreshCw,
-  Key,
 } from 'lucide-react';
 
 import { useSettingsStore } from '@/stores/useSettingsStore';
@@ -100,7 +99,7 @@ export const SettingsPage: React.FC = () => {
     const [isOptimizing, setIsOptimizing] = useState(false);
   const [progress, setProgress] = useState(0);
   const [report, setReport] = useState<{ reviews: number } | null>(null);
-  const [manualWeights, setManualWeights] = useState(settings.fsrs.w.join(', '));
+  const [manualWeights, setManualWeights] = useState((settings.fsrs.w || FSRS_DEFAULTS.w).join(', '));
   const [showManual, setShowManual] = useState(false);
 
     const { handleSyncToCloud, isSyncingToCloud, syncComplete } = useCloudSync();

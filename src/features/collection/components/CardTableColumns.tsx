@@ -286,8 +286,7 @@ export function getCardColumns(actions: ColumnActions): ColumnDef<Card>[] {
                             <DropdownMenuTrigger
                                 className={cn(
                                     "relative w-8 h-8 flex items-center justify-center transition-all duration-200 outline-none border border-transparent rounded-full",
-                                    "text-muted-foreground hover:text-foreground hover:bg-primary/10 hover:border-primary/30",
-                                    "opacity-0 group-hover:opacity-100 focus:opacity-100"
+                                    "text-muted-foreground hover:text-foreground hover:bg-primary/10 hover:border-primary/30"
                                 )}
                             >
                                 <MoreHorizontal size={16} strokeWidth={1.5} />

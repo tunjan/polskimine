@@ -110,13 +110,21 @@ export function findInflectedWordInSentence(
     const wordLower = word.toLowerCase();
 
     let sharedLength = 0;
-    const maxLength = Math.min(targetLower.length, wordLower.length);
 
-    for (let i = 0; i < maxLength; i++) {
-      if (targetLower[i] === wordLower[i]) {
-        sharedLength++;
-      } else {
-        break;
+    // Find longest common substring to handle prefixes (common in Polish)
+    for (let i = 0; i < targetLower.length; i++) {
+      for (let j = 0; j < wordLower.length; j++) {
+        let k = 0;
+        while (
+          i + k < targetLower.length &&
+          j + k < wordLower.length &&
+          targetLower[i + k] === wordLower[j + k]
+        ) {
+          k++;
+        }
+        if (k > sharedLength) {
+          sharedLength = k;
+        }
       }
     }
 
