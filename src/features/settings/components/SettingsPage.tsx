@@ -412,7 +412,7 @@ export const SettingsPage: React.FC = () => {
   const currentDailyReview = settings.dailyReviewLimits?.[settings.language] ?? 0;
 
   return (
-    <div className="container max-w-2xl py-8 lg:py-12 space-y-6 animate-in fade-in duration-500">
+    <div className="container max-w-2xl space-y-6 animate-in fade-in duration-500">
       {/* Header */}
       <div className="space-y-1 mb-8">
         <h1 className="text-2xl font-semibold tracking-tight">Settings</h1>
