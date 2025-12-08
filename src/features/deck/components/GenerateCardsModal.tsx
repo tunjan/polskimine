@@ -7,9 +7,9 @@ import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Separator } from '@/components/ui/separator';
-import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from '@/components/ui/tooltip';
-import { Sparkles, Check, ArrowRight, BookOpen, Info, Scroll, Loader2, RotateCcw } from 'lucide-react';
-import { aiService } from '@/features/deck/services/ai';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Sparkles, Check, BookOpen, Loader2, RotateCcw } from 'lucide-react';
+import { aiService, WordType } from '@/features/deck/services/ai';
 import { useSettingsStore } from '@/stores/useSettingsStore';
 import { useProfile } from '@/features/profile/hooks/useProfile';
 import { getLearnedWords } from '@/services/db/repositories/cardRepository';
@@ -20,6 +20,16 @@ import { cn } from '@/lib/utils';
 import { Textarea } from '@/components/ui/textarea';
 import { useIsMobile } from '@/hooks/use-mobile';
 
+const WORD_TYPES: { value: WordType; label: string }[] = [
+    { value: 'noun', label: 'Noun' },
+    { value: 'verb', label: 'Verb' },
+    { value: 'adjective', label: 'Adjective' },
+    { value: 'adverb', label: 'Adverb' },
+    { value: 'pronoun', label: 'Pronoun' },
+    { value: 'preposition', label: 'Preposition' },
+    { value: 'conjunction', label: 'Conjunction' },
+    { value: 'interjection', label: 'Interjection' },
+];
 
 interface GenerateCardsModalProps {
     isOpen: boolean;
@@ -39,6 +49,7 @@ export const GenerateCardsModal: React.FC<GenerateCardsModalProps> = ({ isOpen, 
     const [useLearnedWords, setUseLearnedWords] = useState(false);
     const [difficultyMode, setDifficultyMode] = useState<'beginner' | 'immersive'>('immersive');
     const [selectedLevel, setSelectedLevel] = useState<string>(profile?.language_level || 'A1');
+    const [selectedWordTypes, setSelectedWordTypes] = useState<WordType[]>([]);
 
     const levelDescriptions: Record<string, string> = {
         'A1': 'Beginner',
@@ -51,6 +62,14 @@ export const GenerateCardsModal: React.FC<GenerateCardsModalProps> = ({ isOpen, 
 
     const [generatedData, setGeneratedData] = useState<any[]>([]);
     const [selectedIndices, setSelectedIndices] = useState<Set<number>>(new Set());
+
+    const toggleWordType = (wordType: WordType) => {
+        setSelectedWordTypes(prev =>
+            prev.includes(wordType)
+                ? prev.filter(t => t !== wordType)
+                : [...prev, wordType]
+        );
+    };
 
     const handleGenerate = async () => {
         if (!instructions) {
@@ -78,7 +97,8 @@ export const GenerateCardsModal: React.FC<GenerateCardsModalProps> = ({ isOpen, 
                 apiKey: settings.geminiApiKey,
                 learnedWords: useLearnedWords ? learnedWords : undefined,
                 proficiencyLevel: selectedLevel,
-                difficultyMode
+                difficultyMode,
+                wordTypeFilters: selectedWordTypes.length > 0 ? selectedWordTypes : undefined
             });
 
             const existingWordSet = new Set(learnedWords.map(w => w.toLowerCase()));
@@ -179,7 +199,8 @@ export const GenerateCardsModal: React.FC<GenerateCardsModalProps> = ({ isOpen, 
                 apiKey: settings.geminiApiKey,
                 learnedWords: useLearnedWords ? learnedWords : undefined,
                 proficiencyLevel: derivedLevel,
-                difficultyMode
+                difficultyMode,
+                wordTypeFilters: selectedWordTypes.length > 0 ? selectedWordTypes : undefined
             });
 
             const existingWordSet = new Set(learnedWords.map(w => w.toLowerCase()));
@@ -209,6 +230,7 @@ export const GenerateCardsModal: React.FC<GenerateCardsModalProps> = ({ isOpen, 
         setStep('config');
         setInstructions('');
         setGeneratedData([]);
+        setSelectedWordTypes([]);
         onClose();
     };
 
@@ -307,6 +329,54 @@ export const GenerateCardsModal: React.FC<GenerateCardsModalProps> = ({ isOpen, 
                                             checked={useLearnedWords}
                                             onCheckedChange={setUseLearnedWords}
                                         />
+                                    </div>
+
+                                    <Separator />
+
+                                    <div className="space-y-2">
+                                        <div className="flex items-center justify-between">
+                                            <Label className="text-sm font-medium">Word Types</Label>
+                                            {selectedWordTypes.length > 0 && (
+                                                <Button
+                                                    variant="ghost"
+                                                    size="sm"
+                                                    className="h-5 text-xs px-1.5"
+                                                    onClick={() => setSelectedWordTypes([])}
+                                                >
+                                                    Clear
+                                                </Button>
+                                            )}
+                                        </div>
+                                        <p className="text-[10px] text-muted-foreground">
+                                            Leave empty for all types
+                                        </p>
+                                        <div className="grid grid-cols-2 gap-1.5">
+                                            {WORD_TYPES.map((type) => (
+                                                <div
+                                                    key={type.value}
+                                                    className={cn(
+                                                        "flex items-center gap-2 px-2 py-1.5 rounded-md cursor-pointer transition-colors",
+                                                        selectedWordTypes.includes(type.value)
+                                                            ? "bg-primary/10"
+                                                            : "hover:bg-muted/50"
+                                                    )}
+                                                    onClick={() => toggleWordType(type.value)}
+                                                >
+                                                    <Checkbox
+                                                        id={`word-type-${type.value}`}
+                                                        checked={selectedWordTypes.includes(type.value)}
+                                                        onCheckedChange={() => toggleWordType(type.value)}
+                                                        className="h-3.5 w-3.5"
+                                                    />
+                                                    <label
+                                                        htmlFor={`word-type-${type.value}`}
+                                                        className="text-xs cursor-pointer select-none"
+                                                    >
+                                                        {type.label}
+                                                    </label>
+                                                </div>
+                                            ))}
+                                        </div>
                                     </div>
                                 </div>
 

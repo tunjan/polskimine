@@ -36,6 +36,8 @@ interface GeneratedCardData {
   furigana?: string;
 }
 
+export type WordType = 'noun' | 'verb' | 'adjective' | 'adverb' | 'pronoun' | 'preposition' | 'conjunction' | 'interjection';
+
 interface BatchGenerationOptions {
   instructions: string;
   count: number;
@@ -43,6 +45,7 @@ interface BatchGenerationOptions {
   learnedWords?: string[];
   proficiencyLevel?: string;
   difficultyMode?: 'beginner' | 'immersive';
+  wordTypeFilters?: WordType[];
 }
 
 const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent';
@@ -301,7 +304,8 @@ export const aiService = {
     apiKey,
     learnedWords,
     proficiencyLevel = 'A1',
-    difficultyMode = 'immersive'
+    difficultyMode = 'immersive',
+    wordTypeFilters
   }: BatchGenerationOptions & { apiKey: string }): Promise<GeneratedCardData[]> {
     const langName = language === LanguageId.Norwegian ? 'Norwegian' : (language === LanguageId.Japanese ? 'Japanese' : (language === LanguageId.Spanish ? 'Spanish' : 'Polish'));
 
@@ -362,6 +366,9 @@ export const aiService = {
         `
       : "User has NO prior vocabulary. Start from scratch.";
 
+    const allWordTypes: WordType[] = ['noun', 'verb', 'adjective', 'adverb', 'pronoun', 'preposition', 'conjunction', 'interjection'];
+    const wordTypesForSchema = wordTypeFilters && wordTypeFilters.length > 0 ? wordTypeFilters : allWordTypes;
+
     const cardSchemaProperties: Record<string, GeminiSchemaProperty> = {
       targetSentence: { type: "STRING" },
       nativeTranslation: { type: "STRING" },
@@ -369,7 +376,7 @@ export const aiService = {
       targetWordTranslation: { type: "STRING" },
       targetWordPartOfSpeech: {
         type: "STRING",
-        enum: ["noun", "verb", "adjective", "adverb", "pronoun"]
+        enum: wordTypesForSchema
       },
       grammaticalCase: { type: "STRING" },
       gender: { type: "STRING" },
@@ -403,6 +410,12 @@ export const aiService = {
       Topic: "${instructions}"
       
       ${progressionRules}
+      
+      ${wordTypeFilters && wordTypeFilters.length > 0 ? `
+      WORD TYPE CONSTRAINT:
+      - The \"targetWord\" in EACH card MUST be one of these parts of speech: ${wordTypeFilters.join(', ')}.
+      - This is MANDATORY. Do NOT generate cards where the target word is a different part of speech.
+      ` : ''}
       
       Style Guidelines:
       - Tone: Natural, friendly, helpful.
