@@ -48,7 +48,7 @@ export const CardList: React.FC<CardListProps> = ({
 
   const handleRowSelectionChange = (newSelection: RowSelectionState) => {
     const newSelectedIds = new Set(
-      Object.keys(newSelection).filter((id) => newSelection[id])
+      Object.keys(newSelection).filter((id) => newSelection[id]),
     );
     const currentSelectedIds = selectedIds;
 
@@ -80,7 +80,7 @@ export const CardList: React.FC<CardListProps> = ({
         onPrioritizeCard,
         onToggleSelect,
       }),
-    [onEditCard, onDeleteCard, onViewHistory, onPrioritizeCard, onToggleSelect]
+    [onEditCard, onDeleteCard, onViewHistory, onPrioritizeCard, onToggleSelect],
   );
 
   if (cards.length === 0) {

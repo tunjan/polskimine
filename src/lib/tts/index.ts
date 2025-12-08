@@ -41,7 +41,7 @@ class TTSService {
   dispose() {
     this.stop();
     if (this.audioContext) {
-      this.audioContext.close().catch(() => { });
+      this.audioContext.close().catch(() => {});
       this.audioContext = null;
     }
   }
@@ -333,7 +333,10 @@ class TTSService {
     return this.audioContext;
   }
 
-  private async playAudioBuffer(buffer: ArrayBuffer, opId: number): Promise<void> {
+  private async playAudioBuffer(
+    buffer: ArrayBuffer,
+    opId: number,
+  ): Promise<void> {
     return new Promise(async (resolve) => {
       try {
         const ctx = this.getAudioContext();
@@ -351,7 +354,7 @@ class TTSService {
         if (this.currentSource) {
           try {
             this.currentSource.stop();
-          } catch { }
+          } catch {}
         }
 
         this.currentSource = ctx.createBufferSource();
@@ -389,7 +392,7 @@ class TTSService {
     if (this.currentSource) {
       try {
         this.currentSource.stop();
-      } catch { }
+      } catch {}
       this.currentSource = null;
     }
   }

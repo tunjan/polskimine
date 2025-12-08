@@ -76,13 +76,13 @@ import { cn } from "@/lib/utils";
 const useDebouncedUsername = (
   localUsername: string,
   updateUsername: (name: string) => Promise<void>,
-  currentUsername?: string
+  currentUsername?: string,
 ) => {
   useEffect(() => {
     const timeout = setTimeout(() => {
       if (localUsername && localUsername !== currentUsername) {
         updateUsername(localUsername).then(() =>
-          toast.success("Username updated", { id: "username-update" })
+          toast.success("Username updated", { id: "username-update" }),
         );
       }
     }, 1000);
@@ -100,7 +100,7 @@ export const SettingsPage: React.FC = () => {
   const [localUsername, setLocalUsername] = useState(profile?.username || "");
   const [availableVoices, setAvailableVoices] = useState<VoiceOption[]>([]);
   const [stepsInput, setStepsInput] = useState(
-    settings.learningSteps?.join(" ") || "1 10"
+    settings.learningSteps?.join(" ") || "1 10",
   );
 
   const csvInputRef = useRef<HTMLInputElement>(null);
@@ -113,7 +113,7 @@ export const SettingsPage: React.FC = () => {
   const [progress, setProgress] = useState(0);
   const [report, setReport] = useState<{ reviews: number } | null>(null);
   const [manualWeights, setManualWeights] = useState(
-    (settings.fsrs.w || FSRS_DEFAULTS.w).join(", ")
+    (settings.fsrs.w || FSRS_DEFAULTS.w).join(", "),
   );
   const [showManual, setShowManual] = useState(false);
 
@@ -141,14 +141,14 @@ export const SettingsPage: React.FC = () => {
     async (name) => {
       await updateUsername(name);
     },
-    profile?.username
+    profile?.username,
   );
 
   useEffect(() => {
     const loadVoices = async () => {
       const voices = await ttsService.getAvailableVoices(
         settings.language,
-        settings.tts
+        settings.tts,
       );
       setAvailableVoices(voices);
     };
@@ -174,7 +174,7 @@ export const SettingsPage: React.FC = () => {
     ttsService.speak(
       testText[settings.language] || "Test audio",
       settings.language,
-      settings.tts
+      settings.tts,
     );
   };
 
@@ -214,7 +214,7 @@ export const SettingsPage: React.FC = () => {
   };
 
   const handleRestoreBackup = async (
-    event: React.ChangeEvent<HTMLInputElement>
+    event: React.ChangeEvent<HTMLInputElement>,
   ) => {
     const file = event.target.files?.[0];
     if (!file) return;
@@ -238,7 +238,7 @@ export const SettingsPage: React.FC = () => {
 
       if (
         !confirm(
-          `Replace current data with backup from ${data.date || data.lastSynced}?\nCards: ${data.cards.length}`
+          `Replace current data with backup from ${data.date || data.lastSynced}?\nCards: ${data.cards.length}`,
         )
       ) {
         return;
@@ -293,14 +293,14 @@ export const SettingsPage: React.FC = () => {
       const existingSignatures = await getCardSignatures(settings.language);
       const seen = new Set(
         existingSignatures.map((card) =>
-          signatureForCard(card.target_sentence, settings.language)
-        )
+          signatureForCard(card.target_sentence, settings.language),
+        ),
       );
 
       const newCards = parsedCards.filter((card) => {
         const signature = signatureForCard(
           card.targetSentence,
-          (card.language || settings.language) as Language
+          (card.language || settings.language) as Language,
         );
         if (seen.has(signature)) return false;
         seen.add(signature);
@@ -361,7 +361,7 @@ export const SettingsPage: React.FC = () => {
         new URL("../../../workers/fsrs.worker.ts", import.meta.url),
         {
           type: "module",
-        }
+        },
       );
 
       worker.onmessage = (e) => {
@@ -632,7 +632,7 @@ export const SettingsPage: React.FC = () => {
                   updateTts(
                     settings.tts.provider === TTS_PROVIDER.GOOGLE
                       ? { googleApiKey: e.target.value }
-                      : { azureApiKey: e.target.value }
+                      : { azureApiKey: e.target.value },
                   )
                 }
                 placeholder="Enter key"
@@ -993,7 +993,7 @@ export const SettingsPage: React.FC = () => {
             <RotateCcw
               className={cn(
                 "w-5 h-5 mb-1 text-muted-foreground",
-                isRestoring && "animate-spin"
+                isRestoring && "animate-spin",
               )}
             />
             <span className="text-sm font-medium">

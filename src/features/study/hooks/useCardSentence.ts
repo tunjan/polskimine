@@ -66,8 +66,8 @@ export const useCardSentence = (
         if (hasFurigana) {
           const targetWordPlain = card.targetWord
             ? parseFurigana(card.targetWord)
-              .map((s) => s.text)
-              .join("")
+                .map((s) => s.text)
+                .join("")
             : null;
 
           const segmentTexts = segments.map((s) => s.text);

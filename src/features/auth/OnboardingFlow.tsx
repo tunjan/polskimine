@@ -5,29 +5,15 @@ import { useProfile } from "@/features/profile/hooks/useProfile";
 import { LanguageLevelSelector } from "./components/LanguageLevelSelector";
 import { LanguageSelector } from "./components/LanguageSelector";
 import { DeckGenerationStep } from "./components/DeckGenerationStep";
-import { Difficulty, Card, Language, LanguageId } from "@/types";
+import { Difficulty, Card, Language } from "@/types";
 import { toast } from "sonner";
 import { updateUserSettings } from "@/db/repositories/settingsRepository";
 import { generateInitialDeck } from "@/features/generator/services/deckGeneration";
 import { saveAllCards } from "@/db/repositories/cardRepository";
 import { Command, LogOut } from "lucide-react";
-import {
-  POLISH_BEGINNER_DECK,
-  NORWEGIAN_BEGINNER_DECK,
-  JAPANESE_BEGINNER_DECK,
-  SPANISH_BEGINNER_DECK,
-  GERMAN_BEGINNER_DECK,
-} from "@/assets/starter-decks";
+import { getInitialCards } from "@/data/initialCards";
 import { Button } from "@/components/ui/button";
 import { v4 as uuidv4 } from "uuid";
-
-const BEGINNER_DECKS: Record<Language, Card[]> = {
-  [LanguageId.Polish]: POLISH_BEGINNER_DECK,
-  [LanguageId.Norwegian]: NORWEGIAN_BEGINNER_DECK,
-  [LanguageId.Japanese]: JAPANESE_BEGINNER_DECK,
-  [LanguageId.Spanish]: SPANISH_BEGINNER_DECK,
-  [LanguageId.German]: GERMAN_BEGINNER_DECK,
-};
 
 export const OnboardingFlow: React.FC = () => {
   const { user, signOut } = useAuth();
@@ -82,14 +68,14 @@ export const OnboardingFlow: React.FC = () => {
         }
       } else {
         for (const language of languages) {
-          const rawDeck = BEGINNER_DECKS[language] || [];
+          const rawDeck = getInitialCards(language);
           const languageCards = rawDeck.map((c) => ({
             ...c,
             id: uuidv4(),
             dueDate: new Date().toISOString(),
             tags: [...(c.tags || []), selectedLevel],
             user_id: user.id,
-          }));
+          })) as Card[];
           allCards = [...allCards, ...languageCards];
         }
       }

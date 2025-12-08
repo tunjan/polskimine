@@ -19,31 +19,19 @@ import { LanguageSelector } from "./components/LanguageSelector";
 import { generateInitialDeck } from "@/features/generator/services/deckGeneration";
 import { saveAllCards } from "@/db/repositories/cardRepository";
 import { updateUserSettings } from "@/db/repositories/settingsRepository";
-import { Difficulty, Card as CardType, Language, LanguageId } from "@/types";
+import { Difficulty, Card as CardType, Language } from "@/types";
 import { Loader } from "@/components/ui/loading";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { POLISH_BEGINNER_DECK } from "@/assets/starter-decks/polish";
-import { NORWEGIAN_BEGINNER_DECK } from "@/assets/starter-decks/norwegian";
-import { JAPANESE_BEGINNER_DECK } from "@/assets/starter-decks/japanese";
-import { SPANISH_BEGINNER_DECK } from "@/assets/starter-decks/spanish";
-import { GERMAN_BEGINNER_DECK } from "@/assets/starter-decks/german";
+import { getInitialCards } from "@/data/initialCards";
 import { v4 as uuidv4 } from "uuid";
 import { LocalUser } from "@/db/dexie";
 
 type AuthMode = "login" | "register";
 type SetupStep = "auth" | "language" | "level" | "deck";
-
-const BEGINNER_DECKS: Record<Language, CardType[]> = {
-  [LanguageId.Polish]: POLISH_BEGINNER_DECK,
-  [LanguageId.Norwegian]: NORWEGIAN_BEGINNER_DECK,
-  [LanguageId.Japanese]: JAPANESE_BEGINNER_DECK,
-  [LanguageId.Spanish]: SPANISH_BEGINNER_DECK,
-  [LanguageId.German]: GERMAN_BEGINNER_DECK,
-};
 
 export const AuthPage: React.FC = () => {
   const { markInitialDeckGenerated } = useProfile();
@@ -171,14 +159,18 @@ export const AuthPage: React.FC = () => {
         );
       } else {
         for (const language of languages) {
-          const rawDeck = BEGINNER_DECKS[language] || [];
+          // Use the unified getInitialCards function
+          const rawDeck = getInitialCards(language);
           const languageCards = rawDeck.map((c) => ({
             ...c,
+            // Ensure these fields are set if they aren't already (createCard sets them, but safe to overwrite/ensure)
             id: uuidv4(),
             dueDate: new Date().toISOString(),
             tags: [...(c.tags || []), selectedLevel],
             user_id: currentUserId,
-          }));
+            // Cast to CardType to satisfy type system as Partial<Card> has optional fields
+            // that we are ensuring are present or effectively handled by the app logic
+          })) as CardType[];
           allCards = [...allCards, ...languageCards];
         }
         toast.success(

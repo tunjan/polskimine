@@ -574,12 +574,13 @@ export const aiService = {
       
       ${progressionRules}
       
-      ${wordTypeFilters && wordTypeFilters.length > 0
-        ? `
+      ${
+        wordTypeFilters && wordTypeFilters.length > 0
+          ? `
       WORD TYPE CONSTRAINT:
       - The "targetWord" in EACH card MUST be one of: ${wordTypeFilters.join(", ")}.
       `
-        : ""
+          : ""
       }
       
       Style Guidelines:

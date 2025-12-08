@@ -79,7 +79,7 @@ const AppSidebar: React.FC<NavActionProps> = ({
     useShallow((s) => ({
       language: s.language,
       updateSettings: s.updateSettings,
-    }))
+    })),
   );
   const { signOut } = useAuth();
   const { profile } = useProfile();

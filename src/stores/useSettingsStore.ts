@@ -116,9 +116,9 @@ export const useSettingsStore = create<SettingsState>((set, get) => ({
         tts: newSettings.tts ? { ...state.tts, ...newSettings.tts } : state.tts,
         languageColors: newSettings.languageColors
           ? {
-            ...state.languageColors,
-            ...(newSettings.languageColors as Record<Language, string>),
-          }
+              ...state.languageColors,
+              ...(newSettings.languageColors as Record<Language, string>),
+            }
           : state.languageColors,
         proficiency: newSettings.proficiency
           ? { ...state.proficiency, ...newSettings.proficiency }

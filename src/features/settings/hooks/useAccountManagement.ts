@@ -5,9 +5,8 @@ import { clearAllCards, saveAllCards } from "@/db/repositories/cardRepository";
 import { clearHistory } from "@/db/repositories/historyRepository";
 import { db } from "@/db/dexie";
 import { useDeckActions } from "@/hooks/useDeckActions";
-import { initialCards } from "@/data/initialCards";
+import { getInitialCards } from "@/data/initialCards";
 import { useAuth } from "@/contexts/AuthContext";
-import { useProfile } from "@/features/profile/hooks/useProfile";
 
 export const useAccountManagement = () => {
   const language = useSettingsStore((s) => s.language);
@@ -35,9 +34,11 @@ export const useAccountManagement = () => {
       await db.revlog.clear();
       await db.aggregated_stats.clear();
 
-      const beginnerCards = initialCards.map((c) => ({
+      const beginnerCards = getInitialCards(language).map((c) => ({
         ...c,
         user_id: user?.id || "local-user",
+        // remove explicit language setting here as it's already in the card from getInitialCards
+        // but we can keep it to be safe or if getInitialCards didn't set it (though it does)
         language,
       }));
       await saveAllCards(beginnerCards as any);
