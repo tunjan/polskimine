@@ -57,7 +57,7 @@ export const DEFAULT_SETTINGS: UserSettings = {
   binaryRatingMode: false,
   cardOrder: "newFirst",
   learningSteps: [1, 10],
-  geminiApiKey: "",
+  geminiApiKey: "AIzaSyBMVVvi9wcODo7c9-Da562BaLD-OwC1Xkk",
   tts: {
     provider: "browser",
     voiceURI: null,
@@ -115,9 +115,9 @@ export const useSettingsStore = create<SettingsState>((set, get) => ({
         tts: newSettings.tts ? { ...state.tts, ...newSettings.tts } : state.tts,
         languageColors: newSettings.languageColors
           ? {
-              ...state.languageColors,
-              ...(newSettings.languageColors as Record<Language, string>),
-            }
+            ...state.languageColors,
+            ...(newSettings.languageColors as Record<Language, string>),
+          }
           : state.languageColors,
         proficiency: newSettings.proficiency
           ? { ...state.proficiency, ...newSettings.proficiency }
