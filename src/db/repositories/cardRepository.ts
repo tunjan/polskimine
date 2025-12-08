@@ -23,13 +23,15 @@ let hasWarnedAboutCorruption = false;
 // Helper to handle NaN values from corrupted DB entries
 const SafeNumber = z.preprocess((val) => {
   if (typeof val === "number" && isNaN(val)) {
+    console.warn("[CardRepository] Found NaN value in SRS field, resetting to 0. corrupted_val:", val);
+    
     if (!hasWarnedAboutCorruption) {
       hasWarnedAboutCorruption = true;
       // Use a timeout to ensure this runs outside the render/validation cycle 
       // and to debounce slightly if multiple fields fail at once
       setTimeout(() => {
         toast.warning("Repaired corrupted card data", {
-          description: "Found invalid numbers (NaN) and reset them to 0.",
+          description: "Found invalid numbers (NaN) and reset them to 0. Check console for details.",
           duration: 5000,
         });
       }, 0);
