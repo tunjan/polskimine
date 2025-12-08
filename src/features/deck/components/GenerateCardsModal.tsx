@@ -236,7 +236,7 @@ export const GenerateCardsModal: React.FC<GenerateCardsModalProps> = ({ isOpen, 
 
     return (
         <Dialog open={isOpen} onOpenChange={resetAndClose}>
-            <DialogContent className="max-w-3xl p-0 gap-0 max-h-[90vh] flex flex-col overflow-hidden">
+            <DialogContent className="max-w-4xl p-0 gap-0 max-h-[90vh] flex flex-col overflow-hidden">
                 {step === 'config' ? (
                     <>
                         <DialogHeader className="px-6 py-4 border-b shrink-0">
@@ -485,7 +485,7 @@ export const GenerateCardsModal: React.FC<GenerateCardsModalProps> = ({ isOpen, 
                             </div>
                         </div>
 
-                        <ScrollArea className="flex-1 min-h-0">
+                        <ScrollArea className="flex-1 min-h-0 h-[50vh]">
                             <div className="p-4 space-y-3">
                                 {generatedData.map((card, idx) => (
                                     <div
