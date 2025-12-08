@@ -94,7 +94,6 @@ export const exportSyncData = async (
   const cards = await getCards();
   const history = await getHistory();
   const revlog = await db.revlog.toArray();
-  const profiles = await db.profile.toArray();
   const aggregatedStats = await db.aggregated_stats.toArray();
 
   const safeSettings: Partial<UserSettings> = {
@@ -110,13 +109,17 @@ export const exportSyncData = async (
     };
   }
 
-  const profileForExport =
-    profiles.length > 0
-      ? {
-          ...profiles[0],
-          username: options.keepUsername ? profiles[0].username : undefined,
-        }
-      : null;
+  const currentUserId = getCurrentUserId();
+  const profile = currentUserId
+    ? await db.profile.get(currentUserId)
+    : (await db.profile.toArray())[0];
+
+  const profileForExport = profile
+    ? {
+        ...profile,
+        username: options.keepUsername ? profile.username : undefined,
+      }
+    : null;
 
   const cleanCards = cards.map(({ user_id, ...rest }) => rest);
   const cleanRevlog = revlog.map(({ user_id, ...rest }) => rest);
@@ -298,9 +301,10 @@ export const importSyncData = async (
       return { success: false, error: "Invalid sync data: missing cards" };
     }
 
-    const existingProfiles = await db.profile.toArray();
-    const existingProfile =
-      existingProfiles.length > 0 ? existingProfiles[0] : null;
+    const currentUserId = getCurrentUserId();
+    const existingProfile = currentUserId
+      ? await db.profile.get(currentUserId)
+      : (await db.profile.toArray())[0];
 
     await clearAllCards();
     await clearHistory();
@@ -336,10 +340,10 @@ export const importSyncData = async (
       };
       await db.profile.put(mergedProfile);
     } else if (data.profile && !existingProfile) {
-      const currentUserId = getCurrentUserId();
       const profileToRestore = {
         ...data.profile,
         id: currentUserId || data.profile.id,
+        username: data.profile.username || "User",
       };
       await db.profile.put(profileToRestore);
     }
@@ -356,8 +360,12 @@ export const importSyncData = async (
     if (data.settings) {
       const restoredProfile = data.profile;
       let preservedKeys: Partial<UserSettings> | UserSettings["tts"] = {};
-      if (restoredProfile) {
-        const existingSettings = await getFullSettings(restoredProfile.id);
+      
+      // Try to get settings from the correct profile ID
+      const targetSettingsId = restoredProfile?.id || (existingProfile ? existingProfile.id : null);
+      
+      if (targetSettingsId) {
+        const existingSettings = await getFullSettings(targetSettingsId);
         if (existingSettings) {
           preservedKeys = {
             geminiApiKey: existingSettings.geminiApiKey,
