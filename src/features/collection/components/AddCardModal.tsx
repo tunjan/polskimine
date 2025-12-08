@@ -8,7 +8,8 @@ import {
   DialogHeader,
   DialogFooter,
 } from "@/components/ui/dialog";
-import { Card, LanguageId } from "@/types";
+import { Card, LanguageId, CardStatus } from "@/types";
+import { State as FSRSState } from "ts-fsrs";
 import { v4 as uuidv4 } from "uuid";
 import { toast } from "sonner";
 import { aiService } from "@/lib/ai";
@@ -200,7 +201,8 @@ export const AddCardModal: React.FC<AddCardModalProps> = ({
       initialCard ||
       ({
         id: uuidv4(),
-        status: "new",
+        status: CardStatus.NEW,
+        state: FSRSState.New,
         interval: 0,
         easeFactor: 2.5,
         dueDate: new Date().toISOString(),

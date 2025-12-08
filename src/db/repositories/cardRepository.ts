@@ -5,6 +5,7 @@ import {
   Language,
   LanguageId,
 } from "@/types";
+import { State as FSRSState } from "ts-fsrs";
 import { getSRSDate } from "@/core/srs";
 import { db, generateId } from "@/db/dexie";
 import { SRS_CONFIG } from "@/constants";
@@ -221,19 +222,29 @@ export const getCardsForDashboard = async (
 
 export const saveCard = async (card: Card) => {
   const userId = getCurrentUserId();
-  if (!card.id) {
-    card.id = generateId();
-  }
-  if (!card.user_id && userId) {
-    card.user_id = userId;
-  }
-  if (card.status !== CardStatus.KNOWN) {
-    if (card.state !== undefined) {
-      card.status = mapFsrsStateToStatus(card.state);
+
+  // Normalize card: ensure all required FSRS fields have defaults
+  // This handles backward compatibility with old cards missing fields
+  const normalizedCard: Card = {
+    ...card,
+    id: card.id || generateId(),
+    user_id: card.user_id || userId || undefined,
+    reps: card.reps ?? 0,
+    lapses: card.lapses ?? 0,
+    state: card.state ?? FSRSState.New,
+    notes: card.notes ?? "",
+    isLeech: card.isLeech ?? false,
+    isBookmarked: card.isBookmarked ?? false,
+  };
+
+  // Sync status with FSRS state (except for KNOWN cards)
+  if (normalizedCard.status !== CardStatus.KNOWN) {
+    if (normalizedCard.state !== undefined) {
+      normalizedCard.status = mapFsrsStateToStatus(normalizedCard.state);
     }
   }
 
-  await db.cards.put(card);
+  await db.cards.put(normalizedCard);
 };
 
 export const deleteCard = async (id: string) => {

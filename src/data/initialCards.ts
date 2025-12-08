@@ -1,7 +1,8 @@
 import { Card, Language, LanguageId, CardStatus } from "@/types";
+import { State as FSRSState } from "ts-fsrs";
 import { v4 as uuidv4 } from "uuid";
 
-// Helper to create a card with defaults
+// Helper to create a card with defaults - returns complete Card with all FSRS fields
 const createCard = (
   language: Language,
   targetSentence: string,
@@ -9,7 +10,7 @@ const createCard = (
   targetWord: string,
   targetWordTranslation: string,
   extras: Partial<Card> = {},
-): Partial<Card> => ({
+): Card => ({
   id: uuidv4(),
   language,
   targetSentence,
@@ -17,15 +18,20 @@ const createCard = (
   targetWord,
   targetWordTranslation,
   status: CardStatus.NEW,
+  state: FSRSState.New,
   interval: 0,
   easeFactor: 2.5,
   dueDate: new Date().toISOString(),
   notes: "",
   tags: ["beginner", "default"],
+  reps: 0,
+  lapses: 0,
+  isLeech: false,
+  isBookmarked: false,
   ...extras,
 });
 
-const germanCards: Partial<Card>[] = [
+const germanCards: Card[] = [
   createCard(
     "german",
     "Guten <b>Morgen</b>, wie geht es Ihnen?",
@@ -66,7 +72,7 @@ const germanCards: Partial<Card>[] = [
   ),
 ];
 
-const spanishCards: Partial<Card>[] = [
+const spanishCards: Card[] = [
   createCard(
     "spanish",
     "<b>Hola</b>, ¿cómo estás?",
@@ -105,7 +111,7 @@ const spanishCards: Partial<Card>[] = [
   ),
 ];
 
-const norwegianCards: Partial<Card>[] = [
+const norwegianCards: Card[] = [
   createCard(
     "norwegian",
     "God <b>morgen</b>, hvordan har du det?",
@@ -146,7 +152,7 @@ const norwegianCards: Partial<Card>[] = [
   ),
 ];
 
-const polishCards: Partial<Card>[] = [
+const polishCards: Card[] = [
   createCard(
     "polish",
     "<b>Dzień dobry</b>, jak się masz?",
@@ -185,7 +191,7 @@ const polishCards: Partial<Card>[] = [
   ),
 ];
 
-const japaneseCards: Partial<Card>[] = [
+const japaneseCards: Card[] = [
   createCard(
     "japanese",
     "<b>おはよう</b>ございます、お元気ですか？",
@@ -228,7 +234,7 @@ const japaneseCards: Partial<Card>[] = [
   ),
 ];
 
-export const getInitialCards = (language: Language): Partial<Card>[] => {
+export const getInitialCards = (language: Language): Card[] => {
   switch (language) {
     case LanguageId.German:
       return germanCards;

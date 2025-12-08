@@ -94,12 +94,15 @@ export function findInflectedWordInSentence(
 
   const words = sentence.match(/[\p{L}]+/gu) || [];
 
+  // First try exact match
   const exactMatch = words.find((w) => w.toLowerCase() === targetLower);
   if (exactMatch) return exactMatch;
 
+  // Stricter minimum stem length to reduce false positives
+  // Short words (<=4 chars) require at least 70% match, others need at least 50%
   const minStemLength =
     targetWord.length <= 4
-      ? 2
+      ? Math.max(3, Math.ceil(targetWord.length * 0.7))
       : Math.min(4, Math.ceil(targetWord.length * 0.5));
 
   let bestMatch: string | null = null;
@@ -108,8 +111,14 @@ export function findInflectedWordInSentence(
   for (const word of words) {
     const wordLower = word.toLowerCase();
 
+    // Length ratio check: matched word should be similar length to target
+    // This prevents "can" from matching "Canadian"
+    const lengthRatio = word.length / targetWord.length;
+    if (lengthRatio < 0.5 || lengthRatio > 2.0) continue;
+
     let sharedLength = 0;
 
+    // Find longest common substring
     for (let i = 0; i < targetLower.length; i++) {
       for (let j = 0; j < wordLower.length; j++) {
         let k = 0;
@@ -128,7 +137,9 @@ export function findInflectedWordInSentence(
 
     if (sharedLength >= minStemLength) {
       const lengthDiff = Math.abs(targetWord.length - word.length);
-      const score = sharedLength * 10 - lengthDiff;
+      // Prefer matches that start with same characters (likely inflections)
+      const startsWithBonus = wordLower.startsWith(targetLower.slice(0, 2)) ? 5 : 0;
+      const score = sharedLength * 10 - lengthDiff + startsWithBonus;
 
       if (score > bestMatchScore) {
         bestMatchScore = score;

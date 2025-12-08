@@ -22,6 +22,9 @@ const GenerateSentenceSchema = z.object({
     "adjective",
     "adverb",
     "pronoun",
+    "preposition",
+    "conjunction",
+    "interjection",
   ]),
   notes: z.string(),
   furigana: z.string().optional(),
@@ -32,7 +35,16 @@ const GenerateCardSchema = z.object({
   targetWord: z.string().optional(),
   targetWordTranslation: z.string().optional(),
   targetWordPartOfSpeech: z
-    .enum(["noun", "verb", "adjective", "adverb", "pronoun"])
+    .enum([
+      "noun",
+      "verb",
+      "adjective",
+      "adverb",
+      "pronoun",
+      "preposition",
+      "conjunction",
+      "interjection",
+    ])
     .optional(),
   notes: z.string(),
   furigana: z.string().optional(),
@@ -50,6 +62,9 @@ const GeneratedCardDataSchema = z.object({
     "adjective",
     "adverb",
     "pronoun",
+    "preposition",
+    "conjunction",
+    "interjection",
   ]),
   grammaticalCase: z.string().optional(),
   gender: z.string().optional(),
@@ -178,13 +193,19 @@ async function callGemini(
 function getLangName(
   language: (typeof LanguageId)[keyof typeof LanguageId],
 ): string {
-  return language === LanguageId.Norwegian
-    ? "Norwegian"
-    : language === LanguageId.Japanese
-      ? "Japanese"
-      : language === LanguageId.Spanish
-        ? "Spanish"
-        : "Polish";
+  switch (language) {
+    case LanguageId.Norwegian:
+      return "Norwegian";
+    case LanguageId.Japanese:
+      return "Japanese";
+    case LanguageId.Spanish:
+      return "Spanish";
+    case LanguageId.German:
+      return "German";
+    case LanguageId.Polish:
+    default:
+      return "Polish";
+  }
 }
 
 export const aiService = {

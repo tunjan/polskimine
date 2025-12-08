@@ -1,6 +1,17 @@
-import { Card, Language, LanguageId } from "@/types";
+import { Card, CardStatus, Language, LanguageId } from "@/types";
+import { State as FSRSState } from "ts-fsrs";
 import { v4 as uuidv4 } from "uuid";
 import { findInflectedWordInSentence, escapeRegExp } from "@/lib/utils";
+
+/**
+ * Creates a Unicode-aware word boundary regex that works with non-Latin scripts.
+ * Standard \b doesn't work for Polish (ą, ę, ł), German (ä, ö, ü, ß), etc.
+ */
+const createWordBoundaryRegex = (word: string): RegExp => {
+  const escaped = escapeRegExp(word);
+  // Use negative lookbehind/lookahead for Unicode letters
+  return new RegExp(`(?<![\\p{L}])${escaped}(?![\\p{L}])`, "gu");
+};
 
 export const createCard = (
   language: Language,
@@ -21,8 +32,9 @@ export const createCard = (
   ) {
     const matchedWord = findInflectedWordInSentence(targetWord, sentence);
     if (matchedWord) {
+      // Use Unicode-aware word boundary for proper non-Latin script support
       formattedSentence = sentence.replace(
-        new RegExp(`\\b${escapeRegExp(matchedWord)}\\b`, "g"),
+        createWordBoundaryRegex(matchedWord),
         `<b>${matchedWord}</b>`,
       );
     }
@@ -37,11 +49,16 @@ export const createCard = (
     targetWordTranslation,
     targetWordPartOfSpeech,
     furigana,
-    status: "new",
+    status: CardStatus.NEW,
+    state: FSRSState.New,
     interval: 0,
     easeFactor: 2.5,
     dueDate: new Date().toISOString(),
     language,
+    reps: 0,
+    lapses: 0,
+    isLeech: false,
+    isBookmarked: false,
   };
 };
 

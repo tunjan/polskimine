@@ -4,7 +4,8 @@ import { useSettingsStore, SettingsState } from "@/stores/useSettingsStore";
 import { useShallow } from "zustand/react/shallow";
 import { useProfile } from "@/features/profile/hooks/useProfile";
 import { getLearnedWords } from "@/db/repositories/cardRepository";
-import { Card as CardType } from "@/types";
+import { Card as CardType, CardStatus } from "@/types";
+import { State as FSRSState } from "ts-fsrs";
 import { v4 as uuidv4 } from "uuid";
 import { toast } from "sonner";
 
@@ -176,7 +177,8 @@ export const useCardGenerator = ({
             notes: item.notes,
             furigana: item.furigana,
             language: language,
-            status: "new",
+            status: CardStatus.NEW,
+            state: FSRSState.New,
             interval: 0,
             easeFactor: 2.5,
             dueDate: new Date(now + index * 1000).toISOString(),
