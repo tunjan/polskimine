@@ -41,7 +41,7 @@ class TTSService {
   dispose() {
     this.stop();
     if (this.audioContext) {
-      this.audioContext.close().catch(() => {});
+      this.audioContext.close().catch(() => { });
       this.audioContext = null;
     }
   }
@@ -131,7 +131,11 @@ class TTSService {
     return [];
   }
 
-  async speak(text: string, language: Language, settings: TTSSettings) {
+  async speak(
+    text: string,
+    language: Language,
+    settings: TTSSettings,
+  ): Promise<void> {
     if (this.abortController) {
       this.abortController.abort();
     }
@@ -152,59 +156,63 @@ class TTSService {
     text: string,
     language: Language,
     settings: TTSSettings,
-  ) {
+  ): Promise<void> {
     if (!("speechSynthesis" in window)) return;
 
     window.speechSynthesis.cancel();
 
-    const utterance = new SpeechSynthesisUtterance(text);
-    utterance.lang = LANG_CODE_MAP[language][0];
-    utterance.rate = settings.rate;
-    utterance.pitch = settings.pitch;
-    utterance.volume = settings.volume;
+    return new Promise((resolve) => {
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = LANG_CODE_MAP[language][0];
+      utterance.rate = settings.rate;
+      utterance.pitch = settings.pitch;
+      utterance.volume = settings.volume;
 
-    if (settings.voiceURI && settings.voiceURI !== "default") {
-      const selectedVoice = this.browserVoices.find(
-        (v) => v.voiceURI === settings.voiceURI,
-      );
-      if (selectedVoice) {
-        utterance.voice = selectedVoice;
-      }
-    }
-
-    utterance.onstart = () => {
-      this.resumeInterval = setInterval(() => {
-        if (!window.speechSynthesis.speaking) {
-          if (this.resumeInterval) {
-            clearInterval(this.resumeInterval);
-            this.resumeInterval = null;
-          }
-        } else if (window.speechSynthesis.paused) {
-          window.speechSynthesis.resume();
+      if (settings.voiceURI && settings.voiceURI !== "default") {
+        const selectedVoice = this.browserVoices.find(
+          (v) => v.voiceURI === settings.voiceURI,
+        );
+        if (selectedVoice) {
+          utterance.voice = selectedVoice;
         }
-      }, 10000);
-    };
-
-    utterance.onend = () => {
-      if (this.resumeInterval) {
-        clearInterval(this.resumeInterval);
-        this.resumeInterval = null;
       }
-    };
 
-    utterance.onerror = (event) => {
-      if (this.resumeInterval) {
-        clearInterval(this.resumeInterval);
-        this.resumeInterval = null;
-      }
-      if (event.error !== "interrupted") {
-        console.error("Speech synthesis error:", event.error);
-      }
-    };
+      utterance.onstart = () => {
+        this.resumeInterval = setInterval(() => {
+          if (!window.speechSynthesis.speaking) {
+            if (this.resumeInterval) {
+              clearInterval(this.resumeInterval);
+              this.resumeInterval = null;
+            }
+          } else if (window.speechSynthesis.paused) {
+            window.speechSynthesis.resume();
+          }
+        }, 10000);
+      };
 
-    setTimeout(() => {
-      window.speechSynthesis.speak(utterance);
-    }, 50);
+      utterance.onend = () => {
+        if (this.resumeInterval) {
+          clearInterval(this.resumeInterval);
+          this.resumeInterval = null;
+        }
+        resolve();
+      };
+
+      utterance.onerror = (event) => {
+        if (this.resumeInterval) {
+          clearInterval(this.resumeInterval);
+          this.resumeInterval = null;
+        }
+        if (event.error !== "interrupted") {
+          console.error("Speech synthesis error:", event.error);
+        }
+        resolve();
+      };
+
+      setTimeout(() => {
+        window.speechSynthesis.speak(utterance);
+      }, 50);
+    });
   }
 
   private async speakAzure(
@@ -247,7 +255,7 @@ class TTSService {
 
       const blob = await response.blob();
       const arrayBuffer = await blob.arrayBuffer();
-      this.playAudioBuffer(arrayBuffer, opId);
+      await this.playAudioBuffer(arrayBuffer, opId);
     } catch (e: any) {
       if (e?.name === "AbortError") return;
       console.error("Azure TTS error", e);
@@ -308,7 +316,7 @@ class TTSService {
         bytes[i] = binaryString.charCodeAt(i);
       }
 
-      this.playAudioBuffer(bytes.buffer, opId);
+      await this.playAudioBuffer(bytes.buffer, opId);
     } catch (e: any) {
       if (e?.name === "AbortError") return;
       console.error("Google TTS error", e);
@@ -325,35 +333,42 @@ class TTSService {
     return this.audioContext;
   }
 
-  private async playAudioBuffer(buffer: ArrayBuffer, opId: number) {
-    try {
-      const ctx = this.getAudioContext();
+  private async playAudioBuffer(buffer: ArrayBuffer, opId: number): Promise<void> {
+    return new Promise(async (resolve) => {
+      try {
+        const ctx = this.getAudioContext();
 
-      if (ctx.state === "suspended") {
-        await ctx.resume();
+        if (ctx.state === "suspended") {
+          await ctx.resume();
+        }
+
+        const decodedBuffer = await ctx.decodeAudioData(buffer.slice(0));
+        if (this.currentOperationId !== opId) {
+          resolve();
+          return;
+        }
+
+        if (this.currentSource) {
+          try {
+            this.currentSource.stop();
+          } catch { }
+        }
+
+        this.currentSource = ctx.createBufferSource();
+        this.currentSource.buffer = decodedBuffer;
+        this.currentSource.connect(ctx.destination);
+
+        this.currentSource.onended = () => {
+          this.currentSource = null;
+          resolve();
+        };
+
+        this.currentSource.start(0);
+      } catch (e) {
+        console.error("Audio playback error", e);
+        resolve();
       }
-
-      const decodedBuffer = await ctx.decodeAudioData(buffer.slice(0));
-      if (this.currentOperationId !== opId) return;
-
-      if (this.currentSource) {
-        try {
-          this.currentSource.stop();
-        } catch {}
-      }
-
-      this.currentSource = ctx.createBufferSource();
-      this.currentSource.buffer = decodedBuffer;
-      this.currentSource.connect(ctx.destination);
-
-      this.currentSource.onended = () => {
-        this.currentSource = null;
-      };
-
-      this.currentSource.start(0);
-    } catch (e) {
-      console.error("Audio playback error", e);
-    }
+    });
   }
 
   async stop() {
@@ -374,7 +389,7 @@ class TTSService {
     if (this.currentSource) {
       try {
         this.currentSource.stop();
-      } catch {}
+      } catch { }
       this.currentSource = null;
     }
   }

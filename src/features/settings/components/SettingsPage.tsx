@@ -665,6 +665,20 @@ export const SettingsPage: React.FC = () => {
             />
           </SettingsItem>
           <SettingsItem
+            label="Play Target Word First"
+            description="Play target word audio before sentence audio"
+          >
+            <Switch
+              checked={settings.playTargetWordAudioBeforeSentence}
+              onCheckedChange={(checked) =>
+                setSettings((prev) => ({
+                  ...prev,
+                  playTargetWordAudioBeforeSentence: checked,
+                }))
+              }
+            />
+          </SettingsItem>
+          <SettingsItem
             label="Listening Mode"
             description="Hide text until audio completes"
           >

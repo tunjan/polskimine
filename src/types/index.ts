@@ -86,6 +86,7 @@ export interface UserSettings {
   dailyNewLimits: Record<Language, number>;
   dailyReviewLimits: Record<Language, number>;
   autoPlayAudio: boolean;
+  playTargetWordAudioBeforeSentence: boolean;
   blindMode: boolean;
   showTranslationAfterFlip: boolean;
   showWholeSentenceOnFront?: boolean;

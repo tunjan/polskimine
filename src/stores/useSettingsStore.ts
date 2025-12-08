@@ -50,6 +50,7 @@ export const DEFAULT_SETTINGS: UserSettings = {
     [LanguageId.German]: 100,
   },
   autoPlayAudio: false,
+  playTargetWordAudioBeforeSentence: false,
   blindMode: false,
   showTranslationAfterFlip: true,
   showWholeSentenceOnFront: false,

@@ -10,6 +10,7 @@ interface UseFlashcardAudioProps {
   tts: UserSettings["tts"];
   isFlipped: boolean;
   autoPlayAudio: boolean;
+  playTargetWordAudioBeforeSentence: boolean;
 }
 
 export function useFlashcardAudio({
@@ -18,6 +19,7 @@ export function useFlashcardAudio({
   tts,
   isFlipped,
   autoPlayAudio,
+  playTargetWordAudioBeforeSentence,
 }: UseFlashcardAudioProps) {
   const [playSlow, setPlaySlow] = useState(false);
   const playSlowRef = useRef(playSlow);
@@ -42,18 +44,33 @@ export function useFlashcardAudio({
     return segments.map((s) => s.text).join("");
   }, []);
 
-  const speak = useCallback(() => {
+  const speak = useCallback(async () => {
     const effectiveRate = playSlowRef.current
       ? Math.max(0.25, tts.rate * 0.6)
       : tts.rate;
     const effectiveSettings = { ...tts, rate: effectiveRate };
-    const plainText = getPlainTextForTTS(card.targetSentence);
 
-    ttsService.speak(plainText, language, effectiveSettings).catch((err) => {
+    try {
+      if (playTargetWordAudioBeforeSentence && card.targetWord) {
+        const wordText = getPlainTextForTTS(card.targetWord);
+        await ttsService.speak(wordText, language, effectiveSettings);
+      }
+
+      const plainText = getPlainTextForTTS(card.targetSentence);
+      await ttsService.speak(plainText, language, effectiveSettings);
+    } catch (err) {
       console.error("TTS speak error:", err);
-    });
+    }
+
     setPlaySlow((prev) => !prev);
-  }, [card.targetSentence, language, tts, getPlainTextForTTS]);
+  }, [
+    card.targetSentence,
+    card.targetWord,
+    language,
+    tts,
+    getPlainTextForTTS,
+    playTargetWordAudioBeforeSentence,
+  ]);
 
   useEffect(() => {
     if (autoPlayAudio && isFlipped && lastSpokenCardId.current !== card.id) {

@@ -211,6 +211,11 @@ export const GeneralSettings: React.FC<GeneralSettingsProps> = ({
             key: "autoPlayAudio",
           },
           {
+            label: "Play Target Word First",
+            desc: "Play target word audio before sentence audio",
+            key: "playTargetWordAudioBeforeSentence",
+          },
+          {
             label: "Listening Mode",
             desc: "Hide text until audio completes",
             key: "blindMode",

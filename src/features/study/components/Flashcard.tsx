@@ -36,12 +36,18 @@ export const Flashcard = React.memo<FlashcardProps>(
     language = LanguageId.Polish,
     onAddCard,
   }) => {
-    const { geminiApiKey, showWholeSentenceOnFront, tts } = useSettingsStore(
+    const {
+      geminiApiKey,
+      showWholeSentenceOnFront,
+      tts,
+      playTargetWordAudioBeforeSentence,
+    } = useSettingsStore(
       useShallow((s) => ({
         geminiApiKey: s.geminiApiKey,
         showWholeSentenceOnFront: s.showWholeSentenceOnFront,
         tts: s.tts,
-      })),
+        playTargetWordAudioBeforeSentence: s.playTargetWordAudioBeforeSentence,
+      }))
     );
     const { displayedTranslation, isGaslit, processText } = useCardText(card);
     const { selection, handleMouseUp, clearSelection } = useTextSelection();
@@ -62,6 +68,7 @@ export const Flashcard = React.memo<FlashcardProps>(
       tts,
       isFlipped,
       autoPlayAudio,
+      playTargetWordAudioBeforeSentence,
     });
 
     const {
@@ -97,7 +104,7 @@ export const Flashcard = React.memo<FlashcardProps>(
     const RenderedSentence = useMemo(() => {
       const baseClasses = cn(
         "text-center text-balance select-text leading-[1.3] text-foreground font-light",
-        fontSizeClass,
+        fontSizeClass
       );
 
       if (!isRevealed) {
@@ -130,7 +137,7 @@ export const Flashcard = React.memo<FlashcardProps>(
             <p
               className={cn(
                 baseClasses,
-                "blur-3xl opacity-5 group-hover:opacity-10 transition-all duration-500",
+                "blur-3xl opacity-5 group-hover:opacity-10 transition-all duration-500"
               )}
             >
               {card.targetWord && !showWholeSentenceOnFront
@@ -199,7 +206,7 @@ export const Flashcard = React.memo<FlashcardProps>(
                 </span>
               ) : (
                 <span key={i}>{processText(part)}</span>
-              ),
+              )
             )}
           </p>
         );
@@ -223,7 +230,7 @@ export const Flashcard = React.memo<FlashcardProps>(
     ]);
 
     const containerClasses = cn(
-      "relative w-full max-w-7xl mx-auto flex flex-col items-center justify-center h-full",
+      "relative w-full max-w-7xl mx-auto flex flex-col items-center justify-center h-full"
     );
 
     return (
@@ -236,7 +243,7 @@ export const Flashcard = React.memo<FlashcardProps>(
           <div
             className={cn(
               "w-full px-8 md:px-16 flex flex-col items-center z-10 transition-all duration-700 ease-out",
-              isFlipped && "-translate-y-[80%]",
+              isFlipped && "-translate-y-[80%]"
             )}
           >
             {RenderedSentence}
@@ -253,7 +260,7 @@ export const Flashcard = React.memo<FlashcardProps>(
                   strokeWidth={1.5}
                   className={cn(
                     "transition-all duration-300",
-                    playSlow && "text-primary",
+                    playSlow && "text-primary"
                   )}
                 />
               </Button>
@@ -287,7 +294,7 @@ export const Flashcard = React.memo<FlashcardProps>(
                         "text-base md:text-xl text-foreground/70 font-light italic text-center leading-relaxed text-balance transition-colors duration-300",
                         isGaslit
                           ? "text-destructive/70"
-                          : "group-hover:text-foreground/85",
+                          : "group-hover:text-foreground/85"
                       )}
                     >
                       {processText(displayedTranslation)}
@@ -335,5 +342,5 @@ export const Flashcard = React.memo<FlashcardProps>(
         />
       </>
     );
-  },
+  }
 );
