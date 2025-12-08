@@ -1,7 +1,6 @@
 import React, { useMemo } from 'react';
 import {
   Activity,
-  Zap,
   BookOpen,
   Sparkles,
   Target,
@@ -162,7 +161,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
 
         {/* Study Session Card */}
         <Card>
-          <CardContent className="flex flex-col">
+          <CardContent className="flex flex-col h-full">
             <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">Due for Review</p>
             <p className="text-5xl font-bold text-primary mb-2">{stats.due}</p>
             <div className="flex items-center gap-3 text-xs  text-muted-foreground mb-4">

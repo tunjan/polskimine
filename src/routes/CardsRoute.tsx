@@ -1,11 +1,10 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { ChevronLeft, ChevronRight, Search, X, Plus, Sparkles, BookOpen, Zap, Trash2, Filter, Bookmark, AlertTriangle } from 'lucide-react';
+import { Search, X, Plus, Sparkles, BookOpen, Zap, Trash2, Filter, Bookmark, AlertTriangle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 
 import { useDeckStats } from '@/features/deck/hooks/useDeckStats';
-import { useSettingsStore } from '@/stores/useSettingsStore';
-import { Card, CardStatus } from '@/types';
+import { Card } from '@/types';
 import { AddCardModal } from '@/features/deck/components/AddCardModal';
 import { GenerateCardsModal } from '@/features/deck/components/GenerateCardsModal';
 import { CardHistoryModal } from '@/features/deck/components/CardHistoryModal';
@@ -16,7 +15,6 @@ import { useCardsQuery, CardFilters } from '@/features/deck/hooks/useCardsQuery'
 import { cn } from '@/lib/utils';
 
 export const CardsRoute: React.FC = () => {
-  const settings = useSettingsStore(s => s.settings);
   const { stats } = useDeckStats();
   const { addCard, addCardsBatch, updateCard, deleteCard, deleteCardsBatch, prioritizeCards } = useCardOperations();
 
@@ -28,7 +26,7 @@ export const CardsRoute: React.FC = () => {
 
   const pageSize = 50;
 
-  const { data, isLoading, isPlaceholderData } = useCardsQuery(page, pageSize, debouncedSearch, filters);
+  const { data, isLoading } = useCardsQuery(page, pageSize, debouncedSearch, filters);
   const cards = data?.data || [];
   const totalCount = data?.count || 0;
 

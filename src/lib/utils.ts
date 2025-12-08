@@ -1,17 +1,24 @@
-import { clsx, type ClassValue } from "clsx";
-import { twMerge } from "tailwind-merge";
+import { clsx, type ClassValue } from "clsx"
+import { twMerge } from "tailwind-merge"
 
 export function cn(...inputs: ClassValue[]) {
-  return twMerge(clsx(inputs));
+  return twMerge(clsx(inputs))
 }
 
-export function escapeRegExp(string: string) {
-  return string.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+export function escapeRegExp(string: string): string {
+  return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
-export interface FuriganaSegment {
-  text: string;
-  furigana?: string;
+export function getLevelProgress(xp: number) {
+  const level = Math.floor(Math.sqrt(xp / 100)) + 1;
+  const currentLevelStartXP = 100 * Math.pow(level - 1, 2);
+  const nextLevelStartXP = 100 * Math.pow(level, 2);
+  const xpGainedInLevel = xp - currentLevelStartXP;
+  const xpRequiredForLevel = nextLevelStartXP - currentLevelStartXP;
+  const progressPercent = Math.min(100, Math.max(0, (xpGainedInLevel / xpRequiredForLevel) * 100));
+  const xpToNextLevel = nextLevelStartXP - xp;
+
+  return { level, progressPercent, xpToNextLevel };
 }
 
 export function parseFurigana(text: string): FuriganaSegment[] {
@@ -81,44 +88,50 @@ export function parseFurigana(text: string): FuriganaSegment[] {
   return segments;
 }
 
-export function hexToHSL(hex: string): { h: number; s: number; l: number } {
-  let r = 0,
-    g = 0,
-    b = 0;
-  if (hex.length === 4) {
-    r = parseInt("0x" + hex[1] + hex[1]);
-    g = parseInt("0x" + hex[2] + hex[2]);
-    b = parseInt("0x" + hex[3] + hex[3]);
-  } else if (hex.length === 7) {
-    r = parseInt("0x" + hex[1] + hex[2]);
-    g = parseInt("0x" + hex[3] + hex[4]);
-    b = parseInt("0x" + hex[5] + hex[6]);
+export function findInflectedWordInSentence(
+  targetWord: string,
+  sentence: string
+): string | null {
+  if (!targetWord || !sentence) return null;
+
+  const targetLower = targetWord.toLowerCase();
+
+  const words = sentence.match(/[\p{L}]+/gu) || [];
+
+  const exactMatch = words.find(w => w.toLowerCase() === targetLower);
+  if (exactMatch) return exactMatch;
+
+  const minStemLength = targetWord.length <= 4 ? 2 : Math.min(4, Math.ceil(targetWord.length * 0.5));
+
+  let bestMatch: string | null = null;
+  let bestMatchScore = 0;
+
+  for (const word of words) {
+    const wordLower = word.toLowerCase();
+
+    let sharedLength = 0;
+    const maxLength = Math.min(targetLower.length, wordLower.length);
+
+    for (let i = 0; i < maxLength; i++) {
+      if (targetLower[i] === wordLower[i]) {
+        sharedLength++;
+      } else {
+        break;
+      }
+    }
+
+    if (sharedLength >= minStemLength) {
+      const lengthDiff = Math.abs(targetWord.length - word.length);
+      const score = sharedLength * 10 - lengthDiff;
+
+      if (score > bestMatchScore) {
+        bestMatchScore = score;
+        bestMatch = word;
+      }
+    }
   }
-  r /= 255;
-  g /= 255;
-  b /= 255;
-  const cmin = Math.min(r, g, b),
-    cmax = Math.max(r, g, b),
-    delta = cmax - cmin;
-  let h = 0,
-    s = 0,
-    l = 0;
 
-  if (delta === 0) h = 0;
-  else if (cmax === r) h = ((g - b) / delta) % 6;
-  else if (cmax === g) h = (b - r) / delta + 2;
-  else h = (r - g) / delta + 4;
-
-  h = Math.round(h * 60);
-
-  if (h < 0) h += 360;
-
-  l = (cmax + cmin) / 2;
-  s = delta === 0 ? 0 : delta / (1 - Math.abs(2 * l - 1));
-  s = +(s * 100).toFixed(1);
-  l = +(l * 100).toFixed(1);
-
-  return { h, s, l };
+  return bestMatch;
 }
 
 export function hslToHex(h: number, s: number, l: number): string {
@@ -169,79 +182,42 @@ export function hslToHex(h: number, s: number, l: number): string {
   return `#${toHex(r)}${toHex(g)}${toHex(b)}`;
 }
 
-export function calculateLevel(xp: number): number {
-  return Math.floor(Math.sqrt(xp / 100)) + 1;
-}
-
-export function getXpForLevel(level: number): number {
-  return (level - 1) * (level - 1) * 100;
-}
-
-export function getLevelProgress(xp: number): {
-  level: number;
-  progressPercent: number;
-  xpToNextLevel: number;
-  currentLevelXp: number;
-  nextLevelXp: number;
-} {
-  const level = calculateLevel(xp);
-  const currentLevelXp = getXpForLevel(level);
-  const nextLevelXp = getXpForLevel(level + 1);
-  const progressPercent = ((xp - currentLevelXp) / (nextLevelXp - currentLevelXp)) * 100;
-  const xpToNextLevel = nextLevelXp - xp;
-
-  return {
-    level,
-    progressPercent,
-    xpToNextLevel,
-    currentLevelXp,
-    nextLevelXp,
-  };
-}
-
-export function findInflectedWordInSentence(
-  targetWord: string,
-  sentence: string
-): string | null {
-  if (!targetWord || !sentence) return null;
-
-  const targetLower = targetWord.toLowerCase();
-
-  const words = sentence.match(/[\p{L}]+/gu) || [];
-
-  const exactMatch = words.find(w => w.toLowerCase() === targetLower);
-  if (exactMatch) return exactMatch;
-
-  const minStemLength = targetWord.length <= 4 ? 2 : Math.min(4, Math.ceil(targetWord.length * 0.5));
-
-  let bestMatch: string | null = null;
-  let bestMatchScore = 0;
-
-  for (const word of words) {
-    const wordLower = word.toLowerCase();
-
-    let sharedLength = 0;
-    const maxLength = Math.min(targetLower.length, wordLower.length);
-
-    for (let i = 0; i < maxLength; i++) {
-      if (targetLower[i] === wordLower[i]) {
-        sharedLength++;
-      } else {
-        break;
-      }
-    }
-
-    if (sharedLength >= minStemLength) {
-      const lengthDiff = Math.abs(targetWord.length - word.length);
-      const score = sharedLength * 10 - lengthDiff;
-
-      if (score > bestMatchScore) {
-        bestMatchScore = score;
-        bestMatch = word;
-      }
-    }
+export function hexToHSL(hex: string): { h: number; s: number; l: number } {
+  let r = 0,
+    g = 0,
+    b = 0;
+  if (hex.length === 4) {
+    r = parseInt("0x" + hex[1] + hex[1]);
+    g = parseInt("0x" + hex[2] + hex[2]);
+    b = parseInt("0x" + hex[3] + hex[3]);
+  } else if (hex.length === 7) {
+    r = parseInt("0x" + hex[1] + hex[2]);
+    g = parseInt("0x" + hex[3] + hex[4]);
+    b = parseInt("0x" + hex[5] + hex[6]);
   }
+  r /= 255;
+  g /= 255;
+  b /= 255;
+  const cmin = Math.min(r, g, b),
+    cmax = Math.max(r, g, b),
+    delta = cmax - cmin;
+  let h = 0,
+    s = 0,
+    l = 0;
 
-  return bestMatch;
+  if (delta === 0) h = 0;
+  else if (cmax === r) h = ((g - b) / delta) % 6;
+  else if (cmax === g) h = (b - r) / delta + 2;
+  else h = (r - g) / delta + 4;
+
+  h = Math.round(h * 60);
+
+  if (h < 0) h += 360;
+
+  l = (cmax + cmin) / 2;
+  s = delta === 0 ? 0 : delta / (1 - Math.abs(2 * l - 1));
+  s = +(s * 100).toFixed(1);
+  l = +(l * 100).toFixed(1);
+
+  return { h, s, l };
 }
-

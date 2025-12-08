@@ -2,7 +2,7 @@ import React from 'react';
 import { Grade } from '@/types';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
-import { RotateCcw, Clock, ThumbsUp, Sparkles, Eye } from 'lucide-react';
+import { Eye } from 'lucide-react';
 
 interface StudyFooterProps {
     isFlipped: boolean;

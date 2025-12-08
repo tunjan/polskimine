@@ -112,10 +112,9 @@ export const StudyHeader: React.FC<StudyHeaderProps> = React.memo(({
 
                 {/* XP display - centered */}
                 <div className="absolute left-1/2 -translate-x-1/2 top-1/2 -translate-y-1/2 hidden md:flex items-center gap-2">
-                    <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/5 border border-primary/10 backdrop-blur-sm">
+                    <div className="flex items-center gap-2 px-3 py-1.5 ">
                         <div className="relative">
                             <Zap size={14} strokeWidth={2.5} className="text-primary fill-primary/20" />
-                            <Sparkles size={8} className="absolute -top-1 -right-1 text-primary animate-pulse" />
                         </div>
                         <span className="text-sm font-semibold tracking-wide tabular-nums text-foreground">
                             {sessionXp.toLocaleString()}
@@ -126,7 +125,6 @@ export const StudyHeader: React.FC<StudyHeaderProps> = React.memo(({
                             <>
                                 <Separator orientation="vertical" className="h-4 mx-1" />
                                 <div className="flex items-center gap-1 text-[11px] font-bold text-primary">
-                                    <TrendingUp size={12} strokeWidth={2.5} />
                                     <span>×{multiplierInfo.value.toFixed(1)}</span>
                                 </div>
                             </>

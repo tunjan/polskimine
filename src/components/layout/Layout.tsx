@@ -165,9 +165,9 @@ const AppSidebar: React.FC<NavActionProps> = ({
               <DropdownMenuTrigger asChild>
                 <SidebarMenuButton
                   size="lg"
-                  className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
+                  className="data-[state=open]:bg-sidebar-primary data-[state=open]:text-sidebar-primary-foreground"
                 >
-                  <div className="flex aspect-square size-8 items-center justify-center rounded-lg border border-sidebar-border bg-sidebar-accent text-sidebar-primary-foreground">
+                  <div className="flex aspect-square size-8 items-center justify-center rounded-lg border border-sidebar-border bg-sidebar-primary text-sidebar-primary-foreground">
                     <currentLanguage.Flag className="w-full h-full object-cover rounded-sm" />
                   </div>
                   <div className="grid flex-1 text-left text-sm leading-tight">
@@ -209,7 +209,7 @@ const AppSidebar: React.FC<NavActionProps> = ({
           {profile && (
             <SidebarMenuItem>
               <SidebarMenuButton size="lg">
-                <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-accent text-sidebar-foreground">
+                <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
                   <span className='font-bold'>{profile.username?.charAt(0).toUpperCase()}</span>
                 </div>
                 <div className="grid flex-1 text-left text-sm leading-tight">
@@ -277,13 +277,13 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
     <SidebarProvider>
       <AppSidebar {...sidebarProps} />
       <SidebarInset>
-        <header className="flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-12">
+        <header className="flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12">
           <div className="flex items-center gap-2 px-4">
             <SidebarTrigger className="-ml-1" />
           </div>
         </header>
         <div className="flex-1 flex flex-col p-4 pt-0">
-          <div className="min-h-[100vh] flex-1 rounded-xl md:min-h-min md:flex-col overflow-y-auto">
+          <div className="min-h-screen flex-1 rounded-xl md:min-h-min md:flex-col overflow-y-auto">
             {children}
           </div>
         </div>

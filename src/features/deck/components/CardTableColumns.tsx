@@ -247,7 +247,7 @@ export function getCardColumns(actions: ColumnActions): ColumnDef<Card>[] {
             accessorKey: "targetSentence",
             header: ({ column }) => <SortableHeader column={column}>Sentence</SortableHeader>,
             cell: ({ row }) => (
-                <p className="text-sm font-light text-foreground/90 line-clamp-2 max-w-[300px]">
+                <p className="text-sm font-light text-foreground/90 truncate max-w-[150px]">
                     {row.getValue("targetSentence")}
                 </p>
             ),
@@ -258,7 +258,7 @@ export function getCardColumns(actions: ColumnActions): ColumnDef<Card>[] {
             accessorKey: "nativeTranslation",
             header: "Translation",
             cell: ({ row }) => (
-                <p className="text-sm text-muted-foreground font-light line-clamp-2 max-w-[250px]">
+                <p className="text-sm text-muted-foreground font-light line-clamp-2 max-w-[150px]">
                     {row.getValue("nativeTranslation")}
                 </p>
             ),
