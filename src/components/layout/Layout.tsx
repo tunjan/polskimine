@@ -79,7 +79,7 @@ const AppSidebar: React.FC<NavActionProps> = ({
     useShallow((s) => ({
       language: s.language,
       updateSettings: s.updateSettings,
-    })),
+    }))
   );
   const { signOut } = useAuth();
   const { profile } = useProfile();
@@ -356,7 +356,7 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({
             <SidebarTrigger className="-ml-1" />
           </div>
         </header>
-        <div className="flex-1 flex flex-col p-4 pt-0">
+        <div className="flex-1 flex flex-col p-2 md:p-4 pt-0">
           <div className="min-h-screen flex-1 rounded-xl md:min-h-min md:flex-col overflow-y-auto">
             {children}
           </div>

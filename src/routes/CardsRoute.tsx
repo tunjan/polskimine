@@ -15,7 +15,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
 import { useDeckStats } from "@/features/collection/hooks/useDeckStats";
-import { Card } from "@/types";
+import { Card, CardStatus } from "@/types";
 import { AddCardModal } from "@/features/collection/components/AddCardModal";
 import { GenerateCardsModal } from "@/features/generator/components/GenerateCardsModal";
 import { CardHistoryModal } from "@/features/collection/components/CardHistoryModal";
@@ -51,7 +51,7 @@ export const CardsRoute: React.FC = () => {
     page,
     pageSize,
     debouncedSearch,
-    filters,
+    filters
   );
   const cards = data?.data || [];
   const totalCount = data?.count || 0;
@@ -67,7 +67,7 @@ export const CardsRoute: React.FC = () => {
   const [selectedCard, setSelectedCard] = useState<Card | undefined>(undefined);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [lastSelectedIndex, setLastSelectedIndex] = useState<number | null>(
-    null,
+    null
   );
 
   useEffect(() => {
@@ -107,7 +107,7 @@ export const CardsRoute: React.FC = () => {
           const idsInRange = cards.slice(start, end + 1).map((c) => c.id);
           const shouldSelect = !prev.has(id);
           idsInRange.forEach((rangeId) =>
-            shouldSelect ? next.add(rangeId) : next.delete(rangeId),
+            shouldSelect ? next.add(rangeId) : next.delete(rangeId)
           );
         } else {
           if (next.has(id)) next.delete(id);
@@ -117,7 +117,7 @@ export const CardsRoute: React.FC = () => {
         return next;
       });
     },
-    [cards, lastSelectedIndex],
+    [cards, lastSelectedIndex]
   );
 
   const handleBatchPrioritize = async () => {
@@ -130,7 +130,7 @@ export const CardsRoute: React.FC = () => {
     if (selectedIds.size === 0) return;
     if (
       confirm(
-        `Are you sure you want to delete ${selectedIds.size} card${selectedIds.size === 1 ? "" : "s"}? This action cannot be undone.`,
+        `Are you sure you want to delete ${selectedIds.size} card${selectedIds.size === 1 ? "" : "s"}? This action cannot be undone.`
       )
     ) {
       const ids = Array.from(selectedIds);
@@ -162,7 +162,7 @@ export const CardsRoute: React.FC = () => {
 
   return (
     <div className="flex-1 min-h-0 flex flex-col relative bg-background">
-      <header className="px-4 md:px-8 pb-2 border-b">
+      <header className="md:px-8 pb-2 border-b">
         <div className="py-2 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="flex items-center gap-4">
             <div className="w-10 h-10 flex items-center justify-center bg-primary/10 rounded-md">
@@ -234,10 +234,10 @@ export const CardsRoute: React.FC = () => {
                         {(
                           [
                             "all",
-                            "new",
-                            "learning",
-                            "graduated",
-                            "known",
+                            CardStatus.NEW,
+                            CardStatus.LEARNING,
+                            CardStatus.REVIEW,
+                            CardStatus.KNOWN,
                           ] as const
                         ).map((status) => (
                           <Button
@@ -257,7 +257,9 @@ export const CardsRoute: React.FC = () => {
                             }
                             className="capitalize h-8 text-xs font-normal"
                           >
-                            {status}
+                            {status === CardStatus.REVIEW
+                              ? "graduated"
+                              : status}
                           </Button>
                         ))}
                       </div>
@@ -280,7 +282,7 @@ export const CardsRoute: React.FC = () => {
                           className={cn(
                             "w-full justify-start gap-2 h-8 text-xs font-normal",
                             filters.bookmarked &&
-                              "bg-primary/10 border-primary text-primary hover:bg-primary/20",
+                              "bg-primary/10 border-primary text-primary hover:bg-primary/20"
                           )}
                         >
                           <Bookmark className="w-3.5 h-3.5" />
@@ -296,7 +298,7 @@ export const CardsRoute: React.FC = () => {
                             "w-full justify-start gap-2 h-8 text-xs font-normal",
                             filters.leech
                               ? "bg-destructive/10 border-destructive text-destructive hover:bg-destructive/20"
-                              : "",
+                              : ""
                           )}
                         >
                           <AlertTriangle className="w-3.5 h-3.5" />
@@ -360,7 +362,7 @@ export const CardsRoute: React.FC = () => {
           "fixed bottom-8 left-1/2 -translate-x-1/2 z-50 w-auto min-w-[300px] transition-all duration-200",
           selectedIds.size > 0
             ? "translate-y-0 opacity-100"
-            : "translate-y-16 opacity-0 pointer-events-none",
+            : "translate-y-16 opacity-0 pointer-events-none"
         )}
       >
         <div className="bg-foreground text-background rounded-full shadow-lg px-6 py-3 flex items-center justify-between gap-6">

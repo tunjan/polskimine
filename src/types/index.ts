@@ -114,3 +114,8 @@ export interface ReviewLog {
   difficulty: number;
   created_at: string;
 }
+
+export interface FuriganaSegment {
+  text: string;
+  furigana?: string;
+}

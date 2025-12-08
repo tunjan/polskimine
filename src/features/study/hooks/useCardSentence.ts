@@ -1,15 +1,10 @@
 import { useMemo } from "react";
-import { Card, Language, LanguageId } from "@/types";
+import { Card, Language, LanguageId, FuriganaSegment } from "@/types";
 import {
   parseFurigana,
   findInflectedWordInSentence,
   escapeRegExp,
 } from "@/lib/utils";
-
-export interface FuriganaSegment {
-  text: string;
-  furigana?: string;
-}
 
 export type JapaneseStructure = {
   type: "japanese";
@@ -72,8 +67,8 @@ export const useCardSentence = (
         if (hasFurigana) {
           const targetWordPlain = card.targetWord
             ? parseFurigana(card.targetWord)
-                .map((s) => s.text)
-                .join("")
+              .map((s) => s.text)
+              .join("")
             : null;
 
           const segmentTexts = segments.map((s) => s.text);
