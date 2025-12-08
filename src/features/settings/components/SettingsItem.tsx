@@ -3,7 +3,11 @@ import { LucideIcon, ChevronDown, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
 import { Button } from "@/components/ui/button";
 
 interface SettingsItemProps {
@@ -22,7 +26,12 @@ export const SettingsItem: React.FC<SettingsItemProps> = ({
   className,
 }) => {
   return (
-    <div className={cn("flex flex-col sm:flex-row sm:items-center justify-between gap-4 py-4 first:pt-0 last:pb-0", className)}>
+    <div
+      className={cn(
+        "flex flex-col sm:flex-row sm:items-center justify-between gap-4 py-4 first:pt-0 last:pb-0",
+        className,
+      )}
+    >
       <div className="flex items-start gap-3 flex-1">
         {Icon && (
           <div className="mt-0.5 text-muted-foreground/70">
@@ -63,7 +72,12 @@ export const SettingsLargeInput: React.FC<SettingsLargeInputProps> = ({
   className,
 }) => {
   return (
-    <div className={cn("flex flex-col gap-2 p-4 border rounded-lg bg-muted/20 hover:bg-muted/30 transition-colors", className)}>
+    <div
+      className={cn(
+        "flex flex-col gap-2 p-4 border rounded-lg bg-muted/20 hover:bg-muted/30 transition-colors",
+        className,
+      )}
+    >
       <span className="text-sm font-medium text-foreground/80">{label}</span>
       <div className="flex items-baseline gap-2">
         <Input
@@ -72,7 +86,9 @@ export const SettingsLargeInput: React.FC<SettingsLargeInputProps> = ({
           onChange={(e) => onChange(Number(e.target.value))}
           className="text-2xl font-bold h-12 w-24 px-3 py-1 bg-background shadow-sm"
         />
-        {sublabel && <span className="text-xs text-muted-foreground">{sublabel}</span>}
+        {sublabel && (
+          <span className="text-xs text-muted-foreground">{sublabel}</span>
+        )}
       </div>
     </div>
   );
@@ -125,10 +141,14 @@ export const SettingsSubSection: React.FC<SettingsSubSectionProps> = ({
     >
       <div className="flex items-center justify-between px-4 py-3 bg-muted/30 hover:bg-muted/40 transition-colors">
         <h4 className="text-sm font-semibold flex items-center gap-2">
-            {title}
+          {title}
         </h4>
         <CollapsibleTrigger asChild>
-          <Button variant="ghost" size="sm" className="w-8 h-8 p-0 hover:bg-background/80">
+          <Button
+            variant="ghost"
+            size="sm"
+            className="w-8 h-8 p-0 hover:bg-background/80"
+          >
             {isOpen ? (
               <ChevronDown className="w-4 h-4 text-muted-foreground" />
             ) : (

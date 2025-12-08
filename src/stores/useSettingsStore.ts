@@ -87,7 +87,6 @@ export const DEFAULT_SETTINGS: UserSettings = {
   },
 };
 
-
 const debouncedSaveSettings = debounce(
   (userId: string, settings: UserSettings) => {
     updateUserSettings(userId, settings).catch((err) => {

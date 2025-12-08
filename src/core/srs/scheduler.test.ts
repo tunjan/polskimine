@@ -103,7 +103,7 @@ describe("scheduler", () => {
           "Again",
           undefined,
           [1, 10],
-          lapsesSettings
+          lapsesSettings,
         );
 
         expect(result.state).toBe(State.Relearning);
@@ -125,7 +125,7 @@ describe("scheduler", () => {
           "Good",
           undefined,
           [1, 10],
-          lapsesSettings
+          lapsesSettings,
         );
 
         expect(result.learningStep).toBe(1);
@@ -148,7 +148,7 @@ describe("scheduler", () => {
           "Good",
           undefined,
           [1, 10],
-          lapsesSettings
+          lapsesSettings,
         );
 
         expect(result.learningStep).toBeUndefined();
@@ -169,7 +169,7 @@ describe("scheduler", () => {
           "Hard",
           undefined,
           [1, 10],
-          lapsesSettings
+          lapsesSettings,
         );
 
         expect(result.learningStep).toBe(1);
@@ -193,7 +193,7 @@ describe("scheduler", () => {
           "Easy",
           undefined,
           [1, 10],
-          lapsesSettings
+          lapsesSettings,
         );
 
         expect(result.learningStep).toBeUndefined();
@@ -214,7 +214,7 @@ describe("scheduler", () => {
           "Again",
           undefined,
           [1, 10],
-          lapsesSettings
+          lapsesSettings,
         );
 
         expect(result.learningStep).toBe(0);
@@ -243,7 +243,7 @@ describe("scheduler", () => {
           "Again",
           undefined,
           [1, 10],
-          lapsesSettings
+          lapsesSettings,
         );
 
         expect(result.isLeech).toBe(true);
@@ -269,7 +269,7 @@ describe("scheduler", () => {
           "Again",
           undefined,
           [1, 10],
-          lapsesSettings
+          lapsesSettings,
         );
 
         expect(result.isLeech).toBeFalsy();
@@ -298,7 +298,7 @@ describe("scheduler", () => {
           "Again",
           undefined,
           [1, 10],
-          lapsesSettings
+          lapsesSettings,
         );
 
         expect(result.isLeech).toBe(true);
@@ -326,7 +326,7 @@ describe("scheduler", () => {
           "Again",
           undefined,
           [1, 10],
-          lapsesSettings
+          lapsesSettings,
         );
 
         expect(result.isLeech).toBe(true);
@@ -409,7 +409,7 @@ describe("scheduler", () => {
         const result = calculateNextReview(card, "Good");
 
         // Should infer state and schedule correctly
-        expect(result.status).toBe(CardStatus.REVIEW) ;
+        expect(result.status).toBe(CardStatus.REVIEW);
         expect(result.interval).toBeGreaterThan(0);
       });
 
@@ -435,7 +435,7 @@ describe("scheduler", () => {
           "Again",
           undefined,
           [1, 10],
-          lapsesSettings
+          lapsesSettings,
         );
 
         // Should enter relearning at step 0
@@ -508,7 +508,7 @@ describe("scheduler", () => {
           "Again",
           undefined,
           [1, 10],
-          lapsesSettings
+          lapsesSettings,
         );
 
         // 2 + 1 = 3, which hits threshold
@@ -540,7 +540,7 @@ describe("scheduler", () => {
           "Again",
           undefined,
           [1, 10],
-          lapsesSettings
+          lapsesSettings,
         );
 
         expect(result.isLeech).toBe(true);
@@ -571,7 +571,7 @@ describe("scheduler", () => {
           "Again",
           undefined,
           [1, 10],
-          lapsesSettings
+          lapsesSettings,
         );
 
         expect(result.tags?.filter((t) => t === "leech").length).toBe(1);
@@ -590,8 +590,13 @@ describe("scheduler", () => {
         // means it's still in learning. Press Good again to graduate.
         const result1 = calculateNextReview(card, "Good", undefined, [-5, 5]);
         expect(result1.status).toBe(CardStatus.LEARNING);
-        
-        const result2 = calculateNextReview(result1, "Good", undefined, [-5, 5]);
+
+        const result2 = calculateNextReview(
+          result1,
+          "Good",
+          undefined,
+          [-5, 5],
+        );
         expect(result2.status).toBe(CardStatus.REVIEW);
       });
 

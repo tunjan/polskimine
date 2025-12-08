@@ -1,8 +1,5 @@
 import { ReviewLog } from "@/types";
-import { 
-  OPTIMIZER_CONFIG,
-  runOptimizerIteration,
-} from "@/lib/fsrsShared";
+import { OPTIMIZER_CONFIG, runOptimizerIteration } from "@/lib/fsrsShared";
 
 const optimizeFSRS = async (
   allLogs: ReviewLog[],
@@ -22,7 +19,8 @@ const optimizeFSRS = async (
   }
 
   let w = [...currentW];
-  const { learningRate, iterations, maxBatchSize, targetIndices, finiteDiffH } = OPTIMIZER_CONFIG;
+  const { learningRate, iterations, maxBatchSize, targetIndices, finiteDiffH } =
+    OPTIMIZER_CONFIG;
   const batchSize = Math.min(cardGroups.length, maxBatchSize);
 
   for (let iter = 0; iter < iterations; iter++) {
@@ -33,7 +31,13 @@ const optimizeFSRS = async (
     }
 
     // Run one iteration of gradient descent
-    w = runOptimizerIteration(w, batch, targetIndices, learningRate, finiteDiffH);
+    w = runOptimizerIteration(
+      w,
+      batch,
+      targetIndices,
+      learningRate,
+      finiteDiffH,
+    );
 
     if (iter % 20 === 0) {
       onProgress((iter / iterations) * 100);

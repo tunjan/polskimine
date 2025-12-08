@@ -1,10 +1,4 @@
-import {
-  addDays,
-  startOfDay,
-  subHours,
-  isBefore,
-  addMinutes,
-} from "date-fns";
+import { addDays, startOfDay, subHours, isBefore, addMinutes } from "date-fns";
 import {
   Card,
   Grade,
@@ -91,7 +85,7 @@ const handleLearningPhase = (
   now: Date,
   learningStepsMinutes: number[],
   currentStep: number,
-  leechThreshold: number
+  leechThreshold: number,
 ): Card | null => {
   let nextStep = currentStep;
   let nextIntervalMinutes = 0;
@@ -178,7 +172,7 @@ const handleRelearningPhase = (
   relearnStepsMinutes: number[],
   currentStep: number,
   leechThreshold: number,
-  currentLapses: number
+  currentLapses: number,
 ): Card | null => {
   if (relearnStepsMinutes.length === 0) {
     return null; // No relearn steps configured, use FSRS
@@ -253,7 +247,7 @@ const handleRelearningPhase = (
 const applyLeechAction = (
   card: Card,
   leechAction: "tag" | "suspend" | undefined,
-  isLeech: boolean
+  isLeech: boolean,
 ): Partial<Card> => {
   if (!isLeech) {
     return {};
@@ -280,13 +274,16 @@ export const calculateNextReview = (
   grade: Grade,
   settings?: UserSettings["fsrs"],
   learningSteps: number[] = [1, 10],
-  lapsesSettings?: LapsesSettings
+  lapsesSettings?: LapsesSettings,
 ): Card => {
   const now = new Date();
   // Validate learning steps: filter out non-positive values and use defaults if empty
-  const validLearningSteps = learningSteps.filter(s => s > 0);
-  const learningStepsMinutes = validLearningSteps.length > 0 ? validLearningSteps : [1, 10];
-  const validRelearnSteps = (lapsesSettings?.relearnSteps ?? []).filter(s => s > 0);
+  const validLearningSteps = learningSteps.filter((s) => s > 0);
+  const learningStepsMinutes =
+    validLearningSteps.length > 0 ? validLearningSteps : [1, 10];
+  const validRelearnSteps = (lapsesSettings?.relearnSteps ?? []).filter(
+    (s) => s > 0,
+  );
   const relearnStepsMinutes = validRelearnSteps;
   const leechThreshold = lapsesSettings?.leechThreshold ?? 8;
   const leechAction = lapsesSettings?.leechAction;
@@ -295,7 +292,10 @@ export const calculateNextReview = (
 
   // Check if card is in initial learning phase
   // Use clamped step for phase detection to handle mid-session config changes
-  const learningStep = Math.max(0, Math.min(rawStep, learningStepsMinutes.length - 1));
+  const learningStep = Math.max(
+    0,
+    Math.min(rawStep, learningStepsMinutes.length - 1),
+  );
   const isLearningPhase =
     (card.status === CardStatus.NEW || card.status === CardStatus.LEARNING) &&
     card.state !== State.Relearning &&
@@ -313,13 +313,13 @@ export const calculateNextReview = (
       now,
       learningStepsMinutes,
       learningStep,
-      leechThreshold
+      leechThreshold,
     );
     if (learningResult) {
       const leechOverrides = applyLeechAction(
         learningResult,
         leechAction,
-        learningResult.isLeech || false
+        learningResult.isLeech || false,
       );
       return { ...learningResult, ...leechOverrides };
     }
@@ -335,13 +335,13 @@ export const calculateNextReview = (
       relearnStepsMinutes,
       relearnStep,
       leechThreshold,
-      card.lapses || 0
+      card.lapses || 0,
     );
     if (relearnResult) {
       const leechOverrides = applyLeechAction(
         relearnResult,
         leechAction,
-        relearnResult.isLeech || false
+        relearnResult.isLeech || false,
       );
       return { ...relearnResult, ...leechOverrides };
     }
@@ -352,7 +352,9 @@ export const calculateNextReview = (
 
   // Determine the correct state for FSRS
   // For cards graduating from learning, we should let FSRS know they've been reviewed
-  const lastReviewDate = card.last_review ? new Date(card.last_review) : undefined;
+  const lastReviewDate = card.last_review
+    ? new Date(card.last_review)
+    : undefined;
   let currentState = inferCardState(card, !!lastReviewDate);
 
   // For cards that graduated from learning/relearning (passed all steps),
@@ -382,7 +384,9 @@ export const calculateNextReview = (
 
   const rating = mapGradeToRating(grade);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const schedulingResult = (schedulingCards as any)[rating] as { card: FSRSCard };
+  const schedulingResult = (schedulingCards as any)[rating] as {
+    card: FSRSCard;
+  };
   const log = schedulingResult.card;
 
   // Check if this is a lapse (Again on a Review/Relearning card)
@@ -440,7 +444,10 @@ export const calculateNextReview = (
   const preciseInterval = Math.max(0, diffMs / (24 * 60 * 60 * 1000));
 
   let scheduledDaysInt = Math.round(preciseInterval);
-  if (tentativeStatus !== CardStatus.LEARNING && tentativeStatus !== CardStatus.NEW) {
+  if (
+    tentativeStatus !== CardStatus.LEARNING &&
+    tentativeStatus !== CardStatus.NEW
+  ) {
     scheduledDaysInt = Math.max(1, scheduledDaysInt);
   }
 

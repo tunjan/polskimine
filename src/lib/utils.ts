@@ -138,11 +138,13 @@ export function findInflectedWordInSentence(
     if (sharedLength >= minStemLength) {
       // Length difference check: mismatched length severely penalizes score
       const lengthDiff = Math.abs(targetWord.length - word.length);
-      
+
       // Strict start match requirement for short words (< 5 chars)
       // Otherwise "live" matches "life" too easily
-      const startsWithBonus = wordLower.startsWith(targetLower.slice(0, 2)) ? 5 : 0;
-      
+      const startsWithBonus = wordLower.startsWith(targetLower.slice(0, 2))
+        ? 5
+        : 0;
+
       if (targetWord.length < 5 && startsWithBonus === 0) {
         continue; // Skip if short word doesn't start with same letters
       }

@@ -3,7 +3,10 @@
  * Uses cardFactory for consistent card creation with staggered due dates.
  */
 import { Card, Language, LanguageId } from "@/types";
-import { createNewCardWithOffset, CreateCardParams } from "@/features/collection/utils/cardFactory";
+import {
+  createNewCardWithOffset,
+  CreateCardParams,
+} from "@/features/collection/utils/cardFactory";
 
 // Card data without runtime-generated fields (id, dueDate)
 interface StarterCardData {
@@ -24,7 +27,7 @@ const DUE_DATE_OFFSET_MS = 10_000;
  */
 const createStarterDeck = (
   language: Language,
-  cardsData: StarterCardData[]
+  cardsData: StarterCardData[],
 ): Card[] => {
   return cardsData.map((cardData, index) =>
     createNewCardWithOffset(
@@ -37,8 +40,8 @@ const createStarterDeck = (
         tags: ["beginner", "starter-deck"],
         ...cardData.extras,
       },
-      index * DUE_DATE_OFFSET_MS
-    )
+      index * DUE_DATE_OFFSET_MS,
+    ),
   );
 };
 
@@ -245,4 +248,3 @@ export const getInitialCards = (language: Language): Card[] => {
 
 // Deprecated: kept for backward compatibility if needed
 export const initialCards: Card[] = [];
-

@@ -5,19 +5,13 @@ import {
   DialogTitle,
   DialogDescription,
   DialogHeader,
-
 } from "@/components/ui/dialog";
 import { Card } from "@/types";
 import { format, formatDistanceToNow, parseISO, isValid } from "date-fns";
 import { Activity, Clock, Target, Zap, History } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
-import {
-  Card as UiCard,
-  CardContent,
-} from "@/components/ui/card";
-
-
+import { Card as UiCard, CardContent } from "@/components/ui/card";
 
 interface CardHistoryModalProps {
   card: Card | undefined;
@@ -183,8 +177,6 @@ export const CardHistoryModal: React.FC<CardHistoryModalProps> = ({
             </div>
           </div>
         </div>
-
-
       </DialogContent>
     </Dialog>
   );

@@ -414,7 +414,7 @@ export const getAllTargetWords = async (
   if (!userId) return [];
 
   const words: string[] = [];
-  
+
   // Use each() for memory efficiency instead of loading all objects
   await db.cards
     .where("[user_id+language]")

@@ -48,28 +48,28 @@ const sortByOverdueness = (a: Card, b: Card, now: Date): number => {
   const bInterval = b.interval || 1;
   const aDue = new Date(a.dueDate || now);
   const bDue = new Date(b.dueDate || now);
-  
+
   const aDaysOverdue = (now.getTime() - aDue.getTime()) / (1000 * 60 * 60 * 24);
   const bDaysOverdue = (now.getTime() - bDue.getTime()) / (1000 * 60 * 60 * 24);
-  
+
   const aOverdueness = aDaysOverdue / aInterval;
   const bOverdueness = bDaysOverdue / bInterval;
-  
+
   return bOverdueness - aOverdueness; // Higher overdueness first
 };
 
 const sortNewCards = (
   cards: Card[],
   gatherOrder: DisplayOrderSettings["newCardGatherOrder"] = "added",
-  sortOrder: DisplayOrderSettings["newCardSortOrder"] = "due"
+  sortOrder: DisplayOrderSettings["newCardSortOrder"] = "due",
 ): Card[] => {
   let result = [...cards];
-  
+
   // First apply gather order (how we collect cards)
   if (gatherOrder === "random") {
     result = shuffle(result);
   }
-  
+
   // Then apply sort order (how we present them)
   switch (sortOrder) {
     case "random":
@@ -89,10 +89,10 @@ const sortNewCards = (
 
 const sortReviewCards = (
   cards: Card[],
-  sortOrder: DisplayOrderSettings["reviewSortOrder"] = "due"
+  sortOrder: DisplayOrderSettings["reviewSortOrder"] = "due",
 ): Card[] => {
   const now = new Date();
-  
+
   switch (sortOrder) {
     case "random":
       return shuffle(cards);
@@ -121,7 +121,7 @@ const interleaveLearningCards = (
   newCards: Card[],
   learningCards: Card[],
   reviewCards: Card[],
-  order: DisplayOrderSettings["interdayLearningOrder"] = "mixed"
+  order: DisplayOrderSettings["interdayLearningOrder"] = "mixed",
 ): Card[] => {
   switch (order) {
     case "before":
@@ -132,7 +132,10 @@ const interleaveLearningCards = (
     default:
       // Interleave learning cards with reviews
       const combined = [...reviewCards];
-      const step = Math.max(1, Math.floor(combined.length / (learningCards.length + 1)));
+      const step = Math.max(
+        1,
+        Math.floor(combined.length / (learningCards.length + 1)),
+      );
       learningCards.forEach((card, i) => {
         const insertAt = Math.min((i + 1) * step, combined.length);
         combined.splice(insertAt, 0, card);
@@ -148,7 +151,7 @@ const interleaveLearningCards = (
 export const sortCards = (
   cards: Card[],
   order: CardOrder,
-  displaySettings?: DisplayOrderSettings
+  displaySettings?: DisplayOrderSettings,
 ): Card[] => {
   if (cards.length === 0) return [];
 
@@ -158,7 +161,7 @@ export const sortCards = (
   const reviewCards = cards.filter((c) => isReviewCard(c));
   // Cards that don't fit other categories go with reviews
   const otherCards = cards.filter(
-    (c) => !isNewCard(c) && !isLearningCard(c) && !isReviewCard(c)
+    (c) => !isNewCard(c) && !isLearningCard(c) && !isReviewCard(c),
   );
 
   // If no display settings, use legacy behavior
@@ -183,12 +186,12 @@ export const sortCards = (
   const sortedNew = sortNewCards(
     newCards,
     displaySettings.newCardGatherOrder,
-    displaySettings.newCardSortOrder
+    displaySettings.newCardSortOrder,
   );
 
   const sortedReview = sortReviewCards(
     [...reviewCards, ...otherCards],
-    displaySettings.reviewSortOrder
+    displaySettings.reviewSortOrder,
   );
 
   const sortedLearning = [...learningCards].sort(sortByDue);
@@ -201,7 +204,10 @@ export const sortCards = (
     case "mixed": {
       // Interleave new with reviews
       const combined = [...sortedReview];
-      const step = Math.max(1, Math.floor(combined.length / (sortedNew.length + 1)));
+      const step = Math.max(
+        1,
+        Math.floor(combined.length / (sortedNew.length + 1)),
+      );
       sortedNew.forEach((card, i) => {
         const insertAt = Math.min((i + 1) * step, combined.length);
         combined.splice(insertAt, 0, card);
@@ -210,7 +216,7 @@ export const sortCards = (
         [],
         sortedLearning,
         combined,
-        displaySettings.interdayLearningOrder
+        displaySettings.interdayLearningOrder,
       );
       break;
     }
@@ -220,7 +226,7 @@ export const sortCards = (
         [],
         sortedLearning,
         sortedReview,
-        displaySettings.interdayLearningOrder
+        displaySettings.interdayLearningOrder,
       );
       // Put reviews (with learning) first, then new cards
       result = [...reviewWithLearning, ...sortedNew];
@@ -233,7 +239,7 @@ export const sortCards = (
         [],
         sortedLearning,
         sortedReview,
-        displaySettings.interdayLearningOrder
+        displaySettings.interdayLearningOrder,
       );
       // Put new cards first, then reviews with learning interleaved
       result = [...sortedNew, ...reviewWithLearning];

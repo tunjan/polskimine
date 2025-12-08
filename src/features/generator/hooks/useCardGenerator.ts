@@ -3,7 +3,10 @@ import { aiService, WordType } from "@/lib/ai";
 import { useSettingsStore, SettingsState } from "@/stores/useSettingsStore";
 import { useShallow } from "zustand/react/shallow";
 import { useProfile } from "@/features/profile/hooks/useProfile";
-import { getLearnedWords, getAllTargetWords } from "@/db/repositories/cardRepository";
+import {
+  getLearnedWords,
+  getAllTargetWords,
+} from "@/db/repositories/cardRepository";
 import { Card as CardType } from "@/types";
 import { toast } from "sonner";
 import { createNewCardWithOffset } from "@/features/collection/utils/cardFactory";
@@ -24,7 +27,6 @@ export const useCardGenerator = ({
       proficiency: s.proficiency,
     })),
   );
-
 
   const [step, setStep] = useState<"config" | "preview">("config");
   const [loading, setLoading] = useState(false);
@@ -166,7 +168,7 @@ export const useCardGenerator = ({
   const handleSave = () => {
     // Stagger due dates by 1 second per card for controlled introduction
     const DUE_DATE_OFFSET_MS = 1000;
-    
+
     const cardsToSave: CardType[] = generatedData
       .filter((_, i) => selectedIndices.has(i))
       .map((item, index) =>
@@ -182,8 +184,8 @@ export const useCardGenerator = ({
             furigana: item.furigana,
             tags: ["AI-Gen", "Custom", instructions.slice(0, 15).trim()],
           },
-          index * DUE_DATE_OFFSET_MS
-        )
+          index * DUE_DATE_OFFSET_MS,
+        ),
       );
 
     onAddCards(cardsToSave);

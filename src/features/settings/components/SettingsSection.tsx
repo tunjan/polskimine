@@ -21,11 +21,9 @@ export const SettingsSection: React.FC<SettingsSectionProps> = ({
     <div
       className={cn(
         "group relative overflow-hidden rounded-xl border bg-card text-card-foreground shadow-sm transition-all hover:shadow-md",
-        className
+        className,
       )}
     >
-
-      
       <div className="relative p-6">
         <div className="flex items-center gap-4 mb-6 border-b pb-4 border-border/50">
           <div className="p-2.5 bg-primary/10 rounded-lg text-primary ring-1 ring-primary/20">
@@ -36,10 +34,8 @@ export const SettingsSection: React.FC<SettingsSectionProps> = ({
             <p className="text-sm text-muted-foreground">{description}</p>
           </div>
         </div>
-        
-        <div className="space-y-1">
-          {children}
-        </div>
+
+        <div className="space-y-1">{children}</div>
       </div>
     </div>
   );

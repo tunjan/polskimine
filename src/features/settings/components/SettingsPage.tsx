@@ -842,15 +842,22 @@ export const SettingsPage: React.FC = () => {
           <Select
             value={settings.newCardGatherOrder || NEW_CARD_GATHER_ORDER.ADDED}
             onValueChange={(value) =>
-              setSettings((prev) => ({ ...prev, newCardGatherOrder: value as any }))
+              setSettings((prev) => ({
+                ...prev,
+                newCardGatherOrder: value as any,
+              }))
             }
           >
             <SelectTrigger className="w-36 h-8 text-sm">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value={NEW_CARD_GATHER_ORDER.ADDED}>Added First</SelectItem>
-              <SelectItem value={NEW_CARD_GATHER_ORDER.RANDOM}>Random</SelectItem>
+              <SelectItem value={NEW_CARD_GATHER_ORDER.ADDED}>
+                Added First
+              </SelectItem>
+              <SelectItem value={NEW_CARD_GATHER_ORDER.RANDOM}>
+                Random
+              </SelectItem>
             </SelectContent>
           </Select>
         </SettingsItem>
@@ -862,7 +869,10 @@ export const SettingsPage: React.FC = () => {
           <Select
             value={settings.newCardSortOrder || NEW_CARD_SORT_ORDER.DUE}
             onValueChange={(value) =>
-              setSettings((prev) => ({ ...prev, newCardSortOrder: value as any }))
+              setSettings((prev) => ({
+                ...prev,
+                newCardSortOrder: value as any,
+              }))
             }
           >
             <SelectTrigger className="w-36 h-8 text-sm">
@@ -871,7 +881,9 @@ export const SettingsPage: React.FC = () => {
             <SelectContent>
               <SelectItem value={NEW_CARD_SORT_ORDER.DUE}>Due Date</SelectItem>
               <SelectItem value={NEW_CARD_SORT_ORDER.RANDOM}>Random</SelectItem>
-              <SelectItem value={NEW_CARD_SORT_ORDER.CARD_TYPE}>Card Type</SelectItem>
+              <SelectItem value={NEW_CARD_SORT_ORDER.CARD_TYPE}>
+                Card Type
+              </SelectItem>
             </SelectContent>
           </Select>
         </SettingsItem>
@@ -890,8 +902,12 @@ export const SettingsPage: React.FC = () => {
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value={NEW_REVIEW_ORDER.NEW_FIRST}>New First</SelectItem>
-              <SelectItem value={NEW_REVIEW_ORDER.REVIEW_FIRST}>Review First</SelectItem>
+              <SelectItem value={NEW_REVIEW_ORDER.NEW_FIRST}>
+                New First
+              </SelectItem>
+              <SelectItem value={NEW_REVIEW_ORDER.REVIEW_FIRST}>
+                Review First
+              </SelectItem>
               <SelectItem value={NEW_REVIEW_ORDER.MIXED}>Mixed</SelectItem>
             </SelectContent>
           </Select>
@@ -902,18 +918,29 @@ export const SettingsPage: React.FC = () => {
           description="When to show learning cards"
         >
           <Select
-            value={settings.interdayLearningOrder || INTERDAY_LEARNING_ORDER.MIXED}
+            value={
+              settings.interdayLearningOrder || INTERDAY_LEARNING_ORDER.MIXED
+            }
             onValueChange={(value) =>
-              setSettings((prev) => ({ ...prev, interdayLearningOrder: value as any }))
+              setSettings((prev) => ({
+                ...prev,
+                interdayLearningOrder: value as any,
+              }))
             }
           >
             <SelectTrigger className="w-40 h-8 text-sm">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value={INTERDAY_LEARNING_ORDER.MIXED}>Mixed with Reviews</SelectItem>
-              <SelectItem value={INTERDAY_LEARNING_ORDER.BEFORE_REVIEWS}>Before Reviews</SelectItem>
-              <SelectItem value={INTERDAY_LEARNING_ORDER.AFTER_REVIEWS}>After Reviews</SelectItem>
+              <SelectItem value={INTERDAY_LEARNING_ORDER.MIXED}>
+                Mixed with Reviews
+              </SelectItem>
+              <SelectItem value={INTERDAY_LEARNING_ORDER.BEFORE_REVIEWS}>
+                Before Reviews
+              </SelectItem>
+              <SelectItem value={INTERDAY_LEARNING_ORDER.AFTER_REVIEWS}>
+                After Reviews
+              </SelectItem>
             </SelectContent>
           </Select>
         </SettingsItem>
@@ -925,7 +952,10 @@ export const SettingsPage: React.FC = () => {
           <Select
             value={settings.reviewSortOrder || REVIEW_SORT_ORDER.DUE}
             onValueChange={(value) =>
-              setSettings((prev) => ({ ...prev, reviewSortOrder: value as any }))
+              setSettings((prev) => ({
+                ...prev,
+                reviewSortOrder: value as any,
+              }))
             }
           >
             <SelectTrigger className="w-40 h-8 text-sm">
@@ -933,8 +963,12 @@ export const SettingsPage: React.FC = () => {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value={REVIEW_SORT_ORDER.DUE}>Due Date</SelectItem>
-              <SelectItem value={REVIEW_SORT_ORDER.DUE_RANDOM}>Due Date + Random</SelectItem>
-              <SelectItem value={REVIEW_SORT_ORDER.OVERDUENESS}>Relative Overdueness</SelectItem>
+              <SelectItem value={REVIEW_SORT_ORDER.DUE_RANDOM}>
+                Due Date + Random
+              </SelectItem>
+              <SelectItem value={REVIEW_SORT_ORDER.OVERDUENESS}>
+                Relative Overdueness
+              </SelectItem>
               <SelectItem value={REVIEW_SORT_ORDER.RANDOM}>Random</SelectItem>
             </SelectContent>
           </Select>

@@ -1,7 +1,7 @@
 /**
  * Centralized card factory - single source of truth for card creation.
  * Ensures all cards have consistent structure with required FSRS fields.
- * 
+ *
  * ALL card creation in the app should go through this factory.
  */
 import { Card, CardStatus, Language, LanguageId } from "@/types";
@@ -44,24 +44,28 @@ const createWordBoundaryRegex = (word: string): RegExp => {
 export const formatSentenceWithTargetWord = (
   sentence: string,
   targetWord: string | undefined,
-  language: Language
+  language: Language,
 ): string => {
   // Skip if no target word, already formatted, or Japanese (handled differently with furigana)
-  if (!targetWord || sentence.includes("<b>") || language === LanguageId.Japanese) {
+  if (
+    !targetWord ||
+    sentence.includes("<b>") ||
+    language === LanguageId.Japanese
+  ) {
     return sentence;
   }
 
   // Use fuzzy matching to find inflected forms (e.g., "rozumieć" -> "rozumiem")
   const matchedWord = findInflectedWordInSentence(targetWord, sentence);
-  
+
   if (matchedWord) {
     // Use Unicode-aware word boundary for proper replacement
     return sentence.replace(
       createWordBoundaryRegex(matchedWord),
-      `<b>${matchedWord}</b>`
+      `<b>${matchedWord}</b>`,
     );
   }
-  
+
   return sentence;
 };
 
@@ -87,7 +91,7 @@ export const createNewCard = (params: CreateCardParams): Card => {
   const formattedSentence = formatSentenceWithTargetWord(
     targetSentence,
     targetWord,
-    language
+    language,
   );
 
   return {
@@ -103,20 +107,20 @@ export const createNewCard = (params: CreateCardParams): Card => {
     gender,
     grammaticalCase,
     tags,
-    
+
     // Status
     status: CardStatus.NEW,
     state: FSRSState.New,
-    
+
     // Scheduling defaults
     interval: 0,
     easeFactor: 2.5,
     dueDate: new Date().toISOString(),
-    
+
     // FSRS tracking - MUST be initialized
     reps: 0,
     lapses: 0,
-    
+
     // Optional fields with safe defaults
     isLeech: false,
     isBookmarked: false,
@@ -129,7 +133,7 @@ export const createNewCard = (params: CreateCardParams): Card => {
  */
 export const createNewCardWithOffset = (
   params: CreateCardParams,
-  offsetMs: number
+  offsetMs: number,
 ): Card => {
   const card = createNewCard(params);
   card.dueDate = new Date(Date.now() + offsetMs).toISOString();
@@ -144,7 +148,7 @@ export const createPolishCard = (
   targetWord?: string,
   targetWordTranslation?: string,
   targetWordPartOfSpeech?: string,
-  notes?: string
+  notes?: string,
 ): Card =>
   createNewCard({
     language: LanguageId.Polish,
@@ -163,7 +167,7 @@ export const createGermanCard = (
   targetWordTranslation?: string,
   targetWordPartOfSpeech?: string,
   notes?: string,
-  gender?: string
+  gender?: string,
 ): Card =>
   createNewCard({
     language: LanguageId.German,
@@ -182,7 +186,7 @@ export const createSpanishCard = (
   targetWord?: string,
   targetWordTranslation?: string,
   targetWordPartOfSpeech?: string,
-  notes?: string
+  notes?: string,
 ): Card =>
   createNewCard({
     language: LanguageId.Spanish,
@@ -201,7 +205,7 @@ export const createNorwegianCard = (
   targetWordTranslation?: string,
   targetWordPartOfSpeech?: string,
   notes?: string,
-  gender?: string
+  gender?: string,
 ): Card =>
   createNewCard({
     language: LanguageId.Norwegian,
@@ -221,7 +225,7 @@ export const createJapaneseCard = (
   targetWordTranslation?: string,
   targetWordPartOfSpeech?: string,
   notes?: string,
-  furigana?: string
+  furigana?: string,
 ): Card =>
   createNewCard({
     language: LanguageId.Japanese,

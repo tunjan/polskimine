@@ -66,5 +66,4 @@ export const LEECH_ACTION = {
   SUSPEND: "suspend",
 } as const;
 
-export type LeechActionValue =
-  (typeof LEECH_ACTION)[keyof typeof LEECH_ACTION];
+export type LeechActionValue = (typeof LEECH_ACTION)[keyof typeof LEECH_ACTION];

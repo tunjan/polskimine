@@ -137,4 +137,3 @@ export const runOptimizerIteration = (
 
   return newW;
 };
-

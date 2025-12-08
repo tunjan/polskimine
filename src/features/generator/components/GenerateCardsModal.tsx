@@ -102,37 +102,37 @@ export const GenerateCardsModal: React.FC<GenerateCardsModalProps> = ({
         </DialogHeader>
 
         <div className="flex-1 min-h-0 relative">
-            {step === "config" ? (
-              <GeneratorConfig
-                count={count}
-                setCount={setCount}
-                selectedLevel={selectedLevel}
-                setSelectedLevel={setSelectedLevel}
-                difficultyMode={difficultyMode}
-                setDifficultyMode={setDifficultyMode}
-                selectedWordTypes={selectedWordTypes}
-                toggleWordType={toggleWordType}
-                setSelectedWordTypes={setSelectedWordTypes}
-                useLearnedWords={useLearnedWords}
-                setUseLearnedWords={setUseLearnedWords}
-                instructions={instructions}
-                setInstructions={setInstructions}
-                handleTopicClick={handleTopicClick}
-                generateCards={() => generateCards()}
-                handleSmartLesson={handleSmartLesson}
-                loading={loading}
-              />
-            ) : (
-              <GeneratorPreview
-                generatedData={generatedData}
-                selectedIndices={selectedIndices}
-                toggleSelection={toggleSelection}
-                setStep={setStep}
-                handleSave={handleSave}
-                selectAll={selectAll}
-                clearSelection={clearSelection}
-              />
-            )}
+          {step === "config" ? (
+            <GeneratorConfig
+              count={count}
+              setCount={setCount}
+              selectedLevel={selectedLevel}
+              setSelectedLevel={setSelectedLevel}
+              difficultyMode={difficultyMode}
+              setDifficultyMode={setDifficultyMode}
+              selectedWordTypes={selectedWordTypes}
+              toggleWordType={toggleWordType}
+              setSelectedWordTypes={setSelectedWordTypes}
+              useLearnedWords={useLearnedWords}
+              setUseLearnedWords={setUseLearnedWords}
+              instructions={instructions}
+              setInstructions={setInstructions}
+              handleTopicClick={handleTopicClick}
+              generateCards={() => generateCards()}
+              handleSmartLesson={handleSmartLesson}
+              loading={loading}
+            />
+          ) : (
+            <GeneratorPreview
+              generatedData={generatedData}
+              selectedIndices={selectedIndices}
+              toggleSelection={toggleSelection}
+              setStep={setStep}
+              handleSave={handleSave}
+              selectAll={selectAll}
+              clearSelection={clearSelection}
+            />
+          )}
         </div>
       </DialogContent>
     </Dialog>

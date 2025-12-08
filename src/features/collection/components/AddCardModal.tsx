@@ -12,7 +12,10 @@ import { Card, LanguageId } from "@/types";
 import { toast } from "sonner";
 import { aiService } from "@/lib/ai";
 import { escapeRegExp, parseFurigana } from "@/lib/utils";
-import { createNewCard, formatSentenceWithTargetWord } from "@/features/collection/utils/cardFactory";
+import {
+  createNewCard,
+  formatSentenceWithTargetWord,
+} from "@/features/collection/utils/cardFactory";
 import { useSettingsStore, SettingsState } from "@/stores/useSettingsStore";
 import { useShallow } from "zustand/react/shallow";
 import { Button } from "@/components/ui/button";
@@ -210,12 +213,16 @@ export const AddCardModal: React.FC<AddCardModalProps> = ({
     // Check for duplicates if this is a new card and we have a target word
     if (!initialCard && data.targetWord) {
       try {
-        const { getCardByTargetWord } = await import("@/db/repositories/cardRepository");
-        const existing = await getCardByTargetWord(data.targetWord, targetLanguage);
-        
+        const { getCardByTargetWord } =
+          await import("@/db/repositories/cardRepository");
+        const existing = await getCardByTargetWord(
+          data.targetWord,
+          targetLanguage,
+        );
+
         if (existing) {
           const confirmed = confirm(
-            `You already have a card for "${data.targetWord}". Do you want to create a duplicate?`
+            `You already have a card for "${data.targetWord}". Do you want to create a duplicate?`,
           );
           if (!confirmed) return;
         }
@@ -225,7 +232,7 @@ export const AddCardModal: React.FC<AddCardModalProps> = ({
     }
 
     let newCard: Card;
-    
+
     if (initialCard) {
       // Clean up sentence for re-formatting logic if it contains the target word
       let sentenceToFormat = targetSentence;
@@ -238,9 +245,9 @@ export const AddCardModal: React.FC<AddCardModalProps> = ({
       const formattedSentence = formatSentenceWithTargetWord(
         sentenceToFormat,
         data.targetWord || undefined,
-        targetLanguage
+        targetLanguage,
       );
-      
+
       newCard = {
         ...initialCard,
         targetSentence: formattedSentence,

@@ -361,10 +361,11 @@ export const importSyncData = async (
     if (data.settings) {
       const restoredProfile = data.profile;
       let preservedKeys: Partial<UserSettings> | UserSettings["tts"] = {};
-      
+
       // Try to get settings from the correct profile ID
-      const targetSettingsId = restoredProfile?.id || (existingProfile ? existingProfile.id : null);
-      
+      const targetSettingsId =
+        restoredProfile?.id || (existingProfile ? existingProfile.id : null);
+
       if (targetSettingsId) {
         const existingSettings = await getFullSettings(targetSettingsId);
         if (existingSettings) {

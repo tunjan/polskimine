@@ -7,7 +7,7 @@ import { State } from "ts-fsrs";
  */
 export const inferCardState = (
   card: Card,
-  hasLastReview: boolean = !!card.last_review
+  hasLastReview: boolean = !!card.last_review,
 ): State => {
   // If state is explicitly set, use it (but verify it's valid)
   if (card.state !== undefined) {
@@ -55,7 +55,7 @@ export const inferCardState = (
  */
 export const isInLearningPhase = (
   card: Card,
-  learningSteps: number[]
+  learningSteps: number[],
 ): boolean => {
   const rawStep = card.learningStep ?? 0;
   const isNewOrLearning =
@@ -69,7 +69,7 @@ export const isInLearningPhase = (
  */
 export const isInRelearningPhase = (
   card: Card,
-  relearnSteps: number[]
+  relearnSteps: number[],
 ): boolean => {
   if (!relearnSteps || relearnSteps.length === 0) {
     return false;
@@ -88,10 +88,7 @@ export const isInRelearningPhase = (
 /**
  * Get the current step index, clamped to valid range.
  */
-export const getClampedStep = (
-  card: Card,
-  stepsArray: number[]
-): number => {
+export const getClampedStep = (card: Card, stepsArray: number[]): number => {
   const rawStep = card.learningStep ?? 0;
   return Math.max(0, Math.min(rawStep, stepsArray.length - 1));
 };

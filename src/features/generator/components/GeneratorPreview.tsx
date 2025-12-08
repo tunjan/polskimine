@@ -5,7 +5,6 @@ import { Badge } from "@/components/ui/badge";
 import { Check, RotateCcw, Save } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-
 const ResultCard = ({
   card,
   selected,

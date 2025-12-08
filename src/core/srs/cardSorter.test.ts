@@ -73,7 +73,7 @@ describe("cardSorter", () => {
         const result = sortCards(
           [reviewCard, newCard, learningCard],
           "newFirst",
-          settings
+          settings,
         );
 
         // With newFirst + before: new, learning, review
@@ -101,7 +101,7 @@ describe("cardSorter", () => {
         const result = sortCards(
           [reviewCard, newCard, learningCard],
           "newFirst",
-          settings
+          settings,
         );
 
         // With newFirst + after: new, review, learning
@@ -134,7 +134,7 @@ describe("cardSorter", () => {
         const result = sortCards(
           [reviewCard1, reviewCard2, newCard, learningCard],
           "newFirst",
-          settings
+          settings,
         );
 
         // New should be first, learning interleaved with reviews
@@ -162,7 +162,11 @@ describe("cardSorter", () => {
           newReviewOrder: "newFirst",
         };
 
-        const result = sortCards([verbCard, nounCard, adjCard], "newFirst", settings);
+        const result = sortCards(
+          [verbCard, nounCard, adjCard],
+          "newFirst",
+          settings,
+        );
 
         // Should be sorted alphabetically by part of speech
         const types = result.map((c) => c.targetWordPartOfSpeech);
@@ -171,7 +175,7 @@ describe("cardSorter", () => {
 
       it("should sort reviews by overdueness when specified", () => {
         const now = new Date();
-        
+
         // More overdue (older due date, same interval)
         const moreOverdueCard = createCard("overdue", {
           status: CardStatus.REVIEW,
@@ -180,7 +184,7 @@ describe("cardSorter", () => {
           dueDate: new Date(now.getTime() - 5 * 86400000).toISOString(),
           interval: 1,
         });
-        
+
         // Less overdue
         const lessOverdueCard = createCard("less-overdue", {
           status: CardStatus.REVIEW,
@@ -198,7 +202,7 @@ describe("cardSorter", () => {
         const result = sortCards(
           [lessOverdueCard, moreOverdueCard],
           "reviewFirst",
-          settings
+          settings,
         );
 
         // More overdue should come first
@@ -227,7 +231,7 @@ describe("cardSorter", () => {
         const result = sortCards(
           [reviewCard, newCard, learningCard],
           "newFirst",
-          settings
+          settings,
         );
 
         // All cards should be present
@@ -255,7 +259,7 @@ describe("cardSorter", () => {
         const result = sortCards(
           [newCard, reviewCard, learningCard],
           "reviewFirst",
-          settings
+          settings,
         );
 
         // All cards should be present

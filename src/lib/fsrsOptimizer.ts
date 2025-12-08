@@ -7,7 +7,7 @@ import { ReviewLog } from "@/types";
 export const optimizeFSRS = async (
   allLogs: ReviewLog[],
   currentW: number[],
-  onProgress: (progress: number) => void
+  onProgress: (progress: number) => void,
 ): Promise<number[]> => {
   // Check if workers are available
   if (typeof Worker === "undefined") {
@@ -17,7 +17,7 @@ export const optimizeFSRS = async (
   return new Promise((resolve, reject) => {
     const worker = new Worker(
       new URL("@/workers/fsrs.worker.ts", import.meta.url),
-      { type: "module" }
+      { type: "module" },
     );
 
     worker.onmessage = (e: MessageEvent) => {

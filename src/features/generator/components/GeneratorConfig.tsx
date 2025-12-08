@@ -26,7 +26,6 @@ import {
 import { WordType } from "@/lib/ai";
 import { cn } from "@/lib/utils";
 
-
 const WORD_TYPES: { value: WordType; label: string }[] = [
   { value: "noun", label: "Noun" },
   { value: "verb", label: "Verb" },

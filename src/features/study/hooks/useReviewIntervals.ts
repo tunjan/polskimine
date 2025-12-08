@@ -18,7 +18,13 @@ export const useReviewIntervals = (
     const now = new Date();
     const calculate = (grade: Grade) => {
       try {
-        const next = calculateNextReview(card, grade, fsrs, learningSteps, lapsesSettings);
+        const next = calculateNextReview(
+          card,
+          grade,
+          fsrs,
+          learningSteps,
+          lapsesSettings,
+        );
         const due = parseISO(next.dueDate);
         if (isNaN(due.getTime())) {
           console.warn(
