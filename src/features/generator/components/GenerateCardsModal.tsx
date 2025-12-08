@@ -13,7 +13,7 @@ import { useCardGenerator } from "../hooks/useCardGenerator";
 import { GeneratorConfig } from "./GeneratorConfig";
 import { GeneratorPreview } from "./GeneratorPreview";
 import { cn } from "@/lib/utils";
-import { AnimatePresence } from "framer-motion";
+
 import { Card as CardType } from "@/types";
 
 interface GenerateCardsModalProps {
@@ -102,7 +102,6 @@ export const GenerateCardsModal: React.FC<GenerateCardsModalProps> = ({
         </DialogHeader>
 
         <div className="flex-1 min-h-0 relative">
-          <AnimatePresence mode="wait">
             {step === "config" ? (
               <GeneratorConfig
                 count={count}
@@ -134,7 +133,6 @@ export const GenerateCardsModal: React.FC<GenerateCardsModalProps> = ({
                 clearSelection={clearSelection}
               />
             )}
-          </AnimatePresence>
         </div>
       </DialogContent>
     </Dialog>

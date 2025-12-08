@@ -8,12 +8,11 @@ import {
   DialogHeader,
   DialogFooter,
 } from "@/components/ui/dialog";
-import { Card, LanguageId, CardStatus } from "@/types";
-import { State as FSRSState } from "ts-fsrs";
-import { v4 as uuidv4 } from "uuid";
+import { Card, LanguageId } from "@/types";
 import { toast } from "sonner";
 import { aiService } from "@/lib/ai";
 import { escapeRegExp, parseFurigana } from "@/lib/utils";
+import { createNewCard, formatSentenceWithTargetWord } from "@/features/collection/utils/cardFactory";
 import { useSettingsStore, SettingsState } from "@/stores/useSettingsStore";
 import { useShallow } from "zustand/react/shallow";
 import { Button } from "@/components/ui/button";
@@ -196,20 +195,7 @@ export const AddCardModal: React.FC<AddCardModalProps> = ({
     }
   };
 
-  const onSubmit = (data: FormValues) => {
-    const cardBase =
-      initialCard ||
-      ({
-        id: uuidv4(),
-        status: CardStatus.NEW,
-        state: FSRSState.New,
-        interval: 0,
-        easeFactor: 2.5,
-        dueDate: new Date().toISOString(),
-        reps: 0,
-        lapses: 0,
-      } as Card);
-
+  const onSubmit = async (data: FormValues) => {
     const targetLanguage = initialCard?.language || language;
     let targetSentence = data.sentence;
     let furigana = data.furigana || undefined;
@@ -221,17 +207,64 @@ export const AddCardModal: React.FC<AddCardModalProps> = ({
         .join("");
     }
 
-    const newCard: Card = {
-      ...cardBase,
-      targetSentence: targetSentence,
-      targetWord: data.targetWord || undefined,
-      targetWordTranslation: data.targetWordTranslation || undefined,
-      targetWordPartOfSpeech: data.targetWordPartOfSpeech || undefined,
-      nativeTranslation: data.translation,
-      notes: data.notes || "",
-      furigana: furigana,
-      language: targetLanguage,
-    };
+    // Check for duplicates if this is a new card and we have a target word
+    if (!initialCard && data.targetWord) {
+      try {
+        const { getCardByTargetWord } = await import("@/db/repositories/cardRepository");
+        const existing = await getCardByTargetWord(data.targetWord, targetLanguage);
+        
+        if (existing) {
+          const confirmed = confirm(
+            `You already have a card for "${data.targetWord}". Do you want to create a duplicate?`
+          );
+          if (!confirmed) return;
+        }
+      } catch (e) {
+        console.error("Failed to check for duplicates", e);
+      }
+    }
+
+    let newCard: Card;
+    
+    if (initialCard) {
+      // Clean up sentence for re-formatting logic if it contains the target word
+      let sentenceToFormat = targetSentence;
+      if (data.targetWord) {
+        sentenceToFormat = targetSentence.replace(/<\/?b>/g, "");
+      }
+
+      // Editing existing card - preserve all existing fields
+      // Re-apply formatting to ensure target word is highlighted if changed
+      const formattedSentence = formatSentenceWithTargetWord(
+        sentenceToFormat,
+        data.targetWord || undefined,
+        targetLanguage
+      );
+      
+      newCard = {
+        ...initialCard,
+        targetSentence: formattedSentence,
+        targetWord: data.targetWord || undefined,
+        targetWordTranslation: data.targetWordTranslation || undefined,
+        targetWordPartOfSpeech: data.targetWordPartOfSpeech || undefined,
+        nativeTranslation: data.translation,
+        notes: data.notes || "",
+        furigana,
+        language: targetLanguage,
+      };
+    } else {
+      // Create new card using factory (ensures all FSRS fields are initialized)
+      newCard = createNewCard({
+        language: targetLanguage,
+        targetSentence,
+        nativeTranslation: data.translation,
+        targetWord: data.targetWord || undefined,
+        targetWordTranslation: data.targetWordTranslation || undefined,
+        targetWordPartOfSpeech: data.targetWordPartOfSpeech || undefined,
+        notes: data.notes || "",
+        furigana,
+      });
+    }
     onAdd(newCard);
     form.reset({
       sentence: "",

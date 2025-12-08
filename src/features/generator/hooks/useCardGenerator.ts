@@ -3,11 +3,10 @@ import { aiService, WordType } from "@/lib/ai";
 import { useSettingsStore, SettingsState } from "@/stores/useSettingsStore";
 import { useShallow } from "zustand/react/shallow";
 import { useProfile } from "@/features/profile/hooks/useProfile";
-import { getLearnedWords } from "@/db/repositories/cardRepository";
-import { Card as CardType, CardStatus } from "@/types";
-import { State as FSRSState } from "ts-fsrs";
-import { v4 as uuidv4 } from "uuid";
+import { getLearnedWords, getAllTargetWords } from "@/db/repositories/cardRepository";
+import { Card as CardType } from "@/types";
 import { toast } from "sonner";
+import { createNewCardWithOffset } from "@/features/collection/utils/cardFactory";
 
 interface UseCardGeneratorProps {
   onClose: () => void;
@@ -25,7 +24,7 @@ export const useCardGenerator = ({
       proficiency: s.proficiency,
     })),
   );
-  const { profile } = useProfile();
+
 
   const [step, setStep] = useState<"config" | "preview">("config");
   const [loading, setLoading] = useState(false);
@@ -89,6 +88,9 @@ export const useCardGenerator = ({
         console.warn("Failed to fetch learned words", e);
       }
 
+      // Fetch ALL words to check for duplicates (including "New" cards)
+      const allWords = await getAllTargetWords(language).catch(() => []);
+
       const results = await aiService.generateBatchCards({
         instructions: finalInstructions,
         count: count[0],
@@ -101,7 +103,7 @@ export const useCardGenerator = ({
           selectedWordTypes.length > 0 ? selectedWordTypes : undefined,
       });
 
-      const existingWordSet = new Set(learnedWords.map((w) => w.toLowerCase()));
+      const existingWordSet = new Set(allWords.map((w) => w.toLowerCase()));
       const uniqueResults = results.filter((card: any) => {
         return (
           card.targetWord && !existingWordSet.has(card.targetWord.toLowerCase())
@@ -162,30 +164,26 @@ export const useCardGenerator = ({
   };
 
   const handleSave = () => {
-    const now = Date.now();
+    // Stagger due dates by 1 second per card for controlled introduction
+    const DUE_DATE_OFFSET_MS = 1000;
+    
     const cardsToSave: CardType[] = generatedData
       .filter((_, i) => selectedIndices.has(i))
-      .map(
-        (item, index) =>
-          ({
-            id: uuidv4(),
+      .map((item, index) =>
+        createNewCardWithOffset(
+          {
+            language,
             targetSentence: item.targetSentence,
             nativeTranslation: item.nativeTranslation,
             targetWord: item.targetWord,
             targetWordTranslation: item.targetWordTranslation,
             targetWordPartOfSpeech: item.targetWordPartOfSpeech,
-            notes: item.notes,
+            notes: item.notes || "",
             furigana: item.furigana,
-            language: language,
-            status: CardStatus.NEW,
-            state: FSRSState.New,
-            interval: 0,
-            easeFactor: 2.5,
-            dueDate: new Date(now + index * 1000).toISOString(),
-            reps: 0,
-            lapses: 0,
             tags: ["AI-Gen", "Custom", instructions.slice(0, 15).trim()],
-          }) as CardType,
+          },
+          index * DUE_DATE_OFFSET_MS
+        )
       );
 
     onAddCards(cardsToSave);

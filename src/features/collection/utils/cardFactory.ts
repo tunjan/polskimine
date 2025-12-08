@@ -1,11 +1,13 @@
 /**
  * Centralized card factory - single source of truth for card creation.
  * Ensures all cards have consistent structure with required FSRS fields.
+ * 
+ * ALL card creation in the app should go through this factory.
  */
 import { Card, CardStatus, Language, LanguageId } from "@/types";
 import { State as FSRSState } from "ts-fsrs";
 import { v4 as uuidv4 } from "uuid";
-import { escapeRegExp } from "@/lib/utils";
+import { escapeRegExp, findInflectedWordInSentence } from "@/lib/utils";
 
 /**
  * Parameters for creating a new card.
@@ -36,23 +38,28 @@ const createWordBoundaryRegex = (word: string): RegExp => {
 
 /**
  * Formats a sentence by wrapping the target word in <b> tags.
+ * Uses fuzzy matching to find inflected forms of the target word.
  * Handles non-Latin scripts properly.
  */
-const formatSentenceWithTargetWord = (
+export const formatSentenceWithTargetWord = (
   sentence: string,
   targetWord: string | undefined,
   language: Language
 ): string => {
-  // Skip if no target word, already formatted, or Japanese (handled differently)
+  // Skip if no target word, already formatted, or Japanese (handled differently with furigana)
   if (!targetWord || sentence.includes("<b>") || language === LanguageId.Japanese) {
     return sentence;
   }
 
-  const regex = createWordBoundaryRegex(targetWord);
-  const match = sentence.match(regex);
+  // Use fuzzy matching to find inflected forms (e.g., "rozumieć" -> "rozumiem")
+  const matchedWord = findInflectedWordInSentence(targetWord, sentence);
   
-  if (match && match[0]) {
-    return sentence.replace(regex, `<b>${match[0]}</b>`);
+  if (matchedWord) {
+    // Use Unicode-aware word boundary for proper replacement
+    return sentence.replace(
+      createWordBoundaryRegex(matchedWord),
+      `<b>${matchedWord}</b>`
+    );
   }
   
   return sentence;

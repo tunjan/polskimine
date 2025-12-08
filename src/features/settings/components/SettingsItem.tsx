@@ -1,48 +1,48 @@
 import React from "react";
-import { LucideIcon } from "lucide-react";
+import { LucideIcon, ChevronDown, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { Button } from "@/components/ui/button";
 
 interface SettingsItemProps {
-  icon?: LucideIcon;
   label: string;
   description?: string;
-  children: React.ReactNode;
+  icon?: LucideIcon;
+  children?: React.ReactNode;
   className?: string;
 }
 
 export const SettingsItem: React.FC<SettingsItemProps> = ({
-  icon: Icon,
   label,
   description,
+  icon: Icon,
   children,
   className,
 }) => {
   return (
-    <div
-      className={cn(
-        "group flex items-center justify-between gap-4 p-3 -mx-2 rounded-lg transition-colors hover:bg-muted/50",
-        className,
-      )}
-    >
-      <div className="flex items-center gap-3 min-w-0 flex-1">
+    <div className={cn("flex flex-col sm:flex-row sm:items-center justify-between gap-4 py-4 first:pt-0 last:pb-0", className)}>
+      <div className="flex items-start gap-3 flex-1">
         {Icon && (
-          <Icon
-            className="w-4 h-4 text-muted-foreground/60 shrink-0"
-            strokeWidth={1.5}
-          />
+          <div className="mt-0.5 text-muted-foreground/70">
+            <Icon className="w-5 h-5" />
+          </div>
         )}
-        <div className="min-w-0">
-          <span className="text-sm font-medium text-foreground block">
+        <div className="space-y-1">
+          <Label className="text-base font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
             {label}
-          </span>
+          </Label>
           {description && (
-            <span className="text-xs text-muted-foreground/70 block mt-0.5 leading-relaxed">
+            <p className="text-[0.925rem] text-muted-foreground/80 leading-snug max-w-[400px]">
               {description}
-            </span>
+            </p>
           )}
         </div>
       </div>
-      <div className="shrink-0">{children}</div>
+      <div className="flex items-center gap-2 min-w-[120px] justify-end">
+        {children}
+      </div>
     </div>
   );
 };
@@ -51,7 +51,8 @@ interface SettingsLargeInputProps {
   label: string;
   sublabel?: string;
   value: number;
-  onChange: (value: number) => void;
+  onChange: (val: number) => void;
+  className?: string;
 }
 
 export const SettingsLargeInput: React.FC<SettingsLargeInputProps> = ({
@@ -59,23 +60,20 @@ export const SettingsLargeInput: React.FC<SettingsLargeInputProps> = ({
   sublabel,
   value,
   onChange,
+  className,
 }) => {
   return (
-    <div className="flex flex-col items-center text-center p-4 rounded-lg bg-muted/30 border border-border/30 hover:border-primary/30 transition-colors">
-      <span className="text-[10px] text-muted-foreground uppercase tracking-[0.15em] font-medium mb-2">
-        {label}
-      </span>
-      <input
-        type="number"
-        value={value}
-        onChange={(e) => onChange(parseInt(e.target.value, 10) || 0)}
-        className="text-4xl md:text-5xl font-light h-auto py-1 border-0 border-b border-border/30 rounded-none px-0 focus-visible:outline-none focus-visible:border-primary/60 tabular-nums bg-transparent transition-colors text-center w-24"
-      />
-      {sublabel && (
-        <span className="text-[10px] text-muted-foreground/60 mt-2">
-          {sublabel}
-        </span>
-      )}
+    <div className={cn("flex flex-col gap-2 p-4 border rounded-lg bg-muted/20 hover:bg-muted/30 transition-colors", className)}>
+      <span className="text-sm font-medium text-foreground/80">{label}</span>
+      <div className="flex items-baseline gap-2">
+        <Input
+          type="number"
+          value={value}
+          onChange={(e) => onChange(Number(e.target.value))}
+          className="text-2xl font-bold h-12 w-24 px-3 py-1 bg-background shadow-sm"
+        />
+        {sublabel && <span className="text-xs text-muted-foreground">{sublabel}</span>}
+      </div>
     </div>
   );
 };
@@ -83,30 +81,25 @@ export const SettingsLargeInput: React.FC<SettingsLargeInputProps> = ({
 interface SettingsSliderDisplayProps {
   label: string;
   value: string;
-  description?: string;
   children: React.ReactNode;
+  className?: string;
 }
 
 export const SettingsSliderDisplay: React.FC<SettingsSliderDisplayProps> = ({
   label,
   value,
-  description,
   children,
+  className,
 }) => {
   return (
-    <div className="space-y-3 p-3 -mx-2 rounded-lg hover:bg-muted/30 transition-colors">
-      <div className="flex items-center justify-between">
-        <span className="text-sm font-medium text-foreground">{label}</span>
-        <span className="text-lg font-light tabular-nums text-foreground">
+    <div className={cn("space-y-3 py-4", className)}>
+      <div className="flex justify-between items-center">
+        <Label className="text-base font-medium">{label}</Label>
+        <span className="text-xs font-mono font-medium bg-primary/10 text-primary px-2 py-1 rounded-md">
           {value}
         </span>
       </div>
-      {children}
-      {description && (
-        <div className="flex justify-between text-[10px] text-muted-foreground/50 uppercase tracking-wider">
-          <span>{description}</span>
-        </div>
-      )}
+      <div className="pt-1 px-1">{children}</div>
     </div>
   );
 };
@@ -125,26 +118,29 @@ export const SettingsSubSection: React.FC<SettingsSubSectionProps> = ({
   const [isOpen, setIsOpen] = React.useState(defaultOpen);
 
   return (
-    <div className="mt-3 pt-3 border-t border-border/30">
-      <button
-        onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-2 text-xs text-muted-foreground hover:text-foreground transition-colors w-full"
-      >
-        <span
-          className={cn(
-            "transition-transform duration-200",
-            isOpen ? "rotate-90" : "rotate-0",
-          )}
-        >
-          ▸
-        </span>
-        {title}
-      </button>
-      {isOpen && (
-        <div className="mt-3 space-y-1 animate-in fade-in slide-in-from-top-1 duration-200">
-          {children}
-        </div>
-      )}
-    </div>
+    <Collapsible
+      open={isOpen}
+      onOpenChange={setIsOpen}
+      className="border rounded-lg my-4 overflow-hidden bg-card/50"
+    >
+      <div className="flex items-center justify-between px-4 py-3 bg-muted/30 hover:bg-muted/40 transition-colors">
+        <h4 className="text-sm font-semibold flex items-center gap-2">
+            {title}
+        </h4>
+        <CollapsibleTrigger asChild>
+          <Button variant="ghost" size="sm" className="w-8 h-8 p-0 hover:bg-background/80">
+            {isOpen ? (
+              <ChevronDown className="w-4 h-4 text-muted-foreground" />
+            ) : (
+              <ChevronRight className="w-4 h-4 text-muted-foreground" />
+            )}
+            <span className="sr-only">Toggle</span>
+          </Button>
+        </CollapsibleTrigger>
+      </div>
+      <CollapsibleContent className="p-4 space-y-4 border-t bg-card">
+        {children}
+      </CollapsibleContent>
+    </Collapsible>
   );
 };

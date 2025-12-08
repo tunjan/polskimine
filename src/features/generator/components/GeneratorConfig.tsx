@@ -25,7 +25,7 @@ import {
 } from "lucide-react";
 import { WordType } from "@/lib/ai";
 import { cn } from "@/lib/utils";
-import { motion } from "framer-motion";
+
 
 const WORD_TYPES: { value: WordType; label: string }[] = [
   { value: "noun", label: "Noun" },
@@ -118,13 +118,7 @@ export const GeneratorConfig: React.FC<GeneratorConfigProps> = ({
   loading,
 }) => {
   return (
-    <motion.div
-      key="config"
-      initial={{ opacity: 0, x: -20 }}
-      animate={{ opacity: 1, x: 0 }}
-      exit={{ opacity: 0, x: -20 }}
-      className="h-full flex flex-col sm:flex-row"
-    >
+    <div className="h-full flex flex-col sm:flex-row">
       <div className="w-full sm:w-[320px] bg-muted/20 border-r flex flex-col h-full overflow-hidden">
         <ScrollArea className="flex-1">
           <div className="p-6 space-y-8">
@@ -331,6 +325,6 @@ export const GeneratorConfig: React.FC<GeneratorConfigProps> = ({
           </Button>
         </div>
       </div>
-    </motion.div>
+    </div>
   );
 };

@@ -4,7 +4,7 @@ import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 import { Check, RotateCcw, Save } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { motion } from "framer-motion";
+
 
 const ResultCard = ({
   card,
@@ -87,13 +87,7 @@ export const GeneratorPreview: React.FC<GeneratorPreviewProps> = ({
   clearSelection,
 }) => {
   return (
-    <motion.div
-      key="preview"
-      initial={{ opacity: 0, x: 20 }}
-      animate={{ opacity: 1, x: 0 }}
-      exit={{ opacity: 0, x: 20 }}
-      className="h-full flex flex-col"
-    >
+    <div className="h-full flex flex-col">
       <div className="px-6 py-3 border-b bg-muted/10 flex items-center justify-between shrink-0">
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-2 text-sm">
@@ -161,6 +155,6 @@ export const GeneratorPreview: React.FC<GeneratorPreviewProps> = ({
           </Button>
         </div>
       </div>
-    </motion.div>
+    </div>
   );
 };

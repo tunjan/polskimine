@@ -29,7 +29,7 @@ const DBRawCardSchema = z.object({
   grammaticalCase: z.string().optional().nullable(),
   notes: z.string().optional().nullable().default(""),
   tags: z.array(z.string()).optional().nullable(),
-  language: z.string().optional(),
+  language: z.string().default("polish"),
   status: z
     .union([z.nativeEnum(CardStatus), z.string()])
     .transform((val) => val as CardStatus),
@@ -403,6 +403,26 @@ export const getLearnedWords = async (
     .map(mapToCard)
     .map((card) => card.targetWord)
     .filter((word): word is string => word !== null && word !== undefined);
+
+  return [...new Set(words)];
+};
+
+export const getAllTargetWords = async (
+  language: Language,
+): Promise<string[]> => {
+  const userId = getCurrentUserId();
+  if (!userId) return [];
+
+  const words: string[] = [];
+  
+  // Use each() for memory efficiency instead of loading all objects
+  await db.cards
+    .where("[user_id+language]")
+    .equals([userId, language])
+    .filter((card) => card.targetWord != null)
+    .each((card) => {
+      if (card.targetWord) words.push(card.targetWord);
+    });
 
   return [...new Set(words)];
 };

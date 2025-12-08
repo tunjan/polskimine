@@ -31,7 +31,7 @@ export interface Card extends Omit<Partial<FSRSCard>, "due" | "last_review"> {
   grammaticalCase?: string;
   notes: string;
   tags?: string[];
-  language?: Language;
+  language: Language;
   status: CardStatus;
 
   interval: number;
