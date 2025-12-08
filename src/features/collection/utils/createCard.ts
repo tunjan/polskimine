@@ -1,5 +1,6 @@
 import { Card, Language, LanguageId } from "@/types";
 import { v4 as uuidv4 } from "uuid";
+import { findInflectedWordInSentence, escapeRegExp } from "@/lib/utils";
 
 export const createCard = (
   language: Language,
@@ -10,21 +11,39 @@ export const createCard = (
   targetWordTranslation?: string,
   targetWordPartOfSpeech?: string,
   furigana?: string,
-): Card => ({
-  id: uuidv4(),
-  targetSentence: sentence,
-  targetWord,
-  nativeTranslation: translation,
-  notes,
-  targetWordTranslation,
-  targetWordPartOfSpeech,
-  furigana,
-  status: "new",
-  interval: 0,
-  easeFactor: 2.5,
-  dueDate: new Date().toISOString(),
-  language,
-});
+): Card => {
+  let formattedSentence = sentence;
+
+  if (
+    targetWord &&
+    !sentence.includes("<b>") &&
+    language !== LanguageId.Japanese
+  ) {
+    const matchedWord = findInflectedWordInSentence(targetWord, sentence);
+    if (matchedWord) {
+      formattedSentence = sentence.replace(
+        new RegExp(`\\b${escapeRegExp(matchedWord)}\\b`, "g"),
+        `<b>${matchedWord}</b>`,
+      );
+    }
+  }
+
+  return {
+    id: uuidv4(),
+    targetSentence: formattedSentence,
+    targetWord,
+    nativeTranslation: translation,
+    notes,
+    targetWordTranslation,
+    targetWordPartOfSpeech,
+    furigana,
+    status: "new",
+    interval: 0,
+    easeFactor: 2.5,
+    dueDate: new Date().toISOString(),
+    language,
+  };
+};
 
 export const createPolishCard = (
   sentence: string,
