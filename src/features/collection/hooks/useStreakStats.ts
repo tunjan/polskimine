@@ -16,7 +16,7 @@ export const useStreakStats = () => {
 
     useEffect(() => {
         workerRef.current = new Worker(
-            new URL('@/services/db/workers/stats.worker.ts', import.meta.url),
+            new URL('@/db/workers/stats.worker.ts', import.meta.url),
             { type: 'module' }
         );
 
