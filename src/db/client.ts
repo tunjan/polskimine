@@ -1,5 +1,5 @@
-import { openDB, DBSchema, IDBPDatabase } from 'idb';
-import { Card } from '@/types';
+import { openDB, DBSchema, IDBPDatabase } from "idb";
+import { Card } from "@/types";
 
 export interface HistoryEntry {
   date: string;
@@ -19,7 +19,7 @@ export interface LinguaFlowDB extends DBSchema {
   };
 }
 
-const DB_NAME = 'linguaflow-db';
+const DB_NAME = "linguaflow-db";
 const DB_VERSION = 3;
 
 let dbPromise: Promise<IDBPDatabase<LinguaFlowDB>> | null = null;
@@ -29,24 +29,24 @@ export const getDB = () => {
     dbPromise = openDB<LinguaFlowDB>(DB_NAME, DB_VERSION, {
       upgrade(db, _oldVersion, _newVersion, transaction) {
         let cardStore;
-        if (!db.objectStoreNames.contains('cards')) {
-          cardStore = db.createObjectStore('cards', { keyPath: 'id' });
+        if (!db.objectStoreNames.contains("cards")) {
+          cardStore = db.createObjectStore("cards", { keyPath: "id" });
         } else {
-          cardStore = transaction.objectStore('cards');
+          cardStore = transaction.objectStore("cards");
         }
 
-        if (!cardStore.indexNames.contains('dueDate')) {
-          cardStore.createIndex('dueDate', 'dueDate');
+        if (!cardStore.indexNames.contains("dueDate")) {
+          cardStore.createIndex("dueDate", "dueDate");
         }
-        if (!cardStore.indexNames.contains('status')) {
-          cardStore.createIndex('status', 'status');
+        if (!cardStore.indexNames.contains("status")) {
+          cardStore.createIndex("status", "status");
         }
-        if (!cardStore.indexNames.contains('last_review')) {
-          cardStore.createIndex('last_review', 'last_review');
+        if (!cardStore.indexNames.contains("last_review")) {
+          cardStore.createIndex("last_review", "last_review");
         }
 
-        if (!db.objectStoreNames.contains('history')) {
-          db.createObjectStore('history', { keyPath: 'date' });
+        if (!db.objectStoreNames.contains("history")) {
+          db.createObjectStore("history", { keyPath: "date" });
         }
       },
     });

@@ -1,12 +1,12 @@
-import { clsx, type ClassValue } from "clsx"
-import { twMerge } from "tailwind-merge"
+import { clsx, type ClassValue } from "clsx";
+import { twMerge } from "tailwind-merge";
 
 export function cn(...inputs: ClassValue[]) {
-  return twMerge(clsx(inputs))
+  return twMerge(clsx(inputs));
 }
 
 export function escapeRegExp(string: string): string {
-  return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  return string.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
 export function getLevelProgress(xp: number) {
@@ -15,7 +15,10 @@ export function getLevelProgress(xp: number) {
   const nextLevelStartXP = 100 * Math.pow(level, 2);
   const xpGainedInLevel = xp - currentLevelStartXP;
   const xpRequiredForLevel = nextLevelStartXP - currentLevelStartXP;
-  const progressPercent = Math.min(100, Math.max(0, (xpGainedInLevel / xpRequiredForLevel) * 100));
+  const progressPercent = Math.min(
+    100,
+    Math.max(0, (xpGainedInLevel / xpRequiredForLevel) * 100),
+  );
   const xpToNextLevel = nextLevelStartXP - xp;
 
   return { level, progressPercent, xpToNextLevel };
@@ -27,15 +30,13 @@ export function parseFurigana(text: string): FuriganaSegment[] {
   let lastIndex = 0;
   let match;
 
-
   const punctuationRegex = /^([、。！？「」『』（）\(\),.!?:;""''—\-–]+)(.*)/;
 
   while ((match = regex.exec(text)) !== null) {
-
     if (match.index > lastIndex) {
       const betweenText = text.slice(lastIndex, match.index);
 
-      betweenText.split(/(\s+)/).forEach(part => {
+      betweenText.split(/(\s+)/).forEach((part) => {
         if (part) {
           segments.push({ text: part });
         }
@@ -46,7 +47,6 @@ export function parseFurigana(text: string): FuriganaSegment[] {
     const furigana = match[2];
 
     while (true) {
-
       const punctuationMatch = kanjiText.match(punctuationRegex);
       if (punctuationMatch && punctuationMatch[2]) {
         segments.push({ text: punctuationMatch[1] });
@@ -54,14 +54,10 @@ export function parseFurigana(text: string): FuriganaSegment[] {
         continue;
       }
 
-
-
       const kanaRegex = /^([\u3040-\u30ff]+)(.*)/;
       const kanaMatch = kanjiText.match(kanaRegex);
 
       if (kanaMatch && kanaMatch[2]) {
-
-
         segments.push({ text: kanaMatch[1] });
         kanjiText = kanaMatch[2];
         continue;
@@ -75,10 +71,9 @@ export function parseFurigana(text: string): FuriganaSegment[] {
     lastIndex = regex.lastIndex;
   }
 
-
   if (lastIndex < text.length) {
     const remainingText = text.slice(lastIndex);
-    remainingText.split(/(\s+)/).forEach(part => {
+    remainingText.split(/(\s+)/).forEach((part) => {
       if (part) {
         segments.push({ text: part });
       }
@@ -90,7 +85,7 @@ export function parseFurigana(text: string): FuriganaSegment[] {
 
 export function findInflectedWordInSentence(
   targetWord: string,
-  sentence: string
+  sentence: string,
 ): string | null {
   if (!targetWord || !sentence) return null;
 
@@ -98,10 +93,13 @@ export function findInflectedWordInSentence(
 
   const words = sentence.match(/[\p{L}]+/gu) || [];
 
-  const exactMatch = words.find(w => w.toLowerCase() === targetLower);
+  const exactMatch = words.find((w) => w.toLowerCase() === targetLower);
   if (exactMatch) return exactMatch;
 
-  const minStemLength = targetWord.length <= 4 ? 2 : Math.min(4, Math.ceil(targetWord.length * 0.5));
+  const minStemLength =
+    targetWord.length <= 4
+      ? 2
+      : Math.min(4, Math.ceil(targetWord.length * 0.5));
 
   let bestMatch: string | null = null;
   let bestMatchScore = 0;
@@ -111,7 +109,7 @@ export function findInflectedWordInSentence(
 
     let sharedLength = 0;
 
-    // Find longest common substring to handle prefixes (common in Polish)
+
     for (let i = 0; i < targetLower.length; i++) {
       for (let j = 0; j < wordLower.length; j++) {
         let k = 0;

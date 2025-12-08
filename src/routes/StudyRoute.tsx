@@ -1,40 +1,40 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
-import { Card, Grade } from '@/types';
-import { StudySession } from '@/features/study/components/StudySession';
-import { useDeckActions } from '@/hooks/useDeckActions';
-import { useDeckStats } from '@/features/collection/hooks/useDeckStats';
-import { useDeckStore } from '@/stores/useDeckStore';
-import { useSettingsStore } from '@/stores/useSettingsStore';
-import { useShallow } from 'zustand/react/shallow';
-import { useCardOperations } from '@/features/collection/hooks/useCardOperations';
-import { isNewCard } from '@/services/studyLimits';
-import {
-  getCramCards,
-  getDueCards,
-} from '@/db/repositories/cardRepository';
-import { getTodayReviewStats } from '@/db/repositories/statsRepository';
-import { useClaimDailyBonusMutation } from '@/features/collection/hooks/useDeckQueries';
-import { CardXpPayload } from '@/core/gamification/xp';
-import { LoadingScreen } from '@/components/ui/loading';
-import { Button } from '@/components/ui/button';
-import { toast } from 'sonner';
-import { sortCards, CardOrder } from '@/core/srs/cardSorter';
+import React, { useState, useEffect } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import { Card, Grade } from "@/types";
+import { StudySession } from "@/features/study/components/StudySession";
+import { useDeckActions } from "@/hooks/useDeckActions";
+import { useDeckStats } from "@/features/collection/hooks/useDeckStats";
+import { useDeckStore } from "@/stores/useDeckStore";
+import { useSettingsStore } from "@/stores/useSettingsStore";
+import { useShallow } from "zustand/react/shallow";
+import { useCardOperations } from "@/features/collection/hooks/useCardOperations";
+import { isNewCard } from "@/services/studyLimits";
+import { getCramCards, getDueCards } from "@/db/repositories/cardRepository";
+import { getTodayReviewStats } from "@/db/repositories/statsRepository";
+import { useClaimDailyBonusMutation } from "@/features/collection/hooks/useDeckQueries";
+import { CardXpPayload } from "@/core/gamification/xp";
+import { LoadingScreen } from "@/components/ui/loading";
+import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
+import { sortCards, CardOrder } from "@/core/srs/cardSorter";
 
 const StudyRoute: React.FC = () => {
   const { recordReview, undoReview } = useDeckActions();
   const { stats } = useDeckStats();
-  const lastReview = useDeckStore(state => state.lastReview);
+  const lastReview = useDeckStore((state) => state.lastReview);
   const canUndo = !!lastReview;
 
   const { updateCard, deleteCard, addCard } = useCardOperations();
-  
-  const { language, dailyNewLimits, dailyReviewLimits, cardOrder } = useSettingsStore(useShallow(s => ({
-    language: s.language,
-    dailyNewLimits: s.dailyNewLimits,
-    dailyReviewLimits: s.dailyReviewLimits,
-    cardOrder: s.cardOrder
-  })));
+
+  const { language, dailyNewLimits, dailyReviewLimits, cardOrder } =
+    useSettingsStore(
+      useShallow((s) => ({
+        language: s.language,
+        dailyNewLimits: s.dailyNewLimits,
+        dailyReviewLimits: s.dailyReviewLimits,
+        cardOrder: s.cardOrder,
+      })),
+    );
 
   const claimBonus = useClaimDailyBonusMutation();
 
@@ -45,8 +45,8 @@ const StudyRoute: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const mode = searchParams.get('mode');
-  const isCramMode = mode === 'cram';
+  const mode = searchParams.get("mode");
+  const isCramMode = mode === "cram";
 
   useEffect(() => {
     let isMounted = true;
@@ -55,8 +55,8 @@ const StudyRoute: React.FC = () => {
     const loadCards = async () => {
       try {
         if (isCramMode) {
-          const limit = parseInt(searchParams.get('limit') || '50', 10);
-          const tag = searchParams.get('tag') || undefined;
+          const limit = parseInt(searchParams.get("limit") || "50", 10);
+          const tag = searchParams.get("tag") || undefined;
           const cramCards = await getCramCards(limit, tag, language);
           if (isMounted) {
             setSessionCards(cramCards);
@@ -64,16 +64,16 @@ const StudyRoute: React.FC = () => {
           }
         } else {
           const timeoutPromise = new Promise((_, reject) =>
-            setTimeout(() => reject(new Error('Request timed out')), 15000)
+            setTimeout(() => reject(new Error("Request timed out")), 15000),
           );
 
-          const [due, reviewsToday] = await Promise.race([
+          const [due, reviewsToday] = (await Promise.race([
             Promise.all([
               getDueCards(new Date(), language),
-              getTodayReviewStats(language)
+              getTodayReviewStats(language),
             ]),
-            timeoutPromise
-          ]) as [Card[], { newCards: number; reviewCards: number }];
+            timeoutPromise,
+          ])) as [Card[], { newCards: number; reviewCards: number }];
 
           if (!isMounted) return;
 
@@ -97,7 +97,10 @@ const StudyRoute: React.FC = () => {
                 if (hasLimit(dailyNewLimit)) newCount++;
               }
             } else {
-              if (hasLimit(dailyReviewLimit) && reviewCount >= dailyReviewLimit) {
+              if (
+                hasLimit(dailyReviewLimit) &&
+                reviewCount >= dailyReviewLimit
+              ) {
                 continue;
               }
               active.push(card);
@@ -105,7 +108,10 @@ const StudyRoute: React.FC = () => {
             }
           }
 
-          const sortedActive = sortCards(active, (cardOrder as CardOrder) || 'newFirst');
+          const sortedActive = sortCards(
+            active,
+            (cardOrder as CardOrder) || "newFirst",
+          );
 
           setSessionCards(sortedActive);
           setReserveCards(reserve);
@@ -113,8 +119,8 @@ const StudyRoute: React.FC = () => {
       } catch (err) {
         console.error("Failed to load cards", err);
         if (isMounted) {
-          setError(err instanceof Error ? err.message : 'Failed to load cards');
-          toast.error('Failed to load study session. Please try again.');
+          setError(err instanceof Error ? err.message : "Failed to load cards");
+          toast.error("Failed to load study session. Please try again.");
         }
       } finally {
         if (isMounted) {
@@ -128,11 +134,18 @@ const StudyRoute: React.FC = () => {
     return () => {
       isMounted = false;
     };
-  }, [language, isCramMode, searchParams, dailyNewLimits, dailyReviewLimits, cardOrder]);
+  }, [
+    language,
+    isCramMode,
+    searchParams,
+    dailyNewLimits,
+    dailyReviewLimits,
+    cardOrder,
+  ]);
 
   const handleUpdateCard = (card: Card) => {
     if (isCramMode) {
-      if (card.status === 'known') {
+      if (card.status === "known") {
         updateCard(card, { silent: true });
       }
       return;
@@ -142,9 +155,14 @@ const StudyRoute: React.FC = () => {
 
   const handleDeleteCard = async (id: string) => {
     await deleteCard(id);
-              };
+  };
 
-  const handleRecordReview = async (card: Card, newCard: Card, grade: Grade, xpPayload?: CardXpPayload) => {
+  const handleRecordReview = async (
+    card: Card,
+    newCard: Card,
+    grade: Grade,
+    xpPayload?: CardXpPayload,
+  ) => {
     if (!isCramMode) {
       await recordReview(card, newCard, grade, xpPayload);
     }
@@ -154,11 +172,16 @@ const StudyRoute: React.FC = () => {
     if (!isCramMode) {
       claimBonus.mutate();
     }
-    navigate('/');
+    navigate("/");
   };
 
   if (isLoading) {
-    return <LoadingScreen title="Loading Session" subtitle="Preparing your cards..." />;
+    return (
+      <LoadingScreen
+        title="Loading Session"
+        subtitle="Preparing your cards..."
+      />
+    );
   }
 
   if (error) {
@@ -170,10 +193,7 @@ const StudyRoute: React.FC = () => {
           </div>
           <h2 className="text-lg font-medium">Failed to load study session</h2>
           <p className="text-sm text-muted-foreground">{error}</p>
-          <Button
-            onClick={() => navigate('/')}
-            size="default"
-          >
+          <Button onClick={() => navigate("/")} size="default">
             Return to Dashboard
           </Button>
         </div>
@@ -188,7 +208,7 @@ const StudyRoute: React.FC = () => {
       onUpdateCard={handleUpdateCard}
       onDeleteCard={handleDeleteCard}
       onRecordReview={handleRecordReview}
-      onExit={() => navigate('/')}
+      onExit={() => navigate("/")}
       onComplete={handleSessionComplete}
       onUndo={isCramMode ? undefined : undoReview}
       canUndo={isCramMode ? false : canUndo}

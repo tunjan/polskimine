@@ -1,10 +1,16 @@
-import { Card, CardStatus, mapFsrsStateToStatus, Language, LanguageId } from '@/types';
-import { getSRSDate } from '@/core/srs';
-import { db, generateId } from '@/db/dexie';
-import { SRS_CONFIG } from '@/constants';
-import { z } from 'zod';
+import {
+  Card,
+  CardStatus,
+  mapFsrsStateToStatus,
+  Language,
+  LanguageId,
+} from "@/types";
+import { getSRSDate } from "@/core/srs";
+import { db, generateId } from "@/db/dexie";
+import { SRS_CONFIG } from "@/constants";
+import { z } from "zod";
 
-const SESSION_KEY = 'linguaflow_current_user';
+const SESSION_KEY = "linguaflow_current_user";
 
 export const getCurrentUserId = (): string | null => {
   return localStorage.getItem(SESSION_KEY);
@@ -20,31 +26,34 @@ const DBRawCardSchema = z.object({
   furigana: z.string().optional().nullable(),
   gender: z.string().optional().nullable(),
   grammaticalCase: z.string().optional().nullable(),
-  notes: z.string().optional().nullable().default(''),
+  notes: z.string().optional().nullable().default(""),
   tags: z.array(z.string()).optional().nullable(),
-  language: z.string().optional(),   status: z.union([z.nativeEnum(CardStatus), z.string()]).transform(val => val as CardStatus),
-  
-    interval: z.number().default(0),
+  language: z.string().optional(),
+  status: z
+    .union([z.nativeEnum(CardStatus), z.string()])
+    .transform((val) => val as CardStatus),
+
+  interval: z.number().default(0),
   easeFactor: z.number().default(2.5),
   dueDate: z.string(),
-  
+
   stability: z.number().optional().nullable(),
   difficulty: z.number().optional().nullable(),
   elapsed_days: z.number().optional().nullable(),
   scheduled_days: z.number().optional().nullable(),
   reps: z.number().optional().nullable(),
   lapses: z.number().optional().nullable(),
-  state: z.number().optional().nullable(),   
+  state: z.number().optional().nullable(),
   due: z.string().optional().nullable(),
   last_review: z.string().optional().nullable(),
   first_review: z.string().optional().nullable(),
-  
+
   learningStep: z.number().optional().nullable(),
   leechCount: z.number().optional().nullable(),
   isLeech: z.boolean().optional().default(false),
   isBookmarked: z.boolean().optional().default(false),
   precise_interval: z.number().optional().nullable(),
-  
+
   user_id: z.string().optional().nullable(),
 });
 
@@ -52,7 +61,7 @@ export type DBRawCard = z.infer<typeof DBRawCardSchema>;
 
 export const mapToCard = (data: unknown): Card => {
   const result = DBRawCardSchema.safeParse(data);
-  
+
   if (!result.success) {
     console.error("Card validation failed:", result.error, data);
     throw new Error(`Card validation failed: ${result.error.message}`);
@@ -60,7 +69,7 @@ export const mapToCard = (data: unknown): Card => {
 
   const validData = result.data;
 
-      return {
+  return {
     id: validData.id,
     targetSentence: validData.targetSentence,
     targetWord: validData.targetWord || undefined,
@@ -70,25 +79,25 @@ export const mapToCard = (data: unknown): Card => {
     furigana: validData.furigana || undefined,
     gender: validData.gender || undefined,
     grammaticalCase: validData.grammaticalCase || undefined,
-    notes: validData.notes || '',
+    notes: validData.notes || "",
     tags: validData.tags || undefined,
     language: validData.language as Language,
     status: validData.status,
     interval: validData.interval,
     easeFactor: validData.easeFactor,
     dueDate: validData.dueDate,
-    
+
     stability: validData.stability ?? undefined,
     difficulty: validData.difficulty ?? undefined,
     elapsed_days: validData.elapsed_days ?? undefined,
     scheduled_days: validData.scheduled_days ?? undefined,
     reps: validData.reps ?? undefined,
     lapses: validData.lapses ?? undefined,
-    state: validData.state ?? undefined,     
+    state: validData.state ?? undefined,
     due: validData.due ?? undefined,
     last_review: validData.last_review ?? undefined,
     first_review: validData.first_review ?? undefined,
-    
+
     learningStep: validData.learningStep ?? undefined,
     leechCount: validData.leechCount ?? undefined,
     isLeech: validData.isLeech,
@@ -96,46 +105,53 @@ export const mapToCard = (data: unknown): Card => {
     precise_interval: validData.precise_interval ?? undefined,
 
     user_id: validData.user_id ?? undefined,
-  } as Card; };
+  } as Card;
+};
 
 export const getCards = async (): Promise<Card[]> => {
   const userId = getCurrentUserId();
   if (!userId) return [];
 
-  const rawCards = await db.cards.where('user_id').equals(userId).toArray();
+  const rawCards = await db.cards.where("user_id").equals(userId).toArray();
   return rawCards.map(mapToCard);
 };
 
-export const getAllCardsByLanguage = async (language: Language): Promise<Card[]> => {
+export const getAllCardsByLanguage = async (
+  language: Language,
+): Promise<Card[]> => {
   const userId = getCurrentUserId();
   if (!userId) return [];
 
   const rawCards = await db.cards
-    .where('[user_id+language]')
+    .where("[user_id+language]")
     .equals([userId, language])
     .toArray();
   return rawCards.map(mapToCard);
 };
 
-export const getCardsForRetention = async (language: Language): Promise<Partial<Card>[]> => {
+export const getCardsForRetention = async (
+  language: Language,
+): Promise<Partial<Card>[]> => {
   const userId = getCurrentUserId();
   if (!userId) return [];
 
-      const rawCards = await db.cards
-    .where('[user_id+language]')
+  const rawCards = await db.cards
+    .where("[user_id+language]")
     .equals([userId, language])
     .toArray();
 
-  return rawCards.map(mapToCard).map(c => ({
+  return rawCards.map(mapToCard).map((c) => ({
     id: c.id,
     dueDate: c.dueDate,
     status: c.status,
     stability: c.stability,
-    state: c.state
+    state: c.state,
   }));
 };
 
-export const getDashboardCounts = async (language: Language): Promise<{
+export const getDashboardCounts = async (
+  language: Language,
+): Promise<{
   total: number;
   new: number;
   learned: number;
@@ -151,42 +167,55 @@ export const getDashboardCounts = async (language: Language): Promise<{
   const cutoffISO = cutoffDate.toISOString();
 
   const [total, newCards, learned, due] = await Promise.all([
-    db.cards.where('[user_id+language]').equals([userId, language]).count(),
-    db.cards.where('[user_id+language+status]').equals([userId, language, 'new']).count(),
-    db.cards.where('[user_id+language+status]').equals([userId, language, 'known']).count(),
-    db.cards.where('[user_id+language]').equals([userId, language])
-      .filter(c => c.status !== 'known' && c.dueDate <= cutoffISO).count()
+    db.cards.where("[user_id+language]").equals([userId, language]).count(),
+    db.cards
+      .where("[user_id+language+status]")
+      .equals([userId, language, "new"])
+      .count(),
+    db.cards
+      .where("[user_id+language+status]")
+      .equals([userId, language, "known"])
+      .count(),
+    db.cards
+      .where("[user_id+language]")
+      .equals([userId, language])
+      .filter((c) => c.status !== "known" && c.dueDate <= cutoffISO)
+      .count(),
   ]);
 
   return {
     total,
     new: newCards,
     learned,
-    hueDue: due
+    hueDue: due,
   };
 };
 
-export const getCardsForDashboard = async (language: Language): Promise<Array<{
-  id: string;
-  dueDate: string | null;
-  status: string;
-  stability: number | null;
-  state: number | null
-}>> => {
+export const getCardsForDashboard = async (
+  language: Language,
+): Promise<
+  Array<{
+    id: string;
+    dueDate: string | null;
+    status: string;
+    stability: number | null;
+    state: number | null;
+  }>
+> => {
   const userId = getCurrentUserId();
   if (!userId) return [];
 
   const rawCards = await db.cards
-    .where('[user_id+language]')
+    .where("[user_id+language]")
     .equals([userId, language])
     .toArray();
 
-  return rawCards.map(mapToCard).map(card => ({
+  return rawCards.map(mapToCard).map((card) => ({
     id: card.id,
     dueDate: card.dueDate,
     status: card.status,
     stability: card.stability ?? null,
-    state: card.state ?? null
+    state: card.state ?? null,
   }));
 };
 
@@ -195,27 +224,27 @@ export const saveCard = async (card: Card) => {
   if (!card.id) {
     card.id = generateId();
   }
-    if (!card.user_id && userId) {
+  if (!card.user_id && userId) {
     card.user_id = userId;
   }
-    if (card.status !== CardStatus.KNOWN) {
-        if (card.state !== undefined) {
-        card.status = mapFsrsStateToStatus(card.state);
+  if (card.status !== CardStatus.KNOWN) {
+    if (card.state !== undefined) {
+      card.status = mapFsrsStateToStatus(card.state);
     }
   }
 
-        await db.cards.put(card);
+  await db.cards.put(card);
 };
 
 export const deleteCard = async (id: string) => {
-  await db.transaction('rw', [db.cards, db.revlog], async () => {
+  await db.transaction("rw", [db.cards, db.revlog], async () => {
     await db.cards.delete(id);
   });
 };
 
 export const deleteCardsBatch = async (ids: string[]) => {
   if (!ids.length) return;
-  await db.transaction('rw', [db.cards, db.revlog], async () => {
+  await db.transaction("rw", [db.cards, db.revlog], async () => {
     await db.cards.bulkDelete(ids);
   });
 };
@@ -224,10 +253,10 @@ export const saveAllCards = async (cards: Card[]) => {
   if (!cards.length) return;
   const userId = getCurrentUserId();
 
-  const cardsWithIds = cards.map(card => ({
+  const cardsWithIds = cards.map((card) => ({
     ...card,
     id: card.id || generateId(),
-    user_id: card.user_id || userId || undefined
+    user_id: card.user_id || userId || undefined,
   }));
 
   await db.cards.bulkPut(cardsWithIds);
@@ -237,10 +266,13 @@ export const clearAllCards = async () => {
   const userId = getCurrentUserId();
   if (!userId) return;
 
-    await db.cards.where('user_id').equals(userId).delete();
+  await db.cards.where("user_id").equals(userId).delete();
 };
 
-export const getDueCards = async (now: Date, language: Language): Promise<Card[]> => {
+export const getDueCards = async (
+  now: Date,
+  language: Language,
+): Promise<Card[]> => {
   const userId = getCurrentUserId();
   if (!userId) return [];
 
@@ -252,27 +284,33 @@ export const getDueCards = async (now: Date, language: Language): Promise<Card[]
   const cutoffISO = cutoffDate.toISOString();
 
   const rawCards = await db.cards
-    .where('[user_id+language]')
+    .where("[user_id+language]")
     .equals([userId, language])
-    .filter(card => card.status !== 'known' && card.dueDate <= cutoffISO)
+    .filter((card) => card.status !== "known" && card.dueDate <= cutoffISO)
     .toArray();
 
-  return rawCards.map(mapToCard).sort((a, b) => a.dueDate.localeCompare(b.dueDate));
+  return rawCards
+    .map(mapToCard)
+    .sort((a, b) => a.dueDate.localeCompare(b.dueDate));
 };
 
-export const getCramCards = async (limit: number, tag?: string, language?: Language): Promise<Card[]> => {
+export const getCramCards = async (
+  limit: number,
+  tag?: string,
+  language?: Language,
+): Promise<Card[]> => {
   const userId = getCurrentUserId();
   if (!userId) return [];
 
   let rawCards = await db.cards
-    .where('[user_id+language]')
+    .where("[user_id+language]")
     .equals([userId, language || LanguageId.Polish])
     .toArray();
 
   let cards = rawCards.map(mapToCard);
 
   if (tag) {
-    cards = cards.filter(c => c.tags?.includes(tag));
+    cards = cards.filter((c) => c.tags?.includes(tag));
   }
 
   const shuffled = cards.sort(() => Math.random() - 0.5);
@@ -284,28 +322,31 @@ export const deleteCardsByLanguage = async (language: Language) => {
   if (!userId) return;
 
   const cardsToDelete = await db.cards
-    .where('[user_id+language]')
+    .where("[user_id+language]")
     .equals([userId, language])
     .toArray();
 
-  const ids = cardsToDelete.map(c => c.id);
+  const ids = cardsToDelete.map((c) => c.id);
   if (ids.length > 0) {
     await db.cards.bulkDelete(ids);
   }
 };
 
-export const getCardSignatures = async (language: Language): Promise<Array<{ target_sentence: string; language: string }>> => {
+export const getCardSignatures = async (
+  language: Language,
+): Promise<Array<{ target_sentence: string; language: string }>> => {
   const userId = getCurrentUserId();
   if (!userId) return [];
 
   const rawCards = await db.cards
-    .where('[user_id+language]')
+    .where("[user_id+language]")
     .equals([userId, language])
     .toArray();
 
-  return rawCards.map(mapToCard).map(c => ({
+  return rawCards.map(mapToCard).map((c) => ({
     target_sentence: c.targetSentence,
-    language: c.language as string   }));
+    language: c.language as string,
+  }));
 };
 
 export const getTags = async (language?: Language): Promise<string[]> => {
@@ -316,16 +357,13 @@ export const getTags = async (language?: Language): Promise<string[]> => {
 
   if (language) {
     rawCards = await db.cards
-      .where('[user_id+language]')
+      .where("[user_id+language]")
       .equals([userId, language])
       .toArray();
   } else {
-    rawCards = await db.cards
-      .where('user_id')
-      .equals(userId)
-      .toArray();
+    rawCards = await db.cards.where("user_id").equals(userId).toArray();
   }
-  
+
   const cards = rawCards.map(mapToCard);
 
   const uniqueTags = new Set<string>();
@@ -338,35 +376,41 @@ export const getTags = async (language?: Language): Promise<string[]> => {
   return Array.from(uniqueTags).sort();
 };
 
-export const getLearnedWords = async (language: Language): Promise<string[]> => {
+export const getLearnedWords = async (
+  language: Language,
+): Promise<string[]> => {
   const userId = getCurrentUserId();
   if (!userId) return [];
 
   const rawCards = await db.cards
-    .where('[user_id+language]')
+    .where("[user_id+language]")
     .equals([userId, language])
-    .filter(card => card.status !== 'new' && card.targetWord != null)
+    .filter((card) => card.status !== "new" && card.targetWord != null)
     .toArray();
 
-  const words = rawCards.map(mapToCard)
-    .map(card => card.targetWord)
+  const words = rawCards
+    .map(mapToCard)
+    .map((card) => card.targetWord)
     .filter((word): word is string => word !== null && word !== undefined);
 
   return [...new Set(words)];
 };
 
-export const getCardByTargetWord = async (targetWord: string, language: Language): Promise<Card | undefined> => {
+export const getCardByTargetWord = async (
+  targetWord: string,
+  language: Language,
+): Promise<Card | undefined> => {
   const userId = getCurrentUserId();
   if (!userId) return undefined;
 
   const lowerWord = targetWord.toLowerCase();
   const rawCards = await db.cards
-    .where('[user_id+language]')
+    .where("[user_id+language]")
     .equals([userId, language])
-    .filter(card => card.targetWord?.toLowerCase() === lowerWord)
+    .filter((card) => card.targetWord?.toLowerCase() === lowerWord)
     .toArray();
-  
+
   if (rawCards.length === 0) return undefined;
-  
+
   return mapToCard(rawCards[0]);
 };

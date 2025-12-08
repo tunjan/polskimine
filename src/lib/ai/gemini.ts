@@ -1,7 +1,6 @@
-import { LanguageId } from '@/types';
-import { parseAIJSON } from '../../utils/jsonParser';
-import { z } from 'zod';
-
+import { LanguageId } from "@/types";
+import { parseAIJSON } from "../../utils/jsonParser";
+import { z } from "zod";
 
 const LemmatizeSchema = z.object({
   lemma: z.string(),
@@ -17,7 +16,13 @@ const GenerateSentenceSchema = z.object({
   targetSentence: z.string(),
   nativeTranslation: z.string(),
   targetWordTranslation: z.string(),
-  targetWordPartOfSpeech: z.enum(["noun", "verb", "adjective", "adverb", "pronoun"]),
+  targetWordPartOfSpeech: z.enum([
+    "noun",
+    "verb",
+    "adjective",
+    "adverb",
+    "pronoun",
+  ]),
   notes: z.string(),
   furigana: z.string().optional(),
 });
@@ -26,7 +31,9 @@ const GenerateCardSchema = z.object({
   translation: z.string(),
   targetWord: z.string().optional(),
   targetWordTranslation: z.string().optional(),
-  targetWordPartOfSpeech: z.enum(["noun", "verb", "adjective", "adverb", "pronoun"]).optional(),
+  targetWordPartOfSpeech: z
+    .enum(["noun", "verb", "adjective", "adverb", "pronoun"])
+    .optional(),
   notes: z.string(),
   furigana: z.string().optional(),
 });
@@ -36,7 +43,13 @@ const GeneratedCardDataSchema = z.object({
   nativeTranslation: z.string(),
   targetWord: z.string(),
   targetWordTranslation: z.string(),
-  targetWordPartOfSpeech: z.enum(['noun', 'verb', 'adjective', 'adverb', 'pronoun']),
+  targetWordPartOfSpeech: z.enum([
+    "noun",
+    "verb",
+    "adjective",
+    "adverb",
+    "pronoun",
+  ]),
   grammaticalCase: z.string().optional(),
   gender: z.string().optional(),
   notes: z.string(),
@@ -44,7 +57,6 @@ const GeneratedCardDataSchema = z.object({
 });
 
 type GeneratedCardData = z.infer<typeof GeneratedCardDataSchema>;
-
 
 interface GeminiRequestBody {
   contents: Array<{
@@ -58,48 +70,63 @@ interface GeminiRequestBody {
 }
 
 interface GeminiSchemaProperty {
-  type: 'STRING' | 'NUMBER' | 'BOOLEAN' | 'OBJECT' | 'ARRAY';
+  type: "STRING" | "NUMBER" | "BOOLEAN" | "OBJECT" | "ARRAY";
   enum?: string[];
   description?: string;
 }
 
 interface GeminiResponseSchema {
-  type: 'OBJECT' | 'ARRAY' | 'STRING' | 'NUMBER' | 'BOOLEAN';
+  type: "OBJECT" | "ARRAY" | "STRING" | "NUMBER" | "BOOLEAN";
   properties?: Record<string, GeminiSchemaProperty>;
   items?: GeminiResponseSchema;
   required?: string[];
 }
 
-export type WordType = 'noun' | 'verb' | 'adjective' | 'adverb' | 'pronoun' | 'preposition' | 'conjunction' | 'interjection';
+export type WordType =
+  | "noun"
+  | "verb"
+  | "adjective"
+  | "adverb"
+  | "pronoun"
+  | "preposition"
+  | "conjunction"
+  | "interjection";
 
 interface BatchGenerationOptions {
   instructions: string;
   count: number;
-  language: typeof LanguageId[keyof typeof LanguageId];
+  language: (typeof LanguageId)[keyof typeof LanguageId];
   learnedWords?: string[];
   proficiencyLevel?: string;
-  difficultyMode?: 'beginner' | 'immersive';
+  difficultyMode?: "beginner" | "immersive";
   wordTypeFilters?: WordType[];
 }
 
-const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent';
+const GEMINI_API_URL =
+  "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent";
 
-
-async function callGemini(prompt: string, apiKey: string, responseSchema?: GeminiResponseSchema, retries = 3): Promise<string> {
+async function callGemini(
+  prompt: string,
+  apiKey: string,
+  responseSchema?: GeminiResponseSchema,
+  retries = 3,
+): Promise<string> {
   if (!apiKey) {
-    throw new Error('Gemini API Key is missing. Please add it in Settings.');
+    throw new Error("Gemini API Key is missing. Please add it in Settings.");
   }
 
   const body: GeminiRequestBody = {
-    contents: [{
-      parts: [{ text: prompt }]
-    }]
+    contents: [
+      {
+        parts: [{ text: prompt }],
+      },
+    ],
   };
 
   if (responseSchema) {
     body.generationConfig = {
-      responseMimeType: 'application/json',
-      responseSchema
+      responseMimeType: "application/json",
+      responseSchema,
     };
   }
 
@@ -107,36 +134,39 @@ async function callGemini(prompt: string, apiKey: string, responseSchema?: Gemin
   for (let i = 0; i < retries; i++) {
     try {
       const response = await fetch(`${GEMINI_API_URL}?key=${apiKey}`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json'
+          "Content-Type": "application/json",
         },
-        body: JSON.stringify(body)
+        body: JSON.stringify(body),
       });
 
       if (!response.ok) {
         if (response.status === 429 || response.status >= 500) {
-           const text = await response.text();
-           throw new Error(`Gemini API Error: ${response.status} ${response.statusText} - ${text}`);
+          const text = await response.text();
+          throw new Error(
+            `Gemini API Error: ${response.status} ${response.statusText} - ${text}`,
+          );
         }
         const errorData = await response.json().catch(() => ({}));
         console.error("Gemini API Error:", errorData);
-        throw new Error(errorData.error?.message || 'AI Service failed. Check your API key.');
+        throw new Error(
+          errorData.error?.message || "AI Service failed. Check your API key.",
+        );
       }
 
       const data = await response.json();
       const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
       if (!text) {
-        throw new Error('No response from AI');
+        throw new Error("No response from AI");
       }
       return text;
-
     } catch (e) {
       console.warn(`Gemini attempt ${i + 1} failed:`, e);
       lastError = e instanceof Error ? e : new Error(String(e));
       if (i < retries - 1) {
         const waitTime = Math.pow(2, i) * 1000;
-        await new Promise(resolve => setTimeout(resolve, waitTime));
+        await new Promise((resolve) => setTimeout(resolve, waitTime));
       }
     }
   }
@@ -144,21 +174,32 @@ async function callGemini(prompt: string, apiKey: string, responseSchema?: Gemin
   throw lastError || new Error("Failed to call Gemini after multiple attempts");
 }
 
-function getLangName(language: typeof LanguageId[keyof typeof LanguageId]): string {
-    return language === LanguageId.Norwegian ? 'Norwegian' : (language === LanguageId.Japanese ? 'Japanese' : (language === LanguageId.Spanish ? 'Spanish' : 'Polish'));
+function getLangName(
+  language: (typeof LanguageId)[keyof typeof LanguageId],
+): string {
+  return language === LanguageId.Norwegian
+    ? "Norwegian"
+    : language === LanguageId.Japanese
+      ? "Japanese"
+      : language === LanguageId.Spanish
+        ? "Spanish"
+        : "Polish";
 }
 
-
 export const aiService = {
-  async lemmatizeWord(word: string, language: typeof LanguageId[keyof typeof LanguageId] = LanguageId.Polish, apiKey: string): Promise<string> {
+  async lemmatizeWord(
+    word: string,
+    language: (typeof LanguageId)[keyof typeof LanguageId] = LanguageId.Polish,
+    apiKey: string,
+  ): Promise<string> {
     const langName = getLangName(language);
 
     const responseSchema: GeminiResponseSchema = {
-      type: 'OBJECT',
+      type: "OBJECT",
       properties: {
-        lemma: { type: 'STRING' }
+        lemma: { type: "STRING" },
       },
-      required: ['lemma']
+      required: ["lemma"],
     };
 
     const prompt = `
@@ -187,7 +228,11 @@ export const aiService = {
     }
   },
 
-  async translateText(text: string, language: typeof LanguageId[keyof typeof LanguageId] = LanguageId.Polish, apiKey: string): Promise<string> {
+  async translateText(
+    text: string,
+    language: (typeof LanguageId)[keyof typeof LanguageId] = LanguageId.Polish,
+    apiKey: string,
+  ): Promise<string> {
     const langName = getLangName(language);
     const prompt = `
       Role: Expert Translator.
@@ -199,17 +244,22 @@ export const aiService = {
     return await callGemini(prompt, apiKey);
   },
 
-  async analyzeWord(word: string, contextSentence: string, language: typeof LanguageId[keyof typeof LanguageId] = LanguageId.Polish, apiKey: string): Promise<z.infer<typeof AnalyzeWordSchema>> {
+  async analyzeWord(
+    word: string,
+    contextSentence: string,
+    language: (typeof LanguageId)[keyof typeof LanguageId] = LanguageId.Polish,
+    apiKey: string,
+  ): Promise<z.infer<typeof AnalyzeWordSchema>> {
     const langName = getLangName(language);
 
     const responseSchema: GeminiResponseSchema = {
-      type: 'OBJECT',
+      type: "OBJECT",
       properties: {
-        definition: { type: 'STRING' },
-        partOfSpeech: { type: 'STRING' },
-        contextMeaning: { type: 'STRING' }
+        definition: { type: "STRING" },
+        partOfSpeech: { type: "STRING" },
+        contextMeaning: { type: "STRING" },
       },
-      required: ['definition', 'partOfSpeech', 'contextMeaning']
+      required: ["definition", "partOfSpeech", "contextMeaning"],
     };
 
     const prompt = `
@@ -231,28 +281,40 @@ export const aiService = {
       return {
         definition: "Failed to analyze",
         partOfSpeech: "Unknown",
-        contextMeaning: "Could not retrieve context"
+        contextMeaning: "Could not retrieve context",
       };
     }
   },
 
-  async generateSentenceForWord(targetWord: string, language: typeof LanguageId[keyof typeof LanguageId] = LanguageId.Polish, apiKey: string): Promise<z.infer<typeof GenerateSentenceSchema>> {
+  async generateSentenceForWord(
+    targetWord: string,
+    language: (typeof LanguageId)[keyof typeof LanguageId] = LanguageId.Polish,
+    apiKey: string,
+  ): Promise<z.infer<typeof GenerateSentenceSchema>> {
     const langName = getLangName(language);
 
     const responseSchema: GeminiResponseSchema = {
-      type: 'OBJECT',
+      type: "OBJECT",
       properties: {
-        targetSentence: { type: 'STRING' },
-        nativeTranslation: { type: 'STRING' },
-        targetWordTranslation: { type: 'STRING' },
+        targetSentence: { type: "STRING" },
+        nativeTranslation: { type: "STRING" },
+        targetWordTranslation: { type: "STRING" },
         targetWordPartOfSpeech: {
-          type: 'STRING',
-          enum: ["noun", "verb", "adjective", "adverb", "pronoun"]
+          type: "STRING",
+          enum: ["noun", "verb", "adjective", "adverb", "pronoun"],
         },
-        notes: { type: 'STRING' },
-        ...(language === LanguageId.Japanese ? { furigana: { type: 'STRING' } } : {})
+        notes: { type: "STRING" },
+        ...(language === LanguageId.Japanese
+          ? { furigana: { type: "STRING" } }
+          : {}),
       },
-      required: ['targetSentence', 'nativeTranslation', 'targetWordTranslation', 'targetWordPartOfSpeech', 'notes']
+      required: [
+        "targetSentence",
+        "nativeTranslation",
+        "targetWordTranslation",
+        "targetWordPartOfSpeech",
+        "notes",
+      ],
     };
 
     let prompt = `
@@ -289,23 +351,35 @@ export const aiService = {
     }
   },
 
-  async generateCardContent(sentence: string, language: typeof LanguageId[keyof typeof LanguageId] = LanguageId.Polish, apiKey: string): Promise<z.infer<typeof GenerateCardSchema>> {
+  async generateCardContent(
+    sentence: string,
+    language: (typeof LanguageId)[keyof typeof LanguageId] = LanguageId.Polish,
+    apiKey: string,
+  ): Promise<z.infer<typeof GenerateCardSchema>> {
     const langName = getLangName(language);
 
     const responseSchema: GeminiResponseSchema = {
-      type: 'OBJECT',
+      type: "OBJECT",
       properties: {
-        translation: { type: 'STRING' },
-        targetWord: { type: 'STRING' },
-        targetWordTranslation: { type: 'STRING' },
+        translation: { type: "STRING" },
+        targetWord: { type: "STRING" },
+        targetWordTranslation: { type: "STRING" },
         targetWordPartOfSpeech: {
-          type: 'STRING',
-          enum: ["noun", "verb", "adjective", "adverb", "pronoun"]
+          type: "STRING",
+          enum: ["noun", "verb", "adjective", "adverb", "pronoun"],
         },
-        notes: { type: 'STRING' },
-        ...(language === LanguageId.Japanese ? { furigana: { type: 'STRING' } } : {})
+        notes: { type: "STRING" },
+        ...(language === LanguageId.Japanese
+          ? { furigana: { type: "STRING" } }
+          : {}),
       },
-      required: ['translation', 'targetWord', 'targetWordTranslation', 'targetWordPartOfSpeech', 'notes']
+      required: [
+        "translation",
+        "targetWord",
+        "targetWordTranslation",
+        "targetWordPartOfSpeech",
+        "notes",
+      ],
     };
 
     let prompt = `
@@ -335,7 +409,7 @@ export const aiService = {
       console.error("Failed to parse AI response", e, "\nRaw:", result);
       return {
         translation: "",
-        notes: ""
+        notes: "",
       };
     }
   },
@@ -346,17 +420,19 @@ export const aiService = {
     language,
     apiKey,
     learnedWords,
-    proficiencyLevel = 'A1',
-    difficultyMode = 'immersive',
-    wordTypeFilters
-  }: BatchGenerationOptions & { apiKey: string }): Promise<GeneratedCardData[]> {
+    proficiencyLevel = "A1",
+    difficultyMode = "immersive",
+    wordTypeFilters,
+  }: BatchGenerationOptions & { apiKey: string }): Promise<
+    GeneratedCardData[]
+  > {
     const langName = getLangName(language);
 
     const hasLearnedWords = learnedWords && learnedWords.length > 0;
 
-    let progressionRules = '';
+    let progressionRules = "";
 
-    if (difficultyMode === 'beginner') {
+    if (difficultyMode === "beginner") {
       if (hasLearnedWords) {
         progressionRules = `
         CRITICAL PROGRESSION RULES (Continued Learning):
@@ -367,8 +443,8 @@ export const aiService = {
         1.  **NO SINGLE WORDS**: Do NOT generate cards with just 1 word.
         2.  **Contextual Learning**: Combine [Known Word] + [NEW Word].
         3.  **Progression**:
-            - Cards 1-${Math.ceil(count/2)}: Simple phrases using *mostly* known words + 1 NEW word.
-            - Cards ${Math.ceil(count/2) + 1}-${count}: Complete simple sentences.
+            - Cards 1-${Math.ceil(count / 2)}: Simple phrases using *mostly* known words + 1 NEW word.
+            - Cards ${Math.ceil(count / 2) + 1}-${count}: Complete simple sentences.
         
         INTERNAL STATE REQUIREMENT:
         - Track "Introduced Vocabulary".
@@ -380,17 +456,17 @@ export const aiService = {
         This is a SEQUENTIAL LESSON. Card N must build upon Cards 1...(N-1).
 
         1.  **Card 1-2**: Foundation. ABSOLUTE BASICS. 1-2 words max.
-        2.  **Card 3-${Math.ceil(count/2)}**: Simple combinations. Reuse words from Cards 1-2.
-        3.  **Card ${Math.ceil(count/2) + 1}-${count}**: Basic sentences. STRICTLY REUSE specific vocabulary from previous cards + introduce ONLY 1 new word per card.
+        2.  **Card 3-${Math.ceil(count / 2)}**: Simple combinations. Reuse words from Cards 1-2.
+        3.  **Card ${Math.ceil(count / 2) + 1}-${count}**: Basic sentences. STRICTLY REUSE specific vocabulary from previous cards + introduce ONLY 1 new word per card.
         
         INTERNAL STATE REQUIREMENT:
         - Track the "Introduced Vocabulary" list internally as you generate.
         `;
       }
     } else {
-            const iPlusOneRule = hasLearnedWords 
+      const iPlusOneRule = hasLearnedWords
         ? `- **Comprehensible Input**: Prioritize using words from "Known Vocabulary" to construct the sentence, ensuring the context is understood, while teaching the NEW "targetWord".`
-        : '';
+        : "";
 
       progressionRules = `
         CRITICAL: Each card MUST contain a COMPLETE, NATURAL SENTENCE.
@@ -404,7 +480,9 @@ export const aiService = {
         `;
     }
 
-    const shuffledLearnedWords = learnedWords ? [...learnedWords].sort(() => 0.5 - Math.random()).slice(0, 1000) : [];
+    const shuffledLearnedWords = learnedWords
+      ? [...learnedWords].sort(() => 0.5 - Math.random()).slice(0, 1000)
+      : [];
 
     const knownWordsContext = hasLearnedWords
       ? `
@@ -415,41 +493,61 @@ export const aiService = {
         `
       : "User has NO prior vocabulary. Start from scratch.";
 
-    const allWordTypes: WordType[] = ['noun', 'verb', 'adjective', 'adverb', 'pronoun', 'preposition', 'conjunction', 'interjection'];
-    const wordTypesForSchema = wordTypeFilters && wordTypeFilters.length > 0 ? wordTypeFilters : allWordTypes;
+    const allWordTypes: WordType[] = [
+      "noun",
+      "verb",
+      "adjective",
+      "adverb",
+      "pronoun",
+      "preposition",
+      "conjunction",
+      "interjection",
+    ];
+    const wordTypesForSchema =
+      wordTypeFilters && wordTypeFilters.length > 0
+        ? wordTypeFilters
+        : allWordTypes;
 
     const cardSchemaProperties: Record<string, GeminiSchemaProperty> = {
-      targetSentence: { 
+      targetSentence: {
         type: "STRING",
-        description: `A natural ${langName} sentence utilizing the target word.`
+        description: `A natural ${langName} sentence utilizing the target word.`,
       },
-      nativeTranslation: { 
+      nativeTranslation: {
         type: "STRING",
-        description: "Natural English translation."
+        description: "Natural English translation.",
       },
-      targetWord: { 
+      targetWord: {
         type: "STRING",
-        description: "The main word being taught (lemma form preferred)."
+        description: "The main word being taught (lemma form preferred).",
       },
       targetWordTranslation: { type: "STRING" },
       targetWordPartOfSpeech: {
         type: "STRING",
-        enum: wordTypesForSchema
+        enum: wordTypesForSchema,
       },
       grammaticalCase: { type: "STRING" },
       gender: { type: "STRING" },
-      notes: { 
+      notes: {
         type: "STRING",
-        description: "Brief grammar note (max 2 sentences)."
-      }
+        description: "Brief grammar note (max 2 sentences).",
+      },
     };
 
-    const requiredFields = ["targetSentence", "nativeTranslation", "targetWord", "targetWordTranslation", "targetWordPartOfSpeech", "notes"];
+    const requiredFields = [
+      "targetSentence",
+      "nativeTranslation",
+      "targetWord",
+      "targetWordTranslation",
+      "targetWordPartOfSpeech",
+      "notes",
+    ];
 
     if (language === LanguageId.Japanese) {
       cardSchemaProperties.furigana = {
         type: "STRING",
-        description: "The FULL targetSentence with kanji readings in Kanji[reading] format for ALL kanji characters"
+        description:
+          "The FULL targetSentence with kanji readings in Kanji[reading] format for ALL kanji characters",
       };
       requiredFields.push("furigana");
     }
@@ -457,12 +555,12 @@ export const aiService = {
     const cardSchema: GeminiResponseSchema = {
       type: "OBJECT",
       properties: cardSchemaProperties,
-      required: requiredFields
+      required: requiredFields,
     };
 
     const responseSchema: GeminiResponseSchema = {
       type: "ARRAY",
-      items: cardSchema
+      items: cardSchema,
     };
 
     const prompt = `
@@ -472,10 +570,14 @@ export const aiService = {
       
       ${progressionRules}
       
-      ${wordTypeFilters && wordTypeFilters.length > 0 ? `
+      ${
+        wordTypeFilters && wordTypeFilters.length > 0
+          ? `
       WORD TYPE CONSTRAINT:
-      - The "targetWord" in EACH card MUST be one of: ${wordTypeFilters.join(', ')}.
-      ` : ''}
+      - The "targetWord" in EACH card MUST be one of: ${wordTypeFilters.join(", ")}.
+      `
+          : ""
+      }
       
       Style Guidelines:
       - Tone: Natural, friendly, helpful.
@@ -492,25 +594,33 @@ export const aiService = {
     const result = await callGemini(prompt, apiKey, responseSchema);
 
     try {
-            const parsed = parseAIJSON(result);
+      const parsed = parseAIJSON(result);
 
-            if (!Array.isArray(parsed)) {
+      if (!Array.isArray(parsed)) {
         console.warn("Gemini did not return an array:", parsed);
         return [];
       }
 
-            const validCards: GeneratedCardData[] = [];
+      const validCards: GeneratedCardData[] = [];
       for (const item of parsed) {
         const validation = GeneratedCardDataSchema.safeParse(item);
         if (validation.success) {
           validCards.push(validation.data);
         } else {
-          console.warn("Skipping invalid card from batch:", item, validation.error);
+          console.warn(
+            "Skipping invalid card from batch:",
+            item,
+            validation.error,
+          );
         }
       }
 
-            const filtered = validCards.filter(c => {
-        const matchesType = !wordTypeFilters || wordTypeFilters.length === 0 || (c.targetWordPartOfSpeech && wordTypeFilters.includes(c.targetWordPartOfSpeech as WordType));
+      const filtered = validCards.filter((c) => {
+        const matchesType =
+          !wordTypeFilters ||
+          wordTypeFilters.length === 0 ||
+          (c.targetWordPartOfSpeech &&
+            wordTypeFilters.includes(c.targetWordPartOfSpeech as WordType));
         return matchesType;
       });
 
@@ -530,5 +640,5 @@ export const aiService = {
       console.error("Failed to parse AI batch response", e, "\nRaw:", result);
       throw new Error("Failed to generate valid cards");
     }
-  }
+  },
 };

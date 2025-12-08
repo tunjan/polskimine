@@ -1,6 +1,6 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { createContext, useContext, useEffect, useState } from "react";
 
-type Theme = 'dark' | 'light' | 'system';
+type Theme = "dark" | "light" | "system";
 
 interface ThemeProviderProps {
   children: React.ReactNode;
@@ -17,27 +17,24 @@ const ThemeContext = createContext<ThemeContextState | undefined>(undefined);
 
 export function ThemeProvider({
   children,
-  defaultTheme = 'light',
-  storageKey = 'vite-ui-theme',
+  defaultTheme = "light",
+  storageKey = "vite-ui-theme",
 }: ThemeProviderProps) {
-
-  const theme = 'light';
+  const theme = "light";
 
   useEffect(() => {
     const root = window.document.documentElement;
-    root.classList.remove('light', 'dark');
-    root.classList.add('light');
+    root.classList.remove("light", "dark");
+    root.classList.add("light");
   }, []);
 
   const value: ThemeContextState = {
     theme,
-    setTheme: () => {}, 
+    setTheme: () => {},
   };
 
   return (
-    <ThemeContext.Provider value={value}>
-      {children}
-    </ThemeContext.Provider>
+    <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>
   );
 }
 
@@ -45,7 +42,7 @@ export const useTheme = () => {
   const context = useContext(ThemeContext);
 
   if (context === undefined)
-    throw new Error('useTheme must be used within a ThemeProvider');
+    throw new Error("useTheme must be used within a ThemeProvider");
 
   return context;
 };

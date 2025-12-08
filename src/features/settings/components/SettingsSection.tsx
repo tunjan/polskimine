@@ -1,7 +1,11 @@
-import React, { useState } from 'react';
-import { LucideIcon, ChevronDown } from 'lucide-react';
-import { cn } from '@/lib/utils';
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import React, { useState } from "react";
+import { LucideIcon, ChevronDown } from "lucide-react";
+import { cn } from "@/lib/utils";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
 
 interface SettingsSectionProps {
   icon: LucideIcon;
@@ -10,7 +14,7 @@ interface SettingsSectionProps {
   children: React.ReactNode;
   defaultOpen?: boolean;
   collapsible?: boolean;
-  variant?: 'default' | 'danger';
+  variant?: "default" | "danger";
 }
 
 export const SettingsSection: React.FC<SettingsSectionProps> = ({
@@ -20,7 +24,7 @@ export const SettingsSection: React.FC<SettingsSectionProps> = ({
   children,
   defaultOpen = true,
   collapsible = false,
-  variant = 'default',
+  variant = "default",
 }) => {
   const [isOpen, setIsOpen] = useState(defaultOpen);
 
@@ -29,18 +33,20 @@ export const SettingsSection: React.FC<SettingsSectionProps> = ({
       <div
         className={cn(
           "flex items-center justify-center w-8 h-8 rounded-lg",
-          variant === 'danger'
+          variant === "danger"
             ? "bg-destructive/10 text-destructive"
-            : "bg-primary/10 text-primary"
+            : "bg-primary/10 text-primary",
         )}
       >
         <Icon className="w-4 h-4" strokeWidth={1.5} />
       </div>
       <div className="flex-1">
-        <h3 className={cn(
-          "text-sm font-medium tracking-wide",
-          variant === 'danger' ? "text-destructive" : "text-foreground"
-        )}>
+        <h3
+          className={cn(
+            "text-sm font-medium tracking-wide",
+            variant === "danger" ? "text-destructive" : "text-foreground",
+          )}
+        >
           {title}
         </h3>
         {description && (
@@ -51,18 +57,14 @@ export const SettingsSection: React.FC<SettingsSectionProps> = ({
         <ChevronDown
           className={cn(
             "w-4 h-4 text-muted-foreground transition-transform duration-200",
-            isOpen && "rotate-180"
+            isOpen && "rotate-180",
           )}
         />
       )}
     </div>
   );
 
-  const content = (
-    <div className="mt-4 space-y-1">
-      {children}
-    </div>
-  );
+  const content = <div className="mt-4 space-y-1">{children}</div>;
 
   if (collapsible) {
     return (
@@ -70,9 +72,9 @@ export const SettingsSection: React.FC<SettingsSectionProps> = ({
         <div
           className={cn(
             "rounded-xl border bg-card/50 backdrop-blur-sm p-5 transition-all duration-200",
-            variant === 'danger' 
-              ? "border-destructive/20 hover:border-destructive/40" 
-              : "border-border/50 hover:border-border"
+            variant === "danger"
+              ? "border-destructive/20 hover:border-destructive/40"
+              : "border-border/50 hover:border-border",
           )}
         >
           <CollapsibleTrigger className="w-full text-left">
@@ -90,9 +92,9 @@ export const SettingsSection: React.FC<SettingsSectionProps> = ({
     <div
       className={cn(
         "rounded-xl border bg-card/50 backdrop-blur-sm p-5 transition-all duration-200",
-        variant === 'danger' 
-          ? "border-destructive/20 hover:border-destructive/40" 
-          : "border-border/50 hover:border-border"
+        variant === "danger"
+          ? "border-destructive/20 hover:border-destructive/40"
+          : "border-border/50 hover:border-border",
       )}
     >
       {headerContent}

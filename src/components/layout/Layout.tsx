@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import React, { useState } from "react";
+import { Link, useLocation } from "react-router-dom";
 import {
   LayoutDashboard,
   GraduationCap,
@@ -10,17 +10,17 @@ import {
   Zap,
   ChevronUp,
   Save,
-  Download
-} from 'lucide-react';
-import { useSettingsStore } from '@/stores/useSettingsStore';
-import { useShallow } from 'zustand/react/shallow';
-import { useAuth } from '@/contexts/AuthContext';
-import { useProfile } from '@/features/profile/hooks/useProfile';
-import { useCardOperations } from '@/features/collection/hooks/useCardOperations';
-import { AddCardModal } from '@/features/collection/components/AddCardModal';
+  Download,
+} from "lucide-react";
+import { useSettingsStore } from "@/stores/useSettingsStore";
+import { useShallow } from "zustand/react/shallow";
+import { useAuth } from "@/contexts/AuthContext";
+import { useProfile } from "@/features/profile/hooks/useProfile";
+import { useCardOperations } from "@/features/collection/hooks/useCardOperations";
+import { AddCardModal } from "@/features/collection/components/AddCardModal";
 
-import { CramModal } from '@/features/study/components/CramModal';
-import { LanguageId } from '@/types';
+import { CramModal } from "@/features/study/components/CramModal";
+import { LanguageId } from "@/types";
 import {
   Sidebar,
   SidebarContent,
@@ -36,17 +36,23 @@ import {
   SidebarTrigger,
   SidebarInset,
   SidebarSeparator,
-  useSidebar
-} from '@/components/ui/sidebar';
+  useSidebar,
+} from "@/components/ui/sidebar";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import { PolishFlag, NorwegianFlag, JapaneseFlag, SpanishFlag, GermanFlag } from '@/components/ui/flags';
-import { toast } from 'sonner';
-import { useSyncthingSync } from '@/features/settings/hooks/useSyncthingSync';
+} from "@/components/ui/dropdown-menu";
+import {
+  PolishFlag,
+  NorwegianFlag,
+  JapaneseFlag,
+  SpanishFlag,
+  GermanFlag,
+} from "@/components/ui/flags";
+import { toast } from "sonner";
+import { useSyncthingSync } from "@/features/settings/hooks/useSyncthingSync";
 
 interface NavActionProps {
   onOpenAdd: () => void;
@@ -65,14 +71,16 @@ const AppSidebar: React.FC<NavActionProps> = ({
   onSyncLoad,
   isSyncing,
   isSyncingLoad,
-  onCloseMobileMenu
+  onCloseMobileMenu,
 }) => {
   const { setOpenMobile, isMobile } = useSidebar();
   const location = useLocation();
-  const { language, updateSettings } = useSettingsStore(useShallow(s => ({
-    language: s.language,
-    updateSettings: s.updateSettings
-  })));
+  const { language, updateSettings } = useSettingsStore(
+    useShallow((s) => ({
+      language: s.language,
+      updateSettings: s.updateSettings,
+    })),
+  );
   const { signOut } = useAuth();
   const { profile } = useProfile();
 
@@ -84,26 +92,59 @@ const AppSidebar: React.FC<NavActionProps> = ({
   };
 
   const languages = [
-    { code: LanguageId.Polish, name: 'Polish', Flag: PolishFlag },
-    { code: LanguageId.Norwegian, name: 'Norwegian', Flag: NorwegianFlag },
-    { code: LanguageId.Japanese, name: 'Japanese', Flag: JapaneseFlag },
-    { code: LanguageId.Spanish, name: 'Spanish', Flag: SpanishFlag },
-    { code: LanguageId.German, name: 'German', Flag: GermanFlag },
+    { code: LanguageId.Polish, name: "Polish", Flag: PolishFlag },
+    { code: LanguageId.Norwegian, name: "Norwegian", Flag: NorwegianFlag },
+    { code: LanguageId.Japanese, name: "Japanese", Flag: JapaneseFlag },
+    { code: LanguageId.Spanish, name: "Spanish", Flag: SpanishFlag },
+    { code: LanguageId.German, name: "German", Flag: GermanFlag },
   ] as const;
 
-  const currentLanguage = languages.find(lang => lang.code === language) || languages[0];
+  const currentLanguage =
+    languages.find((lang) => lang.code === language) || languages[0];
 
   const mainNavItems = [
-    { to: '/', icon: LayoutDashboard, label: 'Overview' },
-    { to: '/cards', icon: ListIcon, label: 'Index' },
-    { to: '/study', icon: GraduationCap, label: 'Study' },
+    { to: "/", icon: LayoutDashboard, label: "Overview" },
+    { to: "/cards", icon: ListIcon, label: "Index" },
+    { to: "/study", icon: GraduationCap, label: "Study" },
   ];
 
   const toolItems = [
-    { icon: Plus, label: 'Add Entry', onClick: () => { onOpenAdd(); handleMobileClick(); } },
-    { icon: Zap, label: 'Cram Mode', onClick: () => { onOpenCram(); handleMobileClick(); } },
-    { icon: Save, label: isSyncing ? 'Saving...' : 'Save Changes', onClick: () => { if (!isSyncing) { onSyncSave(); } }, disabled: isSyncing },
-    { icon: Download, label: isSyncingLoad ? 'Loading...' : 'Import Changes', onClick: () => { if (!isSyncingLoad) { onSyncLoad(); } }, disabled: isSyncingLoad },
+    {
+      icon: Plus,
+      label: "Add Entry",
+      onClick: () => {
+        onOpenAdd();
+        handleMobileClick();
+      },
+    },
+    {
+      icon: Zap,
+      label: "Cram Mode",
+      onClick: () => {
+        onOpenCram();
+        handleMobileClick();
+      },
+    },
+    {
+      icon: Save,
+      label: isSyncing ? "Saving..." : "Save Changes",
+      onClick: () => {
+        if (!isSyncing) {
+          onSyncSave();
+        }
+      },
+      disabled: isSyncing,
+    },
+    {
+      icon: Download,
+      label: isSyncingLoad ? "Loading..." : "Import Changes",
+      onClick: () => {
+        if (!isSyncingLoad) {
+          onSyncLoad();
+        }
+      },
+      disabled: isSyncingLoad,
+    },
   ];
 
   return (
@@ -180,7 +221,9 @@ const AppSidebar: React.FC<NavActionProps> = ({
                   className="data-[state=open]:bg-sidebar-primary data-[state=open]:text-sidebar-primary-foreground"
                 >
                   <div className="grid flex-1 text-left text-sm leading-tight">
-                    <span className="truncate font-semibold">{currentLanguage.name}</span>
+                    <span className="truncate font-semibold">
+                      {currentLanguage.name}
+                    </span>
                     <span className="truncate text-xs">Change Language</span>
                   </div>
                   <ChevronUp className="ml-auto" />
@@ -205,7 +248,9 @@ const AppSidebar: React.FC<NavActionProps> = ({
                     <lang.Flag className="w-4 h-3 rounded-[1px] border border-border/30" />
                     <span>{lang.name}</span>
                     {language === lang.code && (
-                      <span className="ml-auto text-xs text-muted-foreground">Active</span>
+                      <span className="ml-auto text-xs text-muted-foreground">
+                        Active
+                      </span>
                     )}
                   </DropdownMenuItem>
                 ))}
@@ -219,10 +264,14 @@ const AppSidebar: React.FC<NavActionProps> = ({
             <SidebarMenuItem>
               <SidebarMenuButton size="lg">
                 <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
-                  <span className='font-bold'>{profile.username?.charAt(0).toUpperCase()}</span>
+                  <span className="font-bold">
+                    {profile.username?.charAt(0).toUpperCase()}
+                  </span>
                 </div>
                 <div className="grid flex-1 text-left text-sm leading-tight">
-                  <span className="truncate font-semibold">{profile.username}</span>
+                  <span className="truncate font-semibold">
+                    {profile.username}
+                  </span>
                   <span className="truncate text-xs">Free Plan</span>
                 </div>
               </SidebarMenuButton>
@@ -230,7 +279,12 @@ const AppSidebar: React.FC<NavActionProps> = ({
           )}
 
           <SidebarMenuItem>
-            <SidebarMenuButton onClick={() => { signOut(); handleMobileClick(); }}>
+            <SidebarMenuButton
+              onClick={() => {
+                signOut();
+                handleMobileClick();
+              }}
+            >
               <LogOut />
               <span>Sign Out</span>
             </SidebarMenuButton>
@@ -244,22 +298,28 @@ const AppSidebar: React.FC<NavActionProps> = ({
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
-
         </SidebarMenu>
       </SidebarFooter>
     </Sidebar>
   );
 };
 
-export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export const Layout: React.FC<{ children: React.ReactNode }> = ({
+  children,
+}) => {
   const { addCard } = useCardOperations();
   const location = useLocation();
-  const { saveToSyncFile, loadFromSyncFile, isSaving: isSyncing, isLoading: isSyncingLoad } = useSyncthingSync();
+  const {
+    saveToSyncFile,
+    loadFromSyncFile,
+    isSaving: isSyncing,
+    isLoading: isSyncingLoad,
+  } = useSyncthingSync();
 
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isCramModalOpen, setIsCramModalOpen] = useState(false);
 
-  const isStudyMode = location.pathname === '/study';
+  const isStudyMode = location.pathname === "/study";
 
   const sidebarProps: NavActionProps = {
     onOpenAdd: () => setIsAddModalOpen(true),
@@ -273,11 +333,16 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
   if (isStudyMode) {
     return (
       <div className="min-h-screen bg-background text-foreground font-sans">
-        <main className="min-h-screen p-0">
-          {children}
-        </main>
-        <AddCardModal isOpen={isAddModalOpen} onClose={() => setIsAddModalOpen(false)} onAdd={addCard} />
-        <CramModal isOpen={isCramModalOpen} onClose={() => setIsCramModalOpen(false)} />
+        <main className="min-h-screen p-0">{children}</main>
+        <AddCardModal
+          isOpen={isAddModalOpen}
+          onClose={() => setIsAddModalOpen(false)}
+          onAdd={addCard}
+        />
+        <CramModal
+          isOpen={isCramModalOpen}
+          onClose={() => setIsCramModalOpen(false)}
+        />
       </div>
     );
   }
@@ -298,8 +363,15 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
         </div>
       </SidebarInset>
 
-      <AddCardModal isOpen={isAddModalOpen} onClose={() => setIsAddModalOpen(false)} onAdd={addCard} />
-      <CramModal isOpen={isCramModalOpen} onClose={() => setIsCramModalOpen(false)} />
+      <AddCardModal
+        isOpen={isAddModalOpen}
+        onClose={() => setIsAddModalOpen(false)}
+        onAdd={addCard}
+      />
+      <CramModal
+        isOpen={isCramModalOpen}
+        onClose={() => setIsCramModalOpen(false)}
+      />
     </SidebarProvider>
   );
 };

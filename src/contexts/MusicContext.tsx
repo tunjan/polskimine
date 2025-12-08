@@ -1,4 +1,10 @@
-import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  useRef,
+} from "react";
 
 interface MusicContextType {
   isPlaying: boolean;
@@ -9,12 +15,14 @@ interface MusicContextType {
 
 const MusicContext = createContext<MusicContextType | undefined>(undefined);
 
-export const MusicProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export const MusicProvider: React.FC<{ children: React.ReactNode }> = ({
+  children,
+}) => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [volume, setVolume] = useState(0.3);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
-  const MUSIC_URL = '/music/medieval.mp3';
+  const MUSIC_URL = "/music/medieval.mp3";
 
   useEffect(() => {
     audioRef.current = new Audio(MUSIC_URL);
@@ -22,7 +30,7 @@ export const MusicProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     audioRef.current.volume = volume;
 
     if (isPlaying) {
-      audioRef.current.play().catch(e => {
+      audioRef.current.play().catch((e) => {
         setIsPlaying(false);
       });
     }
@@ -46,7 +54,9 @@ export const MusicProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       if (isPlaying) {
         audioRef.current.pause();
       } else {
-        audioRef.current.play().catch(e => console.error("Audio play failed:", e));
+        audioRef.current
+          .play()
+          .catch((e) => console.error("Audio play failed:", e));
       }
       setIsPlaying(!isPlaying);
     }
@@ -62,8 +72,7 @@ export const MusicProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 export const useMusic = () => {
   const context = useContext(MusicContext);
   if (context === undefined) {
-    throw new Error('useMusic must be used within a MusicProvider');
+    throw new Error("useMusic must be used within a MusicProvider");
   }
   return context;
 };
-

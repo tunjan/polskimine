@@ -1,8 +1,8 @@
-import * as cardRepository from './repositories/cardRepository';
-import * as historyRepository from './repositories/historyRepository';
-import * as statsRepository from './repositories/statsRepository';
+import * as cardRepository from "./repositories/cardRepository";
+import * as historyRepository from "./repositories/historyRepository";
+import * as statsRepository from "./repositories/statsRepository";
 
-export { getDB, resetDBCache } from './client';
+export { getDB, resetDBCache } from "./client";
 
 export const db = {
   getCards: cardRepository.getCards,

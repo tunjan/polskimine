@@ -1,36 +1,63 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { Search, X, Plus, Sparkles, BookOpen, Zap, Trash2, Filter, Bookmark, AlertTriangle } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import React, { useState, useEffect, useCallback } from "react";
+import {
+  Search,
+  X,
+  Plus,
+  Sparkles,
+  BookOpen,
+  Zap,
+  Trash2,
+  Filter,
+  Bookmark,
+  AlertTriangle,
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 
-import { useDeckStats } from '@/features/collection/hooks/useDeckStats';
-import { Card } from '@/types';
-import { AddCardModal } from '@/features/collection/components/AddCardModal';
-import { GenerateCardsModal } from '@/features/generator/components/GenerateCardsModal';
-import { CardHistoryModal } from '@/features/collection/components/CardHistoryModal';
-import { CardList } from '@/features/collection/components/CardList';
-import { useCardOperations } from '@/features/collection/hooks/useCardOperations';
-import { useCardsQuery, CardFilters } from '@/features/collection/hooks/useCardsQuery';
+import { useDeckStats } from "@/features/collection/hooks/useDeckStats";
+import { Card } from "@/types";
+import { AddCardModal } from "@/features/collection/components/AddCardModal";
+import { GenerateCardsModal } from "@/features/generator/components/GenerateCardsModal";
+import { CardHistoryModal } from "@/features/collection/components/CardHistoryModal";
+import { CardList } from "@/features/collection/components/CardList";
+import { useCardOperations } from "@/features/collection/hooks/useCardOperations";
+import {
+  useCardsQuery,
+  CardFilters,
+} from "@/features/collection/hooks/useCardsQuery";
 
-import { cn } from '@/lib/utils';
+import { cn } from "@/lib/utils";
 
 export const CardsRoute: React.FC = () => {
   const { stats } = useDeckStats();
-  const { addCard, addCardsBatch, updateCard, deleteCard, deleteCardsBatch, prioritizeCards } = useCardOperations();
+  const {
+    addCard,
+    addCardsBatch,
+    updateCard,
+    deleteCard,
+    deleteCardsBatch,
+    prioritizeCards,
+  } = useCardOperations();
 
-  const [searchTerm, setSearchTerm] = useState('');
-  const [debouncedSearch, setDebouncedSearch] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
   const [page, setPage] = useState(0);
   const [filters, setFilters] = useState<CardFilters>({});
   const [showFilters, setShowFilters] = useState(false);
 
   const pageSize = 50;
 
-  const { data, isLoading } = useCardsQuery(page, pageSize, debouncedSearch, filters);
+  const { data, isLoading } = useCardsQuery(
+    page,
+    pageSize,
+    debouncedSearch,
+    filters,
+  );
   const cards = data?.data || [];
   const totalCount = data?.count || 0;
 
-  const activeFilterCount = (filters.status && filters.status !== 'all' ? 1 : 0) +
+  const activeFilterCount =
+    (filters.status && filters.status !== "all" ? 1 : 0) +
     (filters.bookmarked ? 1 : 0) +
     (filters.leech ? 1 : 0);
 
@@ -39,7 +66,9 @@ export const CardsRoute: React.FC = () => {
   const [isHistoryModalOpen, setIsHistoryModalOpen] = useState(false);
   const [selectedCard, setSelectedCard] = useState<Card | undefined>(undefined);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
-  const [lastSelectedIndex, setLastSelectedIndex] = useState<number | null>(null);
+  const [lastSelectedIndex, setLastSelectedIndex] = useState<number | null>(
+    null,
+  );
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -68,23 +97,28 @@ export const CardsRoute: React.FC = () => {
     setIsHistoryModalOpen(true);
   };
 
-  const handleToggleSelect = useCallback((id: string, index: number, isShift: boolean) => {
-    setSelectedIds(prev => {
-      const next = new Set(prev);
-      if (isShift && lastSelectedIndex !== null) {
-        const start = Math.min(lastSelectedIndex, index);
-        const end = Math.max(lastSelectedIndex, index);
-        const idsInRange = cards.slice(start, end + 1).map(c => c.id);
-        const shouldSelect = !prev.has(id);
-        idsInRange.forEach(rangeId => shouldSelect ? next.add(rangeId) : next.delete(rangeId));
-      } else {
-        if (next.has(id)) next.delete(id);
-        else next.add(id);
-        setLastSelectedIndex(index);
-      }
-      return next;
-    });
-  }, [cards, lastSelectedIndex]);
+  const handleToggleSelect = useCallback(
+    (id: string, index: number, isShift: boolean) => {
+      setSelectedIds((prev) => {
+        const next = new Set(prev);
+        if (isShift && lastSelectedIndex !== null) {
+          const start = Math.min(lastSelectedIndex, index);
+          const end = Math.max(lastSelectedIndex, index);
+          const idsInRange = cards.slice(start, end + 1).map((c) => c.id);
+          const shouldSelect = !prev.has(id);
+          idsInRange.forEach((rangeId) =>
+            shouldSelect ? next.add(rangeId) : next.delete(rangeId),
+          );
+        } else {
+          if (next.has(id)) next.delete(id);
+          else next.add(id);
+          setLastSelectedIndex(index);
+        }
+        return next;
+      });
+    },
+    [cards, lastSelectedIndex],
+  );
 
   const handleBatchPrioritize = async () => {
     if (selectedIds.size === 0) return;
@@ -94,7 +128,11 @@ export const CardsRoute: React.FC = () => {
 
   const handleBatchDelete = async () => {
     if (selectedIds.size === 0) return;
-    if (confirm(`Are you sure you want to delete ${selectedIds.size} card${selectedIds.size === 1 ? '' : 's'}? This action cannot be undone.`)) {
+    if (
+      confirm(
+        `Are you sure you want to delete ${selectedIds.size} card${selectedIds.size === 1 ? "" : "s"}? This action cannot be undone.`,
+      )
+    ) {
       const ids = Array.from(selectedIds);
       await deleteCardsBatch(ids);
       setSelectedIds(new Set());
@@ -102,19 +140,19 @@ export const CardsRoute: React.FC = () => {
   };
 
   const handleSelectAll = useCallback(() => {
-    const allCurrentPageIds = cards.map(c => c.id);
-    const allSelected = allCurrentPageIds.every(id => selectedIds.has(id));
+    const allCurrentPageIds = cards.map((c) => c.id);
+    const allSelected = allCurrentPageIds.every((id) => selectedIds.has(id));
 
     if (allSelected) {
-      setSelectedIds(prev => {
+      setSelectedIds((prev) => {
         const next = new Set(prev);
-        allCurrentPageIds.forEach(id => next.delete(id));
+        allCurrentPageIds.forEach((id) => next.delete(id));
         return next;
       });
     } else {
-      setSelectedIds(prev => {
+      setSelectedIds((prev) => {
         const next = new Set(prev);
-        allCurrentPageIds.forEach(id => next.add(id));
+        allCurrentPageIds.forEach((id) => next.add(id));
         return next;
       });
     }
@@ -124,7 +162,7 @@ export const CardsRoute: React.FC = () => {
 
   return (
     <div className="flex-1 min-h-0 flex flex-col relative bg-background">
-            <header className="px-4 md:px-8 pb-2 border-b">
+      <header className="px-4 md:px-8 pb-2 border-b">
         <div className="py-2 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="flex items-center gap-4">
             <div className="w-10 h-10 flex items-center justify-center bg-primary/10 rounded-md">
@@ -167,7 +205,7 @@ export const CardsRoute: React.FC = () => {
                 )}
               </Button>
 
-                            {showFilters && (
+              {showFilters && (
                 <>
                   <div
                     className="fixed inset-0 z-40"
@@ -189,14 +227,34 @@ export const CardsRoute: React.FC = () => {
                     </div>
 
                     <div className="space-y-2">
-                      <label className="text-xs font-medium text-muted-foreground">Status</label>
+                      <label className="text-xs font-medium text-muted-foreground">
+                        Status
+                      </label>
                       <div className="grid grid-cols-2 gap-2">
-                        {(['all', 'new', 'learning', 'graduated', 'known'] as const).map((status) => (
+                        {(
+                          [
+                            "all",
+                            "new",
+                            "learning",
+                            "graduated",
+                            "known",
+                          ] as const
+                        ).map((status) => (
                           <Button
                             key={status}
-                            variant={(filters.status === status || (!filters.status && status === 'all')) ? "default" : "outline"}
+                            variant={
+                              filters.status === status ||
+                              (!filters.status && status === "all")
+                                ? "default"
+                                : "outline"
+                            }
                             size="sm"
-                            onClick={() => setFilters(f => ({ ...f, status: status === 'all' ? undefined : status }))}
+                            onClick={() =>
+                              setFilters((f) => ({
+                                ...f,
+                                status: status === "all" ? undefined : status,
+                              }))
+                            }
                             className="capitalize h-8 text-xs font-normal"
                           >
                             {status}
@@ -206,15 +264,23 @@ export const CardsRoute: React.FC = () => {
                     </div>
 
                     <div className="space-y-2">
-                      <label className="text-xs font-medium text-muted-foreground">Quick Filters</label>
+                      <label className="text-xs font-medium text-muted-foreground">
+                        Quick Filters
+                      </label>
                       <div className="space-y-1.5">
                         <Button
                           variant={filters.bookmarked ? "secondary" : "outline"}
                           size="sm"
-                          onClick={() => setFilters(f => ({ ...f, bookmarked: !f.bookmarked }))}
+                          onClick={() =>
+                            setFilters((f) => ({
+                              ...f,
+                              bookmarked: !f.bookmarked,
+                            }))
+                          }
                           className={cn(
                             "w-full justify-start gap-2 h-8 text-xs font-normal",
-                            filters.bookmarked && "bg-primary/10 border-primary text-primary hover:bg-primary/20"
+                            filters.bookmarked &&
+                              "bg-primary/10 border-primary text-primary hover:bg-primary/20",
                           )}
                         >
                           <Bookmark className="w-3.5 h-3.5" />
@@ -223,10 +289,14 @@ export const CardsRoute: React.FC = () => {
                         <Button
                           variant={filters.leech ? "destructive" : "outline"}
                           size="sm"
-                          onClick={() => setFilters(f => ({ ...f, leech: !f.leech }))}
+                          onClick={() =>
+                            setFilters((f) => ({ ...f, leech: !f.leech }))
+                          }
                           className={cn(
                             "w-full justify-start gap-2 h-8 text-xs font-normal",
-                            filters.leech ? "bg-destructive/10 border-destructive text-destructive hover:bg-destructive/20" : ""
+                            filters.leech
+                              ? "bg-destructive/10 border-destructive text-destructive hover:bg-destructive/20"
+                              : "",
                           )}
                         >
                           <AlertTriangle className="w-3.5 h-3.5" />
@@ -259,10 +329,12 @@ export const CardsRoute: React.FC = () => {
         </div>
       </header>
 
-            <div className="flex-1 overflow-hidden relative">
+      <div className="flex-1 overflow-hidden relative">
         {isLoading ? (
           <div className="flex items-center justify-center h-full">
-            <span className="loading loading-spinner loading-lg">Loading...</span>
+            <span className="loading loading-spinner loading-lg">
+              Loading...
+            </span>
           </div>
         ) : (
           <CardList
@@ -283,13 +355,19 @@ export const CardsRoute: React.FC = () => {
         )}
       </div>
 
-            <div className={cn(
-        "fixed bottom-8 left-1/2 -translate-x-1/2 z-50 w-auto min-w-[300px] transition-all duration-200",
-        selectedIds.size > 0 ? "translate-y-0 opacity-100" : "translate-y-16 opacity-0 pointer-events-none"
-      )}>
+      <div
+        className={cn(
+          "fixed bottom-8 left-1/2 -translate-x-1/2 z-50 w-auto min-w-[300px] transition-all duration-200",
+          selectedIds.size > 0
+            ? "translate-y-0 opacity-100"
+            : "translate-y-16 opacity-0 pointer-events-none",
+        )}
+      >
         <div className="bg-foreground text-background rounded-full shadow-lg px-6 py-3 flex items-center justify-between gap-6">
           <div className="flex items-center gap-3">
-            <span className="font-semibold tabular-nums">{selectedIds.size}</span>
+            <span className="font-semibold tabular-nums">
+              {selectedIds.size}
+            </span>
             <span className="text-sm opacity-80">Selected</span>
           </div>
 
@@ -330,10 +408,13 @@ export const CardsRoute: React.FC = () => {
         </div>
       </div>
 
-            <AddCardModal
+      <AddCardModal
         isOpen={isAddModalOpen}
-        onClose={() => { setIsAddModalOpen(false); setSelectedCard(undefined); }}
-        onAdd={(card) => selectedCard ? updateCard(card) : addCard(card)}
+        onClose={() => {
+          setIsAddModalOpen(false);
+          setSelectedCard(undefined);
+        }}
+        onAdd={(card) => (selectedCard ? updateCard(card) : addCard(card))}
         initialCard={selectedCard}
       />
       <GenerateCardsModal
@@ -343,7 +424,10 @@ export const CardsRoute: React.FC = () => {
       />
       <CardHistoryModal
         isOpen={isHistoryModalOpen}
-        onClose={() => { setIsHistoryModalOpen(false); setSelectedCard(undefined); }}
+        onClose={() => {
+          setIsHistoryModalOpen(false);
+          setSelectedCard(undefined);
+        }}
         card={selectedCard}
       />
     </div>

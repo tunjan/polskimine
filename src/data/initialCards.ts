@@ -1,3 +1,1 @@
-
-export const initialCards: any[] = [
-        ];
+export const initialCards: any[] = [];

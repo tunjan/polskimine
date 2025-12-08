@@ -1,13 +1,13 @@
-import { ReviewLog } from '@/types';
-import { computeCardLoss } from '@/lib/fsrsShared';
+import { ReviewLog } from "@/types";
+import { computeCardLoss } from "@/lib/fsrsShared";
 
 const optimizeFSRS = async (
   allLogs: ReviewLog[],
   currentW: number[],
-  onProgress: (progress: number) => void
+  onProgress: (progress: number) => void,
 ): Promise<number[]> => {
   const cardHistory: Record<string, ReviewLog[]> = {};
-  allLogs.forEach(log => {
+  allLogs.forEach((log) => {
     if (!cardHistory[log.card_id]) cardHistory[log.card_id] = [];
     cardHistory[log.card_id].push(log);
   });
@@ -69,11 +69,10 @@ self.onmessage = async (e: MessageEvent) => {
   const { logs, currentW } = e.data;
   try {
     const optimizedW = await optimizeFSRS(logs, currentW, (progress) => {
-      self.postMessage({ type: 'progress', progress });
+      self.postMessage({ type: "progress", progress });
     });
-    self.postMessage({ type: 'result', w: optimizedW });
+    self.postMessage({ type: "result", w: optimizedW });
   } catch (error) {
-    self.postMessage({ type: 'error', error: (error as Error).message });
+    self.postMessage({ type: "error", error: (error as Error).message });
   }
 };
-

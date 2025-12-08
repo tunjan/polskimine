@@ -1,19 +1,25 @@
-import React, { useState } from 'react';
-import { useSettingsStore } from '@/stores/useSettingsStore';
-import { useAuth } from '@/contexts/AuthContext';
-import { useProfile } from '@/features/profile/hooks/useProfile';
-import { LanguageLevelSelector } from './components/LanguageLevelSelector';
-import { LanguageSelector } from './components/LanguageSelector';
-import { DeckGenerationStep } from './components/DeckGenerationStep';
-import { Difficulty, Card, Language, LanguageId } from '@/types';
-import { toast } from 'sonner';
-import { updateUserSettings } from '@/db/repositories/settingsRepository';
-import { generateInitialDeck } from '@/features/generator/services/deckGeneration';
-import { saveAllCards } from '@/db/repositories/cardRepository';
-import { Command, LogOut } from 'lucide-react';
-import { POLISH_BEGINNER_DECK, NORWEGIAN_BEGINNER_DECK, JAPANESE_BEGINNER_DECK, SPANISH_BEGINNER_DECK, GERMAN_BEGINNER_DECK } from '@/assets/starter-decks';
-import { Button } from '@/components/ui/button';
-import { v4 as uuidv4 } from 'uuid';
+import React, { useState } from "react";
+import { useSettingsStore } from "@/stores/useSettingsStore";
+import { useAuth } from "@/contexts/AuthContext";
+import { useProfile } from "@/features/profile/hooks/useProfile";
+import { LanguageLevelSelector } from "./components/LanguageLevelSelector";
+import { LanguageSelector } from "./components/LanguageSelector";
+import { DeckGenerationStep } from "./components/DeckGenerationStep";
+import { Difficulty, Card, Language, LanguageId } from "@/types";
+import { toast } from "sonner";
+import { updateUserSettings } from "@/db/repositories/settingsRepository";
+import { generateInitialDeck } from "@/features/generator/services/deckGeneration";
+import { saveAllCards } from "@/db/repositories/cardRepository";
+import { Command, LogOut } from "lucide-react";
+import {
+  POLISH_BEGINNER_DECK,
+  NORWEGIAN_BEGINNER_DECK,
+  JAPANESE_BEGINNER_DECK,
+  SPANISH_BEGINNER_DECK,
+  GERMAN_BEGINNER_DECK,
+} from "@/assets/starter-decks";
+import { Button } from "@/components/ui/button";
+import { v4 as uuidv4 } from "uuid";
 
 const BEGINNER_DECKS: Record<Language, Card[]> = {
   [LanguageId.Polish]: POLISH_BEGINNER_DECK,
@@ -26,32 +32,36 @@ const BEGINNER_DECKS: Record<Language, Card[]> = {
 export const OnboardingFlow: React.FC = () => {
   const { user, signOut } = useAuth();
   const { markInitialDeckGenerated } = useProfile();
-  const updateSettings = useSettingsStore(s => s.updateSettings);
-  const [step, setStep] = useState<'language' | 'level' | 'deck'>('language');
+  const updateSettings = useSettingsStore((s) => s.updateSettings);
+  const [step, setStep] = useState<"language" | "level" | "deck">("language");
   const [selectedLanguages, setSelectedLanguages] = useState<Language[]>([]);
   const [selectedLevel, setSelectedLevel] = useState<Difficulty | null>(null);
 
   const handleLanguageToggle = (language: Language) => {
-    setSelectedLanguages(prev =>
+    setSelectedLanguages((prev) =>
       prev.includes(language)
-        ? prev.filter(l => l !== language)
-        : [...prev, language]
+        ? prev.filter((l) => l !== language)
+        : [...prev, language],
     );
   };
 
   const handleLanguageContinue = () => {
     if (selectedLanguages.length > 0) {
-            updateSettings({ language: selectedLanguages[0] });
-      setStep('level');
+      updateSettings({ language: selectedLanguages[0] });
+      setStep("level");
     }
   };
 
   const handleLevelSelected = (level: Difficulty) => {
     setSelectedLevel(level);
-    setStep('deck');
+    setStep("deck");
   };
 
-  const handleDeckComplete = async (languages: Language[], useAI: boolean, apiKey?: string) => {
+  const handleDeckComplete = async (
+    languages: Language[],
+    useAI: boolean,
+    apiKey?: string,
+  ) => {
     if (!user || !selectedLevel) return;
 
     try {
@@ -62,7 +72,7 @@ export const OnboardingFlow: React.FC = () => {
       let allCards: Card[] = [];
 
       if (useAI && apiKey) {
-                for (const language of languages) {
+        for (const language of languages) {
           const languageCards = await generateInitialDeck({
             language,
             proficiencyLevel: selectedLevel,
@@ -71,46 +81,52 @@ export const OnboardingFlow: React.FC = () => {
           allCards = [...allCards, ...languageCards];
         }
       } else {
-                for (const language of languages) {
+        for (const language of languages) {
           const rawDeck = BEGINNER_DECKS[language] || [];
-          const languageCards = rawDeck.map(c => ({
+          const languageCards = rawDeck.map((c) => ({
             ...c,
             id: uuidv4(),
             dueDate: new Date().toISOString(),
             tags: [...(c.tags || []), selectedLevel],
-            user_id: user.id
+            user_id: user.id,
           }));
           allCards = [...allCards, ...languageCards];
         }
       }
 
-            allCards = allCards.map(c => ({ ...c, user_id: user.id }));
+      allCards = allCards.map((c) => ({ ...c, user_id: user.id }));
 
       if (allCards.length > 0) {
-        console.log('[OnboardingFlow] Saving', allCards.length, 'cards across', languages.length, 'languages...');
+        console.log(
+          "[OnboardingFlow] Saving",
+          allCards.length,
+          "cards across",
+          languages.length,
+          "languages...",
+        );
         await saveAllCards(allCards);
-        toast.success(`Loaded ${allCards.length} cards for ${languages.length} language${languages.length > 1 ? 's' : ''}.`);
-        console.log('[OnboardingFlow] Cards saved.');
+        toast.success(
+          `Loaded ${allCards.length} cards for ${languages.length} language${languages.length > 1 ? "s" : ""}.`,
+        );
+        console.log("[OnboardingFlow] Cards saved.");
       }
 
-      console.log('[OnboardingFlow] Marking initial deck as generated...');
+      console.log("[OnboardingFlow] Marking initial deck as generated...");
       await markInitialDeckGenerated();
 
       setTimeout(() => {
         window.location.reload();
       }, 2000);
-
     } catch (error: any) {
-      console.error('Onboarding failed:', error);
-      toast.error(error.message || 'Setup failed. Please try again.');
+      console.error("Onboarding failed:", error);
+      toast.error(error.message || "Setup failed. Please try again.");
       throw error;
     }
   };
 
   return (
     <div className="min-h-screen w-full bg-background flex flex-col items-center justify-center p-6 md:p-12 selection:bg-foreground selection:text-background">
-
-            <div className="fixed top-6 right-6">
+      <div className="fixed top-6 right-6">
         <Button
           variant="ghost"
           onClick={() => signOut()}
@@ -122,22 +138,29 @@ export const OnboardingFlow: React.FC = () => {
       </div>
 
       <div className="w-full max-w-[320px] flex flex-col gap-12 animate-in fade-in slide-in-from-bottom-4 duration-700">
-
-                <div className="flex flex-col gap-6 items-start">
+        <div className="flex flex-col gap-6 items-start">
           <div className="w-8 h-8 bg-foreground text-background flex items-center justify-center rounded-[2px]">
             <Command size={16} strokeWidth={2} />
           </div>
           <div className="space-y-1">
             <h1 className="text-2xl font-light tracking-tight text-foreground">
-              {step === 'language' ? 'Select Languages.' : (step === 'level' ? 'Proficiency Level.' : 'Initialize Decks.')}
+              {step === "language"
+                ? "Select Languages."
+                : step === "level"
+                  ? "Proficiency Level."
+                  : "Initialize Decks."}
             </h1>
             <p className="text-xs font-mono text-muted-foreground">
-              {step === 'language' ? 'Step 1 of 3' : (step === 'level' ? 'Step 2 of 3' : 'Step 3 of 3')}
+              {step === "language"
+                ? "Step 1 of 3"
+                : step === "level"
+                  ? "Step 2 of 3"
+                  : "Step 3 of 3"}
             </p>
           </div>
         </div>
 
-                {step === 'language' && (
+        {step === "language" && (
           <LanguageSelector
             selectedLanguages={selectedLanguages}
             onToggle={handleLanguageToggle}
@@ -145,7 +168,7 @@ export const OnboardingFlow: React.FC = () => {
           />
         )}
 
-        {step === 'level' && (
+        {step === "level" && (
           <div className="flex flex-col gap-6">
             <LanguageLevelSelector
               selectedLevel={selectedLevel}
@@ -153,7 +176,7 @@ export const OnboardingFlow: React.FC = () => {
             />
             <Button
               variant="link"
-              onClick={() => setStep('language')}
+              onClick={() => setStep("language")}
               className="text-xs text-muted-foreground hover:text-foreground transition-colors text-center h-auto p-0"
             >
               Back to Language Selection
@@ -161,7 +184,7 @@ export const OnboardingFlow: React.FC = () => {
           </div>
         )}
 
-        {step === 'deck' && selectedLevel && (
+        {step === "deck" && selectedLevel && (
           <div className="flex flex-col gap-6">
             <DeckGenerationStep
               languages={selectedLanguages}
@@ -170,14 +193,13 @@ export const OnboardingFlow: React.FC = () => {
             />
             <Button
               variant="link"
-              onClick={() => setStep('level')}
+              onClick={() => setStep("level")}
               className="text-xs text-muted-foreground hover:text-foreground transition-colors text-center h-auto p-0"
             >
               Back to Level Selection
             </Button>
           </div>
         )}
-
       </div>
     </div>
   );

@@ -1,7 +1,7 @@
-import React from 'react';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { hexToHSL, hslToHex } from '@/lib/utils';
+import React from "react";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { hexToHSL, hslToHex } from "@/lib/utils";
 
 interface ColorPickerProps {
   label: string;
@@ -9,18 +9,21 @@ interface ColorPickerProps {
   onChange: (value: string) => void;
 }
 
-export const ColorPicker: React.FC<ColorPickerProps> = ({ label, value, onChange }) => {
+export const ColorPicker: React.FC<ColorPickerProps> = ({
+  label,
+  value,
+  onChange,
+}) => {
   const hexValue = React.useMemo(() => {
     try {
+      if (!value) return "#000000";
+      const [h, s, l] = value.split(" ").map((v) => parseFloat(v));
 
-      if (!value) return '#000000';
-      const [h, s, l] = value.split(' ').map(v => parseFloat(v));
-
-      if (isNaN(h) || isNaN(s) || isNaN(l)) return '#000000';
+      if (isNaN(h) || isNaN(s) || isNaN(l)) return "#000000";
 
       return hslToHex(h, s, l);
     } catch (e) {
-      return '#000000';
+      return "#000000";
     }
   }, [value]);
 

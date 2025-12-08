@@ -1,6 +1,10 @@
-import { useMemo } from 'react';
-import { Card, Language, LanguageId } from '@/types';
-import { parseFurigana, findInflectedWordInSentence, escapeRegExp } from '@/lib/utils';
+import { useMemo } from "react";
+import { Card, Language, LanguageId } from "@/types";
+import {
+  parseFurigana,
+  findInflectedWordInSentence,
+  escapeRegExp,
+} from "@/lib/utils";
 
 export interface FuriganaSegment {
   text: string;
@@ -8,60 +12,72 @@ export interface FuriganaSegment {
 }
 
 export type JapaneseStructure = {
-  type: 'japanese';
+  type: "japanese";
   segments: FuriganaSegment[];
   targetIndices: Set<number>;
 };
 
 export type HighlightStructure = {
-  type: 'highlight';
+  type: "highlight";
   parts: string[];
   matchedWord: string;
 };
 
 export type PlainStructure = {
-  type: 'plain';
+  type: "plain";
 };
 
-export type CardSentenceStructure = JapaneseStructure | HighlightStructure | PlainStructure;
+export type CardSentenceStructure =
+  | JapaneseStructure
+  | HighlightStructure
+  | PlainStructure;
 
-export const useCardSentence = (card: Card, languageOverride?: Language): CardSentenceStructure => {
+export const useCardSentence = (
+  card: Card,
+  languageOverride?: Language,
+): CardSentenceStructure => {
   return useMemo(() => {
     const language = languageOverride ?? card.language;
-    const displayedSentence = card.targetSentence; 
-    
+    const displayedSentence = card.targetSentence;
+
     if (language === LanguageId.Japanese) {
-      const hasFuriganaInDedicatedField = card.furigana && /\[.+?\]/.test(card.furigana);
-      const hasFuriganaInSentence = card.targetSentence && /\[.+?\]/.test(card.targetSentence);
+      const hasFuriganaInDedicatedField =
+        card.furigana && /\[.+?\]/.test(card.furigana);
+      const hasFuriganaInSentence =
+        card.targetSentence && /\[.+?\]/.test(card.targetSentence);
 
       let furiganaSource: string | undefined;
       if (hasFuriganaInDedicatedField) {
-        const furiganaPlainText = parseFurigana(card.furigana!).map(s => s.text).join('');
-        const sentencePlainText = card.targetSentence || '';
+        const furiganaPlainText = parseFurigana(card.furigana!)
+          .map((s) => s.text)
+          .join("");
+        const sentencePlainText = card.targetSentence || "";
         if (furiganaPlainText.length >= sentencePlainText.length * 0.5) {
           furiganaSource = card.furigana;
         }
       }
-      
+
       if (!furiganaSource && hasFuriganaInSentence) {
         furiganaSource = card.targetSentence;
       }
-      
+
       if (!furiganaSource) {
         furiganaSource = card.targetSentence;
       }
 
       if (furiganaSource) {
         const segments = parseFurigana(furiganaSource);
-        const hasFurigana = segments.some(s => s.furigana);
+        const hasFurigana = segments.some((s) => s.furigana);
 
         if (hasFurigana) {
           const targetWordPlain = card.targetWord
-            ? parseFurigana(card.targetWord).map(s => s.text).join('')
+            ? parseFurigana(card.targetWord)
+                .map((s) => s.text)
+                .join("")
             : null;
 
-          const segmentTexts = segments.map(s => s.text);
-          const fullText = segmentTexts.join('');
+          const segmentTexts = segments.map((s) => s.text);
+          const fullText = segmentTexts.join("");
           const targetIndices = new Set<number>();
 
           if (targetWordPlain) {
@@ -69,7 +85,10 @@ export const useCardSentence = (card: Card, languageOverride?: Language): CardSe
             let matchedWordLength = targetWordPlain.length;
 
             if (targetStart === -1) {
-              const matchedWord = findInflectedWordInSentence(targetWordPlain, fullText);
+              const matchedWord = findInflectedWordInSentence(
+                targetWordPlain,
+                fullText,
+              );
               if (matchedWord) {
                 targetStart = fullText.indexOf(matchedWord);
                 matchedWordLength = matchedWord.length;
@@ -89,33 +108,46 @@ export const useCardSentence = (card: Card, languageOverride?: Language): CardSe
               }
             }
           }
-          
+
           return {
-            type: 'japanese',
+            type: "japanese",
             segments,
-            targetIndices
+            targetIndices,
           };
         }
       }
     }
 
     if (card.targetWord) {
-      const targetWordPlain = parseFurigana(card.targetWord).map(s => s.text).join('');
-                        
-      const matchedWord = findInflectedWordInSentence(targetWordPlain, displayedSentence);
+      const targetWordPlain = parseFurigana(card.targetWord)
+        .map((s) => s.text)
+        .join("");
+
+      const matchedWord = findInflectedWordInSentence(
+        targetWordPlain,
+        displayedSentence,
+      );
 
       if (matchedWord) {
-        const wordBoundaryRegex = new RegExp(`(\\b${escapeRegExp(matchedWord)}\\b)`, 'gi');
+        const wordBoundaryRegex = new RegExp(
+          `(\\b${escapeRegExp(matchedWord)}\\b)`,
+          "gi",
+        );
         const parts = displayedSentence.split(wordBoundaryRegex);
         return {
-          type: 'highlight',
+          type: "highlight",
           parts,
-          matchedWord
+          matchedWord,
         };
       }
     }
 
-    return { type: 'plain' };
-
-  }, [card.targetSentence, card.targetWord, card.furigana, card.language, languageOverride]);
+    return { type: "plain" };
+  }, [
+    card.targetSentence,
+    card.targetWord,
+    card.furigana,
+    card.language,
+    languageOverride,
+  ]);
 };

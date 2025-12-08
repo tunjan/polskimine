@@ -1,15 +1,15 @@
-import React, { useEffect } from 'react';
-import { migrateCardStatuses } from '@/db/migrations/standardizeStatus';
+import React, { useEffect } from "react";
+import { migrateCardStatuses } from "@/db/migrations/standardizeStatus";
 import { Button } from "@/components/ui/button";
 import { LoadingScreen } from "@/components/ui/loading";
-import { AppProviders } from '@/app/AppProviders';
-import { AppRouter } from '@/app/AppRouter';
-import { usePlatformSetup } from '@/hooks/usePlatformSetup';
-import { useProfile } from '@/features/profile/hooks/useProfile';
-import { useAuth } from '@/contexts/AuthContext';
-import { AuthPage } from '@/features/auth/AuthPage';
-import { UsernameSetup } from '@/features/auth/UsernameSetup';
-import { OnboardingFlow } from '@/features/auth/OnboardingFlow';
+import { AppProviders } from "@/app/AppProviders";
+import { AppRouter } from "@/app/AppRouter";
+import { usePlatformSetup } from "@/hooks/usePlatformSetup";
+import { useProfile } from "@/features/profile/hooks/useProfile";
+import { useAuth } from "@/contexts/AuthContext";
+import { AuthPage } from "@/features/auth/AuthPage";
+import { UsernameSetup } from "@/features/auth/UsernameSetup";
+import { OnboardingFlow } from "@/features/auth/OnboardingFlow";
 
 const AppContent: React.FC = () => {
   usePlatformSetup();
@@ -22,7 +22,7 @@ const AppContent: React.FC = () => {
     return <LoadingScreen />;
   }
 
-  if (!user && !window.location.pathname.startsWith('/test-stats')) {
+  if (!user && !window.location.pathname.startsWith("/test-stats")) {
     return <AuthPage />;
   }
 
@@ -30,7 +30,9 @@ const AppContent: React.FC = () => {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="flex flex-col items-center gap-3">
-          <p className="text-sm font-sans text-muted-foreground">Profile not found.</p>
+          <p className="text-sm font-sans text-muted-foreground">
+            Profile not found.
+          </p>
           <Button
             variant="link"
             size="sm"
@@ -56,14 +58,14 @@ const AppContent: React.FC = () => {
 };
 
 const App: React.FC = () => {
-    useEffect(() => {
-        const hasMigrated = localStorage.getItem('migration_v1_status');
-        if (!hasMigrated) {
-            migrateCardStatuses().then(() => {
-                localStorage.setItem('migration_v1_status', 'true');
-            });
-        }
-    }, []);
+  useEffect(() => {
+    const hasMigrated = localStorage.getItem("migration_v1_status");
+    if (!hasMigrated) {
+      migrateCardStatuses().then(() => {
+        localStorage.setItem("migration_v1_status", "true");
+      });
+    }
+  }, []);
   return (
     <AppProviders>
       <AppContent />
@@ -72,4 +74,3 @@ const App: React.FC = () => {
 };
 
 export default App;
-

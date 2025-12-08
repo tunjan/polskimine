@@ -1,8 +1,10 @@
-import { useState, useEffect, useCallback } from 'react';
-import { Card } from '@/types';
+import { useState, useEffect, useCallback } from "react";
+import { Card } from "@/types";
 
 export const useCardText = (card: Card) => {
-  const [displayedTranslation, setDisplayedTranslation] = useState(card.nativeTranslation);
+  const [displayedTranslation, setDisplayedTranslation] = useState(
+    card.nativeTranslation,
+  );
   const [isGaslit, setIsGaslit] = useState(false);
 
   useEffect(() => {
@@ -17,6 +19,6 @@ export const useCardText = (card: Card) => {
   return {
     displayedTranslation,
     isGaslit,
-    processText
+    processText,
   };
 };

@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { toast } from 'sonner';
+import React, { useState, useEffect, useRef } from "react";
+import { toast } from "sonner";
 import {
   User,
   Globe,
@@ -18,49 +18,66 @@ import {
   Check,
   Wand2,
   RefreshCw,
-} from 'lucide-react';
+} from "lucide-react";
 
-import { useSettingsStore } from '@/stores/useSettingsStore';
-import { useDeckActions } from '@/hooks/useDeckActions';
-import { useAuth } from '@/contexts/AuthContext';
-import { useProfile } from '@/features/profile/hooks/useProfile';
-import { UserSettings, Language } from '@/types';
-import { ttsService, VoiceOption } from '@/lib/tts';
-import { LANGUAGE_NAMES, FSRS_DEFAULTS } from '@/constants';
-import { TTS_PROVIDER, CARD_ORDER } from '@/constants/settings';
+import { useSettingsStore } from "@/stores/useSettingsStore";
+import { useDeckActions } from "@/hooks/useDeckActions";
+import { useAuth } from "@/contexts/AuthContext";
+import { useProfile } from "@/features/profile/hooks/useProfile";
+import { UserSettings, Language } from "@/types";
+import { ttsService, VoiceOption } from "@/lib/tts";
+import { LANGUAGE_NAMES, FSRS_DEFAULTS } from "@/constants";
+import { TTS_PROVIDER, CARD_ORDER } from "@/constants/settings";
 import {
   saveAllCards,
   getCardSignatures,
   getCards,
   clearAllCards,
-} from '@/db/repositories/cardRepository';
-import { getHistory, saveFullHistory, clearHistory } from '@/db/repositories/historyRepository';
-import { getAllReviewLogs } from '@/db/repositories/revlogRepository';
-import { db } from '@/db/dexie';
-import { parseCardsFromCsv, signatureForCard } from '@/features/generator/services/csvImport';
-import { useCloudSync } from '@/features/settings/hooks/useCloudSync';
-import { useAccountManagement } from '@/features/settings/hooks/useAccountManagement';
-import { useSyncthingSync } from '@/features/settings/hooks/useSyncthingSync';
-import { exportRevlogToCSV } from '@/features/settings/logic/optimizer';
+} from "@/db/repositories/cardRepository";
+import {
+  getHistory,
+  saveFullHistory,
+  clearHistory,
+} from "@/db/repositories/historyRepository";
+import { getAllReviewLogs } from "@/db/repositories/revlogRepository";
+import { db } from "@/db/dexie";
+import {
+  parseCardsFromCsv,
+  signatureForCard,
+} from "@/features/generator/services/csvImport";
+import { useCloudSync } from "@/features/settings/hooks/useCloudSync";
+import { useAccountManagement } from "@/features/settings/hooks/useAccountManagement";
+import { useSyncthingSync } from "@/features/settings/hooks/useSyncthingSync";
+import { exportRevlogToCSV } from "@/features/settings/logic/optimizer";
+import {
+  exportSyncData,
+  importSyncData,
+  SyncData,
+} from "@/lib/sync/syncService";
 
-import { SettingsSection } from './SettingsSection';
-import { SettingsItem, SettingsLargeInput, SettingsSliderDisplay, SettingsSubSection } from './SettingsItem';
+import { SettingsSection } from "./SettingsSection";
+import {
+  SettingsItem,
+  SettingsLargeInput,
+  SettingsSliderDisplay,
+  SettingsSubSection,
+} from "./SettingsItem";
 
-import { Switch } from '@/components/ui/switch';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { Slider } from '@/components/ui/slider';
-import { Progress } from '@/components/ui/progress';
-import { Textarea } from '@/components/ui/textarea';
-import { ColorPicker } from '@/components/ui/color-picker';
+import { Switch } from "@/components/ui/switch";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Slider } from "@/components/ui/slider";
+import { Progress } from "@/components/ui/progress";
+import { Textarea } from "@/components/ui/textarea";
+import { ColorPicker } from "@/components/ui/color-picker";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
-import { cn } from '@/lib/utils';
+} from "@/components/ui/select";
+import { cn } from "@/lib/utils";
 
 const useDebouncedUsername = (
   localUsername: string,
@@ -71,7 +88,7 @@ const useDebouncedUsername = (
     const timeout = setTimeout(() => {
       if (localUsername && localUsername !== currentUsername) {
         updateUsername(localUsername).then(() =>
-          toast.success('Username updated', { id: 'username-update' })
+          toast.success("Username updated", { id: "username-update" })
         );
       }
     }, 1000);
@@ -83,26 +100,30 @@ export const SettingsPage: React.FC = () => {
   const settings = useSettingsStore();
   const setSettings = useSettingsStore((s) => s.setFullSettings);
   const { user } = useAuth();
-  const { profile, updateUsername } = useProfile();
+  const { profile, updateUsername, refreshProfile } = useProfile();
   const { refreshDeckData } = useDeckActions();
 
-    const [localUsername, setLocalUsername] = useState(profile?.username || '');
+  const [localUsername, setLocalUsername] = useState(profile?.username || "");
   const [availableVoices, setAvailableVoices] = useState<VoiceOption[]>([]);
-  const [stepsInput, setStepsInput] = useState(settings.learningSteps?.join(' ') || '1 10');
+  const [stepsInput, setStepsInput] = useState(
+    settings.learningSteps?.join(" ") || "1 10"
+  );
 
-    const csvInputRef = useRef<HTMLInputElement>(null);
+  const csvInputRef = useRef<HTMLInputElement>(null);
   const jsonInputRef = useRef<HTMLInputElement>(null);
   const [isRestoring, setIsRestoring] = useState(false);
   const [includeApiKeys, setIncludeApiKeys] = useState(false);
   const [importApiKeys, setImportApiKeys] = useState(false);
 
-    const [isOptimizing, setIsOptimizing] = useState(false);
+  const [isOptimizing, setIsOptimizing] = useState(false);
   const [progress, setProgress] = useState(0);
   const [report, setReport] = useState<{ reviews: number } | null>(null);
-  const [manualWeights, setManualWeights] = useState((settings.fsrs.w || FSRS_DEFAULTS.w).join(', '));
+  const [manualWeights, setManualWeights] = useState(
+    (settings.fsrs.w || FSRS_DEFAULTS.w).join(", ")
+  );
   const [showManual, setShowManual] = useState(false);
 
-    const { handleSyncToCloud, isSyncingToCloud, syncComplete } = useCloudSync();
+  const { handleSyncToCloud, isSyncingToCloud, syncComplete } = useCloudSync();
   const {
     saveToSyncFile,
     loadFromSyncFile,
@@ -110,37 +131,57 @@ export const SettingsPage: React.FC = () => {
     isLoading: isSyncthingLoading,
     lastSync: lastSyncthingSync,
   } = useSyncthingSync();
-  const { handleResetDeck, handleResetAccount, confirmResetDeck, confirmResetAccount } =
-    useAccountManagement();
+  const {
+    handleResetDeck,
+    handleResetAccount,
+    confirmResetDeck,
+    confirmResetAccount,
+  } = useAccountManagement();
 
-    useEffect(() => {
+  useEffect(() => {
     if (profile?.username) setLocalUsername(profile.username);
   }, [profile?.username]);
 
-  useDebouncedUsername(localUsername, async (name) => {
-    await updateUsername(name);
-  }, profile?.username);
+  useDebouncedUsername(
+    localUsername,
+    async (name) => {
+      await updateUsername(name);
+    },
+    profile?.username
+  );
 
   useEffect(() => {
     const loadVoices = async () => {
-      const voices = await ttsService.getAvailableVoices(settings.language, settings.tts);
+      const voices = await ttsService.getAvailableVoices(
+        settings.language,
+        settings.tts
+      );
       setAvailableVoices(voices);
     };
     loadVoices();
-  }, [settings.language, settings.tts.provider, settings.tts.googleApiKey, settings.tts.azureApiKey]);
+  }, [
+    settings.language,
+    settings.tts.provider,
+    settings.tts.googleApiKey,
+    settings.tts.azureApiKey,
+  ]);
 
-    const updateTts = (partial: Partial<UserSettings['tts']>) =>
+  const updateTts = (partial: Partial<UserSettings["tts"]>) =>
     setSettings((prev) => ({ ...prev, tts: { ...prev.tts, ...partial } }));
 
   const handleTestAudio = () => {
     const testText: Record<string, string> = {
-      polish: 'Cześć, to jest test.',
-      norwegian: 'Hei, dette er en test.',
-      japanese: 'こんにちは、テストです。',
-      spanish: 'Hola, esto es una prueba.',
-      german: 'Hallo, das ist ein Test.',
+      polish: "Cześć, to jest test.",
+      norwegian: "Hei, dette er en test.",
+      japanese: "こんにちは、テストです。",
+      spanish: "Hola, esto es una prueba.",
+      german: "Hallo, das ist ein Test.",
     };
-    ttsService.speak(testText[settings.language] || 'Test audio', settings.language, settings.tts);
+    ttsService.speak(
+      testText[settings.language] || "Test audio",
+      settings.language,
+      settings.tts
+    );
   };
 
   const handleStepsChange = (val: string) => {
@@ -156,47 +197,31 @@ export const SettingsPage: React.FC = () => {
 
   const handleExport = async () => {
     try {
-      const cards = await getCards();
-      const history = await getHistory();
-      const revlog = await db.revlog.toArray();
+      const exportData = await exportSyncData(settings, {
+        includeApiKeys,
+        keepUsername: true,
+      });
 
-      const safeSettings = {
-        ...settings,
-        tts: {
-          ...settings.tts,
-          googleApiKey: includeApiKeys ? settings.tts.googleApiKey : '',
-          azureApiKey: includeApiKeys ? settings.tts.azureApiKey : '',
-        },
-        geminiApiKey: includeApiKeys ? settings.geminiApiKey : '',
-      };
-
-      const cleanCards = cards.map(({ user_id, ...rest }) => rest);
-      const cleanRevlog = revlog.map(({ user_id, ...rest }) => rest);
-
-      const exportData = {
-        version: 2,
-        date: new Date().toISOString(),
-        cards: cleanCards,
-        history,
-        revlog: cleanRevlog,
-        settings: safeSettings,
-      };
-
-      const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+      const blob = new Blob([JSON.stringify(exportData, null, 2)], {
+        type: "application/json",
+      });
       const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
+      const a = document.createElement("a");
       a.href = url;
-      a.download = `backup - ${new Date().toISOString().split('T')[0]}.json`;
+      a.download = `backup - ${new Date().toISOString().split("T")[0]}.json`;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
-      toast.success('Export complete.');
-    } catch {
-      toast.error('Export failed.');
+      toast.success("Export complete.");
+    } catch (e) {
+      console.error(e);
+      toast.error("Export failed.");
     }
   };
 
-  const handleRestoreBackup = async (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleRestoreBackup = async (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
     const file = event.target.files?.[0];
     if (!file) return;
 
@@ -208,88 +233,53 @@ export const SettingsPage: React.FC = () => {
       try {
         data = JSON.parse(text);
       } catch {
-        toast.error('Invalid backup file.');
+        toast.error("Invalid backup file.");
         return;
       }
 
       if (!data.cards || !Array.isArray(data.cards)) {
-        toast.error('Invalid backup: missing cards.');
+        toast.error("Invalid backup: missing cards.");
         return;
       }
 
-      if (!confirm(`Replace current data with backup from ${data.date}?\nCards: ${data.cards.length}`)) {
+      if (
+        !confirm(
+          `Replace current data with backup from ${data.date || data.lastSynced}?\nCards: ${data.cards.length}`
+        )
+      ) {
         return;
       }
 
-      await clearAllCards();
-      await clearHistory();
-      await db.revlog.clear();
-      await db.aggregated_stats.clear();
+      let syncData: SyncData = data as SyncData;
 
-      const currentUserId = user?.id || 'local-user';
-
-      if (data.cards.length > 0) {
-        const cardsWithUser = data.cards.map((c: any) => ({
-          ...c,
-          user_id: currentUserId,
-        }));
-        await saveAllCards(cardsWithUser);
+      if (Array.isArray(data.profile)) {
+        syncData = {
+          ...data,
+          profile: data.profile.length > 0 ? data.profile[0] : null,
+        } as SyncData;
       }
 
-      if (data.history && typeof data.history === 'object') {
-        const languages = new Set(data.cards.map((c: any) => c.language).filter(Boolean));
-        const primaryLanguage =
-          languages.size > 0 ? (Array.from(languages)[0] as Language) : settings.language;
-        await saveFullHistory(data.history, primaryLanguage);
+      const result = await importSyncData(syncData, setSettings, {
+        importApiKeys,
+      });
+
+      if (!result.success) {
+        throw new Error(result.error);
       }
 
-      if (data.revlog) {
-        const revlogWithUser = data.revlog.map((r: any) => ({
-          ...r,
-          user_id: currentUserId,
-        }));
-        await db.revlog.bulkPut(revlogWithUser);
-      }
-
-      if (data.settings) {
-        const restoredSettings: Partial<UserSettings> = {
-          ...data.settings,
-          geminiApiKey:
-            importApiKeys && data.settings.geminiApiKey
-              ? data.settings.geminiApiKey
-              : settings.geminiApiKey,
-          tts: {
-            ...data.settings.tts,
-            googleApiKey:
-              importApiKeys && data.settings.tts?.googleApiKey
-                ? data.settings.tts.googleApiKey
-                : settings.tts.googleApiKey,
-            azureApiKey:
-              importApiKeys && data.settings.tts?.azureApiKey
-                ? data.settings.tts.azureApiKey
-                : settings.tts.azureApiKey,
-          } as UserSettings['tts'],
-        };
-
-        setSettings((prev) => ({
-          ...prev,
-          ...restoredSettings,
-          tts: { ...prev.tts, ...(restoredSettings.tts || {}) },
-          fsrs: { ...prev.fsrs, ...(restoredSettings.fsrs || {}) },
-        }));
-      }
-
-      const { recalculateAllStats } = await import('@/db/repositories/aggregatedStatsRepository');
+      const { recalculateAllStats } =
+        await import("@/db/repositories/aggregatedStatsRepository");
       await recalculateAllStats();
 
       refreshDeckData();
+      refreshProfile();
       toast.success(`Restored ${data.cards.length} cards.`);
     } catch (error) {
-      console.error('Backup restore failed:', error);
-      toast.error('Failed to restore backup.');
+      console.error("Backup restore failed:", error);
+      toast.error("Failed to restore backup.");
     } finally {
       setIsRestoring(false);
-      event.target.value = '';
+      event.target.value = "";
     }
   };
 
@@ -302,13 +292,15 @@ export const SettingsPage: React.FC = () => {
       const parsedCards = parseCardsFromCsv(text, settings.language);
 
       if (parsedCards.length === 0) {
-        toast.error('No valid rows found.');
+        toast.error("No valid rows found.");
         return;
       }
 
       const existingSignatures = await getCardSignatures(settings.language);
       const seen = new Set(
-        existingSignatures.map((card) => signatureForCard(card.target_sentence, settings.language))
+        existingSignatures.map((card) =>
+          signatureForCard(card.target_sentence, settings.language)
+        )
       );
 
       const newCards = parsedCards.filter((card) => {
@@ -322,7 +314,7 @@ export const SettingsPage: React.FC = () => {
       });
 
       if (!newCards.length) {
-        toast.info('All rows already exist.');
+        toast.info("All rows already exist.");
         return;
       }
 
@@ -330,10 +322,10 @@ export const SettingsPage: React.FC = () => {
       refreshDeckData();
       toast.success(`Imported ${newCards.length} cards.`);
     } catch (error) {
-      console.error('CSV import failed', error);
-      toast.error('Import failed.');
+      console.error("CSV import failed", error);
+      toast.error("Import failed.");
     } finally {
-      event.target.value = '';
+      event.target.value = "";
     }
   };
 
@@ -351,10 +343,10 @@ export const SettingsPage: React.FC = () => {
   const handleExportRevlog = async () => {
     try {
       await exportRevlogToCSV(db);
-      toast.success('RevLog exported to CSV');
+      toast.success("RevLog exported to CSV");
     } catch (e) {
       console.error(e);
-      toast.error('Export failed');
+      toast.error("Export failed");
     }
   };
 
@@ -365,27 +357,30 @@ export const SettingsPage: React.FC = () => {
     try {
       const logs = await getAllReviewLogs(settings.language);
       if (logs.length < 50) {
-        toast.error('Insufficient data (50+ reviews required).');
+        toast.error("Insufficient data (50+ reviews required).");
         setIsOptimizing(false);
         return;
       }
       const currentW = settings.fsrs.w || FSRS_DEFAULTS.w;
 
-      const worker = new Worker(new URL('../../../workers/fsrs.worker.ts', import.meta.url), {
-        type: 'module',
-      });
+      const worker = new Worker(
+        new URL("../../../workers/fsrs.worker.ts", import.meta.url),
+        {
+          type: "module",
+        }
+      );
 
       worker.onmessage = (e) => {
         const { type, progress: prog, w, error } = e.data;
-        if (type === 'progress') {
+        if (type === "progress") {
           setProgress(prog);
-        } else if (type === 'result') {
+        } else if (type === "result") {
           setSettings((prev) => ({ ...prev, fsrs: { ...prev.fsrs, w } }));
           setReport({ reviews: logs.length });
-          toast.success('Optimization complete');
+          toast.success("Optimization complete");
           worker.terminate();
           setIsOptimizing(false);
-        } else if (type === 'error') {
+        } else if (type === "error") {
           toast.error(`Optimization failed: ${error}`);
           worker.terminate();
           setIsOptimizing(false);
@@ -394,24 +389,34 @@ export const SettingsPage: React.FC = () => {
 
       worker.postMessage({ logs, currentW });
     } catch {
-      toast.error('Optimization failed to start');
+      toast.error("Optimization failed to start");
       setIsOptimizing(false);
     }
   };
 
   const currentLangName = LANGUAGE_NAMES[settings.language];
   const currentDailyNew = settings.dailyNewLimits?.[settings.language] ?? 0;
-  const currentDailyReview = settings.dailyReviewLimits?.[settings.language] ?? 0;
+  const currentDailyReview =
+    settings.dailyReviewLimits?.[settings.language] ?? 0;
 
   return (
     <div className="container max-w-4xl space-y-6 animate-in fade-in duration-500">
-            <div className="space-y-1 mb-8">
+      <div className="space-y-1 mb-8">
         <h1 className="text-2xl font-semibold tracking-tight">Settings</h1>
-        <p className="text-sm text-muted-foreground">Configure your learning experience</p>
+        <p className="text-sm text-muted-foreground">
+          Configure your learning experience
+        </p>
       </div>
 
-            <SettingsSection icon={User} title="Profile" description="Your identity and preferences">
-        <SettingsItem label="Display Name" description="Shown on leaderboards and achievements">
+      <SettingsSection
+        icon={User}
+        title="Profile"
+        description="Your identity and preferences"
+      >
+        <SettingsItem
+          label="Display Name"
+          description="Shown on leaderboards and achievements"
+        >
           <Input
             value={localUsername}
             onChange={(e) => setLocalUsername(e.target.value)}
@@ -420,9 +425,12 @@ export const SettingsPage: React.FC = () => {
           />
         </SettingsItem>
 
-        <SettingsItem label="Proficiency Level" description="Controls AI content complexity">
+        <SettingsItem
+          label="Proficiency Level"
+          description="Controls AI content complexity"
+        >
           <Select
-            value={settings.proficiency?.[settings.language] || 'A1'}
+            value={settings.proficiency?.[settings.language] || "A1"}
             onValueChange={(val) => {
               setSettings((prev) => ({
                 ...prev,
@@ -438,12 +446,12 @@ export const SettingsPage: React.FC = () => {
             </SelectTrigger>
             <SelectContent>
               {[
-                { value: 'A1', label: 'A1 - Beginner' },
-                { value: 'A2', label: 'A2 - Elementary' },
-                { value: 'B1', label: 'B1 - Intermediate' },
-                { value: 'B2', label: 'B2 - Upper Intermediate' },
-                { value: 'C1', label: 'C1 - Advanced' },
-                { value: 'C2', label: 'C2 - Mastery' },
+                { value: "A1", label: "A1 - Beginner" },
+                { value: "A2", label: "A2 - Elementary" },
+                { value: "B1", label: "B1 - Intermediate" },
+                { value: "B2", label: "B2 - Upper Intermediate" },
+                { value: "C1", label: "C1 - Advanced" },
+                { value: "C2", label: "C2 - Mastery" },
               ].map((option) => (
                 <SelectItem key={option.value} value={option.value}>
                   {option.label}
@@ -454,14 +462,21 @@ export const SettingsPage: React.FC = () => {
         </SettingsItem>
       </SettingsSection>
 
-            <SettingsSection icon={Globe} title="Language" description="Active course configuration">
-        <SettingsItem label="Active Course" description="The language you are currently learning">
+      <SettingsSection
+        icon={Globe}
+        title="Language"
+        description="Active course configuration"
+      >
+        <SettingsItem
+          label="Active Course"
+          description="The language you are currently learning"
+        >
           <Select
             value={settings.language}
             onValueChange={(value) =>
               setSettings((prev) => ({
                 ...prev,
-                language: value as UserSettings['language'],
+                language: value as UserSettings["language"],
               }))
             }
           >
@@ -478,10 +493,13 @@ export const SettingsPage: React.FC = () => {
           </Select>
         </SettingsItem>
 
-        <SettingsItem label="Theme Color" description="Accent color for this language">
+        <SettingsItem
+          label="Theme Color"
+          description="Accent color for this language"
+        >
           <ColorPicker
             label=""
-            value={settings.languageColors?.[settings.language] || '0 0% 0%'}
+            value={settings.languageColors?.[settings.language] || "0 0% 0%"}
             onChange={(newColor) =>
               setSettings((prev) => ({
                 ...prev,
@@ -495,11 +513,20 @@ export const SettingsPage: React.FC = () => {
         </SettingsItem>
 
         <SettingsSubSection title="AI Integration">
-          <SettingsItem icon={Sparkles} label="Gemini API Key" description="For AI sentence generation">
+          <SettingsItem
+            icon={Sparkles}
+            label="Gemini API Key"
+            description="For AI sentence generation"
+          >
             <Input
               type="password"
-              value={settings.geminiApiKey || ''}
-              onChange={(e) => setSettings((prev) => ({ ...prev, geminiApiKey: e.target.value }))}
+              value={settings.geminiApiKey || ""}
+              onChange={(e) =>
+                setSettings((prev) => ({
+                  ...prev,
+                  geminiApiKey: e.target.value,
+                }))
+              }
               placeholder="Enter key"
               className="w-40 h-8 text-sm font-mono"
             />
@@ -507,19 +534,29 @@ export const SettingsPage: React.FC = () => {
         </SettingsSubSection>
       </SettingsSection>
 
-            <SettingsSection icon={Volume2} title="Audio" description="Text-to-speech configuration">
+      <SettingsSection
+        icon={Volume2}
+        title="Audio"
+        description="Text-to-speech configuration"
+      >
         <SettingsItem label="Speech Provider">
           <Select
             value={settings.tts.provider}
-            onValueChange={(value) => updateTts({ provider: value as any, voiceURI: null })}
+            onValueChange={(value) =>
+              updateTts({ provider: value as any, voiceURI: null })
+            }
           >
             <SelectTrigger className="w-40 h-8 text-sm">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value={TTS_PROVIDER.BROWSER}>Browser Native</SelectItem>
+              <SelectItem value={TTS_PROVIDER.BROWSER}>
+                Browser Native
+              </SelectItem>
               <SelectItem value={TTS_PROVIDER.GOOGLE}>Google Cloud</SelectItem>
-              <SelectItem value={TTS_PROVIDER.AZURE}>Microsoft Azure</SelectItem>
+              <SelectItem value={TTS_PROVIDER.AZURE}>
+                Microsoft Azure
+              </SelectItem>
             </SelectContent>
           </Select>
         </SettingsItem>
@@ -527,8 +564,10 @@ export const SettingsPage: React.FC = () => {
         <SettingsItem label="Voice">
           <div className="flex items-center gap-2">
             <Select
-              value={settings.tts.voiceURI || 'default'}
-              onValueChange={(value) => updateTts({ voiceURI: value === 'default' ? null : value })}
+              value={settings.tts.voiceURI || "default"}
+              onValueChange={(value) =>
+                updateTts({ voiceURI: value === "default" ? null : value })
+              }
             >
               <SelectTrigger className="w-32 h-8 text-sm">
                 <SelectValue />
@@ -542,13 +581,21 @@ export const SettingsPage: React.FC = () => {
                 ))}
               </SelectContent>
             </Select>
-            <Button variant="ghost" size="sm" onClick={handleTestAudio} className="h-8 px-2">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleTestAudio}
+              className="h-8 px-2"
+            >
               <Volume2 className="w-4 h-4" />
             </Button>
           </div>
         </SettingsItem>
 
-        <SettingsSliderDisplay label="Speed" value={`${settings.tts.rate.toFixed(1)}x`}>
+        <SettingsSliderDisplay
+          label="Speed"
+          value={`${settings.tts.rate.toFixed(1)}x`}
+        >
           <Slider
             min={0.5}
             max={2}
@@ -558,7 +605,10 @@ export const SettingsPage: React.FC = () => {
           />
         </SettingsSliderDisplay>
 
-        <SettingsSliderDisplay label="Volume" value={`${Math.round(settings.tts.volume * 100)}%`}>
+        <SettingsSliderDisplay
+          label="Volume"
+          value={`${Math.round(settings.tts.volume * 100)}%`}
+        >
           <Slider
             min={0}
             max={1}
@@ -571,7 +621,11 @@ export const SettingsPage: React.FC = () => {
         {settings.tts.provider !== TTS_PROVIDER.BROWSER && (
           <SettingsSubSection title="API Configuration" defaultOpen>
             <SettingsItem
-              label={settings.tts.provider === TTS_PROVIDER.GOOGLE ? 'Google API Key' : 'Azure API Key'}
+              label={
+                settings.tts.provider === TTS_PROVIDER.GOOGLE
+                  ? "Google API Key"
+                  : "Azure API Key"
+              }
             >
               <Input
                 type="password"
@@ -605,7 +659,10 @@ export const SettingsPage: React.FC = () => {
         )}
 
         <SettingsSubSection title="Playback Behavior">
-          <SettingsItem label="Auto-play Audio" description="Play pronunciation on card flip">
+          <SettingsItem
+            label="Auto-play Audio"
+            description="Play pronunciation on card flip"
+          >
             <Switch
               checked={settings.autoPlayAudio}
               onCheckedChange={(checked) =>
@@ -613,7 +670,10 @@ export const SettingsPage: React.FC = () => {
               }
             />
           </SettingsItem>
-          <SettingsItem label="Listening Mode" description="Hide text until audio completes">
+          <SettingsItem
+            label="Listening Mode"
+            description="Hide text until audio completes"
+          >
             <Switch
               checked={settings.blindMode}
               onCheckedChange={(checked) =>
@@ -624,8 +684,12 @@ export const SettingsPage: React.FC = () => {
         </SettingsSubSection>
       </SettingsSection>
 
-            <SettingsSection icon={BookOpen} title="Study Session" description={`Configuration for ${currentLangName}`}>
-                <div className="grid grid-cols-2 gap-3 mb-4">
+      <SettingsSection
+        icon={BookOpen}
+        title="Study Session"
+        description={`Configuration for ${currentLangName}`}
+      >
+        <div className="grid grid-cols-2 gap-3 mb-4">
           <SettingsLargeInput
             label="New Cards"
             sublabel="Per day"
@@ -633,7 +697,10 @@ export const SettingsPage: React.FC = () => {
             onChange={(val) =>
               setSettings((prev) => ({
                 ...prev,
-                dailyNewLimits: { ...prev.dailyNewLimits, [prev.language]: val },
+                dailyNewLimits: {
+                  ...prev.dailyNewLimits,
+                  [prev.language]: val,
+                },
               }))
             }
           />
@@ -644,13 +711,19 @@ export const SettingsPage: React.FC = () => {
             onChange={(val) =>
               setSettings((prev) => ({
                 ...prev,
-                dailyReviewLimits: { ...prev.dailyReviewLimits, [prev.language]: val },
+                dailyReviewLimits: {
+                  ...prev.dailyReviewLimits,
+                  [prev.language]: val,
+                },
               }))
             }
           />
         </div>
 
-        <SettingsItem label="Learning Steps" description="Minutes between reviews (e.g., '1 10')">
+        <SettingsItem
+          label="Learning Steps"
+          description="Minutes between reviews (e.g., '1 10')"
+        >
           <Input
             type="text"
             value={stepsInput}
@@ -663,20 +736,27 @@ export const SettingsPage: React.FC = () => {
         <SettingsItem label="Card Order" description="Presentation priority">
           <Select
             value={settings.cardOrder || CARD_ORDER.NEW_FIRST}
-            onValueChange={(value) => setSettings((prev) => ({ ...prev, cardOrder: value as any }))}
+            onValueChange={(value) =>
+              setSettings((prev) => ({ ...prev, cardOrder: value as any }))
+            }
           >
             <SelectTrigger className="w-32 h-8 text-sm">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value={CARD_ORDER.NEW_FIRST}>New First</SelectItem>
-              <SelectItem value={CARD_ORDER.REVIEW_FIRST}>Review First</SelectItem>
+              <SelectItem value={CARD_ORDER.REVIEW_FIRST}>
+                Review First
+              </SelectItem>
               <SelectItem value={CARD_ORDER.MIXED}>Mixed</SelectItem>
             </SelectContent>
           </Select>
         </SettingsItem>
 
-        <SettingsItem label="Binary Rating" description="Simplified pass/fail grading">
+        <SettingsItem
+          label="Binary Rating"
+          description="Simplified pass/fail grading"
+        >
           <Switch
             checked={settings.binaryRatingMode}
             onCheckedChange={(checked) =>
@@ -685,11 +765,17 @@ export const SettingsPage: React.FC = () => {
           />
         </SettingsItem>
 
-        <SettingsItem label="Full Sentence Front" description="Show full sentence instead of target word">
+        <SettingsItem
+          label="Full Sentence Front"
+          description="Show full sentence instead of target word"
+        >
           <Switch
             checked={settings.showWholeSentenceOnFront}
             onCheckedChange={(checked) =>
-              setSettings((prev) => ({ ...prev, showWholeSentenceOnFront: checked }))
+              setSettings((prev) => ({
+                ...prev,
+                showWholeSentenceOnFront: checked,
+              }))
             }
           />
         </SettingsItem>
@@ -701,7 +787,10 @@ export const SettingsPage: React.FC = () => {
           <Switch
             checked={settings.showTranslationAfterFlip}
             onCheckedChange={(checked) =>
-              setSettings((prev) => ({ ...prev, showTranslationAfterFlip: checked }))
+              setSettings((prev) => ({
+                ...prev,
+                showTranslationAfterFlip: checked,
+              }))
             }
           />
         </SettingsItem>
@@ -713,14 +802,21 @@ export const SettingsPage: React.FC = () => {
           <Switch
             checked={settings.ignoreLearningStepsWhenNoCards}
             onCheckedChange={(checked) =>
-              setSettings((prev) => ({ ...prev, ignoreLearningStepsWhenNoCards: checked }))
+              setSettings((prev) => ({
+                ...prev,
+                ignoreLearningStepsWhenNoCards: checked,
+              }))
             }
           />
         </SettingsItem>
       </SettingsSection>
 
-            <SettingsSection icon={Brain} title="Algorithm (FSRS)" description="Spaced repetition parameters">
-                <div className="bg-muted/30 rounded-lg p-4 mb-4 text-center">
+      <SettingsSection
+        icon={Brain}
+        title="Algorithm (FSRS)"
+        description="Spaced repetition parameters"
+      >
+        <div className="bg-muted/30 rounded-lg p-4 mb-4 text-center">
           <span className="text-[10px] text-muted-foreground uppercase tracking-[0.15em] font-medium block mb-1">
             Target Retention
           </span>
@@ -747,15 +843,22 @@ export const SettingsPage: React.FC = () => {
           </div>
         </div>
 
-                <div className="space-y-2">
+        <div className="space-y-2">
           {isOptimizing ? (
             <div className="space-y-2">
-              <span className="text-xs text-muted-foreground">Processing review data...</span>
+              <span className="text-xs text-muted-foreground">
+                Processing review data...
+              </span>
               <Progress value={progress} className="h-2" />
             </div>
           ) : (
             <>
-              <Button onClick={handleOptimize} variant="secondary" className="w-full" size="sm">
+              <Button
+                onClick={handleOptimize}
+                variant="secondary"
+                className="w-full"
+                size="sm"
+              >
                 <Wand2 className="w-4 h-4 mr-2" />
                 Optimize Parameters
                 {report && (
@@ -765,7 +868,12 @@ export const SettingsPage: React.FC = () => {
                 )}
               </Button>
               <div className="grid grid-cols-2 gap-2">
-                <Button onClick={handleExportRevlog} variant="outline" size="sm" className="text-xs">
+                <Button
+                  onClick={handleExportRevlog}
+                  variant="outline"
+                  size="sm"
+                  className="text-xs"
+                >
                   <Download className="w-3 h-3 mr-1" />
                   Export Data
                 </Button>
@@ -801,32 +909,47 @@ export const SettingsPage: React.FC = () => {
         )}
 
         <SettingsSubSection title="Advanced">
-          <SettingsItem label="Maximum Interval" description="Days before card is retired">
+          <SettingsItem
+            label="Maximum Interval"
+            description="Days before card is retired"
+          >
             <Input
               type="number"
               value={settings.fsrs.maximum_interval}
               onChange={(e) =>
                 setSettings((prev) => ({
                   ...prev,
-                  fsrs: { ...prev.fsrs, maximum_interval: parseInt(e.target.value) || 36500 },
+                  fsrs: {
+                    ...prev.fsrs,
+                    maximum_interval: parseInt(e.target.value) || 36500,
+                  },
                 }))
               }
               className="w-24 h-8 text-sm font-mono text-right"
             />
           </SettingsItem>
 
-          <SettingsItem label="Enable Fuzzing" description="Randomize due dates to prevent clustering">
+          <SettingsItem
+            label="Enable Fuzzing"
+            description="Randomize due dates to prevent clustering"
+          >
             <Switch
               checked={settings.fsrs.enable_fuzzing}
               onCheckedChange={(checked) =>
-                setSettings((prev) => ({ ...prev, fsrs: { ...prev.fsrs, enable_fuzzing: checked } }))
+                setSettings((prev) => ({
+                  ...prev,
+                  fsrs: { ...prev.fsrs, enable_fuzzing: checked },
+                }))
               }
             />
           </SettingsItem>
 
           <button
             onClick={() =>
-              setSettings((prev) => ({ ...prev, fsrs: { ...prev.fsrs, w: FSRS_DEFAULTS.w } }))
+              setSettings((prev) => ({
+                ...prev,
+                fsrs: { ...prev.fsrs, w: FSRS_DEFAULTS.w },
+              }))
             }
             className="flex items-center gap-1 text-[10px] text-muted-foreground/50 hover:text-destructive transition-colors mt-2 uppercase tracking-widest"
           >
@@ -836,12 +959,22 @@ export const SettingsPage: React.FC = () => {
         </SettingsSubSection>
       </SettingsSection>
 
-            <SettingsSection icon={Database} title="Data" description="Backup and synchronization">
-                <div className="grid grid-cols-2 gap-3 mb-3">
-          <Button variant="outline" onClick={handleExport} className="h-auto flex flex-col py-4">
+      <SettingsSection
+        icon={Database}
+        title="Data"
+        description="Backup and synchronization"
+      >
+        <div className="grid grid-cols-2 gap-3 mb-3">
+          <Button
+            variant="outline"
+            onClick={handleExport}
+            className="h-auto flex flex-col py-4"
+          >
             <Download className="w-5 h-5 mb-1 text-muted-foreground" />
             <span className="text-sm font-medium">Export</span>
-            <span className="text-[10px] text-muted-foreground">Download backup</span>
+            <span className="text-[10px] text-muted-foreground">
+              Download backup
+            </span>
           </Button>
           <Button
             variant="outline"
@@ -849,9 +982,18 @@ export const SettingsPage: React.FC = () => {
             disabled={isRestoring}
             className="h-auto flex flex-col py-4"
           >
-            <RotateCcw className={cn('w-5 h-5 mb-1 text-muted-foreground', isRestoring && 'animate-spin')} />
-            <span className="text-sm font-medium">{isRestoring ? 'Restoring...' : 'Restore'}</span>
-            <span className="text-[10px] text-muted-foreground">From JSON backup</span>
+            <RotateCcw
+              className={cn(
+                "w-5 h-5 mb-1 text-muted-foreground",
+                isRestoring && "animate-spin"
+              )}
+            />
+            <span className="text-sm font-medium">
+              {isRestoring ? "Restoring..." : "Restore"}
+            </span>
+            <span className="text-[10px] text-muted-foreground">
+              From JSON backup
+            </span>
           </Button>
         </div>
 
@@ -863,12 +1005,26 @@ export const SettingsPage: React.FC = () => {
           <Upload className="w-4 h-4 mr-3 text-muted-foreground" />
           <div className="text-left">
             <div className="text-sm font-medium">Import Cards</div>
-            <div className="text-[10px] text-muted-foreground">Add from CSV (without replacing)</div>
+            <div className="text-[10px] text-muted-foreground">
+              Add from CSV (without replacing)
+            </div>
           </div>
         </Button>
 
-        <input type="file" ref={csvInputRef} accept=".csv,.txt" className="hidden" onChange={handleImport} />
-        <input type="file" ref={jsonInputRef} accept=".json" className="hidden" onChange={handleRestoreBackup} />
+        <input
+          type="file"
+          ref={csvInputRef}
+          accept=".csv,.txt"
+          className="hidden"
+          onChange={handleImport}
+        />
+        <input
+          type="file"
+          ref={jsonInputRef}
+          accept=".json"
+          className="hidden"
+          onChange={handleRestoreBackup}
+        />
 
         <SettingsSubSection title="Cloud & Sync">
           <div className="flex items-center justify-between p-3 -mx-2 rounded-lg bg-muted/30">
@@ -880,20 +1036,25 @@ export const SettingsPage: React.FC = () => {
               )}
               <div>
                 <span className="text-sm font-medium block">
-                  {syncComplete ? 'Synchronized' : 'Sync to Cloud'}
+                  {syncComplete ? "Synchronized" : "Sync to Cloud"}
                 </span>
                 <span className="text-[10px] text-muted-foreground">
                   {isSyncingToCloud
-                    ? 'Uploading...'
+                    ? "Uploading..."
                     : syncComplete
-                    ? 'Data is backed up'
-                    : 'Migrate to cloud'}
+                      ? "Data is backed up"
+                      : "Migrate to cloud"}
                 </span>
               </div>
             </div>
             {!syncComplete && (
-              <Button variant="secondary" size="sm" onClick={handleSyncToCloud} disabled={isSyncingToCloud}>
-                {isSyncingToCloud ? 'Syncing...' : 'Sync'}
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={handleSyncToCloud}
+                disabled={isSyncingToCloud}
+              >
+                {isSyncingToCloud ? "Syncing..." : "Sync"}
               </Button>
             )}
           </div>
@@ -903,7 +1064,9 @@ export const SettingsPage: React.FC = () => {
               <div>
                 <span className="text-sm font-medium block">Syncthing</span>
                 <span className="text-[10px] text-muted-foreground">
-                  {lastSyncthingSync ? `Last: ${lastSyncthingSync}` : 'Not synced'}
+                  {lastSyncthingSync
+                    ? `Last: ${lastSyncthingSync}`
+                    : "Not synced"}
                 </span>
               </div>
               <div className="flex gap-2">
@@ -913,7 +1076,7 @@ export const SettingsPage: React.FC = () => {
                   onClick={saveToSyncFile}
                   disabled={isSyncthingSaving}
                 >
-                  {isSyncthingSaving ? 'Saving...' : 'Save'}
+                  {isSyncthingSaving ? "Saving..." : "Save"}
                 </Button>
                 <Button
                   variant="outline"
@@ -921,7 +1084,7 @@ export const SettingsPage: React.FC = () => {
                   onClick={loadFromSyncFile}
                   disabled={isSyncthingLoading}
                 >
-                  {isSyncthingLoading ? 'Loading...' : 'Load'}
+                  {isSyncthingLoading ? "Loading..." : "Load"}
                 </Button>
               </div>
             </div>
@@ -929,16 +1092,28 @@ export const SettingsPage: React.FC = () => {
         </SettingsSubSection>
 
         <SettingsSubSection title="API Key Options">
-          <SettingsItem label="Include in Export" description="Include API keys in backup files">
-            <Switch checked={includeApiKeys} onCheckedChange={setIncludeApiKeys} />
+          <SettingsItem
+            label="Include in Export"
+            description="Include API keys in backup files"
+          >
+            <Switch
+              checked={includeApiKeys}
+              onCheckedChange={setIncludeApiKeys}
+            />
           </SettingsItem>
-          <SettingsItem label="Import from Backup" description="Restore API keys when importing">
-            <Switch checked={importApiKeys} onCheckedChange={setImportApiKeys} />
+          <SettingsItem
+            label="Import from Backup"
+            description="Restore API keys when importing"
+          >
+            <Switch
+              checked={importApiKeys}
+              onCheckedChange={setImportApiKeys}
+            />
           </SettingsItem>
         </SettingsSubSection>
       </SettingsSection>
 
-            <SettingsSection
+      <SettingsSection
         icon={AlertTriangle}
         title="Danger Zone"
         description="Irreversible actions"
@@ -946,18 +1121,20 @@ export const SettingsPage: React.FC = () => {
       >
         <div className="flex items-center justify-between p-3 -mx-2 rounded-lg">
           <div>
-            <span className="text-sm font-medium block">Reset {currentLangName} Deck</span>
+            <span className="text-sm font-medium block">
+              Reset {currentLangName} Deck
+            </span>
             <span className="text-[10px] text-muted-foreground">
               Delete all cards, history, and progress
             </span>
           </div>
           <Button
             onClick={handleResetDeck}
-            variant={confirmResetDeck ? 'default' : 'outline'}
+            variant={confirmResetDeck ? "default" : "outline"}
             size="sm"
-            className={confirmResetDeck ? 'bg-primary hover:bg-orange-600' : ''}
+            className={confirmResetDeck ? "bg-primary hover:bg-orange-600" : ""}
           >
-            {confirmResetDeck ? 'Confirm' : 'Reset'}
+            {confirmResetDeck ? "Confirm" : "Reset"}
           </Button>
         </div>
 
@@ -966,15 +1143,17 @@ export const SettingsPage: React.FC = () => {
             <Trash2 className="w-4 h-4 text-destructive" />
             <div>
               <span className="text-sm font-medium block">Delete Account</span>
-              <span className="text-[10px] text-muted-foreground">Permanently remove all data</span>
+              <span className="text-[10px] text-muted-foreground">
+                Permanently remove all data
+              </span>
             </div>
           </div>
           <Button
             onClick={handleResetAccount}
-            variant={confirmResetAccount ? 'destructive' : 'outline'}
+            variant={confirmResetAccount ? "destructive" : "outline"}
             size="sm"
           >
-            {confirmResetAccount ? 'Confirm Delete' : 'Delete'}
+            {confirmResetAccount ? "Confirm Delete" : "Delete"}
           </Button>
         </div>
       </SettingsSection>

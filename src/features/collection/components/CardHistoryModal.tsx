@@ -1,13 +1,25 @@
-import React from 'react';
-import { Dialog, DialogContent, DialogTitle, DialogDescription, DialogHeader, DialogFooter } from '@/components/ui/dialog';
-import { Card } from '@/types';
-import { format, formatDistanceToNow, parseISO, isValid } from 'date-fns';
-import { Activity, Clock, Target, Zap, History } from 'lucide-react';
-import { cn } from '@/lib/utils';
-import { Separator } from '@/components/ui/separator';
-import { Badge } from '@/components/ui/badge';
-import { Card as UiCard, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
+import React from "react";
+import {
+  Dialog,
+  DialogContent,
+  DialogTitle,
+  DialogDescription,
+  DialogHeader,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import { Card } from "@/types";
+import { format, formatDistanceToNow, parseISO, isValid } from "date-fns";
+import { Activity, Clock, Target, Zap, History } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { Separator } from "@/components/ui/separator";
+import { Badge } from "@/components/ui/badge";
+import {
+  Card as UiCard,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 
 interface CardHistoryModalProps {
   card: Card | undefined;
@@ -19,26 +31,36 @@ const StatBox = ({
   label,
   value,
   subtext,
-  icon
+  icon,
 }: {
-  label: string,
-  value: string | number,
-  subtext?: string,
-  icon?: React.ReactNode
+  label: string;
+  value: string | number;
+  subtext?: string;
+  icon?: React.ReactNode;
 }) => (
   <UiCard>
     <CardContent className="flex flex-col items-center justify-center p-4 text-center">
       <div className="flex items-center gap-2 mb-2 text-muted-foreground">
         {icon}
-        <span className="text-xs font-medium uppercase tracking-wider">{label}</span>
+        <span className="text-xs font-medium uppercase tracking-wider">
+          {label}
+        </span>
       </div>
       <span className="text-2xl font-bold tabular-nums">{value}</span>
-      {subtext && <span className="text-xs text-muted-foreground mt-1">{subtext}</span>}
+      {subtext && (
+        <span className="text-xs text-muted-foreground mt-1">{subtext}</span>
+      )}
     </CardContent>
   </UiCard>
 );
 
-const TimelineEvent = ({ label, dateStr }: { label: string, dateStr?: string }) => {
+const TimelineEvent = ({
+  label,
+  dateStr,
+}: {
+  label: string;
+  dateStr?: string;
+}) => {
   if (!dateStr || !isValid(parseISO(dateStr))) return null;
   const date = parseISO(dateStr);
 
@@ -46,29 +68,46 @@ const TimelineEvent = ({ label, dateStr }: { label: string, dateStr?: string }) 
     <div className="flex items-center justify-between py-3 border-b last:border-0">
       <span className="text-sm font-medium text-muted-foreground">{label}</span>
       <div className="text-right flex flex-col items-end">
-        <span className="text-sm font-medium tabular-nums">{format(date, 'PPP')}</span>
-        <span className="text-xs text-muted-foreground">{formatDistanceToNow(date, { addSuffix: true })}</span>
+        <span className="text-sm font-medium tabular-nums">
+          {format(date, "PPP")}
+        </span>
+        <span className="text-xs text-muted-foreground">
+          {formatDistanceToNow(date, { addSuffix: true })}
+        </span>
       </div>
     </div>
   );
 };
 
-export const CardHistoryModal: React.FC<CardHistoryModalProps> = ({ card, isOpen, onClose }) => {
+export const CardHistoryModal: React.FC<CardHistoryModalProps> = ({
+  card,
+  isOpen,
+  onClose,
+}) => {
   if (!card) return null;
 
-  const difficultyPercent = Math.min(100, Math.round(((card.difficulty || 0) / 10) * 100));
+  const difficultyPercent = Math.min(
+    100,
+    Math.round(((card.difficulty || 0) / 10) * 100),
+  );
   const stability = card.stability ? parseFloat(card.stability.toFixed(2)) : 0;
 
   const getFsrsLabel = (state?: number) => {
-    if (state === 0) return 'New';
-    if (state === 1) return 'Learning';
-    if (state === 2) return 'Review';
-    if (state === 3) return 'Relearning';
-    return 'Unknown';
+    if (state === 0) return "New";
+    if (state === 1) return "Learning";
+    if (state === 2) return "Review";
+    if (state === 3) return "Relearning";
+    return "Unknown";
   };
 
-  const getStateVariant = (state?: number): "default" | "secondary" | "destructive" | "outline" => {
-    if (state === 0) return 'default';     if (state === 1) return 'secondary';     if (state === 2) return 'outline';     if (state === 3) return 'destructive';     return 'outline';
+  const getStateVariant = (
+    state?: number,
+  ): "default" | "secondary" | "destructive" | "outline" => {
+    if (state === 0) return "default";
+    if (state === 1) return "secondary";
+    if (state === 2) return "outline";
+    if (state === 3) return "destructive";
+    return "outline";
   };
 
   return (
@@ -121,7 +160,9 @@ export const CardHistoryModal: React.FC<CardHistoryModalProps> = ({ card, isOpen
             <StatBox
               label="Difficulty"
               value={`${(card.difficulty || 0).toFixed(1)}`}
-              subtext={difficultyPercent > 60 ? "High Difficulty" : "Normal Range"}
+              subtext={
+                difficultyPercent > 60 ? "High Difficulty" : "Normal Range"
+              }
               icon={<Clock size={16} />}
             />
           </div>
@@ -131,7 +172,10 @@ export const CardHistoryModal: React.FC<CardHistoryModalProps> = ({ card, isOpen
               <History size={14} /> Timeline
             </h3>
             <div className="space-y-1">
-              <TimelineEvent label="Created" dateStr={card.first_review || card.dueDate} />
+              <TimelineEvent
+                label="Created"
+                dateStr={card.first_review || card.dueDate}
+              />
               <TimelineEvent label="Last Seen" dateStr={card.last_review} />
               <TimelineEvent label="Next Due" dateStr={card.dueDate} />
             </div>
@@ -139,7 +183,9 @@ export const CardHistoryModal: React.FC<CardHistoryModalProps> = ({ card, isOpen
         </div>
 
         <DialogFooter>
-          <Button variant="outline" onClick={onClose}>Close</Button>
+          <Button variant="outline" onClick={onClose}>
+            Close
+          </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

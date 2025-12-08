@@ -1,1 +1,1 @@
-import * as fsrs from 'ts-fsrs';
+import * as fsrs from "ts-fsrs";

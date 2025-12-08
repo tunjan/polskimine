@@ -1,5 +1,10 @@
-import { useState, useCallback } from 'react';
-import { CardRating, calculateCardXp, XpCalculationResult, getDailyStreakMultiplier } from '@/core/gamification/xp';
+import { useState, useCallback } from "react";
+import {
+  CardRating,
+  calculateCardXp,
+  XpCalculationResult,
+  getDailyStreakMultiplier,
+} from "@/core/gamification/xp";
 
 export interface XpFeedback {
   id: number;
@@ -15,32 +20,40 @@ export const useXpSession = (dailyStreak: number, isCramMode: boolean) => {
 
   const multiplierInfo = getDailyStreakMultiplier(dailyStreak);
 
-  const processCardResult = useCallback((rating: CardRating): XpCalculationResult => {
-        const result = calculateCardXp(rating, sessionStreak, dailyStreak, isCramMode);
-    
-        setSessionXp(prev => prev + result.totalXp);
-    
-    if (rating === 'again') {
+  const processCardResult = useCallback(
+    (rating: CardRating): XpCalculationResult => {
+      const result = calculateCardXp(
+        rating,
+        sessionStreak,
+        dailyStreak,
+        isCramMode,
+      );
+
+      setSessionXp((prev) => prev + result.totalXp);
+
+      if (rating === "again") {
         setSessionStreak(0);
-    } else {
-        setSessionStreak(prev => prev + 1);
-    }
+      } else {
+        setSessionStreak((prev) => prev + 1);
+      }
 
-        if (result.totalXp > 0) {
+      if (result.totalXp > 0) {
         setFeedback({
-            id: Date.now(),
-            message: `+${result.totalXp} XP`,
-            isBonus: result.multiplier > 1,
-            amount: result.totalXp
+          id: Date.now(),
+          message: `+${result.totalXp} XP`,
+          isBonus: result.multiplier > 1,
+          amount: result.totalXp,
         });
-    }
+      }
 
-    return result;
-  }, [sessionStreak, dailyStreak, isCramMode]);
+      return result;
+    },
+    [sessionStreak, dailyStreak, isCramMode],
+  );
 
   const subtractXp = useCallback((amount: number) => {
-    setSessionXp(prev => Math.max(0, prev - amount));
-                      }, []);
+    setSessionXp((prev) => Math.max(0, prev - amount));
+  }, []);
 
   return {
     sessionXp,
@@ -48,6 +61,6 @@ export const useXpSession = (dailyStreak: number, isCramMode: boolean) => {
     multiplierInfo,
     feedback,
     processCardResult,
-    subtractXp
+    subtractXp,
   };
 };

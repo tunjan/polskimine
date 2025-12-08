@@ -1,4 +1,4 @@
-export type CardRating = 'again' | 'hard' | 'good' | 'easy';
+export type CardRating = "again" | "hard" | "good" | "easy";
 
 export const XP_CONFIG = {
   BASE: {
@@ -12,24 +12,24 @@ export const XP_CONFIG = {
 } as const;
 
 export const getDailyStreakMultiplier = (
-  days: number
+  days: number,
 ): { value: number; label: string } => {
-  if (days <= 0) return { value: 1.0, label: 'Standard (1.00x)' };
+  if (days <= 0) return { value: 1.0, label: "Standard (1.00x)" };
 
   const rawCurve = Math.tanh(days / XP_CONFIG.ASYMPTOTE_SCALE);
 
   const value = Math.round((1 + rawCurve) * 100) / 100;
 
-  let tier = 'Rookie';
-  if (value >= 1.9) tier = 'Godlike';
-  else if (value >= 1.75) tier = 'Grandmaster';
-  else if (value >= 1.5) tier = 'Master';
-  else if (value >= 1.25) tier = 'Elite';
-  else if (value >= 1.1) tier = 'Pro';
+  let tier = "Rookie";
+  if (value >= 1.9) tier = "Godlike";
+  else if (value >= 1.75) tier = "Grandmaster";
+  else if (value >= 1.5) tier = "Master";
+  else if (value >= 1.25) tier = "Elite";
+  else if (value >= 1.1) tier = "Pro";
 
   return {
     value,
-    label: `${tier} (${value.toFixed(2)}x)`
+    label: `${tier} (${value.toFixed(2)}x)`,
   };
 };
 
@@ -53,10 +53,10 @@ export const calculateCardXp = (
   rating: CardRating,
   sessionStreak: number,
   dailyStreak: number,
-  isCramMode: boolean = false
+  isCramMode: boolean = false,
 ): XpCalculationResult => {
   if (isCramMode) {
-    const cramXp = rating === 'again' ? 0 : XP_CONFIG.CRAM_CORRECT;
+    const cramXp = rating === "again" ? 0 : XP_CONFIG.CRAM_CORRECT;
     return {
       baseXp: cramXp,
       bonusXp: 0,
@@ -71,7 +71,6 @@ export const calculateCardXp = (
 
   const { value: multiplier } = getDailyStreakMultiplier(dailyStreak);
   const preMultiplied = baseXp + bonusXp;
-
 
   const totalXp = Math.round(preMultiplied * multiplier);
 

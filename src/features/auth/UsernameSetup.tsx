@@ -1,14 +1,14 @@
-import React, { useState } from 'react';
-import { ArrowRight, User } from 'lucide-react';
-import { ButtonLoader } from '@/components/ui/loading';
-import { toast } from 'sonner';
-import { useAuth } from '@/contexts/AuthContext';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
+import React, { useState } from "react";
+import { ArrowRight, User } from "lucide-react";
+import { ButtonLoader } from "@/components/ui/loading";
+import { toast } from "sonner";
+import { useAuth } from "@/contexts/AuthContext";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 
 export const UsernameSetup: React.FC = () => {
   const { updateUsername, user } = useAuth();
-  const [username, setUsername] = useState('');
+  const [username, setUsername] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -32,9 +32,7 @@ export const UsernameSetup: React.FC = () => {
 
   return (
     <div className="min-h-screen w-full bg-background flex flex-col items-center justify-center p-6 selection:bg-foreground selection:text-background">
-
       <div className="w-full max-w-[400px] animate-in fade-in zoom-in-95 duration-700 space-y-12">
-
         <div className="space-y-2">
           <span className="text-[11px] font-mono uppercase tracking-widest text-muted-foreground block mb-4">
             Step 02 / Identity
@@ -75,11 +73,14 @@ export const UsernameSetup: React.FC = () => {
               className="group flex items-center gap-3 text-sm font-medium hover:text-foreground/70 transition-colors disabled:opacity-50"
               disabled={isSubmitting || !username}
             >
-              {isSubmitting ? 'Processing' : 'Confirm'}
+              {isSubmitting ? "Processing" : "Confirm"}
               {isSubmitting ? (
                 <ButtonLoader />
               ) : (
-                <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
+                <ArrowRight
+                  size={16}
+                  className="group-hover:translate-x-1 transition-transform"
+                />
               )}
             </Button>
           </div>

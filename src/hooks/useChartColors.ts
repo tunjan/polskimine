@@ -1,11 +1,13 @@
-import { useMemo } from 'react';
-import { useSettingsStore } from '@/stores/useSettingsStore';
-import { useShallow } from 'zustand/react/shallow';
-import { useTheme } from '@/contexts/ThemeContext';
+import { useMemo } from "react";
+import { useSettingsStore } from "@/stores/useSettingsStore";
+import { useShallow } from "zustand/react/shallow";
+import { useTheme } from "@/contexts/ThemeContext";
 
 const getCssVarValue = (name: string) => {
-  if (typeof window === 'undefined') return '';
-  return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+  if (typeof window === "undefined") return "";
+  return getComputedStyle(document.documentElement)
+    .getPropertyValue(name)
+    .trim();
 };
 
 const normalizeColor = (value: string, fallback: string) => {
@@ -15,28 +17,35 @@ const normalizeColor = (value: string, fallback: string) => {
 
   if (/^(#|rgb|hsl|oklch|var)/i.test(candidate)) return candidate;
 
-  if (candidate.includes(' ')) return `hsl(${candidate})`;
+  if (candidate.includes(" ")) return `hsl(${candidate})`;
   return candidate;
 };
 
 export const useChartColors = () => {
   const { theme } = useTheme();
-  const { language, languageColors } = useSettingsStore(useShallow(s => ({
-    language: s.settings.language,
-    languageColors: s.settings.languageColors
-  })));
+  const { language, languageColors } = useSettingsStore(
+    useShallow((s) => ({
+      language: s.settings.language,
+      languageColors: s.settings.languageColors,
+    })),
+  );
 
   return useMemo(() => {
-    const prefersDark = typeof window !== 'undefined' && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    const prefersDark =
+      typeof window !== "undefined" &&
+      window.matchMedia("(prefers-color-scheme: dark)").matches;
 
     return {
-      primary: normalizeColor(getCssVarValue('--primary'), '#3b82f6'),
-      background: normalizeColor(getCssVarValue('--background'), '#ffffff'),
-      foreground: normalizeColor(getCssVarValue('--foreground'), '#000000'),
-      muted: normalizeColor(getCssVarValue('--muted'), '#e5e7eb'),
-      mutedForeground: normalizeColor(getCssVarValue('--muted-foreground'), '#6b7280'),
-      border: normalizeColor(getCssVarValue('--border'), '#d1d5db'),
-      isDark: theme === 'dark' || (theme === 'system' && prefersDark),
+      primary: normalizeColor(getCssVarValue("--primary"), "#3b82f6"),
+      background: normalizeColor(getCssVarValue("--background"), "#ffffff"),
+      foreground: normalizeColor(getCssVarValue("--foreground"), "#000000"),
+      muted: normalizeColor(getCssVarValue("--muted"), "#e5e7eb"),
+      mutedForeground: normalizeColor(
+        getCssVarValue("--muted-foreground"),
+        "#6b7280",
+      ),
+      border: normalizeColor(getCssVarValue("--border"), "#d1d5db"),
+      isDark: theme === "dark" || (theme === "system" && prefersDark),
     };
   }, [theme, language, languageColors]);
 };

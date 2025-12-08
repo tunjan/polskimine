@@ -1,6 +1,6 @@
-import React from 'react';
-import { LucideIcon } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import React from "react";
+import { LucideIcon } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 interface SettingsItemProps {
   icon?: LucideIcon;
@@ -21,15 +21,20 @@ export const SettingsItem: React.FC<SettingsItemProps> = ({
     <div
       className={cn(
         "group flex items-center justify-between gap-4 p-3 -mx-2 rounded-lg transition-colors hover:bg-muted/50",
-        className
+        className,
       )}
     >
       <div className="flex items-center gap-3 min-w-0 flex-1">
         {Icon && (
-          <Icon className="w-4 h-4 text-muted-foreground/60 shrink-0" strokeWidth={1.5} />
+          <Icon
+            className="w-4 h-4 text-muted-foreground/60 shrink-0"
+            strokeWidth={1.5}
+          />
         )}
         <div className="min-w-0">
-          <span className="text-sm font-medium text-foreground block">{label}</span>
+          <span className="text-sm font-medium text-foreground block">
+            {label}
+          </span>
           {description && (
             <span className="text-xs text-muted-foreground/70 block mt-0.5 leading-relaxed">
               {description}
@@ -37,9 +42,7 @@ export const SettingsItem: React.FC<SettingsItemProps> = ({
           )}
         </div>
       </div>
-      <div className="shrink-0">
-        {children}
-      </div>
+      <div className="shrink-0">{children}</div>
     </div>
   );
 };
@@ -69,7 +72,9 @@ export const SettingsLargeInput: React.FC<SettingsLargeInputProps> = ({
         className="text-4xl md:text-5xl font-light h-auto py-1 border-0 border-b border-border/30 rounded-none px-0 focus-visible:outline-none focus-visible:border-primary/60 tabular-nums bg-transparent transition-colors text-center w-24"
       />
       {sublabel && (
-        <span className="text-[10px] text-muted-foreground/60 mt-2">{sublabel}</span>
+        <span className="text-[10px] text-muted-foreground/60 mt-2">
+          {sublabel}
+        </span>
       )}
     </div>
   );
@@ -92,7 +97,9 @@ export const SettingsSliderDisplay: React.FC<SettingsSliderDisplayProps> = ({
     <div className="space-y-3 p-3 -mx-2 rounded-lg hover:bg-muted/30 transition-colors">
       <div className="flex items-center justify-between">
         <span className="text-sm font-medium text-foreground">{label}</span>
-        <span className="text-lg font-light tabular-nums text-foreground">{value}</span>
+        <span className="text-lg font-light tabular-nums text-foreground">
+          {value}
+        </span>
       </div>
       {children}
       {description && (
@@ -123,10 +130,12 @@ export const SettingsSubSection: React.FC<SettingsSubSectionProps> = ({
         onClick={() => setIsOpen(!isOpen)}
         className="flex items-center gap-2 text-xs text-muted-foreground hover:text-foreground transition-colors w-full"
       >
-        <span className={cn(
-          "transition-transform duration-200",
-          isOpen ? "rotate-90" : "rotate-0"
-        )}>
+        <span
+          className={cn(
+            "transition-transform duration-200",
+            isOpen ? "rotate-90" : "rotate-0",
+          )}
+        >
           ▸
         </span>
         {title}
