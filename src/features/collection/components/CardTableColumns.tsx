@@ -1,5 +1,5 @@
 import { ColumnDef } from "@tanstack/react-table"
-import { Card } from "@/types"
+import { Card, CardStatus } from "@/types"
 import {
     MoreHorizontal,
     Zap,
@@ -29,35 +29,31 @@ import { formatDistanceToNow, parseISO, isValid, format } from "date-fns"
 import { formatInterval } from "@/utils/formatInterval"
 import { Button } from "@/components/ui/button"
 
-const StatusBadge = ({ status }: { status: string }) => {
-    const statusConfig: Record<string, {
-        label: string;
-        icon: React.ReactNode;
-        className: string;
-    }> = {
-        new: {
+const StatusBadge = ({ status }: { status: CardStatus }) => {
+    const statusConfig = {
+        [CardStatus.NEW]: {
             label: 'New',
             icon: <Star className="w-3 h-3" strokeWidth={1.5} fill="currentColor" />,
             className: 'text-primary bg-primary/10 border-primary/30'
         },
-        learning: {
+        [CardStatus.LEARNING]: {
             label: 'Learning',
             icon: <BookOpen className="w-3 h-3" strokeWidth={1.5} />,
             className: 'text-blue-400 bg-blue-500/10 border-blue-500/30'
         },
-        graduated: {
+        [CardStatus.REVIEW]: {
             label: 'Review',
             icon: <Clock className="w-3 h-3" strokeWidth={1.5} />,
             className: 'text-emerald-600 bg-emerald-600/10 border-emerald-600/30'
         },
-        known: {
+        [CardStatus.KNOWN]: {
             label: 'Mastered',
             icon: <CheckCircle2 className="w-3 h-3" strokeWidth={1.5} />,
             className: 'text-primary bg-primary/10 border-primary/30'
         },
     }
 
-    const config = statusConfig[status] || statusConfig.new
+    const config = statusConfig[status] || statusConfig[CardStatus.NEW]
 
     return (
         <span
@@ -72,8 +68,8 @@ const StatusBadge = ({ status }: { status: string }) => {
     )
 }
 
-const ScheduleCell = ({ dateStr, status, interval }: { dateStr: string, status: string, interval: number }) => {
-    if (status === 'new') {
+const ScheduleCell = ({ dateStr, status, interval }: { dateStr: string, status: CardStatus, interval: number }) => {
+    if (status === CardStatus.NEW) {
         return (
             <div className="flex items-center gap-2 text-muted-foreground">
                 <Sparkles className="w-3 h-3" strokeWidth={1.5} />

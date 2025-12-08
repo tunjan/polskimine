@@ -8,9 +8,9 @@ import { DeckStats } from '@/types';
 
 export const useDeckStats = () => {
     const { language, dailyNewLimits, dailyReviewLimits } = useSettingsStore(useShallow(s => ({
-        language: s.settings.language,
-        dailyNewLimits: s.settings.dailyNewLimits,
-        dailyReviewLimits: s.settings.dailyReviewLimits
+        language: s.language,
+        dailyNewLimits: s.dailyNewLimits,
+        dailyReviewLimits: s.dailyReviewLimits
     })));
     const streakStats = useStreakStats();
 

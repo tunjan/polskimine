@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
@@ -15,14 +15,14 @@ interface CramModalProps {
 }
 
 export const CramModal = ({ isOpen, onClose }: CramModalProps) => {
-    const settings = useSettingsStore(s => s.settings);
+    const language = useSettingsStore(s => s.language);
     const [selectedTag, setSelectedTag] = useState<string>("all");
     const [limit, setLimit] = useState([50]);
     const navigate = useNavigate();
 
     const { data: tags = [] } = useQuery({
-        queryKey: ['tags', settings.language],
-        queryFn: () => getTags(settings.language),
+        queryKey: ['tags', language],
+        queryFn: () => getTags(language),
         enabled: isOpen,
     });
 

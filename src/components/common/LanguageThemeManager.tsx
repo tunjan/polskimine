@@ -1,24 +1,28 @@
 import React, { useLayoutEffect } from 'react';
 import { useSettingsStore } from '@/stores/useSettingsStore';
+import { useShallow } from 'zustand/react/shallow';
 
 const STYLE_TAG_ID = 'custom-language-theme';
 
 export const LanguageThemeManager: React.FC = () => {
-  const settings = useSettingsStore(s => s.settings);
+    const { language, languageColors } = useSettingsStore(useShallow(s => ({
+        language: s.language,
+        languageColors: s.languageColors
+    })));
 
   useLayoutEffect(() => {
     if (typeof window === 'undefined') return;
     const root = document.documentElement;
     const previousLanguage = root.getAttribute('data-language');
-    if (previousLanguage && previousLanguage !== settings.language) {
+    if (previousLanguage && previousLanguage !== language) {
       root.removeAttribute('data-language');
     }
 
-    if (!settings.language) return;
+    if (!language) return;
 
-    root.setAttribute('data-language', settings.language);
+    root.setAttribute('data-language', language);
 
-    const customColor = settings.languageColors?.[settings.language];
+    const customColor = languageColors?.[language];
     let styleTag = document.getElementById(STYLE_TAG_ID);
     if (!styleTag) {
       styleTag = document.createElement('style');
@@ -39,11 +43,11 @@ export const LanguageThemeManager: React.FC = () => {
       const darkColor = `${normalizedH} ${normalizedS}% ${darkL}%`;
 
       styleTag.innerHTML = `
-        :root[data-language="${settings.language}"] {
+        :root[data-language="${language}"] {
           --primary: hsl(${customColor});
           --ring: hsl(${customColor});
         }
-        :root[data-language="${settings.language}"].dark {
+        :root[data-language="${language}"].dark {
           --primary: hsl(${darkColor});
           --ring: hsl(${darkColor});
         }
@@ -60,7 +64,7 @@ export const LanguageThemeManager: React.FC = () => {
         existingStyleTag.remove();
       }
     };
-  }, [settings.language, settings.languageColors]);
+  }, [language, languageColors]);
 
   return null;
 };

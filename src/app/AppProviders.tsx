@@ -3,8 +3,6 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { BrowserRouter } from 'react-router-dom';
 import { Toaster } from 'sonner';
 
-
-import { DeckActionsProvider } from '@/contexts/DeckActionsContext';
 import { ThemeProvider } from '@/contexts/ThemeContext';
 import { MusicProvider } from '@/contexts/MusicContext';
 import { AuthProvider } from '@/contexts/AuthContext';
@@ -31,14 +29,12 @@ export const AppProviders: React.FC<AppProvidersProps> = ({ children }) => {
                     <AuthProvider>
                         <SettingsSync />
                         <GamificationProvider>
-                            <DeckActionsProvider>
-                                <MusicProvider>
-                                    <BrowserRouter>
-                                        {children}
-                                        <Toaster position="bottom-right" expand={true} />
-                                    </BrowserRouter>
-                                </MusicProvider>
-                            </DeckActionsProvider>
+                            <MusicProvider>
+                                <BrowserRouter>
+                                    {children}
+                                    <Toaster position="bottom-right" expand={true} />
+                                </BrowserRouter>
+                            </MusicProvider>
                         </GamificationProvider>
                     </AuthProvider>
                 </ErrorBoundary>

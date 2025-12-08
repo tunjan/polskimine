@@ -89,14 +89,11 @@ export const exportSyncData = async (settings: Partial<UserSettings>): Promise<S
         };
     }
 
-    // Export profile without username (username is device-specific)
-    const profileForExport = profiles.length > 0 ? {
+        const profileForExport = profiles.length > 0 ? {
         ...profiles[0],
-        username: undefined,  // Don't export username
-    } : null;
+        username: undefined,      } : null;
 
-    // Remove user_id from export data
-    const cleanCards = cards.map(({ user_id, ...rest }) => rest);
+        const cleanCards = cards.map(({ user_id, ...rest }) => rest);
     const cleanRevlog = revlog.map(({ user_id, ...rest }) => rest);
     const cleanStats = aggregatedStats.map(({ user_id, ...rest }) => rest);
 
@@ -197,8 +194,7 @@ export const loadSyncFile = async (): Promise<{ success: boolean; data?: SyncDat
                 throw e;
             }
         } else {
-            // Fallback for browsers that don't support File System Access API
-            return new Promise((resolve) => {
+                        return new Promise((resolve) => {
                 const input = document.createElement('input');
                 input.type = 'file';
                 input.accept = 'application/json,.json';
@@ -227,8 +223,7 @@ export const loadSyncFile = async (): Promise<{ success: boolean; data?: SyncDat
                     cleanup();
                 };
 
-                // Handle cancellation (supported in modern browsers)
-                input.addEventListener('cancel', () => {
+                                input.addEventListener('cancel', () => {
                     resolve({ success: false, error: 'Load cancelled' });
                     cleanup();
                 });
@@ -243,8 +238,7 @@ export const loadSyncFile = async (): Promise<{ success: boolean; data?: SyncDat
 };
 
 export const checkSyncFile = async (): Promise<{ exists: boolean; lastSynced?: string; deviceId?: string }> => {
-    // Web platform cannot check for sync file existence without user interaction
-    return { exists: false };
+        return { exists: false };
 };
 
 export const importSyncData = async (
@@ -256,16 +250,14 @@ export const importSyncData = async (
             return { success: false, error: 'Invalid sync data: missing cards' };
         }
 
-        // Get existing profile before clearing to preserve id and username
-        const existingProfiles = await db.profile.toArray();
+                const existingProfiles = await db.profile.toArray();
         const existingProfile = existingProfiles.length > 0 ? existingProfiles[0] : null;
 
         await clearAllCards();
         await clearHistory();
         await db.revlog.clear();
         await db.aggregated_stats.clear();
-        // Don't clear profile - we'll merge instead
-
+        
         if (data.cards.length > 0) {
             await saveAllCards(data.cards);
         }
@@ -285,18 +277,13 @@ export const importSyncData = async (
             await db.revlog.bulkPut(revlogWithUser);
         }
 
-        // Merge imported profile with existing profile, preserving id and username
-        if (data.profile && existingProfile) {
+                if (data.profile && existingProfile) {
             const mergedProfile = {
                 ...data.profile,
-                id: existingProfile.id,  // Keep existing id
-                username: existingProfile.username,  // Keep existing username
-            };
+                id: existingProfile.id,                  username: existingProfile.username,              };
             await db.profile.put(mergedProfile);
         } else if (existingProfile) {
-            // If no profile in import data, keep existing profile
-            // (profile already exists, nothing to do)
-        }
+                                }
 
         if (data.aggregatedStats && Array.isArray(data.aggregatedStats)) {
             const currentUserId = getCurrentUserId();

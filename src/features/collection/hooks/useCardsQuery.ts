@@ -3,7 +3,7 @@ import { useQuery, keepPreviousData } from '@tanstack/react-query';
 import { useSettingsStore } from '@/stores/useSettingsStore';
 import { db } from '@/db/dexie';
 import { getCurrentUserId } from '@/db/repositories/cardRepository';
-import { CardStatus } from '@/types';
+import { CardStatus, Card } from '@/types';
 
 export interface CardFilters {
   status?: CardStatus | 'all';
@@ -17,7 +17,7 @@ export const useCardsQuery = (
   searchTerm = '',
   filters: CardFilters = {}
 ) => {
-  const language = useSettingsStore(s => s.settings.language);
+  const language = useSettingsStore(s => s.language);
 
   return useQuery({
     queryKey: ['cards', language, page, pageSize, searchTerm, filters],
@@ -25,56 +25,75 @@ export const useCardsQuery = (
       const userId = getCurrentUserId();
       if (!userId) return { data: [], count: 0 };
 
-      // Use composite index for user+language+dueDate for automatic sorting
-      // We scan the index range for this user/language
-      let collection = db.cards
-        .where('[user_id+language+dueDate]')
-        .between(
-          [userId, language, Dexie.minKey],
-          [userId, language, Dexie.maxKey],
-          true,
-          true
-        )
-        .reverse(); // Descending order by dueDate
+      let collection: Dexie.Collection<Card, string>;
 
-      // Apply filtering (Dexie executes this lazily during iteration/counting)
-      // This avoids loading all objects into an array first
-      if (searchTerm || (filters.status && filters.status !== 'all') || filters.bookmarked || filters.leech) {
+            if (filters.leech) {
+                collection = db.cards
+          .where('[user_id+language+isLeech+dueDate]')
+          .between(
+            [userId, language, 1, Dexie.minKey],             [userId, language, 1, Dexie.maxKey],
+            true, true
+          )
+          .reverse();
+      }
+            else if (filters.bookmarked) {
+                collection = db.cards
+          .where('[user_id+language+isBookmarked+dueDate]')
+          .between(
+            [userId, language, 1, Dexie.minKey],
+            [userId, language, 1, Dexie.maxKey],
+            true, true
+          )
+          .reverse();
+      }
+            else if (filters.status && filters.status !== 'all') {
+                collection = db.cards
+          .where('[user_id+language+status+dueDate]')
+          .between(
+            [userId, language, filters.status, Dexie.minKey],
+            [userId, language, filters.status, Dexie.maxKey],
+            true, true
+          )
+          .reverse();
+      }
+            else {
+                collection = db.cards
+          .where('[user_id+language+dueDate]')
+          .between(
+            [userId, language, Dexie.minKey],
+            [userId, language, Dexie.maxKey],
+            true, true
+          )
+          .reverse();
+      }
+
+                                          
+      const requiresRefine = 
+           (filters.leech && (filters.bookmarked || (filters.status && filters.status !== 'all'))) ||
+           (filters.bookmarked && (filters.status && filters.status !== 'all'));
+
+      if (requiresRefine || searchTerm) {
         collection = collection.filter(c => {
-          // Status filter
-          if (filters.status && filters.status !== 'all' && c.status !== filters.status) {
-            return false;
-          }
+                                                    
+                          if (filters.status && filters.status !== 'all' && c.status !== filters.status) return false;
+             if (filters.bookmarked && !c.isBookmarked) return false;
+             if (filters.leech && !c.isLeech) return false;
 
-          // Bookmarked filter
-          if (filters.bookmarked && !c.isBookmarked) {
-            return false;
-          }
-
-          // Leech filter
-          if (filters.leech && !c.isLeech) {
-            return false;
-          }
-
-          // Search filter
-          if (searchTerm) {
-            const term = searchTerm.toLowerCase();
-            return (
-              c.targetSentence?.toLowerCase().includes(term) ||
-              c.nativeTranslation?.toLowerCase().includes(term) ||
-              c.targetWord?.toLowerCase().includes(term) ||
-              c.notes?.toLowerCase().includes(term)
-            );
-          }
-
-          return true;
+                          if (searchTerm) {
+                const term = searchTerm.toLowerCase();
+                return (
+                  c.targetSentence?.toLowerCase().includes(term) ||
+                  c.nativeTranslation?.toLowerCase().includes(term) ||
+                  c.targetWord?.toLowerCase().includes(term) ||
+                  c.notes?.toLowerCase().includes(term)
+                );
+             }
+             return true;
         });
       }
 
-      // Get count of matching items (scans index/data as needed but doesn't hold all in RAM)
       const totalCount = await collection.count();
 
-      // Get paginated data
       const start = page * pageSize;
       const paginatedCards = await collection
         .offset(start)

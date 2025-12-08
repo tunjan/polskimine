@@ -65,5 +65,17 @@ export const getAllReviewLogs = async (language?: string): Promise<ReviewLog[]> 
 
   logs.sort((a, b) => a.created_at.localeCompare(b.created_at));
 
-  return logs as unknown as ReviewLog[];
+  // Explicitly map RevlogEntry to ReviewLog (removing user_id, converting state to number)
+  return logs.map(log => ({
+    id: log.id,
+    card_id: log.card_id,
+    grade: log.grade,
+    state: typeof log.state === 'number' ? log.state : log.state,
+    elapsed_days: log.elapsed_days,
+    scheduled_days: log.scheduled_days,
+    stability: log.stability,
+    difficulty: log.difficulty,
+    created_at: log.created_at,
+  }));
 };
+

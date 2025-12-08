@@ -11,7 +11,7 @@ import { Button } from '@/components/ui/button';
 
 export const DashboardRoute: React.FC = () => {
   const { history, stats } = useDeckStats();
-  const language = useSettingsStore(s => s.settings.language);
+  const language = useSettingsStore(s => s.language);
   const navigate = useNavigate();
 
   const { data: dashboardStats, isLoading: isStatsLoading, isError: isStatsError } = useQuery({
@@ -43,10 +43,10 @@ export const DashboardRoute: React.FC = () => {
 
 
   const metrics = {
-    total: dashboardStats.counts.new + dashboardStats.counts.learning + dashboardStats.counts.graduated + dashboardStats.counts.known,
+    total: dashboardStats.counts.new + dashboardStats.counts.learning + dashboardStats.counts.review + dashboardStats.counts.known,
     new: dashboardStats.counts.new,
     learning: dashboardStats.counts.learning,
-    reviewing: dashboardStats.counts.graduated,
+    reviewing: dashboardStats.counts.review,
     known: dashboardStats.counts.known,
   };
 

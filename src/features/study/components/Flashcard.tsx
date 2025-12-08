@@ -2,7 +2,7 @@
 import React, { useMemo, useEffect } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Card, Language, LanguageId } from '@/types';
-import { escapeRegExp, parseFurigana, cn, findInflectedWordInSentence } from '@/lib/utils';
+import { cn } from '@/lib/utils';
 import { useSettingsStore } from '@/stores/useSettingsStore';
 import { useShallow } from 'zustand/react/shallow';
 import { useCardText } from '@/features/collection/hooks/useCardText';
@@ -15,6 +15,7 @@ import { useFlashcardAudio } from '@/features/study/hooks/useFlashcardAudio';
 import { useAIAnalysis } from '@/features/study/hooks/useAIAnalysis';
 import { useCardInteraction } from '@/features/study/hooks/useCardInteraction';
 import { Button } from '@/components/ui/button';
+import { useCardSentence } from '@/features/study/hooks/useCardSentence';
 
 interface FlashcardProps {
   card: Card;
@@ -36,9 +37,9 @@ export const Flashcard = React.memo<FlashcardProps>(({
   onAddCard
 }) => {
   const { geminiApiKey, showWholeSentenceOnFront, tts } = useSettingsStore(useShallow(s => ({
-    geminiApiKey: s.settings.geminiApiKey,
-    showWholeSentenceOnFront: s.settings.showWholeSentenceOnFront,
-    tts: s.settings.tts
+    geminiApiKey: s.geminiApiKey,
+    showWholeSentenceOnFront: s.showWholeSentenceOnFront,
+    tts: s.tts
   })));
   const { displayedTranslation, isGaslit, processText } = useCardText(card);
   const { selection, handleMouseUp, clearSelection } = useTextSelection();
@@ -89,6 +90,8 @@ export const Flashcard = React.memo<FlashcardProps>(({
     return "text-xl md:text-3xl font-light";
   }, [displayedSentence]);
 
+    const parsedContent = useCardSentence(card, language);
+
   const RenderedSentence = useMemo(() => {
     const baseClasses = cn(
       "text-center text-balance select-text leading-[1.3] text-foreground font-light",
@@ -135,108 +138,55 @@ export const Flashcard = React.memo<FlashcardProps>(({
       return <p className={baseClasses}>{processText(card.targetWord)}</p>;
     }
 
-    const hasFuriganaInDedicatedField = card.furigana && /\[.+?\]/.test(card.furigana);
-    const hasFuriganaInSentence = card.targetSentence && /\[.+?\]/.test(card.targetSentence);
-
-    let furiganaSource: string | undefined;
-    if (hasFuriganaInDedicatedField) {
-      const furiganaPlainText = parseFurigana(card.furigana!).map(s => s.text).join('');
-      const sentencePlainText = card.targetSentence || '';
-      if (furiganaPlainText.length >= sentencePlainText.length * 0.5) {
-        furiganaSource = card.furigana;
-      }
-    }
-    if (!furiganaSource && hasFuriganaInSentence) {
-      furiganaSource = card.targetSentence;
-    }
-    if (!furiganaSource) {
-      furiganaSource = card.targetSentence;
-    }
-
-    if (language === LanguageId.Japanese && furiganaSource) {
-      const segments = parseFurigana(furiganaSource);
-      const hasFurigana = segments.some(s => s.furigana);
-
-      if (hasFurigana) {
-        const targetWordPlain = card.targetWord
-          ? parseFurigana(card.targetWord).map(s => s.text).join('')
-          : null;
-
-        const segmentTexts = segments.map(s => s.text);
-        const fullText = segmentTexts.join('');
-        const targetIndices = new Set<number>();
-
-        if (targetWordPlain) {
-          let targetStart = fullText.indexOf(targetWordPlain);
-          let matchedWordLength = targetWordPlain.length;
-
-          if (targetStart === -1) {
-            const matchedWord = findInflectedWordInSentence(targetWordPlain, fullText);
-            if (matchedWord) {
-              targetStart = fullText.indexOf(matchedWord);
-              matchedWordLength = matchedWord.length;
+        if (parsedContent.type === 'japanese') {
+      return (
+        <div className={cn(baseClasses, "leading-[1.6]")}>
+          {parsedContent.segments.map((segment, i) => {
+            const isTarget = parsedContent.targetIndices.has(i);
+            if (segment.furigana) {
+              return (
+                <ruby key={i} className="group/ruby" style={{ rubyAlign: 'center' }}>
+                  <span className={isTarget ? "text-primary/90" : ""}>{processText(segment.text)}</span>
+                  <rt className="text-[0.5em] text-muted-foreground/70 select-none opacity-0 group-hover/ruby:opacity-100 transition-opacity duration-500 font-sans font-light tracking-wide text-center" style={{ textAlign: 'center' }}>
+                    {processText(segment.furigana)}
+                  </rt>
+                </ruby>
+              );
             }
-          }
-
-          if (targetStart !== -1) {
-            const targetEnd = targetStart + matchedWordLength;
-            let charIndex = 0;
-            for (let i = 0; i < segments.length; i++) {
-              const segmentStart = charIndex;
-              const segmentEnd = charIndex + segments[i].text.length;
-              if (segmentStart < targetEnd && segmentEnd > targetStart) {
-                targetIndices.add(i);
-              }
-              charIndex = segmentEnd;
-            }
-          }
-        }
-
-        return (
-          <div className={cn(baseClasses, "leading-[1.6]")}>
-            {segments.map((segment, i) => {
-              const isTarget = targetIndices.has(i);
-              if (segment.furigana) {
-                return (
-                  <ruby key={i} className="group/ruby" style={{ rubyAlign: 'center' }}>
-                    <span className={isTarget ? "text-primary/90" : ""}>{processText(segment.text)}</span>
-                    <rt className="text-[0.5em] text-muted-foreground/70 select-none opacity-0 group-hover/ruby:opacity-100 transition-opacity duration-500 font-sans font-light tracking-wide text-center" style={{ textAlign: 'center' }}>
-                      {processText(segment.furigana)}
-                    </rt>
-                  </ruby>
-                );
-              }
-              return <span key={i} className={isTarget ? "text-primary/90" : ""}>{processText(segment.text)}</span>;
-            })}
-          </div>
-        );
-      }
+            return <span key={i} className={isTarget ? "text-primary/90" : ""}>{processText(segment.text)}</span>;
+          })}
+        </div>
+      );
     }
 
-    if (card.targetWord) {
-      const targetWordPlain = parseFurigana(card.targetWord).map(s => s.text).join('');
-
-      const matchedWord = findInflectedWordInSentence(targetWordPlain, displayedSentence);
-
-      if (matchedWord) {
-        const wordBoundaryRegex = new RegExp(`(\\b${escapeRegExp(matchedWord)}\\b)`, 'gi');
-        const parts = displayedSentence.split(wordBoundaryRegex);
-        return (
-          <p className={baseClasses}>
-            {parts.map((part, i) =>
-              part.toLowerCase() === matchedWord.toLowerCase()
-                ? <span key={i} className="text-primary/90 font-bold">{processText(part)}</span>
-                : <span key={i}>{processText(part)}</span>
-            )}
-          </p>
-        );
-      }
-
-      return <p className={baseClasses}>{displayedSentence}</p>;
+    if (parsedContent.type === 'highlight') {
+      return (
+        <p className={baseClasses}>
+          {parsedContent.parts.map((part, i) =>
+            part.toLowerCase() === parsedContent.matchedWord?.toLowerCase()
+              ? <span key={i} className="text-primary/90 font-bold">{processText(part)}</span>
+              : <span key={i}>{processText(part)}</span>
+          )}
+        </p>
+      );
     }
 
     return <p className={baseClasses}>{displayedSentence}</p>;
-  }, [displayedSentence, card.targetWord, card.furigana, isRevealed, language, fontSizeClass, blindMode, speak, isFlipped, card.targetSentence, processText, showWholeSentenceOnFront, handleReveal, handleKeyDown]);
+  }, [
+    isRevealed, 
+    isFlipped, 
+    blindMode, 
+    showWholeSentenceOnFront, 
+    fontSizeClass,
+    parsedContent,
+    handleReveal, 
+    handleKeyDown, 
+    speak, 
+    processText, 
+    card.targetWord, 
+    displayedSentence, 
+    language
+  ]);
 
   const containerClasses = cn(
     "relative w-full max-w-7xl mx-auto flex flex-col items-center justify-center h-full"

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Card, Grade } from '@/types';
 import { StudySession } from '@/features/study/components/StudySession';
-import { useDeckActions } from '@/contexts/DeckActionsContext';
+import { useDeckActions } from '@/hooks/useDeckActions';
 import { useDeckStats } from '@/features/collection/hooks/useDeckStats';
 import { useDeckStore } from '@/stores/useDeckStore';
 import { useSettingsStore } from '@/stores/useSettingsStore';
@@ -30,10 +30,10 @@ export const StudyRoute: React.FC = () => {
   const { updateCard, deleteCard, addCard } = useCardOperations();
   
   const { language, dailyNewLimits, dailyReviewLimits, cardOrder } = useSettingsStore(useShallow(s => ({
-    language: s.settings.language,
-    dailyNewLimits: s.settings.dailyNewLimits,
-    dailyReviewLimits: s.settings.dailyReviewLimits,
-    cardOrder: s.settings.cardOrder
+    language: s.language,
+    dailyNewLimits: s.dailyNewLimits,
+    dailyReviewLimits: s.dailyReviewLimits,
+    cardOrder: s.cardOrder
   })));
 
   const claimBonus = useClaimDailyBonusMutation();
@@ -142,10 +142,7 @@ export const StudyRoute: React.FC = () => {
 
   const handleDeleteCard = async (id: string) => {
     await deleteCard(id);
-    // Note: Don't call setSessionCards here - it would trigger useStudySession's 
-    // INIT effect and reset all learning progress. The removeCardFromSession 
-    // function in StudySession handles the UI state update correctly.
-  };
+              };
 
   const handleRecordReview = async (card: Card, newCard: Card, grade: Grade, xpPayload?: CardXpPayload) => {
     if (!isCramMode) {

@@ -12,15 +12,13 @@ import {
 } from '@/lib/sync/syncService';
 
 export const useSyncthingSync = () => {
-    // const settings = useSettingsStore(s => s.settings); // Removed subscription
-    const updateSettings = useSettingsStore(s => s.updateSettings);
+        const updateSettings = useSettingsStore(s => s.updateSettings);
     const queryClient = useQueryClient();
     const [isSaving, setIsSaving] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [lastSync, setLastSync] = useState<string | null>(null);
 
-    // Initialize last sync time
-    useEffect(() => {
+        useEffect(() => {
         getLastSyncTime().then(setLastSync);
     }, []);
 

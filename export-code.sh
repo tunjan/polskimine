@@ -16,6 +16,7 @@ find . \( \
     -name ".next" -o \
     -name "dist" -o \
     -name "build" -o \
+    -name "ui" -o \
     -name ".git" \
 \) -prune -o \( \
     -name "*.ts" -o \

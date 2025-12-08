@@ -3,6 +3,18 @@ import { UserSettings, Language, LanguageId } from '@/types';
 import { FSRS_DEFAULTS } from '@/constants';
 import { UserApiKeys, updateUserSettings } from '@/db/repositories/settingsRepository';
 import { toast } from 'sonner';
+function debounce<T extends (...args: any[]) => any>(
+  func: T,
+  wait: number
+): (...args: Parameters<T>) => void {
+  let timeout: ReturnType<typeof setTimeout> | null = null;
+  return function(...args: Parameters<T>) {
+    if (timeout) clearTimeout(timeout);
+    timeout = setTimeout(() => {
+      func(...args);
+    }, wait);
+  };
+}
 
 export const DEFAULT_SETTINGS: UserSettings = {
     language: LanguageId.Polish,
@@ -53,73 +65,109 @@ export const DEFAULT_SETTINGS: UserSettings = {
     }
 };
 
-const getInitialSettings = (): UserSettings => {
-    return DEFAULT_SETTINGS;
-};
+const debouncedSaveSettings = debounce((userId: string, settings: UserSettings) => {
+    updateUserSettings(userId, settings).catch(err => {
+        console.error("Failed to auto-save settings", err);
+    });
+}, 1000);
 
-export interface SettingsState {
-    settings: UserSettings;
+export interface SettingsState extends UserSettings {
     settingsLoading: boolean;
-    updateSettings: (newSettings: Partial<UserSettings>) => void;
+    userId: string | null;
+    
+        updateSettings: (newSettings: Partial<UserSettings>) => void;
     resetSettings: () => void;
     setSettingsLoading: (loading: boolean) => void;
-    setSettings: (settings: UserSettings | ((prev: UserSettings) => UserSettings)) => void;
-    saveApiKeys: (userId: string, apiKeys: UserApiKeys) => Promise<void>;
+    setFullSettings: (settings: UserSettings | ((prev: UserSettings) => UserSettings)) => void; 
+    initializeStore: (userId: string, settings: UserSettings) => void;
+    saveApiKeys: (apiKeys: UserApiKeys) => Promise<void>;
 }
 
-export const useSettingsStore = create<SettingsState>((set) => ({
-    settings: getInitialSettings(),
+export const useSettingsStore = create<SettingsState>((set, get) => ({
+    ...DEFAULT_SETTINGS,
     settingsLoading: false,
+    userId: null,
 
-    updateSettings: (newSettings) =>
-        set((state) => ({
-            settings: {
-                ...state.settings,
+    updateSettings: (newSettings) => {
+        set((state) => {
+            const updatedState = {
+                ...state,
                 ...newSettings,
                 fsrs: newSettings.fsrs 
-                    ? { ...state.settings.fsrs, ...newSettings.fsrs }
-                    : state.settings.fsrs,
+                    ? { ...state.fsrs, ...newSettings.fsrs }
+                    : state.fsrs,
                 tts: newSettings.tts
-                    ? { ...state.settings.tts, ...newSettings.tts }
-                    : state.settings.tts,
+                    ? { ...state.tts, ...newSettings.tts }
+                    : state.tts,
                 languageColors: newSettings.languageColors
-                    ? { ...state.settings.languageColors, ...(newSettings.languageColors as Record<Language, string>) }
-                    : state.settings.languageColors,
+                    ? { ...state.languageColors, ...(newSettings.languageColors as Record<Language, string>) }
+                    : state.languageColors,
                 dailyNewLimits: newSettings.dailyNewLimits
-                    ? { ...state.settings.dailyNewLimits, ...newSettings.dailyNewLimits }
-                    : state.settings.dailyNewLimits,
+                    ? { ...state.dailyNewLimits, ...newSettings.dailyNewLimits }
+                    : state.dailyNewLimits,
                 dailyReviewLimits: newSettings.dailyReviewLimits
-                    ? { ...state.settings.dailyReviewLimits, ...newSettings.dailyReviewLimits }
-                    : state.settings.dailyReviewLimits,
-                learningSteps: newSettings.learningSteps || state.settings.learningSteps,
-            },
-        })),
+                    ? { ...state.dailyReviewLimits, ...newSettings.dailyReviewLimits }
+                    : state.dailyReviewLimits,
+                learningSteps: newSettings.learningSteps || state.learningSteps,
+            };
 
-    resetSettings: () => set({ settings: DEFAULT_SETTINGS }),
+                        const userId = state.userId;
+            if (userId) {
+                                const settingsToSave: UserSettings = {
+                    language: updatedState.language,
+                    languageColors: updatedState.languageColors,
+                    dailyNewLimits: updatedState.dailyNewLimits,
+                    dailyReviewLimits: updatedState.dailyReviewLimits,
+                    autoPlayAudio: updatedState.autoPlayAudio,
+                    blindMode: updatedState.blindMode,
+                    showTranslationAfterFlip: updatedState.showTranslationAfterFlip,
+                    showWholeSentenceOnFront: updatedState.showWholeSentenceOnFront,
+                    ignoreLearningStepsWhenNoCards: updatedState.ignoreLearningStepsWhenNoCards,
+                    binaryRatingMode: updatedState.binaryRatingMode,
+                    cardOrder: updatedState.cardOrder,
+                    learningSteps: updatedState.learningSteps,
+                    geminiApiKey: updatedState.geminiApiKey,
+                    tts: updatedState.tts,
+                    fsrs: updatedState.fsrs
+                };
+                debouncedSaveSettings(userId, settingsToSave);
+            }
 
+            return updatedState;
+        });
+    },
+
+    resetSettings: () => set({ ...DEFAULT_SETTINGS }),
     setSettingsLoading: (loading) => set({ settingsLoading: loading }),
+    
+    setFullSettings: (settingsOrUpdater) => set((state) => {
+        const newSettings = typeof settingsOrUpdater === 'function' 
+            ? settingsOrUpdater(state)
+            : settingsOrUpdater;
+        return { ...newSettings };
+    }),
 
-    setSettings: (newSettings) =>
-        set((state) => ({
-            settings: typeof newSettings === 'function' ? newSettings(state.settings) : newSettings,
-        })),
+    initializeStore: (userId, settings) => set({ userId, ...settings }),
 
-    saveApiKeys: async (userId, apiKeys) => {
+    saveApiKeys: async (apiKeys) => {
         set({ settingsLoading: true });
+        const { userId } = get();
+        if (!userId) {
+             console.error("No user ID found during saveApiKeys");
+             set({ settingsLoading: false });
+             return;
+        }
+
         try {
             await updateUserSettings(userId, apiKeys);
-
             set((state) => ({
-                settings: {
-                    ...state.settings,
-                    geminiApiKey: apiKeys.geminiApiKey || '',
-                    tts: {
-                        ...state.settings.tts,
-                        googleApiKey: apiKeys.googleTtsApiKey || '',
-                        azureApiKey: apiKeys.azureTtsApiKey || '',
-                        azureRegion: apiKeys.azureRegion || 'eastus',
-                    },
-                },
+                geminiApiKey: apiKeys.geminiApiKey !== undefined ? apiKeys.geminiApiKey : state.geminiApiKey,
+                tts: {
+                    ...state.tts,
+                    googleApiKey: apiKeys.googleTtsApiKey !== undefined ? apiKeys.googleTtsApiKey : state.tts.googleApiKey,
+                    azureApiKey: apiKeys.azureTtsApiKey !== undefined ? apiKeys.azureTtsApiKey : state.tts.azureApiKey,
+                    azureRegion: apiKeys.azureRegion !== undefined ? apiKeys.azureRegion : state.tts.azureRegion,
+                }
             }));
 
             toast.success('API keys synced to cloud');

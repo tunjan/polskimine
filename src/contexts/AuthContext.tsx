@@ -14,6 +14,7 @@ interface AuthContextType {
   login: (username: string, password: string) => Promise<void>;
   signOut: () => Promise<void>;
   updateUsername: (username: string) => Promise<void>;
+  deleteAccount: () => Promise<void>;
   getRegisteredUsers: () => Promise<LocalUser[]>;
 }
 
@@ -48,8 +49,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, []);
 
   const register = async (username: string, password: string): Promise<{ user: AuthUser }> => {
-    // Check if username already exists
-    const existingUser = await db.users.where('username').equals(username).first();
+        const existingUser = await db.users.where('username').equals(username).first();
     if (existingUser) {
       throw new Error('Username already exists');
     }
@@ -58,16 +58,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const passwordHash = await hashPassword(password);
     const now = new Date().toISOString();
 
-    // Create user account
-    await db.users.add({
+        await db.users.add({
       id: userId,
       username,
       passwordHash,
       created_at: now
     });
 
-    // Create profile for the user
-    await db.profile.put({
+        await db.profile.put({
       id: userId,
       username,
       xp: 0,
@@ -77,8 +75,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       updated_at: now
     });
 
-    // Save session
-    localStorage.setItem(SESSION_KEY, userId);
+        localStorage.setItem(SESSION_KEY, userId);
 
     const authUser = { id: userId, username };
     setUser(authUser);
@@ -98,8 +95,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       throw new Error('Invalid password');
     }
 
-    // Save session
-    localStorage.setItem(SESSION_KEY, existingUser.id);
+        localStorage.setItem(SESSION_KEY, existingUser.id);
     setUser({ id: existingUser.id, username: existingUser.username });
 
     toast.success(`Welcome back, ${existingUser.username}!`);
@@ -110,11 +106,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     const now = new Date().toISOString();
 
-    // Update user account
-    await db.users.update(user.id, { username });
+        await db.users.update(user.id, { username });
 
-    // Update profile
-    const exists = await db.profile.get(user.id);
+        const exists = await db.profile.get(user.id);
     if (exists) {
       await db.profile.update(user.id, { username, updated_at: now });
     } else {
@@ -138,6 +132,25 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     toast.success('Signed out');
   };
 
+  const deleteAccount = async () => {
+    if (!user) throw new Error('No user logged in');
+
+        await db.transaction('rw', [db.users, db.profile, db.cards, db.revlog, db.history], async () => {
+      await db.users.delete(user.id);
+      await db.profile.delete(user.id);
+      
+            const userCards = await db.cards.where('user_id').equals(user.id).toArray();
+      await db.cards.bulkDelete(userCards.map(c => c.id));
+
+                                    await db.revlog.where('user_id').equals(user.id).delete();
+
+                                  });
+     
+    localStorage.removeItem(SESSION_KEY);
+    setUser(null);
+    toast.success('Account deleted');
+  };
+
   const getRegisteredUsers = async (): Promise<LocalUser[]> => {
     return await db.users.toArray();
   };
@@ -150,6 +163,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         register,
         login,
         signOut,
+        deleteAccount,
         updateUsername,
         getRegisteredUsers
       }}

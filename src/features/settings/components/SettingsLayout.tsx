@@ -17,11 +17,7 @@ export const SettingsLayout: React.FC = () => {
         { path: '/settings/danger', label: 'Danger', icon: Skull },
     ];
 
-    // Determine the current tab value based on the path
-    // We match if the current pathname starts with the tab path
-    // This handles sub-routes if any, defaulting to the exact match.
-    // For simplicity given the flat structure:
-    const currentTab = tabs.find(tab => location.pathname.startsWith(tab.path))?.path || tabs[0].path;
+                    const currentTab = tabs.find(tab => location.pathname.startsWith(tab.path))?.path || tabs[0].path;
 
     return (
         <div className="container max-w-4xl py-6 lg:py-10 space-y-6">

@@ -66,8 +66,8 @@ type FormValues = z.infer<typeof formSchema>;
 
 export const AddCardModal: React.FC<AddCardModalProps> = ({ isOpen, onClose, onAdd, initialCard }) => {
     const { language, geminiApiKey } = useSettingsStore(useShallow((s: SettingsState) => ({
-        language: s.settings.language,
-        geminiApiKey: s.settings.geminiApiKey
+        language: s.language,
+        geminiApiKey: s.geminiApiKey
     })));
     const [isGenerating, setIsGenerating] = useState(false);
     const isMounted = React.useRef(false);

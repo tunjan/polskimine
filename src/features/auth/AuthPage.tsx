@@ -39,8 +39,7 @@ export const AuthPage: React.FC = () => {
   const { markInitialDeckGenerated } = useProfile();
   const { register, login, getRegisteredUsers } = useAuth();
 
-  // const settings = useSettingsStore(s => s.settings); // Unused
-  const updateSettings = useSettingsStore(s => s.updateSettings);
+    const updateSettings = useSettingsStore(s => s.updateSettings);
   const [loading, setLoading] = useState(false);
 
   const [authMode, setAuthMode] = useState<AuthMode>('register');
@@ -57,8 +56,7 @@ export const AuthPage: React.FC = () => {
     const loadUsers = async () => {
       const users = await getRegisteredUsers();
       setExistingUsers(users);
-      // If there are existing users, default to login mode
-      if (users.length > 0) {
+            if (users.length > 0) {
         setAuthMode('login');
       }
     };
@@ -94,8 +92,7 @@ export const AuthPage: React.FC = () => {
         setLoading(false);
       }
     } else {
-      // Login
-      if (!username.trim()) {
+            if (!username.trim()) {
         toast.error('Please enter your username');
         return;
       }
@@ -107,8 +104,7 @@ export const AuthPage: React.FC = () => {
       setLoading(true);
       try {
         await login(username.trim(), password);
-        // Login successful - AuthContext sets user state, App.tsx will re-render
-      } catch (error: any) {
+              } catch (error: any) {
         toast.error(error.message || 'Login failed');
       } finally {
         setLoading(false);
@@ -172,8 +168,7 @@ export const AuthPage: React.FC = () => {
         toast.success(`Loaded ${allCards.length} starter cards for ${languages.length} language${languages.length > 1 ? 's' : ''}!`);
       }
 
-      // Add user_id to all cards
-      allCards = allCards.map(c => ({ ...c, user_id: currentUserId }));
+            allCards = allCards.map(c => ({ ...c, user_id: currentUserId }));
 
       if (allCards.length > 0) {
         await saveAllCards(allCards);

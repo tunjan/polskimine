@@ -2,9 +2,12 @@ import { useCallback, useEffect, useReducer, useRef } from 'react';
 import { Card, CardStatus, Grade, UserSettings } from '@/types';
 import { calculateNextReview } from '@/core/srs/scheduler';
 import { isNewCard } from '@/services/studyLimits';
-import { sortCards } from "@/core/srs/cardSorter";
+import { sortCards } from '@/core/srs/cardSorter';
+import { SessionState, checkSchedule, getInitialStatus, reducer } from '../logic/sessionReducer';
+import { useXpSession } from './useXpSession';
+import { CardXpPayload, CardRating } from '@/core/gamification/xp';
 
-interface UseStudySessionParams {
+interface UseStudyQueueParams {
   dueCards: Card[];
   reserveCards?: Card[];
   cardOrder: UserSettings['cardOrder'];
@@ -12,16 +15,37 @@ interface UseStudySessionParams {
   fsrs: UserSettings['fsrs'];
   learningSteps: UserSettings['learningSteps'];
   onUpdateCard: (card: Card) => void;
-  onRecordReview: (card: Card, updatedCard: Card, grade: Grade) => void;
+  onRecordReview: (oldCard: Card, newCard: Card, grade: Grade, xpPayload?: CardXpPayload) => void;
   canUndo?: boolean;
   onUndo?: () => void;
+  dailyStreak: number;
+  isCramMode?: boolean;
 }
 
-import { SessionState, checkSchedule, getInitialStatus, reducer } from '../logic/sessionReducer';
+const gradeToRatingMap: Record<Grade, CardRating> = {
+  Again: 'again',
+  Hard: 'hard',
+  Good: 'good',
+  Easy: 'easy',
+};
 
+const mapGradeToRating = (grade: Grade): CardRating => gradeToRatingMap[grade];
 
+const getQueueCounts = (cards: Card[]) => {
+  return cards.reduce(
+    (acc, card) => {
+      const state = card.state;
+      if (state === 0 || (state === undefined && card.status === 'new')) acc.unseen++;
+      else if (state === 1 || (state === undefined && card.status === 'learning')) acc.learning++;
+      else if (state === 3) acc.lapse++;
+      else acc.mature++;
+      return acc;
+    },
+    { unseen: 0, learning: 0, lapse: 0, mature: 0 }
+  );
+};
 
-export const useStudySession = ({
+export const useStudyQueue = ({
   dueCards,
   reserveCards: initialReserve = [],
   cardOrder,
@@ -32,7 +56,10 @@ export const useStudySession = ({
   onRecordReview,
   canUndo,
   onUndo,
-}: UseStudySessionParams) => {
+  dailyStreak,
+  isCramMode = false,
+}: UseStudyQueueParams) => {
+  // Initialize state with reducer
   const initializeState = useCallback((
     initialCards: Card[], 
     initialReserve: Card[],
@@ -61,15 +88,20 @@ export const useStudySession = ({
     history: [],
   }, () => initializeState(dueCards, initialReserve, cardOrder, ignoreLearningStepsWhenNoCards));
 
-        const isFirstMount = useRef(true);
+  // XP session management
+  const { sessionXp, sessionStreak, multiplierInfo, feedback, processCardResult, subtractXp } = useXpSession(dailyStreak, isCramMode);
+  const lastXpEarnedRef = useRef<number>(0);
 
+  const isFirstMount = useRef(true);
+
+  // Handle card updates when dueCards changes
   useEffect(() => {
     if (isFirstMount.current) {
       isFirstMount.current = false;
       return;
     }
 
-        if (dueCards.length > 0) {
+    if (dueCards.length > 0) {
       const order = cardOrder || 'newFirst';
       const sortedCards = sortCards(dueCards, order);
 
@@ -83,6 +115,7 @@ export const useStudySession = ({
     }
   }, [dueCards, initialReserve, cardOrder, ignoreLearningStepsWhenNoCards]);
 
+  // Handle waiting state with timer
   useEffect(() => {
     if (state.status === 'WAITING') {
       const timer = setTimeout(() => {
@@ -98,14 +131,30 @@ export const useStudySession = ({
 
   const currentCard = state.cards[state.currentIndex];
 
-  const handleGrade = useCallback(async (grade: Grade) => {
+  // Stable callback for grading cards
+  const gradeCard = useCallback(async (grade: Grade) => {
     if (state.status !== 'FLIPPED') return;
 
     dispatch({ type: 'START_PROCESSING' });
 
     try {
       const updatedCard = calculateNextReview(currentCard, grade, fsrs, learningSteps);
-      await onRecordReview(currentCard, updatedCard, grade);
+      
+      // Process XP
+      const rating = mapGradeToRating(grade);
+      const xpResult = processCardResult(rating);
+      lastXpEarnedRef.current = xpResult.totalXp;
+      
+      const payload: CardXpPayload = {
+        ...xpResult,
+        rating,
+        streakAfter: rating === 'again' ? 0 : sessionStreak + 1,
+        isCramMode,
+        dailyStreak,
+        multiplierLabel: multiplierInfo.label
+      };
+
+      await onRecordReview(currentCard, updatedCard, grade, payload);
 
       const isLast = state.currentIndex === state.cards.length - 1;
       const addedCardId = updatedCard.status === 'learning' && !isLast ? updatedCard.id : null;
@@ -122,9 +171,37 @@ export const useStudySession = ({
       console.error("Grade failed", e);
       dispatch({ type: 'GRADE_FAILURE' });
     }
-  }, [state.status, state.currentIndex, state.cards, currentCard, fsrs, learningSteps, ignoreLearningStepsWhenNoCards, onRecordReview]);
+  }, [
+    state.status, 
+    state.currentIndex, 
+    state.cards.length, 
+    currentCard, 
+    fsrs, 
+    learningSteps, 
+    ignoreLearningStepsWhenNoCards, 
+    onRecordReview, 
+    processCardResult, 
+    sessionStreak, 
+    isCramMode, 
+    dailyStreak, 
+    multiplierInfo
+  ]);
 
-  const handleMarkKnown = useCallback(async () => {
+  // Stable callback for undo
+  const undo = useCallback(() => {
+    if (state.status === 'PROCESSING' || !canUndo || !onUndo) return;
+    
+    if (lastXpEarnedRef.current > 0) {
+      subtractXp(lastXpEarnedRef.current);
+      lastXpEarnedRef.current = 0;
+    }
+    
+    onUndo();
+    dispatch({ type: 'UNDO' });
+  }, [state.status, canUndo, onUndo, subtractXp]);
+
+  // Stable callback for marking card as known
+  const markKnown = useCallback(async () => {
     if (state.status === 'PROCESSING') return;
 
     dispatch({ type: 'START_PROCESSING' });
@@ -152,17 +229,10 @@ export const useStudySession = ({
       console.error("Mark Known failed", e);
       dispatch({ type: 'GRADE_FAILURE' });
     }
-
   }, [state.status, currentCard, state.reserveCards, ignoreLearningStepsWhenNoCards, onUpdateCard]);
 
-
-  const handleUndo = useCallback(() => {
-    if (state.status === 'PROCESSING' || !canUndo || !onUndo) return;
-    onUndo();
-    dispatch({ type: 'UNDO' });
-  }, [state.status, canUndo, onUndo]);
-
-  const removeCardFromSession = useCallback((cardId: string) => {
+  // Stable callback for removing a card
+  const removeCard = useCallback((cardId: string) => {
     const card = state.cards.find(c => c.id === cardId);
     let newCardFromReserve: Card | null = null;
     if (card && isNewCard(card) && state.reserveCards.length > 0) {
@@ -177,28 +247,44 @@ export const useStudySession = ({
     });
   }, [state.cards, state.reserveCards, ignoreLearningStepsWhenNoCards]);
 
-  const updateCardInSession = useCallback((card: Card) => {
+  // Stable callback for updating a card
+  const updateCard = useCallback((card: Card) => {
     dispatch({ type: 'UPDATE_CARD', card });
   }, []);
 
-  const setIsFlipped = (flipped: boolean) => {
+  // UI state management
+  const setIsFlipped = useCallback((flipped: boolean) => {
     if (flipped) dispatch({ type: 'FLIP' });
-  };
+  }, []);
+
+  // Calculate queue counts
+  const counts = getQueueCounts(state.cards.slice(state.currentIndex));
 
   return {
-    sessionCards: state.cards,
     currentCard,
-    currentIndex: state.currentIndex,
-    isFlipped: state.status === 'FLIPPED',
-    sessionComplete: state.status === 'COMPLETE',
-    isProcessing: state.status === 'PROCESSING',
-    isWaiting: state.status === 'WAITING',
-    handleGrade,
-    handleMarkKnown,
-    handleUndo,
-    progress: state.cards.length ? (state.currentIndex / state.cards.length) * 100 : 0,
-    removeCardFromSession,
-    updateCardInSession,
-    setIsFlipped
+    stats: {
+      progress: state.cards.length ? (state.currentIndex / state.cards.length) * 100 : 0,
+      counts,
+      sessionXp,
+      sessionStreak,
+      multiplierInfo,
+      feedback,
+      isProcessing: state.status === 'PROCESSING',
+      isWaiting: state.status === 'WAITING',
+      isFinished: state.status === 'COMPLETE',
+      currentIndex: state.currentIndex,
+      totalCards: state.cards.length,
+    },
+    actions: {
+      gradeCard,
+      undo,
+      markKnown,
+      removeCard,
+      updateCard,
+    },
+    uiState: {
+      isFlipped: state.status === 'FLIPPED',
+      setIsFlipped,
+    },
   };
 };

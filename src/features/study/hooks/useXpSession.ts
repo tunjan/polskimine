@@ -16,11 +16,9 @@ export const useXpSession = (dailyStreak: number, isCramMode: boolean) => {
   const multiplierInfo = getDailyStreakMultiplier(dailyStreak);
 
   const processCardResult = useCallback((rating: CardRating): XpCalculationResult => {
-    // Calculate what the XP would be
-    const result = calculateCardXp(rating, sessionStreak, dailyStreak, isCramMode);
+        const result = calculateCardXp(rating, sessionStreak, dailyStreak, isCramMode);
     
-    // Update state
-    setSessionXp(prev => prev + result.totalXp);
+        setSessionXp(prev => prev + result.totalXp);
     
     if (rating === 'again') {
         setSessionStreak(0);
@@ -28,8 +26,7 @@ export const useXpSession = (dailyStreak: number, isCramMode: boolean) => {
         setSessionStreak(prev => prev + 1);
     }
 
-    // Generate feedback if applicable (e.g. > 0 xp)
-    if (result.totalXp > 0) {
+        if (result.totalXp > 0) {
         setFeedback({
             id: Date.now(),
             message: `+${result.totalXp} XP`,
@@ -43,12 +40,7 @@ export const useXpSession = (dailyStreak: number, isCramMode: boolean) => {
 
   const subtractXp = useCallback((amount: number) => {
     setSessionXp(prev => Math.max(0, prev - amount));
-    // We might also want to revert streak? But it's complex to know previous streak. 
-    // Usually undo just reverts the last action.
-    // For now, let's just revert XP.
-    // Ideally the consumer handles streak reversion if they have state, 
-    // but here we just expose what was asked.
-  }, []);
+                      }, []);
 
   return {
     sessionXp,

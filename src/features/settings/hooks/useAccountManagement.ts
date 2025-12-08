@@ -1,83 +1,77 @@
 import { useState } from 'react';
-import { useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
-import { v4 as uuidv4 } from 'uuid';
-
-import { db } from '@/db/dexie';
 import { useSettingsStore } from '@/stores/useSettingsStore';
-import { LanguageId } from '@/types';
 import {
-    deleteCardsByLanguage,
-    saveAllCards,
+  clearAllCards,
+  saveAllCards,
 } from '@/db/repositories/cardRepository';
 import { clearHistory } from '@/db/repositories/historyRepository';
-import { POLISH_BEGINNER_DECK } from '@/assets/starter-decks/polish';
-import { NORWEGIAN_BEGINNER_DECK } from '@/assets/starter-decks/norwegian';
-import { JAPANESE_BEGINNER_DECK } from '@/assets/starter-decks/japanese';
-import { SPANISH_BEGINNER_DECK } from '@/assets/starter-decks/spanish';
+import { db } from '@/db/dexie';
+import { useDeckActions } from '@/hooks/useDeckActions';
+import { initialCards } from '@/data/initialCards';
+import { useAuth } from '@/contexts/AuthContext';
+import { useProfile } from '@/features/profile/hooks/useProfile';
 
 export const useAccountManagement = () => {
-    const settings = useSettingsStore(s => s.settings);
-    const queryClient = useQueryClient();
-    const [confirmResetDeck, setConfirmResetDeck] = useState(false);
-    const [confirmResetAccount, setConfirmResetAccount] = useState(false);
+  const language = useSettingsStore(s => s.language);
+  const { refreshDeckData } = useDeckActions();
+  const { user, deleteAccount } = useAuth();
+  const { updateLanguageLevel } = useProfile();
 
-    const handleResetDeck = async () => {
-        if (!confirmResetDeck) {
-            setConfirmResetDeck(true);
-            return;
-        }
-        try {
-            await deleteCardsByLanguage(settings.language);
+  const [confirmResetDeck, setConfirmResetDeck] = useState(false);
+  const [confirmResetAccount, setConfirmResetAccount] = useState(false);
 
-            await clearHistory(settings.language);
+  const handleResetDeck = async () => {
+    if (!confirmResetDeck) {
+      setConfirmResetDeck(true);
+      toast.warning("Click again to confirm deck reset. This cannot be undone.");
+      setTimeout(() => setConfirmResetDeck(false), 3000);
+      return;
+    }
 
-            const rawDeck =
-                settings.language === LanguageId.Norwegian ? NORWEGIAN_BEGINNER_DECK :
-                    (settings.language === LanguageId.Japanese ? JAPANESE_BEGINNER_DECK :
-                        (settings.language === LanguageId.Spanish ? SPANISH_BEGINNER_DECK : POLISH_BEGINNER_DECK));
-            const deck = rawDeck.map(c => ({ ...c, id: uuidv4(), dueDate: new Date().toISOString() }));
-            await saveAllCards(deck);
+    try {
+      await clearAllCards();
+      await clearHistory();
+      await db.revlog.clear();
+      await db.aggregated_stats.clear();
 
-            toast.success("Deck reset successfully");
-            queryClient.clear();
-            setTimeout(() => window.location.reload(), 500);
-        } catch (e) {
-            console.error(e);
-            toast.error("Failed to reset deck");
-        }
-    };
+            const beginnerCards = initialCards.map(c => ({
+        ...c,
+        user_id: user?.id || 'local-user',
+        language       }));
+      await saveAllCards(beginnerCards as any);
+      await updateLanguageLevel('A1');
 
-    const handleResetAccount = async () => {
-        if (!confirmResetAccount) {
-            setConfirmResetAccount(true);
-            return;
-        }
+      refreshDeckData();
+      toast.success("Deck has been reset to beginner course.");
+      setConfirmResetDeck(false);
+    } catch (error) {
+      console.error("Failed to reset deck", error);
+      toast.error("Failed to reset deck.");
+    }
+  };
 
-        try {
-            await db.cards.clear();
-            await db.revlog.clear();
-            await db.history.clear();
-            await db.profile.clear();
-            await db.settings.clear();
-            await db.aggregated_stats.clear();
+  const handleResetAccount = async () => {
+    if (!confirmResetAccount) {
+      setConfirmResetAccount(true);
+      toast.error("Click again to confirm account deletion. ALL DATA WILL BE LOST FOREVER.");
+      setTimeout(() => setConfirmResetAccount(false), 3000);
+      return;
+    }
 
-            toast.success("Account reset successfully. Restarting...");
-            queryClient.clear();
-            setTimeout(() => window.location.reload(), 1500);
+    try {
+      await deleteAccount();
+      toast.success("Account deleted.");
+          } catch (error) {
+      console.error("Failed to delete account", error);
+      toast.error("Failed to delete account.");
+    }
+  };
 
-        } catch (error: any) {
-            console.error("Account reset failed", error);
-            toast.error(`Reset failed: ${error.message}`);
-        }
-    };
-
-    return {
-        handleResetDeck,
-        handleResetAccount,
-        confirmResetDeck,
-        setConfirmResetDeck,
-        confirmResetAccount,
-        setConfirmResetAccount
-    };
+  return {
+    handleResetDeck,
+    handleResetAccount,
+    confirmResetDeck,
+    confirmResetAccount
+  };
 };

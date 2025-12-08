@@ -1,6 +1,7 @@
 import React from 'react';
 import { Volume2, Mic, Gauge } from 'lucide-react';
 import { UserSettings } from '@/types';
+import { TTS_PROVIDER } from '@/constants/settings';
 import { Input } from '@/components/ui/input';
 import { Slider } from '@/components/ui/slider';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -53,9 +54,9 @@ export const AudioSettings: React.FC<AudioSettingsProps> = ({
               </SelectTrigger>
               <SelectContent>
                 {[
-                  { value: 'browser', label: 'Browser Native' },
-                  { value: 'google', label: 'Google Cloud TTS' },
-                  { value: 'azure', label: 'Microsoft Azure' },
+                  { value: TTS_PROVIDER.BROWSER, label: 'Browser Native' },
+                  { value: TTS_PROVIDER.GOOGLE, label: 'Google Cloud TTS' },
+                  { value: TTS_PROVIDER.AZURE, label: 'Microsoft Azure' },
                 ].map((option) => (
                   <SelectItem key={option.value} value={option.value}>
                     {option.label}
@@ -65,19 +66,19 @@ export const AudioSettings: React.FC<AudioSettingsProps> = ({
             </Select>
           </div>
 
-          {localSettings.tts.provider !== 'browser' && (
+          {localSettings.tts.provider !== TTS_PROVIDER.BROWSER && (
             <div className="pt-4 space-y-4 border-t mt-4">
               <div className="space-y-2">
                 <Label>API Credentials</Label>
                 <Input
                   type="password"
-                  placeholder={localSettings.tts.provider === 'google' ? "Google Cloud API key" : "Azure subscription key"}
-                  value={localSettings.tts.provider === 'google' ? localSettings.tts.googleApiKey : localSettings.tts.azureApiKey}
-                  onChange={(e) => updateTts(localSettings.tts.provider === 'google' ? { googleApiKey: e.target.value } : { azureApiKey: e.target.value })}
+                  placeholder={localSettings.tts.provider === TTS_PROVIDER.GOOGLE ? "Google Cloud API key" : "Azure subscription key"}
+                  value={localSettings.tts.provider === TTS_PROVIDER.GOOGLE ? localSettings.tts.googleApiKey : localSettings.tts.azureApiKey}
+                  onChange={(e) => updateTts(localSettings.tts.provider === TTS_PROVIDER.GOOGLE ? { googleApiKey: e.target.value } : { azureApiKey: e.target.value })}
                   className="font-mono"
                 />
               </div>
-              {localSettings.tts.provider === 'azure' && (
+              {localSettings.tts.provider === TTS_PROVIDER.AZURE && (
                 <div className="space-y-2">
                   <Label>Region</Label>
                   <Input

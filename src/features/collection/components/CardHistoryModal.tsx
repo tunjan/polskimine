@@ -68,11 +68,7 @@ export const CardHistoryModal: React.FC<CardHistoryModalProps> = ({ card, isOpen
   };
 
   const getStateVariant = (state?: number): "default" | "secondary" | "destructive" | "outline" => {
-    if (state === 0) return 'default'; // New
-    if (state === 1) return 'secondary'; // Learning
-    if (state === 2) return 'outline'; // Review
-    if (state === 3) return 'destructive'; // Relearning
-    return 'outline';
+    if (state === 0) return 'default';     if (state === 1) return 'secondary';     if (state === 2) return 'outline';     if (state === 3) return 'destructive';     return 'outline';
   };
 
   return (

@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useCallback } from 'react';
+import { useCallback } from 'react';
 import { Card, Grade } from '@/types';
 import { CardXpPayload } from '@/core/gamification/xp';
 import { useRecordReviewMutation, useUndoReviewMutation } from '@/features/collection/hooks/useDeckQueries';
@@ -8,15 +8,7 @@ import { getUTCDateString } from '@/constants';
 import { getSRSDate } from '@/core/srs/scheduler';
 import { useDeckStore } from '@/stores/useDeckStore';
 
-interface DeckDispatch {
-    recordReview: (oldCard: Card, newCard: Card, grade: Grade, xpPayload?: CardXpPayload) => Promise<void>;
-    undoReview: () => Promise<void>;
-    refreshDeckData: () => void;
-}
-
-const DeckActionsContext = createContext<DeckDispatch | undefined>(undefined);
-
-export const DeckActionsProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export const useDeckActions = () => {
     const queryClient = useQueryClient();
     const recordReviewMutation = useRecordReviewMutation();
     const undoReviewMutation = useUndoReviewMutation();
@@ -64,23 +56,9 @@ export const DeckActionsProvider: React.FC<{ children: React.ReactNode }> = ({ c
         queryClient.invalidateQueries({ queryKey: ['dashboardCards'] });
     }, [queryClient]);
 
-    const value = {
+    return {
         recordReview,
         undoReview,
         refreshDeckData,
     };
-
-    return (
-        <DeckActionsContext.Provider value={value}>
-            {children}
-        </DeckActionsContext.Provider>
-    );
-};
-
-export const useDeckActions = () => {
-    const context = useContext(DeckActionsContext);
-    if (context === undefined) {
-        throw new Error('useDeckActions must be used within a DeckActionsProvider');
-    }
-    return context;
 };

@@ -3,9 +3,7 @@ import { Card, Grade } from '@/types';
 import { Progress } from '@/components/ui/progress';
 import { useSettingsStore } from '@/stores/useSettingsStore';
 import { useShallow } from 'zustand/react/shallow';
-import { useStudySession } from '../hooks/useStudySession';
-import { useXpSession } from '../hooks/useXpSession';
-import { CardXpPayload, CardRating } from '@/core/gamification/xp';
+import { useStudyQueue } from '../hooks/useStudyQueue';
 import { AddCardModal } from '@/features/collection/components/AddCardModal';
 import { StudyHeader } from './StudyHeader';
 import { StudyFooter } from './StudyFooter';
@@ -15,35 +13,12 @@ import { StudySessionWaiting } from './StudySessionWaiting';
 import { useStudyShortcuts } from '../hooks/useStudyShortcuts';
 import { useReviewIntervals } from '../hooks/useReviewIntervals';
 
-const gradeToRatingMap: Record<Grade, CardRating> = {
-  Again: 'again',
-  Hard: 'hard',
-  Good: 'good',
-  Easy: 'easy',
-};
-
-const mapGradeToRating = (grade: Grade): CardRating => gradeToRatingMap[grade];
-
-const getQueueCounts = (cards: Card[]) => {
-  return cards.reduce(
-    (acc, card) => {
-      const state = card.state;
-      if (state === 0 || (state === undefined && card.status === 'new')) acc.unseen++;
-      else if (state === 1 || (state === undefined && card.status === 'learning')) acc.learning++;
-      else if (state === 3) acc.lapse++;
-      else acc.mature++;
-      return acc;
-    },
-    { unseen: 0, learning: 0, lapse: 0, mature: 0 }
-  );
-};
-
 interface StudySessionProps {
   dueCards: Card[];
   reserveCards?: Card[];
   onUpdateCard: (card: Card) => void;
   onDeleteCard: (id: string) => void;
-  onRecordReview: (oldCard: Card, newCard: Card, grade: Grade, xpPayload?: CardXpPayload) => void;
+  onRecordReview: (oldCard: Card, newCard: Card, grade: Grade, xpPayload?: any) => void;
   onExit: () => void;
   onComplete?: () => void;
   onUndo?: () => void;
@@ -78,62 +53,27 @@ export const StudySession: React.FC<StudySessionProps> = React.memo(({
     fsrs,
     ignoreLearningStepsWhenNoCards
   } = useSettingsStore(useShallow(s => ({
-    autoPlayAudio: s.settings.autoPlayAudio,
-    blindMode: s.settings.blindMode,
-    showTranslationAfterFlip: s.settings.showTranslationAfterFlip,
-    language: s.settings.language,
-    binaryRatingMode: s.settings.binaryRatingMode,
-    cardOrder: s.settings.cardOrder,
-    learningSteps: s.settings.learningSteps,
-    fsrs: s.settings.fsrs,
-    ignoreLearningStepsWhenNoCards: s.settings.ignoreLearningStepsWhenNoCards
+    autoPlayAudio: s.autoPlayAudio,
+    blindMode: s.blindMode,
+    showTranslationAfterFlip: s.showTranslationAfterFlip,
+    language: s.language,
+    binaryRatingMode: s.binaryRatingMode,
+    cardOrder: s.cardOrder,
+    learningSteps: s.learningSteps,
+    fsrs: s.fsrs,
+    ignoreLearningStepsWhenNoCards: s.ignoreLearningStepsWhenNoCards
   })));
 
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
-  const { sessionXp, sessionStreak, multiplierInfo, feedback, processCardResult, subtractXp } = useXpSession(dailyStreak, isCramMode);
 
-  const lastXpEarnedRef = React.useRef<number>(0);
-
-  const enhancedRecordReview = useCallback((card: Card, updatedCard: Card, grade: Grade) => {
-    const rating = mapGradeToRating(grade);
-    const xpResult = processCardResult(rating);
-    lastXpEarnedRef.current = xpResult.totalXp;
-    const payload: CardXpPayload = {
-      ...xpResult,
-      rating,
-      streakAfter: rating === 'again' ? 0 : sessionStreak + 1,
-      isCramMode,
-      dailyStreak,
-      multiplierLabel: multiplierInfo.label
-    };
-    onRecordReview(card, updatedCard, grade, payload);
-  }, [onRecordReview, processCardResult, sessionStreak, isCramMode, dailyStreak, multiplierInfo]);
-
-  const handleUndoWithXp = useCallback(() => {
-    if (onUndo && lastXpEarnedRef.current > 0) {
-      subtractXp(lastXpEarnedRef.current);
-      lastXpEarnedRef.current = 0;
-    }
-    onUndo?.();
-  }, [onUndo, subtractXp]);
-
+  // Use the new useStudyQueue hook that encapsulates all business logic
   const {
-    sessionCards,
     currentCard,
-    currentIndex,
-    isFlipped,
-    setIsFlipped,
-    sessionComplete,
-    handleGrade,
-    handleMarkKnown,
-    handleUndo,
-    progress,
-    isProcessing,
-    isWaiting,
-    removeCardFromSession,
-    updateCardInSession,
-  } = useStudySession({
+    stats,
+    actions,
+    uiState,
+  } = useStudyQueue({
     dueCards,
     reserveCards,
     cardOrder,
@@ -141,17 +81,19 @@ export const StudySession: React.FC<StudySessionProps> = React.memo(({
     fsrs,
     learningSteps,
     onUpdateCard,
-    onRecordReview: enhancedRecordReview,
+    onRecordReview,
     canUndo,
-    onUndo: handleUndoWithXp,
+    onUndo,
+    dailyStreak,
+    isCramMode,
   });
 
   const handleBookmark = useCallback((pressed: boolean) => {
     if (!currentCard) return;
     const updatedCard = { ...currentCard, isBookmarked: pressed };
     onUpdateCard(updatedCard);
-    updateCardInSession(updatedCard);
-  }, [currentCard, onUpdateCard, updateCardInSession]);
+    actions.updateCard(updatedCard);
+  }, [currentCard, onUpdateCard, actions]);
 
   const handleDelete = useCallback(async () => {
     if (!currentCard) return;
@@ -159,16 +101,14 @@ export const StudySession: React.FC<StudySessionProps> = React.memo(({
       setIsDeleting(true);
       try {
         await onDeleteCard(currentCard.id);
-        removeCardFromSession(currentCard.id);
+        actions.removeCard(currentCard.id);
       } catch (error) {
         console.error("Failed to delete card", error);
       } finally {
         setIsDeleting(false);
       }
     }
-  }, [currentCard, removeCardFromSession, onDeleteCard]);
-
-  const counts = useMemo(() => getQueueCounts(sessionCards.slice(currentIndex)), [sessionCards, currentIndex]);
+  }, [currentCard, actions, onDeleteCard]);
 
   const currentStatus = useMemo(() => {
     if (!currentCard) return null;
@@ -190,29 +130,30 @@ export const StudySession: React.FC<StudySessionProps> = React.memo(({
 
   const intervals = useReviewIntervals(currentCard, fsrs, learningSteps);
 
+  // Use stable callbacks from useStudyQueue for shortcuts
   useStudyShortcuts({
     currentCardId: currentCard?.id,
-    sessionComplete,
-    isFlipped,
-    setIsFlipped,
-    isProcessing,
-    handleGrade,
-    handleUndo: handleUndo,
+    sessionComplete: stats.isFinished,
+    isFlipped: uiState.isFlipped,
+    setIsFlipped: uiState.setIsFlipped,
+    isProcessing: stats.isProcessing,
+    handleGrade: actions.gradeCard,
+    handleUndo: actions.undo,
     onExit,
     canUndo: !!canUndo,
     binaryRatingMode: !!binaryRatingMode,
   });
 
-  if (isWaiting) {
+  if (stats.isWaiting) {
     return <StudySessionWaiting onExit={onExit} />;
   }
 
-  if (sessionComplete) {
+  if (stats.isFinished) {
     return (
       <StudySessionSummary
-        cardsReviewed={currentIndex}
-        sessionXp={sessionXp}
-        sessionStreak={sessionStreak}
+        cardsReviewed={stats.currentIndex}
+        sessionXp={stats.sessionXp}
+        sessionStreak={stats.sessionStreak}
         onComplete={onComplete}
         onExit={onExit}
       />
@@ -225,19 +166,19 @@ export const StudySession: React.FC<StudySessionProps> = React.memo(({
     <div className="fixed inset-0 z-50 bg-background flex flex-col overflow-hidden">
 
       <div className="relative h-2 w-full bg-card border-b border-primary/10 overflow-hidden">
-        <Progress value={progress} className="h-full w-full rounded-none" />
+        <Progress value={stats.progress} className="h-full w-full rounded-none" />
       </div>
 
       <StudyHeader
-        counts={counts}
+        counts={stats.counts}
         currentStatus={currentStatus}
-        sessionXp={sessionXp}
-        multiplierInfo={multiplierInfo}
-        isProcessing={isProcessing || isDeleting}
+        sessionXp={stats.sessionXp}
+        multiplierInfo={stats.multiplierInfo}
+        isProcessing={stats.isProcessing || isDeleting}
         onEdit={() => setIsEditModalOpen(true)}
         onDelete={handleDelete}
-        onArchive={handleMarkKnown}
-        onUndo={handleUndo}
+        onArchive={actions.markKnown}
+        onUndo={actions.undo}
         onExit={onExit}
         canUndo={!!canUndo}
         isBookmarked={currentCard?.isBookmarked}
@@ -245,9 +186,9 @@ export const StudySession: React.FC<StudySessionProps> = React.memo(({
       />
 
       <StudyCardArea
-        feedback={feedback}
+        feedback={stats.feedback}
         currentCard={currentCard}
-        isFlipped={isFlipped}
+        isFlipped={uiState.isFlipped}
         autoPlayAudio={autoPlayAudio || blindMode}
         blindMode={blindMode}
         showTranslation={showTranslationAfterFlip}
@@ -256,11 +197,11 @@ export const StudySession: React.FC<StudySessionProps> = React.memo(({
       />
 
       <StudyFooter
-        isFlipped={isFlipped}
-        setIsFlipped={setIsFlipped}
-        isProcessing={isProcessing}
+        isFlipped={uiState.isFlipped}
+        setIsFlipped={uiState.setIsFlipped}
+        isProcessing={stats.isProcessing}
         binaryRatingMode={binaryRatingMode}
-        onGrade={handleGrade}
+        onGrade={actions.gradeCard}
         intervals={intervals}
       />
 
@@ -276,4 +217,3 @@ export const StudySession: React.FC<StudySessionProps> = React.memo(({
     </div>
   );
 });
-

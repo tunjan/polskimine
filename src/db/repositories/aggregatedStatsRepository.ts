@@ -54,8 +54,7 @@ export const recalculateAllStats = async (language?: string): Promise<void> => {
     const userId = getCurrentUserId();
     if (!userId) return;
 
-    // Use composite index for user+language query instead of filter
-    const cards = language
+        const cards = language
         ? await db.cards.where('[user_id+language]').equals([userId, language]).toArray()
         : await db.cards.where('user_id').equals(userId).toArray();
 

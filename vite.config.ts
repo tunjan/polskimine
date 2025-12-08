@@ -1,17 +1,16 @@
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { defineConfig, loadEnv } from 'vite';
+import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import tailwindcss from '@tailwindcss/vite';
 import { version } from './package.json';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-export default defineConfig(({ mode }) => {
-  const env = loadEnv(mode, '.', '');
+export default defineConfig(() => {
   return {
     server: {
-      port: 3000,
+      port: 5173,
       host: '0.0.0.0',
     },
     plugins: [react(), tailwindcss()],
@@ -30,10 +29,8 @@ export default defineConfig(({ mode }) => {
       rollupOptions: {
         output: {
           manualChunks: {
-            // Core React - changes rarely
-            'vendor-react': ['react', 'react-dom', 'react-router-dom'],
-            // Radix UI components - changes rarely  
-            'vendor-radix': [
+                        'vendor-react': ['react', 'react-dom', 'react-router-dom'],
+                        'vendor-radix': [
               '@radix-ui/react-dialog',
               '@radix-ui/react-dropdown-menu',
               '@radix-ui/react-select',
@@ -49,20 +46,13 @@ export default defineConfig(({ mode }) => {
               '@radix-ui/react-label',
               '@radix-ui/react-slot',
             ],
-            // Charts - large, only needed on dashboard
-            'vendor-charts': ['recharts'],
-            // Database layer - core functionality
-            'vendor-db': ['dexie', 'dexie-react-hooks', 'idb'],
-            // Animations - used throughout but can load async
-            'vendor-motion': ['framer-motion'],
-            // Icons - used everywhere
-            'vendor-icons': ['lucide-react'],
-            // Form handling
-            'vendor-forms': ['react-hook-form', '@hookform/resolvers', 'zod'],
-            // Spaced repetition algorithm
-            'vendor-srs': ['ts-fsrs'],
-            // Data utilities
-            'vendor-utils': ['date-fns', 'clsx', 'tailwind-merge', 'uuid'],
+                        'vendor-charts': ['recharts'],
+                        'vendor-db': ['dexie', 'dexie-react-hooks', 'idb'],
+                        'vendor-motion': ['framer-motion'],
+                        'vendor-icons': ['lucide-react'],
+                        'vendor-forms': ['react-hook-form', '@hookform/resolvers', 'zod'],
+                        'vendor-srs': ['ts-fsrs'],
+                        'vendor-utils': ['date-fns', 'clsx', 'tailwind-merge', 'uuid'],
           },
         },
       },

@@ -1,11 +1,11 @@
 import React, { Suspense, lazy } from 'react';
 import { Routes, Route } from 'react-router-dom';
 
-// Lazy load all route components for better code splitting
 const DashboardRoute = lazy(() => import('@/routes/DashboardRoute').then(m => ({ default: m.DashboardRoute })));
 const StudyRoute = lazy(() => import('@/routes/StudyRoute').then(m => ({ default: m.StudyRoute })));
 const CardsRoute = lazy(() => import('@/routes/CardsRoute').then(m => ({ default: m.CardsRoute })));
 const SettingsRoute = lazy(() => import('@/features/settings/routes/SettingsRoute').then(m => ({ default: m.SettingsRoute })));
+const TestStatsRoute = lazy(() => import('@/routes/TestStatsRoute').then(m => ({ default: m.TestStatsRoute })));
 
 const RouteLoadingFallback = () => (
   <div className="min-h-screen flex items-center justify-center bg-background">
@@ -22,6 +22,7 @@ export const AppRoutes: React.FC = () => (
       <Route path="/" element={<DashboardRoute />} />
       <Route path="/study" element={<StudyRoute />} />
       <Route path="/cards" element={<CardsRoute />} />
+      <Route path="/test-stats" element={<TestStatsRoute />} />
       <Route path="/settings/*" element={<SettingsRoute />} />
     </Routes>
   </Suspense>

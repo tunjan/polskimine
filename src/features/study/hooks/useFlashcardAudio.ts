@@ -21,7 +21,7 @@ export function useFlashcardAudio({
 }: UseFlashcardAudioProps) {
     const [playSlow, setPlaySlow] = useState(false);
     const playSlowRef = useRef(playSlow);
-    const hasSpokenRef = useRef<string | null>(null);
+        const lastSpokenCardId = useRef<string | null>(null);
 
     useEffect(() => {
         playSlowRef.current = playSlow;
@@ -53,13 +53,12 @@ export function useFlashcardAudio({
         setPlaySlow(prev => !prev);
     }, [card.targetSentence, language, tts, getPlainTextForTTS]);
 
+
+
     useEffect(() => {
-        if (hasSpokenRef.current !== card.id) {
-            hasSpokenRef.current = null;
-        }
-        if (autoPlayAudio && isFlipped && hasSpokenRef.current !== card.id) {
+                                        if (autoPlayAudio && isFlipped && lastSpokenCardId.current !== card.id) {
             speak();
-            hasSpokenRef.current = card.id;
+            lastSpokenCardId.current = card.id;
         }
     }, [card.id, autoPlayAudio, isFlipped, speak]);
 

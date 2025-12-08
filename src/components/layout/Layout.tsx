@@ -68,7 +68,7 @@ const AppSidebar: React.FC<NavActionProps> = ({
 }) => {
   const location = useLocation();
   const { language, updateSettings } = useSettingsStore(useShallow(s => ({
-    language: s.settings.language,
+    language: s.language,
     updateSettings: s.updateSettings
   })));
   const { signOut } = useAuth();
@@ -297,4 +297,3 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
     </SidebarProvider>
   );
 };
-

@@ -1,10 +1,9 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { toast } from 'sonner';
 
 import { useSettingsStore } from '@/stores/useSettingsStore';
-import { useDeckActions } from '@/contexts/DeckActionsContext';
+import { useDeckActions } from '@/hooks/useDeckActions';
 import { useAuth } from '@/contexts/AuthContext';
 import { useProfile } from '@/features/profile/hooks/useProfile';
 import { UserSettings, Language } from '@/types';
@@ -49,8 +48,8 @@ const useDebouncedUsername = (localUsername: string, updateUsername: (name: stri
 
 
 const GeneralSettingsFinal = () => {
-    const { settings, setSettings } = useSettingsStore();
-    const { profile, updateUsername, updateLanguageLevel } = useProfile();
+    const settings = useSettingsStore();
+    const setSettings = useSettingsStore(s => s.setFullSettings);     const { profile, updateUsername, updateLanguageLevel } = useProfile();
     const [localUsername, setLocalUsername] = useState(profile?.username || '');
 
     useEffect(() => {
@@ -59,6 +58,7 @@ const GeneralSettingsFinal = () => {
 
     useDebouncedUsername(localUsername, async (name) => { await updateUsername(name); }, profile?.username);
 
+        
     return (
         <GeneralSettings
             localSettings={settings}
@@ -73,7 +73,8 @@ const GeneralSettingsFinal = () => {
 
 
 const AudioSettingsPage = () => {
-    const { settings, setSettings } = useSettingsStore();
+    const settings = useSettingsStore();
+    const setSettings = useSettingsStore(s => s.setFullSettings);
     const [availableVoices, setAvailableVoices] = useState<VoiceOption[]>([]);
 
     useEffect(() => {
@@ -106,17 +107,20 @@ const AudioSettingsPage = () => {
 };
 
 const StudySettingsPage = () => {
-    const { settings, setSettings } = useSettingsStore();
+    const settings = useSettingsStore();
+    const setSettings = useSettingsStore(s => s.setFullSettings);
     return <StudySettings localSettings={settings} setLocalSettings={setSettings} />;
 };
 
 const AlgorithmSettingsPage = () => {
-    const { settings, setSettings } = useSettingsStore();
+    const settings = useSettingsStore();
+    const setSettings = useSettingsStore(s => s.setFullSettings);
     return <AlgorithmSettings localSettings={settings} setLocalSettings={setSettings} />;
 };
 
 const DataSettingsPage = () => {
-    const { settings, setSettings } = useSettingsStore();
+    const settings = useSettingsStore();
+    const setSettings = useSettingsStore(s => s.setFullSettings);
     const { user } = useAuth();
     const { refreshDeckData } = useDeckActions();
 
@@ -151,8 +155,7 @@ const DataSettingsPage = () => {
                 geminiApiKey: includeApiKeys ? settings.geminiApiKey : ''
             };
 
-            // Remove user_id from export data to avoid conflicts on import
-            const cleanCards = cards.map(({ user_id, ...rest }) => rest);
+                        const cleanCards = cards.map(({ user_id, ...rest }) => rest);
             const cleanRevlog = revlog.map(({ user_id, ...rest }) => rest);
 
             const exportData = {
@@ -330,7 +333,7 @@ const DataSettingsPage = () => {
 };
 
 const DangerSettingsPage = () => {
-    const { settings } = useSettingsStore();
+    const settings = useSettingsStore();
     const { handleResetDeck, handleResetAccount, confirmResetDeck, confirmResetAccount } = useAccountManagement();
 
     return (

@@ -7,15 +7,13 @@ export const getHistory = async (language?: Language): Promise<ReviewHistory> =>
   const userId = getCurrentUserId();
   if (!userId) return {};
 
-  // Use composite index for user-scoped query
-  let logs = await db.revlog
+    let logs = await db.revlog
     .where('user_id')
     .equals(userId)
     .toArray();
 
   if (language) {
-    // Use composite index for user+language card lookup
-    const cards = await db.cards
+        const cards = await db.cards
       .where('[user_id+language]')
       .equals([userId, language])
       .toArray();
@@ -38,15 +36,13 @@ export const incrementHistory = async (
   const userId = getCurrentUserId();
   if (!userId) return;
 
-  // Use composite index [user_id+date+language] for efficient lookup
-  const existing = await db.history
+    const existing = await db.history
     .where('[user_id+date+language]')
     .equals([userId, date, language])
     .first();
 
   if (existing) {
-    // Update using the composite primary key
-    await db.history.update([date, language], {
+        await db.history.update([date, language], {
       count: existing.count + delta
     });
   } else {
@@ -80,8 +76,7 @@ export const clearHistory = async (language?: Language) => {
   if (!userId) return;
 
   if (language) {
-    // Use composite index for user+language
-    const historyToDelete = await db.history
+        const historyToDelete = await db.history
       .where('[user_id+language]')
       .equals([userId, language])
       .toArray();

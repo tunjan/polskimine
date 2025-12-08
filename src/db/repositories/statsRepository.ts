@@ -6,26 +6,30 @@ import {
   getDashboardCounts,
   getCurrentUserId
 } from './cardRepository';
+import { CardStatus } from '@/types/cardStatus';
+import Dexie from 'dexie';
 
 export const getDashboardStats = async (language?: string) => {
   const userId = getCurrentUserId();
-  const counts = { new: 0, learning: 0, graduated: 0, known: 0 };
+  const counts = { new: 0, learning: 0, review: 0, known: 0 };
   let languageXp = 0;
 
   if (language && userId) {
-    // Use optimized composite index queries with user_id
-    const [newCount, knownCount, learningCount, graduatedCount, implicitKnownCount] = await Promise.all([
-      db.cards.where('[user_id+language+status]').equals([userId, language, 'new']).count(),
-      db.cards.where('[user_id+language+status]').equals([userId, language, 'known']).count(),
-      db.cards.where('[user_id+language+status]').equals([userId, language, 'learning']).count(),
-      // Graduated (Reviewing) - Interval < 180
-      db.cards.where('[language+status+interval]')
-        .between([language, 'graduated', 0], [language, 'graduated', 180], true, false)
+        const [newCount, knownCount, learningCount, graduatedCount, implicitKnownCount] = await Promise.all([
+      db.cards.where('[user_id+language+status]').equals([userId, language, CardStatus.NEW]).count(),
+      db.cards.where('[user_id+language+status]').equals([userId, language, CardStatus.KNOWN]).count(),
+      db.cards.where('[user_id+language+status]').equals([userId, language, CardStatus.LEARNING]).count(),
+            db.cards.where('[language+status+interval]')
+        .between([language, CardStatus.REVIEW, 0], [language, CardStatus.REVIEW, 180], true, false)
         .filter(c => c.user_id === userId)
         .count(),
-       // Graduated (Implicit Known) - Interval >= 180
-      db.cards.where('[language+status+interval]')
-        .aboveOrEqual([language, 'graduated', 180])
+             db.cards.where('[language+status+interval]')
+        .between(
+          [language, CardStatus.REVIEW, 180],
+          [language, CardStatus.REVIEW, Dexie.maxKey],
+          true,
+          true
+        )
         .filter(c => c.user_id === userId)
         .count(),
     ]);
@@ -35,31 +39,56 @@ export const getDashboardStats = async (language?: string) => {
 
     counts.new = newCount;
     counts.learning = learningCount;
-    counts.graduated = graduatedCount;
+    counts.review = graduatedCount;
     counts.known = knownCount + implicitKnownCount;
 
-  } else {
+  } else if (language) {
+            const [newCount, knownCount, learningCount] = await Promise.all([
 
-    const [newCount, knownCountByStatus, learningCount] = await Promise.all([
-      db.cards.where('status').equals('new').count(),
-      db.cards.where('status').equals('known').count(),
-      db.cards.where('status').equals('learning').count()
+        db.cards.where('[language+status]').equals([language, CardStatus.NEW]).count(),
+        db.cards.where('[language+status]').equals([language, CardStatus.KNOWN]).count(),
+        db.cards.where('[language+status]').equals([language, CardStatus.LEARNING]).count()
+    ]);
+
+    let review = 0;
+    let implicitKnown = 0;
+
+        await db.cards.where('[language+status]').equals([language, CardStatus.REVIEW]).each(c => {
+         const interval = c.interval || 0;
+        if (interval < 180) review++;
+        else implicitKnown++;
+    });
+
+    counts.new = newCount;
+    counts.learning = learningCount;
+    counts.review = review;
+    counts.known = knownCount + implicitKnown;
+    
+                const xpStat = await db.aggregated_stats.where({ language, metric: 'total_xp' }).first();
+     languageXp = xpStat?.value ?? 0;
+
+  } else {
+        const [newCount, knownCountByStatus, learningCount] = await Promise.all([
+
+      db.cards.where('status').equals(CardStatus.NEW).count(),
+      db.cards.where('status').equals(CardStatus.KNOWN).count(),
+      db.cards.where('status').equals(CardStatus.LEARNING).count()
     ]);
 
 
-    let graduated = 0;
+    let review = 0;
     let implicitKnown = 0;
 
-    await db.cards.where('status').equals('graduated').each(c => {
+    await db.cards.where('status').equals(CardStatus.REVIEW).each(c => {
       const interval = c.interval || 0;
-      if (interval < 180) graduated++;
+      if (interval < 180) review++;
       else implicitKnown++;
     });
 
     counts.new = newCount;
     counts.known = knownCountByStatus + implicitKnown;
     counts.learning = learningCount;
-    counts.graduated = graduated;
+    counts.review = review;
 
     const globalXpStat = await db.aggregated_stats.get('global:total_xp');
     languageXp = globalXpStat?.value ?? 0;
@@ -81,7 +110,7 @@ export const getDashboardStats = async (language?: string) => {
     query = query.filter(c => c.language === language);
   }
 
-  query = query.filter(c => c.status !== 'new' && c.status !== 'known');
+  query = query.filter(c => c.status !== CardStatus.NEW && c.status !== CardStatus.KNOWN);
 
   await query.each(card => {
     if (!card.dueDate) return;
@@ -115,10 +144,10 @@ export const getStats = async (language?: string) => {
   const total = await db.cards.count();
   const due = await db.cards
     .where('dueDate').below(cutoffIso)
-    .filter(c => c.status !== 'known')
+    .filter(c => c.status !== CardStatus.KNOWN)
     .count();
   const learned = await db.cards
-    .where('status').anyOf('graduated', 'known')
+    .where('status').anyOf(CardStatus.REVIEW, CardStatus.KNOWN)
     .count();
 
   return { total, due, learned };
@@ -134,8 +163,7 @@ export const getTodayReviewStats = async (language?: string) => {
   const rangeEnd = new Date(rangeStart);
   rangeEnd.setDate(rangeEnd.getDate() + 1);
 
-  // Use user_id+created_at composite index for efficient filtering
-  const logs = await db.revlog
+    const logs = await db.revlog
     .where('[user_id+created_at]')
     .between(
       [userId, rangeStart.toISOString()],
@@ -149,8 +177,7 @@ export const getTodayReviewStats = async (language?: string) => {
   let reviewCards = 0;
 
   if (language) {
-    // Get card IDs for this language using composite index
-    const cardIds = await db.cards
+        const cardIds = await db.cards
       .where('[user_id+language]')
       .equals([userId, language])
       .primaryKeys();
@@ -179,15 +206,13 @@ export const getRevlogStats = async (language: string, days = 30) => {
   const startDate = startOfDay(subDays(new Date(), days - 1));
   const startDateIso = startDate.toISOString();
 
-  // Use composite index for efficient user+language card lookup
-  const cardIds = await db.cards
+    const cardIds = await db.cards
     .where('[user_id+language]')
     .equals([userId, language])
     .primaryKeys();
   const cardIdSet = new Set(cardIds);
 
-  // Use composite index for user+created_at range query
-  const logs = await db.revlog
+    const logs = await db.revlog
     .where('[user_id+created_at]')
     .between([userId, startDateIso], [userId, '\uffff'], true, true)
     .filter(log => cardIdSet.has(log.card_id))
@@ -203,12 +228,10 @@ export const getRevlogStats = async (language: string, days = 30) => {
   }
 
   logs.forEach(log => {
-    // Validate date string first
-    if (!log.created_at) return;
+        if (!log.created_at) return;
 
     const dateObj = new Date(log.created_at);
-    // distinct check for Invalid Date
-    if (isNaN(dateObj.getTime())) return;
+        if (isNaN(dateObj.getTime())) return;
 
     const dateKey = format(dateObj, 'yyyy-MM-dd');
     const dayData = activityMap.get(dateKey);

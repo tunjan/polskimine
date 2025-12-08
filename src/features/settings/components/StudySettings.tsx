@@ -3,6 +3,7 @@ import { Target, ListOrdered, ToggleLeft, Clock } from 'lucide-react';
 import { UserSettings } from '@/types';
 import { Input } from '@/components/ui/input';
 import { LANGUAGE_NAMES } from '@/constants';
+import { CARD_ORDER } from '@/constants/settings';
 import { Switch } from '@/components/ui/switch';
 import { Card, CardContent } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
@@ -140,16 +141,16 @@ export const StudySettings: React.FC<StudySettingsProps> = ({ localSettings, set
               <p className="text-xs text-muted-foreground/60 font-light pl-6">Choose presentation priority</p>
             </div>
             <Select
-              value={localSettings.cardOrder || 'newFirst'}
+              value={localSettings.cardOrder || CARD_ORDER.NEW_FIRST}
               onValueChange={(value) => setLocalSettings(prev => ({ ...prev, cardOrder: value as any }))}
             >
               <SelectTrigger className="w-[140px] border-0 border-b border-border/30 rounded-none shadow-none focus:ring-0 px-2 h-8">
                 <SelectValue placeholder="Select order" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="newFirst">New First</SelectItem>
-                <SelectItem value="reviewFirst">Review First</SelectItem>
-                <SelectItem value="mixed">Mixed</SelectItem>
+                <SelectItem value={CARD_ORDER.NEW_FIRST}>New First</SelectItem>
+                <SelectItem value={CARD_ORDER.REVIEW_FIRST}>Review First</SelectItem>
+                <SelectItem value={CARD_ORDER.MIXED}>Mixed</SelectItem>
               </SelectContent>
             </Select>
           </CardContent>

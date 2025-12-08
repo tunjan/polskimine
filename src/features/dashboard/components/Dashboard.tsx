@@ -58,8 +58,8 @@ export const Dashboard: React.FC<DashboardProps> = ({
   languageXp
 }) => {
   const { language, fsrs } = useSettingsStore(useShallow(s => ({
-    language: s.settings.language,
-    fsrs: s.settings.fsrs
+    language: s.language,
+    fsrs: s.fsrs
   })));
   const { profile } = useProfile();
 

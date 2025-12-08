@@ -41,8 +41,7 @@ export const OnboardingFlow: React.FC = () => {
 
   const handleLanguageContinue = () => {
     if (selectedLanguages.length > 0) {
-      // Set the first selected language as the primary language
-      updateSettings({ language: selectedLanguages[0] });
+            updateSettings({ language: selectedLanguages[0] });
       setStep('level');
     }
   };
@@ -63,8 +62,7 @@ export const OnboardingFlow: React.FC = () => {
       let allCards: Card[] = [];
 
       if (useAI && apiKey) {
-        // For AI generation, generate for all selected languages
-        for (const language of languages) {
+                for (const language of languages) {
           const languageCards = await generateInitialDeck({
             language,
             proficiencyLevel: selectedLevel,
@@ -73,8 +71,7 @@ export const OnboardingFlow: React.FC = () => {
           allCards = [...allCards, ...languageCards];
         }
       } else {
-        // Load default decks for all selected languages
-        for (const language of languages) {
+                for (const language of languages) {
           const rawDeck = BEGINNER_DECKS[language] || [];
           const languageCards = rawDeck.map(c => ({
             ...c,
@@ -87,8 +84,7 @@ export const OnboardingFlow: React.FC = () => {
         }
       }
 
-      // Ensure all cards have user_id
-      allCards = allCards.map(c => ({ ...c, user_id: user.id }));
+            allCards = allCards.map(c => ({ ...c, user_id: user.id }));
 
       if (allCards.length > 0) {
         console.log('[OnboardingFlow] Saving', allCards.length, 'cards across', languages.length, 'languages...');

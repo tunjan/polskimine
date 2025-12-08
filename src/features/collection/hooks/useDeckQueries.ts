@@ -20,44 +20,44 @@ import { toast } from 'sonner';
 import { CardXpPayload } from '@/core/gamification/xp';
 
 export const useDeckStatsQuery = () => {
-  const settings = useSettingsStore(s => s.settings);
+  const language = useSettingsStore(s => s.language);
   return useQuery({
-    queryKey: ['deckStats', settings.language],
-    queryFn: () => fetchStats(settings.language),
+    queryKey: ['deckStats', language],
+    queryFn: () => fetchStats(language),
     staleTime: 60 * 1000,
   });
 };
 
 export const useDueCardsQuery = () => {
-  const settings = useSettingsStore(s => s.settings);
+  const language = useSettingsStore(s => s.language);
   return useQuery({
-    queryKey: ['dueCards', settings.language],
-    queryFn: () => getDueCards(new Date(), settings.language),
+    queryKey: ['dueCards', language],
+    queryFn: () => getDueCards(new Date(), language),
     staleTime: 60 * 1000,
   });
 };
 
 export const useReviewsTodayQuery = () => {
-  const settings = useSettingsStore(s => s.settings);
+  const language = useSettingsStore(s => s.language);
   return useQuery({
-    queryKey: ['reviewsToday', settings.language],
-    queryFn: () => getTodayReviewStats(settings.language),
+    queryKey: ['reviewsToday', language],
+    queryFn: () => getTodayReviewStats(language),
     staleTime: 60 * 1000,
   });
 };
 
 export const useHistoryQuery = () => {
-  const settings = useSettingsStore(s => s.settings);
+  const language = useSettingsStore(s => s.language);
   return useQuery({
-    queryKey: ['history', settings.language],
-    queryFn: () => fetchHistory(settings.language),
+    queryKey: ['history', language],
+    queryFn: () => fetchHistory(language),
     staleTime: 5 * 60 * 1000,
   });
 };
 
 export const useRecordReviewMutation = () => {
   const queryClient = useQueryClient();
-  const settings = useSettingsStore(s => s.settings);
+  const language = useSettingsStore(s => s.language);
   const { user } = useAuth();
   const { incrementXP } = useGamification();
 
@@ -75,7 +75,7 @@ export const useRecordReviewMutation = () => {
 
       await db.transaction('rw', [db.cards, db.revlog, db.aggregated_stats, db.history], async () => {
         await saveCard(newCard); await addReviewLog(card, grade, elapsedDays, scheduledDays);
-        await incrementHistory(today, 1, card.language || settings.language);
+        await incrementHistory(today, 1, card.language || language);
       });
 
       const xpAmount = xpPayload?.totalXp ?? 0;
@@ -86,24 +86,24 @@ export const useRecordReviewMutation = () => {
       const today = format(getSRSDate(new Date()), 'yyyy-MM-dd');
 
       await Promise.all([
-        queryClient.cancelQueries({ queryKey: ['history', settings.language] }),
-        queryClient.cancelQueries({ queryKey: ['reviewsToday', settings.language] }),
-        queryClient.cancelQueries({ queryKey: ['dueCards', settings.language] }),
-        queryClient.cancelQueries({ queryKey: ['deckStats', settings.language] }),
-        queryClient.cancelQueries({ queryKey: ['dashboardStats', settings.language] })
+        queryClient.cancelQueries({ queryKey: ['history', language] }),
+        queryClient.cancelQueries({ queryKey: ['reviewsToday', language] }),
+        queryClient.cancelQueries({ queryKey: ['dueCards', language] }),
+        queryClient.cancelQueries({ queryKey: ['deckStats', language] }),
+        queryClient.cancelQueries({ queryKey: ['dashboardStats', language] })
       ]);
 
-      const previousHistory = queryClient.getQueryData(['history', settings.language]);
-      const previousReviewsToday = queryClient.getQueryData(['reviewsToday', settings.language]);
-      const previousDueCards = queryClient.getQueryData(['dueCards', settings.language]);
-      const previousDashboardStats = queryClient.getQueryData(['dashboardStats', settings.language]);
+      const previousHistory = queryClient.getQueryData(['history', language]);
+      const previousReviewsToday = queryClient.getQueryData(['reviewsToday', language]);
+      const previousDueCards = queryClient.getQueryData(['dueCards', language]);
+      const previousDashboardStats = queryClient.getQueryData(['dashboardStats', language]);
 
-      queryClient.setQueryData(['history', settings.language], (old: any) => {
+      queryClient.setQueryData(['history', language], (old: any) => {
         if (!old) return { [today]: 1 };
         return { ...old, [today]: (old[today] || 0) + 1 };
       });
 
-      queryClient.setQueryData(['reviewsToday', settings.language], (old: any) => {
+      queryClient.setQueryData(['reviewsToday', language], (old: any) => {
         if (!old) return { newCards: 0, reviewCards: 0 };
         return {
           newCards: card.status === 'new' ? old.newCards + 1 : old.newCards,
@@ -111,7 +111,7 @@ export const useRecordReviewMutation = () => {
         };
       });
 
-      queryClient.setQueryData(['dueCards', settings.language], (old: Card[] | undefined) => {
+      queryClient.setQueryData(['dueCards', language], (old: Card[] | undefined) => {
         if (!old) return [];
         if (grade === 'Again') return old;
         return old.filter(c => c.id !== card.id);
@@ -121,7 +121,7 @@ export const useRecordReviewMutation = () => {
         const xpAmount = xpPayload?.totalXp ?? 0;
         incrementXP(xpAmount);
 
-        queryClient.setQueryData(['dashboardStats', settings.language], (old: any) => {
+        queryClient.setQueryData(['dashboardStats', language], (old: any) => {
           if (!old) return old;
           return {
             ...old,
@@ -134,18 +134,18 @@ export const useRecordReviewMutation = () => {
     },
     onError: (_err, _newTodo, context) => {
       if (context) {
-        queryClient.setQueryData(['history', settings.language], context.previousHistory);
-        queryClient.setQueryData(['reviewsToday', settings.language], context.previousReviewsToday);
-        queryClient.setQueryData(['dueCards', settings.language], context.previousDueCards);
-        queryClient.setQueryData(['dashboardStats', settings.language], context.previousDashboardStats);
+        queryClient.setQueryData(['history', language], context.previousHistory);
+        queryClient.setQueryData(['reviewsToday', language], context.previousReviewsToday);
+        queryClient.setQueryData(['dueCards', language], context.previousDueCards);
+        queryClient.setQueryData(['dashboardStats', language], context.previousDashboardStats);
       }
     },
     onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ['history', settings.language] });
-      queryClient.invalidateQueries({ queryKey: ['reviewsToday', settings.language] });
-      queryClient.invalidateQueries({ queryKey: ['deckStats', settings.language] });
-      queryClient.invalidateQueries({ queryKey: ['dueCards', settings.language] });
-      queryClient.invalidateQueries({ queryKey: ['dashboardStats', settings.language] });
+      queryClient.invalidateQueries({ queryKey: ['history', language] });
+      queryClient.invalidateQueries({ queryKey: ['reviewsToday', language] });
+      queryClient.invalidateQueries({ queryKey: ['deckStats', language] });
+      queryClient.invalidateQueries({ queryKey: ['dueCards', language] });
+      queryClient.invalidateQueries({ queryKey: ['dashboardStats', language] });
     },
   });
 };
@@ -153,7 +153,7 @@ export const useRecordReviewMutation = () => {
 
 export const useClaimDailyBonusMutation = () => {
   const queryClient = useQueryClient();
-  const settings = useSettingsStore(s => s.settings);
+  const language = useSettingsStore(s => s.language);
   const { incrementXP } = useGamification();
   const BONUS_AMOUNT = 20;
 
@@ -166,7 +166,7 @@ export const useClaimDailyBonusMutation = () => {
         toast.success(`Daily Goal Complete! +${BONUS_AMOUNT} XP`);
         incrementXP(BONUS_AMOUNT);
 
-        queryClient.setQueryData(['dashboardStats', settings.language], (old: any) => {
+        queryClient.setQueryData(['dashboardStats', language], (old: any) => {
           if (!old) return old;
           return {
             ...old,
@@ -180,21 +180,21 @@ export const useClaimDailyBonusMutation = () => {
 
 export const useUndoReviewMutation = () => {
   const queryClient = useQueryClient();
-  const settings = useSettingsStore(s => s.settings);
+  const language = useSettingsStore(s => s.language);
   const { user } = useAuth();
   const { incrementXP } = useGamification();
 
   return useMutation({
     mutationFn: async ({ card, date, xpEarned }: { card: Card; date: string; xpEarned: number }) => {
       await saveCard(card);
-      await incrementHistory(date, -1, card.language || settings.language);
+      await incrementHistory(date, -1, card.language || language);
       return { card, date, xpEarned };
     },
     onSuccess: ({ xpEarned }) => {
       if (user && xpEarned > 0) {
         incrementXP(-xpEarned);
 
-        queryClient.setQueryData(['dashboardStats', settings.language], (old: any) => {
+        queryClient.setQueryData(['dashboardStats', language], (old: any) => {
           if (!old) return old;
           return {
             ...old,
@@ -204,10 +204,10 @@ export const useUndoReviewMutation = () => {
       }
 
       queryClient.invalidateQueries({ queryKey: ['cards'] });
-      queryClient.invalidateQueries({ queryKey: ['history', settings.language] });
-      queryClient.invalidateQueries({ queryKey: ['reviewsToday', settings.language] });
-      queryClient.invalidateQueries({ queryKey: ['deckStats', settings.language] });
-      queryClient.invalidateQueries({ queryKey: ['dueCards', settings.language] });
+      queryClient.invalidateQueries({ queryKey: ['history', language] });
+      queryClient.invalidateQueries({ queryKey: ['reviewsToday', language] });
+      queryClient.invalidateQueries({ queryKey: ['deckStats', language] });
+      queryClient.invalidateQueries({ queryKey: ['dueCards', language] });
     }
   });
 };
