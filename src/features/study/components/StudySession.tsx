@@ -58,6 +58,9 @@ export const StudySession: React.FC<StudySessionProps> = React.memo(
       learningSteps,
       fsrs,
       ignoreLearningStepsWhenNoCards,
+      relearnSteps,
+      leechThreshold,
+      leechAction,
     } = useSettingsStore(
       useShallow((s) => ({
         autoPlayAudio: s.autoPlayAudio,
@@ -69,6 +72,9 @@ export const StudySession: React.FC<StudySessionProps> = React.memo(
         learningSteps: s.learningSteps,
         fsrs: s.fsrs,
         ignoreLearningStepsWhenNoCards: s.ignoreLearningStepsWhenNoCards,
+        relearnSteps: s.relearnSteps,
+        leechThreshold: s.leechThreshold,
+        leechAction: s.leechAction,
       })),
     );
 
@@ -82,6 +88,11 @@ export const StudySession: React.FC<StudySessionProps> = React.memo(
       ignoreLearningStepsWhenNoCards: !!ignoreLearningStepsWhenNoCards,
       fsrs,
       learningSteps,
+      lapsesSettings: {
+        relearnSteps,
+        leechThreshold,
+        leechAction,
+      },
       onUpdateCard,
       onRecordReview,
       canUndo,
@@ -149,7 +160,11 @@ export const StudySession: React.FC<StudySessionProps> = React.memo(
       };
     }, [currentCard, isCramMode]);
 
-    const intervals = useReviewIntervals(currentCard, fsrs, learningSteps);
+    const intervals = useReviewIntervals(currentCard, fsrs, learningSteps, {
+      relearnSteps,
+      leechThreshold,
+      leechAction,
+    });
 
     useStudyShortcuts({
       currentCardId: currentCard?.id,

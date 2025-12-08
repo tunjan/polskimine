@@ -5,21 +5,19 @@ import {
   DialogTitle,
   DialogDescription,
   DialogHeader,
-  DialogFooter,
+
 } from "@/components/ui/dialog";
 import { Card } from "@/types";
 import { format, formatDistanceToNow, parseISO, isValid } from "date-fns";
 import { Activity, Clock, Target, Zap, History } from "lucide-react";
-import { cn } from "@/lib/utils";
-import { Separator } from "@/components/ui/separator";
+
 import { Badge } from "@/components/ui/badge";
 import {
   Card as UiCard,
   CardContent,
-  CardHeader,
-  CardTitle,
 } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+
+
 
 interface CardHistoryModalProps {
   card: Card | undefined;
@@ -112,81 +110,81 @@ export const CardHistoryModal: React.FC<CardHistoryModalProps> = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-xl max-h-[85vh] overflow-y-auto">
-        <DialogHeader>
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <History className="h-5 w-5 text-muted-foreground" />
-              <DialogTitle>Card History</DialogTitle>
+      <DialogContent className="sm:max-w-xl max-h-[85vh] flex flex-col gap-0 p-0 overflow-hidden">
+        <div className="p-6 pb-2">
+          <DialogHeader>
+            <div className="flex items-center justify-between pr-6">
+              <div className="flex items-center gap-3">
+                <History className="h-5 w-5 text-muted-foreground" />
+                <DialogTitle>Card History</DialogTitle>
+              </div>
+              <Badge variant={getStateVariant(card.state)}>
+                {getFsrsLabel(card.state)}
+              </Badge>
             </div>
-            <Badge variant={getStateVariant(card.state)}>
-              {getFsrsLabel(card.state)}
-            </Badge>
-          </div>
-          <DialogDescription>
-            Detailed statistics and timeline for this card.
-          </DialogDescription>
-        </DialogHeader>
+            <DialogDescription>
+              Detailed statistics and timeline for this card.
+            </DialogDescription>
+          </DialogHeader>
+        </div>
 
-        <div className="space-y-6 py-4">
-          <div className="text-center space-y-2">
-            <h2 className="text-2xl font-semibold leading-tight text-balance">
-              {card.targetSentence}
-            </h2>
-            <p className="text-muted-foreground text-balance">
-              {card.nativeTranslation}
-            </p>
-          </div>
+        <div className="flex-1 overflow-y-auto min-h-0">
+          <div className="p-6 py-2 space-y-6">
+            <div className="text-center space-y-2">
+              <h2 className="text-2xl font-semibold leading-tight text-balance">
+                {card.targetSentence}
+              </h2>
+              <p className="text-muted-foreground text-balance">
+                {card.nativeTranslation}
+              </p>
+            </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <StatBox
-              label="Reviews"
-              value={card.reps || 0}
-              subtext="Total Repetitions"
-              icon={<Activity size={16} />}
-            />
-            <StatBox
-              label="Lapses"
-              value={card.lapses || 0}
-              subtext="Forgotten count"
-              icon={<Zap size={16} />}
-            />
-            <StatBox
-              label="Stability"
-              value={`${stability}d`}
-              subtext="Retention Interval"
-              icon={<Target size={16} />}
-            />
-            <StatBox
-              label="Difficulty"
-              value={`${(card.difficulty || 0).toFixed(1)}`}
-              subtext={
-                difficultyPercent > 60 ? "High Difficulty" : "Normal Range"
-              }
-              icon={<Clock size={16} />}
-            />
-          </div>
-
-          <div className="border rounded-lg p-4 bg-muted/30">
-            <h3 className="text-sm font-semibold mb-3 flex items-center gap-2">
-              <History size={14} /> Timeline
-            </h3>
-            <div className="space-y-1">
-              <TimelineEvent
-                label="Created"
-                dateStr={card.first_review || card.dueDate}
+            <div className="grid grid-cols-2 gap-4">
+              <StatBox
+                label="Reviews"
+                value={card.reps || 0}
+                subtext="Total Repetitions"
+                icon={<Activity size={16} />}
               />
-              <TimelineEvent label="Last Seen" dateStr={card.last_review} />
-              <TimelineEvent label="Next Due" dateStr={card.dueDate} />
+              <StatBox
+                label="Lapses"
+                value={card.lapses || 0}
+                subtext="Forgotten count"
+                icon={<Zap size={16} />}
+              />
+              <StatBox
+                label="Stability"
+                value={`${stability}d`}
+                subtext="Retention Interval"
+                icon={<Target size={16} />}
+              />
+              <StatBox
+                label="Difficulty"
+                value={`${(card.difficulty || 0).toFixed(1)}`}
+                subtext={
+                  difficultyPercent > 60 ? "High Difficulty" : "Normal Range"
+                }
+                icon={<Clock size={16} />}
+              />
+            </div>
+
+            <div className="border rounded-lg p-4 bg-muted/30">
+              <h3 className="text-sm font-semibold mb-3 flex items-center gap-2">
+                <History size={14} /> Timeline
+              </h3>
+              <div className="space-y-1">
+                <TimelineEvent
+                  label="Created"
+                  dateStr={card.first_review || card.dueDate}
+                />
+                <TimelineEvent label="Last Seen" dateStr={card.last_review} />
+                <TimelineEvent label="Next Due" dateStr={card.dueDate} />
+              </div>
             </div>
           </div>
         </div>
 
-        <DialogFooter>
-          <Button variant="outline" onClick={onClose}>
-            Close
-          </Button>
-        </DialogFooter>
+
       </DialogContent>
     </Dialog>
   );

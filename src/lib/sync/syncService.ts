@@ -352,6 +352,7 @@ export const importSyncData = async (
       const currentUserId = getCurrentUserId();
       const statsWithUser = data.aggregatedStats.map((s) => ({
         ...s,
+        id: currentUserId ? `${currentUserId}:${s.language}:${s.metric}` : s.id,
         user_id: currentUserId || undefined,
       }));
       await db.aggregated_stats.bulkPut(statsWithUser);

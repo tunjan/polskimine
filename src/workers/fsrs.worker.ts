@@ -1,5 +1,8 @@
 import { ReviewLog } from "@/types";
-import { computeCardLoss } from "@/lib/fsrsShared";
+import { 
+  OPTIMIZER_CONFIG,
+  runOptimizerIteration,
+} from "@/lib/fsrsShared";
 
 const optimizeFSRS = async (
   allLogs: ReviewLog[],
@@ -19,45 +22,22 @@ const optimizeFSRS = async (
   }
 
   let w = [...currentW];
-  const learningRate = 0.002;
-  const iterations = 500;
-  const batchSize = Math.min(cardGroups.length, 64);
-  const targetIndices = [0, 1, 2, 3, 8, 9, 10, 11, 12];
+  const { learningRate, iterations, maxBatchSize, targetIndices, finiteDiffH } = OPTIMIZER_CONFIG;
+  const batchSize = Math.min(cardGroups.length, maxBatchSize);
 
   for (let iter = 0; iter < iterations; iter++) {
-    const gradients = new Array(19).fill(0);
-    let totalLoss = 0;
-
-    const batch = [];
+    // Sample random batch
+    const batch: ReviewLog[][] = [];
     for (let i = 0; i < batchSize; i++) {
       batch.push(cardGroups[Math.floor(Math.random() * cardGroups.length)]);
     }
 
-    const h = 0.0001;
-
-    for (const logs of batch) {
-      totalLoss += computeCardLoss(logs, w);
-    }
-
-    for (const idx of targetIndices) {
-      const wPlus = [...w];
-      wPlus[idx] += h;
-
-      let lossPlus = 0;
-      for (const logs of batch) {
-        lossPlus += computeCardLoss(logs, wPlus);
-      }
-
-      gradients[idx] = (lossPlus - totalLoss) / h;
-    }
-
-    for (const idx of targetIndices) {
-      w[idx] -= learningRate * gradients[idx];
-      if (w[idx] < 0.01) w[idx] = 0.01;
-    }
+    // Run one iteration of gradient descent
+    w = runOptimizerIteration(w, batch, targetIndices, learningRate, finiteDiffH);
 
     if (iter % 20 === 0) {
       onProgress((iter / iterations) * 100);
+      // Worker doesn't need setTimeout yield
     }
   }
 

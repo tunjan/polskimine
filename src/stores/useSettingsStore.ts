@@ -58,6 +58,16 @@ export const DEFAULT_SETTINGS: UserSettings = {
   binaryRatingMode: false,
   cardOrder: "newFirst",
   learningSteps: [1, 10],
+  // Display Order
+  newCardGatherOrder: "added",
+  newCardSortOrder: "due",
+  newReviewOrder: "newFirst",
+  interdayLearningOrder: "mixed",
+  reviewSortOrder: "due",
+  // Lapses
+  relearnSteps: [10],
+  leechThreshold: 8,
+  leechAction: "tag",
   geminiApiKey: "AIzaSyBMVVvi9wcODo7c9-Da562BaLD-OwC1Xkk",
   tts: {
     provider: "browser",
@@ -76,6 +86,7 @@ export const DEFAULT_SETTINGS: UserSettings = {
     enable_fuzzing: FSRS_DEFAULTS.enable_fuzzing,
   },
 };
+
 
 const debouncedSaveSettings = debounce(
   (userId: string, settings: UserSettings) => {
@@ -141,6 +152,8 @@ export const useSettingsStore = create<SettingsState>((set, get) => ({
           dailyNewLimits: updatedState.dailyNewLimits,
           dailyReviewLimits: updatedState.dailyReviewLimits,
           autoPlayAudio: updatedState.autoPlayAudio,
+          playTargetWordAudioBeforeSentence:
+            updatedState.playTargetWordAudioBeforeSentence,
           blindMode: updatedState.blindMode,
           showTranslationAfterFlip: updatedState.showTranslationAfterFlip,
           showWholeSentenceOnFront: updatedState.showWholeSentenceOnFront,
@@ -149,6 +162,16 @@ export const useSettingsStore = create<SettingsState>((set, get) => ({
           binaryRatingMode: updatedState.binaryRatingMode,
           cardOrder: updatedState.cardOrder,
           learningSteps: updatedState.learningSteps,
+          // Display Order
+          newCardGatherOrder: updatedState.newCardGatherOrder,
+          newCardSortOrder: updatedState.newCardSortOrder,
+          newReviewOrder: updatedState.newReviewOrder,
+          interdayLearningOrder: updatedState.interdayLearningOrder,
+          reviewSortOrder: updatedState.reviewSortOrder,
+          // Lapses
+          relearnSteps: updatedState.relearnSteps,
+          leechThreshold: updatedState.leechThreshold,
+          leechAction: updatedState.leechAction,
           geminiApiKey: updatedState.geminiApiKey,
           tts: updatedState.tts,
           fsrs: updatedState.fsrs,

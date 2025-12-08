@@ -1,4 +1,13 @@
-import { CardOrderValue, TTSProviderValue } from "@/constants/settings";
+import {
+  CardOrderValue,
+  TTSProviderValue,
+  NewCardGatherOrderValue,
+  NewCardSortOrderValue,
+  NewReviewOrderValue,
+  InterdayLearningOrderValue,
+  ReviewSortOrderValue,
+  LeechActionValue,
+} from "@/constants/settings";
 import { Card as FSRSCard, State as FSRSState } from "ts-fsrs";
 
 export type Difficulty = "A1" | "A2" | "B1" | "B2" | "C1" | "C2";
@@ -94,6 +103,16 @@ export interface UserSettings {
   binaryRatingMode: boolean;
   cardOrder: CardOrderValue;
   learningSteps: number[];
+  // Display Order
+  newCardGatherOrder?: NewCardGatherOrderValue;
+  newCardSortOrder?: NewCardSortOrderValue;
+  newReviewOrder?: NewReviewOrderValue;
+  interdayLearningOrder?: InterdayLearningOrderValue;
+  reviewSortOrder?: ReviewSortOrderValue;
+  // Lapses
+  relearnSteps?: number[];
+  leechThreshold?: number;
+  leechAction?: LeechActionValue;
   tts: TTSSettings;
   fsrs: {
     request_retention: number;

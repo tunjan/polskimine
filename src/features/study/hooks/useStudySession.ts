@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useReducer, useRef } from "react";
 import { Card, CardStatus, Grade, UserSettings } from "@/types";
-import { calculateNextReview } from "@/core/srs/scheduler";
+import { calculateNextReview, LapsesSettings } from "@/core/srs/scheduler";
 import { isNewCard } from "@/services/studyLimits";
 import { sortCards } from "@/core/srs/cardSorter";
 
@@ -11,6 +11,7 @@ interface UseStudySessionParams {
   ignoreLearningStepsWhenNoCards: boolean;
   fsrs: UserSettings["fsrs"];
   learningSteps: UserSettings["learningSteps"];
+  lapsesSettings?: LapsesSettings;
   onUpdateCard: (card: Card) => void;
   onRecordReview: (card: Card, updatedCard: Card, grade: Grade) => void;
   canUndo?: boolean;
@@ -31,6 +32,7 @@ export const useStudySession = ({
   ignoreLearningStepsWhenNoCards,
   fsrs,
   learningSteps,
+  lapsesSettings,
   onUpdateCard,
   onRecordReview,
   canUndo,
@@ -131,6 +133,7 @@ export const useStudySession = ({
           grade,
           fsrs,
           learningSteps,
+          lapsesSettings,
         );
         await onRecordReview(currentCard, updatedCard, grade);
 

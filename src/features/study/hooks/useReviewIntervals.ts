@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import { Card, Grade, UserSettings } from "@/types";
-import { calculateNextReview } from "@/core/srs/scheduler";
+import { calculateNextReview, LapsesSettings } from "@/core/srs/scheduler";
 import { formatInterval } from "@/utils/formatInterval";
 import { parseISO, differenceInMilliseconds } from "date-fns";
 
@@ -8,6 +8,7 @@ export const useReviewIntervals = (
   card: Card | undefined,
   fsrs: UserSettings["fsrs"],
   learningSteps: number[],
+  lapsesSettings?: LapsesSettings,
 ): Record<Grade, string> => {
   return useMemo(() => {
     if (!card) {
@@ -17,7 +18,7 @@ export const useReviewIntervals = (
     const now = new Date();
     const calculate = (grade: Grade) => {
       try {
-        const next = calculateNextReview(card, grade, fsrs, learningSteps);
+        const next = calculateNextReview(card, grade, fsrs, learningSteps, lapsesSettings);
         const due = parseISO(next.dueDate);
         if (isNaN(due.getTime())) {
           console.warn(
@@ -43,5 +44,5 @@ export const useReviewIntervals = (
       Good: calculate("Good"),
       Easy: calculate("Easy"),
     };
-  }, [card, fsrs, learningSteps]);
+  }, [card, fsrs, learningSteps, lapsesSettings]);
 };

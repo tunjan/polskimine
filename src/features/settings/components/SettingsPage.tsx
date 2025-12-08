@@ -18,6 +18,8 @@ import {
   Check,
   Wand2,
   RefreshCw,
+  Layers,
+  Repeat,
 } from "lucide-react";
 
 import { useSettingsStore } from "@/stores/useSettingsStore";
@@ -27,7 +29,16 @@ import { useProfile } from "@/features/profile/hooks/useProfile";
 import { UserSettings, Language } from "@/types";
 import { ttsService, VoiceOption } from "@/lib/tts";
 import { LANGUAGE_NAMES, FSRS_DEFAULTS } from "@/constants";
-import { TTS_PROVIDER, CARD_ORDER } from "@/constants/settings";
+import {
+  TTS_PROVIDER,
+  CARD_ORDER,
+  NEW_CARD_GATHER_ORDER,
+  NEW_CARD_SORT_ORDER,
+  NEW_REVIEW_ORDER,
+  INTERDAY_LEARNING_ORDER,
+  REVIEW_SORT_ORDER,
+  LEECH_ACTION,
+} from "@/constants/settings";
 import {
   saveAllCards,
   getCardSignatures,
@@ -816,6 +827,182 @@ export const SettingsPage: React.FC = () => {
               }))
             }
           />
+        </SettingsItem>
+      </SettingsSection>
+
+      <SettingsSection
+        icon={Layers}
+        title="Display Order"
+        description="Card presentation and sorting"
+      >
+        <SettingsItem
+          label="New Card Gather Order"
+          description="Order to collect new cards from deck"
+        >
+          <Select
+            value={settings.newCardGatherOrder || NEW_CARD_GATHER_ORDER.ADDED}
+            onValueChange={(value) =>
+              setSettings((prev) => ({ ...prev, newCardGatherOrder: value as any }))
+            }
+          >
+            <SelectTrigger className="w-36 h-8 text-sm">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value={NEW_CARD_GATHER_ORDER.ADDED}>Added First</SelectItem>
+              <SelectItem value={NEW_CARD_GATHER_ORDER.RANDOM}>Random</SelectItem>
+            </SelectContent>
+          </Select>
+        </SettingsItem>
+
+        <SettingsItem
+          label="New Card Sort Order"
+          description="How to sort new cards in queue"
+        >
+          <Select
+            value={settings.newCardSortOrder || NEW_CARD_SORT_ORDER.DUE}
+            onValueChange={(value) =>
+              setSettings((prev) => ({ ...prev, newCardSortOrder: value as any }))
+            }
+          >
+            <SelectTrigger className="w-36 h-8 text-sm">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value={NEW_CARD_SORT_ORDER.DUE}>Due Date</SelectItem>
+              <SelectItem value={NEW_CARD_SORT_ORDER.RANDOM}>Random</SelectItem>
+              <SelectItem value={NEW_CARD_SORT_ORDER.CARD_TYPE}>Card Type</SelectItem>
+            </SelectContent>
+          </Select>
+        </SettingsItem>
+
+        <SettingsItem
+          label="New/Review Order"
+          description="Which cards to show first"
+        >
+          <Select
+            value={settings.newReviewOrder || NEW_REVIEW_ORDER.NEW_FIRST}
+            onValueChange={(value) =>
+              setSettings((prev) => ({ ...prev, newReviewOrder: value as any }))
+            }
+          >
+            <SelectTrigger className="w-36 h-8 text-sm">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value={NEW_REVIEW_ORDER.NEW_FIRST}>New First</SelectItem>
+              <SelectItem value={NEW_REVIEW_ORDER.REVIEW_FIRST}>Review First</SelectItem>
+              <SelectItem value={NEW_REVIEW_ORDER.MIXED}>Mixed</SelectItem>
+            </SelectContent>
+          </Select>
+        </SettingsItem>
+
+        <SettingsItem
+          label="Interday Learning/Review"
+          description="When to show learning cards"
+        >
+          <Select
+            value={settings.interdayLearningOrder || INTERDAY_LEARNING_ORDER.MIXED}
+            onValueChange={(value) =>
+              setSettings((prev) => ({ ...prev, interdayLearningOrder: value as any }))
+            }
+          >
+            <SelectTrigger className="w-40 h-8 text-sm">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value={INTERDAY_LEARNING_ORDER.MIXED}>Mixed with Reviews</SelectItem>
+              <SelectItem value={INTERDAY_LEARNING_ORDER.BEFORE_REVIEWS}>Before Reviews</SelectItem>
+              <SelectItem value={INTERDAY_LEARNING_ORDER.AFTER_REVIEWS}>After Reviews</SelectItem>
+            </SelectContent>
+          </Select>
+        </SettingsItem>
+
+        <SettingsItem
+          label="Review Sort Order"
+          description="How to sort review cards"
+        >
+          <Select
+            value={settings.reviewSortOrder || REVIEW_SORT_ORDER.DUE}
+            onValueChange={(value) =>
+              setSettings((prev) => ({ ...prev, reviewSortOrder: value as any }))
+            }
+          >
+            <SelectTrigger className="w-40 h-8 text-sm">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value={REVIEW_SORT_ORDER.DUE}>Due Date</SelectItem>
+              <SelectItem value={REVIEW_SORT_ORDER.DUE_RANDOM}>Due Date + Random</SelectItem>
+              <SelectItem value={REVIEW_SORT_ORDER.OVERDUENESS}>Relative Overdueness</SelectItem>
+              <SelectItem value={REVIEW_SORT_ORDER.RANDOM}>Random</SelectItem>
+            </SelectContent>
+          </Select>
+        </SettingsItem>
+      </SettingsSection>
+
+      <SettingsSection
+        icon={Repeat}
+        title="Lapses"
+        description="Handling forgotten cards"
+      >
+        <SettingsItem
+          label="Relearning Steps"
+          description="Minutes for relearning (e.g., '10')"
+        >
+          <Input
+            type="text"
+            value={settings.relearnSteps?.join(" ") || "10"}
+            onChange={(e) => {
+              const steps = e.target.value
+                .split(/[\s,]+/)
+                .map((s) => parseInt(s.trim(), 10))
+                .filter((n) => !isNaN(n) && n > 0);
+              if (steps.length > 0) {
+                setSettings((prev) => ({ ...prev, relearnSteps: steps }));
+              }
+            }}
+            placeholder="10"
+            className="w-24 h-8 text-sm text-right"
+          />
+        </SettingsItem>
+
+        <SettingsItem
+          label="Leech Threshold"
+          description="Failures before marking as leech"
+        >
+          <Input
+            type="number"
+            min={1}
+            value={settings.leechThreshold ?? 8}
+            onChange={(e) =>
+              setSettings((prev) => ({
+                ...prev,
+                leechThreshold: parseInt(e.target.value) || 8,
+              }))
+            }
+            className="w-20 h-8 text-sm text-right"
+          />
+        </SettingsItem>
+
+        <SettingsItem
+          label="Leech Action"
+          description="What to do when card becomes leech"
+        >
+          <Select
+            value={settings.leechAction || LEECH_ACTION.TAG}
+            onValueChange={(value) =>
+              setSettings((prev) => ({ ...prev, leechAction: value as any }))
+            }
+          >
+            <SelectTrigger className="w-32 h-8 text-sm">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value={LEECH_ACTION.TAG}>Tag Only</SelectItem>
+              <SelectItem value={LEECH_ACTION.SUSPEND}>Suspend</SelectItem>
+            </SelectContent>
+          </Select>
         </SettingsItem>
       </SettingsSection>
 

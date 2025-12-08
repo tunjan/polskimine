@@ -3,6 +3,12 @@ import { ReviewLog } from "@/types";
 export const DECAY = -0.6;
 export const FACTOR = 0.9 ** (1 / DECAY) - 1;
 
+// Upper and lower bounds for optimizer weights
+export const WEIGHT_BOUNDS = {
+  min: 0.01,
+  max: 20.0, // Prevent unbounded growth
+};
+
 export const getRetrievability = (
   elapsedDays: number,
   stability: number,
@@ -81,3 +87,54 @@ export const computeCardLoss = (logs: ReviewLog[], w: number[]): number => {
 
   return loss;
 };
+
+// Shared optimizer configuration
+export const OPTIMIZER_CONFIG = {
+  learningRate: 0.002,
+  iterations: 500,
+  maxBatchSize: 64,
+  // Optimize more parameters: initial stabilities (0-3), recall stability (8-12), difficulty (4-5)
+  targetIndices: [0, 1, 2, 3, 4, 5, 8, 9, 10, 11, 12],
+  finiteDiffH: 0.0001,
+};
+
+// Clamp weight values to prevent numerical instability
+export const clampWeight = (value: number): number => {
+  return Math.max(WEIGHT_BOUNDS.min, Math.min(WEIGHT_BOUNDS.max, value));
+};
+
+// Shared optimizer core logic
+export const runOptimizerIteration = (
+  w: number[],
+  batch: ReviewLog[][],
+  targetIndices: number[],
+  learningRate: number,
+  h: number,
+): number[] => {
+  const newW = [...w];
+  const gradients = new Array(w.length).fill(0);
+
+  let totalLoss = 0;
+  for (const logs of batch) {
+    totalLoss += computeCardLoss(logs, w);
+  }
+
+  for (const idx of targetIndices) {
+    const wPlus = [...w];
+    wPlus[idx] += h;
+
+    let lossPlus = 0;
+    for (const logs of batch) {
+      lossPlus += computeCardLoss(logs, wPlus);
+    }
+
+    gradients[idx] = (lossPlus - totalLoss) / h;
+  }
+
+  for (const idx of targetIndices) {
+    newW[idx] = clampWeight(newW[idx] - learningRate * gradients[idx]);
+  }
+
+  return newW;
+};
+

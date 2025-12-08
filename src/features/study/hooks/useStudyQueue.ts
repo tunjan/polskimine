@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useReducer, useRef } from "react";
 import { Card, CardStatus, Grade, UserSettings } from "@/types";
-import { calculateNextReview } from "@/core/srs/scheduler";
+import { calculateNextReview, LapsesSettings } from "@/core/srs/scheduler";
 import { isNewCard } from "@/services/studyLimits";
 import { sortCards } from "@/core/srs/cardSorter";
 import {
@@ -11,6 +11,7 @@ import {
 } from "../logic/sessionReducer";
 import { useXpSession } from "./useXpSession";
 import { CardXpPayload, CardRating } from "@/core/gamification/xp";
+import { State } from "ts-fsrs";
 
 interface UseStudyQueueParams {
   dueCards: Card[];
@@ -19,6 +20,7 @@ interface UseStudyQueueParams {
   ignoreLearningStepsWhenNoCards: boolean;
   fsrs: UserSettings["fsrs"];
   learningSteps: UserSettings["learningSteps"];
+  lapsesSettings?: LapsesSettings;
   onUpdateCard: (card: Card) => void;
   onRecordReview: (
     oldCard: Card,
@@ -45,14 +47,14 @@ const getQueueCounts = (cards: Card[]) => {
   return cards.reduce(
     (acc, card) => {
       const state = card.state;
-      if (state === 0 || (state === undefined && card.status === "new"))
+      if (state === State.New || (state === undefined && card.status === "new"))
         acc.unseen++;
       else if (
-        state === 1 ||
+        state === State.Learning ||
         (state === undefined && card.status === "learning")
       )
         acc.learning++;
-      else if (state === 3) acc.lapse++;
+      else if (state === State.Relearning) acc.lapse++;
       else acc.mature++;
       return acc;
     },
@@ -67,6 +69,7 @@ export const useStudyQueue = ({
   ignoreLearningStepsWhenNoCards,
   fsrs,
   learningSteps,
+  lapsesSettings,
   onUpdateCard,
   onRecordReview,
   canUndo,
@@ -179,6 +182,7 @@ export const useStudyQueue = ({
           grade,
           fsrs,
           learningSteps,
+          lapsesSettings,
         );
 
         const rating = mapGradeToRating(grade);
