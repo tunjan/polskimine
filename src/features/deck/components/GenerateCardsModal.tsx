@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import { Slider } from '@/components/ui/slider';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
@@ -213,11 +214,8 @@ export const GenerateCardsModal: React.FC<GenerateCardsModalProps> = ({ isOpen, 
 
     return (
         <Dialog open={isOpen} onOpenChange={resetAndClose}>
-            <DialogContent className={cn(
-                "max-w-4xl p-0 overflow-hidden",
-                isMobile ? "h-screen max-h-screen" : "max-h-[85vh] h-[650px]"
-            )}>
-                <div className="flex flex-col h-full">
+            <DialogContent>
+                <div>
                     {step === 'config' ? (
                         <>
                             <DialogHeader className="px-6 py-4 border-b shrink-0">
@@ -378,8 +376,8 @@ export const GenerateCardsModal: React.FC<GenerateCardsModalProps> = ({ isOpen, 
                                 </Button>
                             </DialogHeader>
 
-                            <div className="flex-1 overflow-auto p-6">
-                                <div className="space-y-3">
+                            <ScrollArea className="h-80">
+                                <div className="space-y-3 pr-4">
                                     <div className="flex items-center justify-between mb-2">
                                         <span className="text-sm text-muted-foreground">
                                             Selected: <span className="text-foreground font-medium">{selectedIndices.size}</span>
@@ -435,7 +433,7 @@ export const GenerateCardsModal: React.FC<GenerateCardsModalProps> = ({ isOpen, 
                                         </div>
                                     ))}
                                 </div>
-                            </div>
+                            </ScrollArea>
 
                             <DialogFooter className="px-6 py-4 border-t bg-muted/10 shrink-0">
                                 <Button variant="outline" onClick={resetAndClose}>Cancel</Button>
