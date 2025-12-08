@@ -394,6 +394,11 @@ export const calculateNextReview = (
     grade === "Again" &&
     (currentState === State.Review || currentState === State.Relearning);
 
+  const safeNum = (n: number | undefined | null) => {
+    if (typeof n !== "number" || !Number.isFinite(n)) return 0;
+    return n;
+  };
+
   // If lapsing and relearn steps are configured, enter relearning
   if (isLapse && relearnStepsMinutes.length > 0) {
     const newLapses = log.lapses;
@@ -411,17 +416,17 @@ export const calculateNextReview = (
       status: CardStatus.LEARNING,
       state: State.Relearning,
       learningStep: 0,
-      stability: log.stability,
-      difficulty: log.difficulty,
-      elapsed_days: log.elapsed_days,
-      interval: intervalDays,
-      precise_interval: intervalDays,
+      stability: safeNum(log.stability),
+      difficulty: safeNum(log.difficulty),
+      elapsed_days: safeNum(log.elapsed_days),
+      interval: safeNum(intervalDays),
+      precise_interval: safeNum(intervalDays),
       scheduled_days: 0,
       last_review: now.toISOString(),
       first_review: card.first_review || now.toISOString(),
-      reps: log.reps,
-      lapses: newLapses,
-      leechCount: newLapses,
+      reps: safeNum(log.reps),
+      lapses: safeNum(newLapses),
+      leechCount: safeNum(newLapses),
       isLeech,
     };
 
@@ -441,7 +446,10 @@ export const calculateNextReview = (
   const nowMs = now.getTime();
   const dueMs = log.due.getTime();
   const diffMs = dueMs - nowMs;
-  const preciseInterval = Math.max(0, diffMs / (24 * 60 * 60 * 1000));
+  let preciseInterval = 0;
+  if (Number.isFinite(diffMs)) {
+    preciseInterval = Math.max(0, diffMs / (24 * 60 * 60 * 1000));
+  }
 
   let scheduledDaysInt = Math.round(preciseInterval);
   if (
@@ -456,13 +464,13 @@ export const calculateNextReview = (
     dueDate: !isNaN(log.due.getTime())
       ? log.due.toISOString()
       : addMinutes(now, 10).toISOString(),
-    stability: log.stability,
-    difficulty: log.difficulty,
-    elapsed_days: log.elapsed_days,
-    scheduled_days: scheduledDaysInt,
-    precise_interval: preciseInterval,
-    reps: log.reps,
-    lapses: log.lapses,
+    stability: safeNum(log.stability),
+    difficulty: safeNum(log.difficulty),
+    elapsed_days: safeNum(log.elapsed_days),
+    scheduled_days: safeNum(scheduledDaysInt),
+    precise_interval: safeNum(preciseInterval),
+    reps: safeNum(log.reps),
+    lapses: safeNum(log.lapses),
     state: log.state,
     last_review:
       log.last_review && !isNaN(log.last_review.getTime())
@@ -470,9 +478,9 @@ export const calculateNextReview = (
         : now.toISOString(),
     first_review: card.first_review || now.toISOString(),
     status: tentativeStatus,
-    interval: preciseInterval,
+    interval: safeNum(preciseInterval),
     learningStep: undefined,
-    leechCount: totalLapses,
+    leechCount: safeNum(totalLapses),
     isLeech,
   };
 

@@ -17,6 +17,12 @@ export const getCurrentUserId = (): string | null => {
   return localStorage.getItem(SESSION_KEY);
 };
 
+// Helper to handle NaN values from corrupted DB entries
+const SafeNumber = z.preprocess((val) => {
+  if (typeof val === "number" && isNaN(val)) return 0;
+  return val;
+}, z.number());
+
 const DBRawCardSchema = z.object({
   id: z.string(),
   targetSentence: z.string(),
@@ -34,26 +40,26 @@ const DBRawCardSchema = z.object({
     .union([z.nativeEnum(CardStatus), z.string()])
     .transform((val) => val as CardStatus),
 
-  interval: z.number().default(0),
-  easeFactor: z.number().default(2.5),
+  interval: SafeNumber.default(0),
+  easeFactor: SafeNumber.default(2.5),
   dueDate: z.string(),
 
-  stability: z.number().optional().nullable(),
-  difficulty: z.number().optional().nullable(),
-  elapsed_days: z.number().optional().nullable(),
-  scheduled_days: z.number().optional().nullable(),
-  reps: z.number().optional().nullable(),
-  lapses: z.number().optional().nullable(),
-  state: z.number().optional().nullable(),
+  stability: SafeNumber.optional().nullable(),
+  difficulty: SafeNumber.optional().nullable(),
+  elapsed_days: SafeNumber.optional().nullable(),
+  scheduled_days: SafeNumber.optional().nullable(),
+  reps: SafeNumber.optional().nullable(),
+  lapses: SafeNumber.optional().nullable(),
+  state: SafeNumber.optional().nullable(),
   due: z.string().optional().nullable(),
   last_review: z.string().optional().nullable(),
   first_review: z.string().optional().nullable(),
 
-  learningStep: z.number().optional().nullable(),
-  leechCount: z.number().optional().nullable(),
+  learningStep: SafeNumber.optional().nullable(),
+  leechCount: SafeNumber.optional().nullable(),
   isLeech: z.boolean().optional().default(false),
   isBookmarked: z.boolean().optional().default(false),
-  precise_interval: z.number().optional().nullable(),
+  precise_interval: SafeNumber.optional().nullable(),
 
   user_id: z.string().optional().nullable(),
 });
