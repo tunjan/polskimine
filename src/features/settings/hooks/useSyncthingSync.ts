@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { toast } from 'sonner';
 import { useQueryClient } from '@tanstack/react-query';
 import { useSettingsStore } from '@/stores/useSettingsStore';
@@ -8,21 +8,26 @@ import {
     importSyncData,
     checkSyncFile,
     getLastSyncTime,
-    setLastSyncTime,
-    SyncData
-} from '@/services/sync/syncService';
+    setLastSyncTime
+} from '@/lib/sync/syncService';
 
 export const useSyncthingSync = () => {
-    const settings = useSettingsStore(s => s.settings);
+    // const settings = useSettingsStore(s => s.settings); // Removed subscription
     const updateSettings = useSettingsStore(s => s.updateSettings);
     const queryClient = useQueryClient();
     const [isSaving, setIsSaving] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
-    const [lastSync, setLastSync] = useState<string | null>(getLastSyncTime());
+    const [lastSync, setLastSync] = useState<string | null>(null);
+
+    // Initialize last sync time
+    useEffect(() => {
+        getLastSyncTime().then(setLastSync);
+    }, []);
 
     const saveToSyncFile = useCallback(async () => {
         setIsSaving(true);
         try {
+            const settings = useSettingsStore.getState().settings;
             const result = await saveSyncFile(settings);
 
             if (result.success) {
@@ -42,7 +47,7 @@ export const useSyncthingSync = () => {
         } finally {
             setIsSaving(false);
         }
-    }, [settings]);
+    }, []);
 
     const loadFromSyncFile = useCallback(async () => {
         setIsLoading(true);

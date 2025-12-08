@@ -13,10 +13,11 @@ import {
   Download
 } from 'lucide-react';
 import { useSettingsStore } from '@/stores/useSettingsStore';
+import { useShallow } from 'zustand/react/shallow';
 import { useAuth } from '@/contexts/AuthContext';
 import { useProfile } from '@/features/profile/hooks/useProfile';
-import { useCardOperations } from '@/features/deck/hooks/useCardOperations';
-import { AddCardModal } from '@/features/deck/components/AddCardModal';
+import { useCardOperations } from '@/features/collection/hooks/useCardOperations';
+import { AddCardModal } from '@/features/collection/components/AddCardModal';
 
 import { CramModal } from '@/features/study/components/CramModal';
 import { LanguageId } from '@/types';
@@ -66,8 +67,10 @@ const AppSidebar: React.FC<NavActionProps> = ({
   onCloseMobileMenu
 }) => {
   const location = useLocation();
-  const settings = useSettingsStore(s => s.settings);
-  const updateSettings = useSettingsStore(s => s.updateSettings);
+  const { language, updateSettings } = useSettingsStore(useShallow(s => ({
+    language: s.settings.language,
+    updateSettings: s.updateSettings
+  })));
   const { signOut } = useAuth();
   const { profile } = useProfile();
 
@@ -79,7 +82,7 @@ const AppSidebar: React.FC<NavActionProps> = ({
     { code: LanguageId.German, name: 'German', Flag: GermanFlag },
   ] as const;
 
-  const currentLanguage = languages.find(lang => lang.code === settings.language) || languages[0];
+  const currentLanguage = languages.find(lang => lang.code === language) || languages[0];
 
   const mainNavItems = [
     { to: '/', icon: LayoutDashboard, label: 'Overview' },
@@ -195,7 +198,7 @@ const AppSidebar: React.FC<NavActionProps> = ({
                   >
                     <lang.Flag className="w-4 h-3 rounded-[1px] border border-border/30" />
                     <span>{lang.name}</span>
-                    {settings.language === lang.code && (
+                    {language === lang.code && (
                       <span className="ml-auto text-xs text-muted-foreground">Active</span>
                     )}
                   </DropdownMenuItem>

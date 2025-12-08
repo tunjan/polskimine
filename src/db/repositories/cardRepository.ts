@@ -1,6 +1,6 @@
 import { Card, CardStatus, Language, LanguageId } from '@/types';
-import { getSRSDate } from '@/features/study/logic/srs';
-import { db, generateId } from '@/services/db/dexie';
+import { getSRSDate } from '@/core/srs';
+import { db, generateId } from '@/db/dexie';
 import { SRS_CONFIG } from '@/constants';
 
 const SESSION_KEY = 'linguaflow_current_user';

@@ -1,6 +1,6 @@
-import { getSRSDate } from '@/features/study/logic/srs';
+import { getSRSDate } from '@/core/srs';
 import { SRS_CONFIG } from '@/constants';
-import { db } from '@/services/db/dexie';
+import { db } from '@/db/dexie';
 import { differenceInCalendarDays, parseISO, addDays, format, subDays, startOfDay, parse } from 'date-fns';
 import {
   getCardsForDashboard,

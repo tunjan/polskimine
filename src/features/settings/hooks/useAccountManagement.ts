@@ -3,18 +3,18 @@ import { useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { v4 as uuidv4 } from 'uuid';
 
-import { db } from '@/services/db/dexie';
+import { db } from '@/db/dexie';
 import { useSettingsStore } from '@/stores/useSettingsStore';
 import { LanguageId } from '@/types';
 import {
     deleteCardsByLanguage,
     saveAllCards,
-} from '@/services/db/repositories/cardRepository';
-import { clearHistory } from '@/services/db/repositories/historyRepository';
-import { POLISH_BEGINNER_DECK } from '@/features/deck/data/polishBeginnerDeck';
-import { NORWEGIAN_BEGINNER_DECK } from '@/features/deck/data/norwegianBeginnerDeck';
-import { JAPANESE_BEGINNER_DECK } from '@/features/deck/data/japaneseBeginnerDeck';
-import { SPANISH_BEGINNER_DECK } from '@/features/deck/data/spanishBeginnerDeck';
+} from '@/db/repositories/cardRepository';
+import { clearHistory } from '@/db/repositories/historyRepository';
+import { POLISH_BEGINNER_DECK } from '@/assets/starter-decks/polish';
+import { NORWEGIAN_BEGINNER_DECK } from '@/assets/starter-decks/norwegian';
+import { JAPANESE_BEGINNER_DECK } from '@/assets/starter-decks/japanese';
+import { SPANISH_BEGINNER_DECK } from '@/assets/starter-decks/spanish';
 
 export const useAccountManagement = () => {
     const settings = useSettingsStore(s => s.settings);

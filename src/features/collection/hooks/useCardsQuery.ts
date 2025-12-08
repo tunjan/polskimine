@@ -1,7 +1,8 @@
+import Dexie from 'dexie';
 import { useQuery, keepPreviousData } from '@tanstack/react-query';
 import { useSettingsStore } from '@/stores/useSettingsStore';
-import { db } from '@/services/db/dexie';
-import { mapToCard, getCurrentUserId } from '@/services/db/repositories/cardRepository';
+import { db } from '@/db/dexie';
+import { getCurrentUserId } from '@/db/repositories/cardRepository';
 import { CardStatus } from '@/types';
 
 export interface CardFilters {
@@ -16,8 +17,7 @@ export const useCardsQuery = (
   searchTerm = '',
   filters: CardFilters = {}
 ) => {
-  const settings = useSettingsStore(s => s.settings);
-  const language = settings.language;
+  const language = useSettingsStore(s => s.settings.language);
 
   return useQuery({
     queryKey: ['cards', language, page, pageSize, searchTerm, filters],
@@ -25,49 +25,61 @@ export const useCardsQuery = (
       const userId = getCurrentUserId();
       if (!userId) return { data: [], count: 0 };
 
-      // Use composite index for user+language
+      // Use composite index for user+language+dueDate for automatic sorting
+      // We scan the index range for this user/language
       let collection = db.cards
-        .where('[user_id+language]')
-        .equals([userId, language]);
+        .where('[user_id+language+dueDate]')
+        .between(
+          [userId, language, Dexie.minKey],
+          [userId, language, Dexie.maxKey],
+          true,
+          true
+        )
+        .reverse(); // Descending order by dueDate
 
-      // Get total count before filtering (for pagination)
-      let cards = await collection.toArray();
+      // Apply filtering (Dexie executes this lazily during iteration/counting)
+      // This avoids loading all objects into an array first
+      if (searchTerm || (filters.status && filters.status !== 'all') || filters.bookmarked || filters.leech) {
+        collection = collection.filter(c => {
+          // Status filter
+          if (filters.status && filters.status !== 'all' && c.status !== filters.status) {
+            return false;
+          }
 
-      // Apply search filter in memory (text search not indexable)
-      if (searchTerm) {
-        const term = searchTerm.toLowerCase();
-        cards = cards.filter(c =>
-          c.targetSentence?.toLowerCase().includes(term) ||
-          c.nativeTranslation?.toLowerCase().includes(term) ||
-          c.targetWord?.toLowerCase().includes(term) ||
-          c.notes?.toLowerCase().includes(term)
-        );
+          // Bookmarked filter
+          if (filters.bookmarked && !c.isBookmarked) {
+            return false;
+          }
+
+          // Leech filter
+          if (filters.leech && !c.isLeech) {
+            return false;
+          }
+
+          // Search filter
+          if (searchTerm) {
+            const term = searchTerm.toLowerCase();
+            return (
+              c.targetSentence?.toLowerCase().includes(term) ||
+              c.nativeTranslation?.toLowerCase().includes(term) ||
+              c.targetWord?.toLowerCase().includes(term) ||
+              c.notes?.toLowerCase().includes(term)
+            );
+          }
+
+          return true;
+        });
       }
 
-      // Apply status filter
-      if (filters.status && filters.status !== 'all') {
-        cards = cards.filter(c => c.status === filters.status);
-      }
+      // Get count of matching items (scans index/data as needed but doesn't hold all in RAM)
+      const totalCount = await collection.count();
 
-      // Apply bookmarked filter
-      if (filters.bookmarked) {
-        cards = cards.filter(c => c.isBookmarked === true);
-      }
-
-      // Apply leech filter
-      if (filters.leech) {
-        cards = cards.filter(c => c.isLeech === true);
-      }
-
-      // Sort by dueDate descending
-      cards.sort((a, b) => b.dueDate.localeCompare(a.dueDate));
-
-      const totalCount = cards.length;
-
-      // Apply pagination
+      // Get paginated data
       const start = page * pageSize;
-      const end = start + pageSize;
-      const paginatedCards = cards.slice(start, end);
+      const paginatedCards = await collection
+        .offset(start)
+        .limit(pageSize)
+        .toArray();
 
       return {
         data: paginatedCards,

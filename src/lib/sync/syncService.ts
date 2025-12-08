@@ -1,7 +1,7 @@
-import { db } from '@/services/db/dexie';
-import { getCards, saveAllCards, clearAllCards } from '@/services/db/repositories/cardRepository';
-import { getHistory, saveFullHistory, clearHistory } from '@/services/db/repositories/historyRepository';
-import { getFullSettings, getSystemSetting, setSystemSetting } from '@/services/db/repositories/settingsRepository';
+import { db } from '@/db/dexie';
+import { getCards, saveAllCards, clearAllCards } from '@/db/repositories/cardRepository';
+import { getHistory, saveFullHistory, clearHistory } from '@/db/repositories/historyRepository';
+import { getFullSettings, getSystemSetting, setSystemSetting } from '@/db/repositories/settingsRepository';
 import { UserSettings, Card } from '@/types';
 
 export interface SyncData {
@@ -24,7 +24,7 @@ export interface SyncData {
     settings: Partial<UserSettings>;
     profile: {
         id: string;
-        username: string;
+        username?: string;
         xp: number;
         points: number;
         level: number;

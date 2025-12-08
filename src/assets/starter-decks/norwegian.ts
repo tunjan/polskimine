@@ -1,5 +1,5 @@
 import { Card } from '@/types';
-import { createNorwegianCard as createCard } from './createCard';
+import { createNorwegianCard as createCard } from '@/features/collection/utils/createCard';
 
 export const NORWEGIAN_BEGINNER_DECK: Card[] = [
 

@@ -2,26 +2,26 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { Dashboard } from '@/features/dashboard/components/Dashboard';
-import { useDeckStats } from '@/features/deck/hooks/useDeckStats';
+import { useDeckStats } from '@/features/collection/hooks/useDeckStats';
 import { useSettingsStore } from '@/stores/useSettingsStore';
-import { getDashboardStats } from '@/services/db/repositories/statsRepository';
-import { getCardsForDashboard } from '@/services/db/repositories/cardRepository';
+import { getDashboardStats } from '@/db/repositories/statsRepository';
+import { getCardsForDashboard } from '@/db/repositories/cardRepository';
 import { LoadingScreen } from '@/components/ui/loading';
 import { Button } from '@/components/ui/button';
 
 export const DashboardRoute: React.FC = () => {
   const { history, stats } = useDeckStats();
-  const settings = useSettingsStore(s => s.settings);
+  const language = useSettingsStore(s => s.settings.language);
   const navigate = useNavigate();
 
   const { data: dashboardStats, isLoading: isStatsLoading, isError: isStatsError } = useQuery({
-    queryKey: ['dashboardStats', settings.language],
-    queryFn: () => getDashboardStats(settings.language),
+    queryKey: ['dashboardStats', language],
+    queryFn: () => getDashboardStats(language),
   });
 
   const { data: cards, isLoading: isCardsLoading, isError: isCardsError } = useQuery({
-    queryKey: ['dashboardCards', settings.language],
-    queryFn: () => getCardsForDashboard(settings.language),
+    queryKey: ['dashboardCards', language],
+    queryFn: () => getCardsForDashboard(language),
   });
 
   if (isStatsLoading || isCardsLoading) {

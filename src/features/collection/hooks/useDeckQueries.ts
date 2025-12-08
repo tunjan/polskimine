@@ -1,23 +1,23 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useSettingsStore } from '@/stores/useSettingsStore';
-import { db } from '@/services/db/dexie';
+import { db } from '@/db/dexie';
 import {
   getStats as fetchStats,
   getTodayReviewStats,
-} from '@/services/db/repositories/statsRepository';
+} from '@/db/repositories/statsRepository';
 import {
   getHistory as fetchHistory,
   incrementHistory,
-} from '@/services/db/repositories/historyRepository';
-import { getDueCards, saveCard } from '@/services/db/repositories/cardRepository';
-import { addReviewLog } from '@/services/db/repositories/revlogRepository';
+} from '@/db/repositories/historyRepository';
+import { getDueCards, saveCard } from '@/db/repositories/cardRepository';
+import { addReviewLog } from '@/db/repositories/revlogRepository';
 import { Card, Grade } from '@/types';
-import { getSRSDate } from '@/features/study/logic/srs';
+import { getSRSDate } from '@/core/srs/scheduler';
 import { format, differenceInMinutes } from 'date-fns';
 import { useAuth } from '@/contexts/AuthContext';
 import { useGamification } from '@/contexts/GamificationContext';
 import { toast } from 'sonner';
-import { CardXpPayload } from '@/features/xp/xpUtils';
+import { CardXpPayload } from '@/core/gamification/xp';
 
 export const useDeckStatsQuery = () => {
   const settings = useSettingsStore(s => s.settings);
@@ -132,7 +132,7 @@ export const useRecordReviewMutation = () => {
 
       return { previousHistory, previousReviewsToday, previousDueCards, previousDashboardStats };
     },
-    onError: (err, newTodo, context) => {
+    onError: (_err, _newTodo, context) => {
       if (context) {
         queryClient.setQueryData(['history', settings.language], context.previousHistory);
         queryClient.setQueryData(['reviewsToday', settings.language], context.previousReviewsToday);

@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { db } from '@/services/db/dexie';
+import { db } from '@/db/dexie';
 
 interface LocalProfile {
     id: string;

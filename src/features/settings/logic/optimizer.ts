@@ -1,4 +1,4 @@
-import { LinguaFlowDB } from '@/services/db/dexie';
+import { LinguaFlowDB } from '@/db/dexie';
 import { State } from 'ts-fsrs';
 
 export const exportRevlogToCSV = async (db: LinguaFlowDB): Promise<void> => {

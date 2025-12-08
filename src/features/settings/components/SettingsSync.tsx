@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useSettingsStore } from '@/stores/useSettingsStore';
-import { migrateLocalSettingsToDatabase, getFullSettings, updateUserSettings } from '@/services/db/repositories/settingsRepository';
+import { migrateLocalSettingsToDatabase, getFullSettings, updateUserSettings } from '@/db/repositories/settingsRepository';
 import { toast } from 'sonner';
 
 export const SettingsSync: React.FC = () => {

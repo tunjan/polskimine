@@ -1,4 +1,4 @@
-import { db, generateId, RevlogEntry } from '@/services/db/dexie';
+import { db, generateId, RevlogEntry } from '@/db/dexie';
 import { ReviewLog, Card, Grade } from '@/types';
 import { State } from 'ts-fsrs';
 import { incrementStat } from './aggregatedStatsRepository';
@@ -36,8 +36,8 @@ export const addReviewLog = async (
 
   await db.revlog.add(entry);
 
-  await incrementStat(card.language, 'total_xp', 10);
-  await incrementStat(card.language, 'total_reviews', 1);
+  await incrementStat(card.language || 'polish', 'total_xp', 10);
+  await incrementStat(card.language || 'polish', 'total_reviews', 1);
 
   await incrementStat('global', 'total_xp', 10);
   await incrementStat('global', 'total_reviews', 1);

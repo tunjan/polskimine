@@ -1,12 +1,17 @@
 import { useMemo } from 'react';
-import { useDeckStatsQuery, useDueCardsQuery, useHistoryQuery, useReviewsTodayQuery } from '@/features/deck/hooks/useDeckQueries';
+import { useDeckStatsQuery, useDueCardsQuery, useHistoryQuery, useReviewsTodayQuery } from '@/features/collection/hooks/useDeckQueries';
 import { useSettingsStore } from '@/stores/useSettingsStore';
+import { useShallow } from 'zustand/react/shallow';
 import { useStreakStats } from './useStreakStats';
 import { applyStudyLimits, isNewCard } from '@/services/studyLimits';
 import { DeckStats } from '@/types';
 
 export const useDeckStats = () => {
-    const settings = useSettingsStore(s => s.settings);
+    const { language, dailyNewLimits, dailyReviewLimits } = useSettingsStore(useShallow(s => ({
+        language: s.settings.language,
+        dailyNewLimits: s.settings.dailyNewLimits,
+        dailyReviewLimits: s.settings.dailyReviewLimits
+    })));
     const streakStats = useStreakStats();
 
     const { data: reviewsTodayData, isLoading: reviewsTodayLoading } = useReviewsTodayQuery();
@@ -18,8 +23,8 @@ export const useDeckStats = () => {
 
     const isLoading = statsLoading || dueCardsLoading || historyLoading || reviewsTodayLoading;
 
-    const currentNewLimit = settings.dailyNewLimits?.[settings.language] ?? 20;
-    const currentReviewLimit = settings.dailyReviewLimits?.[settings.language] ?? 100;
+    const currentNewLimit = dailyNewLimits?.[language] ?? 20;
+    const currentReviewLimit = dailyReviewLimits?.[language] ?? 100;
 
     const stats = useMemo<DeckStats>(() => {
         if (!dbStats || !dueCards) {

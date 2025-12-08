@@ -3,22 +3,23 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Card, Grade } from '@/types';
 import { StudySession } from '@/features/study/components/StudySession';
 import { useDeckActions } from '@/contexts/DeckActionsContext';
-import { useDeckStats } from '@/features/deck/hooks/useDeckStats';
+import { useDeckStats } from '@/features/collection/hooks/useDeckStats';
 import { useDeckStore } from '@/stores/useDeckStore';
 import { useSettingsStore } from '@/stores/useSettingsStore';
-import { useCardOperations } from '@/features/deck/hooks/useCardOperations';
+import { useShallow } from 'zustand/react/shallow';
+import { useCardOperations } from '@/features/collection/hooks/useCardOperations';
 import { isNewCard } from '@/services/studyLimits';
 import {
   getCramCards,
   getDueCards,
-} from '@/services/db/repositories/cardRepository';
-import { getTodayReviewStats } from '@/services/db/repositories/statsRepository';
-import { useClaimDailyBonusMutation } from '@/features/deck/hooks/useDeckQueries';
-import { CardXpPayload } from '@/features/xp/xpUtils';
+} from '@/db/repositories/cardRepository';
+import { getTodayReviewStats } from '@/db/repositories/statsRepository';
+import { useClaimDailyBonusMutation } from '@/features/collection/hooks/useDeckQueries';
+import { CardXpPayload } from '@/core/gamification/xp';
 import { LoadingScreen } from '@/components/ui/loading';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
-import { sortCards, CardOrder } from '@/features/study/logic/cardSorter';
+import { sortCards, CardOrder } from '@/core/srs/cardSorter';
 
 export const StudyRoute: React.FC = () => {
   const { recordReview, undoReview } = useDeckActions();
@@ -27,7 +28,14 @@ export const StudyRoute: React.FC = () => {
   const canUndo = !!lastReview;
 
   const { updateCard, deleteCard, addCard } = useCardOperations();
-  const settings = useSettingsStore(s => s.settings);
+  
+  const { language, dailyNewLimits, dailyReviewLimits, cardOrder } = useSettingsStore(useShallow(s => ({
+    language: s.settings.language,
+    dailyNewLimits: s.settings.dailyNewLimits,
+    dailyReviewLimits: s.settings.dailyReviewLimits,
+    cardOrder: s.settings.cardOrder
+  })));
+
   const claimBonus = useClaimDailyBonusMutation();
 
   const navigate = useNavigate();
@@ -49,7 +57,7 @@ export const StudyRoute: React.FC = () => {
         if (isCramMode) {
           const limit = parseInt(searchParams.get('limit') || '50', 10);
           const tag = searchParams.get('tag') || undefined;
-          const cramCards = await getCramCards(limit, tag, settings.language);
+          const cramCards = await getCramCards(limit, tag, language);
           if (isMounted) {
             setSessionCards(cramCards);
             setReserveCards([]);
@@ -61,16 +69,16 @@ export const StudyRoute: React.FC = () => {
 
           const [due, reviewsToday] = await Promise.race([
             Promise.all([
-              getDueCards(new Date(), settings.language),
-              getTodayReviewStats(settings.language)
+              getDueCards(new Date(), language),
+              getTodayReviewStats(language)
             ]),
             timeoutPromise
           ]) as [Card[], { newCards: number; reviewCards: number }];
 
           if (!isMounted) return;
 
-          const dailyNewLimit = settings.dailyNewLimits?.[settings.language] ?? 20;
-          const dailyReviewLimit = settings.dailyReviewLimits?.[settings.language] ?? 100;
+          const dailyNewLimit = dailyNewLimits?.[language] ?? 20;
+          const dailyReviewLimit = dailyReviewLimits?.[language] ?? 100;
 
           const active: Card[] = [];
           const reserve: Card[] = [];
@@ -97,7 +105,7 @@ export const StudyRoute: React.FC = () => {
             }
           }
 
-          const sortedActive = sortCards(active, (settings.cardOrder as CardOrder) || 'newFirst');
+          const sortedActive = sortCards(active, (cardOrder as CardOrder) || 'newFirst');
 
           setSessionCards(sortedActive);
           setReserveCards(reserve);
@@ -120,7 +128,7 @@ export const StudyRoute: React.FC = () => {
     return () => {
       isMounted = false;
     };
-  }, [settings.language, isCramMode, searchParams, settings.dailyNewLimits, settings.dailyReviewLimits]);
+  }, [language, isCramMode, searchParams, dailyNewLimits, dailyReviewLimits, cardOrder]);
 
   const handleUpdateCard = (card: Card) => {
     if (isCramMode) {

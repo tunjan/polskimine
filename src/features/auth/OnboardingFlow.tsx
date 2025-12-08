@@ -7,16 +7,12 @@ import { LanguageSelector } from './components/LanguageSelector';
 import { DeckGenerationStep } from './components/DeckGenerationStep';
 import { Difficulty, Card, Language, LanguageId } from '@/types';
 import { toast } from 'sonner';
-import { updateUserSettings } from '@/services/db/repositories/settingsRepository';
-import { generateInitialDeck } from '@/features/deck/services/deckGeneration';
-import { saveAllCards } from '@/services/db/repositories/cardRepository';
+import { updateUserSettings } from '@/db/repositories/settingsRepository';
+import { generateInitialDeck } from '@/features/generator/services/deckGeneration';
+import { saveAllCards } from '@/db/repositories/cardRepository';
 import { Command, LogOut } from 'lucide-react';
-import { POLISH_BEGINNER_DECK } from '@/features/deck/data/polishBeginnerDeck';
+import { POLISH_BEGINNER_DECK, NORWEGIAN_BEGINNER_DECK, JAPANESE_BEGINNER_DECK, SPANISH_BEGINNER_DECK, GERMAN_BEGINNER_DECK } from '@/assets/starter-decks';
 import { Button } from '@/components/ui/button';
-import { NORWEGIAN_BEGINNER_DECK } from '@/features/deck/data/norwegianBeginnerDeck';
-import { JAPANESE_BEGINNER_DECK } from '@/features/deck/data/japaneseBeginnerDeck';
-import { SPANISH_BEGINNER_DECK } from '@/features/deck/data/spanishBeginnerDeck';
-import { GERMAN_BEGINNER_DECK } from '@/features/deck/data/germanBeginnerDeck';
 import { v4 as uuidv4 } from 'uuid';
 
 const BEGINNER_DECKS: Record<Language, Card[]> = {

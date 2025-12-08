@@ -7,9 +7,9 @@ import {
   deleteCardsBatch as deleteCardsBatchFromRepo,
   saveCard,
   saveAllCards,
-} from '@/services/db/repositories/cardRepository';
+} from '@/db/repositories/cardRepository';
 import { useDeckActions } from '@/contexts/DeckActionsContext';
-import { db } from '@/services/db/dexie';
+import { db } from '@/db/dexie';
 
 interface CardOperations {
   addCard: (card: Card) => Promise<void>;

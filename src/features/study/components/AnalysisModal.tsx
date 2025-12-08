@@ -1,7 +1,7 @@
 import React from 'react';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
-import { Quote } from 'lucide-react';
+
 
 interface AnalysisResult {
     originalText: string;

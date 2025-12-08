@@ -1,13 +1,16 @@
-import { useCallback, useEffect, useReducer, useMemo } from 'react';
+import { useCallback, useEffect, useReducer } from 'react';
 import { Card, Grade, UserSettings } from '@/types';
-import { calculateNextReview, isCardDue } from '@/features/study/logic/srs';
+import { calculateNextReview, isCardDue } from '@/core/srs/scheduler';
 import { isNewCard } from '@/services/studyLimits';
-import { sortCards } from '../logic/cardSorter';
+import { sortCards } from "@/core/srs/cardSorter";
 
 interface UseStudySessionParams {
   dueCards: Card[];
   reserveCards?: Card[];
-  settings: UserSettings;
+  cardOrder: UserSettings['cardOrder'];
+  ignoreLearningStepsWhenNoCards: boolean;
+  fsrs: UserSettings['fsrs'];
+  learningSteps: UserSettings['learningSteps'];
   onUpdateCard: (card: Card) => void;
   onRecordReview: (card: Card, updatedCard: Card, grade: Grade) => void;
   canUndo?: boolean;
@@ -22,29 +25,55 @@ interface SessionState {
   reserveCards: Card[];
   currentIndex: number;
   history: { addedCardId: string | null }[];
-  tick: number;
 }
 
 type Action =
-  | { type: 'INIT'; cards: Card[]; reserve: Card[] }
+  | { type: 'INIT'; cards: Card[]; reserve: Card[]; now: Date; ignoreLearningSteps: boolean }
   | { type: 'FLIP' }
   | { type: 'START_PROCESSING' }
-  | { type: 'GRADE_SUCCESS'; status?: SessionStatus; updatedCard?: Card | null; addedCardId?: string | null; isLast?: boolean }
+  | { type: 'GRADE_SUCCESS'; status?: SessionStatus; updatedCard?: Card | null; addedCardId?: string | null; isLast?: boolean; now: Date; ignoreLearningSteps: boolean }
   | { type: 'GRADE_FAILURE' }
   | { type: 'UNDO'; }
-  | { type: 'TICK' }
-  | { type: 'REMOVE_CARD'; cardId: string; newCardFromReserve?: Card | null }
-  | { type: 'CHECK_WAITING'; now: Date; ignoreLearningSteps: boolean }
+  | { type: 'TICK'; now: Date; ignoreLearningSteps: boolean }
+  | { type: 'REMOVE_CARD'; cardId: string; newCardFromReserve?: Card | null; now: Date; ignoreLearningSteps: boolean }
   | { type: 'UPDATE_CARD'; card: Card };
 
 const getInitialStatus = (cards: Card[]): SessionStatus => {
   return cards.length > 0 ? 'IDLE' : 'COMPLETE';
 };
 
+const checkSchedule = (state: SessionState, now: Date, ignoreLearningSteps: boolean): SessionState => {
+  if (state.status === 'PROCESSING' || state.status === 'FLIPPED') return state;
+
+  const current = state.cards[state.currentIndex];
+  if (!current) {
+    if (state.cards.length === 0) return { ...state, status: 'COMPLETE' };
+    return state;
+  }
+
+  if (isCardDue(current, now)) {
+    return { ...state, status: 'IDLE' };
+  }
+
+  const nextDueIndex = state.cards.findIndex((c, i) => i > state.currentIndex && isCardDue(c, now));
+  if (nextDueIndex !== -1) {
+    const newCards = [...state.cards];
+    const [card] = newCards.splice(nextDueIndex, 1);
+    newCards.splice(state.currentIndex, 0, card);
+    return { ...state, cards: newCards, status: 'IDLE' };
+  }
+
+  if (ignoreLearningSteps) {
+    return { ...state, status: 'IDLE' };
+  }
+
+  return { ...state, status: 'WAITING' };
+};
+
 const reducer = (state: SessionState, action: Action): SessionState => {
   switch (action.type) {
-    case 'INIT':
-      return {
+    case 'INIT': {
+      const newState = {
         ...state,
         cards: action.cards,
         reserveCards: action.reserve,
@@ -52,6 +81,8 @@ const reducer = (state: SessionState, action: Action): SessionState => {
         status: getInitialStatus(action.cards),
         history: [],
       };
+      return checkSchedule(newState, action.now, action.ignoreLearningSteps);
+    }
 
     case 'FLIP':
       if (state.status !== 'IDLE') return state;
@@ -62,7 +93,7 @@ const reducer = (state: SessionState, action: Action): SessionState => {
       return { ...state, status: 'PROCESSING' };
 
     case 'GRADE_SUCCESS': {
-      const { updatedCard, addedCardId, isLast } = action;
+      const { updatedCard, addedCardId, isLast, now, ignoreLearningSteps } = action;
       let newCards = [...state.cards];
       let newIndex = state.currentIndex;
       let newHistory = [...state.history, { addedCardId: addedCardId ?? null }];
@@ -71,12 +102,13 @@ const reducer = (state: SessionState, action: Action): SessionState => {
         if (updatedCard.status === 'learning') {
           if (isLast) {
             newCards[state.currentIndex] = updatedCard;
-            return {
+            const newState = {
               ...state,
               cards: newCards,
-              status: 'IDLE',
+              status: 'IDLE' as SessionStatus,
               history: newHistory
             };
+            return checkSchedule(newState, now, ignoreLearningSteps);
           } else {
             newCards.push(updatedCard);
           }
@@ -85,13 +117,14 @@ const reducer = (state: SessionState, action: Action): SessionState => {
       }
 
       if (newIndex < newCards.length - 1) {
-        return {
+        const newState = {
           ...state,
           cards: newCards,
           currentIndex: newIndex + 1,
-          status: 'IDLE',
+          status: 'IDLE' as SessionStatus,
           history: newHistory
         };
+        return checkSchedule(newState, now, ignoreLearningSteps);
       } else {
         return {
           ...state,
@@ -132,39 +165,11 @@ const reducer = (state: SessionState, action: Action): SessionState => {
         history: newHistory,
       };
 
-    case 'CHECK_WAITING': {
-      if (state.status === 'PROCESSING' || state.status === 'FLIPPED') return state;
-
-      const current = state.cards[state.currentIndex];
-      if (!current) {
-        if (state.cards.length === 0) return { ...state, status: 'COMPLETE' };
-        return state;
-      }
-
-      if (isCardDue(current, action.now)) {
-        return { ...state, status: 'IDLE' };
-      }
-
-      const nextDueIndex = state.cards.findIndex((c, i) => i > state.currentIndex && isCardDue(c, action.now));
-      if (nextDueIndex !== -1) {
-        const newCards = [...state.cards];
-        const [card] = newCards.splice(nextDueIndex, 1);
-        newCards.splice(state.currentIndex, 0, card);
-        return { ...state, cards: newCards, status: 'IDLE' };
-      }
-
-      if (action.ignoreLearningSteps) {
-        return { ...state, status: 'IDLE' };
-      }
-
-      return { ...state, status: 'WAITING' };
-    }
-
     case 'TICK':
-      return { ...state, tick: state.tick + 1 };
+      return checkSchedule(state, action.now, action.ignoreLearningSteps);
 
     case 'REMOVE_CARD': {
-      const { cardId, newCardFromReserve } = action;
+      const { cardId, newCardFromReserve, now, ignoreLearningSteps } = action;
       const index = state.cards.findIndex(c => c.id === cardId);
       if (index === -1) return state;
 
@@ -190,13 +195,17 @@ const reducer = (state: SessionState, action: Action): SessionState => {
 
       if (newCards.length === 0) newStatus = 'COMPLETE';
 
-      return {
+      const newState = {
         ...state,
         cards: newCards,
         reserveCards: newReserve,
         currentIndex: newIndex,
         status: newStatus,
       };
+      
+      if (newStatus === 'COMPLETE') return newState;
+      
+      return checkSchedule(newState, now, ignoreLearningSteps);
     }
 
     case 'UPDATE_CARD': {
@@ -213,7 +222,10 @@ const reducer = (state: SessionState, action: Action): SessionState => {
 export const useStudySession = ({
   dueCards,
   reserveCards: initialReserve = [],
-  settings,
+  cardOrder,
+  ignoreLearningStepsWhenNoCards,
+  fsrs,
+  learningSteps,
   onUpdateCard,
   onRecordReview,
   canUndo,
@@ -225,7 +237,6 @@ export const useStudySession = ({
     reserveCards: initialReserve,
     currentIndex: 0,
     history: [],
-    tick: 0,
   }, (initial) => ({
     ...initial,
     status: getInitialStatus(initial.cards)
@@ -233,26 +244,31 @@ export const useStudySession = ({
 
   useEffect(() => {
     if (dueCards.length > 0) {
-      const order = settings.cardOrder || 'newFirst';
+      const order = cardOrder || 'newFirst';
       const sortedCards = sortCards(dueCards, order);
 
-      dispatch({ type: 'INIT', cards: sortedCards, reserve: initialReserve });
+      dispatch({ 
+        type: 'INIT', 
+        cards: sortedCards, 
+        reserve: initialReserve,
+        now: new Date(),
+        ignoreLearningSteps: ignoreLearningStepsWhenNoCards
+      });
     }
-  }, [dueCards, initialReserve, settings.cardOrder]);
+  }, [dueCards, initialReserve, cardOrder, ignoreLearningStepsWhenNoCards]);
 
   useEffect(() => {
-    if (state.status === 'IDLE' || state.status === 'WAITING') {
-      const now = new Date();
-      dispatch({ type: 'CHECK_WAITING', now, ignoreLearningSteps: !!settings.ignoreLearningStepsWhenNoCards });
-    }
-
     if (state.status === 'WAITING') {
       const timer = setTimeout(() => {
-        dispatch({ type: 'TICK' });
+        dispatch({ 
+          type: 'TICK',
+          now: new Date(),
+          ignoreLearningSteps: ignoreLearningStepsWhenNoCards
+        });
       }, 1000);
       return () => clearTimeout(timer);
     }
-  }, [state.status, state.currentIndex, state.cards, settings.ignoreLearningStepsWhenNoCards, state.tick]);
+  }, [state.status, ignoreLearningStepsWhenNoCards]);
 
   const currentCard = state.cards[state.currentIndex];
 
@@ -262,18 +278,25 @@ export const useStudySession = ({
     dispatch({ type: 'START_PROCESSING' });
 
     try {
-      const updatedCard = calculateNextReview(currentCard, grade, settings.fsrs, settings.learningSteps);
+      const updatedCard = calculateNextReview(currentCard, grade, fsrs, learningSteps);
       await onRecordReview(currentCard, updatedCard, grade);
 
       const isLast = state.currentIndex === state.cards.length - 1;
       const addedCardId = updatedCard.status === 'learning' && !isLast ? updatedCard.id : null;
 
-      dispatch({ type: 'GRADE_SUCCESS', updatedCard, addedCardId, isLast });
+      dispatch({ 
+        type: 'GRADE_SUCCESS', 
+        updatedCard, 
+        addedCardId, 
+        isLast,
+        now: new Date(),
+        ignoreLearningSteps: ignoreLearningStepsWhenNoCards
+      });
     } catch (e) {
       console.error("Grade failed", e);
       dispatch({ type: 'GRADE_FAILURE' });
     }
-  }, [state.status, state.currentIndex, state.cards, currentCard, settings.fsrs, onRecordReview]);
+  }, [state.status, state.currentIndex, state.cards, currentCard, fsrs, learningSteps, ignoreLearningStepsWhenNoCards, onRecordReview]);
 
   const handleMarkKnown = useCallback(async () => {
     if (state.status === 'PROCESSING') return;
@@ -286,34 +309,25 @@ export const useStudySession = ({
 
       await onUpdateCard(updatedCard);
 
-      let addedCardId: string | null = null;
       let newCardFromReserve: Card | null = null;
-
       if (wasNew && state.reserveCards.length > 0) {
         newCardFromReserve = state.reserveCards[0];
       }
 
-
-
-
-      if (newCardFromReserve) {
-        addedCardId = newCardFromReserve.id;
-      }
-
-
-
-
-
-      dispatch({ type: 'REMOVE_CARD', cardId: currentCard.id, newCardFromReserve });
-
-
+      dispatch({ 
+        type: 'REMOVE_CARD', 
+        cardId: currentCard.id, 
+        newCardFromReserve,
+        now: new Date(),
+        ignoreLearningSteps: ignoreLearningStepsWhenNoCards
+      });
 
     } catch (e) {
       console.error("Mark Known failed", e);
       dispatch({ type: 'GRADE_FAILURE' });
     }
 
-  }, [state.status, currentCard, state.reserveCards, onUpdateCard]);
+  }, [state.status, currentCard, state.reserveCards, ignoreLearningStepsWhenNoCards, onUpdateCard]);
 
 
   const handleUndo = useCallback(() => {
@@ -328,8 +342,14 @@ export const useStudySession = ({
     if (card && isNewCard(card) && state.reserveCards.length > 0) {
       newCardFromReserve = state.reserveCards[0];
     }
-    dispatch({ type: 'REMOVE_CARD', cardId, newCardFromReserve });
-  }, [state.cards, state.reserveCards]);
+    dispatch({ 
+      type: 'REMOVE_CARD', 
+      cardId, 
+      newCardFromReserve,
+      now: new Date(),
+      ignoreLearningSteps: ignoreLearningStepsWhenNoCards
+    });
+  }, [state.cards, state.reserveCards, ignoreLearningStepsWhenNoCards]);
 
   const updateCardInSession = useCallback((card: Card) => {
     dispatch({ type: 'UPDATE_CARD', card });
@@ -338,11 +358,6 @@ export const useStudySession = ({
   const setIsFlipped = (flipped: boolean) => {
     if (flipped) dispatch({ type: 'FLIP' });
   };
-
-  const isCurrentCardDue = useMemo(() => {
-    if (!currentCard) return false;
-    return isCardDue(currentCard, new Date());
-  }, [currentCard]);
 
   return {
     sessionCards: state.cards,

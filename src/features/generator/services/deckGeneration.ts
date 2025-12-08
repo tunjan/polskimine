@@ -1,4 +1,4 @@
-import { aiService } from '@/features/deck/services/ai';
+import { aiService } from '@/lib/ai';
 import { Card, Difficulty, Language } from '@/types';
 
 export interface GenerateInitialDeckOptions {

@@ -2,10 +2,11 @@ import React, { useMemo, useCallback, useState } from 'react';
 import { Card, Grade } from '@/types';
 import { Progress } from '@/components/ui/progress';
 import { useSettingsStore } from '@/stores/useSettingsStore';
+import { useShallow } from 'zustand/react/shallow';
 import { useStudySession } from '../hooks/useStudySession';
-import { useXpSession } from '@/features/xp/hooks/useXpSession';
-import { CardXpPayload, CardRating } from '@/features/xp/xpUtils';
-import { AddCardModal } from '@/features/deck/components/AddCardModal';
+import { useXpSession } from '../hooks/useXpSession';
+import { CardXpPayload, CardRating } from '@/core/gamification/xp';
+import { AddCardModal } from '@/features/collection/components/AddCardModal';
 import { StudyHeader } from './StudyHeader';
 import { StudyFooter } from './StudyFooter';
 import { StudyCardArea } from './StudyCardArea';
@@ -66,7 +67,28 @@ export const StudySession: React.FC<StudySessionProps> = React.memo(({
   dailyStreak,
   onAddCard,
 }) => {
-  const settings = useSettingsStore(s => s.settings);
+  const {
+    autoPlayAudio,
+    blindMode,
+    showTranslationAfterFlip,
+    language,
+    binaryRatingMode,
+    cardOrder,
+    learningSteps,
+    fsrs,
+    ignoreLearningStepsWhenNoCards
+  } = useSettingsStore(useShallow(s => ({
+    autoPlayAudio: s.settings.autoPlayAudio,
+    blindMode: s.settings.blindMode,
+    showTranslationAfterFlip: s.settings.showTranslationAfterFlip,
+    language: s.settings.language,
+    binaryRatingMode: s.settings.binaryRatingMode,
+    cardOrder: s.settings.cardOrder,
+    learningSteps: s.settings.learningSteps,
+    fsrs: s.settings.fsrs,
+    ignoreLearningStepsWhenNoCards: s.settings.ignoreLearningStepsWhenNoCards
+  })));
+
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const { sessionXp, sessionStreak, multiplierInfo, feedback, processCardResult, subtractXp } = useXpSession(dailyStreak, isCramMode);
@@ -114,7 +136,10 @@ export const StudySession: React.FC<StudySessionProps> = React.memo(({
   } = useStudySession({
     dueCards,
     reserveCards,
-    settings,
+    cardOrder,
+    ignoreLearningStepsWhenNoCards: !!ignoreLearningStepsWhenNoCards,
+    fsrs,
+    learningSteps,
     onUpdateCard,
     onRecordReview: enhancedRecordReview,
     canUndo,
@@ -163,7 +188,7 @@ export const StudySession: React.FC<StudySessionProps> = React.memo(({
     return { label: 'REV', className: 'text-chart-3 border-chart-3/20 bg-chart-3/10' };
   }, [currentCard, isCramMode]);
 
-  const intervals = useReviewIntervals(currentCard, settings);
+  const intervals = useReviewIntervals(currentCard, fsrs, learningSteps);
 
   useStudyShortcuts({
     currentCardId: currentCard?.id,
@@ -175,7 +200,7 @@ export const StudySession: React.FC<StudySessionProps> = React.memo(({
     handleUndo: handleUndo,
     onExit,
     canUndo: !!canUndo,
-    settings,
+    binaryRatingMode: !!binaryRatingMode,
   });
 
   if (isWaiting) {
@@ -223,10 +248,10 @@ export const StudySession: React.FC<StudySessionProps> = React.memo(({
         feedback={feedback}
         currentCard={currentCard}
         isFlipped={isFlipped}
-        autoPlayAudio={settings.autoPlayAudio || settings.blindMode}
-        blindMode={settings.blindMode}
-        showTranslation={settings.showTranslationAfterFlip}
-        language={settings.language}
+        autoPlayAudio={autoPlayAudio || blindMode}
+        blindMode={blindMode}
+        showTranslation={showTranslationAfterFlip}
+        language={language}
         onAddCard={onAddCard}
       />
 
@@ -234,7 +259,7 @@ export const StudySession: React.FC<StudySessionProps> = React.memo(({
         isFlipped={isFlipped}
         setIsFlipped={setIsFlipped}
         isProcessing={isProcessing}
-        binaryRatingMode={settings.binaryRatingMode}
+        binaryRatingMode={binaryRatingMode}
         onGrade={handleGrade}
         intervals={intervals}
       />

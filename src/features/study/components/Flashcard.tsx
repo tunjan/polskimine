@@ -1,9 +1,11 @@
+
 import React, { useMemo, useEffect } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Card, Language, LanguageId } from '@/types';
 import { escapeRegExp, parseFurigana, cn, findInflectedWordInSentence } from '@/lib/utils';
 import { useSettingsStore } from '@/stores/useSettingsStore';
-import { useCardText } from '@/features/deck/hooks/useCardText';
+import { useShallow } from 'zustand/react/shallow';
+import { useCardText } from '@/features/collection/hooks/useCardText';
 import { Mic, Volume2 } from 'lucide-react';
 import { FuriganaRenderer } from '@/components/ui/furigana-renderer';
 import { useTextSelection } from '@/features/study/hooks/useTextSelection';
@@ -33,7 +35,11 @@ export const Flashcard = React.memo<FlashcardProps>(({
   language = LanguageId.Polish,
   onAddCard
 }) => {
-  const settings = useSettingsStore(s => s.settings);
+  const { geminiApiKey, showWholeSentenceOnFront, tts } = useSettingsStore(useShallow(s => ({
+    geminiApiKey: s.settings.geminiApiKey,
+    showWholeSentenceOnFront: s.settings.showWholeSentenceOnFront,
+    tts: s.settings.tts
+  })));
   const { displayedTranslation, isGaslit, processText } = useCardText(card);
   const { selection, handleMouseUp, clearSelection } = useTextSelection();
 
@@ -41,7 +47,7 @@ export const Flashcard = React.memo<FlashcardProps>(({
     clearSelection();
   }, [card.id, clearSelection]);
 
-  const { isRevealed, setIsRevealed, handleReveal, handleKeyDown } = useCardInteraction({
+  const { isRevealed, handleReveal, handleKeyDown } = useCardInteraction({
     cardId: card.id,
     blindMode,
     isFlipped
@@ -50,7 +56,7 @@ export const Flashcard = React.memo<FlashcardProps>(({
   const { speak, playSlow } = useFlashcardAudio({
     card,
     language,
-    settings,
+    tts,
     isFlipped,
     autoPlayAudio
   });
@@ -66,7 +72,7 @@ export const Flashcard = React.memo<FlashcardProps>(({
   } = useAIAnalysis({
     card,
     language,
-    apiKey: settings.geminiApiKey,
+    apiKey: geminiApiKey,
     selection,
     clearSelection,
     onAddCard
@@ -110,13 +116,13 @@ export const Flashcard = React.memo<FlashcardProps>(({
             </Button>
           )}
           <p className={cn(baseClasses, "blur-3xl opacity-5 group-hover:opacity-10 transition-all duration-500")}>
-            {(card.targetWord && !settings.showWholeSentenceOnFront) ? processText(card.targetWord) : displayedSentence}
+            {(card.targetWord && !showWholeSentenceOnFront) ? processText(card.targetWord) : displayedSentence}
           </p>
         </div>
       );
     }
 
-    if (!isFlipped && card.targetWord && !settings.showWholeSentenceOnFront) {
+    if (!isFlipped && card.targetWord && !showWholeSentenceOnFront) {
       if (language === LanguageId.Japanese) {
         return (
           <FuriganaRenderer
@@ -230,7 +236,7 @@ export const Flashcard = React.memo<FlashcardProps>(({
     }
 
     return <p className={baseClasses}>{displayedSentence}</p>;
-  }, [displayedSentence, card.targetWord, card.furigana, isRevealed, language, fontSizeClass, blindMode, speak, isFlipped, card.targetSentence, processText, settings.showWholeSentenceOnFront, handleReveal, handleKeyDown]);
+  }, [displayedSentence, card.targetWord, card.furigana, isRevealed, language, fontSizeClass, blindMode, speak, isFlipped, card.targetSentence, processText, showWholeSentenceOnFront, handleReveal, handleKeyDown]);
 
   const containerClasses = cn(
     "relative w-full max-w-7xl mx-auto flex flex-col items-center justify-center h-full"

@@ -1,11 +1,11 @@
 import React, { createContext, useContext, useCallback } from 'react';
 import { Card, Grade } from '@/types';
-import { CardXpPayload } from '@/features/xp/xpUtils';
-import { useRecordReviewMutation, useUndoReviewMutation } from '@/features/deck/hooks/useDeckQueries';
+import { CardXpPayload } from '@/core/gamification/xp';
+import { useRecordReviewMutation, useUndoReviewMutation } from '@/features/collection/hooks/useDeckQueries';
 import { useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { getUTCDateString } from '@/constants';
-import { getSRSDate } from '@/features/study/logic/srs';
+import { getSRSDate } from '@/core/srs/scheduler';
 import { useDeckStore } from '@/stores/useDeckStore';
 
 interface DeckDispatch {

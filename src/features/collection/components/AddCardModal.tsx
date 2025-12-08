@@ -1,12 +1,13 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { ArrowRight, Sparkles, Scroll, BookOpen, PenLine, Languages, Tag, FileText, Loader2 } from "lucide-react";
+import { Sparkles, Loader2 } from "lucide-react";
 import { Dialog, DialogContent, DialogTitle, DialogDescription, DialogHeader, DialogFooter } from "@/components/ui/dialog";
 import { Card, LanguageId } from "@/types";
 import { v4 as uuidv4 } from "uuid";
 import { toast } from "sonner";
-import { aiService } from "@/features/deck/services/ai";
-import { escapeRegExp, parseFurigana, cn } from "@/lib/utils";
-import { useSettingsStore } from "@/stores/useSettingsStore";
+import { aiService } from "@/lib/ai";
+import { escapeRegExp, parseFurigana } from "@/lib/utils";
+import { useSettingsStore, SettingsState } from "@/stores/useSettingsStore";
+import { useShallow } from 'zustand/react/shallow';
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { useForm } from "react-hook-form";
@@ -64,7 +65,10 @@ const formSchema = z.object({
 type FormValues = z.infer<typeof formSchema>;
 
 export const AddCardModal: React.FC<AddCardModalProps> = ({ isOpen, onClose, onAdd, initialCard }) => {
-    const settings = useSettingsStore(s => s.settings);
+    const { language, geminiApiKey } = useSettingsStore(useShallow((s: SettingsState) => ({
+        language: s.settings.language,
+        geminiApiKey: s.settings.geminiApiKey
+    })));
     const [isGenerating, setIsGenerating] = useState(false);
     const isMounted = React.useRef(false);
     const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -115,19 +119,19 @@ export const AddCardModal: React.FC<AddCardModalProps> = ({ isOpen, onClose, onA
             }, 100);
         }
         wasOpen.current = isOpen;
-    }, [isOpen, initialCard, settings.language, form.reset]);
+    }, [isOpen, initialCard, language, form.reset]);
 
     const handleAutoFill = async () => {
         const currentSentence = form.watch("sentence");
         if (!currentSentence) return;
-        if (!settings.geminiApiKey) {
+        if (!geminiApiKey) {
             toast.error("Please add your Gemini API Key in Settings > General");
             return;
         }
         setIsGenerating(true);
         try {
-            const targetLanguage = initialCard?.language || settings.language;
-            const result = await aiService.generateCardContent(currentSentence, targetLanguage, settings.geminiApiKey);
+            const targetLanguage = initialCard?.language || language;
+            const result = await aiService.generateCardContent(currentSentence, targetLanguage, geminiApiKey);
 
             if (isMounted.current) {
                 if (targetLanguage === LanguageId.Japanese && result.furigana) {
@@ -154,7 +158,7 @@ export const AddCardModal: React.FC<AddCardModalProps> = ({ isOpen, onClose, onA
     const onSubmit = (data: FormValues) => {
         const cardBase = initialCard || { id: uuidv4(), status: "new", interval: 0, easeFactor: 2.5, dueDate: new Date().toISOString(), reps: 0, lapses: 0 } as Card;
 
-        const targetLanguage = initialCard?.language || settings.language;
+        const targetLanguage = initialCard?.language || language;
         let targetSentence = data.sentence;
         let furigana = data.furigana || undefined;
 
@@ -170,7 +174,7 @@ export const AddCardModal: React.FC<AddCardModalProps> = ({ isOpen, onClose, onA
             targetWordTranslation: data.targetWordTranslation || undefined,
             targetWordPartOfSpeech: data.targetWordPartOfSpeech || undefined,
             nativeTranslation: data.translation,
-            notes: data.notes,
+            notes: data.notes || "",
             furigana: furigana,
             language: targetLanguage
         };
@@ -183,7 +187,7 @@ export const AddCardModal: React.FC<AddCardModalProps> = ({ isOpen, onClose, onA
     const HighlightedPreview = useMemo(() => {
         if (!watchedSentence) return null;
 
-        const targetLanguage = initialCard?.language || settings.language;
+        const targetLanguage = initialCard?.language || language;
 
         if (targetLanguage === LanguageId.Japanese) {
             const segments = parseFurigana(watchedSentence);
@@ -220,7 +224,7 @@ export const AddCardModal: React.FC<AddCardModalProps> = ({ isOpen, onClose, onA
                 </div>
             );
         }
-    }, [watchedSentence, watchedTargetWord, settings.language, initialCard]);
+    }, [watchedSentence, watchedTargetWord, language, initialCard]);
 
     return (
         <Dialog open={isOpen} onOpenChange={onClose}>

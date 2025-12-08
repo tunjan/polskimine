@@ -1,4 +1,4 @@
-import { db } from '@/services/db/dexie';
+import { db } from '@/db/dexie';
 import { ReviewHistory, Language, LanguageId } from '@/types';
 import { format } from 'date-fns';
 import { getCurrentUserId } from './cardRepository';

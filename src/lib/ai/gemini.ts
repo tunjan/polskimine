@@ -1,5 +1,5 @@
 import { LanguageId } from '@/types';
-import { parseAIJSON } from '@/utils/jsonParser';
+import { parseAIJSON } from '../../utils/jsonParser';
 
 interface GeminiRequestBody {
   contents: Array<{
@@ -7,7 +7,8 @@ interface GeminiRequestBody {
   }>;
   generationConfig?: {
     responseMimeType?: string;
-    responseSchema?: any;
+    responseSchema?: GeminiResponseSchema;
+    temperature?: number;
   };
 }
 
@@ -50,7 +51,7 @@ interface BatchGenerationOptions {
 
 const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent';
 
-async function callGemini(prompt: string, apiKey: string, responseSchema?: GeminiResponseSchema): Promise<string> {
+async function callGemini(prompt: string, apiKey: string, responseSchema?: GeminiResponseSchema, retries = 3): Promise<string> {
   if (!apiKey) {
     throw new Error('Gemini API Key is missing. Please add it in Settings.');
   }
@@ -68,28 +69,46 @@ async function callGemini(prompt: string, apiKey: string, responseSchema?: Gemin
     };
   }
 
-  const response = await fetch(`${GEMINI_API_URL}?key=${apiKey}`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify(body)
-  });
+  let lastError: Error | null = null;
+  for (let i = 0; i < retries; i++) {
+    try {
+      const response = await fetch(`${GEMINI_API_URL}?key=${apiKey}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(body)
+      });
 
-  if (!response.ok) {
-    const errorData = await response.json().catch(() => ({}));
-    console.error("Gemini API Error:", errorData);
-    throw new Error(errorData.error?.message || 'AI Service failed. Check your API key.');
+      if (!response.ok) {
+        if (response.status === 429 || response.status >= 500) {
+           const text = await response.text(); // Get text for error detail
+           throw new Error(`Gemini API Error: ${response.status} ${response.statusText} - ${text}`);
+        }
+        const errorData = await response.json().catch(() => ({}));
+        console.error("Gemini API Error:", errorData);
+        throw new Error(errorData.error?.message || 'AI Service failed. Check your API key.');
+      }
+
+      const data = await response.json();
+      const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
+      if (!text) {
+        throw new Error('No response from AI');
+      }
+      return text;
+
+    } catch (e: any) {
+      console.warn(`Gemini attempt ${i + 1} failed:`, e);
+      lastError = e;
+      if (i < retries - 1) {
+        // Exponential backoff: 1s, 2s, 4s...
+        const waitTime = Math.pow(2, i) * 1000;
+        await new Promise(resolve => setTimeout(resolve, waitTime));
+      }
+    }
   }
 
-  const data = await response.json();
-
-  const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
-  if (!text) {
-    throw new Error('No response from AI');
-  }
-
-  return text;
+  throw lastError || new Error("Failed to call Gemini after multiple attempts");
 }
 
 export const aiService = {
@@ -316,16 +335,16 @@ export const aiService = {
     if (difficultyMode === 'beginner') {
       if (hasLearnedWords) {
         progressionRules = `
-        CRITICAL PROGRESSION RULES (Continued Learning / Duolingo Style):
+        CRITICAL PROGRESSION RULES (Continued Learning):
         This is a SEQUENTIAL LESSON extending the user's existing knowledge.
 
         User ALREADY KNOWS: ${learnedWords!.length} words.
         
-        1.  **NO SINGLE WORDS**: Do NOT generate cards with just 1 word. The user is past that stage.
-        2.  **Contextual Learning**: precise target is to combine [Previously Learned Word] + [NEW Word].
+        1.  **NO SINGLE WORDS**: Do NOT generate cards with just 1 word.
+        2.  **Contextual Learning**: Combine [Known Word] + [NEW Word].
         3.  **Progression**:
-            - Cards 1-5: Simple 2-3 word phrases using *mostly* known words + 1 NEW word.
-            - Cards 6-10: Complete simple sentences (Subject-Verb-Object). 
+            - Cards 1-${Math.ceil(count/2)}: Simple phrases using *mostly* known words + 1 NEW word.
+            - Cards ${Math.ceil(count/2) + 1}-${count}: Complete simple sentences.
         
         INTERNAL STATE REQUIREMENT:
         - Track "Introduced Vocabulary".
@@ -333,36 +352,44 @@ export const aiService = {
         `;
       } else {
         progressionRules = `
-        CRITICAL PROGRESSION RULES (Zero-to-Hero / Duolingo Style):
+        CRITICAL PROGRESSION RULES (Zero-to-Hero):
         This is a SEQUENTIAL LESSON. Card N must build upon Cards 1...(N-1).
 
-        1.  **Card 1-2**: Foundation. ABSOLUTE BASICS. 1-2 words max. (e.g., "Mother", "Water", "Yes").
-        2.  **Card 3-5**: very Simple combinations. Max 2-3 words. Reuse words from Cards 1-2. (e.g., "My mother", "Yes, water").
-        3.  **Card 6-10**: Basic sentences. Max 3-5 words. STRICTLY REUSE specific vocabulary from previous cards + introduce ONLY 1 new word per card.
+        1.  **Card 1-2**: Foundation. ABSOLUTE BASICS. 1-2 words max.
+        2.  **Card 3-${Math.ceil(count/2)}**: Simple combinations. Reuse words from Cards 1-2.
+        3.  **Card ${Math.ceil(count/2) + 1}-${count}**: Basic sentences. STRICTLY REUSE specific vocabulary from previous cards + introduce ONLY 1 new word per card.
         
         INTERNAL STATE REQUIREMENT:
         - Track the "Introduced Vocabulary" list internally as you generate.
-        - **Constraint**: A card should not contain more than 1 unknown word (a word not in learned/introduced list).
         `;
       }
     } else {
+      // Immersive Mode
+      const iPlusOneRule = hasLearnedWords 
+        ? `- **Comprehensible Input**: Prioritize using words from "Known Vocabulary" to construct the sentence, ensuring the context is understood, while teaching the NEW "targetWord".`
+        : '';
+
       progressionRules = `
-        CRITICAL: Each card MUST contain a COMPLETE, NATURAL SENTENCE in targetSentence.
+        CRITICAL: Each card MUST contain a COMPLETE, NATURAL SENTENCE.
         - The sentence must demonstrate vivid, real usage of the target vocabulary word.
-        - Never return just the word alone — always wrap it in a meaningful context.
+        - NEVER return just the word alone — always wrap it in a meaningful context.
+        ${iPlusOneRule}
         - Sentence complexity should match ${proficiencyLevel} level.
-        - Variety: Mix statements, questions, and mild imperatives. Avoid repetitive sentence structures.
-        - **DIVERSITY REQUIREMENT**: You must generate ${count} DISTINCT target words related to the topic. 
+        - Variety: Mix statements, questions, and imperatives.
+        - **DIVERSITY REQUIREMENT**: Generate ${count} DISTINCT target words. 
         - **CONSTRAINT**: Do NOT use the same "targetWord" more than once in this batch.
         `;
     }
 
-    const knownWordsContext = learnedWords && learnedWords.length > 0
+    // Shuffle and limit learned words to provide a good random sample without overflowing context
+    const shuffledLearnedWords = learnedWords ? [...learnedWords].sort(() => 0.5 - Math.random()).slice(0, 1000) : [];
+
+    const knownWordsContext = hasLearnedWords
       ? `
-        KNOWN VOCABULARY (For Context Only - DO NOT Teach These Again):
-        [${learnedWords.slice(0, 150).join(", ")}]... (and potentially others).
+        KNOWN VOCABULARY (User knows ${learnedWords!.length} words, showing ${shuffledLearnedWords.length} sample):
+        [${shuffledLearnedWords.join(", ")}]
         
-        Use these known words to build sentences, but the "targetWord" (the one being taught) to be a NEW word.
+        Use these known words to provide context. The "targetWord" MUST be a NEW word not in this list.
         `
       : "User has NO prior vocabulary. Start from scratch.";
 
@@ -370,9 +397,18 @@ export const aiService = {
     const wordTypesForSchema = wordTypeFilters && wordTypeFilters.length > 0 ? wordTypeFilters : allWordTypes;
 
     const cardSchemaProperties: Record<string, GeminiSchemaProperty> = {
-      targetSentence: { type: "STRING" },
-      nativeTranslation: { type: "STRING" },
-      targetWord: { type: "STRING" },
+      targetSentence: { 
+        type: "STRING",
+        description: `A natural ${langName} sentence utilizing the target word.`
+      },
+      nativeTranslation: { 
+        type: "STRING",
+        description: "Natural English translation."
+      },
+      targetWord: { 
+        type: "STRING",
+        description: "The main word being taught (lemma form preferred)."
+      },
       targetWordTranslation: { type: "STRING" },
       targetWordPartOfSpeech: {
         type: "STRING",
@@ -380,7 +416,10 @@ export const aiService = {
       },
       grammaticalCase: { type: "STRING" },
       gender: { type: "STRING" },
-      notes: { type: "STRING" }
+      notes: { 
+        type: "STRING",
+        description: "Brief grammar note (max 2 sentences)."
+      }
     };
 
     const requiredFields = ["targetSentence", "nativeTranslation", "targetWord", "targetWordTranslation", "targetWordPartOfSpeech", "notes"];
@@ -404,51 +443,58 @@ export const aiService = {
       items: cardSchema
     };
 
-    let prompt = `
-      Role: Expert ${langName} curriculum designer & Native Speaker.
-      Task: Generate a JSON Array of ${count} high-quality flashcards.
+    const prompt = `
+      Role: Expert ${langName} curriculum designer.
+      Task: Generate a set of ${count} high-quality flashcards.
       Topic: "${instructions}"
       
       ${progressionRules}
       
       ${wordTypeFilters && wordTypeFilters.length > 0 ? `
       WORD TYPE CONSTRAINT:
-      - The \"targetWord\" in EACH card MUST be one of these parts of speech: ${wordTypeFilters.join(', ')}.
-      - This is MANDATORY. Do NOT generate cards where the target word is a different part of speech.
+      - The "targetWord" in EACH card MUST be one of: ${wordTypeFilters.join(', ')}.
       ` : ''}
       
       Style Guidelines:
       - Tone: Natural, friendly, helpful.
       - **Vocabulary Strategy**: 
-          - For transitions and context: Repetition of *learned* words is good.
-          - For TARGET words (the new words being taught): **All ${count} target words must be UNIQUE**. Do not repeat the same new word.
-      - Avoid: Complex grammar, rare words, or throwing the user into the deep end.
-      - Content: tangible, visual, and concrete concepts first (objects, family, basic actions).
+          - Repeats of *learned* words is encouraged for context.
+          - **Target Words**: MUST BE UNIQUE.
+      - Content: Tangible, visual, and concrete concepts first.
       
       ${knownWordsContext}
       
-      Output Format (JSON Array):
-      [
-        {
-          "targetSentence": "...",
-          "nativeTranslation": "...",
-          "targetWord": "...",
-          "targetWordTranslation": "...",
-          "targetWordPartOfSpeech": "noun|verb|adjective|adverb|pronoun",
-          "grammaticalCase": "nominative|genitive|...", 
-          "gender": "masculine|feminine|neuter",
-          "notes": "Explain the grammar of the target word in this specific context."${language === LanguageId.Japanese ? ',\n          "furigana": "The FULL targetSentence with Kanji[reading] format for ALL kanji. Example: 私[わたし]は 日本語[にほんご]を 勉強[べんきょう]しています"' : ''}
-        }
-      ]
-
-      IMPORTANT: Return ONLY the JSON Array. No markdown.
+      IMPORTANT: Generate exactly ${count} cards.
     `;
 
     const result = await callGemini(prompt, apiKey, responseSchema);
 
     try {
       const parsed = parseAIJSON<GeneratedCardData[]>(result);
-      return Array.isArray(parsed) ? parsed : [];
+      if (!Array.isArray(parsed)) {
+        console.warn("Gemini did not return an array:", parsed);
+        return [];
+      }
+      
+      const validCards = parsed.filter(c => {
+        const hasRequiredFields = c.targetSentence && c.targetWord && c.nativeTranslation;
+        const matchesType = !wordTypeFilters || wordTypeFilters.length === 0 || (c.targetWordPartOfSpeech && wordTypeFilters.includes(c.targetWordPartOfSpeech as WordType));
+        return hasRequiredFields && matchesType;
+      });
+
+      // Deduplicate strategy: Ensure strictly unique targetWords (case-insensitive)
+      const seenWords = new Set<string>();
+      const uniqueCards: GeneratedCardData[] = [];
+
+      for (const card of validCards) {
+        const normalizedWord = card.targetWord.trim().toLowerCase();
+        if (!seenWords.has(normalizedWord)) {
+          seenWords.add(normalizedWord);
+          uniqueCards.push(card);
+        }
+      }
+
+      return uniqueCards;
     } catch (e) {
       console.error("Failed to parse AI batch response", e, "\nRaw:", result);
       throw new Error("Failed to generate valid cards");

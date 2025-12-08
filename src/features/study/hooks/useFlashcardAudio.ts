@@ -1,20 +1,13 @@
-import React, { useState, useCallback, useRef, useEffect } from 'react';
-import { ttsService } from '@/services/tts';
+import { useState, useCallback, useRef, useEffect } from 'react';
+import { ttsService } from '@/lib/tts';
 import { parseFurigana } from '@/lib/utils';
 import { Card, Language } from '@/types';
-import { SettingsState } from '@/stores/useSettingsStore';
+import { UserSettings } from '@/types';
 
 interface UseFlashcardAudioProps {
     card: Card;
     language: Language;
-    settings: {
-        tts: {
-            rate: number;
-            pitch: number;
-            volume: number;
-            voice?: string;
-        }
-    };
+    tts: UserSettings['tts'];
     isFlipped: boolean;
     autoPlayAudio: boolean;
 }
@@ -22,7 +15,7 @@ interface UseFlashcardAudioProps {
 export function useFlashcardAudio({
     card,
     language,
-    settings,
+    tts,
     isFlipped,
     autoPlayAudio
 }: UseFlashcardAudioProps) {
@@ -50,15 +43,15 @@ export function useFlashcardAudio({
     }, []);
 
     const speak = useCallback(() => {
-        const effectiveRate = playSlowRef.current ? Math.max(0.25, settings.tts.rate * 0.6) : settings.tts.rate;
-        const effectiveSettings = { ...settings.tts, rate: effectiveRate };
+        const effectiveRate = playSlowRef.current ? Math.max(0.25, tts.rate * 0.6) : tts.rate;
+        const effectiveSettings = { ...tts, rate: effectiveRate };
         const plainText = getPlainTextForTTS(card.targetSentence);
 
         ttsService.speak(plainText, language, effectiveSettings).catch(err => {
             console.error('TTS speak error:', err);
         });
         setPlaySlow(prev => !prev);
-    }, [card.targetSentence, language, settings.tts, getPlainTextForTTS]);
+    }, [card.targetSentence, language, tts, getPlainTextForTTS]);
 
     useEffect(() => {
         if (hasSpokenRef.current !== card.id) {

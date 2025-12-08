@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { db, LocalProfile } from '@/services/db/dexie';
+import { db, LocalProfile } from '@/db/dexie';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 

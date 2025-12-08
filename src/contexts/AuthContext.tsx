@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { db, hashPassword, generateId, LocalUser } from '@/services/db/dexie';
+import { db, hashPassword, generateId, LocalUser } from '@/db/dexie';
 import { toast } from 'sonner';
 
 interface AuthUser {

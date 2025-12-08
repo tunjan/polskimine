@@ -7,14 +7,14 @@ import { Switch } from '@/components/ui/switch';
 import { Input } from '@/components/ui/input';
 import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
-import { getAllReviewLogs } from '@/services/db/repositories/revlogRepository';
+import { getAllReviewLogs } from '@/db/repositories/revlogRepository';
 import { optimizeFSRS } from '@/lib/fsrsOptimizer';
 import { Card, CardContent } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { exportRevlogToCSV } from '@/features/settings/logic/optimizer';
-import { db } from '@/services/db/dexie';
+import { db } from '@/db/dexie';
 import { Textarea } from '@/components/ui/textarea';
 
 interface AlgorithmSettingsProps {

@@ -1,16 +1,8 @@
 import { create } from 'zustand';
 import { UserSettings, Language, LanguageId } from '@/types';
 import { FSRS_DEFAULTS } from '@/constants';
-import { UserApiKeys, updateUserSettings } from '@/services/db/repositories/settingsRepository';
+import { UserApiKeys, updateUserSettings } from '@/db/repositories/settingsRepository';
 import { toast } from 'sonner';
-
-const createLimits = (val: number): Record<Language, number> => ({
-    [LanguageId.Polish]: val,
-    [LanguageId.Norwegian]: val,
-    [LanguageId.Japanese]: val,
-    [LanguageId.Spanish]: val,
-    [LanguageId.German]: val
-});
 
 export const DEFAULT_SETTINGS: UserSettings = {
     language: LanguageId.Polish,
@@ -84,11 +76,21 @@ export const useSettingsStore = create<SettingsState>((set) => ({
             settings: {
                 ...state.settings,
                 ...newSettings,
-                fsrs: { ...state.settings.fsrs, ...(newSettings.fsrs || {}) },
-                tts: { ...state.settings.tts, ...(newSettings.tts || {}) },
-                languageColors: { ...state.settings.languageColors, ...(newSettings.languageColors || {}) },
-                dailyNewLimits: { ...state.settings.dailyNewLimits, ...(newSettings.dailyNewLimits || {}) },
-                dailyReviewLimits: { ...state.settings.dailyReviewLimits, ...(newSettings.dailyReviewLimits || {}) },
+                fsrs: newSettings.fsrs 
+                    ? { ...state.settings.fsrs, ...newSettings.fsrs }
+                    : state.settings.fsrs,
+                tts: newSettings.tts
+                    ? { ...state.settings.tts, ...newSettings.tts }
+                    : state.settings.tts,
+                languageColors: newSettings.languageColors
+                    ? { ...state.settings.languageColors, ...(newSettings.languageColors as Record<Language, string>) }
+                    : state.settings.languageColors,
+                dailyNewLimits: newSettings.dailyNewLimits
+                    ? { ...state.settings.dailyNewLimits, ...newSettings.dailyNewLimits }
+                    : state.settings.dailyNewLimits,
+                dailyReviewLimits: newSettings.dailyReviewLimits
+                    ? { ...state.settings.dailyReviewLimits, ...newSettings.dailyReviewLimits }
+                    : state.settings.dailyReviewLimits,
                 learningSteps: newSettings.learningSteps || state.settings.learningSteps,
             },
         })),

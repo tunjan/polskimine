@@ -1,4 +1,4 @@
-import { db, AggregatedStat } from '@/services/db/dexie';
+import { db, AggregatedStat } from '@/db/dexie';
 import { getCurrentUserId } from './cardRepository';
 
 export const getAggregatedStat = async (language: string, metric: string): Promise<number> => {

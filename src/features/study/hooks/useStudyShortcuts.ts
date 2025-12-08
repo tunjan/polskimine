@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { Grade, UserSettings } from '@/types';
+import { Grade } from '@/types';
 
 interface UseStudyShortcutsProps {
     currentCardId: string | undefined;
@@ -11,7 +11,7 @@ interface UseStudyShortcutsProps {
     handleUndo: () => void;
     onExit: () => void;
     canUndo: boolean;
-    settings: UserSettings;
+    binaryRatingMode: boolean;
 }
 
 export const useStudyShortcuts = ({
@@ -24,7 +24,7 @@ export const useStudyShortcuts = ({
     handleUndo,
     onExit,
     canUndo,
-    settings,
+    binaryRatingMode,
 }: UseStudyShortcutsProps) => {
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
@@ -35,7 +35,7 @@ export const useStudyShortcuts = ({
                 setIsFlipped(true);
             }
             else if (isFlipped && !sessionComplete && !isProcessing) {
-                if (settings.binaryRatingMode) {
+                if (binaryRatingMode) {
                     if (e.key === '1') {
                         e.preventDefault();
                         handleGrade('Again');
@@ -82,6 +82,6 @@ export const useStudyShortcuts = ({
         handleUndo,
         canUndo,
         onExit,
-        settings.binaryRatingMode,
+        binaryRatingMode,
     ]);
 };

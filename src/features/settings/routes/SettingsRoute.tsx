@@ -8,16 +8,16 @@ import { useDeckActions } from '@/contexts/DeckActionsContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { useProfile } from '@/features/profile/hooks/useProfile';
 import { Card as CardModel, UserSettings, Language } from '@/types';
-import { ttsService, VoiceOption } from '@/services/tts';
+import { ttsService, VoiceOption } from '@/lib/tts';
 import {
     saveAllCards,
     getCardSignatures,
     getCards,
     clearAllCards,
-} from '@/services/db/repositories/cardRepository';
-import { getHistory, saveFullHistory, clearHistory } from '@/services/db/repositories/historyRepository';
-import { db } from '@/services/db/dexie';
-import { parseCardsFromCsv, signatureForCard } from '@/features/deck/services/csvImport';
+} from '@/db/repositories/cardRepository';
+import { getHistory, saveFullHistory, clearHistory } from '@/db/repositories/historyRepository';
+import { db } from '@/db/dexie';
+import { parseCardsFromCsv, signatureForCard } from '@/features/generator/services/csvImport';
 import { useCloudSync } from '@/features/settings/hooks/useCloudSync';
 import { useAccountManagement } from '@/features/settings/hooks/useAccountManagement';
 import { useSyncthingSync } from '@/features/settings/hooks/useSyncthingSync';
@@ -318,7 +318,7 @@ const DataSettingsPage = () => {
                 }));
             }
 
-            const { recalculateAllStats } = await import('@/services/db/repositories/aggregatedStatsRepository');
+            const { recalculateAllStats } = await import('@/db/repositories/aggregatedStatsRepository');
             await recalculateAllStats();
 
             refreshDeckData();

@@ -1,5 +1,5 @@
 import React, { createContext, useContext } from 'react';
-import { db } from '@/services/db/dexie';
+import { db } from '@/db/dexie';
 import { useAuth } from './AuthContext';
 import { useProfile } from '@/features/profile/hooks/useProfile';
 

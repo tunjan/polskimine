@@ -1,5 +1,5 @@
 import { Card } from '@/types';
-import { createGermanCard as createCard } from './createCard';
+import { createGermanCard as createCard } from '@/features/collection/utils/createCard';
 
 export const GERMAN_BEGINNER_DECK: Card[] = [
     // Greetings & Politeness

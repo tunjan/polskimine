@@ -2,7 +2,7 @@ import React from 'react';
 import { Card, Language } from '@/types';
 import { Flashcard } from './Flashcard';
 import { StudyFeedback } from './StudyFeedback';
-import { XpFeedback } from '@/features/xp/hooks/useXpSession';
+import { XpFeedback } from '../hooks/useXpSession';
 
 
 interface StudyCardAreaProps {

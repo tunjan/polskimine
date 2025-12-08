@@ -6,23 +6,23 @@ import { useProfile } from '@/features/profile/hooks/useProfile';
 import { useSettingsStore } from '@/stores/useSettingsStore';
 import { LanguageLevelSelector, DeckGenerationStep, AuthLayout } from './components';
 import { LanguageSelector } from './components/LanguageSelector';
-import { generateInitialDeck } from '@/features/deck/services/deckGeneration';
-import { saveAllCards } from '@/services/db/repositories/cardRepository';
-import { updateUserSettings } from '@/services/db/repositories/settingsRepository';
+import { generateInitialDeck } from '@/features/generator/services/deckGeneration';
+import { saveAllCards } from '@/db/repositories/cardRepository';
+import { updateUserSettings } from '@/db/repositories/settingsRepository';
 import { Difficulty, Card as CardType, Language, LanguageId } from '@/types';
 import { Loader } from '@/components/ui/loading';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { POLISH_BEGINNER_DECK } from '@/features/deck/data/polishBeginnerDeck';
-import { NORWEGIAN_BEGINNER_DECK } from '@/features/deck/data/norwegianBeginnerDeck';
-import { JAPANESE_BEGINNER_DECK } from '@/features/deck/data/japaneseBeginnerDeck';
-import { SPANISH_BEGINNER_DECK } from '@/features/deck/data/spanishBeginnerDeck';
-import { GERMAN_BEGINNER_DECK } from '@/features/deck/data/germanBeginnerDeck';
+import { POLISH_BEGINNER_DECK } from '@/assets/starter-decks/polish';
+import { NORWEGIAN_BEGINNER_DECK } from '@/assets/starter-decks/norwegian';
+import { JAPANESE_BEGINNER_DECK } from '@/assets/starter-decks/japanese';
+import { SPANISH_BEGINNER_DECK } from '@/assets/starter-decks/spanish';
+import { GERMAN_BEGINNER_DECK } from '@/assets/starter-decks/german';
 import { v4 as uuidv4 } from 'uuid';
-import { LocalUser } from '@/services/db/dexie';
+import { LocalUser } from '@/db/dexie';
 
 type AuthMode = 'login' | 'register';
 type SetupStep = 'auth' | 'language' | 'level' | 'deck';
@@ -39,7 +39,7 @@ export const AuthPage: React.FC = () => {
   const { markInitialDeckGenerated } = useProfile();
   const { register, login, getRegisteredUsers } = useAuth();
 
-  const settings = useSettingsStore(s => s.settings);
+  // const settings = useSettingsStore(s => s.settings); // Unused
   const updateSettings = useSettingsStore(s => s.updateSettings);
   const [loading, setLoading] = useState(false);
 

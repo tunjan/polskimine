@@ -18,8 +18,9 @@ import { subDays, startOfDay, format } from 'date-fns';
 import { DeckStats, ReviewHistory, Card as CardType } from '@/types';
 
 import { useSettingsStore } from '@/stores/useSettingsStore';
+import { useShallow } from 'zustand/react/shallow';
 import { useProfile } from '@/features/profile/hooks/useProfile';
-import { getRevlogStats } from '@/services/db/repositories/statsRepository';
+import { getRevlogStats } from '@/db/repositories/statsRepository';
 import { getLevelProgress } from '@/lib/utils';
 
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -56,15 +57,18 @@ export const Dashboard: React.FC<DashboardProps> = ({
   cards,
   languageXp
 }) => {
-  const settings = useSettingsStore(s => s.settings);
+  const { language, fsrs } = useSettingsStore(useShallow(s => ({
+    language: s.settings.language,
+    fsrs: s.settings.fsrs
+  })));
   const { profile } = useProfile();
 
   const levelData = getLevelProgress(languageXp.xp);
   const rank = getRankForLevel(levelData.level);
 
   const { data: revlogStats, isLoading: isRevlogLoading } = useQuery({
-    queryKey: ['revlogStats', settings.language],
-    queryFn: () => getRevlogStats(settings.language),
+    queryKey: ['revlogStats', language],
+    queryFn: () => getRevlogStats(language),
   });
 
   const hasNoCards = metrics.total === 0;
@@ -304,7 +308,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
                       {isRevlogLoading ? (
                         <div className="animate-pulse bg-muted h-full w-full rounded-lg" />
                       ) : (
-                        revlogStats && <TrueRetentionChart data={revlogStats.retention} targetRetention={settings.fsrs.request_retention} />
+                        revlogStats && <TrueRetentionChart data={revlogStats.retention} targetRetention={fsrs.request_retention} />
                       )}
                     </div>
                   </CardContent>

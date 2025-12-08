@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
-import { useHistoryQuery } from '@/features/deck/hooks/useDeckQueries';
+import { useHistoryQuery } from '@/features/collection/hooks/useDeckQueries';
 import { getUTCDateString } from '@/constants';
-import { getSRSDate } from '@/features/study/logic/srs';
+import { getSRSDate } from '@/core/srs/scheduler';
 
 export interface StreakStats {
     currentStreak: number;

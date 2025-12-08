@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
 import { toast } from 'sonner';
 import { v4 as uuidv4 } from 'uuid';
-import { aiService } from '@/features/deck/services/ai';
-import { getCardByTargetWord } from '@/services/db/repositories/cardRepository';
-import { db } from '@/services/db/dexie';
+import { aiService } from '@/lib/ai';
+import { getCardByTargetWord } from '@/db/repositories/cardRepository';
+import { db } from '@/db/dexie';
 import { parseFurigana } from '@/lib/utils';
 import { Card, Language, LanguageId } from '@/types';
 

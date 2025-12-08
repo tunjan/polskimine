@@ -1,12 +1,13 @@
 import { useMemo } from 'react';
-import { Card, UserSettings, Grade } from '@/types';
-import { calculateNextReview } from '@/features/study/logic/srs';
+import { Card, Grade, UserSettings } from '@/types';
+import { calculateNextReview } from '@/core/srs/scheduler';
 import { formatInterval } from '@/utils/formatInterval';
 import { parseISO, differenceInMilliseconds } from 'date-fns';
 
 export const useReviewIntervals = (
     card: Card | undefined,
-    settings: UserSettings
+    fsrs: UserSettings['fsrs'],
+    learningSteps: number[]
 ): Record<Grade, string> => {
     return useMemo(() => {
         if (!card) {
@@ -16,7 +17,7 @@ export const useReviewIntervals = (
         const now = new Date();
         const calculate = (grade: Grade) => {
             try {
-                const next = calculateNextReview(card, grade, settings.fsrs, settings.learningSteps);
+                const next = calculateNextReview(card, grade, fsrs, learningSteps);
                 const due = parseISO(next.dueDate);
                 if (isNaN(due.getTime())) {
                     console.warn('[useReviewIntervals] Invalid dueDate from calculateNextReview:', next.dueDate);
@@ -36,5 +37,5 @@ export const useReviewIntervals = (
             Good: calculate('Good'),
             Easy: calculate('Easy'),
         };
-    }, [card, settings.fsrs, settings.learningSteps]);
+    }, [card, fsrs, learningSteps]);
 };

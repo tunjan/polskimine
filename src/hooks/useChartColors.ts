@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
 import { useSettingsStore } from '@/stores/useSettingsStore';
+import { useShallow } from 'zustand/react/shallow';
 import { useTheme } from '@/contexts/ThemeContext';
 
 const getCssVarValue = (name: string) => {
@@ -20,7 +21,10 @@ const normalizeColor = (value: string, fallback: string) => {
 
 export const useChartColors = () => {
   const { theme } = useTheme();
-  const settings = useSettingsStore(s => s.settings);
+  const { language, languageColors } = useSettingsStore(useShallow(s => ({
+    language: s.settings.language,
+    languageColors: s.settings.languageColors
+  })));
 
   return useMemo(() => {
     const prefersDark = typeof window !== 'undefined' && window.matchMedia('(prefers-color-scheme: dark)').matches;
@@ -34,5 +38,5 @@ export const useChartColors = () => {
       border: normalizeColor(getCssVarValue('--border'), '#d1d5db'),
       isDark: theme === 'dark' || (theme === 'system' && prefersDark),
     };
-  }, [theme, settings.language, settings.languageColors]);
+  }, [theme, language, languageColors]);
 };

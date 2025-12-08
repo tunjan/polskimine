@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Zap } from 'lucide-react';
 import clsx from 'clsx';
-import { XpFeedback } from '@/features/xp/hooks/useXpSession';
+import { XpFeedback } from '../hooks/useXpSession';
 
 export const StudyFeedback = React.memo(({ feedback }: { feedback: XpFeedback | null }) => {
   const [visible, setVisible] = useState(false);

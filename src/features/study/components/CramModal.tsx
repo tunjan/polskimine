@@ -7,7 +7,7 @@ import { Slider } from "@/components/ui/slider";
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
 import { useSettingsStore } from "@/stores/useSettingsStore";
-import { getTags } from "@/services/db/repositories/cardRepository";
+import { getTags } from "@/db/repositories/cardRepository";
 
 interface CramModalProps {
     isOpen: boolean;

@@ -3,14 +3,14 @@ import { Search, X, Plus, Sparkles, BookOpen, Zap, Trash2, Filter, Bookmark, Ale
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 
-import { useDeckStats } from '@/features/deck/hooks/useDeckStats';
+import { useDeckStats } from '@/features/collection/hooks/useDeckStats';
 import { Card } from '@/types';
-import { AddCardModal } from '@/features/deck/components/AddCardModal';
-import { GenerateCardsModal } from '@/features/deck/components/GenerateCardsModal';
-import { CardHistoryModal } from '@/features/deck/components/CardHistoryModal';
-import { CardList } from '@/features/deck/components/CardList';
-import { useCardOperations } from '@/features/deck/hooks/useCardOperations';
-import { useCardsQuery, CardFilters } from '@/features/deck/hooks/useCardsQuery';
+import { AddCardModal } from '@/features/collection/components/AddCardModal';
+import { GenerateCardsModal } from '@/features/generator/components/GenerateCardsModal';
+import { CardHistoryModal } from '@/features/collection/components/CardHistoryModal';
+import { CardList } from '@/features/collection/components/CardList';
+import { useCardOperations } from '@/features/collection/hooks/useCardOperations';
+import { useCardsQuery, CardFilters } from '@/features/collection/hooks/useCardsQuery';
 
 import { cn } from '@/lib/utils';
 
