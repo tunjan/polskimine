@@ -80,7 +80,7 @@ export interface TTSSettings {
 export interface UserSettings {
   language: Language;
   languageColors?: Record<Language, string>;
-
+  proficiency: Record<Language, Difficulty>;
   dailyNewLimits: Record<Language, number>;
   dailyReviewLimits: Record<Language, number>;
   autoPlayAudio: boolean;

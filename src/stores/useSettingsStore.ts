@@ -25,6 +25,13 @@ export const DEFAULT_SETTINGS: UserSettings = {
         [LanguageId.Spanish]: '#fca5a5',
         [LanguageId.German]: '#facc15',
     },
+    proficiency: {
+        [LanguageId.Polish]: 'A1',
+        [LanguageId.Norwegian]: 'A1',
+        [LanguageId.Japanese]: 'A1',
+        [LanguageId.Spanish]: 'A1',
+        [LanguageId.German]: 'A1',
+    },
     dailyNewLimits: {
         [LanguageId.Polish]: 20,
         [LanguageId.Norwegian]: 20,
@@ -102,6 +109,9 @@ export const useSettingsStore = create<SettingsState>((set, get) => ({
                 languageColors: newSettings.languageColors
                     ? { ...state.languageColors, ...(newSettings.languageColors as Record<Language, string>) }
                     : state.languageColors,
+                proficiency: newSettings.proficiency
+                    ? { ...state.proficiency, ...newSettings.proficiency }
+                    : state.proficiency,
                 dailyNewLimits: newSettings.dailyNewLimits
                     ? { ...state.dailyNewLimits, ...newSettings.dailyNewLimits }
                     : state.dailyNewLimits,
@@ -116,6 +126,7 @@ export const useSettingsStore = create<SettingsState>((set, get) => ({
                                 const settingsToSave: UserSettings = {
                     language: updatedState.language,
                     languageColors: updatedState.languageColors,
+                    proficiency: updatedState.proficiency,
                     dailyNewLimits: updatedState.dailyNewLimits,
                     dailyReviewLimits: updatedState.dailyReviewLimits,
                     autoPlayAudio: updatedState.autoPlayAudio,

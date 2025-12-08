@@ -14,9 +14,10 @@ import { useProfile } from '@/features/profile/hooks/useProfile';
 
 export const useAccountManagement = () => {
   const language = useSettingsStore(s => s.language);
+  const updateSettings = useSettingsStore(s => s.updateSettings);
+  const proficiency = useSettingsStore(s => s.proficiency);
   const { refreshDeckData } = useDeckActions();
   const { user, deleteAccount } = useAuth();
-  const { updateLanguageLevel } = useProfile();
 
   const [confirmResetDeck, setConfirmResetDeck] = useState(false);
   const [confirmResetAccount, setConfirmResetAccount] = useState(false);
@@ -40,7 +41,12 @@ export const useAccountManagement = () => {
         user_id: user?.id || 'local-user',
         language       }));
       await saveAllCards(beginnerCards as any);
-      await updateLanguageLevel('A1');
+      updateSettings({
+        proficiency: {
+          ...proficiency,
+          [language]: 'A1',
+        },
+      });
 
       refreshDeckData();
       toast.success("Deck has been reset to beginner course.");

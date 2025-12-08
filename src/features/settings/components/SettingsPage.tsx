@@ -85,7 +85,7 @@ export const SettingsPage: React.FC = () => {
   const settings = useSettingsStore();
   const setSettings = useSettingsStore((s) => s.setFullSettings);
   const { user } = useAuth();
-  const { profile, updateUsername, updateLanguageLevel } = useProfile();
+  const { profile, updateUsername } = useProfile();
   const { refreshDeckData } = useDeckActions();
 
   // Local state
@@ -431,7 +431,18 @@ export const SettingsPage: React.FC = () => {
         </SettingsItem>
 
         <SettingsItem label="Proficiency Level" description="Controls AI content complexity">
-          <Select value={profile?.language_level || 'A1'} onValueChange={updateLanguageLevel}>
+          <Select
+            value={settings.proficiency?.[settings.language] || 'A1'}
+            onValueChange={(val) => {
+              setSettings((prev) => ({
+                ...prev,
+                proficiency: {
+                  ...prev.proficiency,
+                  [prev.language]: val as any,
+                },
+              }));
+            }}
+          >
             <SelectTrigger className="w-36 h-8 text-sm">
               <SelectValue />
             </SelectTrigger>
@@ -440,7 +451,9 @@ export const SettingsPage: React.FC = () => {
                 { value: 'A1', label: 'A1 - Beginner' },
                 { value: 'A2', label: 'A2 - Elementary' },
                 { value: 'B1', label: 'B1 - Intermediate' },
+                { value: 'B2', label: 'B2 - Upper Intermediate' },
                 { value: 'C1', label: 'C1 - Advanced' },
+                { value: 'C2', label: 'C2 - Mastery' },
               ].map((option) => (
                 <SelectItem key={option.value} value={option.value}>
                   {option.label}

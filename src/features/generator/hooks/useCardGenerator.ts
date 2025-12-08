@@ -14,9 +14,10 @@ interface UseCardGeneratorProps {
 }
 
 export const useCardGenerator = ({ onClose, onAddCards }: UseCardGeneratorProps) => {
-    const { language, geminiApiKey } = useSettingsStore(useShallow((s: SettingsState) => ({
+    const { language, geminiApiKey, proficiency } = useSettingsStore(useShallow((s: SettingsState) => ({
         language: s.language,
-        geminiApiKey: s.geminiApiKey
+        geminiApiKey: s.geminiApiKey,
+        proficiency: s.proficiency
     })));
     const { profile } = useProfile();
 
@@ -26,7 +27,7 @@ export const useCardGenerator = ({ onClose, onAddCards }: UseCardGeneratorProps)
     const [count, setCount] = useState([5]);
     const [useLearnedWords, setUseLearnedWords] = useState(true);
     const [difficultyMode, setDifficultyMode] = useState<'beginner' | 'immersive'>('immersive');
-    const [selectedLevel, setSelectedLevel] = useState<string>(profile?.language_level || 'A1');
+    const [selectedLevel, setSelectedLevel] = useState<string>(proficiency?.[language] || 'A1');
     const [selectedWordTypes, setSelectedWordTypes] = useState<WordType[]>([]);
     
     const [generatedData, setGeneratedData] = useState<any[]>([]);

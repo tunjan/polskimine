@@ -37,24 +37,6 @@ export const useProfile = () => {
         },
     });
 
-    const updateLanguageLevelMutation = useMutation({
-        mutationFn: async (level: string) => {
-            if (!user?.id) throw new Error('No user authenticated');
-
-            await db.profile.update(user.id, {
-                language_level: level,
-                updated_at: new Date().toISOString()
-            });
-            return level;
-        },
-        onSuccess: (level) => {
-            queryClient.setQueryData<LocalProfile | null>(['profile', user?.id], (old) =>
-                old ? { ...old, language_level: level } : null
-            );
-            toast.success('Language level updated');
-        },
-    });
-
     const markInitialDeckGeneratedMutation = useMutation({
         mutationFn: async (userId: string = user?.id || '') => {
             if (!userId) throw new Error('No user ID available');
@@ -79,7 +61,6 @@ export const useProfile = () => {
         error: profileQuery.error,
 
         updateUsername: (username: string) => updateUsernameMutation.mutateAsync(username),
-        updateLanguageLevel: (level: string) => updateLanguageLevelMutation.mutateAsync(level),
         markInitialDeckGenerated: (userId?: string) => markInitialDeckGeneratedMutation.mutateAsync(userId),
         refreshProfile: () => profileQuery.refetch(),
     };
