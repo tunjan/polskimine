@@ -37,7 +37,7 @@ const createStarterDeck = (
         nativeTranslation: cardData.nativeTranslation,
         targetWord: cardData.targetWord,
         targetWordTranslation: cardData.targetWordTranslation,
-        tags: ["beginner", "starter-deck"],
+
         ...cardData.extras,
       },
       index * DUE_DATE_OFFSET_MS,

@@ -23,7 +23,7 @@ export interface CreateCardParams {
   furigana?: string;
   gender?: string;
   grammaticalCase?: string;
-  tags?: string[];
+
 }
 
 /**
@@ -85,7 +85,7 @@ export const createNewCard = (params: CreateCardParams): Card => {
     furigana,
     gender,
     grammaticalCase,
-    tags,
+
   } = params;
 
   const formattedSentence = formatSentenceWithTargetWord(
@@ -106,7 +106,7 @@ export const createNewCard = (params: CreateCardParams): Card => {
     furigana,
     gender,
     grammaticalCase,
-    tags,
+
 
     // Status
     status: CardStatus.NEW,

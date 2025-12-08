@@ -2,7 +2,7 @@ import { useState } from "react";
 import { aiService, WordType } from "@/lib/ai";
 import { useSettingsStore, SettingsState } from "@/stores/useSettingsStore";
 import { useShallow } from "zustand/react/shallow";
-import { useProfile } from "@/features/profile/hooks/useProfile";
+
 import {
   getLearnedWords,
   getAllTargetWords,
@@ -182,7 +182,7 @@ export const useCardGenerator = ({
             targetWordPartOfSpeech: item.targetWordPartOfSpeech,
             notes: item.notes || "",
             furigana: item.furigana,
-            tags: ["AI-Gen", "Custom", instructions.slice(0, 15).trim()],
+
           },
           index * DUE_DATE_OFFSET_MS,
         ),

@@ -50,7 +50,7 @@ const DBRawCardSchema = z.object({
   gender: z.string().optional().nullable(),
   grammaticalCase: z.string().optional().nullable(),
   notes: z.string().optional().nullable().default(""),
-  tags: z.array(z.string()).optional().nullable(),
+
   language: z.string().default("polish"),
   status: z
     .union([z.nativeEnum(CardStatus), z.string()])
@@ -103,7 +103,7 @@ export const mapToCard = (data: unknown): Card => {
     gender: validData.gender || undefined,
     grammaticalCase: validData.grammaticalCase || undefined,
     notes: validData.notes || "",
-    tags: validData.tags || undefined,
+
     language: validData.language as Language,
     status: validData.status,
     interval: validData.interval,
@@ -355,7 +355,7 @@ export const getDueCards = async (
 
 export const getCramCards = async (
   limit: number,
-  tag?: string,
+
   language?: Language,
 ): Promise<Card[]> => {
   const userId = getCurrentUserId();
@@ -368,9 +368,7 @@ export const getCramCards = async (
 
   let cards = rawCards.map(mapToCard);
 
-  if (tag) {
-    cards = cards.filter((c) => c.tags?.includes(tag));
-  }
+
 
   const shuffled = cards.sort(() => Math.random() - 0.5);
   return shuffled.slice(0, limit);
@@ -408,32 +406,7 @@ export const getCardSignatures = async (
   }));
 };
 
-export const getTags = async (language?: Language): Promise<string[]> => {
-  const userId = getCurrentUserId();
-  if (!userId) return [];
 
-  let rawCards: Card[];
-
-  if (language) {
-    rawCards = await db.cards
-      .where("[user_id+language]")
-      .equals([userId, language])
-      .toArray();
-  } else {
-    rawCards = await db.cards.where("user_id").equals(userId).toArray();
-  }
-
-  const cards = rawCards.map(mapToCard);
-
-  const uniqueTags = new Set<string>();
-  cards.forEach((card) => {
-    if (card.tags) {
-      card.tags.forEach((tag: string) => uniqueTags.add(tag));
-    }
-  });
-
-  return Array.from(uniqueTags).sort();
-};
 
 export const getLearnedWords = async (
   language: Language,

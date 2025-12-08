@@ -56,8 +56,7 @@ const StudyRoute: React.FC = () => {
       try {
         if (isCramMode) {
           const limit = parseInt(searchParams.get("limit") || "50", 10);
-          const tag = searchParams.get("tag") || undefined;
-          const cramCards = await getCramCards(limit, tag, language);
+          const cramCards = await getCramCards(limit, language);
           if (isMounted) {
             setSessionCards(cramCards);
             setReserveCards([]);

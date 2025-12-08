@@ -1,5 +1,5 @@
 import { v4 as uuidv4 } from "uuid";
-import { Card, Language, LanguageId } from "@/types";
+import { Card, CardStatus, Language, LanguageId } from "@/types";
 import Papa from "papaparse";
 
 type CsvRow = Record<string, string>;
@@ -49,7 +49,7 @@ const rowToCard = (row: CsvRow, fallbackLanguage: Language): Card | null => {
   const language = isLanguage(languageCandidate)
     ? languageCandidate
     : fallbackLanguage;
-  const tagsRaw = pickValue(row, ["tags", "tag_list", "labels"]);
+
   const notes = pickValue(row, ["notes", "context", "hint"]) || "";
   const targetWord = pickValue(row, ["target_word", "keyword", "cloze"]);
   const furigana = pickValue(row, ["furigana", "reading", "ruby"]);
@@ -60,15 +60,10 @@ const rowToCard = (row: CsvRow, fallbackLanguage: Language): Card | null => {
     targetWord: targetWord || undefined,
     nativeTranslation: translation,
     notes,
-    tags: tagsRaw
-      ? tagsRaw
-          .split(/[|;,]/)
-          .map((tag) => tag.trim())
-          .filter(Boolean)
-      : undefined,
+
     furigana: furigana || undefined,
     language,
-    status: "new",
+    status: CardStatus.NEW,
     interval: 0,
     easeFactor: 2.5,
     dueDate: new Date().toISOString(),
