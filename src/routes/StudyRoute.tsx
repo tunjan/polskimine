@@ -21,7 +21,7 @@ import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { sortCards, CardOrder } from '@/core/srs/cardSorter';
 
-export const StudyRoute: React.FC = () => {
+const StudyRoute: React.FC = () => {
   const { recordReview, undoReview } = useDeckActions();
   const { stats } = useDeckStats();
   const lastReview = useDeckStore(state => state.lastReview);
@@ -198,3 +198,5 @@ export const StudyRoute: React.FC = () => {
     />
   );
 };
+
+export default StudyRoute;
