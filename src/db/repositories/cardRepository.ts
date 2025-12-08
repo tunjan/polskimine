@@ -21,9 +21,10 @@ export const getCurrentUserId = (): string | null => {
 let hasWarnedAboutCorruption = false;
 
 // Helper to handle NaN values from corrupted DB entries
-const SafeNumber = z.preprocess((val) => {
+// Helper to handle NaN values from corrupted DB entries
+const SafeNumber = (fieldName: string) => z.preprocess((val) => {
   if (typeof val === "number" && isNaN(val)) {
-    console.warn("[CardRepository] Found NaN value in SRS field, resetting to 0. corrupted_val:", val);
+    console.warn(`[CardRepository] Found NaN value in field '${fieldName}', resetting to 0. corrupted_val:`, val);
     
     if (!hasWarnedAboutCorruption) {
       hasWarnedAboutCorruption = true;
@@ -58,26 +59,26 @@ const DBRawCardSchema = z.object({
     .union([z.nativeEnum(CardStatus), z.string()])
     .transform((val) => val as CardStatus),
 
-  interval: SafeNumber.default(0),
-  easeFactor: SafeNumber.default(2.5),
+  interval: SafeNumber("interval").default(0),
+  easeFactor: SafeNumber("easeFactor").default(2.5),
   dueDate: z.string(),
 
-  stability: SafeNumber.optional().nullable(),
-  difficulty: SafeNumber.optional().nullable(),
-  elapsed_days: SafeNumber.optional().nullable(),
-  scheduled_days: SafeNumber.optional().nullable(),
-  reps: SafeNumber.optional().nullable(),
-  lapses: SafeNumber.optional().nullable(),
-  state: SafeNumber.optional().nullable(),
+  stability: SafeNumber("stability").optional().nullable(),
+  difficulty: SafeNumber("difficulty").optional().nullable(),
+  elapsed_days: SafeNumber("elapsed_days").optional().nullable(),
+  scheduled_days: SafeNumber("scheduled_days").optional().nullable(),
+  reps: SafeNumber("reps").optional().nullable(),
+  lapses: SafeNumber("lapses").optional().nullable(),
+  state: SafeNumber("state").optional().nullable(),
   due: z.string().optional().nullable(),
   last_review: z.string().optional().nullable(),
   first_review: z.string().optional().nullable(),
 
-  learningStep: SafeNumber.optional().nullable(),
-  leechCount: SafeNumber.optional().nullable(),
+  learningStep: SafeNumber("learningStep").optional().nullable(),
+  leechCount: SafeNumber("leechCount").optional().nullable(),
   isLeech: z.boolean().optional().default(false),
   isBookmarked: z.boolean().optional().default(false),
-  precise_interval: SafeNumber.optional().nullable(),
+  precise_interval: SafeNumber("precise_interval").optional().nullable(),
 
   user_id: z.string().optional().nullable(),
 });
