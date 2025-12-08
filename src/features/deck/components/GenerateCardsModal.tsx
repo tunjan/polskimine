@@ -214,236 +214,252 @@ export const GenerateCardsModal: React.FC<GenerateCardsModalProps> = ({ isOpen, 
 
     return (
         <Dialog open={isOpen} onOpenChange={resetAndClose}>
-            <DialogContent>
-                <div>
-                    {step === 'config' ? (
-                        <>
-                            <DialogHeader className="px-6 py-4 border-b shrink-0">
-                                <DialogTitle className="flex items-center gap-2">
-                                    <Sparkles className="h-5 w-5 text-primary" />
-                                    Card Generator
-                                </DialogTitle>
-                                <DialogDescription>
-                                    Generate AI-powered flashcards for <strong>{settings.language}</strong> learning.
-                                </DialogDescription>
-                            </DialogHeader>
+            <DialogContent className="max-w-3xl p-0 gap-0 max-h-[90vh] flex flex-col overflow-hidden">
+                {step === 'config' ? (
+                    <>
+                        <DialogHeader className="px-6 py-4 border-b shrink-0">
+                            <DialogTitle className="flex items-center gap-2">
+                                <Sparkles className="h-5 w-5 text-primary" />
+                                Card Generator
+                            </DialogTitle>
+                            <DialogDescription>
+                                Generate AI-powered flashcards for <strong>{settings.language}</strong> learning.
+                            </DialogDescription>
+                        </DialogHeader>
 
-                            <div className="flex-1 overflow-auto">
-                                <div className="grid md:grid-cols-3 h-full">
-                                    {/* Sidebar Config */}
-                                    <div className="bg-muted/10 p-6 space-y-6 border-r md:col-span-1">
-                                        <div className="space-y-4">
-                                            <div className="space-y-3">
-                                                <div className="flex items-center justify-between">
-                                                    <Label>Quantity: {count[0]}</Label>
-                                                </div>
-                                                <Slider
-                                                    value={count}
-                                                    onValueChange={setCount}
-                                                    min={3}
-                                                    max={50}
-                                                    step={1}
-                                                />
-                                            </div>
+                        <div className="flex-1 overflow-y-auto">
+                            <div className={cn(
+                                "grid h-full",
+                                isMobile ? "grid-cols-1" : "grid-cols-[280px_1fr]"
+                            )}>
+                                {/* Sidebar Config */}
+                                <div className={cn(
+                                    "bg-muted/30 p-5 space-y-5",
+                                    !isMobile && "border-r"
+                                )}>
+                                    <div className="space-y-3">
+                                        <div className="flex items-center justify-between">
+                                            <Label className="text-sm font-medium">Quantity</Label>
+                                            <span className="text-sm font-semibold text-primary">{count[0]}</span>
+                                        </div>
+                                        <Slider
+                                            value={count}
+                                            onValueChange={setCount}
+                                            min={3}
+                                            max={50}
+                                            step={1}
+                                        />
+                                    </div>
 
-                                            <div className="space-y-2">
-                                                <Label>Proficiency Level</Label>
-                                                <Select value={selectedLevel} onValueChange={setSelectedLevel}>
-                                                    <SelectTrigger>
-                                                        <SelectValue />
-                                                    </SelectTrigger>
-                                                    <SelectContent>
-                                                        {Object.entries(levelDescriptions).map(([lvl, desc]) => (
-                                                            <SelectItem key={lvl} value={lvl}>
-                                                                <span className="font-medium mr-2">{lvl}</span>
-                                                                <span className="text-muted-foreground text-xs">{desc}</span>
-                                                            </SelectItem>
-                                                        ))}
-                                                    </SelectContent>
-                                                </Select>
-                                            </div>
+                                    <Separator />
 
-                                            <div className="space-y-2">
-                                                <Label>Learning Path</Label>
-                                                <div className="grid grid-cols-2 gap-2">
-                                                    <Button
-                                                        variant={difficultyMode === 'beginner' ? 'default' : 'outline'}
-                                                        size="sm"
-                                                        onClick={() => setDifficultyMode('beginner')}
-                                                        className="h-auto flex-col py-2 gap-1"
-                                                    >
-                                                        <span className="text-xs font-semibold">Zero to Hero</span>
-                                                        <span className="text-[10px] opacity-70">Single words</span>
-                                                    </Button>
-                                                    <Button
-                                                        variant={difficultyMode === 'immersive' ? 'default' : 'outline'}
-                                                        size="sm"
-                                                        onClick={() => setDifficultyMode('immersive')}
-                                                        className="h-auto flex-col py-2 gap-1"
-                                                    >
-                                                        <span className="text-xs font-semibold">Immersive</span>
-                                                        <span className="text-[10px] opacity-70">Full sentences</span>
-                                                    </Button>
-                                                </div>
-                                            </div>
+                                    <div className="space-y-2">
+                                        <Label className="text-sm font-medium">Proficiency Level</Label>
+                                        <Select value={selectedLevel} onValueChange={setSelectedLevel}>
+                                            <SelectTrigger className="w-full">
+                                                <SelectValue />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                {Object.entries(levelDescriptions).map(([lvl, desc]) => (
+                                                    <SelectItem key={lvl} value={lvl}>
+                                                        <span className="font-medium mr-2">{lvl}</span>
+                                                        <span className="text-muted-foreground text-xs">{desc}</span>
+                                                    </SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                        </Select>
+                                    </div>
 
-                                            <div className="flex items-center space-x-2 pt-2">
-                                                <Switch
-                                                    id="learned-words"
-                                                    checked={useLearnedWords}
-                                                    onCheckedChange={setUseLearnedWords}
-                                                />
-                                                <Label htmlFor="learned-words" className="text-sm font-normal">
-                                                    Include Learned Words (i+1)
-                                                </Label>
-                                            </div>
+                                    <Separator />
+
+                                    <div className="space-y-2">
+                                        <Label className="text-sm font-medium">Learning Path</Label>
+                                        <div className="grid grid-cols-2 gap-2">
+                                            <Button
+                                                variant={difficultyMode === 'beginner' ? 'default' : 'outline'}
+                                                size="sm"
+                                                onClick={() => setDifficultyMode('beginner')}
+                                                className="h-auto flex-col py-3 gap-1"
+                                            >
+                                                <span className="text-xs font-semibold">Zero to Hero</span>
+                                                <span className="text-[10px] opacity-70">Single words</span>
+                                            </Button>
+                                            <Button
+                                                variant={difficultyMode === 'immersive' ? 'default' : 'outline'}
+                                                size="sm"
+                                                onClick={() => setDifficultyMode('immersive')}
+                                                className="h-auto flex-col py-3 gap-1"
+                                            >
+                                                <span className="text-xs font-semibold">Immersive</span>
+                                                <span className="text-[10px] opacity-70">Full sentences</span>
+                                            </Button>
                                         </div>
                                     </div>
 
-                                    {/* Main Input Area */}
-                                    <div className="p-6 md:col-span-2 flex flex-col gap-6">
-                                        <div className="space-y-2">
-                                            <Label htmlFor="instructions" className="text-base font-semibold">
+                                    <Separator />
+
+                                    <div className="flex items-center justify-between gap-3">
+                                        <Label htmlFor="learned-words" className="text-sm font-normal leading-tight">
+                                            Include Learned Words (i+1)
+                                        </Label>
+                                        <Switch
+                                            id="learned-words"
+                                            checked={useLearnedWords}
+                                            onCheckedChange={setUseLearnedWords}
+                                        />
+                                    </div>
+                                </div>
+
+                                {/* Main Input Area */}
+                                <div className="p-5 flex flex-col gap-5">
+                                    <div className="space-y-3 flex-1">
+                                        <div>
+                                            <Label htmlFor="instructions" className="text-sm font-semibold">
                                                 Topic or Scenario
                                             </Label>
-                                            <p className="text-sm text-muted-foreground">
+                                            <p className="text-xs text-muted-foreground mt-1">
                                                 Describe what you want to learn. Be specific about context and vocabulary.
                                             </p>
-                                            <Textarea
-                                                id="instructions"
-                                                value={instructions}
-                                                onChange={(e) => setInstructions(e.target.value)}
-                                                placeholder="e.g. I want to learn how to order coffee in a busy cafe, focusing on polite expressions..."
-                                                className="h-40 resize-none text-base p-4"
-                                            />
                                         </div>
+                                        <Textarea
+                                            id="instructions"
+                                            value={instructions}
+                                            onChange={(e) => setInstructions(e.target.value)}
+                                            placeholder="e.g. I want to learn how to order coffee in a busy cafe, focusing on polite expressions..."
+                                            className={cn(
+                                                "resize-none text-sm",
+                                                isMobile ? "h-24" : "h-32"
+                                            )}
+                                        />
+                                    </div>
 
-                                        <div className="flex flex-col gap-3 mt-auto">
-                                            <Button
-                                                onClick={handleGenerate}
-                                                disabled={loading || !instructions}
-                                                className="w-full"
-                                                size="lg"
-                                            >
-                                                {loading ? (
-                                                    <>
-                                                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                                        Generating...
-                                                    </>
-                                                ) : (
-                                                    <>
-                                                        <Sparkles className="mr-2 h-4 w-4" />
-                                                        Generate Cards
-                                                    </>
-                                                )}
-                                            </Button>
+                                    <div className="flex flex-col gap-3">
+                                        <Button
+                                            onClick={handleGenerate}
+                                            disabled={loading || !instructions}
+                                            className="w-full"
+                                            size="lg"
+                                        >
+                                            {loading ? (
+                                                <>
+                                                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                                    Generating...
+                                                </>
+                                            ) : (
+                                                <>
+                                                    <Sparkles className="mr-2 h-4 w-4" />
+                                                    Generate Cards
+                                                </>
+                                            )}
+                                        </Button>
 
-                                            <div className="relative">
-                                                <div className="absolute inset-0 flex items-center">
-                                                    <span className="w-full border-t" />
-                                                </div>
-                                                <div className="relative flex justify-center text-xs uppercase">
-                                                    <span className="bg-background px-2 text-muted-foreground">Or</span>
-                                                </div>
+                                        <div className="relative py-2">
+                                            <div className="absolute inset-0 flex items-center">
+                                                <span className="w-full border-t" />
                                             </div>
-
-                                            <Button
-                                                onClick={handleSmartLesson}
-                                                disabled={loading}
-                                                variant="outline"
-                                                className="w-full"
-                                            >
-                                                <BookOpen className="mr-2 h-4 w-4" />
-                                                Create Smart Lesson from Progress
-                                            </Button>
+                                            <div className="relative flex justify-center text-xs uppercase">
+                                                <span className="bg-background px-2 text-muted-foreground">Or</span>
+                                            </div>
                                         </div>
+
+                                        <Button
+                                            onClick={handleSmartLesson}
+                                            disabled={loading}
+                                            variant="outline"
+                                            className="w-full"
+                                        >
+                                            <BookOpen className="mr-2 h-4 w-4" />
+                                            Smart Lesson from Progress
+                                        </Button>
                                     </div>
                                 </div>
                             </div>
-                        </>
-                    ) : (
-                        <>
-                            <DialogHeader className="px-6 py-4 border-b shrink-0 flex flex-row items-center justify-between">
+                        </div>
+                    </>
+                ) : (
+                    <>
+                        <DialogHeader className="px-6 py-4 border-b shrink-0">
+                            <div className="flex items-start justify-between gap-4">
                                 <div>
                                     <DialogTitle>Review Generated Cards</DialogTitle>
                                     <DialogDescription>
                                         Select the cards you want to add to your deck.
                                     </DialogDescription>
                                 </div>
-                                <Button variant="ghost" size="sm" onClick={() => setStep('config')} className="gap-2">
+                                <Button variant="ghost" size="sm" onClick={() => setStep('config')} className="gap-2 shrink-0">
                                     <RotateCcw className="h-4 w-4" />
-                                    Edit Params
+                                    {!isMobile && "Edit Params"}
                                 </Button>
-                            </DialogHeader>
+                            </div>
+                        </DialogHeader>
 
-                            <ScrollArea className="h-80">
-                                <div className="space-y-3 pr-4">
-                                    <div className="flex items-center justify-between mb-2">
-                                        <span className="text-sm text-muted-foreground">
-                                            Selected: <span className="text-foreground font-medium">{selectedIndices.size}</span>
-                                        </span>
-                                        <div className="flex gap-2">
-                                            <Button
-                                                variant="outline"
-                                                size="sm"
-                                                onClick={() => setSelectedIndices(new Set(generatedData.map((_, i) => i)))}
-                                            >
-                                                Select All
-                                            </Button>
-                                            <Button
-                                                variant="outline"
-                                                size="sm"
-                                                onClick={() => setSelectedIndices(new Set())}
-                                            >
-                                                Deselect All
-                                            </Button>
-                                        </div>
-                                    </div>
+                        <div className="px-6 py-3 border-b bg-muted/30 flex items-center justify-between">
+                            <span className="text-sm text-muted-foreground">
+                                Selected: <span className="text-foreground font-semibold">{selectedIndices.size}</span> of {generatedData.length}
+                            </span>
+                            <div className="flex gap-2">
+                                <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() => setSelectedIndices(new Set(generatedData.map((_, i) => i)))}
+                                >
+                                    Select All
+                                </Button>
+                                <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() => setSelectedIndices(new Set())}
+                                >
+                                    Clear
+                                </Button>
+                            </div>
+                        </div>
 
-                                    {generatedData.map((card, idx) => (
+                        <ScrollArea className="flex-1 min-h-0">
+                            <div className="p-4 space-y-3">
+                                {generatedData.map((card, idx) => (
+                                    <div
+                                        key={idx}
+                                        onClick={() => toggleSelection(idx)}
+                                        className={cn(
+                                            "p-4 rounded-xl border-2 transition-all cursor-pointer flex items-start gap-3",
+                                            selectedIndices.has(idx)
+                                                ? "bg-primary/5 border-primary shadow-sm"
+                                                : "bg-card border-transparent hover:border-muted-foreground/30"
+                                        )}
+                                    >
                                         <div
-                                            key={idx}
-                                            onClick={() => toggleSelection(idx)}
                                             className={cn(
-                                                "p-4 rounded-lg border transition-all cursor-pointer flex items-start gap-4",
+                                                "w-5 h-5 rounded-md border-2 flex items-center justify-center shrink-0 mt-0.5 transition-colors",
                                                 selectedIndices.has(idx)
-                                                    ? "bg-primary/5 border-primary"
-                                                    : "bg-card border-border hover:border-primary/50"
+                                                    ? "bg-primary border-primary text-primary-foreground"
+                                                    : "border-muted-foreground/50"
                                             )}
                                         >
-                                            <div
-                                                className={cn(
-                                                    "w-5 h-5 rounded-sm border flex items-center justify-center shrink-0 mt-1",
-                                                    selectedIndices.has(idx)
-                                                        ? "bg-primary border-primary text-primary-foreground"
-                                                        : "border-muted-foreground"
-                                                )}
-                                            >
-                                                {selectedIndices.has(idx) && <Check className="h-3.5 w-3.5" />}
-                                            </div>
-                                            <div className="space-y-1">
-                                                <p className="font-medium text-foreground">{card.targetSentence}</p>
-                                                <p className="text-sm text-muted-foreground">{card.nativeTranslation}</p>
-                                                <div className="text-xs text-muted-foreground/70 mt-2 flex gap-2">
-                                                    <span className="bg-muted px-1.5 py-0.5 rounded">{card.targetWord}</span>
-                                                    <span>•</span>
-                                                    <span className="italic">{card.targetWordTranslation}</span>
-                                                </div>
+                                            {selectedIndices.has(idx) && <Check className="h-3 w-3" strokeWidth={3} />}
+                                        </div>
+                                        <div className="space-y-1 min-w-0 flex-1">
+                                            <p className="font-medium text-foreground leading-snug">{card.targetSentence}</p>
+                                            <p className="text-sm text-muted-foreground">{card.nativeTranslation}</p>
+                                            <div className="text-xs text-muted-foreground/70 mt-2 flex flex-wrap gap-2 items-center">
+                                                <span className="bg-primary/10 text-primary px-2 py-0.5 rounded-full font-medium">{card.targetWord}</span>
+                                                <span className="italic">{card.targetWordTranslation}</span>
                                             </div>
                                         </div>
-                                    ))}
-                                </div>
-                            </ScrollArea>
+                                    </div>
+                                ))}
+                            </div>
+                        </ScrollArea>
 
-                            <DialogFooter className="px-6 py-4 border-t bg-muted/10 shrink-0">
-                                <Button variant="outline" onClick={resetAndClose}>Cancel</Button>
-                                <Button onClick={handleSave} disabled={selectedIndices.size === 0}>
-                                    Save {selectedIndices.size} Cards to Deck
-                                </Button>
-                            </DialogFooter>
-                        </>
-                    )}
-                </div>
+                        <DialogFooter className="px-6 py-4 border-t bg-muted/30 shrink-0 gap-2 sm:gap-2">
+                            <Button variant="outline" onClick={resetAndClose}>Cancel</Button>
+                            <Button onClick={handleSave} disabled={selectedIndices.size === 0}>
+                                <Check className="mr-2 h-4 w-4" />
+                                Save {selectedIndices.size} Cards
+                            </Button>
+                        </DialogFooter>
+                    </>
+                )}
             </DialogContent>
         </Dialog>
     );
