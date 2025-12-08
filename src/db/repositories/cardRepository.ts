@@ -469,3 +469,70 @@ export const getCardByTargetWord = async (
 
   return mapToCard(rawCards[0]);
 };
+
+export const repairCorruptedCards = async (): Promise<number> => {
+  const userId = getCurrentUserId();
+  if (!userId) return 0;
+
+  let fixedCount = 0;
+
+  await db.transaction("rw", db.cards, async () => {
+    const cardsToFix: Card[] = [];
+
+    await db.cards
+      .where("user_id")
+      .equals(userId)
+      .each((rawCard) => {
+        let needsFix = false;
+        const fixedCard = { ...rawCard };
+
+        // Check numeric fields for NaN
+        const numericFields = [
+          "interval",
+          "easeFactor",
+          "stability",
+          "difficulty",
+          "elapsed_days",
+          "scheduled_days",
+          "reps",
+          "lapses",
+          "learningStep",
+          "leechCount",
+          "precise_interval",
+        ];
+
+        for (const field of numericFields) {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          const val = (rawCard as any)[field];
+          if (typeof val === "number" && isNaN(val)) {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            (fixedCard as any)[field] = 0;
+            needsFix = true;
+          }
+        }
+
+        if (needsFix) {
+          // Validate with schema to ensure full correctness
+          try {
+            const result = DBRawCardSchema.safeParse(fixedCard);
+            if (result.success) {
+              cardsToFix.push(mapToCard(fixedCard));
+              fixedCount++;
+            }
+          } catch (e) {
+            console.error("Failed to repair card:", rawCard, e);
+          }
+        }
+      });
+
+    if (cardsToFix.length > 0) {
+      // safeAllCards generates new IDs if missing, but here we want to update existing
+      // So we use db.cards.bulkPut directly
+      await db.cards.bulkPut(cardsToFix);
+      console.log(`[CardRepository] Repaired ${cardsToFix.length} corrupted cards.`);
+      toast.success(`Repaired ${cardsToFix.length} corrupted cards`);
+    }
+  });
+
+  return fixedCount;
+};

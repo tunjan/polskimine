@@ -65,6 +65,11 @@ const App: React.FC = () => {
         localStorage.setItem("migration_v1_status", "true");
       });
     }
+
+    // Run corruption check/repair on every load (lightweight if no errors)
+    import("@/db/repositories/cardRepository").then(({ repairCorruptedCards }) => {
+      repairCorruptedCards();
+    });
   }, []);
   return (
     <AppProviders>
