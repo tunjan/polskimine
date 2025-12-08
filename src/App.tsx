@@ -57,7 +57,12 @@ const AppContent: React.FC = () => {
 
 const App: React.FC = () => {
     useEffect(() => {
-        migrateCardStatuses();
+        const hasMigrated = localStorage.getItem('migration_v1_status');
+        if (!hasMigrated) {
+            migrateCardStatuses().then(() => {
+                localStorage.setItem('migration_v1_status', 'true');
+            });
+        }
     }, []);
   return (
     <AppProviders>

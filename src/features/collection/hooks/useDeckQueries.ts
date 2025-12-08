@@ -186,8 +186,19 @@ export const useUndoReviewMutation = () => {
 
   return useMutation({
     mutationFn: async ({ card, date, xpEarned }: { card: Card; date: string; xpEarned: number }) => {
-      await saveCard(card);
-      await incrementHistory(date, -1, card.language || language);
+      await db.transaction('rw', [db.cards, db.history, db.revlog], async () => {
+        await saveCard(card);
+        await incrementHistory(date, -1, card.language || language);
+        
+        // FIX: Delete the most recent revlog for this card
+        const latestLog = await db.revlog
+          .where('card_id').equals(card.id)
+          .reverse()
+          .first();
+        if (latestLog) {
+          await db.revlog.delete(latestLog.id);
+        }
+      });
       return { card, date, xpEarned };
     },
     onSuccess: ({ xpEarned }) => {

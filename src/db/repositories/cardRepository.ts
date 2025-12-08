@@ -150,17 +150,13 @@ export const getDashboardCounts = async (language: Language): Promise<{
   cutoffDate.setHours(4);
   const cutoffISO = cutoffDate.toISOString();
 
-              const rawCards = await db.cards
-    .where('[user_id+language]')
-    .equals([userId, language])
-    .toArray();
-  
-  const allCards = rawCards.map(mapToCard);
-
-  const total = allCards.length;
-  const newCards = allCards.filter(c => c.status === 'new').length;
-  const learned = allCards.filter(c => c.status === 'known').length;
-  const due = allCards.filter(c => c.status !== 'known' && c.dueDate <= cutoffISO).length;
+  const [total, newCards, learned, due] = await Promise.all([
+    db.cards.where('[user_id+language]').equals([userId, language]).count(),
+    db.cards.where('[user_id+language+status]').equals([userId, language, 'new']).count(),
+    db.cards.where('[user_id+language+status]').equals([userId, language, 'known']).count(),
+    db.cards.where('[user_id+language]').equals([userId, language])
+      .filter(c => c.status !== 'known' && c.dueDate <= cutoffISO).count()
+  ]);
 
   return {
     total,
