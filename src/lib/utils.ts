@@ -109,7 +109,6 @@ export function findInflectedWordInSentence(
 
     let sharedLength = 0;
 
-
     for (let i = 0; i < targetLower.length; i++) {
       for (let j = 0; j < wordLower.length; j++) {
         let k = 0;

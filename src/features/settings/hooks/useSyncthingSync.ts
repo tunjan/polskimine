@@ -82,10 +82,10 @@ export const useSyncthingSync = () => {
       const syncData = result.data;
       const confirmed = window.confirm(
         `Load data from sync file?\n\n` +
-        `Last synced: ${new Date(syncData.lastSynced).toLocaleString()}\n` +
-        `Device: ${syncData.deviceId?.slice(0, 8)}...\n` +
-        `Cards: ${syncData.cards.length}\n\n` +
-        `This will replace your current data. Continue?`,
+          `Last synced: ${new Date(syncData.lastSynced).toLocaleString()}\n` +
+          `Device: ${syncData.deviceId?.slice(0, 8)}...\n` +
+          `Cards: ${syncData.cards.length}\n\n` +
+          `This will replace your current data. Continue?`,
       );
 
       if (!confirmed) {
@@ -99,11 +99,9 @@ export const useSyncthingSync = () => {
         setLastSyncTime(now);
         setLastSync(now);
 
-
         await queryClient.invalidateQueries({ queryKey: ["profile"] });
 
         toast.success("Data loaded from sync file");
-
 
         setTimeout(() => window.location.reload(), 1000);
         return true;

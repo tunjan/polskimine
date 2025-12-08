@@ -113,9 +113,9 @@ export const exportSyncData = async (
   const profileForExport =
     profiles.length > 0
       ? {
-        ...profiles[0],
-        username: options.keepUsername ? profiles[0].username : undefined,
-      }
+          ...profiles[0],
+          username: options.keepUsername ? profiles[0].username : undefined,
+        }
       : null;
 
   const cleanCards = cards.map(({ user_id, ...rest }) => rest);
@@ -336,7 +336,6 @@ export const importSyncData = async (
       };
       await db.profile.put(mergedProfile);
     } else if (data.profile && !existingProfile) {
-
       const currentUserId = getCurrentUserId();
       const profileToRestore = {
         ...data.profile,
