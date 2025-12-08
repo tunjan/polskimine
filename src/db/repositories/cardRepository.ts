@@ -9,6 +9,7 @@ import { State as FSRSState } from "ts-fsrs";
 import { getSRSDate } from "@/core/srs";
 import { db, generateId } from "@/db/dexie";
 import { SRS_CONFIG } from "@/constants";
+import { toast } from "sonner";
 import { z } from "zod";
 
 const SESSION_KEY = "linguaflow_current_user";
@@ -17,9 +18,24 @@ export const getCurrentUserId = (): string | null => {
   return localStorage.getItem(SESSION_KEY);
 };
 
+let hasWarnedAboutCorruption = false;
+
 // Helper to handle NaN values from corrupted DB entries
 const SafeNumber = z.preprocess((val) => {
-  if (typeof val === "number" && isNaN(val)) return 0;
+  if (typeof val === "number" && isNaN(val)) {
+    if (!hasWarnedAboutCorruption) {
+      hasWarnedAboutCorruption = true;
+      // Use a timeout to ensure this runs outside the render/validation cycle 
+      // and to debounce slightly if multiple fields fail at once
+      setTimeout(() => {
+        toast.warning("Repaired corrupted card data", {
+          description: "Found invalid numbers (NaN) and reset them to 0.",
+          duration: 5000,
+        });
+      }, 0);
+    }
+    return 0;
+  }
   return val;
 }, z.number());
 
@@ -167,11 +183,14 @@ export const getDashboardCounts = async (
   const userId = getCurrentUserId();
   if (!userId) return { total: 0, new: 0, learned: 0, hueDue: 0 };
 
-  const srsToday = getSRSDate(new Date());
+  const now = new Date();
+  const srsToday = getSRSDate(now);
   const cutoffDate = new Date(srsToday);
   cutoffDate.setDate(cutoffDate.getDate() + 1);
   cutoffDate.setHours(4);
   const cutoffISO = cutoffDate.toISOString();
+  const nowISO = now.toISOString();
+  const ONE_HOUR_IN_DAYS = 1 / 24;
 
   const [total, newCards, learned, due] = await Promise.all([
     db.cards.where("[user_id+language]").equals([userId, language]).count(),
@@ -186,7 +205,17 @@ export const getDashboardCounts = async (
     db.cards
       .where("[user_id+language]")
       .equals([userId, language])
-      .filter((c) => c.status !== "known" && c.dueDate <= cutoffISO)
+      .filter((c) => {
+        if (c.status === "known") return false;
+        
+        // Logic to match scheduler.ts isCardDue
+        // strict 'now' check for short intervals
+        const isShortInterval = (c.interval || 0) < ONE_HOUR_IN_DAYS;
+        if (isShortInterval) {
+          return c.dueDate <= nowISO;
+        }
+        return c.dueDate <= cutoffISO;
+      })
       .count(),
   ]);
 
@@ -299,11 +328,24 @@ export const getDueCards = async (
   cutoffDate.setHours(SRS_CONFIG.CUTOFF_HOUR);
 
   const cutoffISO = cutoffDate.toISOString();
+  const nowISO = now.toISOString();
+  const ONE_HOUR_IN_DAYS = 1 / 24;
 
   const rawCards = await db.cards
     .where("[user_id+language]")
     .equals([userId, language])
-    .filter((card) => card.status !== "known" && card.dueDate <= cutoffISO)
+    .filter((card) => {
+      if (card.status === "known") return false;
+
+      // Filter intraday cards using strict 'now' check
+      // This prevents cards due later today (e.g. 10m learning step) 
+      // from showing up as "Due" immediately after review
+      const isShortInterval = (card.interval || 0) < ONE_HOUR_IN_DAYS;
+      if (isShortInterval) {
+        return card.dueDate <= nowISO;
+      }
+      return card.dueDate <= cutoffISO;
+    })
     .toArray();
 
   return rawCards

@@ -179,17 +179,27 @@ export const getStats = async (language?: string) => {
     };
   }
 
-  const srsToday = getSRSDate(new Date());
+  const now = new Date();
+  const srsToday = getSRSDate(now);
   const cutoffDate = new Date(srsToday);
   cutoffDate.setDate(cutoffDate.getDate() + 1);
   cutoffDate.setHours(SRS_CONFIG.CUTOFF_HOUR);
   const cutoffIso = cutoffDate.toISOString();
+  const nowISO = now.toISOString();
+  const ONE_HOUR_IN_DAYS = 1 / 24;
 
   const total = await db.cards.count();
   const due = await db.cards
     .where("dueDate")
     .below(cutoffIso)
-    .filter((c) => c.status !== CardStatus.KNOWN)
+    .filter((c) => {
+      if (c.status === CardStatus.KNOWN) return false;
+      const isShortInterval = (c.interval || 0) < ONE_HOUR_IN_DAYS;
+      if (isShortInterval) {
+        return c.dueDate <= nowISO;
+      }
+      return true; // We already used .below(cutoffIso) in the index scan
+    })
     .count();
   const learned = await db.cards
     .where("status")

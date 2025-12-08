@@ -74,17 +74,17 @@ export const SettingsLargeInput: React.FC<SettingsLargeInputProps> = ({
   return (
     <div
       className={cn(
-        "flex flex-col gap-2 p-4 border rounded-lg bg-muted/20 hover:bg-muted/30 transition-colors",
+        "flex flex-col gap-2 p-4 border rounded-lg bg-card text-card-foreground shadow-sm hover:bg-accent/50 transition-colors",
         className,
       )}
     >
-      <span className="text-sm font-medium text-foreground/80">{label}</span>
+      <span className="text-sm font-medium text-muted-foreground">{label}</span>
       <div className="flex items-baseline gap-2">
         <Input
           type="number"
           value={value}
           onChange={(e) => onChange(Number(e.target.value))}
-          className="text-2xl font-bold h-12 w-24 px-3 py-1 bg-background shadow-sm"
+          className="text-2xl font-bold h-12 w-24 px-3 py-1 bg-background shadow-none border-input"
         />
         {sublabel && (
           <span className="text-xs text-muted-foreground">{sublabel}</span>
