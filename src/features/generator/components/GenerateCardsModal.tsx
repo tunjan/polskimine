@@ -1,9 +1,9 @@
 import React from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogClose } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { 
-    Sparkles, 
     Settings2,
+    X,
 } from 'lucide-react';
 import { useCardGenerator } from '../hooks/useCardGenerator';
 import { GeneratorConfig } from './GeneratorConfig';
@@ -46,21 +46,22 @@ export const GenerateCardsModal: React.FC<GenerateCardsModalProps> = ({ isOpen, 
         reset,
         generatedData,
         selectedIndices,
-        setSelectedIndices
     } = useCardGenerator({ onClose, onAddCards });
 
     return (
         <Dialog open={isOpen} onOpenChange={(open) => !open && reset()}>
-            <DialogContent className={cn(
-                "p-0 gap-0 overflow-hidden flex flex-col transition-all duration-300",
-                "w-[95vw] h-[95vh] sm:max-w-5xl sm:h-[85vh]",             )}>
+            <DialogContent 
+                showCloseButton={false}
+                className={cn(
+                    "p-0 gap-0 overflow-hidden flex flex-col transition-all duration-300",
+                    "w-[95vw] h-[95vh] sm:max-w-5xl sm:h-[85vh]",             
+                )}
+            >
                 {/* Header */}
                 <DialogHeader className="px-6 py-4 border-b shrink-0 bg-background/95 backdrop-blur z-10">
                     <div className="flex items-center justify-between">
                         <div className="flex items-center gap-3">
-                            <div className="p-2 bg-primary/10 rounded-lg">
-                                <Sparkles className="w-5 h-5 text-primary" />
-                            </div>
+
                             <div>
                                 <DialogTitle className="text-xl">AI Card Generator</DialogTitle>
                                 <DialogDescription className="text-sm mt-0.5">
@@ -76,6 +77,12 @@ export const GenerateCardsModal: React.FC<GenerateCardsModalProps> = ({ isOpen, 
                                 Adjust Settings
                             </Button>
                         )}
+                        <DialogClose asChild>
+                            <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full">
+                                <X className="w-4 h-4" />
+                                <span className="sr-only">Close</span>
+                            </Button>
+                        </DialogClose>
                     </div>
                 </DialogHeader>
 
@@ -106,7 +113,6 @@ export const GenerateCardsModal: React.FC<GenerateCardsModalProps> = ({ isOpen, 
                             <GeneratorPreview
                                 generatedData={generatedData}
                                 selectedIndices={selectedIndices}
-                                setSelectedIndices={setSelectedIndices}
                                 toggleSelection={toggleSelection}
                                 setStep={setStep}
                                 handleSave={handleSave}

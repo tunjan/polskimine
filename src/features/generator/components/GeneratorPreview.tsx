@@ -1,7 +1,6 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
-import { ScrollArea } from '@/components/ui/scroll-area';
 import { Badge } from '@/components/ui/badge';
 import { Check, RotateCcw, Save } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -66,7 +65,6 @@ const ResultCard = ({
 interface GeneratorPreviewProps {
     generatedData: any[];
     selectedIndices: Set<number>;
-    setSelectedIndices: (indices: Set<number>) => void;
     toggleSelection: (index: number) => void;
     setStep: (step: 'config' | 'preview') => void;
     handleSave: () => void;
@@ -77,7 +75,6 @@ interface GeneratorPreviewProps {
 export const GeneratorPreview: React.FC<GeneratorPreviewProps> = ({
     generatedData,
     selectedIndices,
-    setSelectedIndices,
     toggleSelection,
     setStep,
     handleSave,
@@ -126,7 +123,7 @@ export const GeneratorPreview: React.FC<GeneratorPreviewProps> = ({
             </div>
 
             {/* Results Grid */}
-            <ScrollArea className="flex-1 bg-muted/5 p-4 sm:p-6">
+            <div className="flex-1 overflow-y-auto bg-muted/5 p-4 sm:p-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-4 pb-20">
                     {generatedData.map((card, idx) => (
                         <ResultCard
@@ -137,7 +134,7 @@ export const GeneratorPreview: React.FC<GeneratorPreviewProps> = ({
                         />
                     ))}
                 </div>
-            </ScrollArea>
+            </div>
 
             {/* Floating Footer (or fixed at bottom) */}
             <div className="absolute bottom-0 left-0 right-0 p-6 bg-linear-to-t from-background via-background to-transparent pointer-events-none">

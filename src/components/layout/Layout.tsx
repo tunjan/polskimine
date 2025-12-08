@@ -170,9 +170,6 @@ const AppSidebar: React.FC<NavActionProps> = ({
                   size="lg"
                   className="data-[state=open]:bg-sidebar-primary data-[state=open]:text-sidebar-primary-foreground"
                 >
-                  <div className="flex aspect-square size-8 items-center justify-center rounded-lg border border-sidebar-border bg-sidebar-primary text-sidebar-primary-foreground">
-                    <currentLanguage.Flag className="w-full h-full object-cover rounded-sm" />
-                  </div>
                   <div className="grid flex-1 text-left text-sm leading-tight">
                     <span className="truncate font-semibold">{currentLanguage.name}</span>
                     <span className="truncate text-xs">Change Language</span>

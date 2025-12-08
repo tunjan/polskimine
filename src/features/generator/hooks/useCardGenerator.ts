@@ -190,6 +190,7 @@ export const useCardGenerator = ({ onClose, onAddCards }: UseCardGeneratorProps)
         selectedLevel,
         setSelectedLevel,
         selectedWordTypes,
+        setSelectedWordTypes,
                 toggleWordType,
         handleTopicClick,
         generateCards,
