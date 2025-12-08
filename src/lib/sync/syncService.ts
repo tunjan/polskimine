@@ -1,5 +1,5 @@
 import { db } from '@/db/dexie';
-import { getCards, saveAllCards, clearAllCards } from '@/db/repositories/cardRepository';
+import { getCards, saveAllCards, clearAllCards, getCurrentUserId } from '@/db/repositories/cardRepository';
 import { getHistory, saveFullHistory, clearHistory } from '@/db/repositories/historyRepository';
 import { getFullSettings, getSystemSetting, setSystemSetting } from '@/db/repositories/settingsRepository';
 import { UserSettings, Card } from '@/types';
@@ -95,16 +95,21 @@ export const exportSyncData = async (settings: Partial<UserSettings>): Promise<S
         username: undefined,  // Don't export username
     } : null;
 
+    // Remove user_id from export data
+    const cleanCards = cards.map(({ user_id, ...rest }) => rest);
+    const cleanRevlog = revlog.map(({ user_id, ...rest }) => rest);
+    const cleanStats = aggregatedStats.map(({ user_id, ...rest }) => rest);
+
     return {
         version: 3,
         lastSynced: new Date().toISOString(),
         deviceId: await getDeviceId(),
-        cards,
+        cards: cleanCards,
         history,
-        revlog,
+        revlog: cleanRevlog,
         settings: safeSettings,
         profile: profileForExport,
-        aggregatedStats
+        aggregatedStats: cleanStats
     };
 };
 
@@ -272,7 +277,12 @@ export const importSyncData = async (
         }
 
         if (data.revlog && Array.isArray(data.revlog) && data.revlog.length > 0) {
-            await db.revlog.bulkPut(data.revlog);
+            const currentUserId = getCurrentUserId();
+            const revlogWithUser = data.revlog.map(r => ({
+                ...r,
+                user_id: currentUserId || undefined
+            }));
+            await db.revlog.bulkPut(revlogWithUser);
         }
 
         // Merge imported profile with existing profile, preserving id and username
@@ -289,7 +299,12 @@ export const importSyncData = async (
         }
 
         if (data.aggregatedStats && Array.isArray(data.aggregatedStats)) {
-            await db.aggregated_stats.bulkPut(data.aggregatedStats);
+            const currentUserId = getCurrentUserId();
+            const statsWithUser = data.aggregatedStats.map(s => ({
+                ...s,
+                user_id: currentUserId || undefined
+            }));
+            await db.aggregated_stats.bulkPut(statsWithUser);
         }
 
         if (data.settings) {

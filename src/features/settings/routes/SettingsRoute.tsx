@@ -151,12 +151,16 @@ const DataSettingsPage = () => {
                 geminiApiKey: includeApiKeys ? settings.geminiApiKey : ''
             };
 
+            // Remove user_id from export data to avoid conflicts on import
+            const cleanCards = cards.map(({ user_id, ...rest }) => rest);
+            const cleanRevlog = revlog.map(({ user_id, ...rest }) => rest);
+
             const exportData = {
                 version: 2,
                 date: new Date().toISOString(),
-                cards,
+                cards: cleanCards,
                 history,
-                revlog,
+                revlog: cleanRevlog,
                 settings: safeSettings
             };
 
