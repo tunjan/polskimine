@@ -1,6 +1,7 @@
 import React from 'react';
-import { Dialog, DialogContent } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
+import { VisuallyHidden } from '@radix-ui/react-visually-hidden';
 
 
 interface AnalysisResult {
@@ -24,7 +25,10 @@ export const AnalysisModal: React.FC<AnalysisModalProps> = ({
     return (
         <Dialog open={isOpen} onOpenChange={onClose}>
             <DialogContent className="sm:max-w-xl bg-card border border-border p-0 overflow-hidden max-h-[85vh] flex flex-col">
-
+                <VisuallyHidden>
+                    <DialogTitle>Word Analysis</DialogTitle>
+                    <DialogDescription>Detailed analysis of the selected word including definition and context.</DialogDescription>
+                </VisuallyHidden>
 
                 <div className="p-8 md:p-10 space-y-8 overflow-y-auto">
                     {/* Header */}

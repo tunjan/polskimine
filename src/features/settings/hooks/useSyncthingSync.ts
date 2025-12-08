@@ -25,7 +25,25 @@ export const useSyncthingSync = () => {
     const saveToSyncFile = useCallback(async () => {
         setIsSaving(true);
         try {
-            const settings = useSettingsStore.getState().settings;
+            const state = useSettingsStore.getState();
+            // Build settings object from store state (settings are spread at root level)
+            const settings = {
+                language: state.language,
+                languageColors: state.languageColors,
+                dailyNewLimits: state.dailyNewLimits,
+                dailyReviewLimits: state.dailyReviewLimits,
+                autoPlayAudio: state.autoPlayAudio,
+                blindMode: state.blindMode,
+                showTranslationAfterFlip: state.showTranslationAfterFlip,
+                showWholeSentenceOnFront: state.showWholeSentenceOnFront,
+                ignoreLearningStepsWhenNoCards: state.ignoreLearningStepsWhenNoCards,
+                binaryRatingMode: state.binaryRatingMode,
+                cardOrder: state.cardOrder,
+                learningSteps: state.learningSteps,
+                geminiApiKey: state.geminiApiKey,
+                tts: state.tts,
+                fsrs: state.fsrs,
+            };
             const result = await saveSyncFile(settings);
 
             if (result.success) {
