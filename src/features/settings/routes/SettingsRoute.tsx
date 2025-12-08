@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { toast } from 'sonner';
 
@@ -7,7 +7,7 @@ import { useSettingsStore } from '@/stores/useSettingsStore';
 import { useDeckActions } from '@/contexts/DeckActionsContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { useProfile } from '@/features/profile/hooks/useProfile';
-import { Card as CardModel, UserSettings, Language } from '@/types';
+import { UserSettings, Language } from '@/types';
 import { ttsService, VoiceOption } from '@/lib/tts';
 import {
     saveAllCards,
@@ -32,93 +32,9 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { cn } from '@/lib/utils';
-import { ChevronLeft, LogOut, Settings, User, Globe, Moon, Volume2, Mic, Target, Database, Github, Wand2, ToggleLeft, Activity, Trash2, Check, Skull, AlertCircle } from 'lucide-react';
-
-const GeneralSettingsPage = () => {
-    const { settings, setSettings, updateSettings, saveApiKeys } = useSettingsStore();
-    const { profile, updateUsername, updateLanguageLevel } = useProfile();
-    const { user } = useAuth();
+import { AlertCircle, Trash2 } from 'lucide-react';
 
 
-    const handleSetUsername = async (newUsername: string) => {
-        try {
-            await updateUsername(newUsername);
-            toast.success("Username updated");
-        } catch (error) {
-        }
-    };
-
-
-
-    useEffect(() => {
-        const timeout = setTimeout(() => {
-            if (settings.geminiApiKey || settings.tts.googleApiKey || settings.tts.azureApiKey) {
-                saveApiKeys(user?.id || 'local-user', {
-                    geminiApiKey: settings.geminiApiKey,
-                    googleTtsApiKey: settings.tts.googleApiKey,
-                    azureTtsApiKey: settings.tts.azureApiKey,
-                    azureRegion: settings.tts.azureRegion,
-                }).catch(console.error);
-            }
-        }, 2000);
-        return () => clearTimeout(timeout);
-    }, [settings.geminiApiKey, settings.tts.googleApiKey, settings.tts.azureApiKey, settings.tts.azureRegion, saveApiKeys, user?.id]);
-
-
-    return (
-        <GeneralSettings
-            localSettings={settings}
-            setLocalSettings={setSettings}
-            username={profile?.username || ''}
-            setUsername={handleSetUsername} languageLevel={profile?.language_level || 'A1'}
-            onUpdateLevel={(l) => updateLanguageLevel(l).then(() => toast.success("Level updated"))}
-        />
-    );
-};
-
-const GeneralSettingsPageWithUsername = () => {
-    const { settings, setSettings, saveApiKeys } = useSettingsStore();
-    const { profile, updateUsername, updateLanguageLevel } = useProfile();
-    const { user } = useAuth();
-    const [localUsername, setLocalUsername] = useState(profile?.username || '');
-
-    useEffect(() => {
-        setLocalUsername(profile?.username || '');
-    }, [profile?.username]);
-
-    useEffect(() => {
-        const timeout = setTimeout(() => {
-            if (user?.id) {
-                saveApiKeys(user.id, {
-                    geminiApiKey: settings.geminiApiKey,
-                    googleTtsApiKey: settings.tts.googleApiKey,
-                    azureTtsApiKey: settings.tts.azureApiKey,
-                    azureRegion: settings.tts.azureRegion,
-                });
-            }
-        }, 1000);
-        return () => clearTimeout(timeout);
-    }, [settings.geminiApiKey, settings.tts, saveApiKeys, user?.id]);
-
-    const handleUsernameBlur = () => {
-        if (localUsername !== profile?.username) {
-            updateUsername(localUsername)
-                .then(() => toast.success("Username updated"))
-                .catch(() => setLocalUsername(profile?.username || ''));
-        }
-    };
-
-    return (
-        <GeneralSettings
-            localSettings={settings}
-            setLocalSettings={setSettings}
-            username={localUsername}
-            setUsername={setLocalUsername}
-            languageLevel={profile?.language_level || 'A1'}
-            onUpdateLevel={(l) => updateLanguageLevel(l).then(() => toast.success("Level updated"))}
-        />
-    );
-};
 
 const useDebouncedUsername = (localUsername: string, updateUsername: (name: string) => Promise<void>, currentUsername?: string) => {
     useEffect(() => {
@@ -288,7 +204,15 @@ const DataSettingsPage = () => {
             await db.revlog.clear();
             await db.aggregated_stats.clear();
 
-            if (data.cards.length > 0) await saveAllCards(data.cards);
+            const currentUserId = user?.id || 'local-user';
+
+            if (data.cards.length > 0) {
+                const cardsWithUser = data.cards.map((c: any) => ({
+                    ...c,
+                    user_id: currentUserId
+                }));
+                await saveAllCards(cardsWithUser);
+            }
 
             if (data.history && typeof data.history === 'object') {
                 const languages = new Set(data.cards.map((c: any) => c.language).filter(Boolean));
@@ -296,7 +220,13 @@ const DataSettingsPage = () => {
                 await saveFullHistory(data.history, primaryLanguage);
             }
 
-            if (data.revlog) await db.revlog.bulkPut(data.revlog);
+            if (data.revlog) {
+                const revlogWithUser = data.revlog.map((r: any) => ({
+                    ...r,
+                    user_id: currentUserId
+                }));
+                await db.revlog.bulkPut(revlogWithUser);
+            }
 
             if (data.settings) {
                 const restoredSettings: Partial<UserSettings> = {
@@ -375,9 +305,9 @@ const DataSettingsPage = () => {
         <DataSettings
             onExport={handleExport}
             onImport={handleImport}
-            csvInputRef={csvInputRef}
+            csvInputRef={csvInputRef as React.RefObject<HTMLInputElement>}
             onRestoreBackup={handleRestoreBackup}
-            jsonInputRef={jsonInputRef}
+            jsonInputRef={jsonInputRef as React.RefObject<HTMLInputElement>}
             isRestoring={isRestoring}
             onSyncToCloud={handleSyncToCloud}
             isSyncingToCloud={isSyncingToCloud}

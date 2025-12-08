@@ -3,9 +3,7 @@ import { SRS_CONFIG } from '@/constants';
 import { db } from '@/db/dexie';
 import { differenceInCalendarDays, parseISO, addDays, format, subDays, startOfDay, parse } from 'date-fns';
 import {
-  getCardsForDashboard,
   getDashboardCounts,
-  getDueCards,
   getCurrentUserId
 } from './cardRepository';
 
@@ -16,26 +14,24 @@ export const getDashboardStats = async (language?: string) => {
 
   if (language && userId) {
     // Use optimized composite index queries with user_id
-    const [newCount, knownCount, learningCount, graduatedCount] = await Promise.all([
+    const [newCount, knownCount, learningCount, graduatedCount, implicitKnownCount] = await Promise.all([
       db.cards.where('[user_id+language+status]').equals([userId, language, 'new']).count(),
       db.cards.where('[user_id+language+status]').equals([userId, language, 'known']).count(),
+      db.cards.where('[user_id+language+status]').equals([userId, language, 'learning']).count(),
+      // Graduated (Reviewing) - Interval < 180
       db.cards.where('[language+status+interval]')
-        .between([language, 'review', 0], [language, 'review', 30], true, false)
+        .between([language, 'graduated', 0], [language, 'graduated', 180], true, false)
         .filter(c => c.user_id === userId)
         .count(),
+       // Graduated (Implicit Known) - Interval >= 180
       db.cards.where('[language+status+interval]')
-        .between([language, 'review', 30], [language, 'review', 180], true, false)
+        .aboveOrEqual([language, 'graduated', 180])
         .filter(c => c.user_id === userId)
         .count(),
     ]);
 
     const xpStat = await db.aggregated_stats.get(`${userId}:${language}:total_xp`);
     languageXp = xpStat?.value ?? 0;
-
-    const implicitKnownCount = await db.cards.where('[language+status+interval]')
-      .aboveOrEqual([language, 'review', 180])
-      .filter(c => c.user_id === userId)
-      .count();
 
     counts.new = newCount;
     counts.learning = learningCount;
@@ -44,26 +40,25 @@ export const getDashboardStats = async (language?: string) => {
 
   } else {
 
-    const [newCount, knownCountByStatus] = await Promise.all([
+    const [newCount, knownCountByStatus, learningCount] = await Promise.all([
       db.cards.where('status').equals('new').count(),
-      db.cards.where('status').equals('known').count()
+      db.cards.where('status').equals('known').count(),
+      db.cards.where('status').equals('learning').count()
     ]);
 
 
-    let learning = 0;
     let graduated = 0;
     let implicitKnown = 0;
 
-    await db.cards.where('status').equals('review').each(c => {
+    await db.cards.where('status').equals('graduated').each(c => {
       const interval = c.interval || 0;
-      if (interval < 30) learning++;
-      else if (interval < 180) graduated++;
+      if (interval < 180) graduated++;
       else implicitKnown++;
     });
 
     counts.new = newCount;
     counts.known = knownCountByStatus + implicitKnown;
-    counts.learning = learning;
+    counts.learning = learningCount;
     counts.graduated = graduated;
 
     const globalXpStat = await db.aggregated_stats.get('global:total_xp');
