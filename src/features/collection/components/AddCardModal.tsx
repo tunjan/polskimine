@@ -83,7 +83,7 @@ export const AddCardModal: React.FC<AddCardModalProps> = ({
     useShallow((s: SettingsState) => ({
       language: s.language,
       geminiApiKey: s.geminiApiKey,
-    })),
+    }))
   );
   const [isGenerating, setIsGenerating] = useState(false);
   const isMounted = React.useRef(false);
@@ -142,7 +142,7 @@ export const AddCardModal: React.FC<AddCardModalProps> = ({
           textareaRef.current.focus();
           textareaRef.current.setSelectionRange(
             textareaRef.current.value.length,
-            textareaRef.current.value.length,
+            textareaRef.current.value.length
           );
         }
       }, 100);
@@ -163,12 +163,14 @@ export const AddCardModal: React.FC<AddCardModalProps> = ({
       const result = await aiService.generateCardContent(
         currentSentence,
         targetLanguage,
-        geminiApiKey,
+        geminiApiKey
       );
 
       if (isMounted.current) {
         if (targetLanguage === LanguageId.Japanese && result.furigana) {
           form.setValue("sentence", result.furigana);
+        } else if (result.formattedSentence) {
+          form.setValue("sentence", result.formattedSentence);
         }
 
         form.setValue("translation", result.translation);
@@ -178,7 +180,7 @@ export const AddCardModal: React.FC<AddCardModalProps> = ({
         if (result.targetWordPartOfSpeech)
           form.setValue(
             "targetWordPartOfSpeech",
-            result.targetWordPartOfSpeech,
+            result.targetWordPartOfSpeech
           );
         form.setValue("notes", result.notes);
         if (result.furigana) form.setValue("furigana", result.furigana);
@@ -292,7 +294,7 @@ export const AddCardModal: React.FC<AddCardModalProps> = ({
     if (!watchedTargetWord) return null;
     try {
       const parts = watchedSentence.split(
-        new RegExp(`(${escapeRegExp(watchedTargetWord)})`, "gi"),
+        new RegExp(`(${escapeRegExp(watchedTargetWord)})`, "gi")
       );
       return (
         <div className="mt-2 text-lg font-normal text-muted-foreground select-none">
@@ -303,7 +305,7 @@ export const AddCardModal: React.FC<AddCardModalProps> = ({
               </span>
             ) : (
               <span key={i}>{part}</span>
-            ),
+            )
           )}
         </div>
       );

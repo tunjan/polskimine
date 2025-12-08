@@ -36,6 +36,7 @@ const GenerateCardSchema = z.object({
     .optional(),
   notes: z.string(),
   furigana: z.string().optional(),
+  formattedSentence: z.string().optional(),
 });
 
 const GeneratedCardDataSchema = z.object({
@@ -327,7 +328,7 @@ export const aiService = {
       - Context should make the meaning of "${targetWord}" clear.
       
       Fields:
-      - targetSentence: A natural ${langName} sentence containing "${targetWord}".
+      - targetSentence: A natural ${langName} sentence containing "${targetWord}". Wrap the target word in <b> tags. Example: "This is a <b>test</b>."
       - nativeTranslation: Natural English translation.
       - targetWordTranslation: English translation of "${targetWord}".
       - targetWordPartOfSpeech: Exactly one of: "noun", "verb", "adjective", "adverb", "pronoun".
@@ -369,6 +370,7 @@ export const aiService = {
           enum: ["noun", "verb", "adjective", "adverb", "pronoun"],
         },
         notes: { type: "STRING" },
+        formattedSentence: { type: "STRING" },
         ...(language === LanguageId.Japanese
           ? { furigana: { type: "STRING" } }
           : {}),
@@ -379,6 +381,7 @@ export const aiService = {
         "targetWordTranslation",
         "targetWordPartOfSpeech",
         "notes",
+        "formattedSentence",
       ],
     };
 
@@ -388,17 +391,18 @@ export const aiService = {
       
       Fields:
       - translation: Natural, idiomatic English translation.
-      - targetWord: The single most important vocabulary word in the sentence (lemma form if possible, or the word as is if more appropriate for beginners).
+      - targetWord: The most important word to learn from this sentence.
       - targetWordTranslation: English translation of the target word.
       - targetWordPartOfSpeech: One of: noun, verb, adjective, adverb, pronoun.
-      - notes: Concise grammar explanation (max 2 sentences). specific to this sentence's structure or the target word's usage.
+      - notes: Concise grammar explanation (max 2 sentences) specific to this sentence's structure or the target word's usage.
+      - formattedSentence: The original sentence with the target word wrapped in <b> tags.
     `;
 
     if (language === LanguageId.Japanese) {
       prompt += `
-      - furigana: The FULL sentence with furigana in format "Kanji[reading]" for ALL Kanji. 
+      - furigana: The FULL sentence with furigana in format "Kanji[reading]" for ALL Kanji.
         Example: "私[わたし]は 日本語[にほんご]を 勉強[べんきょう]しています。"
-      `;
+          `;
     }
 
     const result = await callGemini(prompt, apiKey, responseSchema);
@@ -435,48 +439,48 @@ export const aiService = {
     if (difficultyMode === "beginner") {
       if (hasLearnedWords) {
         progressionRules = `
-        CRITICAL PROGRESSION RULES (Continued Learning):
+        CRITICAL PROGRESSION RULES(Continued Learning):
         This is a SEQUENTIAL LESSON extending the user's existing knowledge.
 
         User ALREADY KNOWS: ${learnedWords!.length} words.
         
-        1.  **NO SINGLE WORDS**: Do NOT generate cards with just 1 word.
-        2.  **Contextual Learning**: Combine [Known Word] + [NEW Word].
-        3.  **Progression**:
-            - Cards 1-${Math.ceil(count / 2)}: Simple phrases using *mostly* known words + 1 NEW word.
-            - Cards ${Math.ceil(count / 2) + 1}-${count}: Complete simple sentences.
+        1. ** NO SINGLE WORDS **: Do NOT generate cards with just 1 word.
+        2. ** Contextual Learning **: Combine[Known Word]+[NEW Word].
+        3. ** Progression **:
+    - Cards 1 - ${Math.ceil(count / 2)}: Simple phrases using * mostly * known words + 1 NEW word.
+            - Cards ${Math.ceil(count / 2) + 1} -${count}: Complete simple sentences.
         
         INTERNAL STATE REQUIREMENT:
-        - Track "Introduced Vocabulary".
-        - **Constraint**: A card should NOT contain more than 1 unknown word (a word that is NOT in "LearnedWords" and NOT in "Introduced Vocabulary").
+    - Track "Introduced Vocabulary".
+        - ** Constraint **: A card should NOT contain more than 1 unknown word(a word that is NOT in "LearnedWords" and NOT in "Introduced Vocabulary").
         `;
       } else {
         progressionRules = `
-        CRITICAL PROGRESSION RULES (Zero-to-Hero):
-        This is a SEQUENTIAL LESSON. Card N must build upon Cards 1...(N-1).
+        CRITICAL PROGRESSION RULES(Zero - to - Hero):
+        This is a SEQUENTIAL LESSON.Card N must build upon Cards 1...(N - 1).
 
-        1.  **Card 1-2**: Foundation. ABSOLUTE BASICS. 1-2 words max.
-        2.  **Card 3-${Math.ceil(count / 2)}**: Simple combinations. Reuse words from Cards 1-2.
-        3.  **Card ${Math.ceil(count / 2) + 1}-${count}**: Basic sentences. STRICTLY REUSE specific vocabulary from previous cards + introduce ONLY 1 new word per card.
+        1. ** Card 1 - 2 **: Foundation.ABSOLUTE BASICS. 1 - 2 words max.
+        2. ** Card 3 - ${Math.ceil(count / 2)}**: Simple combinations.Reuse words from Cards 1 - 2.
+    3. ** Card ${Math.ceil(count / 2) + 1} -${count}**: Basic sentences.STRICTLY REUSE specific vocabulary from previous cards + introduce ONLY 1 new word per card.
         
         INTERNAL STATE REQUIREMENT:
-        - Track the "Introduced Vocabulary" list internally as you generate.
+    - Track the "Introduced Vocabulary" list internally as you generate.
         `;
       }
     } else {
       const iPlusOneRule = hasLearnedWords
-        ? `- **Comprehensible Input**: Prioritize using words from "Known Vocabulary" to construct the sentence, ensuring the context is understood, while teaching the NEW "targetWord".`
+        ? `- ** Comprehensible Input **: Prioritize using words from "Known Vocabulary" to construct the sentence, ensuring the context is understood, while teaching the NEW "targetWord".`
         : "";
 
       progressionRules = `
-        CRITICAL: Each card MUST contain a COMPLETE, NATURAL SENTENCE.
+    CRITICAL: Each card MUST contain a COMPLETE, NATURAL SENTENCE.
         - The sentence must demonstrate vivid, real usage of the target vocabulary word.
         - NEVER return just the word alone — always wrap it in a meaningful context.
-        ${iPlusOneRule}
-        - Sentence complexity should match ${proficiencyLevel} level.
+      ${iPlusOneRule}
+    - Sentence complexity should match ${proficiencyLevel} level.
         - Variety: Mix statements, questions, and imperatives.
-        - **DIVERSITY REQUIREMENT**: Generate ${count} DISTINCT target words. 
-        - **CONSTRAINT**: Do NOT use the same "targetWord" more than once in this batch.
+        - ** DIVERSITY REQUIREMENT **: Generate ${count} DISTINCT target words. 
+        - ** CONSTRAINT **: Do NOT use the same "targetWord" more than once in this batch.
         `;
     }
 
@@ -486,10 +490,10 @@ export const aiService = {
 
     const knownWordsContext = hasLearnedWords
       ? `
-        KNOWN VOCABULARY (User knows ${learnedWords!.length} words, showing ${shuffledLearnedWords.length} sample):
-        [${shuffledLearnedWords.join(", ")}]
+        KNOWN VOCABULARY(User knows ${learnedWords!.length} words, showing ${shuffledLearnedWords.length} sample):
+    [${shuffledLearnedWords.join(", ")}]
         
-        Use these known words to provide context. The "targetWord" MUST be a NEW word not in this list.
+        Use these known words to provide context.The "targetWord" MUST be a NEW word not in this list.
         `
       : "User has NO prior vocabulary. Start from scratch.";
 
@@ -511,7 +515,7 @@ export const aiService = {
     const cardSchemaProperties: Record<string, GeminiSchemaProperty> = {
       targetSentence: {
         type: "STRING",
-        description: `A natural ${langName} sentence utilizing the target word.`,
+        description: `A natural ${langName} sentence utilizing the target word. Wrap the target word in <b> tags.`,
       },
       nativeTranslation: {
         type: "STRING",
@@ -564,31 +568,30 @@ export const aiService = {
     };
 
     const prompt = `
-      Role: Expert ${langName} curriculum designer.
-      Task: Generate a set of ${count} high-quality flashcards.
-      Topic: "${instructions}"
+    Role: Expert ${langName} curriculum designer.
+      Task: Generate a set of ${count} high - quality flashcards.
+        Topic: "${instructions}"
       
       ${progressionRules}
       
-      ${
-        wordTypeFilters && wordTypeFilters.length > 0
-          ? `
+      ${wordTypeFilters && wordTypeFilters.length > 0
+        ? `
       WORD TYPE CONSTRAINT:
       - The "targetWord" in EACH card MUST be one of: ${wordTypeFilters.join(", ")}.
       `
-          : ""
+        : ""
       }
       
       Style Guidelines:
-      - Tone: Natural, friendly, helpful.
-      - **Vocabulary Strategy**: 
-          - Repeats of *learned* words is encouraged for context.
-          - **Target Words**: MUST BE UNIQUE.
+    - Tone: Natural, friendly, helpful.
+      - ** Vocabulary Strategy **:
+    - Repeats of * learned * words is encouraged for context.
+          - ** Target Words **: MUST BE UNIQUE.
       - Content: Tangible, visual, and concrete concepts first.
-      
+
       ${knownWordsContext}
-      
-      IMPORTANT: Generate exactly ${count} cards.
+
+    IMPORTANT: Generate exactly ${count} cards.
     `;
 
     const result = await callGemini(prompt, apiKey, responseSchema);

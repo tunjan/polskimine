@@ -40,7 +40,8 @@ export function useFlashcardAudio({
   }, [card.id]);
 
   const getPlainTextForTTS = useCallback((text: string): string => {
-    const segments = parseFurigana(text);
+    const cleanText = text.replace(/<\/?b>/g, "");
+    const segments = parseFurigana(cleanText);
     return segments.map((s) => s.text).join("");
   }, []);
 

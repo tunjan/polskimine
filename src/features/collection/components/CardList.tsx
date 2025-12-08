@@ -32,7 +32,6 @@ export const CardList: React.FC<CardListProps> = ({
   onPrioritizeCard,
   selectedIds,
   onToggleSelect,
-  onSelectAll,
 
   page = 0,
   totalPages = 1,

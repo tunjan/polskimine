@@ -89,9 +89,10 @@ export const Flashcard = React.memo<FlashcardProps>(
     });
 
     const displayedSentence = processText(card.targetSentence);
+    const cleanSentence = displayedSentence.replace(/<\/?b>/g, "");
 
     const fontSizeClass = useMemo(() => {
-      const len = displayedSentence.length;
+      const len = cleanSentence.length;
       if (len < 6) return "text-5xl md:text-7xl font-normal tracking-tight";
       if (len < 15) return "text-4xl md:text-6xl font-normal tracking-tight";
       if (len < 30) return "text-3xl md:text-5xl font-light";
@@ -133,7 +134,6 @@ export const Flashcard = React.memo<FlashcardProps>(
                   className="text-muted-foreground hover:text-foreground transition-colors"
                 />
               </Button>
-            )}
             <p
               className={cn(
                 baseClasses,
@@ -142,7 +142,8 @@ export const Flashcard = React.memo<FlashcardProps>(
             >
               {card.targetWord && !showWholeSentenceOnFront
                 ? processText(card.targetWord)
-                : displayedSentence}
+                : cleanSentence}
+            </p>: displayedSentence}
             </p>
           </div>
         );
@@ -198,14 +199,13 @@ export const Flashcard = React.memo<FlashcardProps>(
       if (parsedContent.type === "highlight") {
         return (
           <p className={baseClasses}>
-            {parsedContent.parts.map((part, i) =>
-              part.toLowerCase() ===
-              parsedContent.matchedWord?.toLowerCase() ? (
+            {parsedContent.segments.map((segment, i) =>
+              segment.isTarget ? (
                 <span key={i} className="text-primary/90 font-bold">
-                  {processText(part)}
+                  {processText(segment.text)}
                 </span>
               ) : (
-                <span key={i}>{processText(part)}</span>
+                <span key={i}>{processText(segment.text)}</span>
               )
             )}
           </p>

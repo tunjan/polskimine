@@ -14,8 +14,7 @@ export type JapaneseStructure = {
 
 export type HighlightStructure = {
   type: "highlight";
-  parts: string[];
-  matchedWord: string;
+  segments: { text: string; isTarget: boolean }[];
 };
 
 export type PlainStructure = {
@@ -113,6 +112,33 @@ export const useCardSentence = (
       }
     }
 
+    // Check for <b> tags first
+    if (
+      displayedSentence.includes("<b>") &&
+      displayedSentence.includes("</b>")
+    ) {
+      const parts = displayedSentence.split(/(<b>.*?<\/b>)/g);
+      const segments = parts
+        .map((part) => {
+          if (part.startsWith("<b>") && part.endsWith("</b>")) {
+            return {
+              text: part.replace(/<\/?b>/g, ""),
+              isTarget: true,
+            };
+          }
+          return {
+            text: part,
+            isTarget: false,
+          };
+        })
+        .filter((s) => s.text.length > 0);
+
+      return {
+        type: "highlight",
+        segments,
+      };
+    }
+
     if (card.targetWord) {
       const targetWordPlain = parseFurigana(card.targetWord)
         .map((s) => s.text)
@@ -129,10 +155,16 @@ export const useCardSentence = (
           "gi",
         );
         const parts = displayedSentence.split(wordBoundaryRegex);
+        const segments = parts
+          .map((part) => ({
+            text: part,
+            isTarget: part.toLowerCase() === matchedWord.toLowerCase(),
+          }))
+          .filter((s) => s.text.length > 0);
+
         return {
           type: "highlight",
-          parts,
-          matchedWord,
+          segments,
         };
       }
     }
