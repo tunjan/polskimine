@@ -1312,7 +1312,6 @@ export const SettingsPage: React.FC = () => {
         icon={AlertTriangle}
         title="Danger Zone"
         description="Irreversible actions"
-        variant="danger"
       >
         <div className="flex items-center justify-between p-3 -mx-2 rounded-lg">
           <div>
