@@ -59,11 +59,8 @@ export const DeckGenerationStep: React.FC<DeckGenerationStepProps> = ({
                 )}
             </div>
 
-            {/* Options */}
-            <div className="grid gap-3">
-                {/* AI Generated Deck */}
-                {/* AI Generated Deck */}
-                <Button
+                        <div className="grid gap-3">
+                                                <Button
                     type="button"
                     variant="outline"
                     onClick={() => setSelectedOption('ai')}
@@ -94,9 +91,7 @@ export const DeckGenerationStep: React.FC<DeckGenerationStepProps> = ({
                     </div>
                 </Button>
 
-                {/* Default Deck */}
-                {/* Default Deck */}
-                <Button
+                                                <Button
                     type="button"
                     variant="outline"
                     onClick={() => setSelectedOption('default')}
@@ -127,8 +122,7 @@ export const DeckGenerationStep: React.FC<DeckGenerationStepProps> = ({
                 </Button>
             </div>
 
-            {/* API Key Input */}
-            {selectedOption === 'ai' && (
+                        {selectedOption === 'ai' && (
                 <div className="animate-in fade-in slide-in-from-top-2 duration-200">
                     <div className="space-y-1.5">
                         <Label htmlFor="apiKey" className="text-xs font-medium text-muted-foreground  uppercase tracking-wider ml-1">
@@ -149,8 +143,7 @@ export const DeckGenerationStep: React.FC<DeckGenerationStepProps> = ({
                 </div>
             )}
 
-            {/* Action Button */}
-            {selectedOption && (
+                        {selectedOption && (
                 <div className="pt-2 animate-in fade-in slide-in-from-bottom-2 duration-200">
                     <Button
                         onClick={handleGenerate}

@@ -89,8 +89,7 @@ export const GeneratorPreview: React.FC<GeneratorPreviewProps> = ({
             exit={{ opacity: 0, x: 20 }}
             className="h-full flex flex-col"
         >
-            {/* Results Actions */}
-            <div className="px-6 py-3 border-b bg-muted/10 flex items-center justify-between shrink-0">
+                        <div className="px-6 py-3 border-b bg-muted/10 flex items-center justify-between shrink-0">
                 <div className="flex items-center gap-4">
                     <div className="flex items-center gap-2 text-sm">
                         <Check className="w-4 h-4 text-primary" />
@@ -122,8 +121,7 @@ export const GeneratorPreview: React.FC<GeneratorPreviewProps> = ({
                 </div>
             </div>
 
-            {/* Results Grid */}
-            <div className="flex-1 overflow-y-auto bg-muted/5 p-4 sm:p-6">
+                        <div className="flex-1 overflow-y-auto bg-muted/5 p-4 sm:p-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-4 pb-20">
                     {generatedData.map((card, idx) => (
                         <ResultCard
@@ -136,8 +134,7 @@ export const GeneratorPreview: React.FC<GeneratorPreviewProps> = ({
                 </div>
             </div>
 
-            {/* Floating Footer (or fixed at bottom) */}
-            <div className="absolute bottom-0 left-0 right-0 p-6 bg-linear-to-t from-background via-background to-transparent pointer-events-none">
+                        <div className="absolute bottom-0 left-0 right-0 p-6 bg-linear-to-t from-background via-background to-transparent pointer-events-none">
                 <div className="flex justify-center sm:justify-end gap-3 pointer-events-auto">
                     <Button 
                         variant="outline" 

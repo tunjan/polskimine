@@ -59,8 +59,7 @@ export const Heatmap: React.FC<HeatmapProps> = React.memo(({ history }) => {
 
   return (
     <TooltipProvider>
-      {/* Mobile Summary View */}
-      <div className="md:hidden">
+            <div className="md:hidden">
         <div className="flex items-center justify-between mb-4">
           <div>
             <p className="text-[11px] text-muted-foreground uppercase tracking-[0.15em] font-light ">
@@ -80,8 +79,7 @@ export const Heatmap: React.FC<HeatmapProps> = React.memo(({ history }) => {
           </div>
         </div>
 
-        {/* Mini week view for mobile */}
-        <div className="flex gap-1.5 justify-between">
+                <div className="flex gap-1.5 justify-between">
           {stats.last7Days.map((count, i) => {
             const date = subDays(new Date(), 6 - i);
             return (
@@ -104,8 +102,7 @@ export const Heatmap: React.FC<HeatmapProps> = React.memo(({ history }) => {
         </div>
       </div>
 
-      {/* Desktop Full Heatmap */}
-      <div className="hidden md:block w-full overflow-x-auto overflow-y-hidden lg:overflow-x-visible" style={{ WebkitOverflowScrolling: 'touch' }}>
+            <div className="hidden md:block w-full overflow-x-auto overflow-y-hidden lg:overflow-x-visible" style={{ WebkitOverflowScrolling: 'touch' }}>
         <div className="inline-block min-w-max py-2 lg:w-full">
           <div className="grid grid-rows-7 grid-flow-col gap-1 lg:gap-1">
             {calendarData.map((day) => (
@@ -133,8 +130,7 @@ export const Heatmap: React.FC<HeatmapProps> = React.memo(({ history }) => {
           </div>
         </div>
 
-        {/* Legend */}
-        <div className="flex items-center justify-end gap-2 mt-3 text-[10px] text-muted-foreground ">
+                <div className="flex items-center justify-end gap-2 mt-3 text-[10px] text-muted-foreground ">
           <span>Less</span>
           <div className="flex gap-0.5">
             <div className="w-2.5 h-2.5 rounded-sm bg-muted/30" />

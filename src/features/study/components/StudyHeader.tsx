@@ -93,8 +93,7 @@ export const StudyHeader: React.FC<StudyHeaderProps> = React.memo(({
         <TooltipProvider delayDuration={300}>
             <header className="relative h-14 md:h-16 px-3 md:px-5 flex justify-between items-center select-none shrink-0 pt-[env(safe-area-inset-top)] gap-3 bg-linear-to-b from-background to-background/80 backdrop-blur-sm border-b border-border/30">
 
-                {/* Queue statistics */}
-                <div className="flex items-center gap-1.5 sm:gap-2">
+                                <div className="flex items-center gap-1.5 sm:gap-2">
                     <QueueBadge label="New" count={counts.unseen} color="blue" />
                     <QueueBadge label="Learn" count={counts.learning} color="amber" />
                     <QueueBadge label="Lapse" count={counts.lapse} color="red" />
@@ -110,8 +109,7 @@ export const StudyHeader: React.FC<StudyHeaderProps> = React.memo(({
                     )}
                 </div>
 
-                {/* XP display - centered */}
-                <div className="absolute left-1/2 -translate-x-1/2 top-1/2 -translate-y-1/2 hidden md:flex items-center gap-2">
+                                <div className="absolute left-1/2 -translate-x-1/2 top-1/2 -translate-y-1/2 hidden md:flex items-center gap-2">
                     <div className="flex items-center gap-2 px-3 py-1.5 ">
                         <div className="relative">
                             <Zap size={14} strokeWidth={2.5} className="text-primary fill-primary/20" />
@@ -132,10 +130,8 @@ export const StudyHeader: React.FC<StudyHeaderProps> = React.memo(({
                     </div>
                 </div>
 
-                {/* Action buttons */}
-                <div className="flex items-center gap-0.5">
-                    {/* Desktop Actions */}
-                    <div className="hidden md:flex items-center gap-0.5">
+                                <div className="flex items-center gap-0.5">
+                                        <div className="hidden md:flex items-center gap-0.5">
                         <ActionButton
                             icon={Pencil}
                             label="Edit Card (E)"
@@ -173,8 +169,7 @@ export const StudyHeader: React.FC<StudyHeaderProps> = React.memo(({
                         </Tooltip>
                     </div>
 
-                    {/* Mobile Dropdown */}
-                    <div className="md:hidden">
+                                        <div className="md:hidden">
                         <DropdownMenu>
                             <DropdownMenuTrigger asChild>
                                 <Button variant="ghost" size="icon" className="size-8 rounded-lg">

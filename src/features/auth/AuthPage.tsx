@@ -197,16 +197,14 @@ export const AuthPage: React.FC = () => {
 
   const renderAuthStep = () => (
     <form onSubmit={handleAuthSubmit} className="space-y-4">
-      {/* Auth Mode Toggle */}
-      <Tabs value={authMode} onValueChange={(val) => setAuthMode(val as AuthMode)} className="mb-6">
+            <Tabs value={authMode} onValueChange={(val) => setAuthMode(val as AuthMode)} className="mb-6">
         <TabsList className="grid w-full grid-cols-2">
           <TabsTrigger value="login">Sign In</TabsTrigger>
           <TabsTrigger value="register">Register</TabsTrigger>
         </TabsList>
       </Tabs>
 
-      {/* Existing users hint */}
-      {authMode === 'login' && existingUsers.length > 0 && (
+            {authMode === 'login' && existingUsers.length > 0 && (
         <div className="flex items-center gap-2 text-xs text-muted-foreground bg-muted/30 rounded-lg px-3 py-2 mb-4">
           <Users size={14} />
           <span>

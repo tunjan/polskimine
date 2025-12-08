@@ -93,8 +93,7 @@ export const AlgorithmSettings: React.FC<AlgorithmSettingsProps> = ({
 
   return (
     <div className="space-y-8 max-w-2xl">
-      {/* Retention Target Section */}
-      <div className="mb-6">
+            <div className="mb-6">
         <h3 className="text-lg font-medium flex items-center gap-2">
           <Target className="w-4 h-4 text-muted-foreground" strokeWidth={1.5} />
           Retention Target
@@ -135,8 +134,7 @@ export const AlgorithmSettings: React.FC<AlgorithmSettingsProps> = ({
 
       <Separator className="my-8" />
 
-      {/* Optimization Section */}
-      <div className="mb-6">
+            <div className="mb-6">
         <h3 className="text-lg font-medium flex items-center gap-2">
           <Wand2 className="w-4 h-4 text-muted-foreground" strokeWidth={1.5} />
           Optimization
@@ -202,8 +200,7 @@ export const AlgorithmSettings: React.FC<AlgorithmSettingsProps> = ({
 
       <Separator className="my-8" />
 
-      {/* Advanced Settings Section */}
-      <div className="mb-6">
+            <div className="mb-6">
         <h3 className="text-lg font-medium flex items-center gap-2">
           <Settings className="w-4 h-4 text-muted-foreground" strokeWidth={1.5} />
           Advanced
@@ -249,8 +246,7 @@ export const AlgorithmSettings: React.FC<AlgorithmSettingsProps> = ({
         </Card>
       </div>
 
-      {/* Reset Button */}
-      <div className="pt-4">
+            <div className="pt-4">
         <Button
           variant="ghost"
           size="sm"

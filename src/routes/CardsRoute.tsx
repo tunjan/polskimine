@@ -124,8 +124,7 @@ export const CardsRoute: React.FC = () => {
 
   return (
     <div className="flex-1 min-h-0 flex flex-col relative bg-background">
-      {/* Search & Header */}
-      <header className="px-4 md:px-8 pb-2 border-b">
+            <header className="px-4 md:px-8 pb-2 border-b">
         <div className="py-2 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="flex items-center gap-4">
             <div className="w-10 h-10 flex items-center justify-center bg-primary/10 rounded-md">
@@ -168,8 +167,7 @@ export const CardsRoute: React.FC = () => {
                 )}
               </Button>
 
-              {/* Filter Dropdown */}
-              {showFilters && (
+                            {showFilters && (
                 <>
                   <div
                     className="fixed inset-0 z-40"
@@ -261,8 +259,7 @@ export const CardsRoute: React.FC = () => {
         </div>
       </header>
 
-      {/* Content */}
-      <div className="flex-1 overflow-hidden relative">
+            <div className="flex-1 overflow-hidden relative">
         {isLoading ? (
           <div className="flex items-center justify-center h-full">
             <span className="loading loading-spinner loading-lg">Loading...</span>
@@ -286,8 +283,7 @@ export const CardsRoute: React.FC = () => {
         )}
       </div>
 
-      {/* Floating Selection Bar */}
-      <div className={cn(
+            <div className={cn(
         "fixed bottom-8 left-1/2 -translate-x-1/2 z-50 w-auto min-w-[300px] transition-all duration-200",
         selectedIds.size > 0 ? "translate-y-0 opacity-100" : "translate-y-16 opacity-0 pointer-events-none"
       )}>
@@ -334,8 +330,7 @@ export const CardsRoute: React.FC = () => {
         </div>
       </div>
 
-      {/* Global Modals */}
-      <AddCardModal
+            <AddCardModal
         isOpen={isAddModalOpen}
         onClose={() => { setIsAddModalOpen(false); setSelectedCard(undefined); }}
         onAdd={(card) => selectedCard ? updateCard(card) : addCard(card)}

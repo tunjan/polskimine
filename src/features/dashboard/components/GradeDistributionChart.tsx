@@ -85,8 +85,7 @@ export const GradeDistributionChart: React.FC<GradeDistributionChartProps> = ({ 
             </ChartContainer>
         </div>
 
-        {/* Custom Legend */}
-        <div className="flex flex-col gap-2 flex-1">
+                <div className="flex flex-col gap-2 flex-1">
             {data.map((item) => (
                 <div key={item.name} className="flex items-center justify-between group">
                     <div className="flex items-center gap-2">

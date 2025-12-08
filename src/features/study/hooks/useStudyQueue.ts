@@ -59,8 +59,7 @@ export const useStudyQueue = ({
   dailyStreak,
   isCramMode = false,
 }: UseStudyQueueParams) => {
-  // Initialize state with reducer
-  const initializeState = useCallback((
+    const initializeState = useCallback((
     initialCards: Card[], 
     initialReserve: Card[],
     initialOrder: UserSettings['cardOrder'],
@@ -88,14 +87,12 @@ export const useStudyQueue = ({
     history: [],
   }, () => initializeState(dueCards, initialReserve, cardOrder, ignoreLearningStepsWhenNoCards));
 
-  // XP session management
-  const { sessionXp, sessionStreak, multiplierInfo, feedback, processCardResult, subtractXp } = useXpSession(dailyStreak, isCramMode);
+    const { sessionXp, sessionStreak, multiplierInfo, feedback, processCardResult, subtractXp } = useXpSession(dailyStreak, isCramMode);
   const lastXpEarnedRef = useRef<number>(0);
 
   const isFirstMount = useRef(true);
 
-  // Handle card updates when dueCards changes
-  useEffect(() => {
+    useEffect(() => {
     if (isFirstMount.current) {
       isFirstMount.current = false;
       return;
@@ -115,8 +112,7 @@ export const useStudyQueue = ({
     }
   }, [dueCards, initialReserve, cardOrder, ignoreLearningStepsWhenNoCards]);
 
-  // Handle waiting state with timer
-  useEffect(() => {
+    useEffect(() => {
     if (state.status === 'WAITING') {
       const timer = setTimeout(() => {
         dispatch({ 
@@ -131,8 +127,7 @@ export const useStudyQueue = ({
 
   const currentCard = state.cards[state.currentIndex];
 
-  // Stable callback for grading cards
-  const gradeCard = useCallback(async (grade: Grade) => {
+    const gradeCard = useCallback(async (grade: Grade) => {
     if (state.status !== 'FLIPPED') return;
 
     dispatch({ type: 'START_PROCESSING' });
@@ -140,8 +135,7 @@ export const useStudyQueue = ({
     try {
       const updatedCard = calculateNextReview(currentCard, grade, fsrs, learningSteps);
       
-      // Process XP
-      const rating = mapGradeToRating(grade);
+            const rating = mapGradeToRating(grade);
       const xpResult = processCardResult(rating);
       lastXpEarnedRef.current = xpResult.totalXp;
       
@@ -187,8 +181,7 @@ export const useStudyQueue = ({
     multiplierInfo
   ]);
 
-  // Stable callback for undo
-  const undo = useCallback(() => {
+    const undo = useCallback(() => {
     if (state.status === 'PROCESSING' || !canUndo || !onUndo) return;
     
     if (lastXpEarnedRef.current > 0) {
@@ -200,8 +193,7 @@ export const useStudyQueue = ({
     dispatch({ type: 'UNDO' });
   }, [state.status, canUndo, onUndo, subtractXp]);
 
-  // Stable callback for marking card as known
-  const markKnown = useCallback(async () => {
+    const markKnown = useCallback(async () => {
     if (state.status === 'PROCESSING') return;
 
     dispatch({ type: 'START_PROCESSING' });
@@ -231,8 +223,7 @@ export const useStudyQueue = ({
     }
   }, [state.status, currentCard, state.reserveCards, ignoreLearningStepsWhenNoCards, onUpdateCard]);
 
-  // Stable callback for removing a card
-  const removeCard = useCallback((cardId: string) => {
+    const removeCard = useCallback((cardId: string) => {
     const card = state.cards.find(c => c.id === cardId);
     let newCardFromReserve: Card | null = null;
     if (card && isNewCard(card) && state.reserveCards.length > 0) {
@@ -247,18 +238,15 @@ export const useStudyQueue = ({
     });
   }, [state.cards, state.reserveCards, ignoreLearningStepsWhenNoCards]);
 
-  // Stable callback for updating a card
-  const updateCard = useCallback((card: Card) => {
+    const updateCard = useCallback((card: Card) => {
     dispatch({ type: 'UPDATE_CARD', card });
   }, []);
 
-  // UI state management
-  const setIsFlipped = useCallback((flipped: boolean) => {
+    const setIsFlipped = useCallback((flipped: boolean) => {
     if (flipped) dispatch({ type: 'FLIP' });
   }, []);
 
-  // Calculate queue counts
-  const counts = getQueueCounts(state.cards.slice(state.currentIndex));
+    const counts = getQueueCounts(state.cards.slice(state.currentIndex));
 
   return {
     currentCard,

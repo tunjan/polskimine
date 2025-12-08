@@ -67,8 +67,7 @@ export const StudySession: React.FC<StudySessionProps> = React.memo(({
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
 
-  // Use the new useStudyQueue hook that encapsulates all business logic
-  const {
+    const {
     currentCard,
     stats,
     actions,
@@ -130,8 +129,7 @@ export const StudySession: React.FC<StudySessionProps> = React.memo(({
 
   const intervals = useReviewIntervals(currentCard, fsrs, learningSteps);
 
-  // Use stable callbacks from useStudyQueue for shortcuts
-  useStudyShortcuts({
+    useStudyShortcuts({
     currentCardId: currentCard?.id,
     sessionComplete: stats.isFinished,
     isFlipped: uiState.isFlipped,

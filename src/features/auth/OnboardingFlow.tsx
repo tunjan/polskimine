@@ -110,8 +110,7 @@ export const OnboardingFlow: React.FC = () => {
   return (
     <div className="min-h-screen w-full bg-background flex flex-col items-center justify-center p-6 md:p-12 selection:bg-foreground selection:text-background">
 
-      {/* Header / Nav */}
-      <div className="fixed top-6 right-6">
+            <div className="fixed top-6 right-6">
         <Button
           variant="ghost"
           onClick={() => signOut()}
@@ -124,8 +123,7 @@ export const OnboardingFlow: React.FC = () => {
 
       <div className="w-full max-w-[320px] flex flex-col gap-12 animate-in fade-in slide-in-from-bottom-4 duration-700">
 
-        {/* Branding */}
-        <div className="flex flex-col gap-6 items-start">
+                <div className="flex flex-col gap-6 items-start">
           <div className="w-8 h-8 bg-foreground text-background flex items-center justify-center rounded-[2px]">
             <Command size={16} strokeWidth={2} />
           </div>
@@ -139,8 +137,7 @@ export const OnboardingFlow: React.FC = () => {
           </div>
         </div>
 
-        {/* Steps */}
-        {step === 'language' && (
+                {step === 'language' && (
           <LanguageSelector
             selectedLanguages={selectedLanguages}
             onToggle={handleLanguageToggle}

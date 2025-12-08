@@ -49,8 +49,7 @@ export const DataSettings: React.FC<DataSettingsProps> = ({
 }) => (
   <div className="space-y-6 max-w-2xl">
 
-    {/* Import & Export Section */}
-    <div className="mb-6">
+        <div className="mb-6">
       <h3 className="text-lg font-medium">Import & Export</h3>
       <p className="text-sm text-muted-foreground">Backup and restore your data</p>
     </div>
@@ -78,8 +77,7 @@ export const DataSettings: React.FC<DataSettingsProps> = ({
       </Button>
     </div>
 
-    {/* Import Cards Section */}
-    <Button
+        <Button
       variant="outline"
       className="w-full h-auto flex items-center justify-start gap-4 p-4 hover:bg-muted/50 transition-colors"
       onClick={() => csvInputRef.current?.click()}
@@ -93,8 +91,7 @@ export const DataSettings: React.FC<DataSettingsProps> = ({
 
     <Separator className="my-6" />
 
-    {/* API Key Options Section */}
-    <div className="mb-6">
+        <div className="mb-6">
       <h3 className="text-lg font-medium">API Key Options</h3>
       <p className="text-sm text-muted-foreground">Control how API keys are handled</p>
     </div>
@@ -123,8 +120,7 @@ export const DataSettings: React.FC<DataSettingsProps> = ({
 
     <Separator className="my-6" />
 
-    {/* Cloud Storage Section */}
-    <div className="mb-6">
+        <div className="mb-6">
       <h3 className="text-lg font-medium">Cloud Storage</h3>
       <p className="text-sm text-muted-foreground">Sync data across devices</p>
     </div>
@@ -163,8 +159,7 @@ export const DataSettings: React.FC<DataSettingsProps> = ({
 
     <Separator className="my-6" />
 
-    {/* Syncthing Sync Section */}
-    {onSyncthingSave && onSyncthingLoad && (
+        {onSyncthingSave && onSyncthingLoad && (
       <SyncthingSettings
         onSave={onSyncthingSave}
         onLoad={onSyncthingLoad}
@@ -177,8 +172,7 @@ export const DataSettings: React.FC<DataSettingsProps> = ({
     <input type="file" ref={csvInputRef} accept=".csv,.txt" className="hidden" onChange={onImport} />
     <input type="file" ref={jsonInputRef} accept=".json" className="hidden" onChange={onRestoreBackup} />
 
-    {/* Help Text */}
-    <div className="rounded-lg border bg-muted/50 p-4 text-sm text-muted-foreground">
+        <div className="rounded-lg border bg-muted/50 p-4 text-sm text-muted-foreground">
       <p><span className="font-semibold text-foreground">Restore Backup:</span> Replaces all data with a previous JSON backup.</p>
       <p><span className="font-semibold text-foreground">Import Cards:</span> Adds cards from CSV without replacing existing data.</p>
     </div>

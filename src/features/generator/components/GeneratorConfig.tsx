@@ -121,12 +121,10 @@ export const GeneratorConfig: React.FC<GeneratorConfigProps> = ({
             exit={{ opacity: 0, x: -20 }}
             className="h-full flex flex-col sm:flex-row"
         >
-            {/* Sidebar: Settings */}
-            <div className="w-full sm:w-[320px] bg-muted/20 border-r flex flex-col h-full overflow-hidden">
+                        <div className="w-full sm:w-[320px] bg-muted/20 border-r flex flex-col h-full overflow-hidden">
                     <ScrollArea className="flex-1">
                     <div className="p-6 space-y-8">
-                        {/* Quantity */}
-                        <div className="space-y-4">
+                                                <div className="space-y-4">
                             <div className="flex items-center justify-between">
                                 <Label className="flex items-center gap-2 text-muted-foreground">
                                     <ListFilter className="w-4 h-4" />
@@ -144,8 +142,7 @@ export const GeneratorConfig: React.FC<GeneratorConfigProps> = ({
                             />
                         </div>
 
-                        {/* Proficiency */}
-                        <div className="space-y-3">
+                                                <div className="space-y-3">
                             <Label className="flex items-center gap-2 text-muted-foreground">
                                 <GraduationCap className="w-4 h-4" />
                                 Proficiency Level
@@ -165,8 +162,7 @@ export const GeneratorConfig: React.FC<GeneratorConfigProps> = ({
                             </Select>
                         </div>
 
-                        {/* Mode */}
-                        <div className="space-y-3">
+                                                <div className="space-y-3">
                                 <Label className="flex items-center gap-2 text-muted-foreground">
                                 <Languages className="w-4 h-4" />
                                 Learning Approach
@@ -201,8 +197,7 @@ export const GeneratorConfig: React.FC<GeneratorConfigProps> = ({
 
                             <Separator />
 
-                        {/* Word Types */}
-                        <div className="space-y-3">
+                                                <div className="space-y-3">
                             <div className="flex items-center justify-between">
                                 <Label className="flex items-center gap-2 text-muted-foreground">
                                     <Type className="w-4 h-4" />
@@ -245,8 +240,7 @@ export const GeneratorConfig: React.FC<GeneratorConfigProps> = ({
                 </ScrollArea>
             </div>
 
-            {/* Main Area: Prompt */}
-            <div className="flex-1 flex flex-col h-full bg-background">
+                        <div className="flex-1 flex flex-col h-full bg-background">
                 <div className="flex-1 p-6 flex flex-col gap-6 overflow-y-auto">
                     <div className="space-y-2">
                         <Label className="text-base font-semibold">What do you want to learn?</Label>
@@ -279,8 +273,7 @@ export const GeneratorConfig: React.FC<GeneratorConfigProps> = ({
                     </div>
                 </div>
                 
-                {/* Action Footer for Config */}
-                <div className="p-6 border-t bg-muted/10 flex flex-col sm:flex-row gap-3">
+                                <div className="p-6 border-t bg-muted/10 flex flex-col sm:flex-row gap-3">
                     <Button 
                         size="lg" 
                         className="flex-1 bg-linear-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary shadow-lg hover:shadow-xl transition-all"

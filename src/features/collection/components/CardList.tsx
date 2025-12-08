@@ -85,8 +85,7 @@ export const CardList: React.FC<CardListProps> = ({
     return (
       <div className="flex flex-col items-center justify-center h-[60vh]">
         <Card className="p-6 md:p-14 border-dashed flex flex-col items-center justify-center text-center max-w-md">
-          {/* Decorative container with diamond shape */}
-          <div className="relative mb-8">
+                    <div className="relative mb-8">
             <div className="w-16 h-16 border rounded-full flex items-center justify-center bg-muted/20">
               <BookOpen className="w-8 h-8 text-muted-foreground" strokeWidth={1.5} />
             </div>
@@ -95,8 +94,7 @@ export const CardList: React.FC<CardListProps> = ({
           <p className="text-sm text-muted-foreground/60 font-light ">
             Your collection appears to be empty
           </p>
-          {/* Decorative line */}
-
+          
         </Card>
       </div>
     );

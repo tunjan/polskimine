@@ -36,8 +36,7 @@ export const AudioSettings: React.FC<AudioSettingsProps> = ({
 
   return (
     <div className="space-y-6 max-w-2xl">
-      {/* Speech Provider Section */}
-      <div>
+            <div>
         <h3 className="text-lg font-medium">Speech Provider</h3>
         <p className="text-sm text-muted-foreground">Text-to-speech engine configuration</p>
       </div>
@@ -96,8 +95,7 @@ export const AudioSettings: React.FC<AudioSettingsProps> = ({
 
       <Separator />
 
-      {/* Voice Selection Section */}
-      <div>
+            <div>
         <h3 className="text-lg font-medium">Voice Selection</h3>
         <p className="text-sm text-muted-foreground">Choose and test your preferred voice</p>
       </div>
@@ -134,8 +132,7 @@ export const AudioSettings: React.FC<AudioSettingsProps> = ({
 
       <Separator />
 
-      {/* Playback Settings */}
-      <div>
+            <div>
         <h3 className="text-lg font-medium">Playback</h3>
         <p className="text-sm text-muted-foreground">Audio speed and volume controls</p>
       </div>

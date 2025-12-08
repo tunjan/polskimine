@@ -63,7 +63,6 @@ import {
 } from '@/components/ui/select';
 import { cn } from '@/lib/utils';
 
-// Debounced username hook
 const useDebouncedUsername = (
   localUsername: string,
   updateUsername: (name: string) => Promise<void>,
@@ -88,27 +87,23 @@ export const SettingsPage: React.FC = () => {
   const { profile, updateUsername } = useProfile();
   const { refreshDeckData } = useDeckActions();
 
-  // Local state
-  const [localUsername, setLocalUsername] = useState(profile?.username || '');
+    const [localUsername, setLocalUsername] = useState(profile?.username || '');
   const [availableVoices, setAvailableVoices] = useState<VoiceOption[]>([]);
   const [stepsInput, setStepsInput] = useState(settings.learningSteps?.join(' ') || '1 10');
 
-  // Data management state
-  const csvInputRef = useRef<HTMLInputElement>(null);
+    const csvInputRef = useRef<HTMLInputElement>(null);
   const jsonInputRef = useRef<HTMLInputElement>(null);
   const [isRestoring, setIsRestoring] = useState(false);
   const [includeApiKeys, setIncludeApiKeys] = useState(false);
   const [importApiKeys, setImportApiKeys] = useState(false);
 
-  // FSRS optimization state
-  const [isOptimizing, setIsOptimizing] = useState(false);
+    const [isOptimizing, setIsOptimizing] = useState(false);
   const [progress, setProgress] = useState(0);
   const [report, setReport] = useState<{ reviews: number } | null>(null);
   const [manualWeights, setManualWeights] = useState(settings.fsrs.w.join(', '));
   const [showManual, setShowManual] = useState(false);
 
-  // Hooks
-  const { handleSyncToCloud, isSyncingToCloud, syncComplete } = useCloudSync();
+    const { handleSyncToCloud, isSyncingToCloud, syncComplete } = useCloudSync();
   const {
     saveToSyncFile,
     loadFromSyncFile,
@@ -119,8 +114,7 @@ export const SettingsPage: React.FC = () => {
   const { handleResetDeck, handleResetAccount, confirmResetDeck, confirmResetAccount } =
     useAccountManagement();
 
-  // Effects
-  useEffect(() => {
+    useEffect(() => {
     if (profile?.username) setLocalUsername(profile.username);
   }, [profile?.username]);
 
@@ -136,8 +130,7 @@ export const SettingsPage: React.FC = () => {
     loadVoices();
   }, [settings.language, settings.tts.provider, settings.tts.googleApiKey, settings.tts.azureApiKey]);
 
-  // Helper functions
-  const updateTts = (partial: Partial<UserSettings['tts']>) =>
+    const updateTts = (partial: Partial<UserSettings['tts']>) =>
     setSettings((prev) => ({ ...prev, tts: { ...prev.tts, ...partial } }));
 
   const handleTestAudio = () => {
@@ -412,15 +405,13 @@ export const SettingsPage: React.FC = () => {
   const currentDailyReview = settings.dailyReviewLimits?.[settings.language] ?? 0;
 
   return (
-    <div className="container max-w-2xl space-y-6 animate-in fade-in duration-500">
-      {/* Header */}
-      <div className="space-y-1 mb-8">
+    <div className="container max-w-4xl space-y-6 animate-in fade-in duration-500">
+            <div className="space-y-1 mb-8">
         <h1 className="text-2xl font-semibold tracking-tight">Settings</h1>
         <p className="text-sm text-muted-foreground">Configure your learning experience</p>
       </div>
 
-      {/* Profile Section */}
-      <SettingsSection icon={User} title="Profile" description="Your identity and preferences">
+            <SettingsSection icon={User} title="Profile" description="Your identity and preferences">
         <SettingsItem label="Display Name" description="Shown on leaderboards and achievements">
           <Input
             value={localUsername}
@@ -443,7 +434,7 @@ export const SettingsPage: React.FC = () => {
               }));
             }}
           >
-            <SelectTrigger className="w-36 h-8 text-sm">
+            <SelectTrigger className="w-36 md:w-48 h-8 text-sm">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -464,8 +455,7 @@ export const SettingsPage: React.FC = () => {
         </SettingsItem>
       </SettingsSection>
 
-      {/* Language Section */}
-      <SettingsSection icon={Globe} title="Language" description="Active course configuration">
+            <SettingsSection icon={Globe} title="Language" description="Active course configuration">
         <SettingsItem label="Active Course" description="The language you are currently learning">
           <Select
             value={settings.language}
@@ -518,8 +508,7 @@ export const SettingsPage: React.FC = () => {
         </SettingsSubSection>
       </SettingsSection>
 
-      {/* Audio Section */}
-      <SettingsSection icon={Volume2} title="Audio" description="Text-to-speech configuration">
+            <SettingsSection icon={Volume2} title="Audio" description="Text-to-speech configuration">
         <SettingsItem label="Speech Provider">
           <Select
             value={settings.tts.provider}
@@ -636,10 +625,8 @@ export const SettingsPage: React.FC = () => {
         </SettingsSubSection>
       </SettingsSection>
 
-      {/* Study Session Section */}
-      <SettingsSection icon={BookOpen} title="Study Session" description={`Configuration for ${currentLangName}`}>
-        {/* Daily Limits */}
-        <div className="grid grid-cols-2 gap-3 mb-4">
+            <SettingsSection icon={BookOpen} title="Study Session" description={`Configuration for ${currentLangName}`}>
+                <div className="grid grid-cols-2 gap-3 mb-4">
           <SettingsLargeInput
             label="New Cards"
             sublabel="Per day"
@@ -733,10 +720,8 @@ export const SettingsPage: React.FC = () => {
         </SettingsItem>
       </SettingsSection>
 
-      {/* Algorithm Section */}
-      <SettingsSection icon={Brain} title="Algorithm (FSRS)" description="Spaced repetition parameters">
-        {/* Retention Target */}
-        <div className="bg-muted/30 rounded-lg p-4 mb-4 text-center">
+            <SettingsSection icon={Brain} title="Algorithm (FSRS)" description="Spaced repetition parameters">
+                <div className="bg-muted/30 rounded-lg p-4 mb-4 text-center">
           <span className="text-[10px] text-muted-foreground uppercase tracking-[0.15em] font-medium block mb-1">
             Target Retention
           </span>
@@ -763,8 +748,7 @@ export const SettingsPage: React.FC = () => {
           </div>
         </div>
 
-        {/* Optimization */}
-        <div className="space-y-2">
+                <div className="space-y-2">
           {isOptimizing ? (
             <div className="space-y-2">
               <span className="text-xs text-muted-foreground">Processing review data...</span>
@@ -853,10 +837,8 @@ export const SettingsPage: React.FC = () => {
         </SettingsSubSection>
       </SettingsSection>
 
-      {/* Data Section */}
-      <SettingsSection icon={Database} title="Data" description="Backup and synchronization">
-        {/* Export/Import buttons */}
-        <div className="grid grid-cols-2 gap-3 mb-3">
+            <SettingsSection icon={Database} title="Data" description="Backup and synchronization">
+                <div className="grid grid-cols-2 gap-3 mb-3">
           <Button variant="outline" onClick={handleExport} className="h-auto flex flex-col py-4">
             <Download className="w-5 h-5 mb-1 text-muted-foreground" />
             <span className="text-sm font-medium">Export</span>
@@ -957,8 +939,7 @@ export const SettingsPage: React.FC = () => {
         </SettingsSubSection>
       </SettingsSection>
 
-      {/* Danger Zone */}
-      <SettingsSection
+            <SettingsSection
         icon={AlertTriangle}
         title="Danger Zone"
         description="Irreversible actions"

@@ -35,9 +35,8 @@ export const StudySettings: React.FC<StudySettingsProps> = ({ localSettings, set
   };
 
   return (
-    <div className="space-y-8 max-w-2xl">
-      {/* Info Banner */}
-      <Card className="border-primary/20">
+    <div className="space-y-8 max-w-4xl">
+            <Card className="border-primary/20">
         <CardContent className="flex items-center gap-3 p-4">
           <p className="text-sm text-muted-foreground font-light leading-relaxed">
             Daily study configuration for <span className="text-foreground font-medium">{currentLangName}</span>. Limits reset at 4:00 AM.
@@ -45,8 +44,7 @@ export const StudySettings: React.FC<StudySettingsProps> = ({ localSettings, set
         </CardContent>
       </Card>
 
-      {/* Daily Limits Section */}
-      <div className="mb-6">
+            <div className="mb-6">
         <h3 className="text-lg font-medium flex items-center gap-2">
           <Target className="w-4 h-4 text-muted-foreground" strokeWidth={1.5} />
           Daily Limits
@@ -103,8 +101,7 @@ export const StudySettings: React.FC<StudySettingsProps> = ({ localSettings, set
 
       <Separator className="my-8" />
 
-      {/* Study Preferences Section */}
-      <div className="mb-6">
+            <div className="mb-6">
         <h3 className="text-lg font-medium flex items-center gap-2">
           <ToggleLeft className="w-4 h-4 text-muted-foreground" strokeWidth={1.5} />
           Study Preferences

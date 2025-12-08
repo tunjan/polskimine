@@ -26,8 +26,7 @@ export const StudyFeedback = React.memo(({ feedback }: { feedback: XpFeedback | 
         visible ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-2"
       )}
     >
-      {/* Feedback panel */}
-      <div className={clsx(
+            <div className={clsx(
         "relative flex items-center gap-3 px-4 py-2 rounded-md border shadow-sm bg-background",
         currentFeedback.isBonus
           ? "border-primary/20 text-primary"

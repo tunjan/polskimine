@@ -190,8 +190,7 @@ export const useUndoReviewMutation = () => {
         await saveCard(card);
         await incrementHistory(date, -1, card.language || language);
         
-        // FIX: Delete the most recent revlog for this card
-        const latestLog = await db.revlog
+                const latestLog = await db.revlog
           .where('card_id').equals(card.id)
           .reverse()
           .first();

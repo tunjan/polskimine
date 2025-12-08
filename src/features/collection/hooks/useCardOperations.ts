@@ -28,51 +28,42 @@ export const useCardOperations = (): CardOperations => {
 
   const addCard = useCallback(
     async (card: Card) => {
-      // Optimistically update all cards queries
-      const previousQueries = new Map();
+            const previousQueries = new Map();
       
       try {
-        // Capture all current card queries for rollback
-        queryClient.getQueryCache().findAll({ queryKey: ['cards', language] }).forEach(query => {
+                queryClient.getQueryCache().findAll({ queryKey: ['cards', language] }).forEach(query => {
           previousQueries.set(JSON.stringify(query.queryKey), query.state.data);
         });
 
-        // Optimistically add card to all matching queries
-        queryClient.setQueriesData({ queryKey: ['cards', language] }, (old: any) => {
+                queryClient.setQueriesData({ queryKey: ['cards', language] }, (old: any) => {
           if (!old) return old;
-          // For paginated queries with {data, count} structure
-          if (old.data && Array.isArray(old.data)) {
+                    if (old.data && Array.isArray(old.data)) {
             return {
               ...old,
               data: [card, ...old.data],
               count: old.count + 1,
             };
           }
-          // For simple array queries
-          if (Array.isArray(old)) {
+                    if (Array.isArray(old)) {
             return [card, ...old];
           }
           return old;
         });
 
-        // Perform actual database operation
-        await saveCard(card);
+                await saveCard(card);
         
-        // Invalidate stats (they need recalculation)
-        queryClient.invalidateQueries({ queryKey: ['deckStats', language] });
+                queryClient.invalidateQueries({ queryKey: ['deckStats', language] });
         queryClient.invalidateQueries({ queryKey: ['dashboardStats', language] });
         
         toast.success('Card added successfully');
       } catch (error) {
         console.error(error);
         
-        // Rollback all queries to previous state
-        previousQueries.forEach((data, key) => {
+                previousQueries.forEach((data, key) => {
           queryClient.setQueryData(JSON.parse(key), data);
         });
         
-        // Fallback: invalidate to ensure consistency
-        queryClient.invalidateQueries({ queryKey: ['cards', language] });
+                queryClient.invalidateQueries({ queryKey: ['cards', language] });
         
         toast.error('Failed to add card');
       }
@@ -85,13 +76,11 @@ export const useCardOperations = (): CardOperations => {
       const previousQueries = new Map();
       
       try {
-        // Capture all current card queries for rollback
-        queryClient.getQueryCache().findAll({ queryKey: ['cards', language] }).forEach(query => {
+                queryClient.getQueryCache().findAll({ queryKey: ['cards', language] }).forEach(query => {
           previousQueries.set(JSON.stringify(query.queryKey), query.state.data);
         });
 
-        // Optimistically add cards to all matching queries
-        queryClient.setQueriesData({ queryKey: ['cards', language] }, (old: any) => {
+                queryClient.setQueriesData({ queryKey: ['cards', language] }, (old: any) => {
           if (!old) return old;
           if (old.data && Array.isArray(old.data)) {
             return {
@@ -108,16 +97,14 @@ export const useCardOperations = (): CardOperations => {
 
         await saveAllCards(cards);
         
-        // Invalidate stats
-        queryClient.invalidateQueries({ queryKey: ['deckStats', language] });
+                queryClient.invalidateQueries({ queryKey: ['deckStats', language] });
         queryClient.invalidateQueries({ queryKey: ['dashboardStats', language] });
         
         toast.success(`${cards.length} cards added successfully`);
       } catch (error) {
         console.error(error);
         
-        // Rollback
-        previousQueries.forEach((data, key) => {
+                previousQueries.forEach((data, key) => {
           queryClient.setQueryData(JSON.parse(key), data);
         });
         
@@ -134,13 +121,11 @@ export const useCardOperations = (): CardOperations => {
       const previousQueries = new Map();
       
       try {
-        // Capture all current card queries for rollback
-        queryClient.getQueryCache().findAll({ queryKey: ['cards', language] }).forEach(query => {
+                queryClient.getQueryCache().findAll({ queryKey: ['cards', language] }).forEach(query => {
           previousQueries.set(JSON.stringify(query.queryKey), query.state.data);
         });
 
-        // Optimistically update the specific card
-        queryClient.setQueriesData({ queryKey: ['cards', language] }, (old: any) => {
+                queryClient.setQueriesData({ queryKey: ['cards', language] }, (old: any) => {
           if (!old) return old;
           if (old.data && Array.isArray(old.data)) {
             return {
@@ -156,9 +141,7 @@ export const useCardOperations = (): CardOperations => {
 
         await saveCard(card);
         
-        // Only invalidate stats if status changed (affects counts)
-        // Stats recalculation is lighter than full data refetch
-        queryClient.invalidateQueries({ queryKey: ['deckStats', language] });
+                        queryClient.invalidateQueries({ queryKey: ['deckStats', language] });
         
         if (!options?.silent) {
           toast.success('Card updated successfully');
@@ -166,8 +149,7 @@ export const useCardOperations = (): CardOperations => {
       } catch (error) {
         console.error(error);
         
-        // Rollback
-        previousQueries.forEach((data, key) => {
+                previousQueries.forEach((data, key) => {
           queryClient.setQueryData(JSON.parse(key), data);
         });
         
@@ -184,13 +166,11 @@ export const useCardOperations = (): CardOperations => {
       const previousQueries = new Map();
       
       try {
-        // Capture all current card queries for rollback
-        queryClient.getQueryCache().findAll({ queryKey: ['cards', language] }).forEach(query => {
+                queryClient.getQueryCache().findAll({ queryKey: ['cards', language] }).forEach(query => {
           previousQueries.set(JSON.stringify(query.queryKey), query.state.data);
         });
 
-        // Optimistically remove card from all queries
-        queryClient.setQueriesData({ queryKey: ['cards', language] }, (old: any) => {
+                queryClient.setQueriesData({ queryKey: ['cards', language] }, (old: any) => {
           if (!old) return old;
           if (old.data && Array.isArray(old.data)) {
             return {
@@ -207,8 +187,7 @@ export const useCardOperations = (): CardOperations => {
 
         await deleteCardFromRepo(id);
         
-        // Invalidate stats
-        queryClient.invalidateQueries({ queryKey: ['deckStats', language] });
+                queryClient.invalidateQueries({ queryKey: ['deckStats', language] });
         queryClient.invalidateQueries({ queryKey: ['dashboardStats', language] });
         queryClient.invalidateQueries({ queryKey: ['dashboardCards', language] });
         
@@ -216,8 +195,7 @@ export const useCardOperations = (): CardOperations => {
       } catch (error) {
         console.error(error);
         
-        // Rollback
-        previousQueries.forEach((data, key) => {
+                previousQueries.forEach((data, key) => {
           queryClient.setQueryData(JSON.parse(key), data);
         });
         
@@ -234,13 +212,11 @@ export const useCardOperations = (): CardOperations => {
       const previousQueries = new Map();
       
       try {
-        // Capture all current card queries for rollback
-        queryClient.getQueryCache().findAll({ queryKey: ['cards', language] }).forEach(query => {
+                queryClient.getQueryCache().findAll({ queryKey: ['cards', language] }).forEach(query => {
           previousQueries.set(JSON.stringify(query.queryKey), query.state.data);
         });
 
-        // Optimistically remove cards from all queries
-        queryClient.setQueriesData({ queryKey: ['cards', language] }, (old: any) => {
+                queryClient.setQueriesData({ queryKey: ['cards', language] }, (old: any) => {
           if (!old) return old;
           if (old.data && Array.isArray(old.data)) {
             return {
@@ -257,8 +233,7 @@ export const useCardOperations = (): CardOperations => {
 
         await deleteCardsBatchFromRepo(ids);
         
-        // Invalidate stats
-        queryClient.invalidateQueries({ queryKey: ['deckStats', language] });
+                queryClient.invalidateQueries({ queryKey: ['deckStats', language] });
         queryClient.invalidateQueries({ queryKey: ['dashboardStats', language] });
         queryClient.invalidateQueries({ queryKey: ['dashboardCards', language] });
         
@@ -266,8 +241,7 @@ export const useCardOperations = (): CardOperations => {
       } catch (error) {
         console.error(error);
         
-        // Rollback
-        previousQueries.forEach((data, key) => {
+                previousQueries.forEach((data, key) => {
           queryClient.setQueryData(JSON.parse(key), data);
         });
         
@@ -287,9 +261,7 @@ export const useCardOperations = (): CardOperations => {
           .anyOf(ids)
           .modify({ dueDate: new Date(0).toISOString() });
 
-        // Prioritize modifies dueDate directly in Dexie, bypassing cache
-        // Need full refresh to update due cards and all dependent queries
-        await queryClient.invalidateQueries({ queryKey: ['cards', language] });
+                        await queryClient.invalidateQueries({ queryKey: ['cards', language] });
         await queryClient.invalidateQueries({ queryKey: ['dueCards', language] });
         refreshDeckData();
         

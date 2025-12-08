@@ -35,7 +35,8 @@ import {
   SidebarProvider,
   SidebarTrigger,
   SidebarInset,
-  SidebarSeparator
+  SidebarSeparator,
+  useSidebar
 } from '@/components/ui/sidebar';
 import {
   DropdownMenu,
@@ -66,6 +67,7 @@ const AppSidebar: React.FC<NavActionProps> = ({
   isSyncingLoad,
   onCloseMobileMenu
 }) => {
+  const { setOpenMobile, isMobile } = useSidebar();
   const location = useLocation();
   const { language, updateSettings } = useSettingsStore(useShallow(s => ({
     language: s.language,
@@ -73,6 +75,13 @@ const AppSidebar: React.FC<NavActionProps> = ({
   })));
   const { signOut } = useAuth();
   const { profile } = useProfile();
+
+  const handleMobileClick = () => {
+    if (isMobile) {
+      setOpenMobile(false);
+    }
+    onCloseMobileMenu?.();
+  };
 
   const languages = [
     { code: LanguageId.Polish, name: 'Polish', Flag: PolishFlag },
@@ -91,8 +100,8 @@ const AppSidebar: React.FC<NavActionProps> = ({
   ];
 
   const toolItems = [
-    { icon: Plus, label: 'Add Entry', onClick: () => { onOpenAdd(); onCloseMobileMenu?.(); } },
-    { icon: Zap, label: 'Cram Mode', onClick: () => { onOpenCram(); onCloseMobileMenu?.(); } },
+    { icon: Plus, label: 'Add Entry', onClick: () => { onOpenAdd(); handleMobileClick(); } },
+    { icon: Zap, label: 'Cram Mode', onClick: () => { onOpenCram(); handleMobileClick(); } },
     { icon: Save, label: isSyncing ? 'Saving...' : 'Save Changes', onClick: () => { if (!isSyncing) { onSyncSave(); } }, disabled: isSyncing },
     { icon: Download, label: isSyncingLoad ? 'Loading...' : 'Import Changes', onClick: () => { if (!isSyncingLoad) { onSyncLoad(); } }, disabled: isSyncingLoad },
   ];
@@ -127,7 +136,7 @@ const AppSidebar: React.FC<NavActionProps> = ({
                   <SidebarMenuButton
                     asChild
                     isActive={location.pathname === item.to}
-                    onClick={onCloseMobileMenu}
+                    onClick={handleMobileClick}
                     tooltip={item.label}
                   >
                     <Link to={item.to}>
@@ -189,7 +198,7 @@ const AppSidebar: React.FC<NavActionProps> = ({
                     onClick={() => {
                       updateSettings({ language: lang.code });
                       toast.success(`Switched to ${lang.name}`);
-                      onCloseMobileMenu?.();
+                      handleMobileClick();
                     }}
                     className="gap-2"
                   >
@@ -221,7 +230,7 @@ const AppSidebar: React.FC<NavActionProps> = ({
           )}
 
           <SidebarMenuItem>
-            <SidebarMenuButton onClick={() => { signOut(); onCloseMobileMenu?.(); }}>
+            <SidebarMenuButton onClick={() => { signOut(); handleMobileClick(); }}>
               <LogOut />
               <span>Sign Out</span>
             </SidebarMenuButton>
@@ -229,7 +238,7 @@ const AppSidebar: React.FC<NavActionProps> = ({
 
           <SidebarMenuItem>
             <SidebarMenuButton asChild>
-              <Link to="/settings" onClick={onCloseMobileMenu}>
+              <Link to="/settings" onClick={handleMobileClick}>
                 <Settings />
                 <span>Settings</span>
               </Link>

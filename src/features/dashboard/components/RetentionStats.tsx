@@ -98,8 +98,7 @@ export const RetentionStats: React.FC<RetentionStatsProps> = React.memo(({ cards
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-      {/* Forecast Chart */}
-      <Card className="flex flex-col">
+            <Card className="flex flex-col">
         <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
           <CardTitle className="text-base font-medium">Workload Forecast</CardTitle>
           <div className="flex gap-1">
@@ -140,8 +139,7 @@ export const RetentionStats: React.FC<RetentionStatsProps> = React.memo(({ cards
         </CardContent>
       </Card>
 
-      {/* Stability Chart */}
-      <Card className="flex flex-col">
+            <Card className="flex flex-col">
         <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
           <CardTitle className="text-base font-medium">Memory Stability</CardTitle>
           <CardDescription className="text-xs">Retention Interval</CardDescription>

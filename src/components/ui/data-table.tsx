@@ -124,8 +124,7 @@ export function DataTable<TData, TValue>({
 
     return (
         <div className="flex flex-col h-full space-y-4">
-            {/* Standard Table Container */}
-            <div className="relative flex-1 min-h-0 overflow-auto border rounded-md">
+                        <div className="relative flex-1 min-h-0 overflow-auto border rounded-md">
                 <Table>
                     <TableHeader className="sticky top-0 bg-background z-10">
                         {table.getHeaderGroups().map((headerGroup) => (
@@ -177,8 +176,7 @@ export function DataTable<TData, TValue>({
                 </Table>
             </div>
 
-            {/* Pagination Controls */}
-            <div className="flex items-center justify-between px-2">
+                        <div className="flex items-center justify-between px-2">
                 <div className="flex items-center gap-3">
                     <div className="text-sm text-muted-foreground">
                         {table.getFilteredSelectedRowModel().rows.length} row(s) selected

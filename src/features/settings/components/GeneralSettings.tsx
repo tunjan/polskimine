@@ -35,8 +35,7 @@ export const GeneralSettings: React.FC<GeneralSettingsProps> = ({
 }) => {
   return (
     <div className="space-y-6 max-w-2xl">
-      {/* Profile Section */}
-      <div>
+            <div>
         <h3 className="text-lg font-medium">Identity</h3>
         <p className="text-sm text-muted-foreground">Your public profile information</p>
       </div>
@@ -60,8 +59,7 @@ export const GeneralSettings: React.FC<GeneralSettingsProps> = ({
 
       <Separator />
 
-      {/* Language Section */}
-      <div>
+            <div>
         <h3 className="text-lg font-medium">Language</h3>
         <p className="text-sm text-muted-foreground">Active course configuration</p>
       </div>
@@ -150,8 +148,7 @@ export const GeneralSettings: React.FC<GeneralSettingsProps> = ({
 
       <Separator />
 
-      {/* API Section */}
-      <div>
+            <div>
         <h3 className="text-lg font-medium">AI Integration</h3>
         <p className="text-sm text-muted-foreground">Gemini API configuration</p>
       </div>
@@ -173,8 +170,7 @@ export const GeneralSettings: React.FC<GeneralSettingsProps> = ({
 
       <Separator />
 
-      {/* Behavior Toggles */}
-      <div>
+            <div>
         <h3 className="text-lg font-medium">Behavior</h3>
         <p className="text-sm text-muted-foreground">Study session preferences</p>
       </div>

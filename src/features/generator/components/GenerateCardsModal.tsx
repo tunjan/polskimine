@@ -57,8 +57,7 @@ export const GenerateCardsModal: React.FC<GenerateCardsModalProps> = ({ isOpen, 
                     "w-[95vw] h-[95vh] sm:max-w-5xl sm:h-[85vh]",             
                 )}
             >
-                {/* Header */}
-                <DialogHeader className="px-6 py-4 border-b shrink-0 bg-background/95 backdrop-blur z-10">
+                                <DialogHeader className="px-6 py-4 border-b shrink-0 bg-background/95 backdrop-blur z-10">
                     <div className="flex items-center justify-between">
                         <div className="flex items-center gap-3">
 
@@ -86,8 +85,7 @@ export const GenerateCardsModal: React.FC<GenerateCardsModalProps> = ({ isOpen, 
                     </div>
                 </DialogHeader>
 
-                {/* Body */}
-                <div className="flex-1 min-h-0 relative">
+                                <div className="flex-1 min-h-0 relative">
                     <AnimatePresence mode="wait">
                         {step === 'config' ? (
                             <GeneratorConfig

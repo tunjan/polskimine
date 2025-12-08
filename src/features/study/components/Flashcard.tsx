@@ -197,8 +197,7 @@ export const Flashcard = React.memo<FlashcardProps>(({
       <div className={containerClasses} onMouseUp={handleMouseUp} onTouchEnd={handleMouseUp}>
 
 
-        {/* Main content */}
-        <div className={cn(
+                <div className={cn(
           "w-full px-8 md:px-16 flex flex-col items-center z-10 transition-all duration-700 ease-out",
           isFlipped && "-translate-y-[80%]"
         )}>
@@ -216,8 +215,7 @@ export const Flashcard = React.memo<FlashcardProps>(({
           )}
         </div>
 
-        {/* Translation reveal */}
-        {isFlipped && (
+                {isFlipped && (
           <div className="absolute top-1/2 left-0 right-0 bottom-4 text-center flex flex-col items-center gap-3 z-0 pointer-events-none overflow-y-auto">
 
 

@@ -44,7 +44,6 @@ export const SettingsItem: React.FC<SettingsItemProps> = ({
   );
 };
 
-// Specialized variant for large numeric inputs (like daily limits)
 interface SettingsLargeInputProps {
   label: string;
   sublabel?: string;
@@ -76,7 +75,6 @@ export const SettingsLargeInput: React.FC<SettingsLargeInputProps> = ({
   );
 };
 
-// Specialized variant for slider controls
 interface SettingsSliderDisplayProps {
   label: string;
   value: string;
@@ -106,7 +104,6 @@ export const SettingsSliderDisplay: React.FC<SettingsSliderDisplayProps> = ({
   );
 };
 
-// Collapsible sub-section within a SettingsSection
 interface SettingsSubSectionProps {
   title: string;
   children: React.ReactNode;

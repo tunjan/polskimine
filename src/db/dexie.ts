@@ -83,20 +83,17 @@ export class LinguaFlowDB extends Dexie {
             settings: 'id',
             aggregated_stats: 'id, [language+metric], updated_at'
         }).upgrade(async (tx) => {
-            // Batch processing: fetch all data once instead of iterating with .each()
-            const allCards = await tx.table<Card>('cards').toArray();
+                        const allCards = await tx.table<Card>('cards').toArray();
             const allRevlogs = await tx.table<RevlogEntry>('revlog').toArray();
 
-            // Build a map of card_id -> language for fast lookups
-            const cardLanguageMap = new Map<string, string>();
+                        const cardLanguageMap = new Map<string, string>();
             for (const card of allCards) {
                 if (card.language) {
                     cardLanguageMap.set(card.id, card.language);
                 }
             }
 
-            // Calculate per-language stats in memory
-            const languageStats = new Map<string, { totalXp: number; totalReviews: number }>();
+                        const languageStats = new Map<string, { totalXp: number; totalReviews: number }>();
 
             for (const log of allRevlogs) {
                 const language = cardLanguageMap.get(log.card_id);
@@ -110,12 +107,10 @@ export class LinguaFlowDB extends Dexie {
                 }
             }
 
-            // Build aggregated stats for bulk insert
-            const statsToInsert: AggregatedStat[] = [];
+                        const statsToInsert: AggregatedStat[] = [];
             const now = new Date().toISOString();
 
-            // Per-language stats
-            for (const [language, stats] of languageStats.entries()) {
+                        for (const [language, stats] of languageStats.entries()) {
                 statsToInsert.push({
                     id: `${language}:total_xp`,
                     language: language || 'unknown',
@@ -132,8 +127,7 @@ export class LinguaFlowDB extends Dexie {
                 });
             }
 
-            // Global stats (total of all revlogs)
-            const globalXp = allRevlogs.length * 10;
+                        const globalXp = allRevlogs.length * 10;
             const globalReviews = allRevlogs.length;
 
             statsToInsert.push({
@@ -151,8 +145,7 @@ export class LinguaFlowDB extends Dexie {
                 updated_at: now
             });
 
-            // Single bulk insert for all stats
-            if (statsToInsert.length > 0) {
+                        if (statsToInsert.length > 0) {
                 await tx.table<AggregatedStat>('aggregated_stats').bulkAdd(statsToInsert);
             }
         });

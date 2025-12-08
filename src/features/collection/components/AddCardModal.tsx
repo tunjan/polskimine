@@ -239,8 +239,7 @@ export const AddCardModal: React.FC<AddCardModalProps> = ({ isOpen, onClose, onA
                 <Form {...form}>
                     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
 
-                        {/* Sentence Section */}
-                        <div className="space-y-2">
+                                                <div className="space-y-2">
                             <div className="flex justify-between items-center">
                                 <FormLabel className="text-base font-semibold">Native Sentence</FormLabel>
                                 <Button
@@ -281,8 +280,7 @@ export const AddCardModal: React.FC<AddCardModalProps> = ({ isOpen, onClose, onA
 
                         <Separator />
 
-                        {/* Translation and Target Word */}
-                        <div className="grid md:grid-cols-2 gap-4">
+                                                <div className="grid md:grid-cols-2 gap-4">
                             <FormField
                                 control={form.control}
                                 name="translation"
@@ -312,8 +310,7 @@ export const AddCardModal: React.FC<AddCardModalProps> = ({ isOpen, onClose, onA
                             />
                         </div>
 
-                        {/* Word Details */}
-                        <div className="grid md:grid-cols-2 gap-4">
+                                                <div className="grid md:grid-cols-2 gap-4">
                             <FormField
                                 control={form.control}
                                 name="targetWordTranslation"

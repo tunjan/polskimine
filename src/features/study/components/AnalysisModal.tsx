@@ -31,8 +31,7 @@ export const AnalysisModal: React.FC<AnalysisModalProps> = ({
                 </VisuallyHidden>
 
                 <div className="p-8 md:p-10 space-y-8 overflow-y-auto">
-                    {/* Header */}
-                    <div className="space-y-3 border-b border-border/40 pb-6">
+                                        <div className="space-y-3 border-b border-border/40 pb-6">
                         <div className="flex justify-between items-start gap-6">
                             <h2 className="text-3xl font-light tracking-tight text-foreground wrap-break-word">{result?.originalText}</h2>
                             <Badge variant="outline" className="whitespace-nowrap shrink-0">
@@ -41,8 +40,7 @@ export const AnalysisModal: React.FC<AnalysisModalProps> = ({
                         </div>
                     </div>
 
-                    {/* Content sections */}
-                    <div className="space-y-6">
+                                        <div className="space-y-6">
                         <div>
                             <h3 className="text-sm font-medium text-muted-foreground mb-2">Definition</h3>
                             <p className="text-lg font-light leading-relaxed text-foreground/90 wrap-break-word">{result?.definition}</p>

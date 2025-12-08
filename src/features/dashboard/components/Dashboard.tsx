@@ -90,11 +90,9 @@ export const Dashboard: React.FC<DashboardProps> = ({
   return (
     <div className="p-4 max-w-7xl mx-auto space-y-6">
 
-      {/* Top Row */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
 
-        {/* Profile Card */}
-        <Card>
+                <Card>
           <CardHeader>
             <CardTitle>Profile</CardTitle>
             <CardDescription>{profile?.username || 'User'}</CardDescription>
@@ -125,8 +123,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
           </CardContent>
         </Card>
 
-        {/* Streak Card */}
-        <Card>
+                <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Flame className="w-4 h-4" />
@@ -163,8 +160,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
           </CardContent>
         </Card>
 
-        {/* Study Session Card */}
-        <Card>
+                <Card>
           <CardContent className="flex flex-col h-full">
             <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">Due for Review</p>
             <p className="text-5xl font-bold text-primary mb-2">{stats.due}</p>
@@ -188,8 +184,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
         </Card>
       </div>
 
-      {/* Collection Stats */}
-      <section>
+            <section>
         <h2 className="text-lg font-semibold mb-3">Collection Stats</h2>
         {hasNoCards ? (
           <Card>
@@ -243,8 +238,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
         )}
       </section>
 
-      {/* Tabs for Detailed Stats */}
-      <section>
+            <section>
         <Tabs defaultValue="activity" className="w-full">
           <TabsList className="mb-3">
             <TabsTrigger value="activity"><CalendarDays size={14} className="mr-1.5" /> Activity</TabsTrigger>

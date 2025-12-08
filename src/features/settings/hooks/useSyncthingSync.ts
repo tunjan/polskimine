@@ -26,8 +26,7 @@ export const useSyncthingSync = () => {
         setIsSaving(true);
         try {
             const state = useSettingsStore.getState();
-            // Build settings object from store state (settings are spread at root level)
-            const settings = {
+                        const settings = {
                 language: state.language,
                 languageColors: state.languageColors,
                 dailyNewLimits: state.dailyNewLimits,

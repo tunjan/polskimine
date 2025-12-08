@@ -26,8 +26,7 @@ export const LevelProgressBar: React.FC<LevelProgressBarProps> = ({ xp, level, c
 
   return (
     <div className={cn('flex flex-col gap-2 w-full', className)}>
-      {/* Labels */}
-      <div className="flex justify-between items-end">
+            <div className="flex justify-between items-end">
         <div className="flex flex-col">
           <span className="text-[10px] font-sans uppercase tracking-widest text-muted-foreground">Current Level</span>
           <span className="text-sm font-medium font-sans">{level}</span>
@@ -37,8 +36,7 @@ export const LevelProgressBar: React.FC<LevelProgressBarProps> = ({ xp, level, c
           <span className="text-xs font-sans text-muted-foreground">-{progressData.xpRemaining.toLocaleString()} XP</span>
         </div>
       </div>
-      {/* Bar */}
-      <Progress value={progressData.percentage} className="h-1 bg-muted" />
+            <Progress value={progressData.percentage} className="h-1 bg-muted" />
     </div>
   );
 };

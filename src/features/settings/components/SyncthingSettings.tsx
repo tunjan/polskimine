@@ -44,8 +44,7 @@ export const SyncthingSettings: React.FC<SyncthingSettingsProps> = ({
                 <p className="text-sm text-muted-foreground">Sync data between devices using a shared file</p>
             </div>
 
-            {/* Last Sync Status */}
-            <Card className="border-border/30">
+                        <Card className="border-border/30">
                 <CardContent className="flex items-center gap-3 p-4">
                     <Clock className="w-4 h-4 text-muted-foreground/60" strokeWidth={1.5} />
                     <div className="flex-1">
@@ -55,10 +54,8 @@ export const SyncthingSettings: React.FC<SyncthingSettingsProps> = ({
                 </CardContent>
             </Card>
 
-            {/* Sync Actions */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {/* Save Changes Button */}
-                <Button
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <Button
                     variant="outline"
                     className={`h-auto flex flex-col items-center text-center space-y-3 py-6 hover:bg-muted/50 transition-colors ${isSaving ? 'opacity-50 pointer-events-none' : ''}`}
                     onClick={onSave}
@@ -77,8 +74,7 @@ export const SyncthingSettings: React.FC<SyncthingSettingsProps> = ({
                     </div>
                 </Button>
 
-                {/* Load from Sync File Button */}
-                <Button
+                                <Button
                     variant="outline"
                     className={`h-auto flex flex-col items-center text-center space-y-3 py-6 hover:bg-muted/50 transition-colors ${isLoading ? 'opacity-50 pointer-events-none' : ''}`}
                     onClick={onLoad}
@@ -98,8 +94,7 @@ export const SyncthingSettings: React.FC<SyncthingSettingsProps> = ({
                 </Button>
             </div>
 
-            {/* Instructions */}
-            <Card className="border-border/20">
+                        <Card className="border-border/20">
                 <CardContent className="flex items-start gap-3 p-4">
                     <div className="w-1.5 h-1.5 rounded-full bg-muted-foreground/30 mt-2 shrink-0" />
                     <div className="text-xs text-muted-foreground/50 font-light leading-relaxed space-y-2">
