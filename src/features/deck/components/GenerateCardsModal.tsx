@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
-import { ScrollArea } from '@/components/ui/scroll-area';
 import { Slider } from '@/components/ui/slider';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
@@ -485,7 +484,7 @@ export const GenerateCardsModal: React.FC<GenerateCardsModalProps> = ({ isOpen, 
                             </div>
                         </div>
 
-                        <ScrollArea className="flex-1 min-h-0 h-[50vh]">
+                        <div className="flex-1 overflow-y-auto min-h-0 max-h-[50vh]">
                             <div className="p-4 space-y-3">
                                 {generatedData.map((card, idx) => (
                                     <div
@@ -519,7 +518,7 @@ export const GenerateCardsModal: React.FC<GenerateCardsModalProps> = ({ isOpen, 
                                     </div>
                                 ))}
                             </div>
-                        </ScrollArea>
+                        </div>
 
                         <DialogFooter className="px-6 py-4 border-t bg-muted/30 shrink-0 gap-2 sm:gap-2">
                             <Button variant="outline" onClick={resetAndClose}>Cancel</Button>
