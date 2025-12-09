@@ -1,16 +1,11 @@
 import { ReviewLog } from "@/types";
 
-/**
- * Optimizes FSRS weights using a web worker.
- * This is the main API - delegates all work to the worker to avoid blocking the main thread.
- */
 export const optimizeFSRS = async (
   allLogs: ReviewLog[],
   currentW: number[],
   onProgress: (progress: number) => void,
 ): Promise<number[]> => {
-  // Check if workers are available
-  if (typeof Worker === "undefined") {
+    if (typeof Worker === "undefined") {
     throw new Error("Web Workers are not supported in this environment");
   }
 
@@ -43,7 +38,6 @@ export const optimizeFSRS = async (
       reject(new Error(`Worker error: ${error.message}`));
     };
 
-    // Send data to worker
-    worker.postMessage({ logs: allLogs, currentW });
+        worker.postMessage({ logs: allLogs, currentW });
   });
 };

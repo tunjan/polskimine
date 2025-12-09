@@ -66,8 +66,7 @@ const App: React.FC = () => {
       });
     }
 
-    // Run corruption check/repair on every load (lightweight if no errors)
-    import("@/db/repositories/cardRepository").then(({ repairCorruptedCards }) => {
+        import("@/db/repositories/cardRepository").then(({ repairCorruptedCards }) => {
       repairCorruptedCards();
     });
   }, []);

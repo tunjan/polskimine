@@ -210,8 +210,7 @@ export const AddCardModal: React.FC<AddCardModalProps> = ({
         .join("");
     }
 
-    // Check for duplicates if this is a new card and we have a target word
-    if (!initialCard && data.targetWord) {
+        if (!initialCard && data.targetWord) {
       try {
         const { getCardByTargetWord } =
           await import("@/db/repositories/cardRepository");
@@ -234,15 +233,12 @@ export const AddCardModal: React.FC<AddCardModalProps> = ({
     let newCard: Card;
 
     if (initialCard) {
-      // Clean up sentence for re-formatting logic if it contains the target word
-      let sentenceToFormat = targetSentence;
+            let sentenceToFormat = targetSentence;
       if (data.targetWord) {
         sentenceToFormat = targetSentence.replace(/<\/?b>/g, "");
       }
 
-      // Editing existing card - preserve all existing fields
-      // Re-apply formatting to ensure target word is highlighted if changed
-      const formattedSentence = formatSentenceWithTargetWord(
+                  const formattedSentence = formatSentenceWithTargetWord(
         sentenceToFormat,
         data.targetWord || undefined,
         targetLanguage,
@@ -260,8 +256,7 @@ export const AddCardModal: React.FC<AddCardModalProps> = ({
         language: targetLanguage,
       };
     } else {
-      // Create new card using factory (ensures all FSRS fields are initialized)
-      newCard = createNewCard({
+            newCard = createNewCard({
         language: targetLanguage,
         targetSentence,
         nativeTranslation: data.translation,

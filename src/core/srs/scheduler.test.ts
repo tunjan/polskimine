@@ -3,7 +3,6 @@ import { calculateNextReview, isCardDue, LapsesSettings } from "./scheduler";
 import { Card, CardStatus } from "@/types";
 import { State } from "ts-fsrs";
 
-// Helper to create a base card for testing
 const createBaseCard = (overrides: Partial<Card> = {}): Card => ({
   id: "test-card-1",
   targetSentence: "Test sentence",
@@ -65,8 +64,7 @@ describe("scheduler", () => {
 
         const result = calculateNextReview(card, "Good", undefined, [1, 10]);
 
-        // Should have graduated - learningStep cleared, status is REVIEW
-        expect(result.learningStep).toBeUndefined();
+                expect(result.learningStep).toBeUndefined();
         expect(result.status).toBe(CardStatus.REVIEW);
       });
 
@@ -349,9 +347,7 @@ describe("scheduler", () => {
 
         const result = calculateNextReview(card, "Good", undefined, [1]);
 
-        // With only one step at step 0, Good advances to step 1 which is >= length (1),
-        // so should graduate to FSRS
-        expect(result.learningStep).toBeUndefined();
+                        expect(result.learningStep).toBeUndefined();
         expect(result.status).toBe(CardStatus.REVIEW);
       });
 
@@ -361,11 +357,9 @@ describe("scheduler", () => {
           learningStep: 0,
         });
 
-        // Empty steps should use default [1, 10]
-        const result = calculateNextReview(card, "Good", undefined, []);
+                const result = calculateNextReview(card, "Good", undefined, []);
 
-        // Should use default steps, advance to step 1
-        expect(result.learningStep).toBe(1);
+                expect(result.learningStep).toBe(1);
         expect(result.status).toBe(CardStatus.LEARNING);
       });
 
@@ -383,8 +377,7 @@ describe("scheduler", () => {
 
         const result = calculateNextReview(card, "Good");
 
-        // Should infer state and schedule correctly
-        expect(result.status).toBe(CardStatus.REVIEW);
+                expect(result.status).toBe(CardStatus.REVIEW);
         expect(result.interval).toBeGreaterThan(0);
       });
 
@@ -400,8 +393,7 @@ describe("scheduler", () => {
           state: State.Review,
           stability: 10,
           difficulty: 5,
-          lapses: 2, // One more lapse will hit threshold
-          last_review: new Date(Date.now() - 86400000).toISOString(),
+          lapses: 2,           last_review: new Date(Date.now() - 86400000).toISOString(),
           reps: 5,
         });
 
@@ -413,13 +405,10 @@ describe("scheduler", () => {
           lapsesSettings,
         );
 
-        // Should enter relearning at step 0
-        expect(result.state).toBe(State.Relearning);
+                expect(result.state).toBe(State.Relearning);
         expect(result.learningStep).toBe(0);
-        // Should be marked as leech (3 lapses >= threshold 3)
-        expect(result.isLeech).toBe(true);
-        // Should be suspended due to leechAction: "suspend"
-        expect(result.status).toBe(CardStatus.SUSPENDED);
+                expect(result.isLeech).toBe(true);
+                expect(result.status).toBe(CardStatus.SUSPENDED);
       });
     });
   });
@@ -471,8 +460,7 @@ describe("scheduler", () => {
           leechThreshold: 3,
         };
 
-        // Card already has 2 lapses from previous Again presses
-        const card = createBaseCard({
+                const card = createBaseCard({
           status: CardStatus.LEARNING,
           learningStep: 1,
           lapses: 2,
@@ -486,8 +474,7 @@ describe("scheduler", () => {
           lapsesSettings,
         );
 
-        // Should not increment lapses, so remains 2, which is < 3
-        expect(result.lapses).toBe(2);
+                expect(result.lapses).toBe(2);
         expect(result.isLeech).toBeFalsy();
       });
     });
@@ -501,10 +488,7 @@ describe("scheduler", () => {
           learningStep: 0,
         });
 
-        // Negative steps should be filtered, leaving only valid [5]
-        // With single step, Good at step 0 advances to step 1 but clamped detection
-        // means it's still in learning. Press Good again to graduate.
-        const result1 = calculateNextReview(card, "Good", undefined, [-5, 5]);
+                                const result1 = calculateNextReview(card, "Good", undefined, [-5, 5]);
         expect(result1.status).toBe(CardStatus.LEARNING);
 
         const result2 = calculateNextReview(
@@ -522,42 +506,33 @@ describe("scheduler", () => {
           learningStep: 0,
         });
 
-        // Zero step should be filtered, using defaults
-        const result = calculateNextReview(card, "Good", undefined, [0, 0]);
+                const result = calculateNextReview(card, "Good", undefined, [0, 0]);
 
-        // Should use defaults [1, 10], advance to step 1
-        expect(result.learningStep).toBe(1);
+                expect(result.learningStep).toBe(1);
         expect(result.status).toBe(CardStatus.LEARNING);
       });
     });
 
     describe("Learning Phase Detection (#1)", () => {
       it("should handle card with step exceeding current config", () => {
-        // Card was saved with 3 steps, now config only has 2 steps
-        const card = createBaseCard({
+                const card = createBaseCard({
           status: CardStatus.LEARNING,
-          learningStep: 2, // This exceeds [1, 10] length
-        });
+          learningStep: 2,         });
 
-        // With clamped step, should still be treated as in learning
-        const result = calculateNextReview(card, "Good", undefined, [1, 10]);
+                const result = calculateNextReview(card, "Good", undefined, [1, 10]);
 
-        // Should clamp step to 1 (max valid), then Good graduates
-        expect(result.learningStep).toBeUndefined();
+                expect(result.learningStep).toBeUndefined();
         expect(result.status).toBe(CardStatus.REVIEW);
       });
 
       it("should not prematurely graduate when step equals config length", () => {
-        // This tests that clamped step detection works correctly
-        const card = createBaseCard({
+                const card = createBaseCard({
           status: CardStatus.LEARNING,
-          learningStep: 1, // At last step of [1, 10]
-        });
+          learningStep: 1,         });
 
         const result = calculateNextReview(card, "Hard", undefined, [1, 10]);
 
-        // Hard should keep at current step, not graduate
-        expect(result.learningStep).toBe(1);
+                expect(result.learningStep).toBe(1);
         expect(result.status).toBe(CardStatus.LEARNING);
       });
     });
@@ -570,8 +545,7 @@ describe("scheduler", () => {
           lapses: 0,
         });
 
-        // Press Again 5 times
-        for (let i = 0; i < 5; i++) {
+                for (let i = 0; i < 5; i++) {
           card = calculateNextReview(card, "Again", undefined, [1, 10]);
         }
 

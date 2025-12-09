@@ -58,14 +58,12 @@ export const DEFAULT_SETTINGS: UserSettings = {
   binaryRatingMode: false,
   cardOrder: "newFirst",
   learningSteps: [1, 10],
-  // Display Order
-  newCardGatherOrder: "added",
+    newCardGatherOrder: "added",
   newCardSortOrder: "due",
   newReviewOrder: "newFirst",
   interdayLearningOrder: "mixed",
   reviewSortOrder: "due",
-  // Lapses
-  relearnSteps: [10],
+    relearnSteps: [10],
   leechThreshold: 8,
 
   geminiApiKey: "AIzaSyBMVVvi9wcODo7c9-Da562BaLD-OwC1Xkk",
@@ -161,14 +159,12 @@ export const useSettingsStore = create<SettingsState>((set, get) => ({
           binaryRatingMode: updatedState.binaryRatingMode,
           cardOrder: updatedState.cardOrder,
           learningSteps: updatedState.learningSteps,
-          // Display Order
-          newCardGatherOrder: updatedState.newCardGatherOrder,
+                    newCardGatherOrder: updatedState.newCardGatherOrder,
           newCardSortOrder: updatedState.newCardSortOrder,
           newReviewOrder: updatedState.newReviewOrder,
           interdayLearningOrder: updatedState.interdayLearningOrder,
           reviewSortOrder: updatedState.reviewSortOrder,
-          // Lapses
-          relearnSteps: updatedState.relearnSteps,
+                    relearnSteps: updatedState.relearnSteps,
           leechThreshold: updatedState.leechThreshold,
           leechAction: updatedState.leechAction,
           geminiApiKey: updatedState.geminiApiKey,
@@ -198,17 +194,10 @@ export const useSettingsStore = create<SettingsState>((set, get) => ({
           ? settingsOrUpdater(state)
           : settingsOrUpdater;
 
-      const updatedState = { ...newSettings }; // Create a fresh object
-      const { userId } = state;
+      const updatedState = { ...newSettings };       const { userId } = state;
 
       if (userId) {
-        // We need to construct the full settings object to save, similar to updateSettings
-        // However, since setFullSettings expects a full object (or updater returning one),
-        // we can try to assume newSettings IS the full settings or at least a significant part.
-        // But wait, setFullSettings in the interface takes UserSettings.
-        // Let's look at how it is used. It's often used with spread: setSettings(prev => ({...prev, ...}))
-        // So newSettings IS the new state.
-
+                                                
         const settingsToSave: UserSettings = {
           language: updatedState.language,
           languageColors: updatedState.languageColors,
@@ -226,14 +215,12 @@ export const useSettingsStore = create<SettingsState>((set, get) => ({
           binaryRatingMode: updatedState.binaryRatingMode,
           cardOrder: updatedState.cardOrder,
           learningSteps: updatedState.learningSteps,
-          // Display Order
-          newCardGatherOrder: updatedState.newCardGatherOrder,
+                    newCardGatherOrder: updatedState.newCardGatherOrder,
           newCardSortOrder: updatedState.newCardSortOrder,
           newReviewOrder: updatedState.newReviewOrder,
           interdayLearningOrder: updatedState.interdayLearningOrder,
           reviewSortOrder: updatedState.reviewSortOrder,
-          // Lapses
-          relearnSteps: updatedState.relearnSteps,
+                    relearnSteps: updatedState.relearnSteps,
           leechThreshold: updatedState.leechThreshold,
           leechAction: updatedState.leechAction,
           geminiApiKey: updatedState.geminiApiKey,

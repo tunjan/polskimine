@@ -1,17 +1,8 @@
-/**
- * Centralized card factory - single source of truth for card creation.
- * Ensures all cards have consistent structure with required FSRS fields.
- *
- * ALL card creation in the app should go through this factory.
- */
 import { Card, CardStatus, Language, LanguageId } from "@/types";
 import { State as FSRSState } from "ts-fsrs";
 import { v4 as uuidv4 } from "uuid";
 import { escapeRegExp, findInflectedWordInSentence } from "@/lib/utils";
 
-/**
- * Parameters for creating a new card.
- */
 export interface CreateCardParams {
   language: Language;
   targetSentence: string;
@@ -26,28 +17,17 @@ export interface CreateCardParams {
 
 }
 
-/**
- * Unicode-aware word boundary pattern that works with non-Latin scripts
- * (Polish: ą, ę, ł, ż, etc. German: ä, ö, ü, ß, etc.)
- */
 const createWordBoundaryRegex = (word: string): RegExp => {
   const escaped = escapeRegExp(word);
-  // Use negative lookbehind/lookahead for Unicode letters
-  return new RegExp(`(?<![\\p{L}])${escaped}(?![\\p{L}])`, "gu");
+    return new RegExp(`(?<![\\p{L}])${escaped}(?![\\p{L}])`, "gu");
 };
 
-/**
- * Formats a sentence by wrapping the target word in <b> tags.
- * Uses fuzzy matching to find inflected forms of the target word.
- * Handles non-Latin scripts properly.
- */
 export const formatSentenceWithTargetWord = (
   sentence: string,
   targetWord: string | undefined,
   language: Language,
 ): string => {
-  // Skip if no target word, already formatted, or Japanese (handled differently with furigana)
-  if (
+    if (
     !targetWord ||
     sentence.includes("<b>") ||
     language === LanguageId.Japanese
@@ -55,12 +35,10 @@ export const formatSentenceWithTargetWord = (
     return sentence;
   }
 
-  // Use fuzzy matching to find inflected forms (e.g., "rozumieć" -> "rozumiem")
-  const matchedWord = findInflectedWordInSentence(targetWord, sentence);
+    const matchedWord = findInflectedWordInSentence(targetWord, sentence);
 
   if (matchedWord) {
-    // Use Unicode-aware word boundary for proper replacement
-    return sentence.replace(
+        return sentence.replace(
       createWordBoundaryRegex(matchedWord),
       `<b>${matchedWord}</b>`,
     );
@@ -69,10 +47,6 @@ export const formatSentenceWithTargetWord = (
   return sentence;
 };
 
-/**
- * Creates a new card with all required fields initialized.
- * This is the single source of truth for card creation.
- */
 export const createNewCard = (params: CreateCardParams): Card => {
   const {
     language,
@@ -108,29 +82,21 @@ export const createNewCard = (params: CreateCardParams): Card => {
     grammaticalCase,
 
 
-    // Status
-    status: CardStatus.NEW,
+        status: CardStatus.NEW,
     state: FSRSState.New,
 
-    // Scheduling defaults
-    interval: 0,
+        interval: 0,
     easeFactor: 2.5,
     dueDate: new Date().toISOString(),
 
-    // FSRS tracking - MUST be initialized
-    reps: 0,
+        reps: 0,
     lapses: 0,
 
-    // Optional fields with safe defaults
-    isLeech: false,
+        isLeech: false,
     isBookmarked: false,
   };
 };
 
-/**
- * Creates a card with a staggered due date (for batch creation).
- * Each card gets a slightly later due date to control introduction order.
- */
 export const createNewCardWithOffset = (
   params: CreateCardParams,
   offsetMs: number,
@@ -140,7 +106,6 @@ export const createNewCardWithOffset = (
   return card;
 };
 
-// Language-specific convenience functions
 
 export const createPolishCard = (
   targetSentence: string,

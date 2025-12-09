@@ -20,16 +20,13 @@ export const getCurrentUserId = (): string | null => {
 
 let hasWarnedAboutCorruption = false;
 
-// Helper to handle NaN values from corrupted DB entries
 const SafeNumber = (fieldName: string) => z.preprocess((val) => {
   if (typeof val === "number" && isNaN(val)) {
     console.warn(`[CardRepository] Found NaN value in field '${fieldName}', resetting to 0. corrupted_val:`, val);
     
     if (!hasWarnedAboutCorruption) {
       hasWarnedAboutCorruption = true;
-      // Use a timeout to ensure this runs outside the render/validation cycle 
-      // and to debounce slightly if multiple fields fail at once
-      setTimeout(() => {
+                  setTimeout(() => {
         toast.warning("Repaired corrupted card data", {
           description: "Found invalid numbers (NaN) and reset them to 0. Check console for details.",
           duration: 5000,
@@ -210,9 +207,7 @@ export const getDashboardCounts = async (
       .filter((c) => {
         if (c.status === "known") return false;
         
-        // Logic to match scheduler.ts isCardDue
-        // strict 'now' check for short intervals
-        const isShortInterval = (c.interval || 0) < ONE_HOUR_IN_DAYS;
+                        const isShortInterval = (c.interval || 0) < ONE_HOUR_IN_DAYS;
         if (isShortInterval) {
           return c.dueDate <= nowISO;
         }
@@ -260,9 +255,7 @@ export const getCardsForDashboard = async (
 export const saveCard = async (card: Card) => {
   const userId = getCurrentUserId();
 
-  // Normalize card: ensure all required FSRS fields have defaults
-  // This handles backward compatibility with old cards missing fields
-  const normalizedCard: Card = {
+      const normalizedCard: Card = {
     ...card,
     id: card.id || generateId(),
     user_id: card.user_id || userId || undefined,
@@ -274,17 +267,13 @@ export const saveCard = async (card: Card) => {
     isBookmarked: card.isBookmarked ?? false,
   };
 
-  // Sync status with FSRS state (except for KNOWN cards)
-  if (normalizedCard.status !== CardStatus.KNOWN) {
+    if (normalizedCard.status !== CardStatus.KNOWN) {
     if (normalizedCard.state !== undefined) {
       normalizedCard.status = mapFsrsStateToStatus(normalizedCard.state);
     }
   }
 
-  // Validate and sanitize (e.g. remove NaN) before saving
-  // We cast to any because the Schema input is flexible but we want the strict Output of validation
-  // The schema cleans NaN -> 0 via SafeNumber
-  const validatedCard = DBRawCardSchema.parse(normalizedCard);
+        const validatedCard = DBRawCardSchema.parse(normalizedCard);
 
   await db.cards.put(validatedCard as Card);
 };
@@ -344,10 +333,7 @@ export const getDueCards = async (
     .filter((card) => {
       if (card.status === "known") return false;
 
-      // Filter intraday cards using strict 'now' check
-      // This prevents cards due later today (e.g. 10m learning step) 
-      // from showing up as "Due" immediately after review
-      const isShortInterval = (card.interval || 0) < ONE_HOUR_IN_DAYS;
+                        const isShortInterval = (card.interval || 0) < ONE_HOUR_IN_DAYS;
       if (isShortInterval) {
         return card.dueDate <= nowISO;
       }
@@ -443,8 +429,7 @@ export const getAllTargetWords = async (
 
   const words: string[] = [];
 
-  // Use each() for memory efficiency instead of loading all objects
-  await db.cards
+    await db.cards
     .where("[user_id+language]")
     .equals([userId, language])
     .filter((card) => card.targetWord != null)
@@ -490,8 +475,7 @@ export const repairCorruptedCards = async (): Promise<number> => {
         let needsFix = false;
         const fixedCard = { ...rawCard };
 
-        // Check numeric fields for NaN
-        const numericFields = [
+                const numericFields = [
           "interval",
           "easeFactor",
           "stability",
@@ -506,18 +490,15 @@ export const repairCorruptedCards = async (): Promise<number> => {
         ];
 
         for (const field of numericFields) {
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          const val = (rawCard as any)[field];
+                    const val = (rawCard as any)[field];
           if (typeof val === "number" && isNaN(val)) {
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            (fixedCard as any)[field] = 0;
+                        (fixedCard as any)[field] = 0;
             needsFix = true;
           }
         }
 
         if (needsFix) {
-          // Validate with schema to ensure full correctness
-          try {
+                    try {
             const result = DBRawCardSchema.safeParse(fixedCard);
             if (result.success) {
               cardsToFix.push(mapToCard(fixedCard));
@@ -530,9 +511,7 @@ export const repairCorruptedCards = async (): Promise<number> => {
       });
 
     if (cardsToFix.length > 0) {
-      // safeAllCards generates new IDs if missing, but here we want to update existing
-      // So we use db.cards.bulkPut directly
-      await db.cards.bulkPut(cardsToFix);
+                  await db.cards.bulkPut(cardsToFix);
       console.log(`[CardRepository] Repaired ${cardsToFix.length} corrupted cards.`);
       toast.success(`Repaired ${cardsToFix.length} corrupted cards`);
     }

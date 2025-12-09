@@ -14,7 +14,6 @@ export const TTS_PROVIDER = {
 
 export type TTSProviderValue = (typeof TTS_PROVIDER)[keyof typeof TTS_PROVIDER];
 
-// Display Order Settings
 export const NEW_CARD_GATHER_ORDER = {
   ADDED: "added",
   RANDOM: "random",
@@ -60,7 +59,6 @@ export const REVIEW_SORT_ORDER = {
 export type ReviewSortOrderValue =
   (typeof REVIEW_SORT_ORDER)[keyof typeof REVIEW_SORT_ORDER];
 
-// Lapses Settings
 export const LEECH_ACTION = {
   SUSPEND: "suspend",
 } as const;

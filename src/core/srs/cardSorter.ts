@@ -55,8 +55,7 @@ const sortByOverdueness = (a: Card, b: Card, now: Date): number => {
   const aOverdueness = aDaysOverdue / aInterval;
   const bOverdueness = bDaysOverdue / bInterval;
 
-  return bOverdueness - aOverdueness; // Higher overdueness first
-};
+  return bOverdueness - aOverdueness; };
 
 const sortNewCards = (
   cards: Card[],
@@ -65,18 +64,15 @@ const sortNewCards = (
 ): Card[] => {
   let result = [...cards];
 
-  // First apply gather order (how we collect cards)
-  if (gatherOrder === "random") {
+    if (gatherOrder === "random") {
     result = shuffle(result);
   }
 
-  // Then apply sort order (how we present them)
-  switch (sortOrder) {
+    switch (sortOrder) {
     case "random":
       return shuffle(result);
     case "cardType":
-      // Sort by card type (word type) if available
-      return result.sort((a, b) => {
+            return result.sort((a, b) => {
         const typeA = a.targetWordPartOfSpeech || "";
         const typeB = b.targetWordPartOfSpeech || "";
         return typeA.localeCompare(typeB);
@@ -97,8 +93,7 @@ const sortReviewCards = (
     case "random":
       return shuffle(cards);
     case "dueRandom":
-      // Group by due date, then shuffle within groups
-      const grouped = new Map<string, Card[]>();
+            const grouped = new Map<string, Card[]>();
       cards.forEach((card) => {
         const dateKey = (card.dueDate || "").split("T")[0];
         if (!grouped.has(dateKey)) grouped.set(dateKey, []);
@@ -130,8 +125,7 @@ const interleaveLearningCards = (
       return [...newCards, ...reviewCards, ...learningCards];
     case "mixed":
     default:
-      // Interleave learning cards with reviews
-      const combined = [...reviewCards];
+            const combined = [...reviewCards];
 
       if (combined.length === 0) {
         return [...newCards, ...learningCards];
@@ -149,10 +143,6 @@ const interleaveLearningCards = (
   }
 };
 
-/**
- * Sort cards based on display order settings.
- * Falls back to legacy CardOrder for backwards compatibility.
- */
 export const sortCards = (
   cards: Card[],
   order: CardOrder,
@@ -160,17 +150,14 @@ export const sortCards = (
 ): Card[] => {
   if (cards.length === 0) return [];
 
-  // Separate cards by type
-  const newCards = cards.filter((c) => isNewCard(c));
+    const newCards = cards.filter((c) => isNewCard(c));
   const learningCards = cards.filter((c) => isLearningCard(c));
   const reviewCards = cards.filter((c) => isReviewCard(c));
-  // Cards that don't fit other categories go with reviews
-  const otherCards = cards.filter(
+    const otherCards = cards.filter(
     (c) => !isNewCard(c) && !isLearningCard(c) && !isReviewCard(c),
   );
 
-  // If no display settings, use legacy behavior
-  if (!displaySettings) {
+    if (!displaySettings) {
     const dateSorted = [...cards].sort(sortByDue);
 
     if (order === "mixed") {
@@ -187,8 +174,7 @@ export const sortCards = (
     return [...legacyNew, ...legacyReview];
   }
 
-  // Apply new sorting logic
-  const sortedNew = sortNewCards(
+    const sortedNew = sortNewCards(
     newCards,
     displaySettings.newCardGatherOrder,
     displaySettings.newCardSortOrder,
@@ -201,14 +187,12 @@ export const sortCards = (
 
   const sortedLearning = [...learningCards].sort(sortByDue);
 
-  // Determine new/review order
-  const newReviewOrder = displaySettings.newReviewOrder || order || "newFirst";
+    const newReviewOrder = displaySettings.newReviewOrder || order || "newFirst";
 
   let result: Card[];
   switch (newReviewOrder) {
     case "mixed": {
-      // Interleave new with reviews
-      const combined = [...sortedReview];
+            const combined = [...sortedReview];
       const step = Math.max(
         1,
         Math.floor(combined.length / (sortedNew.length + 1)),
@@ -226,28 +210,24 @@ export const sortCards = (
       break;
     }
     case "reviewFirst": {
-      // Interleave learning cards with reviews based on interdayLearningOrder
-      const reviewWithLearning = interleaveLearningCards(
+            const reviewWithLearning = interleaveLearningCards(
         [],
         sortedLearning,
         sortedReview,
         displaySettings.interdayLearningOrder,
       );
-      // Put reviews (with learning) first, then new cards
-      result = [...reviewWithLearning, ...sortedNew];
+            result = [...reviewWithLearning, ...sortedNew];
       break;
     }
     case "newFirst":
     default: {
-      // Interleave learning cards with reviews based on interdayLearningOrder
-      const reviewWithLearning = interleaveLearningCards(
+            const reviewWithLearning = interleaveLearningCards(
         [],
         sortedLearning,
         sortedReview,
         displaySettings.interdayLearningOrder,
       );
-      // Put new cards first, then reviews with learning interleaved
-      result = [...sortedNew, ...reviewWithLearning];
+            result = [...sortedNew, ...reviewWithLearning];
       break;
     }
   }

@@ -28,20 +28,16 @@ describe("cardRepository", () => {
       scheduled_days: 0,
       reps: 0,
       lapses: 0,
-      interval: NaN, // CORRUPTED VALUE
-      easeFactor: 2.5,
+      interval: NaN,       easeFactor: 2.5,
 
       language: "polish",
     };
 
-    // Save the card directly
-    await saveCard(corruptedCard);
+        await saveCard(corruptedCard);
 
-    // Read it back directly from Dexie to see what's stored
-    const storedCard = await db.cards.get("nan-card");
+        const storedCard = await db.cards.get("nan-card");
 
     expect(storedCard).toBeDefined();
-    // With the fix, NaN should be sanitized to 0
-    expect(storedCard?.interval).toBe(0);
+        expect(storedCard?.interval).toBe(0);
   });
 });

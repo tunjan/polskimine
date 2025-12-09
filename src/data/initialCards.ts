@@ -1,14 +1,9 @@
-/**
- * Starter deck cards for each language.
- * Uses cardFactory for consistent card creation with staggered due dates.
- */
 import { Card, Language, LanguageId } from "@/types";
 import {
   createNewCardWithOffset,
   CreateCardParams,
 } from "@/features/collection/utils/cardFactory";
 
-// Card data without runtime-generated fields (id, dueDate)
 interface StarterCardData {
   targetSentence: string;
   nativeTranslation: string;
@@ -17,14 +12,8 @@ interface StarterCardData {
   extras?: Partial<CreateCardParams>;
 }
 
-// Stagger due dates by 10 seconds per card to control introduction order
 const DUE_DATE_OFFSET_MS = 10_000;
 
-/**
- * Creates a batch of cards from starter data with staggered due dates.
- * Cards are created lazily (when this function is called) to avoid
- * module-load-time issues with duplicate IDs across sessions.
- */
 const createStarterDeck = (
   language: Language,
   cardsData: StarterCardData[],
@@ -45,7 +34,6 @@ const createStarterDeck = (
   );
 };
 
-// Starter card data for each language (static, no generated fields)
 const germanCardsData: StarterCardData[] = [
   {
     targetSentence: "Guten <b>Morgen</b>, wie geht es Ihnen?",
@@ -224,11 +212,6 @@ const japaneseCardsData: StarterCardData[] = [
   },
 ];
 
-/**
- * Get initial starter cards for a language.
- * Cards are created fresh each time to avoid ID collisions and
- * have properly staggered due dates.
- */
 export const getInitialCards = (language: Language): Card[] => {
   switch (language) {
     case LanguageId.German:
@@ -246,5 +229,4 @@ export const getInitialCards = (language: Language): Card[] => {
   }
 };
 
-// Deprecated: kept for backward compatibility if needed
 export const initialCards: Card[] = [];

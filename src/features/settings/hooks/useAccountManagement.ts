@@ -37,9 +37,7 @@ export const useAccountManagement = () => {
       const beginnerCards = getInitialCards(language).map((c) => ({
         ...c,
         user_id: user?.id || "local-user",
-        // remove explicit language setting here as it's already in the card from getInitialCards
-        // but we can keep it to be safe or if getInitialCards didn't set it (though it does)
-        language,
+                        language,
       }));
       await saveAllCards(beginnerCards as any);
       updateSettings({

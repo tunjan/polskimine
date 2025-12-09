@@ -3,11 +3,9 @@ import { ReviewLog } from "@/types";
 export const DECAY = -0.6;
 export const FACTOR = 0.9 ** (1 / DECAY) - 1;
 
-// Upper and lower bounds for optimizer weights
 export const WEIGHT_BOUNDS = {
   min: 0.01,
-  max: 20.0, // Prevent unbounded growth
-};
+  max: 20.0, };
 
 export const getRetrievability = (
   elapsedDays: number,
@@ -88,22 +86,18 @@ export const computeCardLoss = (logs: ReviewLog[], w: number[]): number => {
   return loss;
 };
 
-// Shared optimizer configuration
 export const OPTIMIZER_CONFIG = {
   learningRate: 0.002,
   iterations: 500,
   maxBatchSize: 64,
-  // Optimize more parameters: initial stabilities (0-3), recall stability (8-12), difficulty (4-5)
-  targetIndices: [0, 1, 2, 3, 4, 5, 8, 9, 10, 11, 12],
+    targetIndices: [0, 1, 2, 3, 4, 5, 8, 9, 10, 11, 12],
   finiteDiffH: 0.0001,
 };
 
-// Clamp weight values to prevent numerical instability
 export const clampWeight = (value: number): number => {
   return Math.max(WEIGHT_BOUNDS.min, Math.min(WEIGHT_BOUNDS.max, value));
 };
 
-// Shared optimizer core logic
 export const runOptimizerIteration = (
   w: number[],
   batch: ReviewLog[][],

@@ -3,7 +3,6 @@ import { sortCards, DisplayOrderSettings } from "./cardSorter";
 import { Card, CardStatus } from "@/types";
 import { State } from "ts-fsrs";
 
-// Helper to create test cards
 const createCard = (id: string, overrides: Partial<Card> = {}): Card => ({
   id,
   targetSentence: `Sentence ${id}`,
@@ -77,8 +76,7 @@ describe("cardSorter", () => {
           settings,
         );
 
-        // With newFirst + before: new, learning, review
-        const ids = result.map((c) => c.id);
+                const ids = result.map((c) => c.id);
         expect(ids).toEqual(["new", "learning", "review"]);
       });
 
@@ -105,8 +103,7 @@ describe("cardSorter", () => {
           settings,
         );
 
-        // With newFirst + after: new, review, learning
-        const ids = result.map((c) => c.id);
+                const ids = result.map((c) => c.id);
         expect(ids).toEqual(["new", "review", "learning"]);
       });
 
@@ -138,10 +135,8 @@ describe("cardSorter", () => {
           settings,
         );
 
-        // New should be first, learning interleaved with reviews
-        expect(result[0].id).toBe("new");
-        // Learning card should be somewhere in the result
-        expect(result.map((c) => c.id)).toContain("learning");
+                expect(result[0].id).toBe("new");
+                expect(result.map((c) => c.id)).toContain("learning");
       });
 
       it("should sort new cards by cardType when specified", () => {
@@ -169,16 +164,14 @@ describe("cardSorter", () => {
           settings,
         );
 
-        // Should be sorted alphabetically by part of speech
-        const types = result.map((c) => c.targetWordPartOfSpeech);
+                const types = result.map((c) => c.targetWordPartOfSpeech);
         expect(types).toEqual(["adjective", "noun", "verb"]);
       });
 
       it("should sort reviews by overdueness when specified", () => {
         const now = new Date();
 
-        // More overdue (older due date, same interval)
-        const moreOverdueCard = createCard("overdue", {
+                const moreOverdueCard = createCard("overdue", {
           status: CardStatus.REVIEW,
           state: State.Review,
           reps: 5,
@@ -186,8 +179,7 @@ describe("cardSorter", () => {
           interval: 1,
         });
 
-        // Less overdue
-        const lessOverdueCard = createCard("less-overdue", {
+                const lessOverdueCard = createCard("less-overdue", {
           status: CardStatus.REVIEW,
           state: State.Review,
           reps: 5,
@@ -206,8 +198,7 @@ describe("cardSorter", () => {
           settings,
         );
 
-        // More overdue should come first
-        expect(result[0].id).toBe("overdue");
+                expect(result[0].id).toBe("overdue");
       });
     });
 
@@ -235,8 +226,7 @@ describe("cardSorter", () => {
           settings,
         );
 
-        // All cards should be present
-        expect(result.length).toBe(3);
+                expect(result.length).toBe(3);
         expect(result.map((c) => c.id)).toContain("learning");
       });
 
@@ -263,8 +253,7 @@ describe("cardSorter", () => {
           settings,
         );
 
-        // All cards should be present
-        expect(result.length).toBe(3);
+                expect(result.length).toBe(3);
         expect(result.map((c) => c.id)).toContain("learning");
       });
     });
@@ -287,8 +276,7 @@ describe("cardSorter", () => {
           dueDate: "2023-01-01T12:00:00Z",
         });
 
-        // Sorted by due date (already are, but to be sure)
-        const learningCards = [learningCard1, learningCard2, learningCard3];
+                const learningCards = [learningCard1, learningCard2, learningCard3];
 
         const settings: DisplayOrderSettings = {
           interdayLearningOrder: "mixed",
@@ -297,8 +285,7 @@ describe("cardSorter", () => {
 
         const result = sortCards(learningCards, "newFirst", settings);
 
-        // Should preserve order: learning1, learning2, learning3
-        const ids = result.map((c) => c.id);
+                const ids = result.map((c) => c.id);
         expect(ids).toEqual(["learning1", "learning2", "learning3"]);
       });
     });

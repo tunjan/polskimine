@@ -112,8 +112,7 @@ export const useCardSentence = (
       }
     }
 
-    // Check for <b> tags first
-    if (
+        if (
       displayedSentence.includes("<b>") &&
       displayedSentence.includes("</b>")
     ) {

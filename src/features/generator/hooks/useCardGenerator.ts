@@ -90,8 +90,7 @@ export const useCardGenerator = ({
         console.warn("Failed to fetch learned words", e);
       }
 
-      // Fetch ALL words to check for duplicates (including "New" cards)
-      const allWords = await getAllTargetWords(language).catch(() => []);
+            const allWords = await getAllTargetWords(language).catch(() => []);
 
       const results = await aiService.generateBatchCards({
         instructions: finalInstructions,
@@ -166,8 +165,7 @@ export const useCardGenerator = ({
   };
 
   const handleSave = () => {
-    // Stagger due dates by 1 second per card for controlled introduction
-    const DUE_DATE_OFFSET_MS = 1000;
+        const DUE_DATE_OFFSET_MS = 1000;
 
     const cardsToSave: CardType[] = generatedData
       .filter((_, i) => selectedIndices.has(i))

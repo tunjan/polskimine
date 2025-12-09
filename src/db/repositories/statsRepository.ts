@@ -202,8 +202,7 @@ export const getStats = async (language?: string) => {
       if (isShortInterval) {
         return c.dueDate <= nowISO;
       }
-      return true; // We already used .below(cutoffIso) in the index scan
-    })
+      return true;     })
     .count();
   const learned = await db.cards
     .where("status")

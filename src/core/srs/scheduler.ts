@@ -42,8 +42,7 @@ const mapStateToStatus = (state: State): CardStatus => {
 };
 
 function getFSRS(settings?: UserSettings["fsrs"]) {
-  // Defensive copy of w array to ensure consistent hashing
-  const wArray = settings?.w ? [...settings.w] : null;
+    const wArray = settings?.w ? [...settings.w] : null;
   const currentWHash = wArray ? JSON.stringify(wArray) : null;
 
   if (
@@ -76,9 +75,6 @@ export interface LapsesSettings {
   relearnSteps?: number[];
 }
 
-/**
- * Handle learning phase logic for new cards going through initial learning steps.
- */
 const handleLearningPhase = (
   card: Card,
   grade: Grade,
@@ -96,12 +92,9 @@ const handleLearningPhase = (
     nextStep = 0;
     nextIntervalMinutes = learningStepsMinutes[0] ?? 1;
     shouldStayInLearning = true;
-    // Note: We do NOT count learning failures as "lapses" to avoid incorrect state inference.
-    // Standard FSRS/Anki behavior: lapses only count for Review -> Relearning transitions.
-    lapsesToAdd = 0;
+            lapsesToAdd = 0;
   } else if (grade === "Hard") {
-    // Stay at current step with current interval
-    nextIntervalMinutes =
+        nextIntervalMinutes =
       learningStepsMinutes[currentStep] ??
       learningStepsMinutes[learningStepsMinutes.length - 1] ??
       1;
@@ -109,18 +102,15 @@ const handleLearningPhase = (
   } else if (grade === "Good") {
     nextStep = currentStep + 1;
     if (nextStep >= learningStepsMinutes.length) {
-      // Graduate to FSRS
-      shouldStayInLearning = false;
+            shouldStayInLearning = false;
     } else {
       nextIntervalMinutes = learningStepsMinutes[nextStep] ?? 1;
       shouldStayInLearning = true;
     }
   }
-  // "Easy" grade falls through to FSRS for immediate graduation
-
+  
   if (!shouldStayInLearning) {
-    return null; // Signal to use FSRS
-  }
+    return null;   }
 
   let nextDue = addMinutes(now, nextIntervalMinutes);
   if (isNaN(nextDue.getTime())) {
@@ -134,12 +124,10 @@ const handleLearningPhase = (
 
   let intervalDays = nextIntervalMinutes / (24 * 60);
   if (!Number.isFinite(intervalDays) || intervalDays < 0) {
-    intervalDays = 1 / (24 * 60); // Default to 1 minute
-  }
+    intervalDays = 1 / (24 * 60);   }
   const newLapses = (card.lapses || 0) + lapsesToAdd;
 
-  // Leech detection for learning phase
-  let isLeech = card.isLeech || false;
+    let isLeech = card.isLeech || false;
   if (newLapses >= leechThreshold && !isLeech) {
     isLeech = true;
   }
@@ -161,9 +149,6 @@ const handleLearningPhase = (
   };
 };
 
-/**
- * Handle relearning phase logic for cards that lapsed.
- */
 const handleRelearningPhase = (
   card: Card,
   grade: Grade,
@@ -174,8 +159,7 @@ const handleRelearningPhase = (
   currentLapses: number,
 ): Card | null => {
   if (relearnStepsMinutes.length === 0) {
-    return null; // No relearn steps configured, use FSRS
-  }
+    return null;   }
 
   let nextStep = currentStep;
   let nextIntervalMinutes = 0;
@@ -194,18 +178,15 @@ const handleRelearningPhase = (
   } else if (grade === "Good") {
     nextStep = currentStep + 1;
     if (nextStep >= relearnStepsMinutes.length) {
-      // Graduate back to Review
-      shouldStayInRelearning = false;
+            shouldStayInRelearning = false;
     } else {
       nextIntervalMinutes = relearnStepsMinutes[nextStep] ?? 1;
       shouldStayInRelearning = true;
     }
   }
-  // "Easy" exits relearning immediately
-
+  
   if (!shouldStayInRelearning) {
-    return null; // Exit relearning, use FSRS
-  }
+    return null;   }
 
   let nextDue = addMinutes(now, nextIntervalMinutes);
   if (isNaN(nextDue.getTime())) {
@@ -214,11 +195,9 @@ const handleRelearningPhase = (
 
   let intervalDays = nextIntervalMinutes / (24 * 60);
   if (!Number.isFinite(intervalDays) || intervalDays < 0) {
-    intervalDays = 1 / (24 * 60); // Default to 1 minute
-  }
+    intervalDays = 1 / (24 * 60);   }
 
-  // Leech detection
-  let isLeech = card.isLeech || false;
+    let isLeech = card.isLeech || false;
   if (currentLapses >= leechThreshold && !isLeech) {
     isLeech = true;
   }
@@ -240,9 +219,6 @@ const handleRelearningPhase = (
   };
 };
 
-/**
- * Apply leech action if card is marked as leech.
- */
 const applyLeechAction = (
   leechAction: "suspend" | undefined,
   isLeech: boolean,
@@ -252,8 +228,7 @@ const applyLeechAction = (
   }
 
   if (leechAction === "suspend") {
-    // Suspend the card
-    return { status: CardStatus.SUSPENDED };
+        return { status: CardStatus.SUSPENDED };
   }
 
   return {};
@@ -267,8 +242,7 @@ export const calculateNextReview = (
   lapsesSettings?: LapsesSettings,
 ): Card => {
   const now = new Date();
-  // Validate learning steps: filter out non-positive values and use defaults if empty
-  const validLearningSteps = learningSteps.filter((s) => s > 0);
+    const validLearningSteps = learningSteps.filter((s) => s > 0);
   const learningStepsMinutes =
     validLearningSteps.length > 0 ? validLearningSteps : [1, 10];
   const validRelearnSteps = (lapsesSettings?.relearnSteps ?? []).filter(
@@ -280,9 +254,7 @@ export const calculateNextReview = (
 
   const rawStep = card.learningStep ?? 0;
 
-  // Check if card is in initial learning phase
-  // Use clamped step for phase detection to handle mid-session config changes
-  const learningStep = Math.max(
+      const learningStep = Math.max(
     0,
     Math.min(rawStep, learningStepsMinutes.length - 1),
   );
@@ -291,12 +263,9 @@ export const calculateNextReview = (
     card.state !== State.Relearning &&
     learningStep < learningStepsMinutes.length;
 
-  // Check if card is in relearning phase (lapsed from Review)
-  // Simplified: just check state, which is the reliable source of truth
-  const isRelearningPhase = card.state === State.Relearning;
+      const isRelearningPhase = card.state === State.Relearning;
 
-  // Handle initial learning phase
-  if (isLearningPhase) {
+    if (isLearningPhase) {
     const learningResult = handleLearningPhase(
       card,
       grade,
@@ -314,8 +283,7 @@ export const calculateNextReview = (
     }
   }
 
-  // Handle relearning phase
-  if (isRelearningPhase && relearnStepsMinutes.length > 0) {
+    if (isRelearningPhase && relearnStepsMinutes.length > 0) {
     const relearnStep = Math.min(rawStep, relearnStepsMinutes.length - 1);
     const relearnResult = handleRelearningPhase(
       card,
@@ -335,24 +303,16 @@ export const calculateNextReview = (
     }
   }
 
-  // FSRS scheduling
-  const f = getFSRS(settings);
+    const f = getFSRS(settings);
 
-  // Determine the correct state for FSRS
-  // For cards graduating from learning, we should let FSRS know they've been reviewed
-  const lastReviewDate = card.last_review
+      const lastReviewDate = card.last_review
     ? new Date(card.last_review)
     : undefined;
   let currentState = inferCardState(card, !!lastReviewDate);
 
-  // For cards that graduated from learning/relearning (passed all steps),
-  // we should tell FSRS they are in Learning state so it can graduate them to Review.
-  // Do NOT reset to State.New as that would lose all the learning progress.
-  if (!isLearningPhase && !isRelearningPhase) {
+        if (!isLearningPhase && !isRelearningPhase) {
     if (card.status === CardStatus.LEARNING || card.status === CardStatus.NEW) {
-      // Card is graduating - use Learning state so FSRS can promote to Review
-      // Only reset to New if it truly never had a review
-      currentState = lastReviewDate ? State.Learning : State.New;
+                  currentState = lastReviewDate ? State.Learning : State.New;
     }
   }
 
@@ -371,14 +331,12 @@ export const calculateNextReview = (
   const schedulingCards = f.repeat(fsrsCard, now);
 
   const rating = mapGradeToRating(grade);
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const schedulingResult = (schedulingCards as any)[rating] as {
+    const schedulingResult = (schedulingCards as any)[rating] as {
     card: FSRSCard;
   };
   const log = schedulingResult.card;
 
-  // Check if this is a lapse (Again on a Review/Relearning card)
-  const isLapse =
+    const isLapse =
     grade === "Again" &&
     (currentState === State.Review || currentState === State.Relearning);
 
@@ -387,8 +345,7 @@ export const calculateNextReview = (
     return n;
   };
 
-  // If lapsing and relearn steps are configured, enter relearning
-  if (isLapse && relearnStepsMinutes.length > 0) {
+    if (isLapse && relearnStepsMinutes.length > 0) {
     const newLapses = log.lapses;
     let isLeech = card.isLeech || false;
     if (newLapses >= leechThreshold && !isLeech) {
@@ -422,8 +379,7 @@ export const calculateNextReview = (
     return { ...result, ...leechOverrides };
   }
 
-  // Standard FSRS result
-  const tentativeStatus = mapStateToStatus(log.state);
+    const tentativeStatus = mapStateToStatus(log.state);
   const totalLapses = log.lapses;
   let isLeech = card.isLeech || false;
 

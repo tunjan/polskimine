@@ -69,10 +69,7 @@ const StudyRoute: React.FC = () => {
           const now = new Date();
           let queryDate = now;
 
-          // If "reviewFirst" is enabled, add a 20-minute lookahead buffer
-          // This ensures that cards due very soon (e.g. in 2 mins) are included as "due"
-          // so they can be prioritized over new cards.
-          if (cardOrder === "reviewFirst") {
+                                        if (cardOrder === "reviewFirst") {
             queryDate = new Date(now.getTime() + 20 * 60 * 1000);
           }
 

@@ -159,18 +159,14 @@ export const AuthPage: React.FC = () => {
         );
       } else {
         for (const language of languages) {
-          // Use the unified getInitialCards function
-          const rawDeck = getInitialCards(language);
+                    const rawDeck = getInitialCards(language);
           const languageCards = rawDeck.map((c) => ({
             ...c,
-            // Ensure these fields are set if they aren't already (createCard sets them, but safe to overwrite/ensure)
-            id: uuidv4(),
+                        id: uuidv4(),
             dueDate: new Date().toISOString(),
             tags: [...(c.tags || []), selectedLevel],
             user_id: currentUserId,
-            // Cast to CardType to satisfy type system as Partial<Card> has optional fields
-            // that we are ensuring are present or effectively handled by the app logic
-          })) as CardType[];
+                                  })) as CardType[];
           allCards = [...allCards, ...languageCards];
         }
         toast.success(

@@ -4,7 +4,6 @@ import { describe, it, expect, vi } from "vitest";
 import { Card, CardStatus } from "@/types";
 import { State } from "ts-fsrs";
 
-// Mock dependencies if needed
 vi.mock("./useXpSession", () => ({
   useXpSession: () => ({
     sessionXp: 0,
@@ -20,8 +19,7 @@ const mockCard: Card = {
   targetSentence: "Sentence 1",
   nativeTranslation: "Translation 1",
   notes: "",
-  language: "pl", // 'pl' for Polish assuming typical usage, or just a string
-  status: CardStatus.LEARNING,
+  language: "polish",   status: CardStatus.LEARNING,
   state: State.Learning,
   due: new Date().toISOString(),
   dueDate: new Date().toISOString(),
@@ -64,12 +62,10 @@ describe("useStudyQueue", () => {
       initialProps: defaultProps,
     });
 
-    // 1. Verify initial state
-    expect(result.current.stats.currentIndex).toBe(0);
+        expect(result.current.stats.currentIndex).toBe(0);
     expect(result.current.currentCard.id).toBe("1");
 
-    // 2. Advance to next card
-    act(() => {
+        act(() => {
         result.current.uiState.setIsFlipped(true);
     });
     
@@ -77,36 +73,29 @@ describe("useStudyQueue", () => {
         await result.current.actions.gradeCard("Good");
     });
 
-    // Verify index advanced
-    expect(result.current.stats.currentIndex).toBe(1);
+        expect(result.current.stats.currentIndex).toBe(1);
     expect(result.current.currentCard.id).toBe("2");
 
-    // 3. Update dueCards prop (simulate background re-fetch)
-    const newDueCards = [mockCard, mockCard2]; // Same content, new reference
-    
+        const newDueCards = [mockCard, mockCard2];     
     rerender({
         ...defaultProps,
         dueCards: newDueCards
     });
 
-    // 4. Assert session did NOT reset
-    expect(result.current.stats.currentIndex).toBe(1);
+        expect(result.current.stats.currentIndex).toBe(1);
     expect(result.current.currentCard.id).toBe("2");
   });
 
   it("should revert card state on undo (single card scenario)", async () => {
-    // Setup a single NEW card. 
-    // This forces the 'isLast' path in reducer, which updates in-place.
-    const newCard: Card = {
+            const newCard: Card = {
         ...mockCard,
         id: "new-1",
         status: CardStatus.NEW,
         state: State.New,
-        step: 0
+        learningStep: 0
     };
     
-    // Only ONE card in dueCards
-    const propsSingleCard = {
+        const propsSingleCard = {
         ...defaultProps,
         dueCards: [newCard]
     };
@@ -115,43 +104,31 @@ describe("useStudyQueue", () => {
       initialProps: propsSingleCard,
     });
 
-    // 1. Initial state check
-    expect(result.current.stats.currentIndex).toBe(0);
+        expect(result.current.stats.currentIndex).toBe(0);
     const initialCard = result.current.currentCard;
     expect(initialCard.status).toBe(CardStatus.NEW);
 
-    // 2. Grade the card (New -> Learning)
-    act(() => {
+        act(() => {
         result.current.uiState.setIsFlipped(true);
     });
     
     await act(async () => {
-        // Mock calculateNextReview response if needed, but it should default to reasonable transition
-        await result.current.actions.gradeCard("Good");
+                await result.current.actions.gradeCard("Good");
     });
     
-    // For single card, if it becomes Learning, it stays at index 0 (rescheduled 'soon')
-    // but the reducer logic for 'isLast' + 'learning' returns checkSchedule.
-    // checkSchedule might keep it at status 'WAITING' or 'IDLE' depending on due time.
-    // But importantly, the card object at index 0 should have been UPDATED to 'Learning'.
-    
+                    
     
     expect(result.current.currentCard.status).not.toBe(CardStatus.NEW);
-    // It should effectively be 'Learning' or have new state.
-
-    // 3. Undo
-    act(() => {
+    
+        act(() => {
         result.current.actions.undo();
     });
 
-    // 4. Verify we are still at index 0 (or back to it)
-    expect(result.current.stats.currentIndex).toBe(0);
+        expect(result.current.stats.currentIndex).toBe(0);
 
-    // 5. Verify the card state is reverted
-    const currentCardAfterUndo = result.current.currentCard;
+        const currentCardAfterUndo = result.current.currentCard;
     
-    // The bug: This will assume the modified state (Learning) instead of reverting to NEW
-    expect(currentCardAfterUndo.status).toBe(CardStatus.NEW);
+        expect(currentCardAfterUndo.status).toBe(CardStatus.NEW);
     expect(currentCardAfterUndo.state).toBe(State.New);
   });
 });
