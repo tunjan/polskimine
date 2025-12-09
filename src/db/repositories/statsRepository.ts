@@ -154,7 +154,10 @@ export const getDashboardStats = async (language?: string) => {
   }
 
   query = query.filter(
-    (c) => c.status !== CardStatus.NEW && c.status !== CardStatus.KNOWN,
+    (c) =>
+      c.status !== CardStatus.NEW &&
+      c.status !== CardStatus.KNOWN &&
+      c.status !== CardStatus.SUSPENDED,
   );
 
   await query.each((card) => {
@@ -193,7 +196,8 @@ export const getStats = async (language?: string) => {
     .where("dueDate")
     .below(cutoffIso)
     .filter((c) => {
-      if (c.status === CardStatus.KNOWN) return false;
+      if (c.status === CardStatus.KNOWN || c.status === CardStatus.SUSPENDED)
+        return false;
       const isShortInterval = (c.interval || 0) < ONE_HOUR_IN_DAYS;
       if (isShortInterval) {
         return c.dueDate <= nowISO;

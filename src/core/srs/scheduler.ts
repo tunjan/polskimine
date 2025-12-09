@@ -96,10 +96,9 @@ const handleLearningPhase = (
     nextStep = 0;
     nextIntervalMinutes = learningStepsMinutes[0] ?? 1;
     shouldStayInLearning = true;
-    // Note: We count learning failures as "lapses" for leech detection purposes.
-    // This differs from FSRS's strict definition (lapses = Review→Relearning),
-    // but provides better UX by detecting problematic cards early.
-    lapsesToAdd = 1;
+    // Note: We do NOT count learning failures as "lapses" to avoid incorrect state inference.
+    // Standard FSRS/Anki behavior: lapses only count for Review -> Relearning transitions.
+    lapsesToAdd = 0;
   } else if (grade === "Hard") {
     // Stay at current step with current interval
     nextIntervalMinutes =
@@ -253,8 +252,8 @@ const applyLeechAction = (
   }
 
   if (leechAction === "suspend") {
-    // Suspend the card by marking it as KNOWN (removes from study queue)
-    return { status: CardStatus.KNOWN };
+    // Suspend the card
+    return { status: CardStatus.SUSPENDED };
   }
 
   return {};

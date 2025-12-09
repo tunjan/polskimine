@@ -248,6 +248,7 @@ export const useStudyQueue = ({
         newCardFromReserve,
         now: new Date(),
         ignoreLearningSteps: ignoreLearningStepsWhenNoCards,
+        cardOrder,
       });
     } catch (e) {
       console.error("Mark Known failed", e);
@@ -274,6 +275,7 @@ export const useStudyQueue = ({
         newCardFromReserve,
         now: new Date(),
         ignoreLearningSteps: ignoreLearningStepsWhenNoCards,
+        cardOrder,
       });
     },
     [state.cards, state.reserveCards, ignoreLearningStepsWhenNoCards],

@@ -1,4 +1,4 @@
-import { Card } from "@/types";
+import { Card, CardOrderValue } from "@/types";
 import { isCardDue } from "@/core/srs/scheduler";
 
 export type SessionStatus =
@@ -44,6 +44,7 @@ export type Action =
       newCardFromReserve?: Card | null;
       now: Date;
       ignoreLearningSteps: boolean;
+      cardOrder?: CardOrderValue;
     }
   | { type: "UPDATE_CARD"; card: Card };
 
@@ -201,7 +202,7 @@ export const reducer = (state: SessionState, action: Action): SessionState => {
       return checkSchedule(state, action.now, action.ignoreLearningSteps);
 
     case "REMOVE_CARD": {
-      const { cardId, newCardFromReserve, now, ignoreLearningSteps } = action;
+      const { cardId, newCardFromReserve, now, ignoreLearningSteps, cardOrder } = action;
       const index = state.cards.findIndex((c) => c.id === cardId);
       if (index === -1) return state;
 
@@ -217,19 +218,25 @@ export const reducer = (state: SessionState, action: Action): SessionState => {
 
       // Handle insertion of new card
       if (newCardFromReserve) {
-        // Find insertion point:
-        // We want to insert after the last "New" or "Learning" card in the active queue
-        // to maintain the "New First" or "New Mix" flow.
-        // If no New/Learning cards are ahead, we insert at the current position (to show it next).
-        
-        // Search from newIndex to the end
         let insertIndex = newIndex;
-        for (let i = newCards.length - 1; i >= newIndex; i--) {
-          const c = newCards[i];
-          if (c.status === "new" || c.status === "learning") {
-            insertIndex = i + 1;
-            break;
-          }
+
+        if (cardOrder === "reviewFirst") {
+          // For Review First, append to end (or after last review, simplified to end)
+          insertIndex = newCards.length;
+        } else {
+            // Find insertion point:
+            // We want to insert after the last "New" or "Learning" card in the active queue
+            // to maintain the "New First" or "New Mix" flow.
+            // If no New/Learning cards are ahead, we insert at the current position (to show it next).
+            
+            // Search from newIndex to the end
+            for (let i = newCards.length - 1; i >= newIndex; i--) {
+              const c = newCards[i];
+              if (c.status === "new" || c.status === "learning") {
+                insertIndex = i + 1;
+                break;
+              }
+            }
         }
         
         newCards.splice(insertIndex, 0, newCardFromReserve);

@@ -5,6 +5,7 @@ export enum CardStatus {
   LEARNING = "learning",
   REVIEW = "review",
   KNOWN = "known",
+  SUSPENDED = "suspended",
 }
 
 export const mapFsrsStateToStatus = (state: FsrsState): CardStatus => {
@@ -32,6 +33,8 @@ export const mapStatusToFsrsState = (status: CardStatus): FsrsState => {
       return FsrsState.Review;
     case CardStatus.KNOWN:
       return FsrsState.Review;
+    case CardStatus.SUSPENDED:
+      return FsrsState.Review; // Suspended cards maintain their state effectively
     default:
       return FsrsState.New;
   }

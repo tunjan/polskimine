@@ -303,7 +303,7 @@ describe("scheduler", () => {
         );
 
         expect(result.isLeech).toBe(true);
-        expect(result.status).toBe(CardStatus.KNOWN);
+        expect(result.status).toBe(CardStatus.SUSPENDED);
       });
 
 
@@ -419,7 +419,7 @@ describe("scheduler", () => {
         // Should be marked as leech (3 lapses >= threshold 3)
         expect(result.isLeech).toBe(true);
         // Should be suspended due to leechAction: "suspend"
-        expect(result.status).toBe(CardStatus.KNOWN);
+        expect(result.status).toBe(CardStatus.SUSPENDED);
       });
     });
   });
@@ -453,7 +453,7 @@ describe("scheduler", () => {
 
   describe("Bug Fix Edge Cases", () => {
     describe("Lapses Increment in Learning (#2)", () => {
-      it("should increment lapses on Again in learning phase", () => {
+      it("should NOT increment lapses on Again in learning phase", () => {
         const card = createBaseCard({
           status: CardStatus.LEARNING,
           learningStep: 1,
@@ -462,11 +462,11 @@ describe("scheduler", () => {
 
         const result = calculateNextReview(card, "Again", undefined, [1, 10]);
 
-        expect(result.lapses).toBe(1);
-        expect(result.leechCount).toBe(1);
+        expect(result.lapses).toBe(0);
+        expect(result.leechCount).toBe(0);
       });
 
-      it("should mark as leech after repeated Again in learning", () => {
+      it("should NOT mark as leech after repeated Again in learning", () => {
         const lapsesSettings: LapsesSettings = {
           leechThreshold: 3,
         };
@@ -486,9 +486,9 @@ describe("scheduler", () => {
           lapsesSettings,
         );
 
-        // 2 + 1 = 3, which hits threshold
-        expect(result.lapses).toBe(3);
-        expect(result.isLeech).toBe(true);
+        // Should not increment lapses, so remains 2, which is < 3
+        expect(result.lapses).toBe(2);
+        expect(result.isLeech).toBeFalsy();
       });
     });
 
@@ -563,7 +563,7 @@ describe("scheduler", () => {
     });
 
     describe("Consecutive Again Presses", () => {
-      it("should track lapses across multiple consecutive Again presses", () => {
+      it("should NOT track lapses across multiple consecutive Again presses in learning", () => {
         let card = createBaseCard({
           status: CardStatus.LEARNING,
           learningStep: 0,
@@ -575,7 +575,7 @@ describe("scheduler", () => {
           card = calculateNextReview(card, "Again", undefined, [1, 10]);
         }
 
-        expect(card.lapses).toBe(5);
+        expect(card.lapses).toBe(0);
         expect(card.learningStep).toBe(0);
         expect(card.status).toBe(CardStatus.LEARNING);
       });
