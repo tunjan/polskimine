@@ -77,6 +77,7 @@ const DBRawCardSchema = z.object({
   precise_interval: SafeNumber("precise_interval").optional().nullable(),
 
   user_id: z.string().optional().nullable(),
+  created_at: z.string().optional().nullable(),
 });
 
 export type DBRawCard = z.infer<typeof DBRawCardSchema>;
@@ -127,6 +128,7 @@ export const mapToCard = (data: unknown): Card => {
     precise_interval: validData.precise_interval ?? undefined,
 
     user_id: validData.user_id ?? undefined,
+    created_at: validData.created_at ?? undefined,
   } as Card;
 };
 
@@ -305,6 +307,7 @@ export const saveCard = async (card: Card) => {
     notes: card.notes ?? "",
     isLeech: card.isLeech ?? false,
     isBookmarked: card.isBookmarked ?? false,
+    created_at: card.created_at ?? new Date().toISOString(),
   };
 
     if (normalizedCard.status !== CardStatus.KNOWN && normalizedCard.status !== CardStatus.SUSPENDED) {
