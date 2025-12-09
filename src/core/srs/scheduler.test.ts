@@ -523,7 +523,7 @@ describe("scheduler", () => {
                 const result = calculateNextReview(card, "Good", undefined, [1, 10]);
 
                 expect(result.learningStep).toBeUndefined();
-        expect(result.status).toBe(CardStatus.REVIEW);
+        expect(result.status).toBe(CardStatus.LEARNING);
       });
 
       it("should not prematurely graduate when step equals config length", () => {

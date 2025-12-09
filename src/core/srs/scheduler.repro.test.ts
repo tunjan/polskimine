@@ -101,4 +101,35 @@ describe("scheduler reproduction", () => {
         // If it graduates here, user might be confused if they expected to see it in 10m.
         console.log("Status after Good on [10m]:", card.status);
     });
+
+    it("should recover learningStep from interval if undefined (BUG FIX)", () => {
+        // SCENARIO: User has [1, 10, 60] steps.
+        // Card is in LEARNING. Interval is 10m (Step 1).
+        // BUT learningStep is undefined (persistence loss).
+        
+        // Without fix: logic sees undefined, thinks NEW or defaults to 0.
+        // If it defaults to 0: New interval -> 1m. LOOP!
+        
+        // With fix: logic sees 10m interval. Matches to Step 1.
+        // Next Good -> Step 2 (60m).
+        
+        const steps = [1, 10, 60];
+        
+        const cardLikeLostState = createBaseCard({
+            status: CardStatus.LEARNING,
+            state: 1, // Learning
+            learningStep: undefined, // LOST!
+            interval: 10 / (24 * 60), // 10 minutes
+        });
+        
+        const next = calculateNextReview(cardLikeLostState, "Good", undefined, steps);
+        
+        // Expect minimal correct behavior: 
+        // Should NOT go back to 1 minute.
+        // Should go to 60 minutes (Step 2).
+        
+        expect(next.status).toBe(CardStatus.LEARNING);
+        // Step 1 was 10m. Next is Step 2 (60m).
+        expect(next.interval).toBeCloseTo(60 / (24 * 60)); 
+    });
 });

@@ -354,7 +354,7 @@ describe("calculateNextReview - Comprehensive Edge Cases", () => {
       const card = createBaseCard({ status: CardStatus.NEW, learningStep: 0 });
       const result = calculateNextReview(card, "Good", undefined, []);
       
-            expect(result.learningStep).toBe(1);
+            expect(result.learningStep).toBe(0);
       expect(result.status).toBe(CardStatus.LEARNING);
     });
 
@@ -754,6 +754,9 @@ describe("Scheduling Simulation", () => {
     let card = createBaseCard({ status: CardStatus.NEW });
     
         card = calculateNextReview(card, "Good", undefined, [1, 10, 60]);
+    expect(card.learningStep).toBe(0);
+    
+    card = calculateNextReview(card, "Good", undefined, [1, 10, 60]);
     expect(card.learningStep).toBe(1);
     
     card = calculateNextReview(card, "Good", undefined, [1, 10, 60]);

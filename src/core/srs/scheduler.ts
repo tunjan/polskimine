@@ -271,9 +271,65 @@ export const calculateNextReview = (
   const isLearningPhase =
     (card.status === CardStatus.NEW || card.status === CardStatus.LEARNING) &&
     card.state !== State.Relearning &&
-    learningStep < learningStepsMinutes.length;
+    (card.learningStep !== undefined || card.status === CardStatus.NEW) &&
+    (card.learningStep ?? 0) < learningStepsMinutes.length;
 
-      const isRelearningPhase = card.state === State.Relearning;
+    // BUG FIX: If we are in learning status but learningStep is undefined (persistence issue),
+    // try to recover the step from the current interval.
+    // This prevents the card from resetting to step 0 and getting stuck in a loop.
+    if (
+      (card.status === CardStatus.LEARNING || card.status === CardStatus.NEW) &&
+      card.learningStep === undefined &&
+      card.state !== State.Relearning
+    ) {
+      // Find the closest step that matches the current interval
+      const minuteInterval = Math.round(card.interval * 24 * 60);
+      
+      // If interval is 0, it's a new card (eff. step 0)
+      if (minuteInterval <= 0) {
+        // It's effectively step 0, so we let the logic proceed.
+        // We don't need to force isLearningPhase=true here because rawStep=0 matches expectations.
+      } else {
+         // Find best matching step
+         let recoveredStep = 0;
+         let minDiff = Infinity;
+         
+         for (let i = 0; i < learningStepsMinutes.length; i++) {
+           const diff = Math.abs(learningStepsMinutes[i] - minuteInterval);
+           if (diff < minDiff) {
+             minDiff = diff;
+             recoveredStep = i;
+           }
+         }
+         
+         // If we found a step that is "close enough" (or just the best match), assume it.
+         // But we only want to resume learning if we are NOT at the last step.
+         if (recoveredStep < learningStepsMinutes.length) {
+            // We can't mutate 'card' validly here since it's an arg, but we can treat 'rawStep' as this.
+            // But 'rawStep' was const above. Let's recalculate isLearningPhase.
+            // Actually, let's just delegate to handleLearningPhase with the recovered step.
+            
+            // Re-check valid step
+            if (recoveredStep < learningStepsMinutes.length) {
+                 const learningResult = handleLearningPhase(
+                  card,
+                  grade,
+                  now,
+                  learningStepsMinutes,
+                  recoveredStep,
+                  leechThreshold,
+                );
+                if (learningResult) {
+                  const leechOverrides = applyLeechAction(
+                    leechAction,
+                    learningResult.isLeech || false,
+                  );
+                  return { ...learningResult, ...leechOverrides };
+                }
+            }
+         }
+      }
+    }      const isRelearningPhase = card.state === State.Relearning;
 
     if (isLearningPhase) {
     const learningResult = handleLearningPhase(
@@ -328,8 +384,8 @@ export const calculateNextReview = (
 
   const fsrsCard: FSRSCard = {
     due: new Date(card.dueDate),
-    stability: card.stability || 0,
-    difficulty: card.difficulty || 0,
+    stability: card.stability || (currentState === State.New ? 0 : 2.0),
+    difficulty: card.difficulty || (currentState === State.New ? 0 : 5.0),
     elapsed_days: card.elapsed_days || 0,
     scheduled_days: card.scheduled_days || 0,
     reps: card.reps || 0,
