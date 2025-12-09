@@ -97,6 +97,7 @@ export interface TTSSettings {
 export interface UserSettings {
   language: Language;
   languageColors?: Record<Language, string>;
+  languageVoices?: Record<Language, string | null>;
   proficiency: Record<Language, Difficulty>;
   dailyNewLimits: Record<Language, number>;
   dailyReviewLimits: Record<Language, number>;

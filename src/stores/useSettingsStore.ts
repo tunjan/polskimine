@@ -28,6 +28,13 @@ export const DEFAULT_SETTINGS: UserSettings = {
     [LanguageId.Spanish]: "#fca5a5",
     [LanguageId.German]: "#facc15",
   },
+  languageVoices: {
+    [LanguageId.Polish]: null,
+    [LanguageId.Norwegian]: null,
+    [LanguageId.Japanese]: null,
+    [LanguageId.Spanish]: null,
+    [LanguageId.German]: null,
+  },
   proficiency: {
     [LanguageId.Polish]: "A1",
     [LanguageId.Norwegian]: "A1",
@@ -137,14 +144,59 @@ export const useSettingsStore = create<SettingsState>((set, get) => ({
         dailyReviewLimits: newSettings.dailyReviewLimits
           ? { ...state.dailyReviewLimits, ...newSettings.dailyReviewLimits }
           : state.dailyReviewLimits,
+        languageVoices: newSettings.languageVoices
+          ? { ...state.languageVoices, ...newSettings.languageVoices }
+          : state.languageVoices,
         learningSteps: newSettings.learningSteps || state.learningSteps,
       };
+
+      // Voice Persistence Logic
+      // 1. If voice changed, save it for the CURRENT language (before update if language changed, or current if not)
+      // Actually simpler:
+      // If language changed -> restore voice for NEW language
+      // If voice changed (and language didn't, or did) -> save voice for CURRENT language
+
+      // Check if language changed
+      if (
+        newSettings.language &&
+        newSettings.language !== state.language
+      ) {
+        // Language is changing.
+        // 1. Save OLD voice for OLD language if needed?
+        // Actually, let's look at what we have.
+        // We want to persist the voice selection.
+        
+        // If the update includes a voice change, we should save that. 
+        // But usually language change and voice change happen separately or we need to be careful.
+
+        // If we are just switching language, we want to LOAD the voice for the new language.
+        const savedVoice = updatedState.languageVoices?.[newSettings.language];
+        updatedState.tts = {
+           ...updatedState.tts,
+           voiceURI: savedVoice || null
+        }
+      } else if (newSettings.tts?.voiceURI !== undefined) {
+         // Voice changed (and trying to set it).
+         // Save it for the current language.
+         // Note: if language AND voice changed in same update, this runs after language switch block above
+         // so we are saving for the NEW language, which is correct.
+         
+         // Only save if it's explicitly set (not just other tts params)
+         if (updatedState.language) {
+             const currentVoices = updatedState.languageVoices || DEFAULT_SETTINGS.languageVoices;
+             updatedState.languageVoices = {
+                 ...currentVoices,
+                 [updatedState.language]: newSettings.tts.voiceURI
+             } as Record<Language, string | null>;
+         }
+      }
 
       const userId = state.userId;
       if (userId) {
         const settingsToSave: UserSettings = {
           language: updatedState.language,
           languageColors: updatedState.languageColors,
+          languageVoices: updatedState.languageVoices,
           proficiency: updatedState.proficiency,
           dailyNewLimits: updatedState.dailyNewLimits,
           dailyReviewLimits: updatedState.dailyReviewLimits,
@@ -201,6 +253,7 @@ export const useSettingsStore = create<SettingsState>((set, get) => ({
         const settingsToSave: UserSettings = {
           language: updatedState.language,
           languageColors: updatedState.languageColors,
+          languageVoices: updatedState.languageVoices,
           proficiency: updatedState.proficiency,
           dailyNewLimits: updatedState.dailyNewLimits,
           dailyReviewLimits: updatedState.dailyReviewLimits,
