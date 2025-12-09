@@ -65,12 +65,12 @@ export const DEFAULT_SETTINGS: UserSettings = {
   binaryRatingMode: false,
   cardOrder: "newFirst",
   learningSteps: [1, 10],
-    newCardGatherOrder: "added",
+  newCardGatherOrder: "added",
   newCardSortOrder: "due",
   newReviewOrder: "newFirst",
   interdayLearningOrder: "mixed",
   reviewSortOrder: "due",
-    relearnSteps: [10],
+  relearnSteps: [10],
   leechThreshold: 8,
 
   geminiApiKey: "AIzaSyBMVVvi9wcODo7c9-Da562BaLD-OwC1Xkk",
@@ -157,38 +157,36 @@ export const useSettingsStore = create<SettingsState>((set, get) => ({
       // If voice changed (and language didn't, or did) -> save voice for CURRENT language
 
       // Check if language changed
-      if (
-        newSettings.language &&
-        newSettings.language !== state.language
-      ) {
+      if (newSettings.language && newSettings.language !== state.language) {
         // Language is changing.
         // 1. Save OLD voice for OLD language if needed?
         // Actually, let's look at what we have.
         // We want to persist the voice selection.
-        
-        // If the update includes a voice change, we should save that. 
+
+        // If the update includes a voice change, we should save that.
         // But usually language change and voice change happen separately or we need to be careful.
 
         // If we are just switching language, we want to LOAD the voice for the new language.
         const savedVoice = updatedState.languageVoices?.[newSettings.language];
         updatedState.tts = {
-           ...updatedState.tts,
-           voiceURI: savedVoice || null
-        }
+          ...updatedState.tts,
+          voiceURI: savedVoice || null,
+        };
       } else if (newSettings.tts?.voiceURI !== undefined) {
-         // Voice changed (and trying to set it).
-         // Save it for the current language.
-         // Note: if language AND voice changed in same update, this runs after language switch block above
-         // so we are saving for the NEW language, which is correct.
-         
-         // Only save if it's explicitly set (not just other tts params)
-         if (updatedState.language) {
-             const currentVoices = updatedState.languageVoices || DEFAULT_SETTINGS.languageVoices;
-             updatedState.languageVoices = {
-                 ...currentVoices,
-                 [updatedState.language]: newSettings.tts.voiceURI
-             } as Record<Language, string | null>;
-         }
+        // Voice changed (and trying to set it).
+        // Save it for the current language.
+        // Note: if language AND voice changed in same update, this runs after language switch block above
+        // so we are saving for the NEW language, which is correct.
+
+        // Only save if it's explicitly set (not just other tts params)
+        if (updatedState.language) {
+          const currentVoices =
+            updatedState.languageVoices || DEFAULT_SETTINGS.languageVoices;
+          updatedState.languageVoices = {
+            ...currentVoices,
+            [updatedState.language]: newSettings.tts.voiceURI,
+          } as Record<Language, string | null>;
+        }
       }
 
       const userId = state.userId;
@@ -211,12 +209,12 @@ export const useSettingsStore = create<SettingsState>((set, get) => ({
           binaryRatingMode: updatedState.binaryRatingMode,
           cardOrder: updatedState.cardOrder,
           learningSteps: updatedState.learningSteps,
-                    newCardGatherOrder: updatedState.newCardGatherOrder,
+          newCardGatherOrder: updatedState.newCardGatherOrder,
           newCardSortOrder: updatedState.newCardSortOrder,
           newReviewOrder: updatedState.newReviewOrder,
           interdayLearningOrder: updatedState.interdayLearningOrder,
           reviewSortOrder: updatedState.reviewSortOrder,
-                    relearnSteps: updatedState.relearnSteps,
+          relearnSteps: updatedState.relearnSteps,
           leechThreshold: updatedState.leechThreshold,
           leechAction: updatedState.leechAction,
           geminiApiKey: updatedState.geminiApiKey,
@@ -246,10 +244,10 @@ export const useSettingsStore = create<SettingsState>((set, get) => ({
           ? settingsOrUpdater(state)
           : settingsOrUpdater;
 
-      const updatedState = { ...newSettings };       const { userId } = state;
+      const updatedState = { ...newSettings };
+      const { userId } = state;
 
       if (userId) {
-                                                
         const settingsToSave: UserSettings = {
           language: updatedState.language,
           languageColors: updatedState.languageColors,
@@ -268,12 +266,12 @@ export const useSettingsStore = create<SettingsState>((set, get) => ({
           binaryRatingMode: updatedState.binaryRatingMode,
           cardOrder: updatedState.cardOrder,
           learningSteps: updatedState.learningSteps,
-                    newCardGatherOrder: updatedState.newCardGatherOrder,
+          newCardGatherOrder: updatedState.newCardGatherOrder,
           newCardSortOrder: updatedState.newCardSortOrder,
           newReviewOrder: updatedState.newReviewOrder,
           interdayLearningOrder: updatedState.interdayLearningOrder,
           reviewSortOrder: updatedState.reviewSortOrder,
-                    relearnSteps: updatedState.relearnSteps,
+          relearnSteps: updatedState.relearnSteps,
           leechThreshold: updatedState.leechThreshold,
           leechAction: updatedState.leechAction,
           geminiApiKey: updatedState.geminiApiKey,

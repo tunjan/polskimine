@@ -5,7 +5,8 @@ export const FACTOR = 0.9 ** (1 / DECAY) - 1;
 
 export const WEIGHT_BOUNDS = {
   min: 0.01,
-  max: 20.0, };
+  max: 20.0,
+};
 
 export const getRetrievability = (
   elapsedDays: number,
@@ -90,7 +91,7 @@ export const OPTIMIZER_CONFIG = {
   learningRate: 0.002,
   iterations: 500,
   maxBatchSize: 64,
-    targetIndices: [0, 1, 2, 3, 4, 5, 8, 9, 10, 11, 12],
+  targetIndices: [0, 1, 2, 3, 4, 5, 8, 9, 10, 11, 12],
   finiteDiffH: 0.0001,
 };
 

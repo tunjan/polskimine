@@ -5,7 +5,7 @@ export const optimizeFSRS = async (
   currentW: number[],
   onProgress: (progress: number) => void,
 ): Promise<number[]> => {
-    if (typeof Worker === "undefined") {
+  if (typeof Worker === "undefined") {
     throw new Error("Web Workers are not supported in this environment");
   }
 
@@ -38,6 +38,6 @@ export const optimizeFSRS = async (
       reject(new Error(`Worker error: ${error.message}`));
     };
 
-        worker.postMessage({ logs: allLogs, currentW });
+    worker.postMessage({ logs: allLogs, currentW });
   });
 };

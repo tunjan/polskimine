@@ -1,4 +1,3 @@
-
 import "fake-indexeddb/auto";
 import { describe, it, expect, beforeEach } from "vitest";
 import { db } from "@/db/dexie";
@@ -28,16 +27,17 @@ describe("cardRepository", () => {
       scheduled_days: 0,
       reps: 0,
       lapses: 0,
-      interval: NaN,       easeFactor: 2.5,
+      interval: NaN,
+      easeFactor: 2.5,
 
       language: "polish",
     };
 
-        await saveCard(corruptedCard);
+    await saveCard(corruptedCard);
 
-        const storedCard = await db.cards.get("nan-card");
+    const storedCard = await db.cards.get("nan-card");
 
     expect(storedCard).toBeDefined();
-        expect(storedCard?.interval).toBe(0);
+    expect(storedCard?.interval).toBe(0);
   });
 });

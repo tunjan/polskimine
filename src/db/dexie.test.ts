@@ -52,7 +52,7 @@ describe("Dexie Refactor Verification", () => {
     const hash = await hashPassword(password);
     expect(typeof hash).toBe("string");
     expect(hash.length).toBeGreaterThan(0);
-    
+
     const hash2 = await hashPassword(password);
     expect(hash).toBe(hash2); // Deterministic
   });

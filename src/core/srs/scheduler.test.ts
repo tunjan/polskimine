@@ -64,7 +64,7 @@ describe("scheduler", () => {
 
         const result = calculateNextReview(card, "Good", undefined, [1, 10]);
 
-                expect(result.learningStep).toBeUndefined();
+        expect(result.learningStep).toBeUndefined();
         expect(result.status).toBe(CardStatus.REVIEW);
       });
 
@@ -303,8 +303,6 @@ describe("scheduler", () => {
         expect(result.isLeech).toBe(true);
         expect(result.status).toBe(CardStatus.SUSPENDED);
       });
-
-
     });
 
     describe("FSRS Integration", () => {
@@ -347,7 +345,7 @@ describe("scheduler", () => {
 
         const result = calculateNextReview(card, "Good", undefined, [1]);
 
-                        expect(result.learningStep).toBeUndefined();
+        expect(result.learningStep).toBeUndefined();
         expect(result.status).toBe(CardStatus.REVIEW);
       });
 
@@ -357,9 +355,9 @@ describe("scheduler", () => {
           learningStep: 0,
         });
 
-                const result = calculateNextReview(card, "Good", undefined, []);
+        const result = calculateNextReview(card, "Good", undefined, []);
 
-                expect(result.learningStep).toBe(0);
+        expect(result.learningStep).toBe(0);
         expect(result.status).toBe(CardStatus.LEARNING);
       });
 
@@ -377,7 +375,7 @@ describe("scheduler", () => {
 
         const result = calculateNextReview(card, "Good");
 
-                expect(result.status).toBe(CardStatus.REVIEW);
+        expect(result.status).toBe(CardStatus.REVIEW);
         expect(result.interval).toBeGreaterThan(0);
       });
 
@@ -393,7 +391,8 @@ describe("scheduler", () => {
           state: State.Review,
           stability: 10,
           difficulty: 5,
-          lapses: 2,           last_review: new Date(Date.now() - 86400000).toISOString(),
+          lapses: 2,
+          last_review: new Date(Date.now() - 86400000).toISOString(),
           reps: 5,
         });
 
@@ -405,10 +404,10 @@ describe("scheduler", () => {
           lapsesSettings,
         );
 
-                expect(result.state).toBe(State.Relearning);
+        expect(result.state).toBe(State.Relearning);
         expect(result.learningStep).toBe(0);
-                expect(result.isLeech).toBe(true);
-                expect(result.status).toBe(CardStatus.SUSPENDED);
+        expect(result.isLeech).toBe(true);
+        expect(result.status).toBe(CardStatus.SUSPENDED);
       });
     });
   });
@@ -460,7 +459,7 @@ describe("scheduler", () => {
           leechThreshold: 3,
         };
 
-                const card = createBaseCard({
+        const card = createBaseCard({
           status: CardStatus.LEARNING,
           learningStep: 1,
           lapses: 2,
@@ -474,12 +473,10 @@ describe("scheduler", () => {
           lapsesSettings,
         );
 
-                expect(result.lapses).toBe(2);
+        expect(result.lapses).toBe(2);
         expect(result.isLeech).toBeFalsy();
       });
     });
-
-
 
     describe("Learning Steps Validation (#5)", () => {
       it("should filter out negative learning steps", () => {
@@ -488,7 +485,7 @@ describe("scheduler", () => {
           learningStep: 0,
         });
 
-                                const result1 = calculateNextReview(card, "Good", undefined, [-5, 5]);
+        const result1 = calculateNextReview(card, "Good", undefined, [-5, 5]);
         expect(result1.status).toBe(CardStatus.LEARNING);
 
         const result2 = calculateNextReview(
@@ -506,34 +503,35 @@ describe("scheduler", () => {
           learningStep: 0,
         });
 
-                const result = calculateNextReview(card, "Good", undefined, [0, 0]);
+        const result = calculateNextReview(card, "Good", undefined, [0, 0]);
 
-                expect(result.learningStep).toBe(0);
+        expect(result.learningStep).toBe(0);
         expect(result.status).toBe(CardStatus.LEARNING);
       });
-
     });
 
     describe("Learning Phase Detection (#1)", () => {
       it("should handle card with step exceeding current config", () => {
-                const card = createBaseCard({
+        const card = createBaseCard({
           status: CardStatus.LEARNING,
-          learningStep: 2,         });
+          learningStep: 2,
+        });
 
-                const result = calculateNextReview(card, "Good", undefined, [1, 10]);
+        const result = calculateNextReview(card, "Good", undefined, [1, 10]);
 
-                expect(result.learningStep).toBeUndefined();
+        expect(result.learningStep).toBeUndefined();
         expect(result.status).toBe(CardStatus.LEARNING);
       });
 
       it("should not prematurely graduate when step equals config length", () => {
-                const card = createBaseCard({
+        const card = createBaseCard({
           status: CardStatus.LEARNING,
-          learningStep: 1,         });
+          learningStep: 1,
+        });
 
         const result = calculateNextReview(card, "Hard", undefined, [1, 10]);
 
-                expect(result.learningStep).toBe(1);
+        expect(result.learningStep).toBe(1);
         expect(result.status).toBe(CardStatus.LEARNING);
       });
     });
@@ -546,7 +544,7 @@ describe("scheduler", () => {
           lapses: 0,
         });
 
-                for (let i = 0; i < 5; i++) {
+        for (let i = 0; i < 5; i++) {
           card = calculateNextReview(card, "Again", undefined, [1, 10]);
         }
 

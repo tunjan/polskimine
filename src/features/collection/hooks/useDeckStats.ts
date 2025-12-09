@@ -29,10 +29,7 @@ const isRelearningCard = (card: Card): boolean => {
 };
 
 const isReviewCard = (card: Card): boolean => {
-  return (
-    card.state === State.Review ||
-    card.status === "review"
-  );
+  return card.state === State.Review || card.status === "review";
 };
 
 export const useDeckStats = () => {

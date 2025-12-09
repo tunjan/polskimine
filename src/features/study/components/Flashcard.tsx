@@ -147,7 +147,11 @@ export const Flashcard = React.memo<FlashcardProps>(
                 </p>
               </>
             ) : (
-              <p className={baseClasses}>{displayedSentence}</p>
+              <p className={baseClasses}>
+                {card.targetWord && !showWholeSentenceOnFront
+                  ? processText(card.targetWord)
+                  : displayedSentence}
+              </p>
             )}
           </div>
         );
@@ -256,7 +260,7 @@ export const Flashcard = React.memo<FlashcardProps>(
               <Button
                 variant="ghost"
                 size="icon"
-                onClick={speak}
+                onClick={() => speak()}
                 className="mt-6 text-muted-foreground/40 hover:text-primary/70"
               >
                 <Volume2

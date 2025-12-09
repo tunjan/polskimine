@@ -224,7 +224,7 @@ export function DataTable<TData, TValue>({
                 .filter(
                   (column) =>
                     typeof column.accessorFn !== "undefined" &&
-                    column.getCanHide()
+                    column.getCanHide(),
                 )
                 .map((column) => {
                   const columnLabels: Record<string, string> = {

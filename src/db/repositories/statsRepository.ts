@@ -13,7 +13,6 @@ import {
 import { getDashboardCounts, getCurrentUserId } from "./cardRepository";
 import { CardStatus } from "@/types/cardStatus";
 
-
 export const getDashboardStats = async (
   language?: string,
   ignoreLearningSteps: boolean = false,
@@ -170,7 +169,8 @@ export const getStats = async (language?: string) => {
       if (isShortInterval) {
         return c.dueDate <= nowISO;
       }
-      return true;     })
+      return true;
+    })
     .count();
   const learned = await db.cards
     .where("status")

@@ -159,14 +159,14 @@ export const AuthPage: React.FC = () => {
         );
       } else {
         for (const language of languages) {
-                    const rawDeck = getInitialCards(language);
+          const rawDeck = getInitialCards(language);
           const languageCards = rawDeck.map((c) => ({
             ...c,
-                        id: uuidv4(),
+            id: uuidv4(),
             dueDate: new Date().toISOString(),
             tags: [...(c.tags || []), selectedLevel],
             user_id: currentUserId,
-                                  })) as CardType[];
+          })) as CardType[];
           allCards = [...allCards, ...languageCards];
         }
         toast.success(

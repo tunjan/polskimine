@@ -11,29 +11,32 @@ describe("Leech Suspend Bug", () => {
     reps: 5,
     interval: 10,
     isLeech: true,
-    leechCount: 10,     easeFactor: 2.5,
+    leechCount: 10,
+    easeFactor: 2.5,
     dueDate: new Date().toISOString(),
     targetSentence: "test",
     nativeTranslation: "test",
     notes: "test",
-    language: "es",   } as any;
+    language: "es",
+  } as any;
 
   it("should incorrectly mark suspended leech as KNOWN (reproducing the bug)", () => {
-        const settings: Partial<UserSettings["fsrs"]> = {};
+    const settings: Partial<UserSettings["fsrs"]> = {};
     const lapsesSettings = {
       leechThreshold: 1,
       leechAction: "suspend" as const,
       relearnSteps: [10],
     };
 
-        const result = calculateNextReview(
+    const result = calculateNextReview(
       mockCard,
       "Again" as Grade,
       settings as any,
-      [1, 10],       lapsesSettings
+      [1, 10],
+      lapsesSettings,
     );
 
-                expect(result.isLeech).toBe(true);
-    expect(result.status).toBe(CardStatus.SUSPENDED); 
+    expect(result.isLeech).toBe(true);
+    expect(result.status).toBe(CardStatus.SUSPENDED);
   });
 });

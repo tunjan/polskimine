@@ -5,7 +5,7 @@ import { inferCardState } from "./stateUtils";
 
 describe("Bug Reproduction: Incorrect State Inference for Learning Cards", () => {
   it("should not reclassify a Learning card as Relearning after a failure", () => {
-        const card: Card = {
+    const card: Card = {
       id: "test-card",
       status: CardStatus.NEW,
       state: State.New,
@@ -16,19 +16,26 @@ describe("Bug Reproduction: Incorrect State Inference for Learning Cards", () =>
       nativeTranslation: "test",
       notes: "",
       language: "polish",
-      lapses: 0,       reps: 0,
+      lapses: 0,
+      reps: 0,
     };
 
-        const learningSteps = [1, 10, 1440];     const failedCard = calculateNextReview(card, "Again", undefined, learningSteps);
+    const learningSteps = [1, 10, 1440];
+    const failedCard = calculateNextReview(
+      card,
+      "Again",
+      undefined,
+      learningSteps,
+    );
 
-        expect(failedCard.lapses).toBe(0);
+    expect(failedCard.lapses).toBe(0);
     expect(failedCard.status).toBe(CardStatus.LEARNING);
-        expect(failedCard.state).toBe(State.Learning);
+    expect(failedCard.state).toBe(State.Learning);
 
-                    const cardWithoutState = { ...failedCard, state: undefined };
-    
+    const cardWithoutState = { ...failedCard, state: undefined };
+
     const inferredState = inferCardState(cardWithoutState as Card);
 
-            expect(inferredState).toBe(State.Learning); 
+    expect(inferredState).toBe(State.Learning);
   });
 });

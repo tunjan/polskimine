@@ -1,4 +1,3 @@
-
 import "fake-indexeddb/auto";
 import { describe, it, expect, beforeEach } from "vitest";
 import { db } from "@/db/dexie";
@@ -42,8 +41,8 @@ describe("cardRepository - Persistence Repro", () => {
     expect(cards[0].id).toBe("persistence-test-1");
     expect(cards[0].learningStep).toBe(1);
   });
-  
-    it("should persist learningStep via update", async () => {
+
+  it("should persist learningStep via update", async () => {
     // 1. Save initial card
     let card: Card = {
       id: "persistence-test-2",
@@ -52,21 +51,21 @@ describe("cardRepository - Persistence Repro", () => {
       status: CardStatus.LEARNING,
       learningStep: 0,
       interval: 0,
-       easeFactor: 2.5,
-       language: LanguageId.Polish,
-       dueDate: new Date().toISOString(),
-       notes: ""
+      easeFactor: 2.5,
+      language: LanguageId.Polish,
+      dueDate: new Date().toISOString(),
+      notes: "",
     };
     await saveCard(card);
-    
+
     // 2. Load and update
     const [loaded] = await getCards();
     expect(loaded.learningStep).toBe(0);
-    
+
     // 3. Simulate scheduler update
     loaded.learningStep = 1;
     await saveCard(loaded);
-    
+
     // 4. Load again
     const [reloaded] = await getCards();
     expect(reloaded.learningStep).toBe(1);

@@ -21,23 +21,28 @@ export const getCurrentUserId = (): string | null => {
 
 let hasWarnedAboutCorruption = false;
 
-const SafeNumber = (fieldName: string) => z.preprocess((val) => {
-  if (typeof val === "number" && isNaN(val)) {
-    console.warn(`[CardRepository] Found NaN value in field '${fieldName}', resetting to 0. corrupted_val:`, val);
-    
-    if (!hasWarnedAboutCorruption) {
-      hasWarnedAboutCorruption = true;
-                  setTimeout(() => {
-        toast.warning("Repaired corrupted card data", {
-          description: "Found invalid numbers (NaN) and reset them to 0. Check console for details.",
-          duration: 5000,
-        });
-      }, 0);
+const SafeNumber = (fieldName: string) =>
+  z.preprocess((val) => {
+    if (typeof val === "number" && isNaN(val)) {
+      console.warn(
+        `[CardRepository] Found NaN value in field '${fieldName}', resetting to 0. corrupted_val:`,
+        val,
+      );
+
+      if (!hasWarnedAboutCorruption) {
+        hasWarnedAboutCorruption = true;
+        setTimeout(() => {
+          toast.warning("Repaired corrupted card data", {
+            description:
+              "Found invalid numbers (NaN) and reset them to 0. Check console for details.",
+            duration: 5000,
+          });
+        }, 0);
+      }
+      return 0;
     }
-    return 0;
-  }
-  return val;
-}, z.number());
+    return val;
+  }, z.number());
 
 const DBRawCardSchema = z.object({
   id: z.string(),
@@ -206,7 +211,6 @@ export const getDashboardCounts = async (
   const cutoffISO = cutoffDate.toISOString();
   const nowISO = now.toISOString();
 
-
   const [total, newCards, known, learningRaw, reviewRaw, due] =
     await Promise.all([
       db.cards.where("[user_id+language]").equals([userId, language]).count(),
@@ -238,7 +242,9 @@ export const getDashboardCounts = async (
           // If ignoring learning steps, include any learning/relearning card regardless of due date
           if (
             ignoreLearningSteps &&
-            (c.status === "learning" || c.state === Object(FSRSState).Learning || c.state === Object(FSRSState).Relearning)
+            (c.status === "learning" ||
+              c.state === Object(FSRSState).Learning ||
+              c.state === Object(FSRSState).Relearning)
           ) {
             return true;
           }
@@ -308,7 +314,7 @@ export const getCardsForDashboard = async (
 export const saveCard = async (card: Card) => {
   const userId = getCurrentUserId();
 
-      const normalizedCard: Card = {
+  const normalizedCard: Card = {
     ...card,
     id: card.id || generateId(),
     user_id: card.user_id || userId || undefined,
@@ -321,13 +327,16 @@ export const saveCard = async (card: Card) => {
     created_at: card.created_at ?? new Date().toISOString(),
   };
 
-    if (normalizedCard.status !== CardStatus.KNOWN && normalizedCard.status !== CardStatus.SUSPENDED) {
+  if (
+    normalizedCard.status !== CardStatus.KNOWN &&
+    normalizedCard.status !== CardStatus.SUSPENDED
+  ) {
     if (normalizedCard.state !== undefined) {
       normalizedCard.status = mapFsrsStateToStatus(normalizedCard.state);
     }
   }
 
-        const validatedCard = DBRawCardSchema.parse(normalizedCard);
+  const validatedCard = DBRawCardSchema.parse(normalizedCard);
 
   await db.cards.put(validatedCard as Card);
 };
@@ -391,7 +400,9 @@ export const getDueCards = async (
       // If ignoring learning steps, include any learning/relearning card regardless of due date
       if (
         ignoreLearningSteps &&
-        (card.status === "learning" || card.state === FSRSState.Learning || card.state === FSRSState.Relearning)
+        (card.status === "learning" ||
+          card.state === FSRSState.Learning ||
+          card.state === FSRSState.Relearning)
       ) {
         return true;
       }
@@ -423,8 +434,6 @@ export const getCramCards = async (
     .toArray();
 
   let cards = rawCards.map(mapToCard);
-
-
 
   const shuffled = cards.sort(() => Math.random() - 0.5);
   return shuffled.slice(0, limit);
@@ -462,8 +471,6 @@ export const getCardSignatures = async (
   }));
 };
 
-
-
 export const getLearnedWords = async (
   language: Language,
 ): Promise<string[]> => {
@@ -492,7 +499,7 @@ export const getAllTargetWords = async (
 
   const words: string[] = [];
 
-    await db.cards
+  await db.cards
     .where("[user_id+language]")
     .equals([userId, language])
     .filter((card) => card.targetWord != null)
@@ -538,7 +545,7 @@ export const repairCorruptedCards = async (): Promise<number> => {
         let needsFix = false;
         const fixedCard = { ...rawCard };
 
-                const numericFields = [
+        const numericFields = [
           "interval",
           "easeFactor",
           "stability",
@@ -553,15 +560,15 @@ export const repairCorruptedCards = async (): Promise<number> => {
         ];
 
         for (const field of numericFields) {
-                    const val = (rawCard as any)[field];
+          const val = (rawCard as any)[field];
           if (typeof val === "number" && isNaN(val)) {
-                        (fixedCard as any)[field] = 0;
+            (fixedCard as any)[field] = 0;
             needsFix = true;
           }
         }
 
         if (needsFix) {
-                    try {
+          try {
             const result = DBRawCardSchema.safeParse(fixedCard);
             if (result.success) {
               cardsToFix.push(mapToCard(fixedCard));
@@ -574,8 +581,10 @@ export const repairCorruptedCards = async (): Promise<number> => {
       });
 
     if (cardsToFix.length > 0) {
-                  await db.cards.bulkPut(cardsToFix);
-      console.log(`[CardRepository] Repaired ${cardsToFix.length} corrupted cards.`);
+      await db.cards.bulkPut(cardsToFix);
+      console.log(
+        `[CardRepository] Repaired ${cardsToFix.length} corrupted cards.`,
+      );
       toast.success(`Repaired ${cardsToFix.length} corrupted cards`);
     }
   });

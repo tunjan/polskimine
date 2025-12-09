@@ -1033,7 +1033,6 @@ export const SettingsPage: React.FC = () => {
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-
               <SelectItem value={LEECH_ACTION.SUSPEND}>Suspend</SelectItem>
             </SelectContent>
           </Select>

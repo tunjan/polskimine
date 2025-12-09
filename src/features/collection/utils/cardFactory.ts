@@ -14,12 +14,11 @@ export interface CreateCardParams {
   furigana?: string;
   gender?: string;
   grammaticalCase?: string;
-
 }
 
 const createWordBoundaryRegex = (word: string): RegExp => {
   const escaped = escapeRegExp(word);
-    return new RegExp(`(?<![\\p{L}])${escaped}(?![\\p{L}])`, "gu");
+  return new RegExp(`(?<![\\p{L}])${escaped}(?![\\p{L}])`, "gu");
 };
 
 export const formatSentenceWithTargetWord = (
@@ -27,7 +26,7 @@ export const formatSentenceWithTargetWord = (
   targetWord: string | undefined,
   language: Language,
 ): string => {
-    if (
+  if (
     !targetWord ||
     sentence.includes("<b>") ||
     language === LanguageId.Japanese
@@ -35,10 +34,10 @@ export const formatSentenceWithTargetWord = (
     return sentence;
   }
 
-    const matchedWord = findInflectedWordInSentence(targetWord, sentence);
+  const matchedWord = findInflectedWordInSentence(targetWord, sentence);
 
   if (matchedWord) {
-        return sentence.replace(
+    return sentence.replace(
       createWordBoundaryRegex(matchedWord),
       `<b>${matchedWord}</b>`,
     );
@@ -59,7 +58,6 @@ export const createNewCard = (params: CreateCardParams): Card => {
     furigana,
     gender,
     grammaticalCase,
-
   } = params;
 
   const formattedSentence = formatSentenceWithTargetWord(
@@ -81,19 +79,19 @@ export const createNewCard = (params: CreateCardParams): Card => {
     gender,
     grammaticalCase,
 
-
-        status: CardStatus.NEW,
+    status: CardStatus.NEW,
     state: FSRSState.New,
 
-        interval: 0,
+    interval: 0,
     easeFactor: 2.5,
     dueDate: new Date().toISOString(),
 
-        reps: 0,
+    reps: 0,
     lapses: 0,
 
-        isLeech: false,
+    isLeech: false,
     isBookmarked: false,
+    created_at: new Date().toISOString(),
   };
 };
 
@@ -105,7 +103,6 @@ export const createNewCardWithOffset = (
   card.dueDate = new Date(Date.now() + offsetMs).toISOString();
   return card;
 };
-
 
 export const createPolishCard = (
   targetSentence: string,

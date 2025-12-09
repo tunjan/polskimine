@@ -45,41 +45,44 @@ export function useFlashcardAudio({
     return segments.map((s) => s.text).join("");
   }, []);
 
-  const speak = useCallback(async (options?: { isAutoplay?: boolean }) => {
-    let effectiveRate: number;
-    
-    if (options?.isAutoplay) {
-      effectiveRate = tts.rate;
-      // If we are autoplaying, we want the next manual click to be slow
-      setPlaySlow(true);
-    } else {
-      effectiveRate = playSlowRef.current
-        ? Math.max(0.25, tts.rate * 0.6)
-        : tts.rate;
-      setPlaySlow((prev) => !prev);
-    }
+  const speak = useCallback(
+    async (options?: { isAutoplay?: boolean }) => {
+      let effectiveRate: number;
 
-    const effectiveSettings = { ...tts, rate: effectiveRate };
-
-    try {
-      if (playTargetWordAudioBeforeSentence && card.targetWord) {
-        const wordText = getPlainTextForTTS(card.targetWord);
-        await ttsService.speak(wordText, language, effectiveSettings);
+      if (options?.isAutoplay) {
+        effectiveRate = tts.rate;
+        // If we are autoplaying, we want the next manual click to be slow
+        setPlaySlow(true);
+      } else {
+        effectiveRate = playSlowRef.current
+          ? Math.max(0.25, tts.rate * 0.6)
+          : tts.rate;
+        setPlaySlow((prev) => !prev);
       }
 
-      const plainText = getPlainTextForTTS(card.targetSentence);
-      await ttsService.speak(plainText, language, effectiveSettings);
-    } catch (err) {
-      console.error("TTS speak error:", err);
-    }
-  }, [
-    card.targetSentence,
-    card.targetWord,
-    language,
-    tts,
-    getPlainTextForTTS,
-    playTargetWordAudioBeforeSentence,
-  ]);
+      const effectiveSettings = { ...tts, rate: effectiveRate };
+
+      try {
+        if (playTargetWordAudioBeforeSentence && card.targetWord) {
+          const wordText = getPlainTextForTTS(card.targetWord);
+          await ttsService.speak(wordText, language, effectiveSettings);
+        }
+
+        const plainText = getPlainTextForTTS(card.targetSentence);
+        await ttsService.speak(plainText, language, effectiveSettings);
+      } catch (err) {
+        console.error("TTS speak error:", err);
+      }
+    },
+    [
+      card.targetSentence,
+      card.targetWord,
+      language,
+      tts,
+      getPlainTextForTTS,
+      playTargetWordAudioBeforeSentence,
+    ],
+  );
 
   useEffect(() => {
     if (autoPlayAudio && isFlipped && lastSpokenCardId.current !== card.id) {
@@ -90,4 +93,3 @@ export function useFlashcardAudio({
 
   return { speak, playSlow };
 }
-

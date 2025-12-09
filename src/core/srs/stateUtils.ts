@@ -5,34 +5,34 @@ export const inferCardState = (
   card: Card,
   hasLastReview: boolean = !!card.last_review,
 ): State => {
-    if (card.state !== undefined) {
-        if (
+  if (card.state !== undefined) {
+    if (
       (card.state === State.Review ||
         card.state === State.Learning ||
         card.state === State.Relearning) &&
       !hasLastReview
     ) {
-            return State.New;
+      return State.New;
     }
     return card.state;
   }
 
-    if (card.status === CardStatus.NEW) {
+  if (card.status === CardStatus.NEW) {
     return State.New;
   }
 
   if (card.status === CardStatus.LEARNING) {
-        if ((card.reps || 0) === 0) {
+    if ((card.reps || 0) === 0) {
       return State.Learning;
     }
-        return card.lapses && card.lapses > 0 ? State.Relearning : State.Learning;
+    return card.lapses && card.lapses > 0 ? State.Relearning : State.Learning;
   }
 
   if (card.status === CardStatus.REVIEW || card.status === CardStatus.KNOWN) {
     return State.Review;
   }
 
-    if ((card.reps || 0) === 0) {
+  if ((card.reps || 0) === 0) {
     return State.New;
   }
 
@@ -58,7 +58,7 @@ export const isInRelearningPhase = (
     return false;
   }
 
-    const hasLapsed = (card.lapses || 0) > 0;
+  const hasLapsed = (card.lapses || 0) > 0;
   const isRelearningState =
     card.state === State.Relearning ||
     (card.status === CardStatus.LEARNING && hasLapsed);

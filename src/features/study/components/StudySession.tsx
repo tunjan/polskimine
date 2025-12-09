@@ -61,7 +61,7 @@ export const StudySession: React.FC<StudySessionProps> = React.memo(
       relearnSteps,
       leechThreshold,
       leechAction,
-      
+
       newCardGatherOrder,
       newCardSortOrder,
       newReviewOrder,
@@ -242,7 +242,6 @@ export const StudySession: React.FC<StudySessionProps> = React.memo(
         />
 
         <StudyCardArea
-
           currentCard={currentCard}
           isFlipped={uiState.isFlipped}
           autoPlayAudio={autoPlayAudio || blindMode}
