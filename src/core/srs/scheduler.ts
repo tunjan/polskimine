@@ -384,8 +384,8 @@ export const calculateNextReview = (
 
   const fsrsCard: FSRSCard = {
     due: new Date(card.dueDate),
-    stability: card.stability || (currentState === State.New ? 0 : 2.0),
-    difficulty: card.difficulty || (currentState === State.New ? 0 : 5.0),
+    stability: (card.stability !== undefined && card.stability > 0) ? card.stability : (currentState === State.New ? 0 : 2.0),
+    difficulty: (card.difficulty !== undefined && card.difficulty > 0) ? card.difficulty : (currentState === State.New ? 0 : 5.0),
     elapsed_days: card.elapsed_days || 0,
     scheduled_days: card.scheduled_days || 0,
     reps: card.reps || 0,
