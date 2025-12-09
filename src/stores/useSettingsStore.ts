@@ -182,7 +182,13 @@ export const useSettingsStore = create<SettingsState>((set, get) => ({
     });
   },
 
-  resetSettings: () => set({ ...DEFAULT_SETTINGS }),
+  resetSettings: () => {
+    set({ ...DEFAULT_SETTINGS });
+    const { userId } = get();
+    if (userId) {
+      debouncedSaveSettings(userId, DEFAULT_SETTINGS);
+    }
+  },
   setSettingsLoading: (loading) => set({ settingsLoading: loading }),
 
   setFullSettings: (settingsOrUpdater) =>
@@ -191,7 +197,53 @@ export const useSettingsStore = create<SettingsState>((set, get) => ({
         typeof settingsOrUpdater === "function"
           ? settingsOrUpdater(state)
           : settingsOrUpdater;
-      return { ...newSettings };
+
+      const updatedState = { ...newSettings }; // Create a fresh object
+      const { userId } = state;
+
+      if (userId) {
+        // We need to construct the full settings object to save, similar to updateSettings
+        // However, since setFullSettings expects a full object (or updater returning one),
+        // we can try to assume newSettings IS the full settings or at least a significant part.
+        // But wait, setFullSettings in the interface takes UserSettings.
+        // Let's look at how it is used. It's often used with spread: setSettings(prev => ({...prev, ...}))
+        // So newSettings IS the new state.
+
+        const settingsToSave: UserSettings = {
+          language: updatedState.language,
+          languageColors: updatedState.languageColors,
+          proficiency: updatedState.proficiency,
+          dailyNewLimits: updatedState.dailyNewLimits,
+          dailyReviewLimits: updatedState.dailyReviewLimits,
+          autoPlayAudio: updatedState.autoPlayAudio,
+          playTargetWordAudioBeforeSentence:
+            updatedState.playTargetWordAudioBeforeSentence,
+          blindMode: updatedState.blindMode,
+          showTranslationAfterFlip: updatedState.showTranslationAfterFlip,
+          showWholeSentenceOnFront: updatedState.showWholeSentenceOnFront,
+          ignoreLearningStepsWhenNoCards:
+            updatedState.ignoreLearningStepsWhenNoCards,
+          binaryRatingMode: updatedState.binaryRatingMode,
+          cardOrder: updatedState.cardOrder,
+          learningSteps: updatedState.learningSteps,
+          // Display Order
+          newCardGatherOrder: updatedState.newCardGatherOrder,
+          newCardSortOrder: updatedState.newCardSortOrder,
+          newReviewOrder: updatedState.newReviewOrder,
+          interdayLearningOrder: updatedState.interdayLearningOrder,
+          reviewSortOrder: updatedState.reviewSortOrder,
+          // Lapses
+          relearnSteps: updatedState.relearnSteps,
+          leechThreshold: updatedState.leechThreshold,
+          leechAction: updatedState.leechAction,
+          geminiApiKey: updatedState.geminiApiKey,
+          tts: updatedState.tts,
+          fsrs: updatedState.fsrs,
+        };
+
+        debouncedSaveSettings(userId, settingsToSave);
+      }
+      return updatedState;
     }),
 
   initializeStore: (userId, settings) => set({ userId, ...settings }),
