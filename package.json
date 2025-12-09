@@ -90,6 +90,7 @@
     "@types/node": "^24.10.1",
     "@types/react-window": "^1.8.8",
     "@vitejs/plugin-react": "^5.1.1",
+    "@vitest/coverage-v8": "^4.0.10",
     "autoprefixer": "^10.4.22",
     "fake-indexeddb": "^6.2.5",
     "jsdom": "^27.2.0",

@@ -18,6 +18,7 @@ find . \( \
     -name "build" -o \
     -name "ui" -o \
     -name ".git" \
+    -name "*.test.ts" \
 \) -prune -o \( \
     -name "*.ts" -o \
     -name "*.tsx" \

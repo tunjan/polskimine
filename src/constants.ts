@@ -1,4 +1,5 @@
 import { Card, ReviewHistory } from "./types";
+import { format } from "date-fns";
 
 export const MOCK_CARDS: Card[] = [
   {
@@ -60,9 +61,7 @@ export const MOCK_CARDS: Card[] = [
 ];
 
 export const getUTCDateString = (date: Date): string => {
-  const offset = date.getTimezoneOffset();
-  const localDate = new Date(date.getTime() - offset * 60 * 1000);
-  return localDate.toISOString().split("T")[0];
+  return format(date, "yyyy-MM-dd");
 };
 
 const generateMockHistory = (): ReviewHistory => {

@@ -44,8 +44,8 @@ const sortByDue = (a: Card, b: Card): number => {
 };
 
 const sortByOverdueness = (a: Card, b: Card, now: Date): number => {
-  const aInterval = a.interval || 1;
-  const bInterval = b.interval || 1;
+  const aInterval = Math.max(0.001, a.interval || 0);
+  const bInterval = Math.max(0.001, b.interval || 0);
   const aDue = new Date(a.dueDate || now);
   const bDue = new Date(b.dueDate || now);
 

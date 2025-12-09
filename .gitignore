@@ -7,6 +7,7 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 code-export.md
+coverage
 
 node_modules
 dist

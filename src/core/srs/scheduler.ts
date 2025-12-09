@@ -16,6 +16,8 @@ import {
 } from "ts-fsrs";
 import { inferCardState } from "./stateUtils";
 
+const FALLBACK_DUE_DATE_MINUTES = 10;
+
 let cachedFSRS: FSRS | null = null;
 let lastConfig: UserSettings["fsrs"] | null = null;
 let lastWHash: string | null = null;
@@ -112,14 +114,15 @@ const handleLearningPhase = (
   if (!shouldStayInLearning) {
     return null;   }
 
-  let nextDue = addMinutes(now, nextIntervalMinutes);
+  const nextIntervalMs = nextIntervalMinutes * 60 * 1000;
+  let nextDue = new Date(now.getTime() + nextIntervalMs);
   if (isNaN(nextDue.getTime())) {
     console.error("[SRS] Invalid learning step interval", {
       nextIntervalMinutes,
       grade,
       card,
     });
-    nextDue = addMinutes(now, 1);
+    nextDue = new Date(now.getTime() + 60 * 1000);
   }
 
   let intervalDays = nextIntervalMinutes / (24 * 60);
@@ -140,7 +143,7 @@ const handleLearningPhase = (
     learningStep: nextStep,
     interval: intervalDays,
     precise_interval: intervalDays,
-    scheduled_days: 0,
+    scheduled_days: Math.floor(intervalDays),
     last_review: now.toISOString(),
     reps: (card.reps || 0) + 1,
     lapses: newLapses,
@@ -188,9 +191,10 @@ const handleRelearningPhase = (
   if (!shouldStayInRelearning) {
     return null;   }
 
-  let nextDue = addMinutes(now, nextIntervalMinutes);
+  const nextIntervalMs = nextIntervalMinutes * 60 * 1000;
+  let nextDue = new Date(now.getTime() + nextIntervalMs);
   if (isNaN(nextDue.getTime())) {
-    nextDue = addMinutes(now, 1);
+    nextDue = new Date(now.getTime() + 60 * 1000);
   }
 
   let intervalDays = nextIntervalMinutes / (24 * 60);
@@ -210,7 +214,7 @@ const handleRelearningPhase = (
     learningStep: nextStep,
     interval: intervalDays,
     precise_interval: intervalDays,
-    scheduled_days: 0,
+    scheduled_days: Math.floor(intervalDays),
     last_review: now.toISOString(),
     reps: (card.reps || 0) + 1,
     lapses: currentLapses,
@@ -352,7 +356,7 @@ export const calculateNextReview = (
       isLeech = true;
     }
 
-    const nextDue = addMinutes(now, relearnStepsMinutes[0] ?? 1);
+    const nextDue = new Date(now.getTime() + (relearnStepsMinutes[0] ?? 1) * 60 * 1000);
     const intervalDays = (relearnStepsMinutes[0] ?? 1) / (24 * 60);
 
     const result: Card = {
@@ -407,7 +411,7 @@ export const calculateNextReview = (
     ...card,
     dueDate: !isNaN(log.due.getTime())
       ? log.due.toISOString()
-      : addMinutes(now, 10).toISOString(),
+      : addMinutes(now, FALLBACK_DUE_DATE_MINUTES).toISOString(),
     stability: safeNum(log.stability),
     difficulty: safeNum(log.difficulty),
     elapsed_days: safeNum(log.elapsed_days),
@@ -442,6 +446,11 @@ export const isCardDue = (card: Card, now: Date = new Date()): boolean => {
   }
 
   const due = new Date(card.dueDate);
+
+  // Learning cards with intraday intervals should use precise timing
+  if (card.status === CardStatus.LEARNING && card.interval < 1) {
+    return due <= now;
+  }
 
   const ONE_HOUR_IN_DAYS = 1 / 24;
   if (card.interval < ONE_HOUR_IN_DAYS) {

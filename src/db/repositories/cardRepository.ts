@@ -205,7 +205,7 @@ export const getDashboardCounts = async (
       .where("[user_id+language]")
       .equals([userId, language])
       .filter((c) => {
-        if (c.status === "known") return false;
+        if (c.status === "known" || c.status === "suspended") return false;
         
                         const isShortInterval = (c.interval || 0) < ONE_HOUR_IN_DAYS;
         if (isShortInterval) {
@@ -267,7 +267,7 @@ export const saveCard = async (card: Card) => {
     isBookmarked: card.isBookmarked ?? false,
   };
 
-    if (normalizedCard.status !== CardStatus.KNOWN) {
+    if (normalizedCard.status !== CardStatus.KNOWN && normalizedCard.status !== CardStatus.SUSPENDED) {
     if (normalizedCard.state !== undefined) {
       normalizedCard.status = mapFsrsStateToStatus(normalizedCard.state);
     }
@@ -331,7 +331,7 @@ export const getDueCards = async (
     .where("[user_id+language]")
     .equals([userId, language])
     .filter((card) => {
-      if (card.status === "known") return false;
+      if (card.status === "known" || card.status === "suspended") return false;
 
                         const isShortInterval = (card.interval || 0) < ONE_HOUR_IN_DAYS;
       if (isShortInterval) {
