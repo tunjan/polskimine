@@ -8,9 +8,6 @@ import {
 import { Card, CardStatus } from "@/types";
 import { State } from "ts-fsrs";
 
-// ============================================================================
-// Test Utilities
-// ============================================================================
 
 const createCard = (overrides: Partial<Card> = {}): Card => ({
   id: "test-card",
@@ -25,9 +22,6 @@ const createCard = (overrides: Partial<Card> = {}): Card => ({
   ...overrides,
 });
 
-// ============================================================================
-// inferCardState Tests
-// ============================================================================
 
 describe("inferCardState", () => {
   describe("When card.state is defined", () => {
@@ -185,8 +179,7 @@ describe("inferCardState", () => {
         state: State.Review,
         last_review: new Date().toISOString(),
       });
-      // Default should detect last_review
-      expect(inferCardState(card)).toBe(State.Review);
+            expect(inferCardState(card)).toBe(State.Review);
     });
 
     it("should respect explicit hasLastReview = true", () => {
@@ -207,9 +200,6 @@ describe("inferCardState", () => {
   });
 });
 
-// ============================================================================
-// isInLearningPhase Tests
-// ============================================================================
 
 describe("isInLearningPhase", () => {
   const learningSteps = [1, 10, 60];
@@ -234,8 +224,7 @@ describe("isInLearningPhase", () => {
     it("should return true for LEARNING card at last step", () => {
       const card = createCard({
         status: CardStatus.LEARNING,
-        learningStep: 2, // steps.length - 1
-      });
+        learningStep: 2,       });
       expect(isInLearningPhase(card, learningSteps)).toBe(true);
     });
   });
@@ -260,16 +249,14 @@ describe("isInLearningPhase", () => {
     it("should return false when step exceeds config length", () => {
       const card = createCard({
         status: CardStatus.LEARNING,
-        learningStep: 5, // Exceeds [1, 10, 60]
-      });
+        learningStep: 5,       });
       expect(isInLearningPhase(card, learningSteps)).toBe(false);
     });
 
     it("should return false when step equals config length", () => {
       const card = createCard({
         status: CardStatus.LEARNING,
-        learningStep: 3, // Equals length of [1, 10, 60]
-      });
+        learningStep: 3,       });
       expect(isInLearningPhase(card, learningSteps)).toBe(false);
     });
   });
@@ -301,9 +288,6 @@ describe("isInLearningPhase", () => {
   });
 });
 
-// ============================================================================
-// isInRelearningPhase Tests
-// ============================================================================
 
 describe("isInRelearningPhase", () => {
   const relearnSteps = [5, 15];
@@ -406,9 +390,6 @@ describe("isInRelearningPhase", () => {
   });
 });
 
-// ============================================================================
-// getClampedStep Tests
-// ============================================================================
 
 describe("getClampedStep", () => {
   describe("Normal clamping", () => {
@@ -424,8 +405,7 @@ describe("getClampedStep", () => {
 
     it("should clamp to max index when step exceeds length", () => {
       const card = createCard({ learningStep: 10 });
-      expect(getClampedStep(card, [1, 10, 60])).toBe(2); // length - 1
-    });
+      expect(getClampedStep(card, [1, 10, 60])).toBe(2);     });
 
     it("should clamp to 0 for negative step", () => {
       const card = createCard({ learningStep: -5 });
@@ -446,8 +426,7 @@ describe("getClampedStep", () => {
 
     it("should handle empty array (clamps to 0 via Math.max)", () => {
       const card = createCard({ learningStep: 0 });
-      // Math.max(0, Math.min(0, -1)) = Math.max(0, -1) = 0
-      expect(getClampedStep(card, [])).toBe(0);
+            expect(getClampedStep(card, [])).toBe(0);
     });
 
     it("should return exact last index for step at boundary", () => {

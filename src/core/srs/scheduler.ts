@@ -447,8 +447,7 @@ export const isCardDue = (card: Card, now: Date = new Date()): boolean => {
 
   const due = new Date(card.dueDate);
 
-  // Learning cards with intraday intervals should use precise timing
-  if (card.status === CardStatus.LEARNING && card.interval < 1) {
+    if (card.status === CardStatus.LEARNING && card.interval < 1) {
     return due <= now;
   }
 

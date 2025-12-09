@@ -4,9 +4,6 @@ import { Card, CardStatus } from "@/types";
 import { State } from "ts-fsrs";
 import { addDays, addMinutes, subDays } from "date-fns";
 
-// ============================================================================
-// Test Utilities
-// ============================================================================
 
 const createBaseCard = (overrides: Partial<Card> = {}): Card => ({
   id: "test-card-1",
@@ -51,9 +48,6 @@ const createRelearningCard = (overrides: Partial<Card> = {}): Card =>
     ...overrides,
   });
 
-// ============================================================================
-// calculateNextReview - Comprehensive Tests
-// ============================================================================
 
 describe("calculateNextReview - Comprehensive Edge Cases", () => {
   describe("Boundary Conditions", () => {
@@ -88,23 +82,19 @@ describe("calculateNextReview - Comprehensive Edge Cases", () => {
   });
 
   describe("Learning Phase - All Grades", () => {
-    const learningSteps = [1, 10, 60]; // 1 min, 10 min, 60 min
-
+    const learningSteps = [1, 10, 60]; 
     it("should handle multi-step Good progression through all steps", () => {
       let card = createLearningCard({ learningStep: 0 });
       
-      // Step 0 -> 1
-      card = calculateNextReview(card, "Good", undefined, learningSteps);
+            card = calculateNextReview(card, "Good", undefined, learningSteps);
       expect(card.learningStep).toBe(1);
       expect(card.status).toBe(CardStatus.LEARNING);
       
-      // Step 1 -> 2
-      card = calculateNextReview(card, "Good", undefined, learningSteps);
+            card = calculateNextReview(card, "Good", undefined, learningSteps);
       expect(card.learningStep).toBe(2);
       expect(card.status).toBe(CardStatus.LEARNING);
       
-      // Step 2 -> Graduate
-      card = calculateNextReview(card, "Good", undefined, learningSteps);
+            card = calculateNextReview(card, "Good", undefined, learningSteps);
       expect(card.learningStep).toBeUndefined();
       expect(card.status).toBe(CardStatus.REVIEW);
     });
@@ -152,18 +142,15 @@ describe("calculateNextReview - Comprehensive Edge Cases", () => {
     it("should handle multi-step Good progression through relearning", () => {
       let card = createRelearningCard({ learningStep: 0 });
       
-      // Step 0 -> 1
-      card = calculateNextReview(card, "Good", undefined, [1, 10], lapsesSettings);
+            card = calculateNextReview(card, "Good", undefined, [1, 10], lapsesSettings);
       expect(card.learningStep).toBe(1);
       expect(card.state).toBe(State.Relearning);
       
-      // Step 1 -> 2
-      card = calculateNextReview(card, "Good", undefined, [1, 10], lapsesSettings);
+            card = calculateNextReview(card, "Good", undefined, [1, 10], lapsesSettings);
       expect(card.learningStep).toBe(2);
       expect(card.state).toBe(State.Relearning);
       
-      // Step 2 -> Graduate back to Review
-      card = calculateNextReview(card, "Good", undefined, [1, 10], lapsesSettings);
+            card = calculateNextReview(card, "Good", undefined, [1, 10], lapsesSettings);
       expect(card.learningStep).toBeUndefined();
       expect(card.status).toBe(CardStatus.REVIEW);
     });
@@ -203,8 +190,7 @@ describe("calculateNextReview - Comprehensive Edge Cases", () => {
         leechThreshold: 8,
       });
       
-      // Should use FSRS directly without relearning phase
-      expect(result.lapses).toBeGreaterThan(0);
+            expect(result.lapses).toBeGreaterThan(0);
     });
   });
 
@@ -334,8 +320,7 @@ describe("calculateNextReview - Comprehensive Edge Cases", () => {
     it("should handle invalid dueDate string", () => {
       const card = createBaseCard({ dueDate: "invalid-date" });
       
-      // Should not throw
-      expect(() => calculateNextReview(card, "Good")).not.toThrow();
+            expect(() => calculateNextReview(card, "Good")).not.toThrow();
     });
 
     it("should produce valid dueDate even with corrupted input", () => {
@@ -355,8 +340,7 @@ describe("calculateNextReview - Comprehensive Edge Cases", () => {
       const card = createBaseCard({ status: CardStatus.NEW, learningStep: 0 });
       const result = calculateNextReview(card, "Good", undefined, [-5, 10]);
       
-      // Should treat as [10] effectively
-      expect(result.status).toBe(CardStatus.LEARNING);
+            expect(result.status).toBe(CardStatus.LEARNING);
     });
 
     it("should filter out zero learning steps", () => {
@@ -370,15 +354,13 @@ describe("calculateNextReview - Comprehensive Edge Cases", () => {
       const card = createBaseCard({ status: CardStatus.NEW, learningStep: 0 });
       const result = calculateNextReview(card, "Good", undefined, []);
       
-      // Fallback to [1, 10]
-      expect(result.learningStep).toBe(1);
+            expect(result.learningStep).toBe(1);
       expect(result.status).toBe(CardStatus.LEARNING);
     });
 
     it("should handle very large learning step values", () => {
       const card = createBaseCard({ status: CardStatus.NEW, learningStep: 0 });
-      const result = calculateNextReview(card, "Good", undefined, [1440, 10080]); // 1 day, 1 week in minutes
-      
+      const result = calculateNextReview(card, "Good", undefined, [1440, 10080]);       
       expect(result.status).toBe(CardStatus.LEARNING);
       expect(result.interval).toBeGreaterThan(0);
     });
@@ -389,8 +371,7 @@ describe("calculateNextReview - Comprehensive Edge Cases", () => {
       const card = createLearningCard({ learningStep: 0 });
       const result = calculateNextReview(card, "Good", undefined, [10]);
       
-      // 10 minutes = 10 / (24 * 60) = 0.00694... days
-      expect(result.interval).toBeLessThan(1);
+            expect(result.interval).toBeLessThan(1);
       expect(result.interval).toBeGreaterThan(0);
     });
 
@@ -424,22 +405,15 @@ describe("calculateNextReview - Comprehensive Edge Cases", () => {
       const lowRetention = calculateNextReview(card, "Good", { request_retention: 0.7, maximum_interval: 36500 });
       const highRetention = calculateNextReview(card, "Good", { request_retention: 0.95, maximum_interval: 36500 });
       
-      // Higher retention should result in shorter intervals
-      expect(highRetention.interval).toBeLessThanOrEqual(lowRetention.interval);
+            expect(highRetention.interval).toBeLessThanOrEqual(lowRetention.interval);
     });
 
     it("should respect maximum_interval setting by returning bounded intervals", () => {
-      // Test that extremely stable cards don't get unbounded intervals
-      const card = createReviewCard({ stability: 1000, reps: 50 }); // Very stable card
-      const result = calculateNextReview(card, "Easy", { request_retention: 0.9, maximum_interval: 365 });
+            const card = createReviewCard({ stability: 1000, reps: 50 });       const result = calculateNextReview(card, "Easy", { request_retention: 0.9, maximum_interval: 365 });
       
-      // With default max of 36500, it could be very long
-      // With 365 day max, interval should be bounded
-      expect(result.interval).toBeDefined();
+                  expect(result.interval).toBeDefined();
       expect(result.interval).toBeGreaterThan(0);
-      // The interval should be reasonable - not exceeding typical bounds
-      expect(result.scheduled_days).toBeLessThanOrEqual(36500); // Should never exceed default max
-    });
+            expect(result.scheduled_days).toBeLessThanOrEqual(36500);     });
 
     it("should use default FSRS params when settings undefined", () => {
       const card = createReviewCard();
@@ -480,18 +454,14 @@ describe("calculateNextReview - Comprehensive Edge Cases", () => {
 
   describe("First Review of New Card", () => {
     it("should set first_review when card graduates from learning", () => {
-      // First review through learning phase
-      let card = createBaseCard({ first_review: undefined, learningStep: 0 });
-      card = calculateNextReview(card, "Good", undefined, [1]); // Graduate with single step
-      
-      // first_review is set by FSRS when graduating
-      expect(card.first_review !== undefined || card.last_review !== undefined).toBe(true);
+            let card = createBaseCard({ first_review: undefined, learningStep: 0 });
+      card = calculateNextReview(card, "Good", undefined, [1]);       
+            expect(card.first_review !== undefined || card.last_review !== undefined).toBe(true);
     });
 
     it("should set first_review when graduating via Easy", () => {
       const card = createBaseCard({ first_review: undefined });
-      // Easy should graduate immediately and set first_review
-      const result = calculateNextReview(card, "Easy");
+            const result = calculateNextReview(card, "Easy");
       
       expect(result.first_review).toBeDefined();
     });
@@ -535,16 +505,12 @@ describe("calculateNextReview - Comprehensive Edge Cases", () => {
         learningStep: 0,
       });
       
-      // Should still process as learning
-      const result = calculateNextReview(card, "Good", undefined, [1, 10]);
+            const result = calculateNextReview(card, "Good", undefined, [1, 10]);
       expect(result.status).toBe(CardStatus.LEARNING);
     });
   });
 });
 
-// ============================================================================
-// isCardDue - Comprehensive Tests
-// ============================================================================
 
 describe("isCardDue - Comprehensive Edge Cases", () => {
   describe("New Card Detection", () => {
@@ -569,8 +535,7 @@ describe("isCardDue - Comprehensive Edge Cases", () => {
       const now = new Date();
       const card = createLearningCard({
         dueDate: addMinutes(now, 5).toISOString(),
-        interval: 10 / 1440, // 10 minutes in days
-      });
+        interval: 10 / 1440,       });
       
       expect(isCardDue(card, now)).toBe(false);
       expect(isCardDue(card, addMinutes(now, 10))).toBe(true);
@@ -582,8 +547,7 @@ describe("isCardDue - Comprehensive Edge Cases", () => {
         status: CardStatus.REVIEW,
         state: State.Review,
         dueDate: addMinutes(now, 30).toISOString(),
-        interval: 30 / 1440, // 30 minutes in days
-      });
+        interval: 30 / 1440,       });
       
       expect(isCardDue(card, now)).toBe(false);
     });
@@ -601,8 +565,7 @@ describe("isCardDue - Comprehensive Edge Cases", () => {
 
   describe("SRS Day Boundary (4 AM Cutoff)", () => {
     it("should consider overdue cards as due", () => {
-      // Card was due yesterday - should definitely be due now
-      const now = new Date();
+            const now = new Date();
       const card = createReviewCard({
         dueDate: subDays(now, 1).toISOString(),
         interval: 1,
@@ -612,8 +575,7 @@ describe("isCardDue - Comprehensive Edge Cases", () => {
     });
 
     it("should NOT consider card due if dueDate is far in future", () => {
-      // Card due next week
-      const now = new Date();
+            const now = new Date();
       const card = createReviewCard({
         dueDate: addDays(now, 7).toISOString(),
         interval: 7,
@@ -623,8 +585,7 @@ describe("isCardDue - Comprehensive Edge Cases", () => {
     });
 
     it("should handle cards due within SRS day", () => {
-      // Cards due today (within SRS day boundaries) should be due
-      const now = new Date();
+            const now = new Date();
       const card = createReviewCard({
         dueDate: now.toISOString(),
         interval: 1,
@@ -706,8 +667,7 @@ describe("isCardDue - Comprehensive Edge Cases", () => {
         interval: 1,
       });
       
-      // Should not throw
-      expect(() => isCardDue(card)).not.toThrow();
+            expect(() => isCardDue(card)).not.toThrow();
     });
 
     it("should handle epoch date (prioritized cards)", () => {
@@ -716,15 +676,11 @@ describe("isCardDue - Comprehensive Edge Cases", () => {
         status: CardStatus.NEW,
       });
       
-      // Epoch date cards should always be due
-      expect(isCardDue(card)).toBe(true);
+            expect(isCardDue(card)).toBe(true);
     });
   });
 });
 
-// ============================================================================
-// getSRSDate - Tests
-// ============================================================================
 
 describe("getSRSDate", () => {
   it("should return a Date object", () => {
@@ -738,10 +694,8 @@ describe("getSRSDate", () => {
     const date = new Date();
     const srsDate = getSRSDate(date);
     
-    // SRS date should be a valid date
-    expect(srsDate.getTime()).not.toBeNaN();
-    // Hours should be 0 (start of day)
-    expect(srsDate.getHours()).toBe(0);
+        expect(srsDate.getTime()).not.toBeNaN();
+        expect(srsDate.getHours()).toBe(0);
   });
 
   it("should handle different times of day consistently", () => {
@@ -749,8 +703,7 @@ describe("getSRSDate", () => {
     const afternoon = getSRSDate(new Date("2024-06-15T14:00:00"));
     const evening = getSRSDate(new Date("2024-06-15T20:00:00"));
     
-    // All times on the same day should return the same SRS date
-    expect(morning.getTime()).toBe(afternoon.getTime());
+        expect(morning.getTime()).toBe(afternoon.getTime());
     expect(afternoon.getTime()).toBe(evening.getTime());
   });
 
@@ -763,9 +716,6 @@ describe("getSRSDate", () => {
   });
 });
 
-// ============================================================================
-// Simulation Tests
-// ============================================================================
 
 describe("Scheduling Simulation", () => {
   it("should handle 100 consecutive correct reviews without issues", () => {
@@ -774,15 +724,12 @@ describe("Scheduling Simulation", () => {
     for (let i = 0; i < 100; i++) {
       card = calculateNextReview(card, "Good");
       
-      // Verify card remains valid
-      expect(Number.isNaN(card.stability)).toBe(false);
+            expect(Number.isNaN(card.stability)).toBe(false);
       expect(Number.isNaN(card.interval)).toBe(false);
       expect(new Date(card.dueDate).getTime()).not.toBeNaN();
     }
     
-    // After 100 good reviews, interval should be significant
-    // Note: May be capped by maximum_interval setting
-    expect(card.interval).toBeGreaterThanOrEqual(1);
+            expect(card.interval).toBeGreaterThanOrEqual(1);
     expect(card.reps).toBeGreaterThan(100);
   });
 
@@ -794,22 +741,19 @@ describe("Scheduling Simulation", () => {
       card = calculateNextReview(card, "Good", undefined, [1, 10], lapsesSettings);
       card = calculateNextReview(card, "Again", undefined, [1, 10], lapsesSettings);
       
-      // Complete relearning
-      if (card.state === State.Relearning) {
+            if (card.state === State.Relearning) {
         card = calculateNextReview(card, "Good", undefined, [1, 10], lapsesSettings);
       }
     }
     
-    // Card should still be valid
-    expect(card.lapses).toBeGreaterThan(0);
+        expect(card.lapses).toBeGreaterThan(0);
     expect(card.status === CardStatus.REVIEW || card.status === CardStatus.LEARNING).toBe(true);
   });
 
   it("should maintain learning progression through a full session", () => {
     let card = createBaseCard({ status: CardStatus.NEW });
     
-    // Progress through learning
-    card = calculateNextReview(card, "Good", undefined, [1, 10, 60]);
+        card = calculateNextReview(card, "Good", undefined, [1, 10, 60]);
     expect(card.learningStep).toBe(1);
     
     card = calculateNextReview(card, "Good", undefined, [1, 10, 60]);
@@ -818,8 +762,7 @@ describe("Scheduling Simulation", () => {
     card = calculateNextReview(card, "Good", undefined, [1, 10, 60]);
     expect(card.status).toBe(CardStatus.REVIEW);
     
-    // Multiple reviews
-    for (let i = 0; i < 5; i++) {
+        for (let i = 0; i < 5; i++) {
       card = calculateNextReview(card, "Good");
       expect(card.status).toBe(CardStatus.REVIEW);
     }
@@ -829,7 +772,6 @@ describe("Scheduling Simulation", () => {
 });
 
 
-// Helper for testing
 function subMinutes(date: Date, minutes: number): Date {
   return new Date(date.getTime() - minutes * 60 * 1000);
 }

@@ -18,11 +18,10 @@ find . \( \
     -name "build" -o \
     -name "ui" -o \
     -name ".git" \
-    -name "*.test.ts" \
 \) -prune -o \( \
     -name "*.ts" -o \
     -name "*.tsx" \
-\) -type f -print | sort | while read -r file; do
+\) -not -name "*.test.ts" -not -name "*.test.tsx" -type f -print | sort | while read -r file; do
     # Get the relative path (remove leading ./)
     filepath="${file#./}"
     

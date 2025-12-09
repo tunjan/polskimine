@@ -24,8 +24,7 @@ describe("Card Sorting & Priority System", () => {
     const normalCard = createCard("normal", CardStatus.REVIEW, past);
     const priorityCard = createCard("priority", CardStatus.NEW, new Date(0).toISOString());
     
-    // Use newFirst mode which sorts by due date - EPOCH should come first
-    const result = sortCards([normalCard, priorityCard], "newFirst");
+        const result = sortCards([normalCard, priorityCard], "newFirst");
     
     expect(result[0].id).toBe("priority");
   });
@@ -52,19 +51,14 @@ describe("Card Sorting & Priority System", () => {
     const newCards = Array.from({ length: 5 }, (_, i) => createCard(`new-${i}`, CardStatus.NEW, past));
     const reviewCards = Array.from({ length: 5 }, (_, i) => createCard(`rev-${i}`, CardStatus.REVIEW, past));
     
-    // Default interleaving logic usually puts reviews first or mixes them evenly
-    // The implementation in cardSorter.ts puts reviews first then injects new cards
-    const result = sortCards([...newCards, ...reviewCards], "mixed", {
+            const result = sortCards([...newCards, ...reviewCards], "mixed", {
       newReviewOrder: "mixed"
     });
 
-    // Check for some level of mixing (not all new at start, not all new at end)
-    const firstId = result[0].id;
+        const firstId = result[0].id;
     const lastId = result[result.length - 1].id;
     
-    // Given 1:1 ratio, it should ideally alternate or close to it
-    // Implementation specific: check if we have both types in the first 4 cards
-    const slice = result.slice(0, 4);
+            const slice = result.slice(0, 4);
     const hasNew = slice.some(c => c.status === CardStatus.NEW);
     const hasReview = slice.some(c => c.status === CardStatus.REVIEW);
     

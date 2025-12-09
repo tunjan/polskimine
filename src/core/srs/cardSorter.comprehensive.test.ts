@@ -3,9 +3,6 @@ import { sortCards, DisplayOrderSettings } from "./cardSorter";
 import { Card, CardStatus } from "@/types";
 import { State } from "ts-fsrs";
 
-// ============================================================================
-// Test Utilities
-// ============================================================================
 
 const createCard = (id: string, overrides: Partial<Card> = {}): Card => ({
   id,
@@ -54,9 +51,6 @@ const createRelearningCard = (id: string, overrides: Partial<Card> = {}): Card =
     ...overrides,
   });
 
-// ============================================================================
-// sortCards - Comprehensive Edge Cases
-// ============================================================================
 
 describe("sortCards - Comprehensive Edge Cases", () => {
   describe("Boundary Conditions", () => {
@@ -99,8 +93,7 @@ describe("sortCards - Comprehensive Edge Cases", () => {
       const result = sortCards(cards, "newFirst");
       
       expect(result).toHaveLength(100);
-      // First card should be new
-      expect(result[0].status).toBe(CardStatus.NEW);
+            expect(result[0].status).toBe(CardStatus.NEW);
     });
   });
 
@@ -127,8 +120,7 @@ describe("sortCards - Comprehensive Edge Cases", () => {
       
       const result = sortCards(cards, "newFirst");
       
-      // Should sort alphabetically by id for same dates
-      expect(result.map(c => c.id)).toEqual(["a", "b", "c"]);
+            expect(result.map(c => c.id)).toEqual(["a", "b", "c"]);
     });
   });
 
@@ -178,8 +170,7 @@ describe("sortCards - Comprehensive Edge Cases", () => {
       
       const result = sortCards(cards, "newFirst", settings);
       
-      // Order should be preserved, not reversed
-      const ids = result.map(c => c.id);
+            const ids = result.map(c => c.id);
       expect(ids).toEqual(["1", "2", "3"]);
     });
   });
@@ -197,8 +188,7 @@ describe("sortCards - Comprehensive Edge Cases", () => {
         newReviewOrder: "mixed",
       });
       
-      // All cards should be present
-      expect(result).toHaveLength(4);
+            expect(result).toHaveLength(4);
       expect(result.map(c => c.id).sort()).toEqual(["learn1", "new1", "relearn1", "rev1"]);
     });
 
@@ -212,8 +202,7 @@ describe("sortCards - Comprehensive Edge Cases", () => {
       
       const result = sortCards(cards, "newFirst");
       
-      // New cards should come first
-      expect(result[0].status).toBe(CardStatus.NEW);
+            expect(result[0].status).toBe(CardStatus.NEW);
       expect(result[1].status).toBe(CardStatus.NEW);
     });
   });
@@ -244,9 +233,7 @@ describe("sortCards - Comprehensive Edge Cases", () => {
 
     it("should handle overdueness with different intervals", () => {
       const now = new Date();
-      // Card A: 5 days overdue with 10 day interval = 0.5 overdueness
-      // Card B: 2 days overdue with 1 day interval = 2.0 overdueness
-      const cards = [
+                  const cards = [
         createReviewCard("interval-10", {
           dueDate: new Date(now.getTime() - 5 * 86400000).toISOString(),
           interval: 10,
@@ -264,8 +251,7 @@ describe("sortCards - Comprehensive Edge Cases", () => {
       
       const result = sortCards(cards, "reviewFirst", settings);
       
-      // Higher overdueness ratio should come first
-      expect(result[0].id).toBe("interval-1");
+            expect(result[0].id).toBe("interval-1");
     });
 
     it("should handle zero interval gracefully (no division by zero)", () => {
@@ -286,8 +272,7 @@ describe("sortCards - Comprehensive Edge Cases", () => {
         newReviewOrder: "reviewFirst",
       };
       
-      // Should not throw
-      expect(() => sortCards(cards, "reviewFirst", settings)).not.toThrow();
+            expect(() => sortCards(cards, "reviewFirst", settings)).not.toThrow();
       
       const result = sortCards(cards, "reviewFirst", settings);
       expect(result).toHaveLength(2);
@@ -330,8 +315,7 @@ describe("sortCards - Comprehensive Edge Cases", () => {
         const newIndices = result.map((c, i) => c.status === CardStatus.NEW ? i : -1).filter(i => i >= 0);
         const reviewIndices = result.map((c, i) => c.status === CardStatus.REVIEW ? i : -1).filter(i => i >= 0);
         
-        // All new indices should be less than all review indices
-        expect(Math.max(...newIndices)).toBeLessThan(Math.min(...reviewIndices));
+                expect(Math.max(...newIndices)).toBeLessThan(Math.min(...reviewIndices));
       });
     });
 
@@ -349,8 +333,7 @@ describe("sortCards - Comprehensive Edge Cases", () => {
         const newIndices = result.map((c, i) => c.status === CardStatus.NEW ? i : -1).filter(i => i >= 0);
         const reviewIndices = result.map((c, i) => c.status === CardStatus.REVIEW ? i : -1).filter(i => i >= 0);
         
-        // All review indices should be less than all new indices
-        expect(Math.max(...reviewIndices)).toBeLessThan(Math.min(...newIndices));
+                expect(Math.max(...reviewIndices)).toBeLessThan(Math.min(...newIndices));
       });
     });
 
@@ -367,8 +350,7 @@ describe("sortCards - Comprehensive Edge Cases", () => {
         
         const result = sortCards(cards, "mixed", settings);
         
-        // Should have both types in the result
-        const hasNew = result.some(c => c.status === CardStatus.NEW);
+                const hasNew = result.some(c => c.status === CardStatus.NEW);
         const hasReview = result.some(c => c.status === CardStatus.REVIEW);
         
         expect(hasNew).toBe(true);
@@ -389,15 +371,12 @@ describe("sortCards - Comprehensive Edge Cases", () => {
           newReviewOrder: "newFirst",
         };
         
-        // Run multiple times to check for randomization
-        const results = [
+                const results = [
           sortCards(cards, "newFirst", settings),
           sortCards(cards, "newFirst", settings),
         ];
         
-        // At least one result should likely differ (probabilistic)
-        // This is a weak test but better than nothing
-        expect(results[0]).toHaveLength(20);
+                        expect(results[0]).toHaveLength(20);
       });
     });
 
@@ -491,10 +470,8 @@ describe("sortCards - Comprehensive Edge Cases", () => {
         
         const result = sortCards(cards, "reviewFirst", settings);
         
-        // All cards present
-        expect(result).toHaveLength(3);
-        // Jan 1 cards should come before Jan 2 cards
-        const jan1Cards = result.filter(c => c.dueDate.startsWith("2024-01-01"));
+                expect(result).toHaveLength(3);
+                const jan1Cards = result.filter(c => c.dueDate.startsWith("2024-01-01"));
         const jan2Cards = result.filter(c => c.dueDate.startsWith("2024-01-02"));
         expect(jan1Cards).toHaveLength(2);
         expect(jan2Cards).toHaveLength(1);
@@ -517,8 +494,7 @@ describe("sortCards - Comprehensive Edge Cases", () => {
     it("should shuffle cards for mixed mode without displaySettings", () => {
       const cards = Array.from({ length: 10 }, (_, i) => createNewCard(`${i}`));
       
-      // Shuffling is random, so just verify length
-      const result = sortCards(cards, "mixed");
+            const result = sortCards(cards, "mixed");
       expect(result).toHaveLength(10);
     });
   });
@@ -544,8 +520,7 @@ describe("sortCards - Comprehensive Edge Cases", () => {
       
       const result = sortCards(cards, "newFirst");
       
-      // Priority card (epoch) should be first among new cards
-      const newCards = result.filter(c => c.status === CardStatus.NEW);
+            const newCards = result.filter(c => c.status === CardStatus.NEW);
       expect(newCards[0].id).toBe("priority");
     });
   });
@@ -565,8 +540,7 @@ describe("sortCards - Comprehensive Edge Cases", () => {
       
       const result = sortCards(cards, "newFirst", settings);
       
-      // Relearning (as learning) should be after new but before reviews
-      expect(result.map(c => c.id)).toEqual(["new1", "relearn1", "rev1"]);
+            expect(result.map(c => c.id)).toEqual(["new1", "relearn1", "rev1"]);
     });
   });
 
@@ -577,8 +551,7 @@ describe("sortCards - Comprehensive Edge Cases", () => {
         createNewCard("2", { dueDate: "2024-01-01T00:00:00Z" }),
       ];
       
-      // Should not throw
-      expect(() => sortCards(cards, "newFirst")).not.toThrow();
+            expect(() => sortCards(cards, "newFirst")).not.toThrow();
     });
 
     it("should handle cards with undefined interval for overdueness", () => {
