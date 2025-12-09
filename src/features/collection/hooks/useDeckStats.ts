@@ -13,7 +13,11 @@ import { DeckStats, Card } from "@/types";
 import { State } from "ts-fsrs";
 
 const isLearningCard = (card: Card): boolean => {
-  return card.state === State.Learning;
+  // Learning = State.Learning, or status="learning" with no lapses (first-time learning)
+  return (
+    card.state === State.Learning ||
+    (card.status === "learning" && (card.lapses || 0) === 0)
+  );
 };
 
 const isRelearningCard = (card: Card): boolean => {
@@ -27,7 +31,7 @@ const isRelearningCard = (card: Card): boolean => {
 const isReviewCard = (card: Card): boolean => {
   return (
     card.state === State.Review ||
-    (card.status === "review" && !isLearningCard(card) && !isRelearningCard(card))
+    card.status === "review"
   );
 };
 
