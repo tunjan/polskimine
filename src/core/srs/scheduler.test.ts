@@ -13,6 +13,7 @@ const createBaseCard = (overrides: Partial<Card> = {}): Card => ({
   interval: 0,
   easeFactor: 2.5,
   dueDate: new Date().toISOString(),
+  language: "polish" as any,
   ...overrides,
 });
 
@@ -305,33 +306,7 @@ describe("scheduler", () => {
         expect(result.status).toBe(CardStatus.KNOWN);
       });
 
-      it("should only tag when leechAction is tag", () => {
-        const lapsesSettings: LapsesSettings = {
-          leechThreshold: 2,
-          leechAction: "tag",
-        };
 
-        const card = createBaseCard({
-          status: CardStatus.REVIEW,
-          state: State.Review,
-          lapses: 1,
-          stability: 10,
-          difficulty: 5,
-          last_review: new Date(Date.now() - 86400000).toISOString(),
-          reps: 5,
-        });
-
-        const result = calculateNextReview(
-          card,
-          "Again",
-          undefined,
-          [1, 10],
-          lapsesSettings,
-        );
-
-        expect(result.isLeech).toBe(true);
-        expect(result.status).not.toBe(CardStatus.KNOWN);
-      });
     });
 
     describe("FSRS Integration", () => {
@@ -517,66 +492,7 @@ describe("scheduler", () => {
       });
     });
 
-    describe("Leech Tagging (#7)", () => {
-      it("should add 'leech' tag when leechAction is tag", () => {
-        const lapsesSettings: LapsesSettings = {
-          leechThreshold: 2,
-          leechAction: "tag",
-        };
 
-        const card = createBaseCard({
-          status: CardStatus.REVIEW,
-          state: State.Review,
-          lapses: 1,
-          stability: 10,
-          difficulty: 5,
-          last_review: new Date(Date.now() - 86400000).toISOString(),
-          reps: 5,
-          tags: ["existing-tag"],
-        });
-
-        const result = calculateNextReview(
-          card,
-          "Again",
-          undefined,
-          [1, 10],
-          lapsesSettings,
-        );
-
-        expect(result.isLeech).toBe(true);
-        expect(result.tags).toContain("leech");
-        expect(result.tags).toContain("existing-tag");
-      });
-
-      it("should not duplicate leech tag if already present", () => {
-        const lapsesSettings: LapsesSettings = {
-          leechThreshold: 2,
-          leechAction: "tag",
-        };
-
-        const card = createBaseCard({
-          status: CardStatus.REVIEW,
-          state: State.Review,
-          lapses: 2,
-          isLeech: true,
-          stability: 10,
-          difficulty: 5,
-          last_review: new Date(Date.now() - 86400000).toISOString(),
-          reps: 5,
-          tags: ["leech"],
-        });
-
-        const result = calculateNextReview(
-          card,
-          "Again",
-          undefined,
-          [1, 10],
-          lapsesSettings,
-        );
-
-        expect(result.tags?.filter((t) => t === "leech").length).toBe(1);
-      });
-    });
 
     describe("Learning Steps Validation (#5)", () => {
       it("should filter out negative learning steps", () => {

@@ -62,7 +62,6 @@ export type ReviewSortOrderValue =
 
 // Lapses Settings
 export const LEECH_ACTION = {
-  TAG: "tag",
   SUSPEND: "suspend",
 } as const;
 

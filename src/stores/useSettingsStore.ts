@@ -67,7 +67,7 @@ export const DEFAULT_SETTINGS: UserSettings = {
   // Lapses
   relearnSteps: [10],
   leechThreshold: 8,
-  leechAction: "tag",
+
   geminiApiKey: "AIzaSyBMVVvi9wcODo7c9-Da562BaLD-OwC1Xkk",
   tts: {
     provider: "browser",

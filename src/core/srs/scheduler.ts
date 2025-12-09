@@ -72,7 +72,7 @@ function getFSRS(settings?: UserSettings["fsrs"]) {
 
 export interface LapsesSettings {
   leechThreshold?: number;
-  leechAction?: "tag" | "suspend";
+  leechAction?: "suspend";
   relearnSteps?: number[];
 }
 
@@ -245,8 +245,7 @@ const handleRelearningPhase = (
  * Apply leech action if card is marked as leech.
  */
 const applyLeechAction = (
-  card: Card,
-  leechAction: "tag" | "suspend" | undefined,
+  leechAction: "suspend" | undefined,
   isLeech: boolean,
 ): Partial<Card> => {
   if (!isLeech) {
@@ -256,14 +255,6 @@ const applyLeechAction = (
   if (leechAction === "suspend") {
     // Suspend the card by marking it as KNOWN (removes from study queue)
     return { status: CardStatus.KNOWN };
-  }
-
-  if (leechAction === "tag") {
-    // Add "leech" tag if not already present
-    const existingTags = card.tags || [];
-    if (!existingTags.includes("leech")) {
-      return { tags: [...existingTags, "leech"] };
-    }
   }
 
   return {};
@@ -317,7 +308,6 @@ export const calculateNextReview = (
     );
     if (learningResult) {
       const leechOverrides = applyLeechAction(
-        learningResult,
         leechAction,
         learningResult.isLeech || false,
       );
@@ -339,7 +329,6 @@ export const calculateNextReview = (
     );
     if (relearnResult) {
       const leechOverrides = applyLeechAction(
-        relearnResult,
         leechAction,
         relearnResult.isLeech || false,
       );
@@ -430,7 +419,7 @@ export const calculateNextReview = (
       isLeech,
     };
 
-    const leechOverrides = applyLeechAction(result, leechAction, isLeech);
+    const leechOverrides = applyLeechAction(leechAction, isLeech);
     return { ...result, ...leechOverrides };
   }
 
@@ -484,7 +473,7 @@ export const calculateNextReview = (
     isLeech,
   };
 
-  const leechOverrides = applyLeechAction(result, leechAction, isLeech);
+  const leechOverrides = applyLeechAction(leechAction, isLeech);
   return { ...result, ...leechOverrides };
 };
 

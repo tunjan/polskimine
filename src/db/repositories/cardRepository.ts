@@ -21,7 +21,6 @@ export const getCurrentUserId = (): string | null => {
 let hasWarnedAboutCorruption = false;
 
 // Helper to handle NaN values from corrupted DB entries
-// Helper to handle NaN values from corrupted DB entries
 const SafeNumber = (fieldName: string) => z.preprocess((val) => {
   if (typeof val === "number" && isNaN(val)) {
     console.warn(`[CardRepository] Found NaN value in field '${fieldName}', resetting to 0. corrupted_val:`, val);

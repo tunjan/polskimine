@@ -1024,7 +1024,7 @@ export const SettingsPage: React.FC = () => {
           description="What to do when card becomes leech"
         >
           <Select
-            value={settings.leechAction || LEECH_ACTION.TAG}
+            value={settings.leechAction || undefined}
             onValueChange={(value) =>
               setSettings((prev) => ({ ...prev, leechAction: value as any }))
             }
@@ -1033,7 +1033,7 @@ export const SettingsPage: React.FC = () => {
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value={LEECH_ACTION.TAG}>Tag Only</SelectItem>
+
               <SelectItem value={LEECH_ACTION.SUSPEND}>Suspend</SelectItem>
             </SelectContent>
           </Select>
