@@ -9,7 +9,27 @@ import { useSettingsStore } from "@/stores/useSettingsStore";
 import { useShallow } from "zustand/react/shallow";
 import { useStreakStats } from "./useStreakStats";
 import { applyStudyLimits, isNewCard } from "@/services/studyLimits";
-import { DeckStats } from "@/types";
+import { DeckStats, Card } from "@/types";
+import { State } from "ts-fsrs";
+
+const isLearningCard = (card: Card): boolean => {
+  return card.state === State.Learning;
+};
+
+const isRelearningCard = (card: Card): boolean => {
+  // Relearning = card has state Relearning, or Learning status with lapses > 0
+  return (
+    card.state === State.Relearning ||
+    (card.status === "learning" && (card.lapses || 0) > 0)
+  );
+};
+
+const isReviewCard = (card: Card): boolean => {
+  return (
+    card.state === State.Review ||
+    (card.status === "review" && !isLearningCard(card) && !isRelearningCard(card))
+  );
+};
 
 export const useDeckStats = () => {
   const { language, dailyNewLimits, dailyReviewLimits } = useSettingsStore(
@@ -41,6 +61,8 @@ export const useDeckStats = () => {
         total: 0,
         due: 0,
         newDue: 0,
+        learningDue: 0,
+        lapseDue: 0,
         reviewDue: 0,
         learned: 0,
         streak: 0,
@@ -56,13 +78,17 @@ export const useDeckStats = () => {
     });
 
     const newDue = limitedCards.filter(isNewCard).length;
-    const reviewDue = limitedCards.length - newDue;
+    const learningDue = limitedCards.filter(isLearningCard).length;
+    const lapseDue = limitedCards.filter(isRelearningCard).length;
+    const reviewDue = limitedCards.filter(isReviewCard).length;
 
     return {
       total: dbStats.total,
       learned: dbStats.learned,
       due: limitedCards.length,
       newDue,
+      learningDue,
+      lapseDue,
       reviewDue,
       streak: streakStats.currentStreak,
       totalReviews: streakStats.totalReviews,

@@ -11,7 +11,6 @@ import {
   History,
   BarChart3,
   CalendarDays,
-  Zap,
 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { subDays, startOfDay, format } from "date-fns";
@@ -192,14 +191,22 @@ export const Dashboard: React.FC<DashboardProps> = ({
               Due for Review
             </p>
             <p className="text-5xl font-bold text-primary mb-2">{stats.due}</p>
-            <div className="flex items-center gap-3 text-xs  text-muted-foreground mb-4">
+            <div className="flex items-center gap-3 text-xs  text-muted-foreground mb-4 flex-wrap">
               <span className="flex items-center gap-1">
                 <Circle size={8} className="fill-blue-500 text-blue-500" />{" "}
                 {stats.newDue} New
               </span>
               <span className="flex items-center gap-1">
+                <Circle size={8} className="fill-orange-500 text-orange-500" />{" "}
+                {stats.learningDue} Learning
+              </span>
+              <span className="flex items-center gap-1">
+                <Circle size={8} className="fill-red-500 text-red-500" />{" "}
+                {stats.lapseDue} Lapse
+              </span>
+              <span className="flex items-center gap-1">
                 <Circle size={8} className="fill-green-500 text-green-500" />{" "}
-                {stats.reviewDue} Reviews
+                {stats.reviewDue} Review
               </span>
             </div>
             <Button
@@ -234,7 +241,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
             </CardContent>
           </Card>
         ) : (
-          <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
             <Card>
               <CardContent className="">
                 <div className="flex items-center justify-between mb-1">
@@ -260,19 +267,6 @@ export const Dashboard: React.FC<DashboardProps> = ({
               </CardContent>
             </Card>
 
-            <Card>
-              <CardContent className="">
-                <div className="flex items-center justify-between mb-1">
-                  <span className="text-xs text-muted-foreground">
-                    Lapse
-                  </span>
-                  <Zap size={14} className="text-red-500" />
-                </div>
-                <p className="text-2xl font-bold text-red-600 dark:text-red-400">
-                  {(metrics.relearning || 0).toLocaleString()}
-                </p>
-              </CardContent>
-            </Card>
             <Card>
               <CardContent className="">
                 <div className="flex items-center justify-between mb-1">

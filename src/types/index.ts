@@ -67,6 +67,8 @@ export interface DeckStats {
   total: number;
   due: number;
   newDue: number;
+  learningDue: number;
+  lapseDue: number;
   reviewDue: number;
   learned: number;
   streak: number;
