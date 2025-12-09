@@ -1,6 +1,6 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
-import { db, hashPassword, generateId, LocalUser } from '@/services/db/dexie';
-import { toast } from 'sonner';
+import React, { createContext, useContext, useEffect, useState } from "react";
+import { db, hashPassword, generateId, LocalUser } from "@/db/dexie";
+import { toast } from "sonner";
 
 interface AuthUser {
   id: string;
@@ -14,14 +14,17 @@ interface AuthContextType {
   login: (username: string, password: string) => Promise<void>;
   signOut: () => Promise<void>;
   updateUsername: (username: string) => Promise<void>;
+  deleteAccount: () => Promise<void>;
   getRegisteredUsers: () => Promise<LocalUser[]>;
 }
 
-const SESSION_KEY = 'linguaflow_current_user';
+const SESSION_KEY = "linguaflow_current_user";
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
+  children,
+}) => {
   const [user, setUser] = useState<AuthUser | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -38,7 +41,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           }
         }
       } catch (error) {
-        console.error('Failed to restore session:', error);
+        console.error("Failed to restore session:", error);
       } finally {
         setLoading(false);
       }
@@ -47,26 +50,29 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     restoreSession();
   }, []);
 
-  const register = async (username: string, password: string): Promise<{ user: AuthUser }> => {
-    // Check if username already exists
-    const existingUser = await db.users.where('username').equals(username).first();
+  const register = async (
+    username: string,
+    password: string,
+  ): Promise<{ user: AuthUser }> => {
+    const existingUser = await db.users
+      .where("username")
+      .equals(username)
+      .first();
     if (existingUser) {
-      throw new Error('Username already exists');
+      throw new Error("Username already exists");
     }
 
     const userId = generateId();
     const passwordHash = await hashPassword(password);
     const now = new Date().toISOString();
 
-    // Create user account
     await db.users.add({
       id: userId,
       username,
       passwordHash,
-      created_at: now
+      created_at: now,
     });
 
-    // Create profile for the user
     await db.profile.put({
       id: userId,
       username,
@@ -74,10 +80,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       points: 0,
       level: 1,
       created_at: now,
-      updated_at: now
+      updated_at: now,
     });
 
-    // Save session
     localStorage.setItem(SESSION_KEY, userId);
 
     const authUser = { id: userId, username };
@@ -87,18 +92,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const login = async (username: string, password: string): Promise<void> => {
-    const existingUser = await db.users.where('username').equals(username).first();
+    const existingUser = await db.users
+      .where("username")
+      .equals(username)
+      .first();
 
     if (!existingUser) {
-      throw new Error('User not found');
+      throw new Error("User not found");
     }
 
     const passwordHash = await hashPassword(password);
     if (existingUser.passwordHash !== passwordHash) {
-      throw new Error('Invalid password');
+      throw new Error("Invalid password");
     }
 
-    // Save session
     localStorage.setItem(SESSION_KEY, existingUser.id);
     setUser({ id: existingUser.id, username: existingUser.username });
 
@@ -106,14 +113,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const updateUsername = async (username: string) => {
-    if (!user) throw new Error('No user logged in');
+    if (!user) throw new Error("No user logged in");
 
     const now = new Date().toISOString();
 
-    // Update user account
     await db.users.update(user.id, { username });
 
-    // Update profile
     const exists = await db.profile.get(user.id);
     if (exists) {
       await db.profile.update(user.id, { username, updated_at: now });
@@ -125,17 +130,42 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         points: 0,
         level: 1,
         created_at: now,
-        updated_at: now
+        updated_at: now,
       });
     }
 
-    setUser(prev => prev ? { ...prev, username } : null);
+    setUser((prev) => (prev ? { ...prev, username } : null));
   };
 
   const signOut = async () => {
     localStorage.removeItem(SESSION_KEY);
     setUser(null);
-    toast.success('Signed out');
+    toast.success("Signed out");
+  };
+
+  const deleteAccount = async () => {
+    if (!user) throw new Error("No user logged in");
+
+    await db.transaction(
+      "rw",
+      [db.users, db.profile, db.cards, db.revlog, db.history],
+      async () => {
+        await db.users.delete(user.id);
+        await db.profile.delete(user.id);
+
+        const userCards = await db.cards
+          .where("user_id")
+          .equals(user.id)
+          .toArray();
+        await db.cards.bulkDelete(userCards.map((c) => c.id));
+
+        await db.revlog.where("user_id").equals(user.id).delete();
+      },
+    );
+
+    localStorage.removeItem(SESSION_KEY);
+    setUser(null);
+    toast.success("Account deleted");
   };
 
   const getRegisteredUsers = async (): Promise<LocalUser[]> => {
@@ -150,8 +180,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         register,
         login,
         signOut,
+        deleteAccount,
         updateUsername,
-        getRegisteredUsers
+        getRegisteredUsers,
       }}
     >
       {children}
@@ -162,7 +193,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (!context) {
-    throw new Error('useAuth must be used within AuthProvider');
+    throw new Error("useAuth must be used within AuthProvider");
   }
   return context;
 };

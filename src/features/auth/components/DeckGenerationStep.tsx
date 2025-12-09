@@ -1,188 +1,188 @@
-import React, { useState } from 'react';
-import { Sparkles, BookOpen } from 'lucide-react';
+import React, { useState } from "react";
+import { Sparkles, BookOpen } from "lucide-react";
 import { motion } from "framer-motion";
-import { Difficulty, Language, LanguageId, LANGUAGE_LABELS } from '@/types';
-import { cn } from '@/lib/utils';
-import { ButtonLoader } from '@/components/ui/loading';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+import { Difficulty, Language, LanguageId, LANGUAGE_LABELS } from "@/types";
+import { cn } from "@/lib/utils";
+import { ButtonLoader } from "@/components/ui/loading";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 interface DeckGenerationStepProps {
-    languages: Language[];
-    proficiencyLevel: Difficulty;
-    onComplete: (languages: Language[], useAI: boolean, apiKey?: string) => Promise<void>;
+  languages: Language[];
+  proficiencyLevel: Difficulty;
+  onComplete: (
+    languages: Language[],
+    useAI: boolean,
+    apiKey?: string,
+  ) => Promise<void>;
 }
 
-type DeckOption = 'ai' | 'default' | null;
+type DeckOption = "ai" | "default" | null;
 
 export const DeckGenerationStep: React.FC<DeckGenerationStepProps> = ({
-    languages,
-    proficiencyLevel,
-    onComplete,
+  languages,
+  proficiencyLevel,
+  onComplete,
 }) => {
-    const [selectedOption, setSelectedOption] = useState<DeckOption>(null);
-    const [apiKey, setApiKey] = useState('');
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState('');
+  const [selectedOption, setSelectedOption] = useState<DeckOption>(null);
+  const [apiKey, setApiKey] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
-    const handleGenerate = async () => {
-        if (selectedOption === 'ai' && !apiKey.trim()) {
-            setError('Please enter your Gemini API key');
-            return;
-        }
+  const handleGenerate = async () => {
+    if (selectedOption === "ai" && !apiKey.trim()) {
+      setError("Please enter your Gemini API key");
+      return;
+    }
 
-        setLoading(true);
-        setError('');
+    setLoading(true);
+    setError("");
 
-        try {
-            await onComplete(languages, selectedOption === 'ai', selectedOption === 'ai' ? apiKey : undefined);
-        } catch (err: any) {
-            setError(err.message || 'Failed to complete setup');
-            setLoading(false);
-        }
-    };
+    try {
+      await onComplete(
+        languages,
+        selectedOption === "ai",
+        selectedOption === "ai" ? apiKey : undefined,
+      );
+    } catch (err: any) {
+      setError(err.message || "Failed to complete setup");
+      setLoading(false);
+    }
+  };
 
-    const languageNames = languages.map(lang => LANGUAGE_LABELS[lang] || lang).join(', ');
-    const languageCount = languages.length;
+  const languageNames = languages
+    .map((lang) => LANGUAGE_LABELS[lang] || lang)
+    .join(", ");
+  const languageCount = languages.length;
 
-    return (
-        <div className="space-y-6">
-            <div className="space-y-2">
-                <p className="text-xs font-ui text-muted-foreground uppercase tracking-wider">
-                    Choose how to start learning {languageCount > 1 ? `${languageCount} languages` : languageNames} at {proficiencyLevel} level.
-                </p>
-                {languageCount > 1 && (
-                    <p className="text-xs text-muted-foreground/70">
-                        Selected: {languageNames}
-                    </p>
+  return (
+    <div className="space-y-6">
+      <div className="space-y-2">
+        <p className="text-xs  text-muted-foreground uppercase tracking-wider">
+          Choose how to start learning{" "}
+          {languageCount > 1 ? `${languageCount} languages` : languageNames} at{" "}
+          {proficiencyLevel} level.
+        </p>
+        {languageCount > 1 && (
+          <p className="text-xs text-muted-foreground/70">
+            Selected: {languageNames}
+          </p>
+        )}
+      </div>
+
+      <div className="grid gap-3">
+        <Button
+          type="button"
+          variant="outline"
+          onClick={() => setSelectedOption("ai")}
+          disabled={loading}
+          className={cn(
+            "group relative w-full h-auto flex justify-start items-start p-4 text-left",
+            selectedOption === "ai"
+              ? "border-primary bg-primary/10 hover:bg-primary/20"
+              : "",
+          )}
+        >
+          <div className="flex items-start gap-3 w-full">
+            <div className="mt-1 w-8 h-8 bg-primary/10 border border-primary/20 rounded-md flex items-center justify-center shrink-0">
+              <Sparkles size={16} className="text-primary" />
+            </div>
+            <div className="flex-1 space-y-1 ml-2">
+              <div
+                className={cn(
+                  "text-sm font-bold uppercase tracking-wider",
+                  selectedOption === "ai" ? "text-primary" : "text-foreground",
                 )}
+              >
+                AI-Generated Decks
+              </div>
+              <p className="text-xs text-muted-foreground/80 leading-relaxed font-normal whitespace-normal">
+                Generate 50 personalized flashcards per language using Gemini
+                AI, tailored to {proficiencyLevel} level. Requires your API key.
+              </p>
             </div>
+          </div>
+        </Button>
 
-            {/* Options */}
-            <div className="grid gap-3">
-                {/* AI Generated Deck */}
-                <button
-                    type="button"
-                    onClick={() => setSelectedOption('ai')}
-                    disabled={loading}
-                    className={cn(
-                        'group relative w-full text-left p-4 border-2 transition-all duration-200',
-                        'hover:bg-amber-400/5 hover:border-amber-400/30 disabled:opacity-50',
-                        selectedOption === 'ai'
-                            ? 'border-amber-400 bg-amber-400/10'
-                            : 'border-border/40 bg-card'
-                    )}
-                >
-                    <div className="flex items-start gap-3">
-                        <div className="mt-1 w-8 h-8 bg-amber-400/10 border border-amber-400/20 rotate-45 flex items-center justify-center">
-                            <Sparkles size={16} className="text-amber-400 -rotate-45" />
-                        </div>
-                        <div className="flex-1 space-y-1 ml-2">
-                            <div className={cn(
-                                "text-sm font-ui font-bold uppercase tracking-wider",
-                                selectedOption === 'ai' ? "text-amber-400" : "text-foreground"
-                            )}>
-                                AI-Generated Decks
-                            </div>
-                            <p className="text-xs text-muted-foreground/80 leading-relaxed">
-                                Generate 50 personalized flashcards per language using Gemini AI, tailored to {proficiencyLevel} level.
-                                Requires your API key.
-                            </p>
-                        </div>
-                    </div>
-
-                    {selectedOption === 'ai' && (
-                        <>
-                            <span className="absolute top-0 left-0 w-2 h-2 border-t-2 border-l-2 border-amber-400" />
-                            <span className="absolute top-0 right-0 w-2 h-2 border-t-2 border-r-2 border-amber-400" />
-                            <span className="absolute bottom-0 left-0 w-2 h-2 border-b-2 border-l-2 border-amber-400" />
-                            <span className="absolute bottom-0 right-0 w-2 h-2 border-b-2 border-r-2 border-amber-400" />
-                        </>
-                    )}
-                </button>
-
-                {/* Default Deck */}
-                <button
-                    type="button"
-                    onClick={() => setSelectedOption('default')}
-                    disabled={loading}
-                    className={cn(
-                        'group relative w-full text-left p-4 border-2 transition-all duration-200',
-                        'hover:bg-amber-400/5 hover:border-amber-400/30 disabled:opacity-50',
-                        selectedOption === 'default'
-                            ? 'border-amber-400 bg-amber-400/10'
-                            : 'border-border/40 bg-card'
-                    )}
-                >
-                    <div className="flex items-start gap-3">
-                        <div className="mt-1 w-8 h-8 bg-amber-400/10 border border-amber-400/20 rotate-45 flex items-center justify-center">
-                            <BookOpen size={16} className="text-amber-400 -rotate-45" />
-                        </div>
-                        <div className="flex-1 space-y-1 ml-2">
-                            <div className={cn(
-                                "text-sm font-ui font-bold uppercase tracking-wider",
-                                selectedOption === 'default' ? "text-amber-400" : "text-foreground"
-                            )}>
-                                Standard Courses
-                            </div>
-                            <p className="text-xs text-muted-foreground/80 leading-relaxed">
-                                Start with our curated beginner decks for {languageCount > 1 ? 'each language' : 'this language'}. Best for getting started quickly.
-                            </p>
-                        </div>
-                    </div>
-
-                    {selectedOption === 'default' && (
-                        <>
-                            <span className="absolute top-0 left-0 w-2 h-2 border-t-2 border-l-2 border-amber-400" />
-                            <span className="absolute top-0 right-0 w-2 h-2 border-t-2 border-r-2 border-amber-400" />
-                            <span className="absolute bottom-0 left-0 w-2 h-2 border-b-2 border-l-2 border-amber-400" />
-                            <span className="absolute bottom-0 right-0 w-2 h-2 border-b-2 border-r-2 border-amber-400" />
-                        </>
-                    )}
-                </button>
+        <Button
+          type="button"
+          variant="outline"
+          onClick={() => setSelectedOption("default")}
+          disabled={loading}
+          className={cn(
+            "group relative w-full h-auto flex justify-start items-start p-4 text-left",
+            selectedOption === "default"
+              ? "border-primary bg-primary/10 hover:bg-primary/20"
+              : "",
+          )}
+        >
+          <div className="flex items-start gap-3 w-full">
+            <div className="mt-1 w-8 h-8 bg-primary/10 border border-primary/20 rounded-md flex items-center justify-center shrink-0">
+              <BookOpen size={16} className="text-primary" />
             </div>
+            <div className="flex-1 space-y-1 ml-2">
+              <div
+                className={cn(
+                  "text-sm font-bold uppercase tracking-wider",
+                  selectedOption === "default"
+                    ? "text-primary"
+                    : "text-foreground",
+                )}
+              >
+                Standard Courses
+              </div>
+              <p className="text-xs text-muted-foreground/80 leading-relaxed font-normal whitespace-normal">
+                Start with our curated beginner decks for{" "}
+                {languageCount > 1 ? "each language" : "this language"}. Best
+                for getting started quickly.
+              </p>
+            </div>
+          </div>
+        </Button>
+      </div>
 
-            {/* API Key Input */}
-            {selectedOption === 'ai' && (
-                <div className="animate-in fade-in slide-in-from-top-2 duration-200">
-                    <div className="space-y-1.5">
-                        <Label htmlFor="apiKey" className="text-xs font-medium text-muted-foreground font-ui uppercase tracking-wider ml-1">
-                            Gemini API Key
-                        </Label>
-                        <Input
-                            id="apiKey"
-                            type="password"
-                            placeholder="Enter your API key"
-                            value={apiKey}
-                            onChange={(e) => setApiKey(e.target.value)}
-                        />
-                        {error && <p className="text-destructive text-xs ml-1">{error}</p>}
-                    </div>
-                    <p className="text-[10px] text-muted-foreground mt-2">
-                        Your key is stored locally and only used for deck generation.
-                    </p>
-                </div>
-            )}
-
-            {/* Action Button */}
-            {selectedOption && (
-                <div className="pt-2 animate-in fade-in slide-in-from-bottom-2 duration-200">
-                    <Button
-                        onClick={handleGenerate}
-                        disabled={loading}
-                        className="w-full"
-                    >
-                        {loading ? (
-                            <ButtonLoader />
-                        ) : (
-                            selectedOption === 'ai'
-                                ? `Generate ${languageCount} Deck${languageCount > 1 ? 's' : ''}`
-                                : 'Start Learning'
-                        )}
-                    </Button>
-                </div>
-            )}
+      {selectedOption === "ai" && (
+        <div className="animate-in fade-in slide-in-from-top-2 duration-200">
+          <div className="space-y-1.5">
+            <Label
+              htmlFor="apiKey"
+              className="text-xs font-medium text-muted-foreground  uppercase tracking-wider ml-1"
+            >
+              Gemini API Key
+            </Label>
+            <Input
+              id="apiKey"
+              type="password"
+              placeholder="Enter your API key"
+              value={apiKey}
+              onChange={(e) => setApiKey(e.target.value)}
+            />
+            {error && <p className="text-destructive text-xs ml-1">{error}</p>}
+          </div>
+          <p className="text-[10px] text-muted-foreground mt-2">
+            Your key is stored locally and only used for deck generation.
+          </p>
         </div>
-    );
+      )}
+
+      {selectedOption && (
+        <div className="pt-2 animate-in fade-in slide-in-from-bottom-2 duration-200">
+          <Button
+            onClick={handleGenerate}
+            disabled={loading}
+            className="w-full"
+          >
+            {loading ? (
+              <ButtonLoader />
+            ) : selectedOption === "ai" ? (
+              `Generate ${languageCount} Deck${languageCount > 1 ? "s" : ""}`
+            ) : (
+              "Start Learning"
+            )}
+          </Button>
+        </div>
+      )}
+    </div>
+  );
 };

@@ -1,38 +1,50 @@
-import React from 'react';
-import { LineChart, Line, XAxis, YAxis, ReferenceLine } from 'recharts';
-import { ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
-import { useChartColors } from '@/hooks/useChartColors';
+import React from "react";
+import { LineChart, Line, XAxis, YAxis, ReferenceLine } from "recharts";
+import {
+  ChartConfig,
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent,
+} from "@/components/ui/chart";
 
 interface TrueRetentionChartProps {
   data: { date: string; rate: number | null }[];
   targetRetention: number;
 }
 
-export const TrueRetentionChart: React.FC<TrueRetentionChartProps> = ({ data, targetRetention }) => {
-  const colors = useChartColors();
+export const TrueRetentionChart: React.FC<TrueRetentionChartProps> = ({
+  data,
+  targetRetention,
+}) => {
   const targetPercent = targetRetention * 100;
 
   const chartConfig = {
     rate: {
       label: "Pass Rate",
-      color: "hsl(var(--foreground))",
+      color: "hsl(var(--primary))",
     },
-  } satisfies ChartConfig
+  } satisfies ChartConfig;
 
-  const hasData = data.some(d => d.rate !== null);
+  const hasData = data.some((d) => d.rate !== null);
 
   if (!hasData) {
     return (
       <div className="h-full w-full flex flex-col">
         <div className="flex justify-between items-end mb-8">
-          <h3 className="text-[9px] font-mono uppercase tracking-[0.25em] text-muted-foreground/50">True Retention (30d)</h3>
+          <h3 className="text-[9px] font-mono uppercase tracking-[0.25em] text-muted-foreground/50">
+            True Retention (30d)
+          </h3>
           <div className="flex items-center gap-3">
             <div className="w-3 h-px bg-muted-foreground/30" />
-            <span className="text-[9px] font-mono uppercase tracking-[0.2em] text-muted-foreground/40">Target: {targetPercent}%</span>
+            <span className="text-[9px] font-mono uppercase tracking-[0.2em] text-muted-foreground/40">
+              Target: {targetPercent}%
+            </span>
           </div>
         </div>
         <div className="flex-1 min-h-[150px] flex items-center justify-center">
-          <p className="text-xs text-muted-foreground font-medium">No retention data available</p>
+          <p className="text-xs text-muted-foreground font-medium">
+            No retention data available
+          </p>
         </div>
       </div>
     );
@@ -41,31 +53,43 @@ export const TrueRetentionChart: React.FC<TrueRetentionChartProps> = ({ data, ta
   return (
     <div className="h-full w-full flex flex-col">
       <div className="flex justify-between items-end mb-8">
-        <h3 className="text-[9px] font-mono uppercase tracking-[0.25em] text-muted-foreground/50">True Retention (30d)</h3>
+        <h3 className="text-[9px] font-mono uppercase tracking-[0.25em] text-muted-foreground/50">
+          True Retention (30d)
+        </h3>
         <div className="flex items-center gap-3">
           <div className="w-3 h-px bg-muted-foreground/30" />
-          <span className="text-[9px] font-mono uppercase tracking-[0.2em] text-muted-foreground/40">Target: {targetPercent}%</span>
+          <span className="text-[9px] font-mono uppercase tracking-[0.2em] text-muted-foreground/40">
+            Target: {targetPercent}%
+          </span>
         </div>
       </div>
       <div className="flex-1 min-h-[150px]">
         <ChartContainer config={chartConfig} className="h-full w-full">
-          <LineChart data={data} margin={{ top: 5, right: 5, left: -25, bottom: 0 }}>
+          <LineChart
+            data={data}
+            margin={{ top: 5, right: 5, left: -25, bottom: 0 }}
+          >
             <XAxis
               dataKey="date"
-              tick={{ fontSize: 9, fill: colors.mutedForeground, fontFamily: 'monospace', opacity: 0.5 }}
-              axisLine={false}
               tickLine={false}
+              axisLine={false}
+              tickMargin={10}
               interval={4}
-              dy={12}
+              className="text-[9px] font-mono uppercase opacity-50 text-muted-foreground"
             />
             <YAxis
               domain={[0, 100]}
-              tick={{ fontSize: 9, fill: colors.mutedForeground, fontFamily: 'monospace', opacity: 0.5 }}
-              axisLine={false}
               tickLine={false}
+              axisLine={false}
+              tickMargin={10}
+              className="text-[9px] font-mono uppercase opacity-50 text-muted-foreground"
             />
             <ChartTooltip
-              cursor={{ stroke: colors.foreground, strokeWidth: 1, opacity: 0.1 }}
+              cursor={{
+                stroke: "hsl(var(--muted-foreground))",
+                strokeWidth: 1,
+                opacity: 0.1,
+              }}
               content={
                 <ChartTooltipContent
                   hideLabel
@@ -88,7 +112,13 @@ export const TrueRetentionChart: React.FC<TrueRetentionChartProps> = ({ data, ta
                 />
               }
             />
-            <ReferenceLine y={targetPercent} stroke={colors.mutedForeground} strokeDasharray="4 4" opacity={0.3} strokeWidth={1} />
+            <ReferenceLine
+              y={targetPercent}
+              stroke="hsl(var(--muted-foreground))"
+              strokeDasharray="4 4"
+              opacity={0.3}
+              strokeWidth={1}
+            />
             <Line
               type="monotone"
               dataKey="rate"
@@ -104,4 +134,3 @@ export const TrueRetentionChart: React.FC<TrueRetentionChartProps> = ({ data, ta
     </div>
   );
 };
-

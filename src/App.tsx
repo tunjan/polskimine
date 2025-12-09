@@ -1,12 +1,15 @@
-import React from 'react';
-import { AppProviders } from '@/app/AppProviders';
-import { AppRouter } from '@/app/AppRouter';
-import { usePlatformSetup } from '@/hooks/usePlatformSetup';
-import { useProfile } from '@/features/profile/hooks/useProfile';
-import { useAuth } from '@/contexts/AuthContext';
-import { AuthPage } from '@/features/auth/AuthPage';
-import { UsernameSetup } from '@/features/auth/UsernameSetup';
-import { OnboardingFlow } from '@/features/auth/OnboardingFlow';
+import React, { useEffect } from "react";
+import { migrateCardStatuses } from "@/db/migrations/standardizeStatus";
+import { Button } from "@/components/ui/button";
+import { LoadingScreen } from "@/components/ui/loading";
+import { AppProviders } from "@/app/AppProviders";
+import { AppRouter } from "@/app/AppRouter";
+import { usePlatformSetup } from "@/hooks/usePlatformSetup";
+import { useProfile } from "@/features/profile/hooks/useProfile";
+import { useAuth } from "@/contexts/AuthContext";
+import { AuthPage } from "@/features/auth/AuthPage";
+import { UsernameSetup } from "@/features/auth/UsernameSetup";
+import { OnboardingFlow } from "@/features/auth/OnboardingFlow";
 
 const AppContent: React.FC = () => {
   usePlatformSetup();
@@ -16,17 +19,10 @@ const AppContent: React.FC = () => {
   const loading = authLoading || profileLoading;
 
   if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
-        <div className="flex flex-col items-center gap-3">
-          <div className="animate-spin rounded-full h-4 w-4 border border-foreground/20 border-t-foreground" />
-          <span className="text-[10px] font-sans uppercase tracking-widest text-muted-foreground">Loading</span>
-        </div>
-      </div>
-    );
+    return <LoadingScreen />;
   }
 
-  if (!user) {
+  if (!user && !window.location.pathname.startsWith("/test-stats")) {
     return <AuthPage />;
   }
 
@@ -34,13 +30,17 @@ const AppContent: React.FC = () => {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="flex flex-col items-center gap-3">
-          <p className="text-sm font-sans text-muted-foreground">Profile not found.</p>
-          <button
+          <p className="text-sm font-sans text-muted-foreground">
+            Profile not found.
+          </p>
+          <Button
+            variant="link"
+            size="sm"
             onClick={() => window.location.reload()}
-            className="text-xs font-sans uppercase tracking-widest text-primary hover:underline"
+            className="text-xs font-sans uppercase tracking-widest text-primary"
           >
             Retry
-          </button>
+          </Button>
         </div>
       </div>
     );
@@ -58,6 +58,18 @@ const AppContent: React.FC = () => {
 };
 
 const App: React.FC = () => {
+  useEffect(() => {
+    const hasMigrated = localStorage.getItem("migration_v1_status");
+    if (!hasMigrated) {
+      migrateCardStatuses().then(() => {
+        localStorage.setItem("migration_v1_status", "true");
+      });
+    }
+
+        import("@/db/repositories/cardRepository").then(({ repairCorruptedCards }) => {
+      repairCorruptedCards();
+    });
+  }, []);
   return (
     <AppProviders>
       <AppContent />
@@ -66,4 +78,3 @@ const App: React.FC = () => {
 };
 
 export default App;
-

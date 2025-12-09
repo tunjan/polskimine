@@ -1,60 +1,29 @@
-import * as React from "react"
-import * as ProgressPrimitive from "@radix-ui/react-progress"
-import { cva, type VariantProps } from "class-variance-authority"
+import * as React from "react";
+import * as ProgressPrimitive from "@radix-ui/react-progress";
 
-import { cn } from "@/lib/utils"
-import { LCorners } from "@/components/ui/decorative"
-
-const progressVariants = cva(
-  "relative w-full overflow-hidden border border-amber-700/20 dark:border-amber-600/15 bg-muted/30",
-  {
-    variants: {
-      variant: {
-        default: "[&>[data-slot=progress-indicator]]:bg-amber-600",
-        xp: "[&>[data-slot=progress-indicator]]:bg-blue-500",
-        health: "[&>[data-slot=progress-indicator]]:bg-pine-500",
-      },
-      size: {
-        default: "h-2",
-        sm: "h-2",
-        md: "h-3",
-        lg: "h-4",
-      },
-    },
-    defaultVariants: {
-      variant: "default",
-      size: "default",
-    },
-  }
-)
-
-interface ProgressProps
-  extends React.ComponentProps<typeof ProgressPrimitive.Root>,
-  VariantProps<typeof progressVariants> { }
+import { cn } from "@/lib/utils";
 
 function Progress({
   className,
   value,
-  variant,
-  size,
   ...props
-}: ProgressProps) {
+}: React.ComponentProps<typeof ProgressPrimitive.Root>) {
   return (
     <ProgressPrimitive.Root
       data-slot="progress"
-      className={cn(progressVariants({ variant, size, className }))}
+      className={cn(
+        "bg-primary/20 relative h-2 w-full overflow-hidden rounded-full",
+        className,
+      )}
       {...props}
     >
-      <LCorners positions="diagonal" size="xs" className="bg-amber-500/50 z-10" />
-
       <ProgressPrimitive.Indicator
         data-slot="progress-indicator"
-        className="h-full w-full flex-1 transition-all duration-500"
+        className="bg-primary h-full w-full flex-1 transition-all"
         style={{ transform: `translateX(-${100 - (value || 0)}%)` }}
       />
     </ProgressPrimitive.Root>
-  )
+  );
 }
 
-export { Progress }
-
+export { Progress };

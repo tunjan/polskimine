@@ -1,4 +1,4 @@
-export type GameStatus = 'waiting' | 'playing' | 'finished';
+export type GameStatus = "waiting" | "playing" | "finished";
 
 export interface GameQuestion {
   question: string;
@@ -27,4 +27,3 @@ export interface GamePlayer {
   score: number;
   is_ready: boolean;
 }
-

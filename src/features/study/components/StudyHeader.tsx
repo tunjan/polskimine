@@ -1,26 +1,130 @@
-import React from 'react';
-import { Zap, TrendingUp, Pencil, Trash2, Archive, Undo2, X, Bookmark } from 'lucide-react';
-import { Toggle } from '@/components/ui/toggle';
-import clsx from 'clsx';
-import { Card } from '@/types';
+import React from "react";
+import {
+  Zap,
+  TrendingUp,
+  Pencil,
+  Trash2,
+  Archive,
+  Undo2,
+  X,
+  Bookmark,
+  Sparkles,
+  MoreVertical,
+} from "lucide-react";
+import { Toggle } from "@/components/ui/toggle";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+  TooltipProvider,
+} from "@/components/ui/tooltip";
+import { Separator } from "@/components/ui/separator";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import clsx from "clsx";
+import { cn } from "@/lib/utils";
 
 interface StudyHeaderProps {
-    counts: { unseen: number; learning: number; lapse: number; mature: number };
-    currentStatus: { label: string; className: string } | null;
-    sessionXp: number;
-    multiplierInfo: { value: number; label: string };
-    isProcessing: boolean;
-    onEdit: () => void;
-    onDelete: () => void;
-    onArchive: () => void;
-    onUndo: () => void;
-    onExit: () => void;
-    canUndo: boolean;
-    isBookmarked?: boolean;
-    onBookmark: (pressed: boolean) => void;
+  counts: { unseen: number; learning: number; lapse: number; mature: number };
+  currentStatus: { label: string; className: string } | null;
+  sessionXp: number;
+  multiplierInfo: { value: number; label: string };
+  isProcessing: boolean;
+  onEdit: () => void;
+  onDelete: () => void;
+  onArchive: () => void;
+  onUndo: () => void;
+  onExit: () => void;
+  canUndo: boolean;
+  isBookmarked?: boolean;
+  onBookmark: (pressed: boolean) => void;
 }
 
-export const StudyHeader: React.FC<StudyHeaderProps> = React.memo(({
+const QueueBadge = ({
+  label,
+  count,
+  color,
+}: {
+  label: string;
+  count: number;
+  color: "blue" | "amber" | "red" | "emerald";
+}) => {
+  const colorClasses = {
+    blue: "bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/20",
+    amber:
+      "bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20",
+    red: "bg-red-500/10 text-red-600 dark:text-red-400 border-red-500/20",
+    emerald:
+      "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20",
+  };
+
+  const dotClasses = {
+    blue: "bg-blue-500",
+    amber: "bg-amber-500",
+    red: "bg-red-500",
+    emerald: "bg-emerald-500",
+  };
+
+  return (
+    <Badge
+      variant="outline"
+      className={cn(
+        "gap-1.5 px-2.5 py-1 border transition-all hover:scale-105",
+        colorClasses[color],
+      )}
+    >
+      <span
+        className={cn("size-1.5 rounded-full animate-pulse", dotClasses[color])}
+      />
+      <span className="hidden sm:inline text-[10px] font-semibold uppercase tracking-wider">
+        {label}
+      </span>
+      <span className="text-xs font-bold tabular-nums">{count}</span>
+    </Badge>
+  );
+};
+
+const ActionButton = ({
+  icon: Icon,
+  label,
+  onClick,
+  disabled,
+  variant = "ghost",
+  className,
+}: {
+  icon: React.ElementType;
+  label: string;
+  onClick: () => void;
+  disabled?: boolean;
+  variant?: "ghost" | "outline";
+  className?: string;
+}) => (
+  <Tooltip>
+    <TooltipTrigger asChild>
+      <Button
+        variant={variant}
+        size="icon"
+        onClick={onClick}
+        disabled={disabled}
+        className={cn("size-8 rounded-lg", className)}
+      >
+        <Icon size={15} strokeWidth={1.5} />
+      </Button>
+    </TooltipTrigger>
+    <TooltipContent side="bottom" className="text-xs">
+      {label}
+    </TooltipContent>
+  </Tooltip>
+);
+
+export const StudyHeader: React.FC<StudyHeaderProps> = React.memo(
+  ({
     counts,
     currentStatus,
     sessionXp,
@@ -34,212 +138,176 @@ export const StudyHeader: React.FC<StudyHeaderProps> = React.memo(({
     canUndo,
     isBookmarked,
     onBookmark,
-}) => {
-    const activeColor = currentStatus?.label === 'NEW' ? 'bg-blue-500'
-        : currentStatus?.label === 'LRN' ? 'bg-amber-500'
-            : currentStatus?.label === 'LAPSE' ? 'bg-red-500'
-                : currentStatus?.label === 'REV' ? 'bg-green-600'
-                    : 'bg-amber-500';
-
-    const activeBorderColor = currentStatus?.label === 'NEW' ? 'border-blue-500'
-        : currentStatus?.label === 'LRN' ? 'border-amber-700'
-            : currentStatus?.label === 'LAPSE' ? 'border-red-500'
-                : currentStatus?.label === 'REV' ? 'border-green-600'
-                    : 'border-amber-500';
-
-    const activeGradientLeft = currentStatus?.label === 'NEW' ? 'from-blue-500'
-        : currentStatus?.label === 'LRN' ? 'from-amber-700'
-            : currentStatus?.label === 'LAPSE' ? 'from-red-500'
-                : currentStatus?.label === 'REV' ? 'from-green-600'
-                    : 'from-amber-500';
-
-    const activeGradientRight = currentStatus?.label === 'NEW' ? 'from-blue-500'
-        : currentStatus?.label === 'LRN' ? 'from-amber-700'
-            : currentStatus?.label === 'LAPSE' ? 'from-red-500'
-                : currentStatus?.label === 'REV' ? 'from-green-600'
-                    : 'from-amber-500';
-
+  }) => {
     return (
-        <header className="relative h-16 md:h-20 px-4 md:px-6 flex justify-between items-center select-none shrink-0 pt-[env(safe-area-inset-top)] gap-2 ">
-            {/* Bottom decorative accent */}
-            <div className="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-1/2 flex items-center justify-center z-10">
-                <div className="relative">
-                    <span className={clsx("w-3 h-3 rotate-45 transition-colors duration-300 block border bg-transparent", activeBorderColor, "opacity-80")} />
-                    <span className={clsx("absolute inset-0 w-3 h-3 rotate-45 blur-[1px] transition-colors duration-300 block", activeColor, "opacity-50")} />
-                    {/* Left fading line - positioned at left vertex */}
-                    <span className={clsx("absolute top-1/2 -translate-y-1/2 -left-[5px] w-32 h-px transition-colors duration-300 bg-gradient-to-l to-transparent opacity-60 -translate-x-full", activeGradientLeft)} />
-                    {/* Right fading line - positioned at right vertex */}
-                    <span className={clsx("absolute top-1/2 -translate-y-1/2 -right-[5px] w-32 h-px transition-colors duration-300 bg-gradient-to-r to-transparent opacity-60 translate-x-full", activeGradientRight)} />
-                </div>
+      <TooltipProvider delayDuration={300}>
+        <header className="relative h-14 md:h-16 px-3 md:px-5 flex justify-between items-center select-none shrink-0 pt-[env(safe-area-inset-top)] gap-3 bg-linear-to-b from-background to-background/80 backdrop-blur-sm border-b border-border/30">
+          <div className="flex items-center gap-1.5 sm:gap-2">
+            <QueueBadge label="New" count={counts.unseen} color="blue" />
+            <QueueBadge label="Learn" count={counts.learning} color="amber" />
+            <QueueBadge label="Lapse" count={counts.lapse} color="red" />
+            <QueueBadge label="Review" count={counts.mature} color="emerald" />
+
+            {currentStatus && (
+              <>
+                <Separator
+                  orientation="vertical"
+                  className="h-6 mx-1 hidden sm:block"
+                />
+                <Badge
+                  variant="outline"
+                  className={cn(
+                    "px-2.5 py-1 border transition-all animate-in fade-in zoom-in duration-300",
+                    currentStatus.className,
+                  )}
+                >
+                  <span className="text-[10px] font-bold tracking-wider">
+                    {currentStatus.label}
+                  </span>
+                </Badge>
+              </>
+            )}
+          </div>
+
+          <div className="absolute left-1/2 -translate-x-1/2 top-1/2 -translate-y-1/2 hidden md:flex items-center gap-2">
+            <div className="flex items-center gap-2 px-3 py-1.5 ">
+              <div className="relative">
+                <Zap
+                  size={14}
+                  strokeWidth={2.5}
+                  className="text-primary fill-primary/20"
+                />
+              </div>
+              <span className="text-sm font-semibold tracking-wide tabular-nums text-foreground">
+                {sessionXp.toLocaleString()}
+              </span>
+              <span className="text-[9px] font-bold uppercase tracking-widest text-primary/70">
+                XP
+              </span>
+
+              {multiplierInfo.value > 1.0 && (
+                <>
+                  <Separator orientation="vertical" className="h-4 mx-1" />
+                  <div className="flex items-center gap-1 text-[11px] font-bold text-primary">
+                    <span>×{multiplierInfo.value.toFixed(1)}</span>
+                  </div>
+                </>
+              )}
+            </div>
+          </div>
+
+          <div className="flex items-center gap-0.5">
+            <div className="hidden md:flex items-center gap-0.5">
+              <ActionButton
+                icon={Pencil}
+                label="Edit Card (E)"
+                onClick={onEdit}
+                disabled={isProcessing}
+              />
+              <ActionButton
+                icon={Trash2}
+                label="Delete Card"
+                onClick={onDelete}
+                disabled={isProcessing}
+                className="hover:text-destructive hover:bg-destructive/10"
+              />
+              <ActionButton
+                icon={Archive}
+                label="Mark as Known"
+                onClick={onArchive}
+                disabled={isProcessing}
+              />
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Toggle
+                    pressed={isBookmarked}
+                    onPressedChange={onBookmark}
+                    aria-label="Toggle bookmark"
+                    size="sm"
+                    className="size-8 rounded-lg data-[state=on]:bg-amber-500/15 hover:data-[state=on]:bg-amber-500/25 data-[state=on]:text-amber-600 dark:data-[state=on]:text-amber-400"
+                  >
+                    <Bookmark
+                      size={15}
+                      strokeWidth={isBookmarked ? 2.5 : 1.5}
+                      className={clsx(
+                        "transition-all",
+                        isBookmarked && "fill-current",
+                      )}
+                    />
+                  </Toggle>
+                </TooltipTrigger>
+                <TooltipContent side="bottom" className="text-xs">
+                  {isBookmarked ? "Remove Bookmark" : "Bookmark Card"}
+                </TooltipContent>
+              </Tooltip>
             </div>
 
-            {/* Queue statistics - game UI style */}
-            <div className="flex items-center gap-2 sm:gap-4 md:gap-6">
-                <GameQueueStat
-                    label="New"
-                    count={counts.unseen}
-                    isActive={currentStatus?.label === 'NEW'}
-                    color="blue"
-                />
-                <GameQueueStat
-                    label="Learning"
-                    count={counts.learning}
-                    isActive={currentStatus?.label === 'LRN'}
-                    color="orange"
-                />
-                <GameQueueStat
-                    label="Lapse"
-                    count={counts.lapse}
-                    isActive={currentStatus?.label === 'LAPSE'}
-                    color="red"
-                />
-                <GameQueueStat
-                    label="Review"
-                    count={counts.mature}
-                    isActive={currentStatus?.label === 'REV'}
-                    color="green"
-                />
+            <div className="md:hidden">
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="size-8 rounded-lg"
+                  >
+                    <MoreVertical size={15} />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem onClick={onEdit} disabled={isProcessing}>
+                    <Pencil className="mr-2 size-4" />
+                    <span>Edit Card</span>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onClick={() => onBookmark(!isBookmarked)}
+                    disabled={isProcessing}
+                  >
+                    <Bookmark
+                      className={cn(
+                        "mr-2 size-4",
+                        isBookmarked && "fill-current",
+                      )}
+                    />
+                    <span>
+                      {isBookmarked ? "Remove Bookmark" : "Bookmark Name"}
+                    </span>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={onArchive} disabled={isProcessing}>
+                    <Archive className="mr-2 size-4" />
+                    <span>Mark as Known</span>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onClick={onDelete}
+                    disabled={isProcessing}
+                    className="text-destructive focus:text-destructive"
+                  >
+                    <Trash2 className="mr-2 size-4" />
+                    <span>Delete Card</span>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
 
-            {/* Enhanced XP display - centered */}
-            <div className="absolute left-1/2 -translate-x-1/2 top-1/2 -translate-y-1/2 hidden sm:flex items-center gap-3 overflow-hidden group">
-                {/* Subtle glow effect */}
-                <div className="absolute inset-0 bg-primary/5 opacity-0" />
+            {canUndo && (
+              <ActionButton
+                icon={Undo2}
+                label="Undo (Z)"
+                onClick={onUndo}
+                className="text-muted-foreground hover:text-foreground"
+              />
+            )}
 
-                {/* XP icon with glow */}
-                <div className="relative">
-                    <Zap size={14} strokeWidth={2} className="text-primary fill-primary/20" />
-                    <div className="absolute inset-0 blur-[2px] opacity-50">
-                        <Zap size={14} strokeWidth={2} className="text-primary" />
-                    </div>
-                </div>
+            <Separator orientation="vertical" className="h-5 mx-1.5" />
 
-                {/* XP value */}
-                <span className="relative text-sm font-ui font-medium tracking-wide text-foreground tabular-nums">
-                    {sessionXp}
-                    <span className="text-[10px] uppercase tracking-wider text-muted-foreground/60 ml-1">XP</span>
-                </span>
-
-                {/* Multiplier badge */}
-                {multiplierInfo.value > 1.0 && (
-                    <div className="flex items-center gap-1 text-[11px] text-primary font-semibold px-2 py-0.5 animate-pulse">
-                        <TrendingUp size={10} strokeWidth={2.5} />
-                        <span>×{multiplierInfo.value.toFixed(1)}</span>
-                    </div>
-                )}
-            </div>
-
-            {/* Meta info and controls - game styled */}
-            <div className="flex items-center gap-2 sm:gap-4 md:gap-8">
-                {/* Action buttons */}
-                <div className="flex items-center gap-1">
-                    <GameActionButton
-                        icon={<Pencil size={14} strokeWidth={1.5} />}
-                        onClick={onEdit}
-                        disabled={isProcessing}
-                        title="Edit Card"
-                        aria-label="Edit Card"
-                    />
-                    <GameActionButton
-                        icon={<Trash2 size={14} strokeWidth={1.5} />}
-                        onClick={onDelete}
-                        disabled={isProcessing}
-                        title="Delete Card"
-                        aria-label="Delete Card"
-                        variant="danger"
-                    />
-                    <GameActionButton
-                        icon={<Archive size={14} strokeWidth={1.5} />}
-                        onClick={onArchive}
-                        disabled={isProcessing}
-                        title="Archive"
-                        aria-label="Archive"
-                    />
-                    <Toggle
-                        pressed={isBookmarked}
-                        onPressedChange={onBookmark}
-                        aria-label="Toggle bookmark"
-                        className="h-9 w-9 p-0 data-[state=on]:*:[svg]:fill-primary  data-[state=on]:text-primary hover:bg-card/50 hover:text-foreground border border-transparent hover:border-border/40 transition-all duration-200"
-                    >
-                        <Bookmark size={14} strokeWidth={isBookmarked ? 2 : 1.5} className={clsx("transition-all", isBookmarked && "fill-current")} />
-                    </Toggle>
-                    {canUndo && (
-                        <GameActionButton
-                            icon={<Undo2 size={14} strokeWidth={1.5} />}
-                            onClick={onUndo}
-                            title="Undo (Z)"
-                            aria-label="Undo"
-                        />
-                    )}
-                    <GameActionButton
-                        icon={<X size={14} strokeWidth={1.5} />}
-                        onClick={onExit}
-                        title="Exit (Esc)"
-                        aria-label="Exit"
-                        variant="danger"
-                    />
-                </div>
-            </div>
+            <ActionButton
+              icon={X}
+              label="Exit Session (Esc)"
+              onClick={onExit}
+              className="hover:bg-destructive/10 hover:text-destructive"
+            />
+          </div>
         </header>
+      </TooltipProvider>
     );
-});
-
-const GameQueueStat = React.memo(({ label, count, isActive, color }: {
-    label: string;
-    count: number;
-    isActive: boolean;
-    color: 'blue' | 'orange' | 'red' | 'green';
-}) => {
-    const colorMap = {
-        blue: { active: 'text-blue-800 border-blue-500/30 bg-blue-500/5', inactive: 'text-muted-foreground/60 border-border/80' },
-        orange: { active: 'text-amber-800 border-amber-800/40 bg-amber-500/5', inactive: 'text-muted-foreground/60 border-border/80' },
-        red: { active: 'text-red-800 border-red-500/30 bg-red-500/5', inactive: 'text-muted-foreground/60 border-border/80' },
-        green: { active: 'text-green-800 border-green-700/30 bg-green-700/5', inactive: 'text-muted-foreground/60 border-border/80' },
-    };
-    const colors = colorMap[color];
-
-    return (
-        <div className={clsx(
-            "relative flex items-center gap-1.5 sm:gap-2 px-2 sm:px-3 py-1.5 border transition-all duration-300",
-            isActive ? colors.active : colors.inactive,
-            count === 0 && !isActive && "opacity-40"
-        )}>
-            {/* Top-left corner */}
-            <span className="absolute -top-px -left-px w-1.5 h-1.5 border-t border-l border-current opacity-60" />
-            {/* Bottom-right corner */}
-            <span className="absolute -bottom-px -right-px w-1.5 h-1.5 border-b border-r border-current opacity-60" />
-
-            {/* Diamond indicator */}
-            <span className={clsx(
-                "w-1.5 h-1.5 rotate-45 transition-colors",
-                isActive ? "bg-current animate-pulse" : "bg-current/40"
-            )} />
-            <span className="hidden sm:inline text-[10px] font-ui uppercase tracking-wider">{label}</span>
-            <span className="text-xs font-ui font-medium tabular-nums">{count}</span>
-
-        </div>
-    );
-});
-
-const GameActionButton = React.memo(({ icon, onClick, disabled, title, variant = 'default' }: {
-    icon: React.ReactNode;
-    onClick: () => void;
-    disabled?: boolean;
-    title: string;
-    variant?: 'default' | 'danger';
-}) => (
-    <button
-        onClick={onClick}
-        disabled={disabled}
-        title={title}
-        className={clsx(
-            "relative p-2 border border-transparent transition-all duration-200",
-            "text-muted-foreground/50 hover:text-foreground",
-            variant === 'danger' && "hover:text-destructive hover:border-destructive/20 hover:bg-destructive/5",
-            variant === 'default' && "hover:border-border/40 hover:bg-card/50",
-            disabled && "opacity-30 cursor-not-allowed"
-        )}
-    >
-        {icon}
-    </button>
-));
+  },
+);

@@ -1,32 +1,41 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
-import { Card, Grade } from '@/types';
-import { StudySession } from '@/features/study/components/StudySession';
-import { useDeckActions } from '@/contexts/DeckActionsContext';
-import { useDeckStats } from '@/features/deck/hooks/useDeckStats';
-import { useDeckStore } from '@/stores/useDeckStore';
-import { useSettingsStore } from '@/stores/useSettingsStore';
-import { useCardOperations } from '@/features/deck/hooks/useCardOperations';
-import { isNewCard } from '@/services/studyLimits';
-import {
-  getCramCards,
-  getDueCards,
-} from '@/services/db/repositories/cardRepository';
-import { getTodayReviewStats } from '@/services/db/repositories/statsRepository';
-import { useClaimDailyBonusMutation } from '@/features/deck/hooks/useDeckQueries';
-import { CardXpPayload } from '@/features/xp/xpUtils';
-import { LoadingScreen } from '@/components/ui/loading';
-import { toast } from 'sonner';
-import { sortCards, CardOrder } from '@/features/study/logic/cardSorter';
+import React, { useState, useEffect } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import { Card, Grade } from "@/types";
+import { StudySession } from "@/features/study/components/StudySession";
+import { useDeckActions } from "@/hooks/useDeckActions";
+import { useDeckStats } from "@/features/collection/hooks/useDeckStats";
+import { useDeckStore } from "@/stores/useDeckStore";
+import { useSettingsStore } from "@/stores/useSettingsStore";
+import { useShallow } from "zustand/react/shallow";
+import { useCardOperations } from "@/features/collection/hooks/useCardOperations";
+import { isNewCard } from "@/services/studyLimits";
+import { getCramCards, getDueCards } from "@/db/repositories/cardRepository";
+import { getTodayReviewStats } from "@/db/repositories/statsRepository";
+import { useClaimDailyBonusMutation } from "@/features/collection/hooks/useDeckQueries";
+import { CardXpPayload } from "@/core/gamification/xp";
+import { LoadingScreen } from "@/components/ui/loading";
+import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
+import { sortCards, CardOrder } from "@/core/srs/cardSorter";
 
-export const StudyRoute: React.FC = () => {
+const StudyRoute: React.FC = () => {
   const { recordReview, undoReview } = useDeckActions();
   const { stats } = useDeckStats();
-  const lastReview = useDeckStore(state => state.lastReview);
+  const lastReview = useDeckStore((state) => state.lastReview);
   const canUndo = !!lastReview;
 
   const { updateCard, deleteCard, addCard } = useCardOperations();
-  const settings = useSettingsStore(s => s.settings);
+
+  const { language, dailyNewLimits, dailyReviewLimits, cardOrder } =
+    useSettingsStore(
+      useShallow((s) => ({
+        language: s.language,
+        dailyNewLimits: s.dailyNewLimits,
+        dailyReviewLimits: s.dailyReviewLimits,
+        cardOrder: s.cardOrder,
+      })),
+    );
+
   const claimBonus = useClaimDailyBonusMutation();
 
   const navigate = useNavigate();
@@ -36,8 +45,8 @@ export const StudyRoute: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const mode = searchParams.get('mode');
-  const isCramMode = mode === 'cram';
+  const mode = searchParams.get("mode");
+  const isCramMode = mode === "cram";
 
   useEffect(() => {
     let isMounted = true;
@@ -46,30 +55,33 @@ export const StudyRoute: React.FC = () => {
     const loadCards = async () => {
       try {
         if (isCramMode) {
-          const limit = parseInt(searchParams.get('limit') || '50', 10);
-          const tag = searchParams.get('tag') || undefined;
-          const cramCards = await getCramCards(limit, tag, settings.language);
+          const limit = parseInt(searchParams.get("limit") || "50", 10);
+          const cramCards = await getCramCards(limit, language);
           if (isMounted) {
             setSessionCards(cramCards);
             setReserveCards([]);
           }
         } else {
           const timeoutPromise = new Promise((_, reject) =>
-            setTimeout(() => reject(new Error('Request timed out')), 15000)
+            setTimeout(() => reject(new Error("Request timed out")), 15000),
           );
 
-          const [due, reviewsToday] = await Promise.race([
+          // Use exactly 'now' to match Dashboard logic. 
+          // Previously this had a 20m offset for 'reviewFirst' which caused mismatches.
+          const now = new Date();
+          
+          const [due, reviewsToday] = (await Promise.race([
             Promise.all([
-              getDueCards(new Date(), settings.language),
-              getTodayReviewStats(settings.language)
+              getDueCards(now, language),
+              getTodayReviewStats(language),
             ]),
-            timeoutPromise
-          ]) as [Card[], { newCards: number; reviewCards: number }];
+            timeoutPromise,
+          ])) as [Card[], { newCards: number; reviewCards: number }];
 
           if (!isMounted) return;
 
-          const dailyNewLimit = settings.dailyNewLimits?.[settings.language] ?? 20;
-          const dailyReviewLimit = settings.dailyReviewLimits?.[settings.language] ?? 100;
+          const dailyNewLimit = dailyNewLimits?.[language] ?? 20;
+          const dailyReviewLimit = dailyReviewLimits?.[language] ?? 100;
 
           const active: Card[] = [];
           const reserve: Card[] = [];
@@ -88,15 +100,25 @@ export const StudyRoute: React.FC = () => {
                 if (hasLimit(dailyNewLimit)) newCount++;
               }
             } else {
-              if (hasLimit(dailyReviewLimit) && reviewCount >= dailyReviewLimit) {
-                continue;
+              if (
+                hasLimit(dailyReviewLimit) &&
+                reviewCount >= dailyReviewLimit
+              ) {
+                // For reviews, we don't usually keep a 'reserve' queue for daily limits 
+                // in the same way (once the limit is hit, you're done for the day),
+                // but we push to reserve just in case cards are deleted/suspended to fill the gap.
+                reserve.push(card);
+              } else {
+                active.push(card);
+                if (hasLimit(dailyReviewLimit)) reviewCount++;
               }
-              active.push(card);
-              if (hasLimit(dailyReviewLimit)) reviewCount++;
             }
           }
 
-          const sortedActive = sortCards(active, (settings.cardOrder as CardOrder) || 'newFirst');
+          const sortedActive = sortCards(
+            active,
+            (cardOrder as CardOrder) || "newFirst",
+          );
 
           setSessionCards(sortedActive);
           setReserveCards(reserve);
@@ -104,8 +126,8 @@ export const StudyRoute: React.FC = () => {
       } catch (err) {
         console.error("Failed to load cards", err);
         if (isMounted) {
-          setError(err instanceof Error ? err.message : 'Failed to load cards');
-          toast.error('Failed to load study session. Please try again.');
+          setError(err instanceof Error ? err.message : "Failed to load cards");
+          toast.error("Failed to load study session. Please try again.");
         }
       } finally {
         if (isMounted) {
@@ -119,11 +141,18 @@ export const StudyRoute: React.FC = () => {
     return () => {
       isMounted = false;
     };
-  }, [settings.language, isCramMode, searchParams, settings.dailyNewLimits, settings.dailyReviewLimits]);
+  }, [
+    language,
+    isCramMode,
+    searchParams,
+    dailyNewLimits,
+    dailyReviewLimits,
+    cardOrder,
+  ]);
 
   const handleUpdateCard = (card: Card) => {
     if (isCramMode) {
-      if (card.status === 'known') {
+      if (card.status === "known") {
         updateCard(card, { silent: true });
       }
       return;
@@ -133,12 +162,14 @@ export const StudyRoute: React.FC = () => {
 
   const handleDeleteCard = async (id: string) => {
     await deleteCard(id);
-    // Note: Don't call setSessionCards here - it would trigger useStudySession's 
-    // INIT effect and reset all learning progress. The removeCardFromSession 
-    // function in StudySession handles the UI state update correctly.
   };
 
-  const handleRecordReview = async (card: Card, newCard: Card, grade: Grade, xpPayload?: CardXpPayload) => {
+  const handleRecordReview = async (
+    card: Card,
+    newCard: Card,
+    grade: Grade,
+    xpPayload?: CardXpPayload,
+  ) => {
     if (!isCramMode) {
       await recordReview(card, newCard, grade, xpPayload);
     }
@@ -148,11 +179,16 @@ export const StudyRoute: React.FC = () => {
     if (!isCramMode) {
       claimBonus.mutate();
     }
-    navigate('/');
+    navigate("/");
   };
 
   if (isLoading) {
-    return <LoadingScreen title="Loading Session" subtitle="Preparing your cards..." />;
+    return (
+      <LoadingScreen
+        title="Loading Session"
+        subtitle="Preparing your cards..."
+      />
+    );
   }
 
   if (error) {
@@ -164,12 +200,9 @@ export const StudyRoute: React.FC = () => {
           </div>
           <h2 className="text-lg font-medium">Failed to load study session</h2>
           <p className="text-sm text-muted-foreground">{error}</p>
-          <button
-            onClick={() => navigate('/')}
-            className="mt-2 px-4 py-2 bg-primary text-primary-foreground rounded-md text-sm"
-          >
+          <Button onClick={() => navigate("/")} size="default">
             Return to Dashboard
-          </button>
+          </Button>
         </div>
       </div>
     );
@@ -182,7 +215,7 @@ export const StudyRoute: React.FC = () => {
       onUpdateCard={handleUpdateCard}
       onDeleteCard={handleDeleteCard}
       onRecordReview={handleRecordReview}
-      onExit={() => navigate('/')}
+      onExit={() => navigate("/")}
       onComplete={handleSessionComplete}
       onUndo={isCramMode ? undefined : undoReview}
       canUndo={isCramMode ? false : canUndo}
@@ -192,3 +225,5 @@ export const StudyRoute: React.FC = () => {
     />
   );
 };
+
+export default StudyRoute;

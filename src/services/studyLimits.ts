@@ -1,5 +1,5 @@
-import { Card, UserSettings } from '../types';
-import { State } from 'ts-fsrs';
+import { Card, UserSettings } from "../types";
+import { State } from "ts-fsrs";
 
 interface LimitOptions {
   dailyNewLimit?: number;
@@ -11,10 +11,7 @@ interface LimitOptions {
 }
 
 export const isNewCard = (card: Card) => {
-
-  if (card.status === 'new') return true;
-
-
+  if (card.status === "new") return true;
 
   if (card.state !== undefined) {
     return card.state === State.New;
@@ -23,12 +20,15 @@ export const isNewCard = (card: Card) => {
   return (card.reps || 0) === 0;
 };
 
-const hasLimit = (value?: number) => typeof value === 'number' && value > 0;
+const hasLimit = (value?: number) => typeof value === "number" && value > 0;
 
-export const applyStudyLimits = (cards: Card[], settings: LimitOptions): Card[] => {
+export const applyStudyLimits = (
+  cards: Card[],
+  settings: LimitOptions,
+): Card[] => {
   const { dailyNewLimit, dailyReviewLimit, reviewsToday } = settings;
   const limitedCards: Card[] = [];
-  
+
   let newCount = reviewsToday?.newCards || 0;
   let reviewCount = reviewsToday?.reviewCards || 0;
 
@@ -46,7 +46,6 @@ export const applyStudyLimits = (cards: Card[], settings: LimitOptions): Card[] 
         limitedCards.push(card);
       }
     } else {
-
       if (hasLimit(dailyReviewLimit)) {
         if (reviewCount >= (dailyReviewLimit as number)) {
           continue;

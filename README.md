@@ -9,22 +9,26 @@ Unlike traditional flashcard applications, LinguaFlow offers a gamified ecosyste
 ## Key Features
 
 ### Core Study Mechanics
+
 - **FSRS v5 Algorithm:** Implements the latest iteration of the Free Spaced Repetition Scheduler, offering significantly higher retention efficiency compared to SM-2 (Anki).
 - **Hybrid Optimization:** Includes an on-device optimizer that analyzes review logs to calculate custom parameters (`w` weights) tailored to the user's specific memory patterns.
 - **Granular Study Controls:** Configurable daily limits, retention targets (0.70–0.99), and interval fuzzing to prevent review clustering.
 - **Cram Mode:** Allows reviewing cards outside the SRS schedule without affecting long-term statistics.
 
 ### AI Integration
+
 - **Generative Card Creation:** Uses Google Gemini 2.5 to generate context-aware sentences, translations, and grammatical notes based on a topic or target word.
 - **Contextual Analysis:** Select any text within a flashcard to instantly receive an AI-generated breakdown of grammar, part of speech, and definition.
 - **Furigana Parsing:** Automated parsing and rendering of Furigana for Japanese language learners.
 
 ### Multiplayer & Gamification
+
 - **Deck Wars:** Real-time, socket-based multiplayer quizzes. Users host lobbies where AI generates questions based on the room's language and difficulty level (A1-C2).
 - **Sabotage System:** A PvP mechanic where users spend earned "Points" to inflict UI curses on rivals (e.g., blurring text, rotating the screen, forcing fonts) via Supabase Realtime presence.
 - **Leaderboards:** Global rankings tracking XP, daily streaks, and user levels.
 
 ### Architecture
+
 - **Offline-First:** Utilizes `idb` (IndexedDB) for local storage, ensuring zero-latency reviews. Data synchronizes to the cloud when online.
 - **Text-to-Speech:** Supports the Web Speech API (Browser), Google Cloud TTS, and Microsoft Azure Neural TTS.
 
@@ -44,29 +48,35 @@ Unlike traditional flashcard applications, LinguaFlow offers a gamified ecosyste
 ## Installation & Setup
 
 ### Prerequisites
+
 - Node.js v19+
 - A Supabase project
 - A Google Gemini API Key
 
 ### 1. Clone the Repository
+
 ```bash
 git clone https://github.com/yourusername/linguaflow.git
 cd linguaflow
 ```
 
 ### 2. Install Dependencies
+
 ```bash
 npm install
 ```
 
 ### 3. Environment Variables
+
 Create a `.env` file in the root directory:
+
 ```env
 VITE_SUPABASE_URL=your_supabase_project_url
 VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
 ```
 
 ### 4. Database Setup (Supabase)
+
 Run the following SQL migration in your Supabase SQL Editor to set up the required schema:
 
 ```sql
@@ -124,9 +134,11 @@ create table game_rooms (
   current_question_index int default 0
 );
 ```
-*Note: Additional tables for `study_history` and `active_curses` are also required.*
+
+_Note: Additional tables for `study_history` and `active_curses` are also required._
 
 ### 5. Run the Application
+
 ```bash
 npm run dev
 ```
@@ -136,18 +148,24 @@ npm run dev
 ## Architecture Overview
 
 ### FSRS Implementation
+
 LinguaFlow implements the FSRS algorithm client-side to allow for immediate scheduling updates. The logic resides in `src/features/study/logic/srs.ts`. When a user reviews a card:
+
 1. The current card state (stability, difficulty, retrievability) is analyzed.
 2. The scheduler calculates the next optimal interval based on the user's grade (Again, Hard, Good, Easy).
 3. The review is logged to the `revlog` table for future optimization iterations.
 
 ### Cloud Sync Strategy
+
 To maintain a responsive UI, the app operates primarily on IndexedDB. Synchronization happens in two vectors:
+
 1. **Pull:** On load, React Query fetches the latest state from Supabase.
 2. **Push:** Critical actions (reviews, edits) optimistically update the UI and push to Supabase in the background. A manual "Sync to Cloud" feature is available in settings for data migration.
 
 ### Sabotage Mechanics
+
 The Sabotage system uses Supabase Realtime subscriptions. When a user purchases a "Curse" in `SabotageStore.tsx`:
+
 1. A record is inserted into `active_curses`.
 2. The victim's client, listening via `SabotageContext.tsx`, receives the payload.
 3. CSS transforms or React components (e.g., `comic_sans`, `blur`, `rotate`) are dynamically applied to the victim's Study Session.
@@ -157,6 +175,7 @@ The Sabotage system uses Supabase Realtime subscriptions. When a user purchases 
 ## Contributing
 
 Contributions are welcome. Please adhere to the following guidelines:
+
 1. Fork the repository.
 2. Create a feature branch (`git checkout -b feature/amazing-feature`).
 3. Commit your changes.

@@ -1,6 +1,7 @@
-import React from 'react';
-import { LogIn, Command } from 'lucide-react';
-import { useAuth } from '@/contexts/AuthContext';
+import React from "react";
+import { LogIn, Command } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
+import { Button } from "@/components/ui/button";
 
 export const LoginScreen: React.FC = () => {
   const { signInWithGoogle, loading } = useAuth();
@@ -14,18 +15,19 @@ export const LoginScreen: React.FC = () => {
         <div>
           <h1 className="text-3xl font-bold tracking-tight">LinguaFlow</h1>
           <p className="text-muted-foreground mt-2 max-w-sm">
-            Sign in to sync your decks, earn XP, and climb the global leaderboard.
+            Sign in to sync your decks, earn XP, and climb the global
+            leaderboard.
           </p>
         </div>
       </div>
-      <button
+      <Button
         onClick={signInWithGoogle}
         disabled={loading}
-        className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-primary text-primary-foreground hover:opacity-90 transition disabled:opacity-50 font-medium "
+        className="rounded-full px-6 py-6 text-base font-medium"
       >
-        <LogIn size={18} />
+        <LogIn size={18} className="mr-2" />
         Continue with Google
-      </button>
+      </Button>
       <p className="text-[11px] uppercase text-muted-foreground tracking-[0.2em]">
         Powered by Supabase Auth
       </p>

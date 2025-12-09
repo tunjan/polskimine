@@ -1,12 +1,14 @@
-import React, { useState } from 'react';
-import { ArrowRight, User } from 'lucide-react';
-import { ButtonLoader } from '@/components/ui/loading';
-import { toast } from 'sonner';
-import { useAuth } from '@/contexts/AuthContext';
+import React, { useState } from "react";
+import { ArrowRight, User } from "lucide-react";
+import { ButtonLoader } from "@/components/ui/loading";
+import { toast } from "sonner";
+import { useAuth } from "@/contexts/AuthContext";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 
 export const UsernameSetup: React.FC = () => {
   const { updateUsername, user } = useAuth();
-  const [username, setUsername] = useState('');
+  const [username, setUsername] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -30,9 +32,7 @@ export const UsernameSetup: React.FC = () => {
 
   return (
     <div className="min-h-screen w-full bg-background flex flex-col items-center justify-center p-6 selection:bg-foreground selection:text-background">
-
       <div className="w-full max-w-[400px] animate-in fade-in zoom-in-95 duration-700 space-y-12">
-
         <div className="space-y-2">
           <span className="text-[11px] font-mono uppercase tracking-widest text-muted-foreground block mb-4">
             Step 02 / Identity
@@ -44,8 +44,8 @@ export const UsernameSetup: React.FC = () => {
 
         <form onSubmit={handleSubmit} className="space-y-12">
           <div className="relative group">
-            <input
-              className="w-full bg-transparent border-b border-border py-4 text-2xl md:text-3xl font-light outline-none transition-all focus:border-foreground placeholder:text-muted-foreground/20 rounded-none text-foreground"
+            <Input
+              className="w-full bg-transparent border-b border-border border-t-0 border-x-0 px-0 py-4 text-2xl md:text-3xl font-light outline-none transition-all focus-visible:ring-0 focus:border-foreground placeholder:text-muted-foreground/20 rounded-none text-foreground h-auto shadow-none"
               placeholder="Type name..."
               value={username}
               onChange={(e) => setUsername(e.target.value)}
@@ -67,18 +67,22 @@ export const UsernameSetup: React.FC = () => {
               ID: {user?.email}
             </div>
 
-            <button
+            <Button
               type="submit"
+              variant="ghost"
               className="group flex items-center gap-3 text-sm font-medium hover:text-foreground/70 transition-colors disabled:opacity-50"
               disabled={isSubmitting || !username}
             >
-              {isSubmitting ? 'Processing' : 'Confirm'}
+              {isSubmitting ? "Processing" : "Confirm"}
               {isSubmitting ? (
                 <ButtonLoader />
               ) : (
-                <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
+                <ArrowRight
+                  size={16}
+                  className="group-hover:translate-x-1 transition-transform"
+                />
               )}
-            </button>
+            </Button>
           </div>
         </form>
       </div>
