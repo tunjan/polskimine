@@ -127,7 +127,7 @@ export const useStudyQueue = ({
     sessionXp,
     sessionStreak,
     multiplierInfo,
-    feedback,
+
     processCardResult,
     subtractXp,
   } = useXpSession(dailyStreak, isCramMode);
@@ -319,7 +319,7 @@ export const useStudyQueue = ({
       sessionXp,
       sessionStreak,
       multiplierInfo,
-      feedback,
+
       isProcessing: state.status === "PROCESSING",
       isWaiting: state.status === "WAITING",
       isFinished: state.status === "COMPLETE",

@@ -1,11 +1,10 @@
 import React from "react";
 import { Card, Language } from "@/types";
 import { Flashcard } from "./Flashcard";
-import { StudyFeedback } from "./StudyFeedback";
-import { XpFeedback } from "../hooks/useXpSession";
+
 
 interface StudyCardAreaProps {
-  feedback: XpFeedback | null;
+
   currentCard: Card;
   isFlipped: boolean;
   autoPlayAudio: boolean;
@@ -17,7 +16,7 @@ interface StudyCardAreaProps {
 
 export const StudyCardArea: React.FC<StudyCardAreaProps> = React.memo(
   ({
-    feedback,
+
     currentCard,
     isFlipped,
     autoPlayAudio,
@@ -28,7 +27,7 @@ export const StudyCardArea: React.FC<StudyCardAreaProps> = React.memo(
   }) => {
     return (
       <main className="flex-1 mx-2  relative flex flex-col items-center justify-center py-8 overflow-hidden">
-        <StudyFeedback feedback={feedback} />
+
 
         <Flashcard
           card={currentCard}

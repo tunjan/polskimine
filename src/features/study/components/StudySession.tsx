@@ -223,7 +223,7 @@ export const StudySession: React.FC<StudySessionProps> = React.memo(
         />
 
         <StudyCardArea
-          feedback={stats.feedback}
+
           currentCard={currentCard}
           isFlipped={uiState.isFlipped}
           autoPlayAudio={autoPlayAudio || blindMode}

@@ -6,17 +6,12 @@ import {
   getDailyStreakMultiplier,
 } from "@/core/gamification/xp";
 
-export interface XpFeedback {
-  id: number;
-  message: string;
-  isBonus: boolean;
-  amount: number;
-}
+
 
 export const useXpSession = (dailyStreak: number, isCramMode: boolean) => {
   const [sessionXp, setSessionXp] = useState(0);
   const [sessionStreak, setSessionStreak] = useState(0);
-  const [feedback, setFeedback] = useState<XpFeedback | null>(null);
+
 
   const multiplierInfo = getDailyStreakMultiplier(dailyStreak);
 
@@ -37,14 +32,7 @@ export const useXpSession = (dailyStreak: number, isCramMode: boolean) => {
         setSessionStreak((prev) => prev + 1);
       }
 
-      if (result.totalXp > 0) {
-        setFeedback({
-          id: Date.now(),
-          message: `+${result.totalXp} XP`,
-          isBonus: result.multiplier > 1,
-          amount: result.totalXp,
-        });
-      }
+
 
       return result;
     },
@@ -59,7 +47,7 @@ export const useXpSession = (dailyStreak: number, isCramMode: boolean) => {
     sessionXp,
     sessionStreak,
     multiplierInfo,
-    feedback,
+
     processCardResult,
     subtractXp,
   };
