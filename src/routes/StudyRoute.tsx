@@ -26,13 +26,14 @@ const StudyRoute: React.FC = () => {
 
   const { updateCard, deleteCard, addCard } = useCardOperations();
 
-  const { language, dailyNewLimits, dailyReviewLimits, cardOrder } =
+  const { language, dailyNewLimits, dailyReviewLimits, cardOrder, ignoreLearningStepsWhenNoCards } =
     useSettingsStore(
       useShallow((s) => ({
         language: s.language,
         dailyNewLimits: s.dailyNewLimits,
         dailyReviewLimits: s.dailyReviewLimits,
         cardOrder: s.cardOrder,
+        ignoreLearningStepsWhenNoCards: s.ignoreLearningStepsWhenNoCards,
       })),
     );
 
@@ -72,7 +73,7 @@ const StudyRoute: React.FC = () => {
           
           const [due, reviewsToday] = (await Promise.race([
             Promise.all([
-              getDueCards(now, language),
+              getDueCards(now, language, ignoreLearningStepsWhenNoCards),
               getTodayReviewStats(language),
             ]),
             timeoutPromise,

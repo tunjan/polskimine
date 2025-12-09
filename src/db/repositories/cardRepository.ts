@@ -176,6 +176,7 @@ export const getCardsForRetention = async (
 
 export const getDashboardCounts = async (
   language: Language,
+  ignoreLearningSteps: boolean = false,
 ): Promise<{
   total: number;
   new: number;
@@ -204,7 +205,7 @@ export const getDashboardCounts = async (
   cutoffDate.setHours(4);
   const cutoffISO = cutoffDate.toISOString();
   const nowISO = now.toISOString();
-  const ONE_HOUR_IN_DAYS = 1 / 24;
+
 
   const [total, newCards, known, learningRaw, reviewRaw, due] =
     await Promise.all([
@@ -234,6 +235,15 @@ export const getDashboardCounts = async (
         .filter((c) => {
           if (c.status === "known" || c.status === "suspended") return false;
 
+          // If ignoring learning steps, include any learning/relearning card regardless of due date
+          if (
+            ignoreLearningSteps &&
+            (c.status === "learning" || c.state === Object(FSRSState).Learning || c.state === Object(FSRSState).Relearning)
+          ) {
+            return true;
+          }
+
+          const ONE_HOUR_IN_DAYS = 1 / 24;
           const isShortInterval = (c.interval || 0) < ONE_HOUR_IN_DAYS;
           if (isShortInterval) {
             return c.dueDate <= nowISO;
@@ -358,6 +368,7 @@ export const clearAllCards = async () => {
 export const getDueCards = async (
   now: Date,
   language: Language,
+  ignoreLearningSteps: boolean = false,
 ): Promise<Card[]> => {
   const userId = getCurrentUserId();
   if (!userId) return [];
@@ -377,7 +388,15 @@ export const getDueCards = async (
     .filter((card) => {
       if (card.status === "known" || card.status === "suspended") return false;
 
-                        const isShortInterval = (card.interval || 0) < ONE_HOUR_IN_DAYS;
+      // If ignoring learning steps, include any learning/relearning card regardless of due date
+      if (
+        ignoreLearningSteps &&
+        (card.status === "learning" || card.state === FSRSState.Learning || card.state === FSRSState.Relearning)
+      ) {
+        return true;
+      }
+
+      const isShortInterval = (card.interval || 0) < ONE_HOUR_IN_DAYS;
       if (isShortInterval) {
         return card.dueDate <= nowISO;
       }

@@ -4,6 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Dashboard } from "@/features/dashboard/components/Dashboard";
 import { useDeckStats } from "@/features/collection/hooks/useDeckStats";
 import { useSettingsStore } from "@/stores/useSettingsStore";
+import { useShallow } from "zustand/react/shallow";
 import { getDashboardStats } from "@/db/repositories/statsRepository";
 import { getCardsForDashboard } from "@/db/repositories/cardRepository";
 import { LoadingScreen } from "@/components/ui/loading";
@@ -11,7 +12,12 @@ import { Button } from "@/components/ui/button";
 
 export const DashboardRoute: React.FC = () => {
   const { history, stats } = useDeckStats();
-  const language = useSettingsStore((s) => s.language);
+  const { language, ignoreLearningStepsWhenNoCards } = useSettingsStore(
+    useShallow((s) => ({
+      language: s.language,
+      ignoreLearningStepsWhenNoCards: s.ignoreLearningStepsWhenNoCards,
+    })),
+  );
   const navigate = useNavigate();
 
   const {
@@ -19,8 +25,8 @@ export const DashboardRoute: React.FC = () => {
     isLoading: isStatsLoading,
     isError: isStatsError,
   } = useQuery({
-    queryKey: ["dashboardStats", language],
-    queryFn: () => getDashboardStats(language),
+    queryKey: ["dashboardStats", language, ignoreLearningStepsWhenNoCards],
+    queryFn: () => getDashboardStats(language, ignoreLearningStepsWhenNoCards),
   });
 
   const {
