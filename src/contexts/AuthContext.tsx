@@ -1,5 +1,8 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
-import { db, hashPassword, generateId, LocalUser } from "@/db/dexie";
+import { db } from "@/db/dexie";
+import { hashPassword } from "@/utils/security";
+import { generateId } from "@/utils/ids";
+import { LocalUser } from "@/db/types";
 import { toast } from "sonner";
 
 interface AuthUser {

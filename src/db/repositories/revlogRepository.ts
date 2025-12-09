@@ -1,4 +1,6 @@
-import { db, generateId, RevlogEntry } from "@/db/dexie";
+import { db } from "@/db/dexie";
+import { generateId } from "@/utils/ids";
+import { RevlogEntry } from "@/db/types";
 import { ReviewLog, Card, Grade } from "@/types";
 import { State } from "ts-fsrs";
 import { incrementStat } from "./aggregatedStatsRepository";

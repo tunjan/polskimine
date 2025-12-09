@@ -7,7 +7,8 @@ import {
 } from "@/types";
 import { State as FSRSState } from "ts-fsrs";
 import { getSRSDate } from "@/core/srs";
-import { db, generateId } from "@/db/dexie";
+import { db } from "@/db/dexie";
+import { generateId } from "@/utils/ids";
 import { SRS_CONFIG } from "@/constants";
 import { toast } from "sonner";
 import { z } from "zod";

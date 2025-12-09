@@ -28,7 +28,7 @@ import { Label } from "@/components/ui/label";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { getInitialCards } from "@/data/initialCards";
 import { v4 as uuidv4 } from "uuid";
-import { LocalUser } from "@/db/dexie";
+import { LocalUser } from "@/db/types";
 
 type AuthMode = "login" | "register";
 type SetupStep = "auth" | "language" | "level" | "deck";

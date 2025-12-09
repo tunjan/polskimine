@@ -1,7 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { db, LocalProfile } from "@/db/dexie";
+import { db } from "@/db/dexie";
+import { LocalProfile } from "@/db/types";
 import { useAuth } from "@/contexts/AuthContext";
-import { toast } from "sonner";
 
 export const useProfile = () => {
   const { user } = useAuth();
@@ -64,7 +64,7 @@ export const useProfile = () => {
     updateUsername: (username: string) =>
       updateUsernameMutation.mutateAsync(username),
     markInitialDeckGenerated: (userId?: string) =>
-      markInitialDeckGeneratedMutation.mutateAsync(userId),
+      markInitialDeckGeneratedMutation.mutateAsync(userId || user?.id || ""),
     refreshProfile: () => profileQuery.refetch(),
   };
 };

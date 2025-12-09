@@ -35,22 +35,35 @@ export const incrementHistory = async (
   const userId = getCurrentUserId();
   if (!userId) return;
 
-  const existing = await db.history
+  // Attempt atomic update first
+  const updated = await db.history
     .where("[user_id+date+language]")
     .equals([userId, date, language])
-    .first();
+    .modify((h) => {
+      h.count += delta;
+    });
 
-  if (existing) {
-    await db.history.update([date, language], {
-      count: existing.count + delta,
-    });
-  } else {
-    await db.history.add({
-      date,
-      language,
-      user_id: userId,
-      count: delta,
-    });
+  if (updated === 0) {
+    try {
+      await db.history.add({
+        date,
+        language,
+        user_id: userId,
+        count: delta,
+      });
+    } catch (e: any) {
+      if (e.name === "ConstraintError") {
+        // Race condition: another tab/process inserted it just now
+        await db.history
+          .where("[user_id+date+language]")
+          .equals([userId, date, language])
+          .modify((h) => {
+            h.count += delta;
+          });
+      } else {
+        throw e;
+      }
+    }
   }
 };
 
