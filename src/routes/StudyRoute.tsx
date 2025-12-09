@@ -26,29 +26,15 @@ const StudyRoute: React.FC = () => {
 
   const { updateCard, deleteCard, addCard } = useCardOperations();
 
-  const {
-    language,
-    dailyNewLimits,
-    dailyReviewLimits,
-    cardOrder,
-    newCardGatherOrder,
-    newCardSortOrder,
-    newReviewOrder,
-    interdayLearningOrder,
-    reviewSortOrder,
-  } = useSettingsStore(
-    useShallow((s) => ({
-      language: s.language,
-      dailyNewLimits: s.dailyNewLimits,
-      dailyReviewLimits: s.dailyReviewLimits,
-      cardOrder: s.cardOrder,
-      newCardGatherOrder: s.newCardGatherOrder,
-      newCardSortOrder: s.newCardSortOrder,
-      newReviewOrder: s.newReviewOrder,
-      interdayLearningOrder: s.interdayLearningOrder,
-      reviewSortOrder: s.reviewSortOrder,
-    })),
-  );
+  const { language, dailyNewLimits, dailyReviewLimits, cardOrder } =
+    useSettingsStore(
+      useShallow((s) => ({
+        language: s.language,
+        dailyNewLimits: s.dailyNewLimits,
+        dailyReviewLimits: s.dailyReviewLimits,
+        cardOrder: s.cardOrder,
+      })),
+    );
 
   const claimBonus = useClaimDailyBonusMutation();
 
@@ -80,16 +66,13 @@ const StudyRoute: React.FC = () => {
             setTimeout(() => reject(new Error("Request timed out")), 15000),
           );
 
+          // Use exactly 'now' to match Dashboard logic. 
+          // Previously this had a 20m offset for 'reviewFirst' which caused mismatches.
           const now = new Date();
-          let queryDate = now;
-
-                                        if (cardOrder === "reviewFirst") {
-            queryDate = new Date(now.getTime() + 20 * 60 * 1000);
-          }
-
+          
           const [due, reviewsToday] = (await Promise.race([
             Promise.all([
-              getDueCards(queryDate, language),
+              getDueCards(now, language),
               getTodayReviewStats(language),
             ]),
             timeoutPromise,
@@ -121,23 +104,20 @@ const StudyRoute: React.FC = () => {
                 hasLimit(dailyReviewLimit) &&
                 reviewCount >= dailyReviewLimit
               ) {
-                continue;
+                // For reviews, we don't usually keep a 'reserve' queue for daily limits 
+                // in the same way (once the limit is hit, you're done for the day),
+                // but we push to reserve just in case cards are deleted/suspended to fill the gap.
+                reserve.push(card);
+              } else {
+                active.push(card);
+                if (hasLimit(dailyReviewLimit)) reviewCount++;
               }
-              active.push(card);
-              if (hasLimit(dailyReviewLimit)) reviewCount++;
             }
           }
 
           const sortedActive = sortCards(
             active,
             (cardOrder as CardOrder) || "newFirst",
-            {
-              newCardGatherOrder,
-              newCardSortOrder,
-              newReviewOrder,
-              interdayLearningOrder,
-              reviewSortOrder,
-            },
           );
 
           setSessionCards(sortedActive);
