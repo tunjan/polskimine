@@ -2,7 +2,7 @@ import { useCallback, useEffect, useReducer, useRef } from "react";
 import { Card, CardStatus, Grade, UserSettings } from "@/types";
 import { calculateNextReview, LapsesSettings } from "@/core/srs/scheduler";
 import { isNewCard } from "@/services/studyLimits";
-import { sortCards } from "@/core/srs/cardSorter";
+import { sortCards, DisplayOrderSettings } from "@/core/srs/cardSorter";
 import {
   SessionState,
   checkSchedule,
@@ -17,6 +17,7 @@ interface UseStudyQueueParams {
   dueCards: Card[];
   reserveCards?: Card[];
   cardOrder: UserSettings["cardOrder"];
+  displaySettings?: DisplayOrderSettings;
   ignoreLearningStepsWhenNoCards: boolean;
   fsrs: UserSettings["fsrs"];
   learningSteps: UserSettings["learningSteps"];
@@ -66,6 +67,7 @@ export const useStudyQueue = ({
   dueCards,
   reserveCards: initialReserve = [],
   cardOrder,
+  displaySettings,
   ignoreLearningStepsWhenNoCards,
   fsrs,
   learningSteps,
@@ -82,11 +84,14 @@ export const useStudyQueue = ({
       initialCards: Card[],
       initialReserve: Card[],
       initialOrder: UserSettings["cardOrder"],
+      initialDisplaySettings: DisplayOrderSettings | undefined,
       initialIgnoreLearningSteps: boolean,
     ): SessionState => {
       const order = initialOrder || "newFirst";
       const sortedCards =
-        initialCards.length > 0 ? sortCards(initialCards, order) : [];
+        initialCards.length > 0
+          ? sortCards(initialCards, order, initialDisplaySettings)
+          : [];
 
       const initialState: SessionState = {
         status: getInitialStatus(sortedCards),
@@ -119,6 +124,7 @@ export const useStudyQueue = ({
         dueCards,
         initialReserve,
         cardOrder,
+        displaySettings,
         ignoreLearningStepsWhenNoCards,
       ),
   );

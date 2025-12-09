@@ -26,15 +26,29 @@ const StudyRoute: React.FC = () => {
 
   const { updateCard, deleteCard, addCard } = useCardOperations();
 
-  const { language, dailyNewLimits, dailyReviewLimits, cardOrder } =
-    useSettingsStore(
-      useShallow((s) => ({
-        language: s.language,
-        dailyNewLimits: s.dailyNewLimits,
-        dailyReviewLimits: s.dailyReviewLimits,
-        cardOrder: s.cardOrder,
-      })),
-    );
+  const {
+    language,
+    dailyNewLimits,
+    dailyReviewLimits,
+    cardOrder,
+    newCardGatherOrder,
+    newCardSortOrder,
+    newReviewOrder,
+    interdayLearningOrder,
+    reviewSortOrder,
+  } = useSettingsStore(
+    useShallow((s) => ({
+      language: s.language,
+      dailyNewLimits: s.dailyNewLimits,
+      dailyReviewLimits: s.dailyReviewLimits,
+      cardOrder: s.cardOrder,
+      newCardGatherOrder: s.newCardGatherOrder,
+      newCardSortOrder: s.newCardSortOrder,
+      newReviewOrder: s.newReviewOrder,
+      interdayLearningOrder: s.interdayLearningOrder,
+      reviewSortOrder: s.reviewSortOrder,
+    })),
+  );
 
   const claimBonus = useClaimDailyBonusMutation();
 
@@ -117,6 +131,13 @@ const StudyRoute: React.FC = () => {
           const sortedActive = sortCards(
             active,
             (cardOrder as CardOrder) || "newFirst",
+            {
+              newCardGatherOrder,
+              newCardSortOrder,
+              newReviewOrder,
+              interdayLearningOrder,
+              reviewSortOrder,
+            },
           );
 
           setSessionCards(sortedActive);

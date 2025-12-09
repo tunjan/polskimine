@@ -61,6 +61,12 @@ export const StudySession: React.FC<StudySessionProps> = React.memo(
       relearnSteps,
       leechThreshold,
       leechAction,
+      
+      newCardGatherOrder,
+      newCardSortOrder,
+      newReviewOrder,
+      interdayLearningOrder,
+      reviewSortOrder,
     } = useSettingsStore(
       useShallow((s) => ({
         autoPlayAudio: s.autoPlayAudio,
@@ -75,6 +81,12 @@ export const StudySession: React.FC<StudySessionProps> = React.memo(
         relearnSteps: s.relearnSteps,
         leechThreshold: s.leechThreshold,
         leechAction: s.leechAction,
+
+        newCardGatherOrder: s.newCardGatherOrder,
+        newCardSortOrder: s.newCardSortOrder,
+        newReviewOrder: s.newReviewOrder,
+        interdayLearningOrder: s.interdayLearningOrder,
+        reviewSortOrder: s.reviewSortOrder,
       })),
     );
 
@@ -85,6 +97,13 @@ export const StudySession: React.FC<StudySessionProps> = React.memo(
       dueCards,
       reserveCards,
       cardOrder,
+      displaySettings: {
+        newCardGatherOrder,
+        newCardSortOrder,
+        newReviewOrder,
+        interdayLearningOrder,
+        reviewSortOrder,
+      },
       ignoreLearningStepsWhenNoCards: !!ignoreLearningStepsWhenNoCards,
       fsrs,
       learningSteps,
