@@ -79,8 +79,24 @@ export const checkSchedule = (
     return { ...state, cards: newCards, status: "IDLE" };
   }
 
-  if (ignoreLearningSteps && current.status === CardStatus.LEARNING) {
-    return { ...state, status: "IDLE" };
+  if (ignoreLearningSteps) {
+    // If the current card is a learning card, we can process it immediately
+    if (current.status === CardStatus.LEARNING) {
+      return { ...state, status: "IDLE" };
+    }
+    
+    // Otherwise, look for any future learning card in the queue
+    // Since we ignore the wait time, any learning card is effectively "due" now
+    const nextLearningIndex = state.cards.findIndex(
+      (c, i) => i > state.currentIndex && c.status === CardStatus.LEARNING
+    );
+
+    if (nextLearningIndex !== -1) {
+      const newCards = [...state.cards];
+      const [card] = newCards.splice(nextLearningIndex, 1);
+      newCards.splice(state.currentIndex, 0, card);
+      return { ...state, cards: newCards, status: "IDLE" };
+    }
   }
 
   return { ...state, status: "WAITING" };
