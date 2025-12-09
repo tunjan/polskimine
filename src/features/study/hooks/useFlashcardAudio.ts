@@ -45,10 +45,20 @@ export function useFlashcardAudio({
     return segments.map((s) => s.text).join("");
   }, []);
 
-  const speak = useCallback(async () => {
-    const effectiveRate = playSlowRef.current
-      ? Math.max(0.25, tts.rate * 0.6)
-      : tts.rate;
+  const speak = useCallback(async (options?: { isAutoplay?: boolean }) => {
+    let effectiveRate: number;
+    
+    if (options?.isAutoplay) {
+      effectiveRate = tts.rate;
+      // If we are autoplaying, we want the next manual click to be slow
+      setPlaySlow(true);
+    } else {
+      effectiveRate = playSlowRef.current
+        ? Math.max(0.25, tts.rate * 0.6)
+        : tts.rate;
+      setPlaySlow((prev) => !prev);
+    }
+
     const effectiveSettings = { ...tts, rate: effectiveRate };
 
     try {
@@ -62,8 +72,6 @@ export function useFlashcardAudio({
     } catch (err) {
       console.error("TTS speak error:", err);
     }
-
-    setPlaySlow((prev) => !prev);
   }, [
     card.targetSentence,
     card.targetWord,
@@ -75,10 +83,11 @@ export function useFlashcardAudio({
 
   useEffect(() => {
     if (autoPlayAudio && isFlipped && lastSpokenCardId.current !== card.id) {
-      speak();
+      speak({ isAutoplay: true });
       lastSpokenCardId.current = card.id;
     }
   }, [card.id, autoPlayAudio, isFlipped, speak]);
 
   return { speak, playSlow };
 }
+

@@ -400,6 +400,7 @@ export const calculateNextReview = (
     const schedulingResult = (schedulingCards as any)[rating] as {
     card: FSRSCard;
   };
+
   const log = schedulingResult.card;
 
     const isLapse =
