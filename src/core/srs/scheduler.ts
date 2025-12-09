@@ -102,9 +102,15 @@ const handleLearningPhase = (
       1;
     shouldStayInLearning = true;
   } else if (grade === "Good") {
-    nextStep = currentStep + 1;
+    if (card.status === "new" || (card.reps === 0 && card.state !== 2)) {
+         // If it's a new card (or effectively new), we start at step 0
+         nextStep = 0;
+    } else {
+         nextStep = currentStep + 1;
+    }
+
     if (nextStep >= learningStepsMinutes.length) {
-            shouldStayInLearning = false;
+      shouldStayInLearning = false;
     } else {
       nextIntervalMinutes = learningStepsMinutes[nextStep] ?? 1;
       shouldStayInLearning = true;

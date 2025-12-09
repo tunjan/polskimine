@@ -14,13 +14,19 @@ import { getDashboardCounts, getCurrentUserId } from "./cardRepository";
 import { CardStatus } from "@/types/cardStatus";
 
 
-export const getDashboardStats = async (language?: string) => {
+export const getDashboardStats = async (
+  language?: string,
+  ignoreLearningSteps: boolean = false,
+) => {
   const userId = getCurrentUserId();
   const counts = { new: 0, learning: 0, relearning: 0, review: 0, known: 0 };
   let languageXp = 0;
 
   if (language && userId) {
-    const repoCounts = await getDashboardCounts(language as any);
+    const repoCounts = await getDashboardCounts(
+      language as any,
+      ignoreLearningSteps,
+    );
 
     counts.new = repoCounts.new;
     counts.learning = repoCounts.learning;

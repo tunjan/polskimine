@@ -1,4 +1,5 @@
-import { db, AggregatedStat } from "@/db/dexie";
+import { db } from "@/db/dexie";
+import { AggregatedStat } from "@/db/types";
 import { getCurrentUserId } from "./cardRepository";
 
 export const getAggregatedStat = async (
@@ -22,22 +23,40 @@ export const incrementStat = async (
   if (!userId) return;
 
   const id = `${userId}:${language}:${metric}`;
-  const existing = await db.aggregated_stats.get(id);
 
-  if (existing) {
-    await db.aggregated_stats.update(id, {
-      value: existing.value + delta,
-      updated_at: new Date().toISOString(),
+  // Attempt atomic update first
+  const updated = await db.aggregated_stats
+    .where("id")
+    .equals(id)
+    .modify((s) => {
+      s.value += delta;
+      s.updated_at = new Date().toISOString();
     });
-  } else {
-    await db.aggregated_stats.add({
-      id,
-      language,
-      user_id: userId,
-      metric,
-      value: delta,
-      updated_at: new Date().toISOString(),
-    });
+
+  if (updated === 0) {
+    try {
+      await db.aggregated_stats.add({
+        id,
+        language,
+        user_id: userId,
+        metric,
+        value: delta,
+        updated_at: new Date().toISOString(),
+      });
+    } catch (e: any) {
+      if (e.name === "ConstraintError") {
+        // Race condition: another tab/process inserted it just now
+        await db.aggregated_stats
+          .where("id")
+          .equals(id)
+          .modify((s) => {
+            s.value += delta;
+            s.updated_at = new Date().toISOString();
+          });
+      } else {
+        throw e;
+      }
+    }
   }
 };
 

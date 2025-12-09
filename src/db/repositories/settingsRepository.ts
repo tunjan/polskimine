@@ -1,4 +1,5 @@
-import { db, LocalSettings } from "../dexie";
+import { db } from "../dexie";
+import { LocalSettings } from "@/db/types";
 import { UserSettings } from "@/types";
 
 export interface UserApiKeys {

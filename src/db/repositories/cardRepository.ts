@@ -7,7 +7,8 @@ import {
 } from "@/types";
 import { State as FSRSState } from "ts-fsrs";
 import { getSRSDate } from "@/core/srs";
-import { db, generateId } from "@/db/dexie";
+import { db } from "@/db/dexie";
+import { generateId } from "@/utils/ids";
 import { SRS_CONFIG } from "@/constants";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -77,6 +78,7 @@ const DBRawCardSchema = z.object({
   precise_interval: SafeNumber("precise_interval").optional().nullable(),
 
   user_id: z.string().optional().nullable(),
+  created_at: z.string().optional().nullable(),
 });
 
 export type DBRawCard = z.infer<typeof DBRawCardSchema>;
@@ -127,6 +129,7 @@ export const mapToCard = (data: unknown): Card => {
     precise_interval: validData.precise_interval ?? undefined,
 
     user_id: validData.user_id ?? undefined,
+    created_at: validData.created_at ?? undefined,
   } as Card;
 };
 
@@ -173,6 +176,7 @@ export const getCardsForRetention = async (
 
 export const getDashboardCounts = async (
   language: Language,
+  ignoreLearningSteps: boolean = false,
 ): Promise<{
   total: number;
   new: number;
@@ -201,7 +205,7 @@ export const getDashboardCounts = async (
   cutoffDate.setHours(4);
   const cutoffISO = cutoffDate.toISOString();
   const nowISO = now.toISOString();
-  const ONE_HOUR_IN_DAYS = 1 / 24;
+
 
   const [total, newCards, known, learningRaw, reviewRaw, due] =
     await Promise.all([
@@ -231,6 +235,15 @@ export const getDashboardCounts = async (
         .filter((c) => {
           if (c.status === "known" || c.status === "suspended") return false;
 
+          // If ignoring learning steps, include any learning/relearning card regardless of due date
+          if (
+            ignoreLearningSteps &&
+            (c.status === "learning" || c.state === Object(FSRSState).Learning || c.state === Object(FSRSState).Relearning)
+          ) {
+            return true;
+          }
+
+          const ONE_HOUR_IN_DAYS = 1 / 24;
           const isShortInterval = (c.interval || 0) < ONE_HOUR_IN_DAYS;
           if (isShortInterval) {
             return c.dueDate <= nowISO;
@@ -305,6 +318,7 @@ export const saveCard = async (card: Card) => {
     notes: card.notes ?? "",
     isLeech: card.isLeech ?? false,
     isBookmarked: card.isBookmarked ?? false,
+    created_at: card.created_at ?? new Date().toISOString(),
   };
 
     if (normalizedCard.status !== CardStatus.KNOWN && normalizedCard.status !== CardStatus.SUSPENDED) {
@@ -354,6 +368,7 @@ export const clearAllCards = async () => {
 export const getDueCards = async (
   now: Date,
   language: Language,
+  ignoreLearningSteps: boolean = false,
 ): Promise<Card[]> => {
   const userId = getCurrentUserId();
   if (!userId) return [];
@@ -373,7 +388,15 @@ export const getDueCards = async (
     .filter((card) => {
       if (card.status === "known" || card.status === "suspended") return false;
 
-                        const isShortInterval = (card.interval || 0) < ONE_HOUR_IN_DAYS;
+      // If ignoring learning steps, include any learning/relearning card regardless of due date
+      if (
+        ignoreLearningSteps &&
+        (card.status === "learning" || card.state === FSRSState.Learning || card.state === FSRSState.Relearning)
+      ) {
+        return true;
+      }
+
+      const isShortInterval = (card.interval || 0) < ONE_HOUR_IN_DAYS;
       if (isShortInterval) {
         return card.dueDate <= nowISO;
       }

@@ -52,7 +52,7 @@ describe("scheduler", () => {
 
         const result = calculateNextReview(card, "Good", undefined, [1, 10]);
 
-        expect(result.learningStep).toBe(1);
+        expect(result.learningStep).toBe(0);
         expect(result.status).toBe(CardStatus.LEARNING);
       });
 
@@ -359,7 +359,7 @@ describe("scheduler", () => {
 
                 const result = calculateNextReview(card, "Good", undefined, []);
 
-                expect(result.learningStep).toBe(1);
+                expect(result.learningStep).toBe(0);
         expect(result.status).toBe(CardStatus.LEARNING);
       });
 
@@ -508,9 +508,10 @@ describe("scheduler", () => {
 
                 const result = calculateNextReview(card, "Good", undefined, [0, 0]);
 
-                expect(result.learningStep).toBe(1);
+                expect(result.learningStep).toBe(0);
         expect(result.status).toBe(CardStatus.LEARNING);
       });
+
     });
 
     describe("Learning Phase Detection (#1)", () => {

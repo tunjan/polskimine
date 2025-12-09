@@ -299,6 +299,34 @@ export function getCardColumns(actions: ColumnActions): ColumnDef<Card>[] {
     },
 
     {
+      accessorKey: "created_at",
+      header: ({ column }) => (
+        <SortableHeader column={column}>Created</SortableHeader>
+      ),
+      cell: ({ row }) => {
+        const createdAt = row.original.created_at;
+        if (!createdAt) {
+          return <span className="text-muted-foreground/40 text-xs">—</span>;
+        }
+        const date = parseISO(createdAt);
+        if (!isValid(date)) {
+          return <span className="text-muted-foreground/40 text-xs">—</span>;
+        }
+        return (
+          <div className="space-y-0.5">
+            <p className="text-sm font-medium tabular-nums text-foreground">
+              {format(date, "MMM d, yyyy")}
+            </p>
+            <p className="text-xs text-muted-foreground">
+              {formatDistanceToNow(date, { addSuffix: true })}
+            </p>
+          </div>
+        );
+      },
+      size: 120,
+    },
+
+    {
       id: "actions",
       header: () => <span className="sr-only">Actions</span>,
       cell: ({ row }) => {
