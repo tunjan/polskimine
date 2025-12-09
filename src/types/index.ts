@@ -1,4 +1,4 @@
-import {
+import type {
   CardOrderValue,
   TTSProviderValue,
   NewCardGatherOrderValue,
@@ -8,7 +8,7 @@ import {
   ReviewSortOrderValue,
   LeechActionValue,
 } from "@/constants/settings";
-export {
+export type {
   CardOrderValue,
 } from "@/constants/settings";
 import { Card as FSRSCard, State as FSRSState } from "ts-fsrs";

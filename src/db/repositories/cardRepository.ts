@@ -176,11 +176,23 @@ export const getDashboardCounts = async (
 ): Promise<{
   total: number;
   new: number;
-  learned: number;
+  learning: number; // Strictly new->learning
+  relearning: number; // Lapses
+  review: number; // Graduated
+  known: number;
   hueDue: number;
 }> => {
   const userId = getCurrentUserId();
-  if (!userId) return { total: 0, new: 0, learned: 0, hueDue: 0 };
+  if (!userId)
+    return {
+      total: 0,
+      new: 0,
+      learning: 0,
+      relearning: 0,
+      review: 0,
+      known: 0,
+      hueDue: 0,
+    };
 
   const now = new Date();
   const srsToday = getSRSDate(now);
@@ -191,35 +203,63 @@ export const getDashboardCounts = async (
   const nowISO = now.toISOString();
   const ONE_HOUR_IN_DAYS = 1 / 24;
 
-  const [total, newCards, learned, due] = await Promise.all([
-    db.cards.where("[user_id+language]").equals([userId, language]).count(),
-    db.cards
-      .where("[user_id+language+status]")
-      .equals([userId, language, "new"])
-      .count(),
-    db.cards
-      .where("[user_id+language+status]")
-      .equals([userId, language, "known"])
-      .count(),
-    db.cards
-      .where("[user_id+language]")
-      .equals([userId, language])
-      .filter((c) => {
-        if (c.status === "known" || c.status === "suspended") return false;
-        
-                        const isShortInterval = (c.interval || 0) < ONE_HOUR_IN_DAYS;
-        if (isShortInterval) {
-          return c.dueDate <= nowISO;
-        }
-        return c.dueDate <= cutoffISO;
-      })
-      .count(),
-  ]);
+  const [total, newCards, known, learningRaw, reviewRaw, due] =
+    await Promise.all([
+      db.cards.where("[user_id+language]").equals([userId, language]).count(),
+      db.cards
+        .where("[user_id+language+status]")
+        .equals([userId, language, "new"])
+        .count(),
+      db.cards
+        .where("[user_id+language+status]")
+        .equals([userId, language, "known"])
+        .count(),
+      // Fetch all learning cards to split them in JS
+      db.cards
+        .where("[user_id+language+status]")
+        .equals([userId, language, "learning"])
+        .toArray(),
+      // Fetch all review cards
+      db.cards
+        .where("[user_id+language+status]")
+        .equals([userId, language, "review"])
+        .count(),
+      // Calculate Due count
+      db.cards
+        .where("[user_id+language]")
+        .equals([userId, language])
+        .filter((c) => {
+          if (c.status === "known" || c.status === "suspended") return false;
+
+          const isShortInterval = (c.interval || 0) < ONE_HOUR_IN_DAYS;
+          if (isShortInterval) {
+            return c.dueDate <= nowISO;
+          }
+          return c.dueDate <= cutoffISO;
+        })
+        .count(),
+    ]);
+
+  // Split "Learning" status into actual Learning vs Relearning (Lapses)
+  let learningCount = 0;
+  let relearningCount = 0;
+
+  learningRaw.forEach((c) => {
+    // If it has lapses > 0, it's a lapse card (Relearning)
+    if ((c.lapses || 0) > 0) {
+      relearningCount++;
+    } else {
+      learningCount++;
+    }
+  });
 
   return {
     total,
     new: newCards,
-    learned,
+    learning: learningCount,
+    relearning: relearningCount,
+    review: reviewRaw,
+    known,
     hueDue: due,
   };
 };

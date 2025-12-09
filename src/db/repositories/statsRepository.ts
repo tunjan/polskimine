@@ -12,64 +12,26 @@ import {
 } from "date-fns";
 import { getDashboardCounts, getCurrentUserId } from "./cardRepository";
 import { CardStatus } from "@/types/cardStatus";
-import Dexie from "dexie";
+
 
 export const getDashboardStats = async (language?: string) => {
   const userId = getCurrentUserId();
-  const counts = { new: 0, learning: 0, review: 0, known: 0 };
+  const counts = { new: 0, learning: 0, relearning: 0, review: 0, known: 0 };
   let languageXp = 0;
 
   if (language && userId) {
-    const [
-      newCount,
-      knownCount,
-      learningCount,
-      graduatedCount,
-      implicitKnownCount,
-    ] = await Promise.all([
-      db.cards
-        .where("[user_id+language+status]")
-        .equals([userId, language, CardStatus.NEW])
-        .count(),
-      db.cards
-        .where("[user_id+language+status]")
-        .equals([userId, language, CardStatus.KNOWN])
-        .count(),
-      db.cards
-        .where("[user_id+language+status]")
-        .equals([userId, language, CardStatus.LEARNING])
-        .count(),
-      db.cards
-        .where("[language+status+interval]")
-        .between(
-          [language, CardStatus.REVIEW, 0],
-          [language, CardStatus.REVIEW, 180],
-          true,
-          false,
-        )
-        .filter((c) => c.user_id === userId)
-        .count(),
-      db.cards
-        .where("[language+status+interval]")
-        .between(
-          [language, CardStatus.REVIEW, 180],
-          [language, CardStatus.REVIEW, Dexie.maxKey],
-          true,
-          true,
-        )
-        .filter((c) => c.user_id === userId)
-        .count(),
-    ]);
+    const repoCounts = await getDashboardCounts(language as any);
+
+    counts.new = repoCounts.new;
+    counts.learning = repoCounts.learning;
+    counts.relearning = repoCounts.relearning;
+    counts.review = repoCounts.review;
+    counts.known = repoCounts.known;
 
     const xpStat = await db.aggregated_stats.get(
       `${userId}:${language}:total_xp`,
     );
     languageXp = xpStat?.value ?? 0;
-
-    counts.new = newCount;
-    counts.learning = learningCount;
-    counts.review = graduatedCount;
-    counts.known = knownCount + implicitKnownCount;
   } else if (language) {
     const [newCount, knownCount, learningCount] = await Promise.all([
       db.cards
@@ -178,7 +140,7 @@ export const getStats = async (language?: string) => {
     return {
       total: counts.total,
       due: counts.hueDue,
-      learned: counts.learned,
+      learned: counts.review + counts.known,
     };
   }
 

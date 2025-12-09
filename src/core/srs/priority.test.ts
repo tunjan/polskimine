@@ -150,7 +150,7 @@ describe("Card Sorting & Priority System", () => {
     });
 
     it("should place learning cards 'before' reviews", () => {
-      const l1 = createCard("l1", CardStatus.LEARNING, past); // In scheduler.ts we might need 'learning' status or state
+
       // Manually setting state to Learning for the test helper to ensure isLearningCard picks it up
       // Note: createCard helper above sets state based on status New/Review. We need to override.
       // Let's make a better helper or just override here.

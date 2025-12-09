@@ -60,10 +60,12 @@ export const DashboardRoute: React.FC = () => {
     total:
       dashboardStats.counts.new +
       dashboardStats.counts.learning +
+      dashboardStats.counts.relearning +
       dashboardStats.counts.review +
       dashboardStats.counts.known,
     new: dashboardStats.counts.new,
     learning: dashboardStats.counts.learning,
+    relearning: dashboardStats.counts.relearning,
     reviewing: dashboardStats.counts.review,
     known: dashboardStats.counts.known,
   };

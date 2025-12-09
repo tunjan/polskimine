@@ -11,6 +11,7 @@ import {
   History,
   BarChart3,
   CalendarDays,
+  Zap,
 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { subDays, startOfDay, format } from "date-fns";
@@ -45,6 +46,7 @@ interface DashboardProps {
     total: number;
     new: number;
     learning: number;
+    relearning?: number;
     reviewing: number;
     known: number;
   };
@@ -232,7 +234,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
             </CardContent>
           </Card>
         ) : (
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
             <Card>
               <CardContent className="">
                 <div className="flex items-center justify-between mb-1">
@@ -254,6 +256,20 @@ export const Dashboard: React.FC<DashboardProps> = ({
                 </div>
                 <p className="text-2xl font-bold">
                   {metrics.learning.toLocaleString()}
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardContent className="">
+                <div className="flex items-center justify-between mb-1">
+                  <span className="text-xs text-muted-foreground">
+                    Lapse
+                  </span>
+                  <Zap size={14} className="text-red-500" />
+                </div>
+                <p className="text-2xl font-bold text-red-600 dark:text-red-400">
+                  {(metrics.relearning || 0).toLocaleString()}
                 </p>
               </CardContent>
             </Card>
