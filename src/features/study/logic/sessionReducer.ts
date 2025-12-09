@@ -1,4 +1,4 @@
-import { Card, CardOrderValue } from "@/types";
+import { Card, CardOrderValue, CardStatus } from "@/types";
 import { isCardDue } from "@/core/srs/scheduler";
 
 export type SessionStatus =
@@ -79,7 +79,7 @@ export const checkSchedule = (
     return { ...state, cards: newCards, status: "IDLE" };
   }
 
-  if (ignoreLearningSteps) {
+  if (ignoreLearningSteps && current.status === CardStatus.LEARNING) {
     return { ...state, status: "IDLE" };
   }
 

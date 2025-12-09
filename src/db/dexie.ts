@@ -20,15 +20,6 @@ export class LinguaFlowDB extends Dexie {
   constructor() {
     super("linguaflow-dexie");
 
-    this.version(2).stores({
-      cards:
-        "id, status, language, dueDate, isBookmarked, [status+language], [language+status], [language+status+interval]",
-      revlog: "id, card_id, created_at, [card_id+created_at]",
-      history: "[date+language], date, language",
-      profile: "id",
-      settings: "id",
-    });
-
     this.version(3)
       .stores({
         cards:
@@ -111,60 +102,6 @@ export class LinguaFlowDB extends Dexie {
             .bulkAdd(statsToInsert);
         }
       });
-
-    this.version(4).stores({
-      cards:
-        "id, status, language, dueDate, isBookmarked, user_id, [status+language], [language+status], [language+status+interval], [user_id+language], [user_id+status+language]",
-      revlog: "id, card_id, user_id, created_at, [card_id+created_at]",
-      history: "[date+language], date, language, user_id",
-      profile: "id",
-      settings: "id",
-      aggregated_stats:
-        "id, [language+metric], [user_id+language+metric], updated_at",
-      users: "id, &username",
-    });
-
-    this.version(5).stores({
-      cards:
-        "id, status, language, dueDate, isBookmarked, user_id, [status+language], [language+status], [language+status+interval], [user_id+language], [user_id+status+language], [user_id+language+status], [user_id+language+dueDate]",
-      revlog:
-        "id, card_id, user_id, created_at, [card_id+created_at], [user_id+created_at]",
-      history:
-        "[date+language], [user_id+date+language], [user_id+language], date, language, user_id",
-      profile: "id",
-      settings: "id",
-      aggregated_stats:
-        "id, [language+metric], [user_id+language+metric], updated_at",
-      users: "id, &username",
-    });
-
-    this.version(6).stores({
-      cards:
-        "id, status, language, dueDate, isBookmarked, user_id, [status+language], [language+status], [language+status+interval], [user_id+language], [user_id+status+language], [user_id+language+status], [user_id+language+dueDate], [user_id+language+status+dueDate], [user_id+language+isBookmarked+dueDate], [user_id+language+isLeech+dueDate]",
-      revlog:
-        "id, card_id, user_id, created_at, [card_id+created_at], [user_id+created_at]",
-      history:
-        "[date+language], [user_id+date+language], [user_id+language], date, language, user_id",
-      profile: "id",
-      settings: "id",
-      aggregated_stats:
-        "id, [language+metric], [user_id+language+metric], updated_at",
-      users: "id, &username",
-    });
-
-    this.version(7).stores({
-      cards:
-        "id, status, language, dueDate, isBookmarked, user_id, created_at, [status+language], [language+status], [language+status+interval], [user_id+language], [user_id+status+language], [user_id+language+status], [user_id+language+dueDate], [user_id+language+status+dueDate], [user_id+language+isBookmarked+dueDate], [user_id+language+isLeech+dueDate]",
-      revlog:
-        "id, card_id, user_id, created_at, [card_id+created_at], [user_id+created_at]",
-      history:
-        "[date+language], [user_id+date+language], [user_id+language], date, language, user_id",
-      profile: "id",
-      settings: "id",
-      aggregated_stats:
-        "id, [language+metric], [user_id+language+metric], updated_at",
-      users: "id, &username",
-    });
 
     // Clean up unused indexes
     this.version(8).stores({
