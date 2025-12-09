@@ -13,6 +13,7 @@ const createCard = (id: string, overrides: Partial<Card> = {}): Card => ({
   interval: 0,
   easeFactor: 2.5,
   dueDate: new Date().toISOString(),
+  language: "en" as any,
   ...overrides,
 });
 
@@ -265,6 +266,40 @@ describe("cardSorter", () => {
         // All cards should be present
         expect(result.length).toBe(3);
         expect(result.map((c) => c.id)).toContain("learning");
+      });
+    });
+
+    describe("Regression: Learning card sorting order", () => {
+      it("should NOT reverse learning cards when review queue is empty", () => {
+        const learningCard1 = createCard("learning1", {
+          status: CardStatus.LEARNING,
+          state: State.Learning,
+          dueDate: "2023-01-01T10:00:00Z",
+        });
+        const learningCard2 = createCard("learning2", {
+          status: CardStatus.LEARNING,
+          state: State.Learning,
+          dueDate: "2023-01-01T11:00:00Z",
+        });
+        const learningCard3 = createCard("learning3", {
+          status: CardStatus.LEARNING,
+          state: State.Learning,
+          dueDate: "2023-01-01T12:00:00Z",
+        });
+
+        // Sorted by due date (already are, but to be sure)
+        const learningCards = [learningCard1, learningCard2, learningCard3];
+
+        const settings: DisplayOrderSettings = {
+          interdayLearningOrder: "mixed",
+          newReviewOrder: "newFirst",
+        };
+
+        const result = sortCards(learningCards, "newFirst", settings);
+
+        // Should preserve order: learning1, learning2, learning3
+        const ids = result.map((c) => c.id);
+        expect(ids).toEqual(["learning1", "learning2", "learning3"]);
       });
     });
   });

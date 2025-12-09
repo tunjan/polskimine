@@ -132,6 +132,11 @@ const interleaveLearningCards = (
     default:
       // Interleave learning cards with reviews
       const combined = [...reviewCards];
+
+      if (combined.length === 0) {
+        return [...newCards, ...learningCards];
+      }
+
       const step = Math.max(
         1,
         Math.floor(combined.length / (learningCards.length + 1)),

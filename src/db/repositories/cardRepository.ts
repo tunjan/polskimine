@@ -281,7 +281,12 @@ export const saveCard = async (card: Card) => {
     }
   }
 
-  await db.cards.put(normalizedCard);
+  // Validate and sanitize (e.g. remove NaN) before saving
+  // We cast to any because the Schema input is flexible but we want the strict Output of validation
+  // The schema cleans NaN -> 0 via SafeNumber
+  const validatedCard = DBRawCardSchema.parse(normalizedCard);
+
+  await db.cards.put(validatedCard as Card);
 };
 
 export const deleteCard = async (id: string) => {

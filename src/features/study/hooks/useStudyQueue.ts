@@ -133,27 +133,7 @@ export const useStudyQueue = ({
   } = useXpSession(dailyStreak, isCramMode);
   const lastXpEarnedRef = useRef<number>(0);
 
-  const isFirstMount = useRef(true);
 
-  useEffect(() => {
-    if (isFirstMount.current) {
-      isFirstMount.current = false;
-      return;
-    }
-
-    if (dueCards.length > 0) {
-      const order = cardOrder || "newFirst";
-      const sortedCards = sortCards(dueCards, order);
-
-      dispatch({
-        type: "INIT",
-        cards: sortedCards,
-        reserve: initialReserve,
-        now: new Date(),
-        ignoreLearningSteps: ignoreLearningStepsWhenNoCards,
-      });
-    }
-  }, [dueCards, initialReserve, cardOrder, ignoreLearningStepsWhenNoCards]);
 
   useEffect(() => {
     if (state.status === "WAITING") {

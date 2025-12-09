@@ -13,7 +13,7 @@ export interface SessionState {
   cards: Card[];
   reserveCards: Card[];
   currentIndex: number;
-  history: { addedCardId: string | null }[];
+  history: { addedCardId: string | null; cardSnapshot?: Card | null }[];
 }
 
 export type Action =
@@ -112,7 +112,11 @@ export const reducer = (state: SessionState, action: Action): SessionState => {
         action;
       let newCards = [...state.cards];
       let newIndex = state.currentIndex;
-      let newHistory = [...state.history, { addedCardId: addedCardId ?? null }];
+      const cardSnapshot = state.cards[state.currentIndex] ? { ...state.cards[state.currentIndex] } : null;
+      let newHistory = [
+        ...state.history,
+        { addedCardId: addedCardId ?? null, cardSnapshot },
+      ];
 
       if (updatedCard) {
         if (updatedCard.status === "learning") {
@@ -181,6 +185,10 @@ export const reducer = (state: SessionState, action: Action): SessionState => {
 
       const prevIndex = Math.max(0, state.currentIndex - 1);
 
+      if (lastAction?.cardSnapshot && undoCards[prevIndex]) {
+        undoCards[prevIndex] = lastAction.cardSnapshot;
+      }
+
       return {
         ...state,
         cards: undoCards,
@@ -200,17 +208,35 @@ export const reducer = (state: SessionState, action: Action): SessionState => {
       let newCards = state.cards.filter((c) => c.id !== cardId);
       let newReserve = [...state.reserveCards];
 
-      if (newCardFromReserve) {
-        newCards.push(newCardFromReserve);
-        newReserve = newReserve.filter((c) => c.id !== newCardFromReserve.id);
-      }
-
       let newStatus = state.status;
       let newIndex = state.currentIndex;
 
       if (index < newIndex) {
         newIndex = Math.max(0, newIndex - 1);
-      } else if (index === newIndex) {
+      }
+
+      // Handle insertion of new card
+      if (newCardFromReserve) {
+        // Find insertion point:
+        // We want to insert after the last "New" or "Learning" card in the active queue
+        // to maintain the "New First" or "New Mix" flow.
+        // If no New/Learning cards are ahead, we insert at the current position (to show it next).
+        
+        // Search from newIndex to the end
+        let insertIndex = newIndex;
+        for (let i = newCards.length - 1; i >= newIndex; i--) {
+          const c = newCards[i];
+          if (c.status === "new" || c.status === "learning") {
+            insertIndex = i + 1;
+            break;
+          }
+        }
+        
+        newCards.splice(insertIndex, 0, newCardFromReserve);
+        newReserve = newReserve.filter((c) => c.id !== newCardFromReserve.id);
+      }
+
+      if (index === newIndex) {
         newStatus = "IDLE";
         if (newIndex >= newCards.length) {
           newIndex = Math.max(0, newCards.length - 1);
