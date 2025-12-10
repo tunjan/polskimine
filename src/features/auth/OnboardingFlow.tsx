@@ -21,7 +21,9 @@ export const OnboardingFlow: React.FC = () => {
   const updateSettings = useSettingsStore((s) => s.updateSettings);
   const [step, setStep] = useState<"language" | "level" | "deck">("language");
   const [selectedLanguages, setSelectedLanguages] = useState<Language[]>([]);
-  const [selectedLevel, setSelectedLevel] = useState<Difficulty | null>(null);
+  const [selectedLevels, setSelectedLevels] = useState<
+    Record<Language, Difficulty>
+  >({} as Record<Language, Difficulty>);
 
   const handleLanguageToggle = (language: Language) => {
     setSelectedLanguages((prev) =>
@@ -33,14 +35,36 @@ export const OnboardingFlow: React.FC = () => {
 
   const handleLanguageContinue = () => {
     if (selectedLanguages.length > 0) {
-      updateSettings({ language: selectedLanguages[0] });
+      // Default to user's first language if saving single setting, but we are moving to multi-lang
+      // For now just proceed to level selection
       setStep("level");
     }
   };
 
-  const handleLevelSelected = (level: Difficulty) => {
-    setSelectedLevel(level);
-    setStep("deck");
+  const handleLevelSelected = (language: Language, level: Difficulty) => {
+    setSelectedLevels((prev) => ({
+      ...prev,
+      [language]: level,
+    }));
+  };
+
+  const handleLevelsContinue = () => {
+    // Ensure all selected languages have a level
+    const allSelected = selectedLanguages.every(
+      (lang) => selectedLevels[lang] !== undefined,
+    );
+
+    if (allSelected) {
+      // Maybe update settings here with the primary language (first one)?
+      // or just wait until deck generation.
+      updateSettings({
+        language: selectedLanguages[0],
+        proficiency: selectedLevels,
+      });
+      setStep("deck");
+    } else {
+      toast.error("Please select a proficiency level for all languages.");
+    }
   };
 
   const handleDeckComplete = async (
@@ -48,7 +72,7 @@ export const OnboardingFlow: React.FC = () => {
     useAI: boolean,
     apiKey?: string,
   ) => {
-    if (!user || !selectedLevel) return;
+    if (!user) return;
 
     try {
       if (useAI && apiKey) {
@@ -59,9 +83,12 @@ export const OnboardingFlow: React.FC = () => {
 
       if (useAI && apiKey) {
         for (const language of languages) {
+          const level = selectedLevels[language];
+          if (!level) continue;
+
           const languageCards = await generateInitialDeck({
             language,
-            proficiencyLevel: selectedLevel,
+            proficiencyLevel: level,
             apiKey,
           });
           allCards = [...allCards, ...languageCards];
@@ -73,7 +100,8 @@ export const OnboardingFlow: React.FC = () => {
             ...c,
             id: uuidv4(),
             dueDate: new Date().toISOString(),
-            tags: [...(c.tags || []), selectedLevel],
+            dueDate: new Date().toISOString(),
+            tags: [...(c.tags || []), selectedLevels[language]],
             user_id: user.id,
           })) as Card[];
           allCards = [...allCards, ...languageCards];
@@ -155,26 +183,32 @@ export const OnboardingFlow: React.FC = () => {
         )}
 
         {step === "level" && (
-          <div className="flex flex-col gap-6">
+          <div className="flex flex-col gap-6 w-full">
             <LanguageLevelSelector
-              selectedLevel={selectedLevel}
+              selectedLanguages={selectedLanguages}
+              selectedLevels={selectedLevels}
               onSelectLevel={handleLevelSelected}
             />
-            <Button
-              variant="link"
-              onClick={() => setStep("language")}
-              className="text-xs text-muted-foreground hover:text-foreground transition-colors text-center h-auto p-0"
-            >
-              Back to Language Selection
-            </Button>
+            <div className="flex flex-col gap-3">
+              <Button onClick={handleLevelsContinue} className="w-full">
+                Continue
+              </Button>
+              <Button
+                variant="link"
+                onClick={() => setStep("language")}
+                className="text-xs text-muted-foreground hover:text-foreground transition-colors text-center h-auto p-0"
+              >
+                Back to Language Selection
+              </Button>
+            </div>
           </div>
         )}
 
-        {step === "deck" && selectedLevel && (
+        {step === "deck" && (
           <div className="flex flex-col gap-6">
             <DeckGenerationStep
               languages={selectedLanguages}
-              proficiencyLevel={selectedLevel}
+              selectedLevels={selectedLevels}
               onComplete={handleDeckComplete}
             />
             <Button
