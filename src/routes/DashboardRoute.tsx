@@ -12,12 +12,14 @@ import { Button } from "@/components/ui/button";
 
 export const DashboardRoute: React.FC = () => {
   const { history, stats } = useDeckStats();
-  const { language, ignoreLearningStepsWhenNoCards } = useSettingsStore(
-    useShallow((s) => ({
-      language: s.language,
-      ignoreLearningStepsWhenNoCards: s.ignoreLearningStepsWhenNoCards,
-    })),
-  );
+  const { language, ignoreLearningStepsWhenNoCards, dailyNewLimits } =
+    useSettingsStore(
+      useShallow((s) => ({
+        language: s.language,
+        ignoreLearningStepsWhenNoCards: s.ignoreLearningStepsWhenNoCards,
+        dailyNewLimits: s.dailyNewLimits,
+      })),
+    );
   const navigate = useNavigate();
 
   const {
@@ -62,6 +64,12 @@ export const DashboardRoute: React.FC = () => {
     return <div>No data found.</div>;
   }
 
+  const dailyLimit = dailyNewLimits[language] ?? 20;
+  const newCardsStudiedToday = dashboardStats.todayStats?.newCards ?? 0;
+  const remainingNew = Math.max(0, dailyLimit - newCardsStudiedToday);
+  // Cap the new cards at the daily limit
+  const newCardsToShow = Math.min(dashboardStats.counts.new, remainingNew);
+
   const metrics = {
     total:
       dashboardStats.counts.new +
@@ -69,7 +77,7 @@ export const DashboardRoute: React.FC = () => {
       dashboardStats.counts.relearning +
       dashboardStats.counts.review +
       dashboardStats.counts.known,
-    new: dashboardStats.counts.new,
+    new: newCardsToShow,
     learning: dashboardStats.counts.learning,
     relearning: dashboardStats.counts.relearning,
     reviewing: dashboardStats.counts.review,

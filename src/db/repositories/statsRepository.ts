@@ -136,7 +136,9 @@ export const getDashboardStats = async (
     }
   });
 
-  return { counts, forecast, languageXp };
+  const todayStats = await getTodayReviewStats(language);
+
+  return { counts, forecast, languageXp, todayStats };
 };
 
 export const getStats = async (language?: string) => {

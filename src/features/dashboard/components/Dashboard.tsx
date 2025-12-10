@@ -149,8 +149,8 @@ export function Dashboard({
                 className="px-8"
                 disabled={dueCards === 0 && metrics.new === 0}
               >
-                <Play className="mr-2 h-4 w-4" />
-                Start Session
+                <Play className="md:mr-2 h-4 w-4" />
+                <span className="hidden md:block">Start Session</span>
               </Button>
             </div>
           </CardHeader>
