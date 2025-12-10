@@ -104,6 +104,7 @@ export interface UserSettings {
   blindMode: boolean;
   showTranslationAfterFlip: boolean;
   showWholeSentenceOnFront?: boolean;
+  showFullSentenceOnNew?: boolean;
   ignoreLearningStepsWhenNoCards: boolean;
   binaryRatingMode: boolean;
   cardOrder: CardOrderValue;

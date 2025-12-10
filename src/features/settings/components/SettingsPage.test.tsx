@@ -1,6 +1,6 @@
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { SettingsPage } from "./SettingsPage";
+import { SettingsContent } from "./SettingsPage";
 import { vi, describe, it, expect, beforeEach } from "vitest";
 import { TTS_PROVIDER } from "@/constants/settings";
 
@@ -91,13 +91,13 @@ vi.mock("@/features/settings/hooks/useAccountManagement", () => ({
   }),
 }));
 
-describe("SettingsPage", () => {
+describe("SettingsContent", () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
   it("renders settings sections", () => {
-    render(<SettingsPage />);
+    render(<SettingsContent />);
     expect(screen.getByText("Profile")).toBeInTheDocument();
     expect(screen.getByText("Language")).toBeInTheDocument();
     expect(screen.getByText("Audio")).toBeInTheDocument();
@@ -106,7 +106,7 @@ describe("SettingsPage", () => {
 
   it("updates display name", async () => {
     const user = userEvent.setup();
-    render(<SettingsPage />);
+    render(<SettingsContent />);
 
     const nameInput = screen.getByPlaceholderText("Enter your name");
     await user.clear(nameInput);
@@ -125,7 +125,13 @@ describe("SettingsPage", () => {
   // Testing specific toggles without proper accessibility linkage or testIds is brittle.
 
   it("rendering passes without crash", () => {
-    render(<SettingsPage />);
-    expect(screen.getByText("Settings")).toBeInTheDocument();
+    render(<SettingsContent />);
+    // Since we removed 'Settings' title from the content component, check for 'Profile' or something else
+    // But wait, the test says expect(screen.getByText("Settings")).toBeInTheDocument();
+    // I removed the "Settings" header from the component.
+    // So this test will fail if I don't update it to check for something else that IS in the document.
+    // The previous test check for "Profile", let's use that or rely on the previous test.
+    // I'll check for "Profile" instead of "Settings" or just remove this test if it's redundant.
+    expect(screen.getByText("Profile")).toBeInTheDocument();
   });
 });

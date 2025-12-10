@@ -2,12 +2,14 @@ import { render, screen } from "@testing-library/react";
 import { Flashcard } from "./Flashcard";
 import { vi, describe, it, expect, beforeEach } from "vitest";
 import { Card, CardStatus } from "@/types";
+import { useSettingsStore } from "@/stores/useSettingsStore";
 
 // Mocks
 vi.mock("@/stores/useSettingsStore", () => ({
   useSettingsStore: vi.fn(() => ({
     geminiApiKey: "test-key",
     showWholeSentenceOnFront: false,
+    showFullSentenceOnNew: false,
     tts: { rate: 1, volume: 1 },
     playTargetWordAudioBeforeSentence: false,
   })),
@@ -128,5 +130,59 @@ describe("Flashcard", () => {
       <Flashcard card={mockCard} isFlipped={true} showTranslation={false} />,
     );
     expect(screen.queryByText("Native Translation")).not.toBeInTheDocument();
+  });
+
+  it("shows full sentence on front when card is new and showFullSentenceOnNew is true", () => {
+    // Override store mock for this test
+    vi.mocked(useSettingsStore).mockImplementation(
+      () =>
+        ({
+          geminiApiKey: "test-key",
+          showWholeSentenceOnFront: false,
+          showFullSentenceOnNew: true,
+          tts: { rate: 1, volume: 1 },
+          playTargetWordAudioBeforeSentence: false,
+        }) as any,
+    );
+
+    const newCard = { ...mockCard, status: CardStatus.NEW };
+    render(<Flashcard card={newCard} isFlipped={false} />);
+    expect(screen.getByText("Target Sentence")).toBeInTheDocument();
+  });
+
+  it("shows target word on front when card is new but showFullSentenceOnNew is false", () => {
+    vi.mocked(useSettingsStore).mockImplementation(
+      () =>
+        ({
+          geminiApiKey: "test-key",
+          showWholeSentenceOnFront: false,
+          showFullSentenceOnNew: false,
+          tts: { rate: 1, volume: 1 },
+          playTargetWordAudioBeforeSentence: false,
+        }) as any,
+    );
+
+    const newCard = { ...mockCard, status: CardStatus.NEW };
+    render(<Flashcard card={newCard} isFlipped={false} />);
+    expect(screen.getByText("TargetWord")).toBeInTheDocument();
+    expect(screen.queryByText("Target Sentence")).not.toBeInTheDocument();
+  });
+
+  it("shows target word on front when card is review even if showFullSentenceOnNew is true", () => {
+    vi.mocked(useSettingsStore).mockImplementation(
+      () =>
+        ({
+          geminiApiKey: "test-key",
+          showWholeSentenceOnFront: false,
+          showFullSentenceOnNew: true,
+          tts: { rate: 1, volume: 1 },
+          playTargetWordAudioBeforeSentence: false,
+        }) as any,
+    );
+
+    const reviewCard = { ...mockCard, status: CardStatus.REVIEW };
+    render(<Flashcard card={reviewCard} isFlipped={false} />);
+    expect(screen.getByText("TargetWord")).toBeInTheDocument();
+    expect(screen.queryByText("Target Sentence")).not.toBeInTheDocument();
   });
 });

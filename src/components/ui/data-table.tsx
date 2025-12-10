@@ -211,7 +211,7 @@ export function DataTable<TData, TValue>({
         </div>
 
         <div className="flex items-center gap-6">
-          <DropdownMenu>
+          < >
             <DropdownMenuTrigger asChild>
               <Button variant="outline" size="sm" className="h-8 gap-2">
                 <Settings2 className="h-4 w-4" />

@@ -1,157 +1,134 @@
-import { render, screen, fireEvent, waitFor } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
-import { Dashboard } from "./Dashboard";
-import { vi, describe, it, expect } from "vitest";
+import { render, screen } from "@testing-library/react";
+import { describe, it, expect, vi } from "vitest";
+import { Dashboard, DashboardProps } from "./Dashboard";
 
-// Mocks
-vi.mock("@/stores/useSettingsStore", () => ({
-  useSettingsStore: vi.fn(() => ({
-    language: "polish",
-    fsrs: { request_retention: 0.9 },
-  })),
+// Mock sub-components to avoid rendering complexity
+vi.mock("@/components/ui/level-badge", () => ({
+  LevelBadge: () => <div data-testid="level-badge" />,
+  getRankForLevel: () => ({ title: "Rank 1" }),
 }));
-
-vi.mock("@/features/profile/hooks/useProfile", () => ({
-  useProfile: () => ({ profile: { username: "Test User", points: 100 } }),
+vi.mock("@/components/ui/streak-display", () => ({
+  StreakDisplay: () => <div data-testid="streak-display" />,
 }));
-
-vi.mock("@tanstack/react-query", () => ({
-  useQuery: () => ({ data: null, isLoading: false }),
-}));
-
-vi.mock("@/db/repositories/statsRepository", () => ({
-  getRevlogStats: vi.fn(),
-}));
-
-vi.mock("./Heatmap", () => ({
-  Heatmap: () => <div data-testid="heatmap">Heatmap</div>,
-}));
-
-vi.mock("./ReviewVolumeChart", () => ({
-  ReviewVolumeChart: () => <div data-testid="volume-chart">Volume Chart</div>,
-}));
-
-vi.mock("./TrueRetentionChart", () => ({
-  TrueRetentionChart: () => (
-    <div data-testid="retention-chart">Retention Chart</div>
-  ),
-}));
-
-vi.mock("./RetentionStats", () => ({
-  RetentionStats: () => (
-    <div data-testid="retention-stats">Retention Stats</div>
-  ),
+vi.mock("@/components/ui/activity-heatmap", () => ({
+  ActivityHeatmap: () => <div data-testid="activity-heatmap" />,
 }));
 
 describe("Dashboard", () => {
-  const mockProps = {
+  const defaultProps: DashboardProps = {
     metrics: {
-      total: 10,
-      new: 5,
-      learning: 3,
-      reviewing: 2,
-      known: 1,
+      total: 0,
+      new: 0,
+      learning: 0,
+      relearning: 0,
+      reviewing: 0,
+      known: 0,
     },
-    languageXp: { xp: 500, level: 5 },
+    languageXp: {
+      xp: 0,
+      level: 1,
+    },
     stats: {
-      streak: 3,
-      due: 5,
-      newDue: 2,
-      learningDue: 1,
-      reviewDue: 1,
-      lapseDue: 1,
-      retention: 0.9,
-      totalReviews: 50,
-      total: 100,
-      learned: 80,
-      longestStreak: 10,
+      currentStreak: 0,
+      longestStreak: 0,
+      todayCards: 0,
+      todayTime: 0,
     },
-    history: { "2024-01-01": 10 },
-    onStartSession: vi.fn(),
+    history: {},
     cards: [],
+    onStartSession: vi.fn(),
   };
 
-  it("renders profile information", () => {
-    render(<Dashboard {...mockProps} />);
-    expect(screen.getByText("Test User")).toBeInTheDocument();
+  it("displays 'caught up' message when no cards are due or new", () => {
+    render(<Dashboard {...defaultProps} />);
+    expect(screen.getByText(/You're all caught up!/i)).toBeInTheDocument();
   });
 
-  it("renders streak information", () => {
-    render(<Dashboard {...mockProps} />);
-    // Streak is 3. We can look for "3" inside the streak card or associated with "days"
-    // The "3" is next to "days" and "Streak" label.
-    // Let's use regex or look for unique combination if possible, or testid.
-    // Given the component structure, it is visually distinct.
-    // We can find by text "3" but check if there are multiple.
-    // To be safe, let's look for "3" and filter or use allByText.
-    const threes = screen.getAllByText("3");
-    expect(threes.length).toBeGreaterThan(0);
-    // Or better, check if "3 days" text exists if formatted that way?
-    // Dashboard: <span className="text-2xl font-bold">{stats.streak}</span> ... <span ...>days</span>
-    expect(
-      screen.getByText((content, element) => {
-        return (
-          element?.tagName.toLowerCase() === "span" &&
-          content === "3" &&
-          element.classList.contains("font-bold")
-        );
-      }),
-    ).toBeInTheDocument();
-  });
-
-  it("renders due counts and start button", () => {
-    render(<Dashboard {...mockProps} />);
-    expect(screen.getByText("Due for Review")).toBeInTheDocument();
-    // 5 due.
-    const fives = screen.getAllByText("5");
-    expect(fives.length).toBeGreaterThan(0);
-    expect(screen.getByText("Start Session")).toBeInTheDocument();
-  });
-
-  it("calls onStartSession when clicked", () => {
-    render(<Dashboard {...mockProps} />);
-    fireEvent.click(screen.getByText("Start Session"));
-    expect(mockProps.onStartSession).toHaveBeenCalled();
-  });
-
-  it("renders tabs and default heat map", () => {
-    render(<Dashboard {...mockProps} />);
-    expect(screen.getByText("Review Heatmap")).toBeInTheDocument();
-    expect(screen.getByTestId("heatmap")).toBeInTheDocument();
-  });
-
-  it("switches to analytics tab and shows charts with activity", async () => {
-    const user = userEvent.setup();
-    render(<Dashboard {...mockProps} />);
-    await user.click(screen.getByText(/Analytics/i));
-
-    // We expect charts to be attempted to render (but hidden due to null data)
-    // OR just verify the empty message is NOT there.
-    expect(
-      screen.queryByText("Complete reviews to unlock analytics."),
-    ).not.toBeInTheDocument();
-  });
-
-  it("shows empty state message in analytics tab when no activity", async () => {
-    const user = userEvent.setup();
-    const noActivityProps = {
-      ...mockProps,
-      stats: {
-        ...mockProps.stats,
-        totalReviews: 0,
-        total: 100,
-        learned: 80,
-        longestStreak: 10,
+  it("displays correct breakdown for mixed states", () => {
+    const props = {
+      ...defaultProps,
+      metrics: {
+        ...defaultProps.metrics,
+        new: 2,
+        learning: 1,
+        relearning: 0,
+        reviewing: 1,
+        total: 4,
       },
     };
-    render(<Dashboard {...noActivityProps} />);
-    const analyticsTab = screen.getByRole("tab", { name: /analytics/i });
-    await user.click(analyticsTab);
+    render(<Dashboard {...props} />);
 
-    await waitFor(() => {
-      expect(
-        screen.getByText("Complete reviews to unlock analytics."),
-      ).toBeInTheDocument();
-    });
+    // Total count check
+    expect(screen.getByText("4 cards")).toBeInTheDocument();
+
+    // Breakdown checks
+    const breakdown = screen.getByTestId("dashboard-hero-breakdown");
+    expect(breakdown).toHaveTextContent("2 new");
+    expect(breakdown).toHaveTextContent("1 learning");
+    expect(breakdown).toHaveTextContent("1 review");
+  });
+
+  it("groups learning and relearning (lapses) together as 'learning'", () => {
+    const props = {
+      ...defaultProps,
+      metrics: {
+        ...defaultProps.metrics,
+        new: 0,
+        learning: 1,
+        relearning: 2, // Lapses
+        reviewing: 0,
+        total: 3,
+      },
+    };
+    render(<Dashboard {...props} />);
+
+    // Total count
+    expect(screen.getByText("3 cards")).toBeInTheDocument();
+
+    const breakdown = screen.getByTestId("dashboard-hero-breakdown");
+    expect(breakdown).toHaveTextContent("3 learning");
+    expect(breakdown).not.toHaveTextContent("new");
+    expect(breakdown).not.toHaveTextContent("review");
+  });
+
+  it("displays only new cards correctly", () => {
+    const props = {
+      ...defaultProps,
+      metrics: {
+        ...defaultProps.metrics,
+        new: 5,
+        learning: 0,
+        relearning: 0,
+        reviewing: 0,
+        total: 5,
+      },
+    };
+    render(<Dashboard {...props} />);
+
+    expect(screen.getByText("5 cards")).toBeInTheDocument();
+
+    const breakdown = screen.getByTestId("dashboard-hero-breakdown");
+    expect(breakdown).toHaveTextContent("5 new");
+    expect(breakdown).not.toHaveTextContent("learning");
+    expect(breakdown).not.toHaveTextContent("review");
+  });
+
+  it("disables 'Start Session' button when caught up", () => {
+    render(<Dashboard {...defaultProps} />);
+    const button = screen.getByRole("button", { name: /start session/i });
+    expect(button).toBeDisabled();
+  });
+
+  it("enables 'Start Session' button when there are cards to review", () => {
+    const props = {
+      ...defaultProps,
+      metrics: {
+        ...defaultProps.metrics,
+        new: 1,
+      },
+    };
+    render(<Dashboard {...props} />);
+    const button = screen.getByRole("button", { name: /start session/i });
+    expect(button).toBeEnabled();
   });
 });

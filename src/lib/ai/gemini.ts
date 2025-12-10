@@ -9,7 +9,8 @@ const LemmatizeSchema = z.object({
 const AnalyzeWordSchema = z.object({
   definition: z.string(),
   partOfSpeech: z.string(),
-  contextMeaning: z.string(),
+  exampleSentence: z.string(),
+  exampleSentenceTranslation: z.string(),
 });
 
 const GenerateSentenceSchema = z.object({
@@ -271,6 +272,7 @@ export const aiService = {
     contextSentence: string,
     language: (typeof LanguageId)[keyof typeof LanguageId] = LanguageId.Polish,
     apiKey: string,
+    proficiencyLevel: string = "A1",
   ): Promise<z.infer<typeof AnalyzeWordSchema>> {
     const langName = getLangName(language);
 
@@ -279,9 +281,10 @@ export const aiService = {
       properties: {
         definition: { type: "STRING" },
         partOfSpeech: { type: "STRING" },
-        contextMeaning: { type: "STRING" },
+        exampleSentence: { type: "STRING" },
+        exampleSentenceTranslation: { type: "STRING" },
       },
-      required: ["definition", "partOfSpeech", "contextMeaning"],
+      required: ["definition", "partOfSpeech", "exampleSentence", "exampleSentenceTranslation"],
     };
 
     const prompt = `
@@ -291,7 +294,8 @@ export const aiService = {
       Requirements:
       - definition: A concise, context-relevant English definition (max 10 words).
       - partOfSpeech: The part of speech (noun, verb, adjective, etc.) AND the specific grammatical form/case used in the sentence if applicable.
-      - contextMeaning: The specific nuance or meaning of the word *exactly* as it is used in this sentence.
+      - exampleSentence: A simple sentence using the word "${word}" to demonstrate usage, appropriate for ${proficiencyLevel} level students.
+      - exampleSentenceTranslation: The English translation of the example sentence.
     `;
 
     const result = await callGemini(prompt, apiKey, responseSchema);
@@ -303,7 +307,8 @@ export const aiService = {
       return {
         definition: "Failed to analyze",
         partOfSpeech: "Unknown",
-        contextMeaning: "Could not retrieve context",
+        exampleSentence: "Could not generate example",
+        exampleSentenceTranslation: "",
       };
     }
   },

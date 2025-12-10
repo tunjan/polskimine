@@ -101,7 +101,7 @@ const useDebouncedUsername = (
   }, [localUsername, updateUsername, currentUsername]);
 };
 
-export const SettingsPage: React.FC = () => {
+export const SettingsContent: React.FC = () => {
   const settings = useSettingsStore();
   const setSettings = useSettingsStore((s) => s.setFullSettings);
   const { user } = useAuth();
@@ -405,13 +405,7 @@ export const SettingsPage: React.FC = () => {
     settings.dailyReviewLimits?.[settings.language] ?? 0;
 
   return (
-    <div className="container max-w-4xl space-y-6 animate-in fade-in duration-500">
-      <div className="space-y-1 mb-8">
-        <h1 className="text-2xl font-semibold tracking-tight">Settings</h1>
-        <p className="text-sm text-muted-foreground">
-          Configure your learning experience
-        </p>
-      </div>
+    <div className="space-y-6 animate-in fade-in duration-500">
 
       <SettingsSection
         icon={User}
@@ -798,6 +792,23 @@ export const SettingsPage: React.FC = () => {
             }
           />
         </SettingsItem>
+
+        {!settings.showWholeSentenceOnFront && (
+          <SettingsItem
+            label="Detailed New Cards"
+            description="Show full sentence on front for new cards"
+          >
+            <Switch
+              checked={settings.showFullSentenceOnNew}
+              onCheckedChange={(checked) =>
+                setSettings((prev) => ({
+                  ...prev,
+                  showFullSentenceOnNew: checked,
+                }))
+              }
+            />
+          </SettingsItem>
+        )}
 
         <SettingsItem
           label="Show Translation"

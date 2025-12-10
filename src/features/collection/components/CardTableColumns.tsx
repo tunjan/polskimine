@@ -266,9 +266,12 @@ export function getCardColumns(actions: ColumnActions): ColumnDef<Card>[] {
         <SortableHeader column={column}>Sentence</SortableHeader>
       ),
       cell: ({ row }) => (
-        <p className="text-sm font-light text-foreground/90 truncate max-w-[150px]">
-          {row.getValue("targetSentence")}
-        </p>
+        <p
+          className="text-sm font-light text-foreground/90 truncate max-w-[150px]"
+          dangerouslySetInnerHTML={{
+            __html: row.getValue("targetSentence") as string,
+          }}
+        />
       ),
       filterFn: "includesString",
     },

@@ -30,7 +30,7 @@ export const getDashboardStats = async (
     counts.new = repoCounts.new;
     counts.learning = repoCounts.learning;
     counts.relearning = repoCounts.relearning;
-    counts.review = repoCounts.review;
+    counts.review = repoCounts.reviewDue;
     counts.known = repoCounts.known;
 
     const xpStat = await db.aggregated_stats.get(

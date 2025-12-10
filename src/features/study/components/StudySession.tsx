@@ -265,6 +265,7 @@ export const StudySession: React.FC<StudySessionProps> = React.memo(
           onClose={() => setIsEditModalOpen(false)}
           onAdd={(updatedCard) => {
             onUpdateCard(updatedCard);
+            actions.updateCard(updatedCard);
             setIsEditModalOpen(false);
           }}
           initialCard={currentCard}

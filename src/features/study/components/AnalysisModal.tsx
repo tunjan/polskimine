@@ -12,7 +12,8 @@ interface AnalysisResult {
   originalText: string;
   definition: string;
   partOfSpeech: string;
-  contextMeaning: string;
+  exampleSentence: string;
+  exampleSentenceTranslation: string;
 }
 
 interface AnalysisModalProps {
@@ -43,7 +44,7 @@ export const AnalysisModal: React.FC<AnalysisModalProps> = ({
               <h2 className="text-3xl font-light tracking-tight text-foreground wrap-break-word">
                 {result?.originalText}
               </h2>
-              <Badge variant="outline" className="whitespace-nowrap shrink-0">
+              <Badge variant="secondary" className="whitespace-nowrap shrink-0">
                 {result?.partOfSpeech}
               </Badge>
             </div>
@@ -61,12 +62,17 @@ export const AnalysisModal: React.FC<AnalysisModalProps> = ({
 
             <div className="pt-4">
               <h3 className="text-sm font-medium text-muted-foreground mb-2">
-                Context
+                Example Sentence
               </h3>
               <div className="relative pl-4 border-l-2 border-primary/20">
                 <p className="text-base italic text-muted-foreground/75 leading-relaxed wrap-break-word">
-                  {result?.contextMeaning}
+                  {result?.exampleSentence}
                 </p>
+                {result?.exampleSentenceTranslation && (
+                  <p className="mt-2 text-sm text-foreground/60 leading-relaxed wrap-break-word">
+                    {result?.exampleSentenceTranslation}
+                  </p>
+                )}
               </div>
             </div>
           </div>

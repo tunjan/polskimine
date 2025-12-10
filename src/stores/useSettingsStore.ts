@@ -61,6 +61,7 @@ export const DEFAULT_SETTINGS: UserSettings = {
   blindMode: false,
   showTranslationAfterFlip: true,
   showWholeSentenceOnFront: false,
+  showFullSentenceOnNew: false,
   ignoreLearningStepsWhenNoCards: false,
   binaryRatingMode: false,
   cardOrder: "newFirst",
@@ -204,6 +205,7 @@ export const useSettingsStore = create<SettingsState>((set, get) => ({
           blindMode: updatedState.blindMode,
           showTranslationAfterFlip: updatedState.showTranslationAfterFlip,
           showWholeSentenceOnFront: updatedState.showWholeSentenceOnFront,
+          showFullSentenceOnNew: updatedState.showFullSentenceOnNew,
           ignoreLearningStepsWhenNoCards:
             updatedState.ignoreLearningStepsWhenNoCards,
           binaryRatingMode: updatedState.binaryRatingMode,
@@ -261,6 +263,7 @@ export const useSettingsStore = create<SettingsState>((set, get) => ({
           blindMode: updatedState.blindMode,
           showTranslationAfterFlip: updatedState.showTranslationAfterFlip,
           showWholeSentenceOnFront: updatedState.showWholeSentenceOnFront,
+          showFullSentenceOnNew: updatedState.showFullSentenceOnNew,
           ignoreLearningStepsWhenNoCards:
             updatedState.ignoreLearningStepsWhenNoCards,
           binaryRatingMode: updatedState.binaryRatingMode,

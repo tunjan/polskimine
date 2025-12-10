@@ -79,11 +79,18 @@ export const DashboardRoute: React.FC = () => {
   const xp = dashboardStats.languageXp;
   const level = Math.floor(Math.sqrt(xp / 100)) + 1;
 
+  const dashboardStatsData = {
+    currentStreak: stats.streak,
+    longestStreak: stats.longestStreak,
+    todayCards: stats.totalReviews,
+    todayTime: 0, // Time tracking not yet implemented
+  };
+
   return (
     <Dashboard
       metrics={metrics}
       languageXp={{ xp, level }}
-      stats={stats}
+      stats={dashboardStatsData}
       history={history}
       onStartSession={() => navigate("/study")}
       cards={cards as any}

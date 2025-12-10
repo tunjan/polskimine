@@ -1,6 +1,7 @@
 import React from "react";
 import { Grade } from "@/types";
 import { Button } from "@/components/ui/button";
+import { Kbd } from "@/components/ui/kbd";
 import { cn } from "@/lib/utils";
 import { Eye } from "lucide-react";
 
@@ -34,9 +35,9 @@ export const StudyFooter: React.FC<StudyFooterProps> = React.memo(
             >
               <Eye size={18} className="mr-2" />
               Show Answer
-              <kbd className="ml-3 px-2 py-0.5 text-[10px] font-medium bg-primary-foreground/20 rounded border border-primary-foreground/10 max-md:hidden">
+              <Kbd className="ml-3 px-2 text-[10px] font-medium bg-primary-foreground/20 border-primary-foreground/10 text-primary-foreground shadow-none max-md:hidden h-5">
                 SPACE
-              </kbd>
+              </Kbd>
             </Button>
           ) : binaryRatingMode ? (
             <div className="grid grid-cols-2 w-full gap-3 flex-1">
@@ -163,9 +164,9 @@ const AnswerButton = React.memo(
             {interval}
           </span>
         )}
-        <kbd className="text-[9px] font-medium opacity-40 bg-foreground/5 px-1.5 py-0.5 rounded mt-0.5 max-md:hidden">
+        <Kbd className="text-[9px] font-medium opacity-40 bg-foreground/5 shadow-none px-1.5 h-auto min-h-0 min-w-0 rounded mt-0.5 max-md:hidden">
           {shortcut}
-        </kbd>
+        </Kbd>
       </Button>
     );
   },

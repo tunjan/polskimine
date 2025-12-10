@@ -190,6 +190,7 @@ export const getDashboardCounts = async (
   review: number; // Graduated
   known: number;
   hueDue: number;
+  reviewDue: number;
 }> => {
   const userId = getCurrentUserId();
   if (!userId)
@@ -201,6 +202,7 @@ export const getDashboardCounts = async (
       review: 0,
       known: 0,
       hueDue: 0,
+      reviewDue: 0,
     };
 
   const now = new Date();
@@ -211,7 +213,7 @@ export const getDashboardCounts = async (
   const cutoffISO = cutoffDate.toISOString();
   const nowISO = now.toISOString();
 
-  const [total, newCards, known, learningRaw, reviewRaw, due] =
+  const [total, newCards, known, learningRaw, reviewRaw, due, reviewDue] =
     await Promise.all([
       db.cards.where("[user_id+language]").equals([userId, language]).count(),
       db.cards
@@ -257,6 +259,19 @@ export const getDashboardCounts = async (
           return c.dueDate <= cutoffISO;
         })
         .count(),
+      // Calculate Review Due count
+      db.cards
+        .where("[user_id+language+status]")
+        .equals([userId, language, "review"])
+        .filter((c) => {
+          const ONE_HOUR_IN_DAYS = 1 / 24;
+          const isShortInterval = (c.interval || 0) < ONE_HOUR_IN_DAYS;
+          if (isShortInterval) {
+            return c.dueDate <= nowISO;
+          }
+          return c.dueDate <= cutoffISO;
+        })
+        .count(),
     ]);
 
   // Split "Learning" status into actual Learning vs Relearning (Lapses)
@@ -278,6 +293,7 @@ export const getDashboardCounts = async (
     learning: learningCount,
     relearning: relearningCount,
     review: reviewRaw,
+    reviewDue,
     known,
     hueDue: due,
   };

@@ -5,7 +5,8 @@ import { aiService } from "@/lib/ai";
 import { getCardByTargetWord } from "@/db/repositories/cardRepository";
 import { db } from "@/db/dexie";
 import { parseFurigana } from "@/lib/utils";
-import { Card, Language, LanguageId } from "@/types";
+import { Card, Language, LanguageId, CardStatus } from "@/types";
+import { useSettingsStore } from "@/stores/useSettingsStore";
 
 interface UseAIAnalysisProps {
   card: Card;
@@ -29,7 +30,8 @@ export function useAIAnalysis({
     originalText: string;
     definition: string;
     partOfSpeech: string;
-    contextMeaning: string;
+    exampleSentence: string;
+    exampleSentenceTranslation: string;
   } | null>(null);
   const [isAnalysisOpen, setIsAnalysisOpen] = useState(false);
   const [isGeneratingCard, setIsGeneratingCard] = useState(false);
@@ -47,12 +49,14 @@ export function useAIAnalysis({
       return;
     }
     setIsAnalyzing(true);
+    const proficiency = useSettingsStore.getState().proficiency[language] || "A1";
     try {
       const result = await aiService.analyzeWord(
         selection.text,
         card.targetSentence,
         language,
         apiKey,
+        proficiency,
       );
       setAnalysisResult({ ...result, originalText: selection.text });
       setIsAnalysisOpen(true);
@@ -137,13 +141,13 @@ export function useAIAnalysis({
         notes: result.notes,
         furigana: result.furigana,
         language,
-        status: "new",
+        status: CardStatus.NEW,
         interval: 0,
         easeFactor: 2.5,
         dueDate: tomorrow.toISOString(),
         reps: 0,
         lapses: 0,
-        tags: ["AI-Gen", "From-Study"],
+
       };
 
       onAddCard(newCard);

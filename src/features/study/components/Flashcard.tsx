@@ -39,12 +39,14 @@ export const Flashcard = React.memo<FlashcardProps>(
     const {
       geminiApiKey,
       showWholeSentenceOnFront,
+      showFullSentenceOnNew,
       tts,
       playTargetWordAudioBeforeSentence,
     } = useSettingsStore(
       useShallow((s) => ({
         geminiApiKey: s.geminiApiKey,
         showWholeSentenceOnFront: s.showWholeSentenceOnFront,
+        showFullSentenceOnNew: s.showFullSentenceOnNew,
         tts: s.tts,
         playTargetWordAudioBeforeSentence: s.playTargetWordAudioBeforeSentence,
       })),
@@ -141,14 +143,18 @@ export const Flashcard = React.memo<FlashcardProps>(
                     "blur-3xl opacity-5 group-hover:opacity-10 transition-all duration-500",
                   )}
                 >
-                  {card.targetWord && !showWholeSentenceOnFront
+                  {card.targetWord &&
+                  !showWholeSentenceOnFront &&
+                  !(showFullSentenceOnNew && card.status === "new")
                     ? processText(card.targetWord)
                     : cleanSentence}
                 </p>
               </>
             ) : (
               <p className={baseClasses}>
-                {card.targetWord && !showWholeSentenceOnFront
+                {card.targetWord &&
+                !showWholeSentenceOnFront &&
+                !(showFullSentenceOnNew && card.status === "new")
                   ? processText(card.targetWord)
                   : displayedSentence}
               </p>
@@ -157,7 +163,12 @@ export const Flashcard = React.memo<FlashcardProps>(
         );
       }
 
-      if (!isFlipped && card.targetWord && !showWholeSentenceOnFront) {
+      if (
+        !isFlipped &&
+        card.targetWord &&
+        !showWholeSentenceOnFront &&
+        !(showFullSentenceOnNew && card.status === "new")
+      ) {
         if (language === LanguageId.Japanese) {
           return (
             <FuriganaRenderer
@@ -226,6 +237,7 @@ export const Flashcard = React.memo<FlashcardProps>(
       isFlipped,
       blindMode,
       showWholeSentenceOnFront,
+      showFullSentenceOnNew,
       fontSizeClass,
       parsedContent,
       handleReveal,

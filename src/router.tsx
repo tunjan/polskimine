@@ -10,11 +10,6 @@ const StudyRoute = lazy(() => import("@/routes/StudyRoute"));
 const CardsRoute = lazy(() =>
   import("@/routes/CardsRoute").then((m) => ({ default: m.CardsRoute })),
 );
-const SettingsRoute = lazy(() =>
-  import("@/features/settings/routes/SettingsRoute").then((m) => ({
-    default: m.SettingsRoute,
-  })),
-);
 const TestStatsRoute = lazy(() =>
   import("@/routes/TestStatsRoute").then((m) => ({
     default: m.TestStatsRoute,
@@ -39,7 +34,6 @@ export const AppRoutes: React.FC = () => (
       <Route path="/study" element={<StudyRoute />} />
       <Route path="/cards" element={<CardsRoute />} />
       <Route path="/test-stats" element={<TestStatsRoute />} />
-      <Route path="/settings/*" element={<SettingsRoute />} />
     </Routes>
   </Suspense>
 );

@@ -130,4 +130,21 @@ describe("useStudyQueue", () => {
     expect(currentCardAfterUndo.status).toBe(CardStatus.NEW);
     expect(currentCardAfterUndo.state).toBe(State.New);
   });
+
+  it("should update current card when updateAction is called", () => {
+    const { result } = renderHook((props) => useStudyQueue(props), {
+      initialProps: defaultProps,
+    });
+
+    const newData: Card = {
+      ...mockCard,
+      targetSentence: "Updated Sentence",
+    };
+
+    act(() => {
+      result.current.actions.updateCard(newData);
+    });
+
+    expect(result.current.currentCard.targetSentence).toBe("Updated Sentence");
+  });
 });
