@@ -9,6 +9,7 @@ import { getDashboardStats } from "@/db/repositories/statsRepository";
 import { getCardsForDashboard } from "@/db/repositories/cardRepository";
 import { LoadingScreen } from "@/components/ui/loading";
 import { Button } from "@/components/ui/button";
+import { calculateDashboardMetrics } from "@/features/dashboard/logic/dashboardMetrics";
 
 export const DashboardRoute: React.FC = () => {
   const { history, stats } = useDeckStats();
@@ -66,23 +67,12 @@ export const DashboardRoute: React.FC = () => {
 
   const dailyLimit = dailyNewLimits[language] ?? 20;
   const newCardsStudiedToday = dashboardStats.todayStats?.newCards ?? 0;
-  const remainingNew = Math.max(0, dailyLimit - newCardsStudiedToday);
-  // Cap the new cards at the daily limit
-  const newCardsToShow = Math.min(dashboardStats.counts.new, remainingNew);
 
-  const metrics = {
-    total:
-      dashboardStats.counts.new +
-      dashboardStats.counts.learning +
-      dashboardStats.counts.relearning +
-      dashboardStats.counts.review +
-      dashboardStats.counts.known,
-    new: newCardsToShow,
-    learning: dashboardStats.counts.learning,
-    relearning: dashboardStats.counts.relearning,
-    reviewing: dashboardStats.counts.review,
-    known: dashboardStats.counts.known,
-  };
+  const metrics = calculateDashboardMetrics(
+    dashboardStats.counts,
+    dailyLimit,
+    newCardsStudiedToday,
+  );
 
   const xp = dashboardStats.languageXp;
   const level = Math.floor(Math.sqrt(xp / 100)) + 1;

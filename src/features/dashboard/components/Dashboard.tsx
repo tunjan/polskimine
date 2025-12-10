@@ -9,7 +9,6 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
 import { LevelBadge, getRankForLevel } from "@/components/ui/level-badge";
 import { StreakDisplay } from "@/components/ui/streak-display";
@@ -118,12 +117,12 @@ export function Dashboard({
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="max-w-5xl mx-auto px-6 py-8 space-y-8">
+      <div className="max-w-5xl mx-auto px-4 md:px-6 py-8 space-y-8">
         {/* Hero Section */}
         <Card>
           <CardHeader>
-            <div className="flex items-center justify-between">
-              <div className="space-y-1">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 md:gap-0">
+              <div className="space-y-1 text-center md:text-left">
                 <CardTitle className="text-2xl">
                   {dueCards > 0 || metrics.new > 0
                     ? "Ready to study?"
@@ -146,18 +145,18 @@ export function Dashboard({
               <Button
                 size="lg"
                 onClick={onStartSession}
-                className="px-8"
+                className="w-full md:w-auto px-8"
                 disabled={dueCards === 0 && metrics.new === 0}
               >
-                <Play className="md:mr-2 h-4 w-4" />
-                <span className="hidden md:block">Start Session</span>
+                <Play className="mr-2 h-4 w-4" />
+                <span>Start Session</span>
               </Button>
             </div>
           </CardHeader>
           {(dueCards > 0 || metrics.new > 0) && (
             <CardContent>
               <div
-                className="flex flex-wrap gap-2"
+                className="flex flex-wrap justify-center md:justify-start gap-2"
                 data-testid="dashboard-hero-breakdown"
               >
                 {metrics.new > 0 && (
@@ -272,19 +271,18 @@ export function Dashboard({
         </div>
 
         {/* Activity Heatmap */}
-        <Card className="hidden md:block">
-          <CardContent>
+        <Card>
+          <CardContent className="p-0 sm:p-6 overflow-hidden">
             <ActivityHeatmap
               data={Object.entries(history).map(([date, count]) => ({
                 date,
                 count,
               }))}
               year={new Date().getFullYear()}
+              className="pt-6 sm:pt-0"
             />
           </CardContent>
         </Card>
-
-
       </div>
     </div>
   );
