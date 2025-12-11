@@ -671,4 +671,81 @@ export const aiService = {
       throw new Error("Failed to generate valid cards");
     }
   },
+
+  async modifyCard(
+    card: {
+      targetWord: string;
+      targetSentence: string;
+      language: (typeof LanguageId)[keyof typeof LanguageId];
+    },
+    modificationType: "easier" | "harder",
+    apiKey: string,
+  ): Promise<z.infer<typeof GenerateCardSchema>> {
+    const langName = getLangName(card.language);
+    
+    // Re-use existing schema for consistent card structure
+    const responseSchema: GeminiResponseSchema = {
+      type: "OBJECT",
+      properties: {
+        translation: { type: "STRING" },
+        targetWord: { type: "STRING" },
+        targetWordTranslation: { type: "STRING" },
+        targetWordPartOfSpeech: {
+          type: "STRING",
+          enum: ["noun", "verb", "adjective", "adverb", "pronoun"],
+        },
+        notes: { type: "STRING" },
+        formattedSentence: { type: "STRING" },
+        ...(card.language === LanguageId.Japanese
+          ? { furigana: { type: "STRING" } }
+          : {}),
+      },
+      required: [
+        "translation",
+        "targetWord",
+        "targetWordTranslation",
+        "targetWordPartOfSpeech",
+        "notes",
+        "formattedSentence",
+      ],
+    };
+
+    let prompt = `
+      Role: Expert Language Teacher.
+      Task: Modify a flashcard to make the sentence ${modificationType.toUpperCase()}.
+      
+      Original Card Info:
+      - Target Word: "${card.targetWord}" (MUST KEEP THIS WORD)
+      - Current Sentence: "${card.targetSentence}"
+      
+      Modification Goal: ${
+        modificationType === "easier"
+          ? "Create a SIMPLER, shorter sentence using more common vocabulary. Focus on basic usage."
+          : "Create a MORE COMPLEX, nuanced sentence. Use advanced grammar or more sophisticated context."
+      }
+      
+      Fields:
+      - translation: Natural English translation of the NEW sentence.
+      - targetWord: The target word "${card.targetWord}".
+      - targetWordTranslation: English translation of the target word.
+      - targetWordPartOfSpeech: Part of speech for the target word in the new sentence.
+      - notes: Concise grammar note about the new sentence structure.
+      - formattedSentence: The new sentence with the target word wrapped in <b> tags.
+    `;
+
+    if (card.language === LanguageId.Japanese) {
+      prompt += `
+      - furigana: The FULL new sentence with furigana in format "Kanji[reading]" for ALL Kanji.
+      `;
+    }
+
+    const result = await callGemini(prompt, apiKey, responseSchema);
+    try {
+      const parsed = parseAIJSON(result);
+      return GenerateCardSchema.parse(parsed);
+    } catch (e) {
+      console.error("Failed to parse AI modify response", e, "\nRaw:", result);
+      throw new Error("Failed to modify card");
+    }
+  },
 };

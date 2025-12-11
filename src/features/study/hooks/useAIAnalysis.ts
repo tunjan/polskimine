@@ -15,6 +15,7 @@ interface UseAIAnalysisProps {
   selection: { text: string } | null;
   clearSelection: () => void;
   onAddCard?: (card: Card) => void;
+  onUpdateCard?: (card: Card) => void;
 }
 
 export function useAIAnalysis({
@@ -24,8 +25,10 @@ export function useAIAnalysis({
   selection,
   clearSelection,
   onAddCard,
+  onUpdateCard,
 }: UseAIAnalysisProps) {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [isModifying, setIsModifying] = useState(false);
   const [analysisResult, setAnalysisResult] = useState<{
     originalText: string;
     definition: string;
@@ -49,7 +52,8 @@ export function useAIAnalysis({
       return;
     }
     setIsAnalyzing(true);
-    const proficiency = useSettingsStore.getState().proficiency[language] || "A1";
+    const proficiency =
+      useSettingsStore.getState().proficiency[language] || "A1";
     try {
       const result = await aiService.analyzeWord(
         selection.text,
@@ -147,7 +151,6 @@ export function useAIAnalysis({
         dueDate: tomorrow.toISOString(),
         reps: 0,
         lapses: 0,
-
       };
 
       onAddCard(newCard);
@@ -160,13 +163,61 @@ export function useAIAnalysis({
     }
   };
 
+  const handleModifyCard = async (type: "easier" | "harder") => {
+    if (!apiKey) {
+      toast.error("API Key required.");
+      return;
+    }
+    if (!onUpdateCard) {
+      toast.error("Modification not supported here.");
+      return;
+    }
+
+    setIsModifying(true);
+    try {
+      const result = await aiService.modifyCard(
+        {
+          targetWord: card.targetWord,
+          targetSentence: card.targetSentence,
+          language: card.language,
+        },
+        type,
+        apiKey,
+      );
+
+      const updatedCard: Card = {
+        ...card,
+        targetSentence: result.formattedSentence || result.targetWord || card.targetSentence,
+        targetWord: result.targetWord || card.targetWord,
+        targetWordTranslation: result.targetWordTranslation || card.targetWordTranslation,
+        targetWordPartOfSpeech: result.targetWordPartOfSpeech || card.targetWordPartOfSpeech,
+        nativeTranslation: result.translation || card.nativeTranslation,
+        notes: result.notes || card.notes,
+        furigana: result.furigana || card.furigana,
+        // Resetting intervals? Maybe not. Let's keep study progress for now unless requested otherwise.
+      };
+
+      onUpdateCard(updatedCard);
+      toast.success("Card modified successfully");
+      setIsAnalysisOpen(false);
+      clearSelection();
+    } catch (e) {
+      toast.error("Failed to modify card");
+      console.error(e);
+    } finally {
+      setIsModifying(false);
+    }
+  };
+
   return {
     isAnalyzing,
+    isModifying,
     analysisResult,
     isAnalysisOpen,
     setIsAnalysisOpen,
     isGeneratingCard,
     handleAnalyze,
     handleGenerateCard,
+    handleModifyCard,
   };
 }

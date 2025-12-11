@@ -3,6 +3,8 @@ import { Flashcard } from "./Flashcard";
 import { vi, describe, it, expect, beforeEach } from "vitest";
 import { Card, CardStatus } from "@/types";
 import { useSettingsStore } from "@/stores/useSettingsStore";
+import { useTextSelection } from "@/features/study/hooks/useTextSelection";
+import { useAIAnalysis } from "@/features/study/hooks/useAIAnalysis";
 
 // Mocks
 vi.mock("@/stores/useSettingsStore", () => ({
@@ -24,15 +26,19 @@ vi.mock("@/features/collection/hooks/useCardText", () => ({
 }));
 
 vi.mock("@/features/study/hooks/useTextSelection", () => ({
-  useTextSelection: () => ({
+  useTextSelection: vi.fn(() => ({
     selection: null,
     handleMouseUp: vi.fn(),
     clearSelection: vi.fn(),
-  }),
+  })),
 }));
 
 vi.mock("@/features/study/hooks/useCardInteraction", () => ({
-  useCardInteraction: vi.fn(),
+  useCardInteraction: vi.fn(() => ({
+    isRevealed: false,
+    handleReveal: vi.fn(),
+    handleKeyDown: vi.fn(),
+  })),
 }));
 
 vi.mock("@/features/study/hooks/useFlashcardAudio", () => ({
@@ -40,7 +46,7 @@ vi.mock("@/features/study/hooks/useFlashcardAudio", () => ({
 }));
 
 vi.mock("@/features/study/hooks/useAIAnalysis", () => ({
-  useAIAnalysis: () => ({
+  useAIAnalysis: vi.fn(() => ({
     isAnalyzing: false,
     analysisResult: null,
     isAnalysisOpen: false,
@@ -48,7 +54,9 @@ vi.mock("@/features/study/hooks/useAIAnalysis", () => ({
     isGeneratingCard: false,
     handleAnalyze: vi.fn(),
     handleGenerateCard: vi.fn(),
-  }),
+    handleModifyCard: vi.fn(),
+    isModifying: false,
+  })),
 }));
 
 vi.mock("@/features/study/hooks/useCardSentence", () => ({
@@ -184,5 +192,35 @@ describe("Flashcard", () => {
     render(<Flashcard card={reviewCard} isFlipped={false} />);
     expect(screen.getByText("TargetWord")).toBeInTheDocument();
     expect(screen.queryByText("Target Sentence")).not.toBeInTheDocument();
+  });
+
+  it("passes handleModifyCard to SelectionMenu when selection exists", () => {
+    // Mock selection
+    (useTextSelection as any).mockReturnValue({
+      selection: { top: 0, left: 0, text: "selected" },
+      handleMouseUp: vi.fn(),
+      clearSelection: vi.fn(),
+    });
+
+    // Mock handleModifyCard in useAIAnalysis
+    const handleModifyCardOfHook = vi.fn();
+    (useAIAnalysis as any).mockReturnValue({
+      isAnalyzing: false,
+      analysisResult: null,
+      isAnalysisOpen: false,
+      setIsAnalysisOpen: vi.fn(),
+      isGeneratingCard: false,
+      handleAnalyze: vi.fn(),
+      handleGenerateCard: vi.fn(),
+      handleModifyCard: handleModifyCardOfHook,
+      isModifying: false,
+    });
+
+    render(<Flashcard card={mockCard} isFlipped={false} onUpdateCard={vi.fn()} />);
+
+    // Since we can't easily check props passed to child component without Enzyme or deep mocking,
+    // we check if "Modify" text appears (rendered by SelectionMenu because handleModifyCard was passed)
+    // Note: SelectionMenu only renders "Modify" if onModifyCard is passed.
+    expect(screen.getByText("Modify")).toBeInTheDocument();
   });
 });

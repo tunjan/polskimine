@@ -24,6 +24,7 @@ interface FlashcardProps {
   showTranslation?: boolean;
   language?: Language;
   onAddCard?: (card: Card) => void;
+  onUpdateCard?: (card: Card) => void;
 }
 
 export const Flashcard = React.memo<FlashcardProps>(
@@ -35,6 +36,7 @@ export const Flashcard = React.memo<FlashcardProps>(
     showTranslation = true,
     language = LanguageId.Polish,
     onAddCard,
+    onUpdateCard,
   }) => {
     const {
       geminiApiKey,
@@ -81,6 +83,8 @@ export const Flashcard = React.memo<FlashcardProps>(
       isGeneratingCard,
       handleAnalyze,
       handleGenerateCard,
+      handleModifyCard,
+      isModifying,
     } = useAIAnalysis({
       card,
       language,
@@ -88,6 +92,7 @@ export const Flashcard = React.memo<FlashcardProps>(
       selection,
       clearSelection,
       onAddCard,
+      onUpdateCard,
     });
 
     const displayedSentence = processText(card.targetSentence);
@@ -350,8 +355,10 @@ export const Flashcard = React.memo<FlashcardProps>(
             left={selection.left}
             onAnalyze={handleAnalyze}
             onGenerateCard={onAddCard ? handleGenerateCard : undefined}
+            onModifyCard={onUpdateCard ? handleModifyCard : undefined}
             isAnalyzing={isAnalyzing}
             isGeneratingCard={isGeneratingCard}
+            isModifying={isModifying}
           />
         )}
 

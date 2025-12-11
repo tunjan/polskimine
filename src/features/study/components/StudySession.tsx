@@ -249,6 +249,10 @@ export const StudySession: React.FC<StudySessionProps> = React.memo(
           showTranslation={showTranslationAfterFlip}
           language={language}
           onAddCard={onAddCard}
+          onUpdateCard={(card) => {
+            onUpdateCard(card);
+            actions.updateCard(card);
+          }}
         />
 
         <StudyFooter
