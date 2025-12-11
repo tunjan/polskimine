@@ -119,10 +119,14 @@ export function useAIAnalysis({
         return;
       }
 
+      const proficiency =
+        useSettingsStore.getState().proficiency[language] || "A1";
+
       const result = await aiService.generateSentenceForWord(
         lemma,
         language,
         apiKey,
+        proficiency,
       );
 
       let targetSentence = result.targetSentence;

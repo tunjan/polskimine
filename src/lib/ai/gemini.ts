@@ -317,6 +317,7 @@ export const aiService = {
     targetWord: string,
     language: (typeof LanguageId)[keyof typeof LanguageId] = LanguageId.Polish,
     apiKey: string,
+    proficiencyLevel: string = "A1",
   ): Promise<z.infer<typeof GenerateSentenceSchema>> {
     const langName = getLangName(language);
 
@@ -349,8 +350,8 @@ export const aiService = {
       Task: Generate a practical, natural ${langName} sentence using the word "${targetWord}".
       
       Guidelines:
-      - The sentence must be colloquially natural but grammatically correct.
-      - Useful for a learner (A2/B1 level).
+      - The sentence must be natural and grammatically correct.
+      - Useful for a learner (${proficiencyLevel} level).
       - Context should make the meaning of "${targetWord}" clear.
       
       Fields:
