@@ -35,8 +35,8 @@ export const OnboardingFlow: React.FC = () => {
 
   const handleLanguageContinue = () => {
     if (selectedLanguages.length > 0) {
-      // Default to user's first language if saving single setting, but we are moving to multi-lang
-      // For now just proceed to level selection
+      
+      
       setStep("level");
     }
   };
@@ -49,14 +49,14 @@ export const OnboardingFlow: React.FC = () => {
   };
 
   const handleLevelsContinue = () => {
-    // Ensure all selected languages have a level
+    
     const allSelected = selectedLanguages.every(
       (lang) => selectedLevels[lang] !== undefined,
     );
 
     if (allSelected) {
-      // Maybe update settings here with the primary language (first one)?
-      // or just wait until deck generation.
+      
+      
       updateSettings({
         language: selectedLanguages[0],
         proficiency: selectedLevels,

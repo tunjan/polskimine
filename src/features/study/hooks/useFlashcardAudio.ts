@@ -51,7 +51,7 @@ export function useFlashcardAudio({
 
       if (options?.isAutoplay) {
         effectiveRate = tts.rate;
-        // If we are autoplaying, we want the next manual click to be slow
+        
         setPlaySlow(true);
       } else {
         effectiveRate = playSlowRef.current

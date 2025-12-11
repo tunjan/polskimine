@@ -81,7 +81,7 @@ export const DashboardRoute: React.FC = () => {
     currentStreak: stats.streak,
     longestStreak: stats.longestStreak,
     todayCards: stats.totalReviews,
-    todayTime: 0, // Time tracking not yet implemented
+    todayTime: 0, 
   };
 
   return (

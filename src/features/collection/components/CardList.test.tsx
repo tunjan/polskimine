@@ -5,7 +5,7 @@ import { vi, describe, it, expect } from "vitest";
 import { Card, CardStatus } from "@/types";
 import { ColumnDef } from "@tanstack/react-table";
 
-// Mock the getCardColumns to return a simplified column structure for testing
+
 vi.mock("./CardTableColumns", () => ({
   getCardColumns: ({
     onEditCard,
@@ -86,7 +86,7 @@ vi.mock("./CardTableColumns", () => ({
   ],
 }));
 
-// Mock DataTable to expose props for verification and render a table structure
+
 vi.mock("@/components/ui/data-table", () => ({
   DataTable: ({
     data,
@@ -158,7 +158,7 @@ vi.mock("@/components/ui/data-table", () => ({
   ),
 }));
 
-// Helper to render cell function or node
+
 const flexRenderMock = (Comp: any, props: any) => {
   if (typeof Comp === "function") {
     return Comp(props);
@@ -243,7 +243,7 @@ describe("CardList", () => {
   it("renders HTML in sentence column", () => {
     render(<CardList {...defaultProps} />);
     const sentenceCell = screen.getByTestId("sentence-1");
-    // Check if the bold tag is rendered (innerHTML contains <b>)
+    
     expect(sentenceCell.innerHTML).toContain("<b>1</b>");
   });
 
@@ -273,19 +273,19 @@ describe("CardList", () => {
     const user = userEvent.setup();
     render(<CardList {...defaultProps} />);
 
-    // Edit
+    
     await user.click(screen.getByTestId("edit-1"));
     expect(defaultProps.onEditCard).toHaveBeenCalledWith(mockCards[0]);
 
-    // Delete
+    
     await user.click(screen.getByTestId("delete-1"));
     expect(defaultProps.onDeleteCard).toHaveBeenCalledWith("1");
 
-    // History (via action button, redundant with row click but explicit action)
+    
     await user.click(screen.getByTestId("history-1"));
-    expect(defaultProps.onViewHistory).toHaveBeenCalledTimes(1); // Reset mocks between tests if checking exact count, or rely on clear call history
+    expect(defaultProps.onViewHistory).toHaveBeenCalledTimes(1); 
 
-    // Prioritize
+    
     await user.click(screen.getByTestId("prioritize-1"));
     expect(defaultProps.onPrioritizeCard).toHaveBeenCalledWith("1");
   });
@@ -294,14 +294,14 @@ describe("CardList", () => {
     const user = userEvent.setup();
     render(<CardList {...defaultProps} />);
 
-    // Since our mock DataTable implements a basic toggleSelected that calls onRowSelectionChange
-    // And CardList handles onRowSelectionChange by calling onToggleSelect
-    // We need to simulate the selection event from the table row
+    
+    
+    
     await user.click(screen.getByTestId("select-1"));
 
-    // The logic in CardList map rowSelection change to onToggleSelect
-    // Our mock executes onRowSelectionChange with an updater
-    // verifying that CardList's handleRowSelectionChange logic works is tricky with deep mocking
-    // But we can verify that the props were passed to DataTable which we did implicitly by using them in the mock
+    
+    
+    
+    
   });
 });

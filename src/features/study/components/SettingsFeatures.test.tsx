@@ -5,13 +5,13 @@ import { vi, describe, it, expect, beforeEach, afterEach, Mock } from "vitest";
 import { Card, CardStatus } from "@/types";
 import { useSettingsStore } from "@/stores/useSettingsStore";
 
-// Mock dependencies
-// We use a manual mock factory that allows us to override the behavior later
+
+
 vi.mock("@/stores/useSettingsStore", () => ({
   useSettingsStore: vi.fn(),
 }));
 
-// Helper to mock the store state for a test
+
 function mockStore(state: any) {
   (useSettingsStore as unknown as Mock).mockImplementation((selector) =>
     selector(state),
@@ -101,7 +101,7 @@ describe("Settings Features Integration", () => {
 
   describe("Blind Mode", () => {
     it("should render microphone icon and hide text when blind mode is enabled via prop", () => {
-      // Mock store to reflect it too, just in case component relies on store
+      
       mockStore({ ...defaultSettings, blindMode: true });
 
       render(<Flashcard card={mockCard} isFlipped={false} blindMode={true} />);

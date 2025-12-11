@@ -81,3 +81,30 @@ export const getAllReviewLogs = async (
     created_at: log.created_at,
   }));
 };
+
+export const getReviewLogsForCard = async (
+  cardId: string,
+): Promise<ReviewLog[]> => {
+  const userId = getCurrentUserId();
+  if (!userId) return [];
+
+  const logs = await db.revlog
+    .where("card_id")
+    .equals(cardId)
+    .filter((log) => log.user_id === userId)
+    .toArray();
+
+  logs.sort((a, b) => a.created_at.localeCompare(b.created_at));
+
+  return logs.map((log) => ({
+    id: log.id,
+    card_id: log.card_id,
+    grade: log.grade,
+    state: typeof log.state === "number" ? log.state : log.state,
+    elapsed_days: log.elapsed_days,
+    scheduled_days: log.scheduled_days,
+    stability: log.stability,
+    difficulty: log.difficulty,
+    created_at: log.created_at,
+  }));
+};

@@ -6,7 +6,7 @@ import { useSettingsStore } from "@/stores/useSettingsStore";
 import { useTextSelection } from "@/features/study/hooks/useTextSelection";
 import { useAIAnalysis } from "@/features/study/hooks/useAIAnalysis";
 
-// Mocks
+
 vi.mock("@/stores/useSettingsStore", () => ({
   useSettingsStore: vi.fn(() => ({
     geminiApiKey: "test-key",
@@ -98,20 +98,20 @@ describe("Flashcard", () => {
 
   it("renders front by default", () => {
     render(<Flashcard card={mockCard} isFlipped={false} />);
-    // Front shows target word by default
+    
     expect(screen.getByText("TargetWord")).toBeInTheDocument();
-    // and hides sentence if not revealed
+    
     expect(screen.queryByText("Target Sentence")).not.toBeInTheDocument();
   });
 
   it("renders back when flipped", () => {
-    // Mock revealed state for back view logic usually, but here isFlipped controls position.
-    // Actually, Flashcard uses isRevealed for determining valid content display?
-    // Let's check logic:
-    // if (!isRevealed) return front elements.
-    // if (isRevealed) return revealed elements.
+    
+    
+    
+    
+    
 
-    // We need to mock useCardInteraction to return isRevealed=true to see sentence?
+    
     (useCardInteraction as any).mockReturnValue({
       isRevealed: true,
       handleReveal: vi.fn(),
@@ -119,7 +119,7 @@ describe("Flashcard", () => {
     });
 
     render(<Flashcard card={mockCard} isFlipped={true} />);
-    // When revealed and flipped, we should see sentence and translation if enabled
+    
     expect(screen.getByText("Target Sentence")).toBeInTheDocument();
     expect(screen.getByText("Native Translation")).toBeInTheDocument();
   });
@@ -141,7 +141,7 @@ describe("Flashcard", () => {
   });
 
   it("shows full sentence on front when card is new and showFullSentenceOnNew is true", () => {
-    // Override store mock for this test
+    
     vi.mocked(useSettingsStore).mockImplementation(
       () =>
         ({
@@ -195,14 +195,14 @@ describe("Flashcard", () => {
   });
 
   it("passes handleModifyCard to SelectionMenu when selection exists", () => {
-    // Mock selection
+    
     (useTextSelection as any).mockReturnValue({
       selection: { top: 0, left: 0, text: "selected" },
       handleMouseUp: vi.fn(),
       clearSelection: vi.fn(),
     });
 
-    // Mock handleModifyCard in useAIAnalysis
+    
     const handleModifyCardOfHook = vi.fn();
     (useAIAnalysis as any).mockReturnValue({
       isAnalyzing: false,
@@ -218,9 +218,9 @@ describe("Flashcard", () => {
 
     render(<Flashcard card={mockCard} isFlipped={false} onUpdateCard={vi.fn()} />);
 
-    // Since we can't easily check props passed to child component without Enzyme or deep mocking,
-    // we check if "Modify" text appears (rendered by SelectionMenu because handleModifyCard was passed)
-    // Note: SelectionMenu only renders "Modify" if onModifyCard is passed.
+    
+    
+    
     expect(screen.getByText("Modify")).toBeInTheDocument();
   });
 });

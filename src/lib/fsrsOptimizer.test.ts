@@ -2,7 +2,7 @@ import { describe, it, expect, vi, afterEach, beforeEach } from 'vitest';
 import { optimizeFSRS } from './fsrsOptimizer';
 import { ReviewLog } from '@/types';
 
-// Mock Worker
+
 class MockWorker {
   onmessage: ((this: Worker, ev: MessageEvent) => any) | null = null;
   onerror: ((this: Worker, ev: ErrorEvent) => any) | null = null;
@@ -52,7 +52,7 @@ describe('fsrsOptimizer', () => {
     });
 
     it('should handle worker errors', async () => {
-         // Mock worker that errors
+         
          global.Worker = class ErrorWorker extends MockWorker {
              postMessage(_data: any) {
                  setTimeout(() => {

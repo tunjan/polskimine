@@ -31,7 +31,7 @@ describe("cardRepository - Persistence Repro", () => {
       easeFactor: 2.5,
       language: LanguageId.Polish,
       notes: "",
-      learningStep: 1, // Crucial field
+      learningStep: 1, 
     };
 
     await saveCard(card);
@@ -43,7 +43,7 @@ describe("cardRepository - Persistence Repro", () => {
   });
 
   it("should persist learningStep via update", async () => {
-    // 1. Save initial card
+    
     let card: Card = {
       id: "persistence-test-2",
       targetSentence: "Test",
@@ -58,15 +58,15 @@ describe("cardRepository - Persistence Repro", () => {
     };
     await saveCard(card);
 
-    // 2. Load and update
+    
     const [loaded] = await getCards();
     expect(loaded.learningStep).toBe(0);
 
-    // 3. Simulate scheduler update
+    
     loaded.learningStep = 1;
     await saveCard(loaded);
 
-    // 4. Load again
+    
     const [reloaded] = await getCards();
     expect(reloaded.learningStep).toBe(1);
   });

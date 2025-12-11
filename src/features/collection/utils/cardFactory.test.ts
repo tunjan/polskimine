@@ -15,7 +15,7 @@ describe("createNewCard", () => {
     expect(card.created_at).toBeDefined();
     expect(typeof card.created_at).toBe("string");
 
-    // Verify it is a valid date string
+    
     const date = new Date(card.created_at!);
     expect(date.toString()).not.toBe("Invalid Date");
   });

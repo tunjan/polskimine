@@ -57,14 +57,14 @@ export function Dashboard({
   history,
   onStartSession,
 }: DashboardProps) {
-  // Calculate XP progress
+  
   const currentLevelXp = (languageXp.level - 1) ** 2 * 100;
   const nextLevelXp = languageXp.level ** 2 * 100;
   const xpInCurrentLevel = languageXp.xp - currentLevelXp;
   const xpRequired = nextLevelXp - currentLevelXp;
   const progressPercent = Math.min((xpInCurrentLevel / xpRequired) * 100, 100);
 
-  // Generate last 7 days for streak display
+  
   const lastSevenDays = Array.from({ length: 7 }, (_, i) => {
     const date = new Date();
     date.setDate(date.getDate() - (6 - i));
@@ -118,7 +118,7 @@ export function Dashboard({
   return (
     <div className="min-h-screen bg-background">
       <div className="max-w-5xl mx-auto px-4 md:px-6 py-8 space-y-8">
-        {/* Hero Section */}
+        
         <Card>
           <CardHeader>
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 md:gap-0">
@@ -188,9 +188,9 @@ export function Dashboard({
           )}
         </Card>
 
-        {/* Progress Section */}
+        
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* Level Card */}
+          
           <Card>
             <CardHeader>
               <CardTitle className="text-lg">Your Progress</CardTitle>
@@ -214,7 +214,7 @@ export function Dashboard({
             </CardContent>
           </Card>
 
-          {/* Streak Card */}
+          
           <Card>
             <CardHeader>
               <CardTitle className="text-lg">Study Streak</CardTitle>
@@ -241,7 +241,7 @@ export function Dashboard({
           </Card>
         </div>
 
-        {/* Stats Grid */}
+        
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {statCards.map((stat) => (
             <Card
@@ -270,7 +270,7 @@ export function Dashboard({
           ))}
         </div>
 
-        {/* Activity Heatmap */}
+        
         <Card>
           <CardContent className="p-0 sm:p-6 overflow-hidden">
             <ActivityHeatmap

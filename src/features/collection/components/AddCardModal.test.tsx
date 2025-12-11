@@ -3,7 +3,7 @@ import userEvent from "@testing-library/user-event";
 import { AddCardModal } from "./AddCardModal";
 import { vi, describe, it, expect, beforeEach } from "vitest";
 
-// Mocks
+
 vi.mock("@/stores/useSettingsStore", () => ({
   useSettingsStore: vi.fn(() => ({
     language: "polish",
@@ -24,12 +24,12 @@ vi.mock("sonner", () => ({
   },
 }));
 
-// Mock dynamic import
+
 vi.mock("@/db/repositories/cardRepository", () => ({
   getCardByTargetWord: vi.fn().mockResolvedValue(null),
 }));
 
-// Mock clipboard/selection in jsdom (often needed for hook forms focusing, though maybe not here)
+
 
 import { aiService } from "@/lib/ai";
 
@@ -120,8 +120,8 @@ describe("AddCardModal", () => {
 
     await waitFor(() => {
       expect(aiService.generateCardContent).toHaveBeenCalled();
-      // Check if fields are populated (checking values is harder with react-hook-form controlled inputs sometimes, but verify result)
-      // Use display value checking
+      
+      
       expect(screen.getByPlaceholderText(/Word to highlight/i)).toHaveValue(
         "test",
       );

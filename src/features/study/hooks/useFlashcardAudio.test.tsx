@@ -3,7 +3,7 @@ import { useFlashcardAudio } from "./useFlashcardAudio";
 import { ttsService } from "@/lib/tts";
 import { vi, describe, it, expect, beforeEach } from "vitest";
 
-// Mock ttsService
+
 vi.mock("@/lib/tts", () => ({
   ttsService: {
     speak: vi.fn().mockResolvedValue(undefined),
@@ -40,19 +40,19 @@ describe("useFlashcardAudio", () => {
       },
     });
 
-    // 1. Autoplay should be normal speed
+    
     expect(ttsService.speak).toHaveBeenCalledWith(
       expect.stringContaining("Sentence 1"),
       "spanish",
       expect.objectContaining({ rate: 1.0 }),
     );
 
-    // 2. State "playSlow" should be true now
+    
     await waitFor(() => {
       expect(result.current.playSlow).toBe(true);
     });
 
-    // 3. Manual click should be slow
+    
     await act(async () => {
       await result.current.speak();
     });
@@ -83,8 +83,8 @@ describe("useFlashcardAudio", () => {
       },
     });
 
-    // Verify call order: first Word, then Sentence
-    // It's async, allow wait
+    
+    
 
     await waitFor(() => {
       expect(ttsService.speak).toHaveBeenCalledTimes(2);
@@ -92,10 +92,10 @@ describe("useFlashcardAudio", () => {
 
     const calls = (ttsService.speak as any).mock.calls;
 
-    // First call should be Word 1
+    
     expect(calls[0][0]).toContain("Word 1");
 
-    // Second call should be Sentence 1
+    
     expect(calls[1][0]).toContain("Sentence 1");
   });
 });

@@ -198,7 +198,7 @@ export function useAIAnalysis({
         nativeTranslation: result.translation || card.nativeTranslation,
         notes: result.notes || card.notes,
         furigana: result.furigana || card.furigana,
-        // Resetting intervals? Maybe not. Let's keep study progress for now unless requested otherwise.
+        
       };
 
       onUpdateCard(updatedCard);

@@ -25,7 +25,7 @@ describe("Zod Schema", () => {
   });
 
   it("should handle mixed null/undefined inputs", () => {
-    // what if input object is { learningStep: null }?
+    
     const r1 = Schema.safeParse({ learningStep: null });
     expect(r1.success).toBe(true);
   });

@@ -103,7 +103,7 @@ const handleLearningPhase = (
     shouldStayInLearning = true;
   } else if (grade === "Good") {
     if (card.status === "new" || (card.reps === 0 && card.state !== 2)) {
-      // If it's a new card (or effectively new), we start at step 0
+      
       nextStep = 0;
     } else {
       nextStep = currentStep + 1;
@@ -279,23 +279,23 @@ export const calculateNextReview = (
     (card.learningStep !== undefined || card.status === CardStatus.NEW) &&
     (card.learningStep ?? 0) < learningStepsMinutes.length;
 
-  // BUG FIX: If we are in learning status but learningStep is undefined (persistence issue),
-  // try to recover the step from the current interval.
-  // This prevents the card from resetting to step 0 and getting stuck in a loop.
+  
+  
+  
   if (
     (card.status === CardStatus.LEARNING || card.status === CardStatus.NEW) &&
     card.learningStep === undefined &&
     card.state !== State.Relearning
   ) {
-    // Find the closest step that matches the current interval
+    
     const minuteInterval = Math.round(card.interval * 24 * 60);
 
-    // If interval is 0, it's a new card (eff. step 0)
+    
     if (minuteInterval <= 0) {
-      // It's effectively step 0, so we let the logic proceed.
-      // We don't need to force isLearningPhase=true here because rawStep=0 matches expectations.
+      
+      
     } else {
-      // Find best matching step
+      
       let recoveredStep = 0;
       let minDiff = Infinity;
 
@@ -307,14 +307,14 @@ export const calculateNextReview = (
         }
       }
 
-      // If we found a step that is "close enough" (or just the best match), assume it.
-      // But we only want to resume learning if we are NOT at the last step.
+      
+      
       if (recoveredStep < learningStepsMinutes.length) {
-        // We can't mutate 'card' validly here since it's an arg, but we can treat 'rawStep' as this.
-        // But 'rawStep' was const above. Let's recalculate isLearningPhase.
-        // Actually, let's just delegate to handleLearningPhase with the recovered step.
+        
+        
+        
 
-        // Re-check valid step
+        
         if (recoveredStep < learningStepsMinutes.length) {
           const learningResult = handleLearningPhase(
             card,

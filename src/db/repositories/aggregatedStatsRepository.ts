@@ -24,7 +24,7 @@ export const incrementStat = async (
 
   const id = `${userId}:${language}:${metric}`;
 
-  // Attempt atomic update first
+  
   const updated = await db.aggregated_stats
     .where("id")
     .equals(id)
@@ -45,7 +45,7 @@ export const incrementStat = async (
       });
     } catch (e: any) {
       if (e.name === "ConstraintError") {
-        // Race condition: another tab/process inserted it just now
+        
         await db.aggregated_stats
           .where("id")
           .equals(id)

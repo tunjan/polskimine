@@ -185,9 +185,9 @@ export const getDashboardCounts = async (
 ): Promise<{
   total: number;
   new: number;
-  learning: number; // Strictly new->learning
-  relearning: number; // Lapses
-  review: number; // Graduated
+  learning: number; 
+  relearning: number; 
+  review: number; 
   known: number;
   hueDue: number;
   reviewDue: number;
@@ -224,24 +224,24 @@ export const getDashboardCounts = async (
         .where("[user_id+language+status]")
         .equals([userId, language, "known"])
         .count(),
-      // Fetch all learning cards to split them in JS
+      
       db.cards
         .where("[user_id+language+status]")
         .equals([userId, language, "learning"])
         .toArray(),
-      // Fetch all review cards
+      
       db.cards
         .where("[user_id+language+status]")
         .equals([userId, language, "review"])
         .count(),
-      // Calculate Due count
+      
       db.cards
         .where("[user_id+language]")
         .equals([userId, language])
         .filter((c) => {
           if (c.status === "known" || c.status === "suspended") return false;
 
-          // If ignoring learning steps, include any learning/relearning card regardless of due date
+          
           if (
             ignoreLearningSteps &&
             (c.status === "learning" ||
@@ -259,7 +259,7 @@ export const getDashboardCounts = async (
           return c.dueDate <= cutoffISO;
         })
         .count(),
-      // Calculate Review Due count
+      
       db.cards
         .where("[user_id+language+status]")
         .equals([userId, language, "review"])
@@ -274,12 +274,12 @@ export const getDashboardCounts = async (
         .count(),
     ]);
 
-  // Split "Learning" status into actual Learning vs Relearning (Lapses)
+  
   let learningCount = 0;
   let relearningCount = 0;
 
   learningRaw.forEach((c) => {
-    // If it has lapses > 0, it's a lapse card (Relearning)
+    
     if ((c.lapses || 0) > 0) {
       relearningCount++;
     } else {
@@ -413,7 +413,7 @@ export const getDueCards = async (
     .filter((card) => {
       if (card.status === "known" || card.status === "suspended") return false;
 
-      // If ignoring learning steps, include any learning/relearning card regardless of due date
+      
       if (
         ignoreLearningSteps &&
         (card.status === "learning" ||

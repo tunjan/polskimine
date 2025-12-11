@@ -3,7 +3,7 @@ import userEvent from "@testing-library/user-event";
 import { AuthPage } from "./AuthPage";
 import { vi, describe, it, expect, beforeEach } from "vitest";
 
-// Mocks
+
 vi.mock("@/contexts/AuthContext", () => ({
   useAuth: vi.fn(() => ({
     register: vi.fn(),
@@ -41,7 +41,7 @@ vi.mock("sonner", () => ({
   },
 }));
 
-// Mock child components to simplify testing the page logic
+
 vi.mock("./components/LanguageSelector", () => ({
   LanguageSelector: ({ onContinue, onToggle, selectedLanguages }: any) => (
     <div data-testid="language-selector">
@@ -85,7 +85,7 @@ describe("AuthPage", () => {
       login: mockLogin,
       getRegisteredUsers: mockGetRegisteredUsers,
     });
-    // Default to no existing users
+    
     mockGetRegisteredUsers.mockResolvedValue([]);
   });
 
@@ -101,12 +101,12 @@ describe("AuthPage", () => {
     mockGetRegisteredUsers.mockResolvedValue([{ username: "testuser" }]);
     await waitFor(() => render(<AuthPage />));
 
-    // Wait for effect to run
+    
     await waitFor(() => {
-      // Check for the Sign In tab being active or button existing
+      
       const submitButton = screen.getByRole("button", { name: /sign in/i });
       expect(submitButton).toBeInTheDocument();
-      // The input placeholder changes
+      
       expect(
         screen.getByPlaceholderText("Enter your username"),
       ).toBeInTheDocument();
@@ -117,12 +117,12 @@ describe("AuthPage", () => {
     const user = userEvent.setup();
     await waitFor(() => render(<AuthPage />));
 
-    // Initially register
+    
     expect(
       screen.getByRole("button", { name: "Create Account" }),
     ).toBeInTheDocument();
 
-    // Click Login tab
+    
     const loginTab = screen.getByRole("tab", { name: "Sign In" });
     await user.click(loginTab);
 
@@ -132,7 +132,7 @@ describe("AuthPage", () => {
       ).toBeInTheDocument();
     });
 
-    // Click Register tab
+    
     const registerTab = screen.getByRole("tab", { name: "Register" });
     await user.click(registerTab);
 
@@ -149,20 +149,20 @@ describe("AuthPage", () => {
 
     const submitBtn = screen.getByRole("button", { name: "Create Account" });
 
-    // Empty fields
+    
     await user.click(submitBtn);
 
-    // Fill invalid username
+    
     await user.type(screen.getByPlaceholderText("Choose a username"), "ab");
     await user.click(submitBtn);
 
-    // Fill valid username, invalid password
+    
     await user.clear(screen.getByPlaceholderText("Choose a username"));
     await user.type(screen.getByPlaceholderText("Choose a username"), "user");
     await user.type(screen.getByPlaceholderText("Enter password"), "123");
     await user.click(submitBtn);
 
-    // Mismatch password
+    
     await user.clear(screen.getByPlaceholderText("Enter password"));
     await user.type(screen.getByPlaceholderText("Enter password"), "1234");
     await user.type(screen.getByPlaceholderText("Confirm password"), "12345");
@@ -190,7 +190,7 @@ describe("AuthPage", () => {
       expect(mockRegister).toHaveBeenCalledWith("newuser", "password");
     });
 
-    // Should transition to language selection
+    
     await waitFor(() => {
       expect(screen.getByTestId("language-selector")).toBeInTheDocument();
     });
@@ -201,7 +201,7 @@ describe("AuthPage", () => {
     mockGetRegisteredUsers.mockResolvedValue([{ username: "existing" }]);
     await waitFor(() => render(<AuthPage />));
 
-    // Ensure we are in login mode
+    
     await waitFor(() =>
       expect(
         screen.getByRole("button", { name: /sign in/i }),
@@ -227,7 +227,7 @@ describe("AuthPage", () => {
     mockRegister.mockResolvedValue({ user: { id: "123" } });
     await waitFor(() => render(<AuthPage />));
 
-    // Fill and submit registration
+    
     await user.type(
       screen.getByPlaceholderText("Choose a username"),
       "flowuser",
@@ -239,20 +239,20 @@ describe("AuthPage", () => {
     );
     await user.click(screen.getByRole("button", { name: "Create Account" }));
 
-    // Language step
+    
     await waitFor(() =>
       expect(screen.getByTestId("language-selector")).toBeInTheDocument(),
     );
     await user.click(screen.getByText("Toggle Polish"));
     await user.click(screen.getByText("Continue"));
 
-    // Level step
+    
     await waitFor(() =>
       expect(screen.getByTestId("level-selector")).toBeInTheDocument(),
     );
     await user.click(screen.getByText("Beginner"));
 
-    // Deck step
+    
     await waitFor(() =>
       expect(screen.getByTestId("deck-generation")).toBeInTheDocument(),
     );

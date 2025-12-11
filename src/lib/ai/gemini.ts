@@ -684,7 +684,7 @@ export const aiService = {
   ): Promise<z.infer<typeof GenerateCardSchema>> {
     const langName = getLangName(card.language);
     
-    // Re-use existing schema for consistent card structure
+    
     const responseSchema: GeminiResponseSchema = {
       type: "OBJECT",
       properties: {

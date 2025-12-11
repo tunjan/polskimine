@@ -16,7 +16,7 @@ describe("sessionReducer checkSchedule - Skip Learning Wait", () => {
     easeFactor: 0,
     notes: "",
     language: "pl",
-    reps: 1, // Important: must be > 0 otherwise treated as new
+    reps: 1, 
   };
 
   const reviewCard: Card = {
@@ -29,7 +29,7 @@ describe("sessionReducer checkSchedule - Skip Learning Wait", () => {
     easeFactor: 2.5,
     notes: "",
     language: "pl",
-    reps: 5, // Important: must be > 0
+    reps: 5, 
   };
 
   it("should wait for learning card when ignoreLearningSteps is false", () => {
@@ -59,12 +59,12 @@ describe("sessionReducer checkSchedule - Skip Learning Wait", () => {
   });
 
   it("should NOT skip wait for review card even if ignoreLearningSteps is true", () => {
-    // This assumes ignoreLearningSteps ONLY applies to learning cards
-    // Review card must not be due today for it to be "Waiting"
-    // interval >= 1 day means "due today" check uses date comparison.
+    
+    
+    
     const notDueReviewCard = {
       ...reviewCard,
-      dueDate: addMinutes(now, 24 * 60 * 2).toISOString(), // 2 days in future
+      dueDate: addMinutes(now, 24 * 60 * 2).toISOString(), 
     };
 
     const state: SessionState = {
@@ -80,18 +80,18 @@ describe("sessionReducer checkSchedule - Skip Learning Wait", () => {
   });
 
   it("should find and show waiting learning card if head is waiting review card", () => {
-    // Card 1: Review card due tomorrow (Waiting)
-    // Card 2: Learning card due in 10 mins (Waiting)
-    // ignoreLearningSteps = true
-    // Expected: Swap to Card 2 and IDLE.
+    
+    
+    
+    
 
     const reviewCardFuture = {
       ...reviewCard,
       id: "rev1",
-      dueDate: addMinutes(now, 24 * 60 + 10).toISOString(), // Tomorrow
+      dueDate: addMinutes(now, 24 * 60 + 10).toISOString(), 
     };
 
-    // Check scheduler logic: review card interval 1 day. due tomorrow. isCardDue -> false.
+    
 
     const learningCardFuture = { ...learningCard, id: "learn1" };
 

@@ -17,13 +17,13 @@ const createBaseCard = (overrides: Partial<Card> = {}): Card => ({
 
 describe("scheduler bug reproduction", () => {
   it("should graduate after the last learning step", () => {
-    // Steps default to [1, 10]
+    
     const steps = [1, 10];
 
-    // 1. New card
+    
     let card = createBaseCard({ status: CardStatus.NEW, learningStep: 0 });
 
-    // 2. Grade "Good" -> Expect 1m interval
+    
     console.log("Step 1: New -> Good");
     card = calculateNextReview(card, "Good", undefined, steps);
     console.log(
@@ -34,7 +34,7 @@ describe("scheduler bug reproduction", () => {
     expect(card.interval * 24 * 60).toBeCloseTo(1, 0.1);
     expect(card.learningStep).toBe(0);
 
-    // 3. Grade "Good" -> Expect 10m interval
+    
     console.log("Step 2: Learning(0) -> Good");
     card = calculateNextReview(card, "Good", undefined, steps);
     console.log(
@@ -45,17 +45,17 @@ describe("scheduler bug reproduction", () => {
     expect(card.interval * 24 * 60).toBeCloseTo(10, 0.1);
     expect(card.learningStep).toBe(1);
 
-    // 4. Grade "Good" -> Expect Graduate (Review status, > 10m interval)
+    
     console.log("Step 3: Learning(1) -> Good");
     card = calculateNextReview(card, "Good", undefined, steps);
     console.log(
       `Status: ${card.status}, Interval: ${card.interval} days, Step: ${card.learningStep}`,
     );
 
-    // This is where the bug happens. It loops to 10m if bug exists.
-    // If it graduates, status should be REVIEW (or something other than LEARNING with 10m).
+    
+    
     expect(card.status).not.toBe(CardStatus.LEARNING);
-    expect(card.interval).toBeGreaterThan(10 / (24 * 60)); // Interval > 10m
+    expect(card.interval).toBeGreaterThan(10 / (24 * 60)); 
   });
 });
 
@@ -112,7 +112,7 @@ describe("persistence check", () => {
       interval: 0,
       easeFactor: 2.5,
       dueDate: new Date().toISOString(),
-      // learningStep missing
+      
       notes: "",
       isLeech: false,
       isBookmarked: false,

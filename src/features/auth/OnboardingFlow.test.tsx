@@ -3,7 +3,7 @@ import { OnboardingFlow } from "./OnboardingFlow";
 import { vi, describe, it, expect, beforeEach } from "vitest";
 import { useAuth } from "@/contexts/AuthContext";
 
-// Mocks
+
 vi.mock("@/contexts/AuthContext", () => ({
   useAuth: vi.fn(),
 }));
@@ -70,8 +70,8 @@ describe("OnboardingFlow", () => {
       signOut: mockSignOut,
     });
 
-    // Need to Mock useProfile hook in file scope if possible, or just rely on global mock.
-    // We defined global mock above.
+    
+    
   });
 
   it("renders language step initially", () => {
@@ -83,26 +83,26 @@ describe("OnboardingFlow", () => {
   it("progresses through steps", async () => {
     render(<OnboardingFlow />);
 
-    // Language Step
+    
     fireEvent.click(screen.getByText("Toggle Polish"));
     fireEvent.click(screen.getByText("Continue"));
 
-    // Level Step
+    
     await waitFor(() =>
       expect(screen.getByTestId("level-selector")).toBeInTheDocument(),
     );
     fireEvent.click(screen.getByText("Beginner"));
 
-    // Deck Step
+    
     await waitFor(() =>
       expect(screen.getByTestId("deck-generation")).toBeInTheDocument(),
     );
     fireEvent.click(screen.getByText("Generate Deck"));
 
-    // Wait for completion (saveAllCards mocked)
-    // Since we didn't export the mockSaveAllCards to verify here, we just check no error.
-    // Or we could export it from the mock section but that's messy.
-    // Just verify navigation works.
+    
+    
+    
+    
   });
 
   it("allows sign out", () => {

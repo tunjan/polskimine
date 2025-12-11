@@ -3,7 +3,7 @@ import { LoginScreen } from "./LoginScreen";
 import { vi, describe, it, expect } from "vitest";
 import { useAuth } from "@/contexts/AuthContext";
 
-// Mock useAuth
+
 vi.mock("@/contexts/AuthContext", () => ({
   useAuth: vi.fn(),
 }));

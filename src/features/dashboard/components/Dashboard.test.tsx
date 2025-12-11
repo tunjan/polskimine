@@ -2,7 +2,7 @@ import { render, screen } from "@testing-library/react";
 import { describe, it, expect, vi } from "vitest";
 import { Dashboard, DashboardProps } from "./Dashboard";
 
-// Mock sub-components to avoid rendering complexity
+
 vi.mock("@/components/ui/level-badge", () => ({
   LevelBadge: () => <div data-testid="level-badge" />,
   getRankForLevel: () => ({ title: "Rank 1" }),
@@ -58,10 +58,10 @@ describe("Dashboard", () => {
     };
     render(<Dashboard {...props} />);
 
-    // Total count check
+    
     expect(screen.getByText("4 cards")).toBeInTheDocument();
 
-    // Breakdown checks
+    
     const breakdown = screen.getByTestId("dashboard-hero-breakdown");
     expect(breakdown).toHaveTextContent("2 new");
     expect(breakdown).toHaveTextContent("1 learning");
@@ -75,14 +75,14 @@ describe("Dashboard", () => {
         ...defaultProps.metrics,
         new: 0,
         learning: 1,
-        relearning: 2, // Lapses
+        relearning: 2, 
         reviewing: 0,
         total: 3,
       },
     };
     render(<Dashboard {...props} />);
 
-    // Total count
+    
     expect(screen.getByText("3 cards")).toBeInTheDocument();
 
     const breakdown = screen.getByTestId("dashboard-hero-breakdown");

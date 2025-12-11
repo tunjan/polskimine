@@ -35,7 +35,7 @@ export const incrementHistory = async (
   const userId = getCurrentUserId();
   if (!userId) return;
 
-  // Attempt atomic update first
+  
   const updated = await db.history
     .where("[user_id+date+language]")
     .equals([userId, date, language])
@@ -53,7 +53,7 @@ export const incrementHistory = async (
       });
     } catch (e: any) {
       if (e.name === "ConstraintError") {
-        // Race condition: another tab/process inserted it just now
+        
         await db.history
           .where("[user_id+date+language]")
           .equals([userId, date, language])

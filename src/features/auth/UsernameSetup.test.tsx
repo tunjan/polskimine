@@ -39,16 +39,16 @@ describe("UsernameSetup", () => {
     const input = screen.getByPlaceholderText("Type name...");
     const button = screen.getByText("Confirm");
 
-    // Disabled initially
+    
     expect(button.closest("button")).toBeDisabled();
 
     fireEvent.change(input, { target: { value: "ab" } });
     fireEvent.click(button);
-    // Still disabled or if enabled, toast error
-    // But the button disabled condition is !username, so "ab" enables it but handleSubmit checks length
+    
+    
 
-    // wait, imports are: disabled={isSubmitting || !username}
-    // but handleSubmit has check for length < 3
+    
+    
 
     fireEvent.submit(
       screen.getByRole("button", { name: "Confirm" }).closest("form")!,
