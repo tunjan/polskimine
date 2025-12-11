@@ -4,7 +4,7 @@ export const DECAY = -0.6;
 export const FACTOR = 0.9 ** (1 / DECAY) - 1;
 
 export const WEIGHT_BOUNDS = {
-  min: 0.01,
+  min: 0.001,
   max: 20.0,
 };
 
@@ -23,22 +23,23 @@ export const nextStability = (
   rating: number,
   w: number[],
 ): number => {
+  const stability = Math.max(0.1, s);
   if (rating === 1) {
     return (
       w[11] *
       Math.pow(d, -w[12]) *
-      (Math.pow(s + 1, w[13]) - 1) *
+      (Math.pow(stability + 1, w[13]) - 1) *
       Math.exp(w[14] * (1 - r))
     );
   }
   const hardPenalty = rating === 2 ? w[15] : 1;
   const easyBonus = rating === 4 ? w[16] : 1;
   return (
-    s *
+    stability *
     (1 +
       Math.exp(w[8]) *
         (11 - d) *
-        Math.pow(s, -w[9]) *
+        Math.pow(stability, -w[9]) *
         (Math.exp((1 - r) * w[10]) - 1) *
         hardPenalty *
         easyBonus)

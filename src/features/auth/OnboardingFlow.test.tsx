@@ -44,7 +44,7 @@ vi.mock("./components/LanguageSelector", () => ({
 vi.mock("./components/LanguageLevelSelector", () => ({
   LanguageLevelSelector: ({ onSelectLevel }: any) => (
     <div data-testid="level-selector">
-      <button onClick={() => onSelectLevel("beginner")}>Beginner</button>
+      <button onClick={() => onSelectLevel("polish", "beginner")}>Beginner</button>
     </div>
   ),
 }));
@@ -85,17 +85,23 @@ describe("OnboardingFlow", () => {
 
     
     fireEvent.click(screen.getByText("Toggle Polish"));
-    fireEvent.click(screen.getByText("Continue"));
+    
+    const continueBtn = screen.getByText("Continue");
+    await waitFor(() => expect(continueBtn).not.toBeDisabled());
+    fireEvent.click(continueBtn);
 
     
     await waitFor(() =>
       expect(screen.getByTestId("level-selector")).toBeInTheDocument(),
+      { timeout: 3000 }
     );
     fireEvent.click(screen.getByText("Beginner"));
 
+    fireEvent.click(screen.getByText("Continue"));
     
     await waitFor(() =>
       expect(screen.getByTestId("deck-generation")).toBeInTheDocument(),
+      { timeout: 3000 }
     );
     fireEvent.click(screen.getByText("Generate Deck"));
 

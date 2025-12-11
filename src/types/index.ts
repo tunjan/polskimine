@@ -56,6 +56,7 @@ export interface Card extends Omit<Partial<FSRSCard>, "due" | "last_review"> {
   precise_interval?: number;
   user_id?: string;
   created_at?: string;
+  tags?: string[];
 }
 
 export type Grade = "Again" | "Hard" | "Good" | "Easy";

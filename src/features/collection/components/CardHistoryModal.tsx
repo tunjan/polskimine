@@ -69,7 +69,7 @@ export const CardHistoryModal: React.FC<CardHistoryModalProps> = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-2xl gap-6 max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-md md:max-w-3xl gap-6 max-h-[90vh] overflow-y-auto">
         <DialogHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
           <DialogTitle className="text-lg font-medium">Card History</DialogTitle>
           <Badge variant="outline" className="font-normal">

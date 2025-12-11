@@ -259,6 +259,14 @@ export const ForgettingCurveChart: React.FC<ForgettingCurveChartProps> = ({
     
     const desiredRetentionY = desiredRetention * 100;
     const defs = svg.append("defs");
+    
+    // Add clipPath
+    defs.append("clipPath")
+      .attr("id", "chart-clip")
+      .append("rect")
+      .attr("width", width)
+      .attr("height", height);
+
     const gradient = defs.append("linearGradient")
       .attr("id", "line-gradient")
       .attr("gradientUnits", "userSpaceOnUse")
@@ -289,15 +297,13 @@ export const ForgettingCurveChart: React.FC<ForgettingCurveChartProps> = ({
     const futureData = chartData.filter(d => d.date >= today);
     
     
-    
-    
-
-    
+    // Draw paths with clip-path
     svg.append("path")
       .datum(pastData)
       .attr("fill", "none")
       .attr("stroke", "url(#line-gradient)")
       .attr("stroke-width", 2)
+      .attr("clip-path", "url(#chart-clip)")
       .attr("d", lineGenerator);
 
     
@@ -307,6 +313,7 @@ export const ForgettingCurveChart: React.FC<ForgettingCurveChartProps> = ({
       .attr("stroke", "url(#line-gradient)")
       .attr("stroke-width", 2)
       .attr("stroke-dasharray", "4 4")
+      .attr("clip-path", "url(#chart-clip)")
       .attr("d", lineGenerator);
 
     

@@ -267,6 +267,10 @@ export const calculateNextReview = (
   const leechThreshold = lapsesSettings?.leechThreshold ?? 8;
   const leechAction = lapsesSettings?.leechAction;
 
+  // Sanitize input card to ensure invariants
+  card.difficulty = card.difficulty ? Math.max(1, Math.min(10, card.difficulty)) : undefined;
+  card.stability = card.stability ? Math.max(0.1, card.stability) : undefined;
+
   const rawStep = card.learningStep ?? 0;
 
   const learningStep = Math.max(
@@ -494,7 +498,7 @@ export const calculateNextReview = (
       ? log.due.toISOString()
       : addMinutes(now, FALLBACK_DUE_DATE_MINUTES).toISOString(),
     stability: safeNum(log.stability),
-    difficulty: safeNum(log.difficulty),
+    difficulty: Math.max(1, Math.min(10, safeNum(log.difficulty))),
     elapsed_days: safeNum(log.elapsed_days),
     scheduled_days: safeNum(scheduledDaysInt),
     precise_interval: safeNum(preciseInterval),

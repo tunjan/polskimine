@@ -181,7 +181,7 @@ export function useAIAnalysis({
     try {
       const result = await aiService.modifyCard(
         {
-          targetWord: card.targetWord,
+          targetWord: card.targetWord ?? "",
           targetSentence: card.targetSentence,
           language: card.language,
         },

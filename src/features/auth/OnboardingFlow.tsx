@@ -100,7 +100,6 @@ export const OnboardingFlow: React.FC = () => {
             ...c,
             id: uuidv4(),
             dueDate: new Date().toISOString(),
-            dueDate: new Date().toISOString(),
             tags: [...(c.tags || []), selectedLevels[language]],
             user_id: user.id,
           })) as Card[];
