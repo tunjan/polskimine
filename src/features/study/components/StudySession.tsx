@@ -61,7 +61,7 @@ export const StudySession: React.FC<StudySessionProps> = React.memo(
       relearnSteps,
       leechThreshold,
       leechAction,
-      
+
       newCardGatherOrder,
       newCardSortOrder,
       newReviewOrder,
@@ -242,7 +242,6 @@ export const StudySession: React.FC<StudySessionProps> = React.memo(
         />
 
         <StudyCardArea
-
           currentCard={currentCard}
           isFlipped={uiState.isFlipped}
           autoPlayAudio={autoPlayAudio || blindMode}
@@ -250,6 +249,10 @@ export const StudySession: React.FC<StudySessionProps> = React.memo(
           showTranslation={showTranslationAfterFlip}
           language={language}
           onAddCard={onAddCard}
+          onUpdateCard={(card) => {
+            onUpdateCard(card);
+            actions.updateCard(card);
+          }}
         />
 
         <StudyFooter
@@ -266,6 +269,7 @@ export const StudySession: React.FC<StudySessionProps> = React.memo(
           onClose={() => setIsEditModalOpen(false)}
           onAdd={(updatedCard) => {
             onUpdateCard(updatedCard);
+            actions.updateCard(updatedCard);
             setIsEditModalOpen(false);
           }}
           initialCard={currentCard}

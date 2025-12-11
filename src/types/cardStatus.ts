@@ -34,7 +34,8 @@ export const mapStatusToFsrsState = (status: CardStatus): FsrsState => {
     case CardStatus.KNOWN:
       return FsrsState.Review;
     case CardStatus.SUSPENDED:
-      return FsrsState.Review;     default:
+      return FsrsState.Review;
+    default:
       return FsrsState.New;
   }
 };

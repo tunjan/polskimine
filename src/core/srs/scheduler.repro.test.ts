@@ -16,89 +16,93 @@ const createBaseCard = (overrides: Partial<Card> = {}): Card => ({
 });
 
 describe("scheduler reproduction", () => {
-    it("should correctly progress through 3 learning steps [1, 10, 60]", () => {
-        // Step 0: New Card
-        let card = createBaseCard({
-            status: CardStatus.NEW,
-            learningStep: 0, // effectively 0 even if undefined
-        });
-        const steps = [1, 10, 60];
+  it("should correctly progress through 3 learning steps [1, 10, 60]", () => {
+    let card = createBaseCard({
+      status: CardStatus.NEW,
+      learningStep: 0,
+    });
+    const steps = [1, 10, 60];
 
-        // 1. New -> Good. Should go to Step 0 (1m).
-        card = calculateNextReview(card, "Good", undefined, steps);
-        
-        expect(card.status).toBe(CardStatus.LEARNING);
-        expect(card.learningStep).toBe(0);
-        expect(card.interval).toBeCloseTo(1 / (24 * 60)); // 1 minute in days
+    card = calculateNextReview(card, "Good", undefined, steps);
 
-        // 2. Learning (Step 0) -> Good. Should go to Step 1 (10m).
-        card = calculateNextReview(card, "Good", undefined, steps);
-        
-        expect(card.status).toBe(CardStatus.LEARNING);
-        expect(card.learningStep).toBe(1);
-        expect(card.interval).toBeCloseTo(10 / (24 * 60)); // 10 minutes in days
+    expect(card.status).toBe(CardStatus.LEARNING);
+    expect(card.learningStep).toBe(0);
+    expect(card.interval).toBeCloseTo(1 / (24 * 60));
 
-        // 3. Learning (Step 1) -> Good. Should go to Step 2 (60m).
-        card = calculateNextReview(card, "Good", undefined, steps);
+    card = calculateNextReview(card, "Good", undefined, steps);
 
-        expect(card.status).toBe(CardStatus.LEARNING);
-        expect(card.learningStep).toBe(2);
-        expect(card.interval).toBeCloseTo(60 / (24 * 60)); // 60 minutes in days
+    expect(card.status).toBe(CardStatus.LEARNING);
+    expect(card.learningStep).toBe(1);
+    expect(card.interval).toBeCloseTo(10 / (24 * 60));
 
-        // 4. Learning (Step 2) -> Good. Should Graduate.
-        card = calculateNextReview(card, "Good", undefined, steps);
-        
-        expect(card.status).toBe(CardStatus.REVIEW);
-        expect(card.learningStep).toBeUndefined();
+    card = calculateNextReview(card, "Good", undefined, steps);
+
+    expect(card.status).toBe(CardStatus.LEARNING);
+    expect(card.learningStep).toBe(2);
+    expect(card.interval).toBeCloseTo(60 / (24 * 60));
+
+    card = calculateNextReview(card, "Good", undefined, steps);
+
+    expect(card.status).toBe(CardStatus.REVIEW);
+    expect(card.learningStep).toBeUndefined();
+  });
+
+  it("should correctly progress through 2 learning steps [1, 10]", () => {
+    let card = createBaseCard({
+      status: CardStatus.NEW,
+      learningStep: 0,
+    });
+    const steps = [1, 10];
+
+    card = calculateNextReview(card, "Good", undefined, steps);
+
+    expect(card.status).toBe(CardStatus.LEARNING);
+    expect(card.learningStep).toBe(0);
+    expect(card.interval).toBeCloseTo(1 / (24 * 60));
+
+    card = calculateNextReview(card, "Good", undefined, steps);
+
+    expect(card.status).toBe(CardStatus.LEARNING);
+    expect(card.learningStep).toBe(1);
+    expect(card.interval).toBeCloseTo(10 / (24 * 60));
+
+    card = calculateNextReview(card, "Good", undefined, steps);
+
+    expect(card.status).toBe(CardStatus.REVIEW);
+    expect(card.learningStep).toBeUndefined();
+  });
+
+  it("should NOT graduate prematurely if current step is valid", () => {
+    let card = createBaseCard({
+      status: CardStatus.NEW,
+      learningStep: 0,
+    });
+    const steps = [10];
+
+    card = calculateNextReview(card, "Good", undefined, steps);
+
+    console.log("Status after Good on [10m]:", card.status);
+  });
+
+  it("should recover learningStep from interval if undefined (BUG FIX)", () => {
+    const steps = [1, 10, 60];
+
+    const cardLikeLostState = createBaseCard({
+      status: CardStatus.LEARNING,
+      state: 1,
+      learningStep: undefined,
+      interval: 10 / (24 * 60),
     });
 
-    it("should correctly progress through 2 learning steps [1, 10]", () => {
-        // Step 0: New Card
-        let card = createBaseCard({
-            status: CardStatus.NEW,
-            learningStep: 0,
-        });
-        const steps = [1, 10];
+    const next = calculateNextReview(
+      cardLikeLostState,
+      "Good",
+      undefined,
+      steps,
+    );
 
-        // 1. New -> Good. Should go to Step 0 (1m).
-        card = calculateNextReview(card, "Good", undefined, steps);
-        
-        expect(card.status).toBe(CardStatus.LEARNING);
-        expect(card.learningStep).toBe(0);
-        expect(card.interval).toBeCloseTo(1 / (24 * 60));
+    expect(next.status).toBe(CardStatus.LEARNING);
 
-        // 2. Learning (Step 0) -> Good. Should go to Step 1 (10m).
-        card = calculateNextReview(card, "Good", undefined, steps);
-
-         expect(card.status).toBe(CardStatus.LEARNING);
-        expect(card.learningStep).toBe(1);
-        expect(card.interval).toBeCloseTo(10 / (24 * 60));
-
-        // 3. Learning (Step 1) -> Good. Should Graduate.
-        card = calculateNextReview(card, "Good", undefined, steps);
-        
-        expect(card.status).toBe(CardStatus.REVIEW);
-        expect(card.learningStep).toBeUndefined();
-    });
-
-    it("should NOT graduate prematurely if current step is valid", () => {
-        // Edge case: user has [10m].
-        // New -> Good. Should Go to Step 0? Or Graduate?
-        // Anki default: New+Good -> Skips first step if 2 steps.
-        // If 1 step: New+Good -> ?
-        
-        let card = createBaseCard({
-            status: CardStatus.NEW,
-            learningStep: 0,
-        });
-        const steps = [10];
-
-        // 1. New -> Good.
-        // If I have 1 step, I probably expect to see it at 10m?
-        // But code skips first step?
-        card = calculateNextReview(card, "Good", undefined, steps);
-        
-        // If it graduates here, user might be confused if they expected to see it in 10m.
-        console.log("Status after Good on [10m]:", card.status);
-    });
+    expect(next.interval).toBeCloseTo(60 / (24 * 60));
+  });
 });

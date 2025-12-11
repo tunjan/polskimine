@@ -28,6 +28,13 @@ export const DEFAULT_SETTINGS: UserSettings = {
     [LanguageId.Spanish]: "#fca5a5",
     [LanguageId.German]: "#facc15",
   },
+  languageVoices: {
+    [LanguageId.Polish]: null,
+    [LanguageId.Norwegian]: null,
+    [LanguageId.Japanese]: null,
+    [LanguageId.Spanish]: null,
+    [LanguageId.German]: null,
+  },
   proficiency: {
     [LanguageId.Polish]: "A1",
     [LanguageId.Norwegian]: "A1",
@@ -54,16 +61,17 @@ export const DEFAULT_SETTINGS: UserSettings = {
   blindMode: false,
   showTranslationAfterFlip: true,
   showWholeSentenceOnFront: false,
+  showFullSentenceOnNew: false,
   ignoreLearningStepsWhenNoCards: false,
   binaryRatingMode: false,
   cardOrder: "newFirst",
   learningSteps: [1, 10],
-    newCardGatherOrder: "added",
+  newCardGatherOrder: "added",
   newCardSortOrder: "due",
   newReviewOrder: "newFirst",
   interdayLearningOrder: "mixed",
   reviewSortOrder: "due",
-    relearnSteps: [10],
+  relearnSteps: [10],
   leechThreshold: 8,
 
   geminiApiKey: "AIzaSyBMVVvi9wcODo7c9-Da562BaLD-OwC1Xkk",
@@ -137,14 +145,35 @@ export const useSettingsStore = create<SettingsState>((set, get) => ({
         dailyReviewLimits: newSettings.dailyReviewLimits
           ? { ...state.dailyReviewLimits, ...newSettings.dailyReviewLimits }
           : state.dailyReviewLimits,
+        languageVoices: newSettings.languageVoices
+          ? { ...state.languageVoices, ...newSettings.languageVoices }
+          : state.languageVoices,
         learningSteps: newSettings.learningSteps || state.learningSteps,
       };
+
+      if (newSettings.language && newSettings.language !== state.language) {
+        const savedVoice = updatedState.languageVoices?.[newSettings.language];
+        updatedState.tts = {
+          ...updatedState.tts,
+          voiceURI: savedVoice || null,
+        };
+      } else if (newSettings.tts?.voiceURI !== undefined) {
+        if (updatedState.language) {
+          const currentVoices =
+            updatedState.languageVoices || DEFAULT_SETTINGS.languageVoices;
+          updatedState.languageVoices = {
+            ...currentVoices,
+            [updatedState.language]: newSettings.tts.voiceURI,
+          } as Record<Language, string | null>;
+        }
+      }
 
       const userId = state.userId;
       if (userId) {
         const settingsToSave: UserSettings = {
           language: updatedState.language,
           languageColors: updatedState.languageColors,
+          languageVoices: updatedState.languageVoices,
           proficiency: updatedState.proficiency,
           dailyNewLimits: updatedState.dailyNewLimits,
           dailyReviewLimits: updatedState.dailyReviewLimits,
@@ -154,17 +183,18 @@ export const useSettingsStore = create<SettingsState>((set, get) => ({
           blindMode: updatedState.blindMode,
           showTranslationAfterFlip: updatedState.showTranslationAfterFlip,
           showWholeSentenceOnFront: updatedState.showWholeSentenceOnFront,
+          showFullSentenceOnNew: updatedState.showFullSentenceOnNew,
           ignoreLearningStepsWhenNoCards:
             updatedState.ignoreLearningStepsWhenNoCards,
           binaryRatingMode: updatedState.binaryRatingMode,
           cardOrder: updatedState.cardOrder,
           learningSteps: updatedState.learningSteps,
-                    newCardGatherOrder: updatedState.newCardGatherOrder,
+          newCardGatherOrder: updatedState.newCardGatherOrder,
           newCardSortOrder: updatedState.newCardSortOrder,
           newReviewOrder: updatedState.newReviewOrder,
           interdayLearningOrder: updatedState.interdayLearningOrder,
           reviewSortOrder: updatedState.reviewSortOrder,
-                    relearnSteps: updatedState.relearnSteps,
+          relearnSteps: updatedState.relearnSteps,
           leechThreshold: updatedState.leechThreshold,
           leechAction: updatedState.leechAction,
           geminiApiKey: updatedState.geminiApiKey,
@@ -194,13 +224,14 @@ export const useSettingsStore = create<SettingsState>((set, get) => ({
           ? settingsOrUpdater(state)
           : settingsOrUpdater;
 
-      const updatedState = { ...newSettings };       const { userId } = state;
+      const updatedState = { ...newSettings };
+      const { userId } = state;
 
       if (userId) {
-                                                
         const settingsToSave: UserSettings = {
           language: updatedState.language,
           languageColors: updatedState.languageColors,
+          languageVoices: updatedState.languageVoices,
           proficiency: updatedState.proficiency,
           dailyNewLimits: updatedState.dailyNewLimits,
           dailyReviewLimits: updatedState.dailyReviewLimits,
@@ -210,17 +241,18 @@ export const useSettingsStore = create<SettingsState>((set, get) => ({
           blindMode: updatedState.blindMode,
           showTranslationAfterFlip: updatedState.showTranslationAfterFlip,
           showWholeSentenceOnFront: updatedState.showWholeSentenceOnFront,
+          showFullSentenceOnNew: updatedState.showFullSentenceOnNew,
           ignoreLearningStepsWhenNoCards:
             updatedState.ignoreLearningStepsWhenNoCards,
           binaryRatingMode: updatedState.binaryRatingMode,
           cardOrder: updatedState.cardOrder,
           learningSteps: updatedState.learningSteps,
-                    newCardGatherOrder: updatedState.newCardGatherOrder,
+          newCardGatherOrder: updatedState.newCardGatherOrder,
           newCardSortOrder: updatedState.newCardSortOrder,
           newReviewOrder: updatedState.newReviewOrder,
           interdayLearningOrder: updatedState.interdayLearningOrder,
           reviewSortOrder: updatedState.reviewSortOrder,
-                    relearnSteps: updatedState.relearnSteps,
+          relearnSteps: updatedState.relearnSteps,
           leechThreshold: updatedState.leechThreshold,
           leechAction: updatedState.leechAction,
           geminiApiKey: updatedState.geminiApiKey,

@@ -55,7 +55,8 @@ const sortByOverdueness = (a: Card, b: Card, now: Date): number => {
   const aOverdueness = aDaysOverdue / aInterval;
   const bOverdueness = bDaysOverdue / bInterval;
 
-  return bOverdueness - aOverdueness; };
+  return bOverdueness - aOverdueness;
+};
 
 const sortNewCards = (
   cards: Card[],
@@ -64,15 +65,15 @@ const sortNewCards = (
 ): Card[] => {
   let result = [...cards];
 
-    if (gatherOrder === "random") {
+  if (gatherOrder === "random") {
     result = shuffle(result);
   }
 
-    switch (sortOrder) {
+  switch (sortOrder) {
     case "random":
       return shuffle(result);
     case "cardType":
-            return result.sort((a, b) => {
+      return result.sort((a, b) => {
         const typeA = a.targetWordPartOfSpeech || "";
         const typeB = b.targetWordPartOfSpeech || "";
         return typeA.localeCompare(typeB);
@@ -93,7 +94,7 @@ const sortReviewCards = (
     case "random":
       return shuffle(cards);
     case "dueRandom":
-            const grouped = new Map<string, Card[]>();
+      const grouped = new Map<string, Card[]>();
       cards.forEach((card) => {
         const dateKey = (card.dueDate || "").split("T")[0];
         if (!grouped.has(dateKey)) grouped.set(dateKey, []);
@@ -125,7 +126,7 @@ const interleaveLearningCards = (
       return [...newCards, ...reviewCards, ...learningCards];
     case "mixed":
     default:
-            const combined = [...reviewCards];
+      const combined = [...reviewCards];
 
       if (combined.length === 0) {
         return [...newCards, ...learningCards];
@@ -150,14 +151,14 @@ export const sortCards = (
 ): Card[] => {
   if (cards.length === 0) return [];
 
-    const newCards = cards.filter((c) => isNewCard(c));
+  const newCards = cards.filter((c) => isNewCard(c));
   const learningCards = cards.filter((c) => isLearningCard(c));
   const reviewCards = cards.filter((c) => isReviewCard(c));
-    const otherCards = cards.filter(
+  const otherCards = cards.filter(
     (c) => !isNewCard(c) && !isLearningCard(c) && !isReviewCard(c),
   );
 
-    if (!displaySettings) {
+  if (!displaySettings) {
     const dateSorted = [...cards].sort(sortByDue);
 
     if (order === "mixed") {
@@ -174,7 +175,7 @@ export const sortCards = (
     return [...legacyNew, ...legacyReview];
   }
 
-    const sortedNew = sortNewCards(
+  const sortedNew = sortNewCards(
     newCards,
     displaySettings.newCardGatherOrder,
     displaySettings.newCardSortOrder,
@@ -187,12 +188,12 @@ export const sortCards = (
 
   const sortedLearning = [...learningCards].sort(sortByDue);
 
-    const newReviewOrder = displaySettings.newReviewOrder || order || "newFirst";
+  const newReviewOrder = displaySettings.newReviewOrder || order || "newFirst";
 
   let result: Card[];
   switch (newReviewOrder) {
     case "mixed": {
-            const combined = [...sortedReview];
+      const combined = [...sortedReview];
       const step = Math.max(
         1,
         Math.floor(combined.length / (sortedNew.length + 1)),
@@ -210,24 +211,24 @@ export const sortCards = (
       break;
     }
     case "reviewFirst": {
-            const reviewWithLearning = interleaveLearningCards(
+      const reviewWithLearning = interleaveLearningCards(
         [],
         sortedLearning,
         sortedReview,
         displaySettings.interdayLearningOrder,
       );
-            result = [...reviewWithLearning, ...sortedNew];
+      result = [...reviewWithLearning, ...sortedNew];
       break;
     }
     case "newFirst":
     default: {
-            const reviewWithLearning = interleaveLearningCards(
+      const reviewWithLearning = interleaveLearningCards(
         [],
         sortedLearning,
         sortedReview,
         displaySettings.interdayLearningOrder,
       );
-            result = [...sortedNew, ...reviewWithLearning];
+      result = [...sortedNew, ...reviewWithLearning];
       break;
     }
   }

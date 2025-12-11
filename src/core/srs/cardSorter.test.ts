@@ -76,7 +76,7 @@ describe("cardSorter", () => {
           settings,
         );
 
-                const ids = result.map((c) => c.id);
+        const ids = result.map((c) => c.id);
         expect(ids).toEqual(["new", "learning", "review"]);
       });
 
@@ -103,7 +103,7 @@ describe("cardSorter", () => {
           settings,
         );
 
-                const ids = result.map((c) => c.id);
+        const ids = result.map((c) => c.id);
         expect(ids).toEqual(["new", "review", "learning"]);
       });
 
@@ -135,8 +135,8 @@ describe("cardSorter", () => {
           settings,
         );
 
-                expect(result[0].id).toBe("new");
-                expect(result.map((c) => c.id)).toContain("learning");
+        expect(result[0].id).toBe("new");
+        expect(result.map((c) => c.id)).toContain("learning");
       });
 
       it("should sort new cards by cardType when specified", () => {
@@ -164,14 +164,14 @@ describe("cardSorter", () => {
           settings,
         );
 
-                const types = result.map((c) => c.targetWordPartOfSpeech);
+        const types = result.map((c) => c.targetWordPartOfSpeech);
         expect(types).toEqual(["adjective", "noun", "verb"]);
       });
 
       it("should sort reviews by overdueness when specified", () => {
         const now = new Date();
 
-                const moreOverdueCard = createCard("overdue", {
+        const moreOverdueCard = createCard("overdue", {
           status: CardStatus.REVIEW,
           state: State.Review,
           reps: 5,
@@ -179,7 +179,7 @@ describe("cardSorter", () => {
           interval: 1,
         });
 
-                const lessOverdueCard = createCard("less-overdue", {
+        const lessOverdueCard = createCard("less-overdue", {
           status: CardStatus.REVIEW,
           state: State.Review,
           reps: 5,
@@ -198,7 +198,7 @@ describe("cardSorter", () => {
           settings,
         );
 
-                expect(result[0].id).toBe("overdue");
+        expect(result[0].id).toBe("overdue");
       });
     });
 
@@ -226,7 +226,7 @@ describe("cardSorter", () => {
           settings,
         );
 
-                expect(result.length).toBe(3);
+        expect(result.length).toBe(3);
         expect(result.map((c) => c.id)).toContain("learning");
       });
 
@@ -253,7 +253,7 @@ describe("cardSorter", () => {
           settings,
         );
 
-                expect(result.length).toBe(3);
+        expect(result.length).toBe(3);
         expect(result.map((c) => c.id)).toContain("learning");
       });
     });
@@ -276,7 +276,7 @@ describe("cardSorter", () => {
           dueDate: "2023-01-01T12:00:00Z",
         });
 
-                const learningCards = [learningCard1, learningCard2, learningCard3];
+        const learningCards = [learningCard1, learningCard2, learningCard3];
 
         const settings: DisplayOrderSettings = {
           interdayLearningOrder: "mixed",
@@ -285,7 +285,7 @@ describe("cardSorter", () => {
 
         const result = sortCards(learningCards, "newFirst", settings);
 
-                const ids = result.map((c) => c.id);
+        const ids = result.map((c) => c.id);
         expect(ids).toEqual(["learning1", "learning2", "learning3"]);
       });
     });

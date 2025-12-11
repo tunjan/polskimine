@@ -101,7 +101,7 @@ const useDebouncedUsername = (
   }, [localUsername, updateUsername, currentUsername]);
 };
 
-export const SettingsPage: React.FC = () => {
+export const SettingsContent: React.FC = () => {
   const settings = useSettingsStore();
   const setSettings = useSettingsStore((s) => s.setFullSettings);
   const { user } = useAuth();
@@ -405,14 +405,7 @@ export const SettingsPage: React.FC = () => {
     settings.dailyReviewLimits?.[settings.language] ?? 0;
 
   return (
-    <div className="container max-w-4xl space-y-6 animate-in fade-in duration-500">
-      <div className="space-y-1 mb-8">
-        <h1 className="text-2xl font-semibold tracking-tight">Settings</h1>
-        <p className="text-sm text-muted-foreground">
-          Configure your learning experience
-        </p>
-      </div>
-
+    <div className="space-y-6 animate-in fade-in duration-500">
       <SettingsSection
         icon={User}
         title="Profile"
@@ -426,7 +419,7 @@ export const SettingsPage: React.FC = () => {
             value={localUsername}
             onChange={(e) => setLocalUsername(e.target.value)}
             placeholder="Enter your name"
-            className="w-40 h-8 text-sm"
+            className="w-full sm:w-40 h-8 text-sm"
           />
         </SettingsItem>
 
@@ -446,7 +439,7 @@ export const SettingsPage: React.FC = () => {
               }));
             }}
           >
-            <SelectTrigger className="w-36 md:w-48 h-8 text-sm">
+            <SelectTrigger className="w-full sm:w-[200px] h-8 text-sm">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -485,7 +478,7 @@ export const SettingsPage: React.FC = () => {
               }))
             }
           >
-            <SelectTrigger className="w-36 h-8 text-sm">
+            <SelectTrigger className="w-full sm:w-[200px] h-8 text-sm">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -533,7 +526,7 @@ export const SettingsPage: React.FC = () => {
                 }))
               }
               placeholder="Enter key"
-              className="w-40 h-8 text-sm font-mono"
+              className="w-full sm:w-40 h-8 text-sm font-mono"
             />
           </SettingsItem>
         </SettingsSubSection>
@@ -551,7 +544,7 @@ export const SettingsPage: React.FC = () => {
               updateTts({ provider: value as any, voiceURI: null })
             }
           >
-            <SelectTrigger className="w-40 h-8 text-sm">
+            <SelectTrigger className="w-full sm:w-[200px] h-8 text-sm">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -567,14 +560,14 @@ export const SettingsPage: React.FC = () => {
         </SettingsItem>
 
         <SettingsItem label="Voice">
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 w-full sm:w-auto">
             <Select
               value={settings.tts.voiceURI || "default"}
               onValueChange={(value) =>
                 updateTts({ voiceURI: value === "default" ? null : value })
               }
             >
-              <SelectTrigger className="w-32 h-8 text-sm">
+              <SelectTrigger className="flex-1 sm:w-[200px] h-8 text-sm">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -590,7 +583,7 @@ export const SettingsPage: React.FC = () => {
               variant="ghost"
               size="sm"
               onClick={handleTestAudio}
-              className="h-8 px-2"
+              className="h-8 px-2 shrink-0"
             >
               <Volume2 className="w-4 h-4" />
             </Button>
@@ -647,7 +640,7 @@ export const SettingsPage: React.FC = () => {
                   )
                 }
                 placeholder="Enter key"
-                className="w-40 h-8 text-sm font-mono"
+                className="w-full sm:w-40 h-8 text-sm font-mono"
               />
             </SettingsItem>
             {settings.tts.provider === TTS_PROVIDER.AZURE && (
@@ -656,7 +649,7 @@ export const SettingsPage: React.FC = () => {
                   value={settings.tts.azureRegion}
                   onChange={(e) => updateTts({ azureRegion: e.target.value })}
                   placeholder="e.g., eastus"
-                  className="w-32 h-8 text-sm font-mono"
+                  className="w-full sm:w-32 h-8 text-sm font-mono"
                 />
               </SettingsItem>
             )}
@@ -708,7 +701,7 @@ export const SettingsPage: React.FC = () => {
         title="Study Session"
         description={`Configuration for ${currentLangName}`}
       >
-        <div className="grid grid-cols-2 gap-3 mb-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
           <SettingsLargeInput
             label="New Cards"
             sublabel="Per day"
@@ -748,7 +741,7 @@ export const SettingsPage: React.FC = () => {
             value={stepsInput}
             onChange={(e) => handleStepsChange(e.target.value)}
             placeholder="1 10"
-            className="w-24 h-8 text-sm text-right"
+            className="w-full sm:w-24 h-8 text-sm text-right"
           />
         </SettingsItem>
 
@@ -759,7 +752,7 @@ export const SettingsPage: React.FC = () => {
               setSettings((prev) => ({ ...prev, cardOrder: value as any }))
             }
           >
-            <SelectTrigger className="w-32 h-8 text-sm">
+            <SelectTrigger className="w-full sm:w-[200px] h-8 text-sm">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -798,6 +791,23 @@ export const SettingsPage: React.FC = () => {
             }
           />
         </SettingsItem>
+
+        {!settings.showWholeSentenceOnFront && (
+          <SettingsItem
+            label="Detailed New Cards"
+            description="Show full sentence on front for new cards"
+          >
+            <Switch
+              checked={settings.showFullSentenceOnNew}
+              onCheckedChange={(checked) =>
+                setSettings((prev) => ({
+                  ...prev,
+                  showFullSentenceOnNew: checked,
+                }))
+              }
+            />
+          </SettingsItem>
+        )}
 
         <SettingsItem
           label="Show Translation"
@@ -1033,7 +1043,6 @@ export const SettingsPage: React.FC = () => {
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-
               <SelectItem value={LEECH_ACTION.SUSPEND}>Suspend</SelectItem>
             </SelectContent>
           </Select>

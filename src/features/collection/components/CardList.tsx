@@ -4,7 +4,7 @@ import { Card as CardModel } from "@/types";
 import { DataTable } from "@/components/ui/data-table";
 import { getCardColumns } from "./CardTableColumns";
 import { Card } from "@/components/ui/card";
-import { RowSelectionState } from "@tanstack/react-table";
+import { RowSelectionState, VisibilityState } from "@tanstack/react-table";
 
 interface CardListProps {
   cards: CardModel[];
@@ -21,6 +21,9 @@ interface CardListProps {
   totalPages?: number;
   totalCount?: number;
   onPageChange?: (page: number) => void;
+
+  columnVisibility?: VisibilityState;
+  onColumnVisibilityChange?: (visibility: VisibilityState) => void;
 }
 
 export const CardList: React.FC<CardListProps> = ({
@@ -37,7 +40,10 @@ export const CardList: React.FC<CardListProps> = ({
   totalPages = 1,
   totalCount = 0,
   onPageChange,
-}) => {
+
+  columnVisibility,
+  onColumnVisibilityChange,
+}: CardListProps) => {
   const rowSelection = useMemo(() => {
     const state: RowSelectionState = {};
     selectedIds.forEach((id) => {
@@ -124,6 +130,8 @@ export const CardList: React.FC<CardListProps> = ({
         pageIndex={page}
         onPageChange={onPageChange}
         totalItems={totalCount}
+        columnVisibility={columnVisibility}
+        onColumnVisibilityChange={onColumnVisibilityChange}
       />
     </div>
   );

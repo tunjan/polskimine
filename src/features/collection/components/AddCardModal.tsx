@@ -210,7 +210,7 @@ export const AddCardModal: React.FC<AddCardModalProps> = ({
         .join("");
     }
 
-        if (!initialCard && data.targetWord) {
+    if (!initialCard && data.targetWord) {
       try {
         const { getCardByTargetWord } =
           await import("@/db/repositories/cardRepository");
@@ -233,12 +233,12 @@ export const AddCardModal: React.FC<AddCardModalProps> = ({
     let newCard: Card;
 
     if (initialCard) {
-            let sentenceToFormat = targetSentence;
+      let sentenceToFormat = targetSentence;
       if (data.targetWord) {
         sentenceToFormat = targetSentence.replace(/<\/?b>/g, "");
       }
 
-                  const formattedSentence = formatSentenceWithTargetWord(
+      const formattedSentence = formatSentenceWithTargetWord(
         sentenceToFormat,
         data.targetWord || undefined,
         targetLanguage,
@@ -256,7 +256,7 @@ export const AddCardModal: React.FC<AddCardModalProps> = ({
         language: targetLanguage,
       };
     } else {
-            newCard = createNewCard({
+      newCard = createNewCard({
         language: targetLanguage,
         targetSentence,
         nativeTranslation: data.translation,

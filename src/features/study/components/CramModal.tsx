@@ -12,20 +12,14 @@ import { Slider } from "@/components/ui/slider";
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
 
-
-
 interface CramModalProps {
   isOpen: boolean;
   onClose: () => void;
 }
 
 export const CramModal = ({ isOpen, onClose }: CramModalProps) => {
-
-
   const [limit, setLimit] = useState([50]);
   const navigate = useNavigate();
-
-
 
   const handleStart = () => {
     const params = new URLSearchParams();
@@ -50,8 +44,6 @@ export const CramModal = ({ isOpen, onClose }: CramModalProps) => {
           </div>
 
           <div className="space-y-6 py-2">
-
-
             <div className="space-y-4">
               <div className="flex justify-between items-center">
                 <label className="text-xs font-medium text-muted-foreground uppercase tracking-wider">

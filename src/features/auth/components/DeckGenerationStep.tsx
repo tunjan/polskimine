@@ -10,7 +10,7 @@ import { Label } from "@/components/ui/label";
 
 interface DeckGenerationStepProps {
   languages: Language[];
-  proficiencyLevel: Difficulty;
+  selectedLevels: Record<Language, Difficulty>;
   onComplete: (
     languages: Language[],
     useAI: boolean,
@@ -22,7 +22,7 @@ type DeckOption = "ai" | "default" | null;
 
 export const DeckGenerationStep: React.FC<DeckGenerationStepProps> = ({
   languages,
-  proficiencyLevel,
+  selectedLevels,
   onComplete,
 }) => {
   const [selectedOption, setSelectedOption] = useState<DeckOption>(null);
@@ -56,13 +56,20 @@ export const DeckGenerationStep: React.FC<DeckGenerationStepProps> = ({
     .join(", ");
   const languageCount = languages.length;
 
+  const getLevelDisplay = () => {
+    const levels = languages.map((l) => selectedLevels[l]);
+    const uniqueLevels = Array.from(new Set(levels));
+    if (uniqueLevels.length === 1) return `${uniqueLevels[0]} level`;
+    return "selected levels";
+  };
+
   return (
     <div className="space-y-6">
       <div className="space-y-2">
         <p className="text-xs  text-muted-foreground uppercase tracking-wider">
           Choose how to start learning{" "}
           {languageCount > 1 ? `${languageCount} languages` : languageNames} at{" "}
-          {proficiencyLevel} level.
+          {getLevelDisplay()}.
         </p>
         {languageCount > 1 && (
           <p className="text-xs text-muted-foreground/70">
@@ -99,7 +106,7 @@ export const DeckGenerationStep: React.FC<DeckGenerationStepProps> = ({
               </div>
               <p className="text-xs text-muted-foreground/80 leading-relaxed font-normal whitespace-normal">
                 Generate 50 personalized flashcards per language using Gemini
-                AI, tailored to {proficiencyLevel} level. Requires your API key.
+                AI, tailored to {getLevelDisplay()}. Requires your API key.
               </p>
             </div>
           </div>

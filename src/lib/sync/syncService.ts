@@ -362,7 +362,7 @@ export const importSyncData = async (
       const restoredProfile = data.profile;
       let preservedKeys: Partial<UserSettings> | UserSettings["tts"] = {};
 
-            const targetSettingsId =
+      const targetSettingsId =
         restoredProfile?.id || (existingProfile ? existingProfile.id : null);
 
       if (targetSettingsId) {

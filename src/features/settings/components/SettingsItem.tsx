@@ -8,7 +8,6 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
-import { Button } from "@/components/ui/button";
 
 interface SettingsItemProps {
   label: string;
@@ -49,7 +48,7 @@ export const SettingsItem: React.FC<SettingsItemProps> = ({
           )}
         </div>
       </div>
-      <div className="flex items-center gap-2 min-w-[120px] justify-end">
+      <div className="flex items-center gap-2 w-full sm:w-auto sm:min-w-[120px] justify-between sm:justify-end mt-2 sm:mt-0">
         {children}
       </div>
     </div>
@@ -139,25 +138,24 @@ export const SettingsSubSection: React.FC<SettingsSubSectionProps> = ({
       onOpenChange={setIsOpen}
       className="border rounded-lg my-4 overflow-hidden bg-card/50"
     >
-      <div className="flex items-center justify-between px-4 py-3 bg-muted/30 hover:bg-muted/40 transition-colors">
-        <h4 className="text-sm font-semibold flex items-center gap-2">
-          {title}
-        </h4>
-        <CollapsibleTrigger asChild>
-          <Button
-            variant="ghost"
-            size="sm"
-            className="w-8 h-8 p-0 hover:bg-background/80"
-          >
+      <CollapsibleTrigger asChild>
+        <div
+          role="button"
+          tabIndex={0}
+          className="flex items-center justify-between px-4 py-3 bg-muted/30 hover:bg-muted/40 transition-colors cursor-pointer w-full"
+        >
+          <h4 className="text-sm font-semibold flex items-center gap-2">
+            {title}
+          </h4>
+          <div className="w-8 h-8 flex items-center justify-center">
             {isOpen ? (
               <ChevronDown className="w-4 h-4 text-muted-foreground" />
             ) : (
               <ChevronRight className="w-4 h-4 text-muted-foreground" />
             )}
-            <span className="sr-only">Toggle</span>
-          </Button>
-        </CollapsibleTrigger>
-      </div>
+          </div>
+        </div>
+      </CollapsibleTrigger>
       <CollapsibleContent className="p-4 space-y-4 border-t bg-card">
         {children}
       </CollapsibleContent>

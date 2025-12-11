@@ -23,14 +23,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import {
-  DropdownMenu,
-  DropdownMenuCheckboxItem,
-  DropdownMenuContent,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Button } from "@/components/ui/button";
-import { Settings2 } from "lucide-react";
+
 import { cn } from "@/lib/utils";
 
 interface DataTableProps<TData, TValue> {
@@ -49,6 +42,8 @@ interface DataTableProps<TData, TValue> {
   onPageChange?: (page: number) => void;
   manualPagination?: boolean;
   totalItems?: number;
+  columnVisibility?: VisibilityState;
+  onColumnVisibilityChange?: (visibility: VisibilityState) => void;
 }
 
 export function DataTable<TData, TValue>({
@@ -67,12 +62,14 @@ export function DataTable<TData, TValue>({
   onPageChange,
   manualPagination = false,
   totalItems,
+  columnVisibility: externalColumnVisibility,
+  onColumnVisibilityChange,
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     [],
   );
-  const [columnVisibility, setColumnVisibility] =
+  const [internalColumnVisibility, setInternalColumnVisibility] =
     React.useState<VisibilityState>({});
   const [internalRowSelection, setInternalRowSelection] =
     React.useState<RowSelectionState>({});
@@ -82,6 +79,7 @@ export function DataTable<TData, TValue>({
   });
 
   const rowSelection = externalRowSelection ?? internalRowSelection;
+  const columnVisibility = externalColumnVisibility ?? internalColumnVisibility;
 
   const paginationState = manualPagination
     ? { pageIndex, pageSize }
@@ -105,7 +103,15 @@ export function DataTable<TData, TValue>({
     getFilteredRowModel: getFilteredRowModel(),
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
-    onColumnVisibilityChange: setColumnVisibility,
+    onColumnVisibilityChange: (updater) => {
+      const newState =
+        typeof updater === "function" ? updater(columnVisibility) : updater;
+      if (onColumnVisibilityChange) {
+        onColumnVisibilityChange(newState);
+      } else {
+        setInternalColumnVisibility(newState);
+      }
+    },
     onRowSelectionChange: (updater) => {
       const newState =
         typeof updater === "function" ? updater(rowSelection) : updater;
@@ -211,47 +217,6 @@ export function DataTable<TData, TValue>({
         </div>
 
         <div className="flex items-center gap-6">
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="sm" className="h-8 gap-2">
-                <Settings2 className="h-4 w-4" />
-                <span className="hidden sm:inline">Columns</span>
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-40">
-              {table
-                .getAllColumns()
-                .filter(
-                  (column) =>
-                    typeof column.accessorFn !== "undefined" &&
-                    column.getCanHide()
-                )
-                .map((column) => {
-                  const columnLabels: Record<string, string> = {
-                    isBookmarked: "Bookmark",
-                    status: "Status",
-                    targetWord: "Word",
-                    targetSentence: "Sentence",
-                    nativeTranslation: "Translation",
-                    dueDate: "Due",
-                    created_at: "Created",
-                  };
-                  return (
-                    <DropdownMenuCheckboxItem
-                      key={column.id}
-                      className="capitalize"
-                      checked={column.getIsVisible()}
-                      onCheckedChange={(value) =>
-                        column.toggleVisibility(!!value)
-                      }
-                    >
-                      {columnLabels[column.id] || column.id}
-                    </DropdownMenuCheckboxItem>
-                  );
-                })}
-            </DropdownMenuContent>
-          </DropdownMenu>
-
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
             <span>Page</span>
             <span className="text-foreground font-medium tabular-nums">

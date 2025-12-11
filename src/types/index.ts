@@ -8,9 +8,7 @@ import type {
   ReviewSortOrderValue,
   LeechActionValue,
 } from "@/constants/settings";
-export type {
-  CardOrderValue,
-} from "@/constants/settings";
+export type { CardOrderValue } from "@/constants/settings";
 import { Card as FSRSCard, State as FSRSState } from "ts-fsrs";
 
 export type Difficulty = "A1" | "A2" | "B1" | "B2" | "C1" | "C2";
@@ -58,6 +56,7 @@ export interface Card extends Omit<Partial<FSRSCard>, "due" | "last_review"> {
   precise_interval?: number;
   user_id?: string;
   created_at?: string;
+  tags?: string[];
 }
 
 export type Grade = "Again" | "Hard" | "Good" | "Easy";
@@ -97,6 +96,7 @@ export interface TTSSettings {
 export interface UserSettings {
   language: Language;
   languageColors?: Record<Language, string>;
+  languageVoices?: Record<Language, string | null>;
   proficiency: Record<Language, Difficulty>;
   dailyNewLimits: Record<Language, number>;
   dailyReviewLimits: Record<Language, number>;
@@ -105,16 +105,17 @@ export interface UserSettings {
   blindMode: boolean;
   showTranslationAfterFlip: boolean;
   showWholeSentenceOnFront?: boolean;
+  showFullSentenceOnNew?: boolean;
   ignoreLearningStepsWhenNoCards: boolean;
   binaryRatingMode: boolean;
   cardOrder: CardOrderValue;
   learningSteps: number[];
-    newCardGatherOrder?: NewCardGatherOrderValue;
+  newCardGatherOrder?: NewCardGatherOrderValue;
   newCardSortOrder?: NewCardSortOrderValue;
   newReviewOrder?: NewReviewOrderValue;
   interdayLearningOrder?: InterdayLearningOrderValue;
   reviewSortOrder?: ReviewSortOrderValue;
-    relearnSteps?: number[];
+  relearnSteps?: number[];
   leechThreshold?: number;
   leechAction?: LeechActionValue;
   tts: TTSSettings;

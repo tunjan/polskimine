@@ -112,7 +112,7 @@ export const useCardSentence = (
       }
     }
 
-        if (
+    if (
       displayedSentence.includes("<b>") &&
       displayedSentence.includes("</b>")
     ) {

@@ -10,9 +10,17 @@ import {
   Filter,
   Bookmark,
   AlertTriangle,
+  Settings2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { VisibilityState } from "@tanstack/react-table";
+import {
+  DropdownMenu,
+  DropdownMenuCheckboxItem,
+  DropdownMenuContent,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 import { useDeckStats } from "@/features/collection/hooks/useDeckStats";
 import { Card, CardStatus } from "@/types";
@@ -44,6 +52,7 @@ export const CardsRoute: React.FC = () => {
   const [page, setPage] = useState(0);
   const [filters, setFilters] = useState<CardFilters>({});
   const [showFilters, setShowFilters] = useState(false);
+  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
 
   const pageSize = 50;
 
@@ -311,7 +320,41 @@ export const CardsRoute: React.FC = () => {
               )}
             </div>
 
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" size="icon" title="Toggle Columns">
+                  <Settings2 className="w-4 h-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-40">
+                {[
+                  { id: "isBookmarked", label: "Bookmark" },
+                  { id: "status", label: "Status" },
+                  { id: "targetWord", label: "Word" },
+                  { id: "targetSentence", label: "Sentence" },
+                  { id: "nativeTranslation", label: "Translation" },
+                  { id: "dueDate", label: "Due" },
+                  { id: "created_at", label: "Created" },
+                ].map((column) => (
+                  <DropdownMenuCheckboxItem
+                    key={column.id}
+                    className="capitalize"
+                    checked={columnVisibility[column.id] !== false}
+                    onCheckedChange={(value) =>
+                      setColumnVisibility((prev) => ({
+                        ...prev,
+                        [column.id]: !!value,
+                      }))
+                    }
+                  >
+                    {column.label}
+                  </DropdownMenuCheckboxItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
+
             <Button
+              variant="outline"
               variant="outline"
               size="icon"
               onClick={() => setIsGenerateModalOpen(true)}
@@ -353,6 +396,8 @@ export const CardsRoute: React.FC = () => {
             totalPages={totalPages}
             totalCount={totalCount}
             onPageChange={setPage}
+            columnVisibility={columnVisibility}
+            onColumnVisibilityChange={setColumnVisibility}
           />
         )}
       </div>

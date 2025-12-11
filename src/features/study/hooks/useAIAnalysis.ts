@@ -5,7 +5,8 @@ import { aiService } from "@/lib/ai";
 import { getCardByTargetWord } from "@/db/repositories/cardRepository";
 import { db } from "@/db/dexie";
 import { parseFurigana } from "@/lib/utils";
-import { Card, Language, LanguageId } from "@/types";
+import { Card, Language, LanguageId, CardStatus } from "@/types";
+import { useSettingsStore } from "@/stores/useSettingsStore";
 
 interface UseAIAnalysisProps {
   card: Card;
@@ -14,6 +15,7 @@ interface UseAIAnalysisProps {
   selection: { text: string } | null;
   clearSelection: () => void;
   onAddCard?: (card: Card) => void;
+  onUpdateCard?: (card: Card) => void;
 }
 
 export function useAIAnalysis({
@@ -23,13 +25,16 @@ export function useAIAnalysis({
   selection,
   clearSelection,
   onAddCard,
+  onUpdateCard,
 }: UseAIAnalysisProps) {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [isModifying, setIsModifying] = useState(false);
   const [analysisResult, setAnalysisResult] = useState<{
     originalText: string;
     definition: string;
     partOfSpeech: string;
-    contextMeaning: string;
+    exampleSentence: string;
+    exampleSentenceTranslation: string;
   } | null>(null);
   const [isAnalysisOpen, setIsAnalysisOpen] = useState(false);
   const [isGeneratingCard, setIsGeneratingCard] = useState(false);
@@ -47,12 +52,15 @@ export function useAIAnalysis({
       return;
     }
     setIsAnalyzing(true);
+    const proficiency =
+      useSettingsStore.getState().proficiency[language] || "A1";
     try {
       const result = await aiService.analyzeWord(
         selection.text,
         card.targetSentence,
         language,
         apiKey,
+        proficiency,
       );
       setAnalysisResult({ ...result, originalText: selection.text });
       setIsAnalysisOpen(true);
@@ -111,10 +119,14 @@ export function useAIAnalysis({
         return;
       }
 
+      const proficiency =
+        useSettingsStore.getState().proficiency[language] || "A1";
+
       const result = await aiService.generateSentenceForWord(
         lemma,
         language,
         apiKey,
+        proficiency,
       );
 
       let targetSentence = result.targetSentence;
@@ -137,13 +149,12 @@ export function useAIAnalysis({
         notes: result.notes,
         furigana: result.furigana,
         language,
-        status: "new",
+        status: CardStatus.NEW,
         interval: 0,
         easeFactor: 2.5,
         dueDate: tomorrow.toISOString(),
         reps: 0,
         lapses: 0,
-        tags: ["AI-Gen", "From-Study"],
       };
 
       onAddCard(newCard);
@@ -156,13 +167,63 @@ export function useAIAnalysis({
     }
   };
 
+  const handleModifyCard = async (type: "easier" | "harder") => {
+    if (!apiKey) {
+      toast.error("API Key required.");
+      return;
+    }
+    if (!onUpdateCard) {
+      toast.error("Modification not supported here.");
+      return;
+    }
+
+    setIsModifying(true);
+    try {
+      const result = await aiService.modifyCard(
+        {
+          targetWord: card.targetWord ?? "",
+          targetSentence: card.targetSentence,
+          language: card.language,
+        },
+        type,
+        apiKey,
+      );
+
+      const updatedCard: Card = {
+        ...card,
+        targetSentence:
+          result.formattedSentence || result.targetWord || card.targetSentence,
+        targetWord: result.targetWord || card.targetWord,
+        targetWordTranslation:
+          result.targetWordTranslation || card.targetWordTranslation,
+        targetWordPartOfSpeech:
+          result.targetWordPartOfSpeech || card.targetWordPartOfSpeech,
+        nativeTranslation: result.translation || card.nativeTranslation,
+        notes: result.notes || card.notes,
+        furigana: result.furigana || card.furigana,
+      };
+
+      onUpdateCard(updatedCard);
+      toast.success("Card modified successfully");
+      setIsAnalysisOpen(false);
+      clearSelection();
+    } catch (e) {
+      toast.error("Failed to modify card");
+      console.error(e);
+    } finally {
+      setIsModifying(false);
+    }
+  };
+
   return {
     isAnalyzing,
+    isModifying,
     analysisResult,
     isAnalysisOpen,
     setIsAnalysisOpen,
     isGeneratingCard,
     handleAnalyze,
     handleGenerateCard,
+    handleModifyCard,
   };
 }

@@ -44,7 +44,7 @@ const mapStateToStatus = (state: State): CardStatus => {
 };
 
 function getFSRS(settings?: UserSettings["fsrs"]) {
-    const wArray = settings?.w ? [...settings.w] : null;
+  const wArray = settings?.w ? [...settings.w] : null;
   const currentWHash = wArray ? JSON.stringify(wArray) : null;
 
   if (
@@ -94,19 +94,18 @@ const handleLearningPhase = (
     nextStep = 0;
     nextIntervalMinutes = learningStepsMinutes[0] ?? 1;
     shouldStayInLearning = true;
-            lapsesToAdd = 0;
+    lapsesToAdd = 0;
   } else if (grade === "Hard") {
-        nextIntervalMinutes =
+    nextIntervalMinutes =
       learningStepsMinutes[currentStep] ??
       learningStepsMinutes[learningStepsMinutes.length - 1] ??
       1;
     shouldStayInLearning = true;
   } else if (grade === "Good") {
     if (card.status === "new" || (card.reps === 0 && card.state !== 2)) {
-         // If it's a new card (or effectively new), we start at step 0
-         nextStep = 0;
+      nextStep = 0;
     } else {
-         nextStep = currentStep + 1;
+      nextStep = currentStep + 1;
     }
 
     if (nextStep >= learningStepsMinutes.length) {
@@ -116,9 +115,10 @@ const handleLearningPhase = (
       shouldStayInLearning = true;
     }
   }
-  
+
   if (!shouldStayInLearning) {
-    return null;   }
+    return null;
+  }
 
   const nextIntervalMs = nextIntervalMinutes * 60 * 1000;
   let nextDue = new Date(now.getTime() + nextIntervalMs);
@@ -133,10 +133,11 @@ const handleLearningPhase = (
 
   let intervalDays = nextIntervalMinutes / (24 * 60);
   if (!Number.isFinite(intervalDays) || intervalDays < 0) {
-    intervalDays = 1 / (24 * 60);   }
+    intervalDays = 1 / (24 * 60);
+  }
   const newLapses = (card.lapses || 0) + lapsesToAdd;
 
-    let isLeech = card.isLeech || false;
+  let isLeech = card.isLeech || false;
   if (newLapses >= leechThreshold && !isLeech) {
     isLeech = true;
   }
@@ -168,7 +169,8 @@ const handleRelearningPhase = (
   currentLapses: number,
 ): Card | null => {
   if (relearnStepsMinutes.length === 0) {
-    return null;   }
+    return null;
+  }
 
   let nextStep = currentStep;
   let nextIntervalMinutes = 0;
@@ -187,15 +189,16 @@ const handleRelearningPhase = (
   } else if (grade === "Good") {
     nextStep = currentStep + 1;
     if (nextStep >= relearnStepsMinutes.length) {
-            shouldStayInRelearning = false;
+      shouldStayInRelearning = false;
     } else {
       nextIntervalMinutes = relearnStepsMinutes[nextStep] ?? 1;
       shouldStayInRelearning = true;
     }
   }
-  
+
   if (!shouldStayInRelearning) {
-    return null;   }
+    return null;
+  }
 
   const nextIntervalMs = nextIntervalMinutes * 60 * 1000;
   let nextDue = new Date(now.getTime() + nextIntervalMs);
@@ -205,9 +208,10 @@ const handleRelearningPhase = (
 
   let intervalDays = nextIntervalMinutes / (24 * 60);
   if (!Number.isFinite(intervalDays) || intervalDays < 0) {
-    intervalDays = 1 / (24 * 60);   }
+    intervalDays = 1 / (24 * 60);
+  }
 
-    let isLeech = card.isLeech || false;
+  let isLeech = card.isLeech || false;
   if (currentLapses >= leechThreshold && !isLeech) {
     isLeech = true;
   }
@@ -238,7 +242,7 @@ const applyLeechAction = (
   }
 
   if (leechAction === "suspend") {
-        return { status: CardStatus.SUSPENDED };
+    return { status: CardStatus.SUSPENDED };
   }
 
   return {};
@@ -252,7 +256,7 @@ export const calculateNextReview = (
   lapsesSettings?: LapsesSettings,
 ): Card => {
   const now = new Date();
-    const validLearningSteps = learningSteps.filter((s) => s > 0);
+  const validLearningSteps = learningSteps.filter((s) => s > 0);
   const learningStepsMinutes =
     validLearningSteps.length > 0 ? validLearningSteps : [1, 10];
   const validRelearnSteps = (lapsesSettings?.relearnSteps ?? []).filter(
@@ -262,20 +266,68 @@ export const calculateNextReview = (
   const leechThreshold = lapsesSettings?.leechThreshold ?? 8;
   const leechAction = lapsesSettings?.leechAction;
 
+  // Sanitize input card to ensure invariants
+  card.difficulty = card.difficulty
+    ? Math.max(1, Math.min(10, card.difficulty))
+    : undefined;
+  card.stability = card.stability ? Math.max(0.1, card.stability) : undefined;
+
   const rawStep = card.learningStep ?? 0;
 
-      const learningStep = Math.max(
+  const learningStep = Math.max(
     0,
     Math.min(rawStep, learningStepsMinutes.length - 1),
   );
   const isLearningPhase =
     (card.status === CardStatus.NEW || card.status === CardStatus.LEARNING) &&
     card.state !== State.Relearning &&
-    learningStep < learningStepsMinutes.length;
+    (card.learningStep !== undefined || card.status === CardStatus.NEW) &&
+    (card.learningStep ?? 0) < learningStepsMinutes.length;
 
-      const isRelearningPhase = card.state === State.Relearning;
+  if (
+    (card.status === CardStatus.LEARNING || card.status === CardStatus.NEW) &&
+    card.learningStep === undefined &&
+    card.state !== State.Relearning
+  ) {
+    const minuteInterval = Math.round(card.interval * 24 * 60);
 
-    if (isLearningPhase) {
+    if (minuteInterval <= 0) {
+    } else {
+      let recoveredStep = 0;
+      let minDiff = Infinity;
+
+      for (let i = 0; i < learningStepsMinutes.length; i++) {
+        const diff = Math.abs(learningStepsMinutes[i] - minuteInterval);
+        if (diff < minDiff) {
+          minDiff = diff;
+          recoveredStep = i;
+        }
+      }
+
+      if (recoveredStep < learningStepsMinutes.length) {
+        if (recoveredStep < learningStepsMinutes.length) {
+          const learningResult = handleLearningPhase(
+            card,
+            grade,
+            now,
+            learningStepsMinutes,
+            recoveredStep,
+            leechThreshold,
+          );
+          if (learningResult) {
+            const leechOverrides = applyLeechAction(
+              leechAction,
+              learningResult.isLeech || false,
+            );
+            return { ...learningResult, ...leechOverrides };
+          }
+        }
+      }
+    }
+  }
+  const isRelearningPhase = card.state === State.Relearning;
+
+  if (isLearningPhase) {
     const learningResult = handleLearningPhase(
       card,
       grade,
@@ -293,7 +345,7 @@ export const calculateNextReview = (
     }
   }
 
-    if (isRelearningPhase && relearnStepsMinutes.length > 0) {
+  if (isRelearningPhase && relearnStepsMinutes.length > 0) {
     const relearnStep = Math.min(rawStep, relearnStepsMinutes.length - 1);
     const relearnResult = handleRelearningPhase(
       card,
@@ -313,23 +365,33 @@ export const calculateNextReview = (
     }
   }
 
-    const f = getFSRS(settings);
+  const f = getFSRS(settings);
 
-      const lastReviewDate = card.last_review
+  const lastReviewDate = card.last_review
     ? new Date(card.last_review)
     : undefined;
   let currentState = inferCardState(card, !!lastReviewDate);
 
-        if (!isLearningPhase && !isRelearningPhase) {
+  if (!isLearningPhase && !isRelearningPhase) {
     if (card.status === CardStatus.LEARNING || card.status === CardStatus.NEW) {
-                  currentState = lastReviewDate ? State.Learning : State.New;
+      currentState = lastReviewDate ? State.Learning : State.New;
     }
   }
 
   const fsrsCard: FSRSCard = {
     due: new Date(card.dueDate),
-    stability: card.stability || 0,
-    difficulty: card.difficulty || 0,
+    stability:
+      card.stability !== undefined && card.stability > 0
+        ? card.stability
+        : currentState === State.New
+          ? 0
+          : 2.0,
+    difficulty:
+      card.difficulty !== undefined && card.difficulty > 0
+        ? card.difficulty
+        : currentState === State.New
+          ? 0
+          : 5.0,
     elapsed_days: card.elapsed_days || 0,
     scheduled_days: card.scheduled_days || 0,
     reps: card.reps || 0,
@@ -341,12 +403,13 @@ export const calculateNextReview = (
   const schedulingCards = f.repeat(fsrsCard, now);
 
   const rating = mapGradeToRating(grade);
-    const schedulingResult = (schedulingCards as any)[rating] as {
+  const schedulingResult = (schedulingCards as any)[rating] as {
     card: FSRSCard;
   };
+
   const log = schedulingResult.card;
 
-    const isLapse =
+  const isLapse =
     grade === "Again" &&
     (currentState === State.Review || currentState === State.Relearning);
 
@@ -355,14 +418,16 @@ export const calculateNextReview = (
     return n;
   };
 
-    if (isLapse && relearnStepsMinutes.length > 0) {
+  if (isLapse && relearnStepsMinutes.length > 0) {
     const newLapses = log.lapses;
     let isLeech = card.isLeech || false;
     if (newLapses >= leechThreshold && !isLeech) {
       isLeech = true;
     }
 
-    const nextDue = new Date(now.getTime() + (relearnStepsMinutes[0] ?? 1) * 60 * 1000);
+    const nextDue = new Date(
+      now.getTime() + (relearnStepsMinutes[0] ?? 1) * 60 * 1000,
+    );
     const intervalDays = (relearnStepsMinutes[0] ?? 1) / (24 * 60);
 
     const result: Card = {
@@ -389,7 +454,7 @@ export const calculateNextReview = (
     return { ...result, ...leechOverrides };
   }
 
-    const tentativeStatus = mapStateToStatus(log.state);
+  const tentativeStatus = mapStateToStatus(log.state);
   const totalLapses = log.lapses;
   let isLeech = card.isLeech || false;
 
@@ -419,7 +484,7 @@ export const calculateNextReview = (
       ? log.due.toISOString()
       : addMinutes(now, FALLBACK_DUE_DATE_MINUTES).toISOString(),
     stability: safeNum(log.stability),
-    difficulty: safeNum(log.difficulty),
+    difficulty: Math.max(1, Math.min(10, safeNum(log.difficulty))),
     elapsed_days: safeNum(log.elapsed_days),
     scheduled_days: safeNum(scheduledDaysInt),
     precise_interval: safeNum(preciseInterval),
@@ -453,7 +518,7 @@ export const isCardDue = (card: Card, now: Date = new Date()): boolean => {
 
   const due = new Date(card.dueDate);
 
-    if (card.status === CardStatus.LEARNING && card.interval < 1) {
+  if (card.status === CardStatus.LEARNING && card.interval < 1) {
     return due <= now;
   }
 

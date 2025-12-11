@@ -80,15 +80,12 @@ export const checkSchedule = (
   }
 
   if (ignoreLearningSteps) {
-    // If the current card is a learning card, we can process it immediately
     if (current.status === CardStatus.LEARNING) {
       return { ...state, status: "IDLE" };
     }
-    
-    // Otherwise, look for any future learning card in the queue
-    // Since we ignore the wait time, any learning card is effectively "due" now
+
     const nextLearningIndex = state.cards.findIndex(
-      (c, i) => i > state.currentIndex && c.status === CardStatus.LEARNING
+      (c, i) => i > state.currentIndex && c.status === CardStatus.LEARNING,
     );
 
     if (nextLearningIndex !== -1) {
@@ -129,7 +126,9 @@ export const reducer = (state: SessionState, action: Action): SessionState => {
         action;
       let newCards = [...state.cards];
       let newIndex = state.currentIndex;
-      const cardSnapshot = state.cards[state.currentIndex] ? { ...state.cards[state.currentIndex] } : null;
+      const cardSnapshot = state.cards[state.currentIndex]
+        ? { ...state.cards[state.currentIndex] }
+        : null;
       let newHistory = [
         ...state.history,
         { addedCardId: addedCardId ?? null, cardSnapshot },
@@ -218,7 +217,13 @@ export const reducer = (state: SessionState, action: Action): SessionState => {
       return checkSchedule(state, action.now, action.ignoreLearningSteps);
 
     case "REMOVE_CARD": {
-      const { cardId, newCardFromReserve, now, ignoreLearningSteps, cardOrder } = action;
+      const {
+        cardId,
+        newCardFromReserve,
+        now,
+        ignoreLearningSteps,
+        cardOrder,
+      } = action;
       const index = state.cards.findIndex((c) => c.id === cardId);
       if (index === -1) return state;
 
@@ -232,22 +237,21 @@ export const reducer = (state: SessionState, action: Action): SessionState => {
         newIndex = Math.max(0, newIndex - 1);
       }
 
-            if (newCardFromReserve) {
+      if (newCardFromReserve) {
         let insertIndex = newIndex;
 
         if (cardOrder === "reviewFirst") {
-                    insertIndex = newCards.length;
+          insertIndex = newCards.length;
         } else {
-                                                            
-                        for (let i = newCards.length - 1; i >= newIndex; i--) {
-              const c = newCards[i];
-              if (c.status === "new" || c.status === "learning") {
-                insertIndex = i + 1;
-                break;
-              }
+          for (let i = newCards.length - 1; i >= newIndex; i--) {
+            const c = newCards[i];
+            if (c.status === "new" || c.status === "learning") {
+              insertIndex = i + 1;
+              break;
             }
+          }
         }
-        
+
         newCards.splice(insertIndex, 0, newCardFromReserve);
         newReserve = newReserve.filter((c) => c.id !== newCardFromReserve.id);
       }

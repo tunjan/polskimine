@@ -2,9 +2,7 @@ import React from "react";
 import { Card, Language } from "@/types";
 import { Flashcard } from "./Flashcard";
 
-
 interface StudyCardAreaProps {
-
   currentCard: Card;
   isFlipped: boolean;
   autoPlayAudio: boolean;
@@ -12,11 +10,11 @@ interface StudyCardAreaProps {
   showTranslation: boolean;
   language: Language;
   onAddCard?: (card: Card) => void;
+  onUpdateCard?: (card: Card) => void;
 }
 
 export const StudyCardArea: React.FC<StudyCardAreaProps> = React.memo(
   ({
-
     currentCard,
     isFlipped,
     autoPlayAudio,
@@ -24,11 +22,10 @@ export const StudyCardArea: React.FC<StudyCardAreaProps> = React.memo(
     showTranslation,
     language,
     onAddCard,
+    onUpdateCard,
   }) => {
     return (
       <main className="flex-1 mx-2  relative flex flex-col items-center justify-center py-8 overflow-hidden">
-
-
         <Flashcard
           card={currentCard}
           isFlipped={isFlipped}
@@ -37,6 +34,7 @@ export const StudyCardArea: React.FC<StudyCardAreaProps> = React.memo(
           showTranslation={showTranslation}
           language={language}
           onAddCard={onAddCard}
+          onUpdateCard={onUpdateCard}
         />
       </main>
     );

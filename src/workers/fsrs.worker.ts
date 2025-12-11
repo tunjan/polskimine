@@ -24,12 +24,12 @@ const optimizeFSRS = async (
   const batchSize = Math.min(cardGroups.length, maxBatchSize);
 
   for (let iter = 0; iter < iterations; iter++) {
-        const batch: ReviewLog[][] = [];
+    const batch: ReviewLog[][] = [];
     for (let i = 0; i < batchSize; i++) {
       batch.push(cardGroups[Math.floor(Math.random() * cardGroups.length)]);
     }
 
-        w = runOptimizerIteration(
+    w = runOptimizerIteration(
       w,
       batch,
       targetIndices,
@@ -39,7 +39,7 @@ const optimizeFSRS = async (
 
     if (iter % 20 === 0) {
       onProgress((iter / iterations) * 100);
-          }
+    }
   }
 
   onProgress(100);

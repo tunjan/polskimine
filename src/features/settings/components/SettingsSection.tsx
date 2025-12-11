@@ -25,7 +25,12 @@ export const SettingsSection: React.FC<SettingsSectionProps> = ({
   className,
 }) => {
   return (
-    <Card className={cn("overflow-hidden transition-all hover:shadow-md", className)}>
+    <Card
+      className={cn(
+        "overflow-hidden transition-all hover:shadow-md",
+        className,
+      )}
+    >
       <CardHeader className="flex flex-row items-start gap-4 space-y-0 pb-6 border-b border-border/50">
         <div className="p-2.5 bg-primary/10 rounded-lg text-primary ring-1 ring-primary/20">
           <Icon className="w-6 h-6" />

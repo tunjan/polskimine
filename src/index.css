@@ -81,7 +81,7 @@
 :root {
   --background: oklch(0.9818 0.0054 95.0986);
   --foreground: oklch(0.3438 0.0269 95.7226);
-  --card: oklch(0.9818 0.0054 95.0986);
+  --card: rgb(255, 255, 255);
   --card-foreground: oklch(0.1908 0.002 106.5859);
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.2671 0.0196 98.939);
@@ -143,6 +143,11 @@
   --shadow-offset-x: 0;
   --shadow-offset-y: 1px;
   --letter-spacing: 0em;
+  --heatmap-empty: oklch(0.93 0.01 90);
+  --heatmap-level-1: oklch(0.85 0.08 70);
+  --heatmap-level-2: oklch(0.75 0.12 55);
+  --heatmap-level-3: oklch(0.65 0.14 45);
+  --heatmap-level-4: oklch(0.55 0.15 40);
 }
 
 .dark {
@@ -209,6 +214,11 @@
   --shadow-offset-y: 1px;
   --letter-spacing: 0em;
   --spacing: 0.25rem;
+  --heatmap-empty: oklch(0.25 0.01 90);
+  --heatmap-level-1: oklch(0.4 0.08 70);
+  --heatmap-level-2: oklch(0.5 0.12 55);
+  --heatmap-level-3: oklch(0.6 0.14 45);
+  --heatmap-level-4: oklch(0.7 0.15 40);
 }
 
 @theme inline {
@@ -244,6 +254,11 @@
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
+  --color-heatmap-empty: var(--heatmap-empty);
+  --color-heatmap-level-1: var(--heatmap-level-1);
+  --color-heatmap-level-2: var(--heatmap-level-2);
+  --color-heatmap-level-3: var(--heatmap-level-3);
+  --color-heatmap-level-4: var(--heatmap-level-4);
 
   --font-sans:
     ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",

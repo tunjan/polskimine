@@ -32,7 +32,7 @@ export const StudySessionSummary: React.FC<StudySessionSummaryProps> = ({
 
         <div className="grid grid-cols-3 gap-4">
           <Card>
-            <CardContent className="flex flex-col items-center gap-2 p-6">
+            <CardContent className="flex flex-col items-center gap-2">
               <Target
                 size={20}
                 className="text-muted-foreground"
@@ -48,7 +48,7 @@ export const StudySessionSummary: React.FC<StudySessionSummaryProps> = ({
           </Card>
 
           <Card>
-            <CardContent className="flex flex-col items-center gap-2 p-6">
+            <CardContent className="flex flex-col items-center gap-2  ">
               <Zap size={20} className="text-primary" strokeWidth={1.5} />
               <span className="text-3xl font-semibold text-primary tabular-nums">
                 +{sessionXp}
@@ -60,7 +60,7 @@ export const StudySessionSummary: React.FC<StudySessionSummaryProps> = ({
           </Card>
 
           <Card>
-            <CardContent className="flex flex-col items-center gap-2 p-6">
+            <CardContent className="flex flex-col items-center gap-2">
               <Sparkles
                 size={20}
                 className="text-muted-foreground"

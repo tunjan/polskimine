@@ -90,7 +90,7 @@ export const useCardGenerator = ({
         console.warn("Failed to fetch learned words", e);
       }
 
-            const allWords = await getAllTargetWords(language).catch(() => []);
+      const allWords = await getAllTargetWords(language).catch(() => []);
 
       const results = await aiService.generateBatchCards({
         instructions: finalInstructions,
@@ -165,7 +165,7 @@ export const useCardGenerator = ({
   };
 
   const handleSave = () => {
-        const DUE_DATE_OFFSET_MS = 1000;
+    const DUE_DATE_OFFSET_MS = 1000;
 
     const cardsToSave: CardType[] = generatedData
       .filter((_, i) => selectedIndices.has(i))
@@ -180,7 +180,6 @@ export const useCardGenerator = ({
             targetWordPartOfSpeech: item.targetWordPartOfSpeech,
             notes: item.notes || "",
             furigana: item.furigana,
-
           },
           index * DUE_DATE_OFFSET_MS,
         ),

@@ -66,9 +66,11 @@ const App: React.FC = () => {
       });
     }
 
-        import("@/db/repositories/cardRepository").then(({ repairCorruptedCards }) => {
-      repairCorruptedCards();
-    });
+    import("@/db/repositories/cardRepository").then(
+      ({ repairCorruptedCards }) => {
+        repairCorruptedCards();
+      },
+    );
   }, []);
   return (
     <AppProviders>

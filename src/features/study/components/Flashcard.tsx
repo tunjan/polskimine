@@ -24,6 +24,7 @@ interface FlashcardProps {
   showTranslation?: boolean;
   language?: Language;
   onAddCard?: (card: Card) => void;
+  onUpdateCard?: (card: Card) => void;
 }
 
 export const Flashcard = React.memo<FlashcardProps>(
@@ -35,16 +36,19 @@ export const Flashcard = React.memo<FlashcardProps>(
     showTranslation = true,
     language = LanguageId.Polish,
     onAddCard,
+    onUpdateCard,
   }) => {
     const {
       geminiApiKey,
       showWholeSentenceOnFront,
+      showFullSentenceOnNew,
       tts,
       playTargetWordAudioBeforeSentence,
     } = useSettingsStore(
       useShallow((s) => ({
         geminiApiKey: s.geminiApiKey,
         showWholeSentenceOnFront: s.showWholeSentenceOnFront,
+        showFullSentenceOnNew: s.showFullSentenceOnNew,
         tts: s.tts,
         playTargetWordAudioBeforeSentence: s.playTargetWordAudioBeforeSentence,
       })),
@@ -79,6 +83,8 @@ export const Flashcard = React.memo<FlashcardProps>(
       isGeneratingCard,
       handleAnalyze,
       handleGenerateCard,
+      handleModifyCard,
+      isModifying,
     } = useAIAnalysis({
       card,
       language,
@@ -86,6 +92,7 @@ export const Flashcard = React.memo<FlashcardProps>(
       selection,
       clearSelection,
       onAddCard,
+      onUpdateCard,
     });
 
     const displayedSentence = processText(card.targetSentence);
@@ -141,19 +148,32 @@ export const Flashcard = React.memo<FlashcardProps>(
                     "blur-3xl opacity-5 group-hover:opacity-10 transition-all duration-500",
                   )}
                 >
-                  {card.targetWord && !showWholeSentenceOnFront
+                  {card.targetWord &&
+                  !showWholeSentenceOnFront &&
+                  !(showFullSentenceOnNew && card.status === "new")
                     ? processText(card.targetWord)
                     : cleanSentence}
                 </p>
               </>
             ) : (
-              <p className={baseClasses}>{displayedSentence}</p>
+              <p className={baseClasses}>
+                {card.targetWord &&
+                !showWholeSentenceOnFront &&
+                !(showFullSentenceOnNew && card.status === "new")
+                  ? processText(card.targetWord)
+                  : displayedSentence}
+              </p>
             )}
           </div>
         );
       }
 
-      if (!isFlipped && card.targetWord && !showWholeSentenceOnFront) {
+      if (
+        !isFlipped &&
+        card.targetWord &&
+        !showWholeSentenceOnFront &&
+        !(showFullSentenceOnNew && card.status === "new")
+      ) {
         if (language === LanguageId.Japanese) {
           return (
             <FuriganaRenderer
@@ -222,6 +242,7 @@ export const Flashcard = React.memo<FlashcardProps>(
       isFlipped,
       blindMode,
       showWholeSentenceOnFront,
+      showFullSentenceOnNew,
       fontSizeClass,
       parsedContent,
       handleReveal,
@@ -256,7 +277,7 @@ export const Flashcard = React.memo<FlashcardProps>(
               <Button
                 variant="ghost"
                 size="icon"
-                onClick={speak}
+                onClick={() => speak()}
                 className="mt-6 text-muted-foreground/40 hover:text-primary/70"
               >
                 <Volume2
@@ -334,8 +355,10 @@ export const Flashcard = React.memo<FlashcardProps>(
             left={selection.left}
             onAnalyze={handleAnalyze}
             onGenerateCard={onAddCard ? handleGenerateCard : undefined}
+            onModifyCard={onUpdateCard ? handleModifyCard : undefined}
             isAnalyzing={isAnalyzing}
             isGeneratingCard={isGeneratingCard}
+            isModifying={isModifying}
           />
         )}
 

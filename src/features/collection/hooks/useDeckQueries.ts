@@ -30,9 +30,13 @@ export const useDeckStatsQuery = () => {
 
 export const useDueCardsQuery = () => {
   const language = useSettingsStore((s) => s.language);
+  const ignoreLearningStepsWhenNoCards = useSettingsStore(
+    (s) => s.ignoreLearningStepsWhenNoCards,
+  );
   return useQuery({
-    queryKey: ["dueCards", language],
-    queryFn: () => getDueCards(new Date(), language),
+    queryKey: ["dueCards", language, ignoreLearningStepsWhenNoCards],
+    queryFn: () =>
+      getDueCards(new Date(), language, ignoreLearningStepsWhenNoCards),
     staleTime: 60 * 1000,
   });
 };

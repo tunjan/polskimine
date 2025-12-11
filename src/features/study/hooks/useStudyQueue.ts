@@ -139,8 +139,6 @@ export const useStudyQueue = ({
   } = useXpSession(dailyStreak, isCramMode);
   const lastXpEarnedRef = useRef<number>(0);
 
-
-
   useEffect(() => {
     if (state.status === "WAITING") {
       const timer = setTimeout(() => {

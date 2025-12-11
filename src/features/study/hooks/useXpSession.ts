@@ -6,12 +6,9 @@ import {
   getDailyStreakMultiplier,
 } from "@/core/gamification/xp";
 
-
-
 export const useXpSession = (dailyStreak: number, isCramMode: boolean) => {
   const [sessionXp, setSessionXp] = useState(0);
   const [sessionStreak, setSessionStreak] = useState(0);
-
 
   const multiplierInfo = getDailyStreakMultiplier(dailyStreak);
 
@@ -31,8 +28,6 @@ export const useXpSession = (dailyStreak: number, isCramMode: boolean) => {
       } else {
         setSessionStreak((prev) => prev + 1);
       }
-
-
 
       return result;
     },

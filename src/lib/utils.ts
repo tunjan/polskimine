@@ -94,10 +94,10 @@ export function findInflectedWordInSentence(
 
   const words = sentence.match(/[\p{L}]+/gu) || [];
 
-    const exactMatch = words.find((w) => w.toLowerCase() === targetLower);
+  const exactMatch = words.find((w) => w.toLowerCase() === targetLower);
   if (exactMatch) return exactMatch;
 
-      const minStemLength =
+  const minStemLength =
     targetWord.length <= 4
       ? Math.max(3, Math.ceil(targetWord.length * 0.7))
       : Math.min(4, Math.ceil(targetWord.length * 0.5));
@@ -108,12 +108,12 @@ export function findInflectedWordInSentence(
   for (const word of words) {
     const wordLower = word.toLowerCase();
 
-            const lengthRatio = word.length / targetWord.length;
+    const lengthRatio = word.length / targetWord.length;
     if (lengthRatio < 0.5 || lengthRatio > 2.0) continue;
 
     let sharedLength = 0;
 
-        for (let i = 0; i < targetLower.length; i++) {
+    for (let i = 0; i < targetLower.length; i++) {
       for (let j = 0; j < wordLower.length; j++) {
         let k = 0;
         while (
@@ -130,14 +130,15 @@ export function findInflectedWordInSentence(
     }
 
     if (sharedLength >= minStemLength) {
-            const lengthDiff = Math.abs(targetWord.length - word.length);
+      const lengthDiff = Math.abs(targetWord.length - word.length);
 
-                  const startsWithBonus = wordLower.startsWith(targetLower.slice(0, 2))
+      const startsWithBonus = wordLower.startsWith(targetLower.slice(0, 2))
         ? 5
         : 0;
 
       if (targetWord.length < 5 && startsWithBonus === 0) {
-        continue;       }
+        continue;
+      }
 
       const score = sharedLength * 10 - lengthDiff * 2 + startsWithBonus;
 

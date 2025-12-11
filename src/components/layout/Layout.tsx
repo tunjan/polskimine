@@ -20,6 +20,7 @@ import { useCardOperations } from "@/features/collection/hooks/useCardOperations
 import { AddCardModal } from "@/features/collection/components/AddCardModal";
 
 import { CramModal } from "@/features/study/components/CramModal";
+import { SettingsModal } from "@/features/settings/components/SettingsModal";
 import { LanguageId } from "@/types";
 import {
   Sidebar,
@@ -57,6 +58,7 @@ import { useSyncthingSync } from "@/features/settings/hooks/useSyncthingSync";
 interface NavActionProps {
   onOpenAdd: () => void;
   onOpenCram: () => void;
+  onOpenSettings: () => void;
   onSyncSave: () => void;
   onSyncLoad: () => void;
   isSyncing: boolean;
@@ -67,6 +69,7 @@ interface NavActionProps {
 const AppSidebar: React.FC<NavActionProps> = ({
   onOpenAdd,
   onOpenCram,
+  onOpenSettings,
   onSyncSave,
   onSyncLoad,
   isSyncing,
@@ -291,11 +294,14 @@ const AppSidebar: React.FC<NavActionProps> = ({
           </SidebarMenuItem>
 
           <SidebarMenuItem>
-            <SidebarMenuButton asChild>
-              <Link to="/settings" onClick={handleMobileClick}>
-                <Settings />
-                <span>Settings</span>
-              </Link>
+            <SidebarMenuButton
+              onClick={() => {
+                onOpenSettings();
+                handleMobileClick();
+              }}
+            >
+              <Settings />
+              <span>Settings</span>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
@@ -318,12 +324,14 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({
 
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isCramModalOpen, setIsCramModalOpen] = useState(false);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
   const isStudyMode = location.pathname === "/study";
 
   const sidebarProps: NavActionProps = {
     onOpenAdd: () => setIsAddModalOpen(true),
     onOpenCram: () => setIsCramModalOpen(true),
+    onOpenSettings: () => setIsSettingsOpen(true),
     onSyncSave: saveToSyncFile,
     onSyncLoad: loadFromSyncFile,
     isSyncing,
@@ -371,6 +379,10 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({
       <CramModal
         isOpen={isCramModalOpen}
         onClose={() => setIsCramModalOpen(false)}
+      />
+      <SettingsModal
+        isOpen={isSettingsOpen}
+        onClose={() => setIsSettingsOpen(false)}
       />
     </SidebarProvider>
   );

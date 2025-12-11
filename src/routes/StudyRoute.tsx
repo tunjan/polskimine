@@ -26,16 +26,21 @@ const StudyRoute: React.FC = () => {
 
   const { updateCard, deleteCard, addCard } = useCardOperations();
 
-  const { language, dailyNewLimits, dailyReviewLimits, cardOrder, ignoreLearningStepsWhenNoCards } =
-    useSettingsStore(
-      useShallow((s) => ({
-        language: s.language,
-        dailyNewLimits: s.dailyNewLimits,
-        dailyReviewLimits: s.dailyReviewLimits,
-        cardOrder: s.cardOrder,
-        ignoreLearningStepsWhenNoCards: s.ignoreLearningStepsWhenNoCards,
-      })),
-    );
+  const {
+    language,
+    dailyNewLimits,
+    dailyReviewLimits,
+    cardOrder,
+    ignoreLearningStepsWhenNoCards,
+  } = useSettingsStore(
+    useShallow((s) => ({
+      language: s.language,
+      dailyNewLimits: s.dailyNewLimits,
+      dailyReviewLimits: s.dailyReviewLimits,
+      cardOrder: s.cardOrder,
+      ignoreLearningStepsWhenNoCards: s.ignoreLearningStepsWhenNoCards,
+    })),
+  );
 
   const claimBonus = useClaimDailyBonusMutation();
 
@@ -67,10 +72,8 @@ const StudyRoute: React.FC = () => {
             setTimeout(() => reject(new Error("Request timed out")), 15000),
           );
 
-          // Use exactly 'now' to match Dashboard logic. 
-          // Previously this had a 20m offset for 'reviewFirst' which caused mismatches.
           const now = new Date();
-          
+
           const [due, reviewsToday] = (await Promise.race([
             Promise.all([
               getDueCards(now, language, ignoreLearningStepsWhenNoCards),
@@ -105,9 +108,6 @@ const StudyRoute: React.FC = () => {
                 hasLimit(dailyReviewLimit) &&
                 reviewCount >= dailyReviewLimit
               ) {
-                // For reviews, we don't usually keep a 'reserve' queue for daily limits 
-                // in the same way (once the limit is hit, you're done for the day),
-                // but we push to reserve just in case cards are deleted/suspended to fill the gap.
                 reserve.push(card);
               } else {
                 active.push(card);

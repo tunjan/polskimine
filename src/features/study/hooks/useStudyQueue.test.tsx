@@ -19,7 +19,8 @@ const mockCard: Card = {
   targetSentence: "Sentence 1",
   nativeTranslation: "Translation 1",
   notes: "",
-  language: "polish",   status: CardStatus.LEARNING,
+  language: "polish",
+  status: CardStatus.LEARNING,
   state: State.Learning,
   due: new Date().toISOString(),
   dueDate: new Date().toISOString(),
@@ -44,10 +45,10 @@ describe("useStudyQueue", () => {
     cardOrder: "newFirst" as const,
     ignoreLearningStepsWhenNoCards: false,
     fsrs: {
-        request_retention: 0.9,
-        maximum_interval: 365,
-        w: [],
-      } as any,
+      request_retention: 0.9,
+      maximum_interval: 365,
+      w: [],
+    } as any,
     learningSteps: [1, 10],
     onUpdateCard: vi.fn(),
     onRecordReview: vi.fn(),
@@ -62,73 +63,88 @@ describe("useStudyQueue", () => {
       initialProps: defaultProps,
     });
 
-        expect(result.current.stats.currentIndex).toBe(0);
+    expect(result.current.stats.currentIndex).toBe(0);
     expect(result.current.currentCard.id).toBe("1");
 
-        act(() => {
-        result.current.uiState.setIsFlipped(true);
-    });
-    
-    await act(async () => {
-        await result.current.actions.gradeCard("Good");
+    act(() => {
+      result.current.uiState.setIsFlipped(true);
     });
 
-        expect(result.current.stats.currentIndex).toBe(1);
+    await act(async () => {
+      await result.current.actions.gradeCard("Good");
+    });
+
+    expect(result.current.stats.currentIndex).toBe(1);
     expect(result.current.currentCard.id).toBe("2");
 
-        const newDueCards = [mockCard, mockCard2];     
+    const newDueCards = [mockCard, mockCard2];
     rerender({
-        ...defaultProps,
-        dueCards: newDueCards
+      ...defaultProps,
+      dueCards: newDueCards,
     });
 
-        expect(result.current.stats.currentIndex).toBe(1);
+    expect(result.current.stats.currentIndex).toBe(1);
     expect(result.current.currentCard.id).toBe("2");
   });
 
   it("should revert card state on undo (single card scenario)", async () => {
-            const newCard: Card = {
-        ...mockCard,
-        id: "new-1",
-        status: CardStatus.NEW,
-        state: State.New,
-        learningStep: 0
+    const newCard: Card = {
+      ...mockCard,
+      id: "new-1",
+      status: CardStatus.NEW,
+      state: State.New,
+      learningStep: 0,
     };
-    
-        const propsSingleCard = {
-        ...defaultProps,
-        dueCards: [newCard]
+
+    const propsSingleCard = {
+      ...defaultProps,
+      dueCards: [newCard],
     };
 
     const { result } = renderHook((props) => useStudyQueue(props), {
       initialProps: propsSingleCard,
     });
 
-        expect(result.current.stats.currentIndex).toBe(0);
+    expect(result.current.stats.currentIndex).toBe(0);
     const initialCard = result.current.currentCard;
     expect(initialCard.status).toBe(CardStatus.NEW);
 
-        act(() => {
-        result.current.uiState.setIsFlipped(true);
+    act(() => {
+      result.current.uiState.setIsFlipped(true);
     });
-    
+
     await act(async () => {
-                await result.current.actions.gradeCard("Good");
+      await result.current.actions.gradeCard("Good");
     });
-    
-                    
-    
+
     expect(result.current.currentCard.status).not.toBe(CardStatus.NEW);
-    
-        act(() => {
-        result.current.actions.undo();
+
+    act(() => {
+      result.current.actions.undo();
     });
 
-        expect(result.current.stats.currentIndex).toBe(0);
+    expect(result.current.stats.currentIndex).toBe(0);
 
-        const currentCardAfterUndo = result.current.currentCard;
-    
-        expect(currentCardAfterUndo.status).toBe(CardStatus.NEW);
+    const currentCardAfterUndo = result.current.currentCard;
+
+    expect(currentCardAfterUndo.status).toBe(CardStatus.NEW);
     expect(currentCardAfterUndo.state).toBe(State.New);
+  });
+
+  it("should update current card when updateAction is called", () => {
+    const { result } = renderHook((props) => useStudyQueue(props), {
+      initialProps: defaultProps,
+    });
+
+    const newData: Card = {
+      ...mockCard,
+      targetSentence: "Updated Sentence",
+    };
+
+    act(() => {
+      result.current.actions.updateCard(newData);
+    });
+
+    expect(result.current.currentCard.targetSentence).toBe("Updated Sentence");
   });
 });

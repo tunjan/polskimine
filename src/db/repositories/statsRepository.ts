@@ -13,7 +13,6 @@ import {
 import { getDashboardCounts, getCurrentUserId } from "./cardRepository";
 import { CardStatus } from "@/types/cardStatus";
 
-
 export const getDashboardStats = async (
   language?: string,
   ignoreLearningSteps: boolean = false,
@@ -31,7 +30,7 @@ export const getDashboardStats = async (
     counts.new = repoCounts.new;
     counts.learning = repoCounts.learning;
     counts.relearning = repoCounts.relearning;
-    counts.review = repoCounts.review;
+    counts.review = repoCounts.reviewDue;
     counts.known = repoCounts.known;
 
     const xpStat = await db.aggregated_stats.get(
@@ -137,7 +136,9 @@ export const getDashboardStats = async (
     }
   });
 
-  return { counts, forecast, languageXp };
+  const todayStats = await getTodayReviewStats(language);
+
+  return { counts, forecast, languageXp, todayStats };
 };
 
 export const getStats = async (language?: string) => {
@@ -170,7 +171,8 @@ export const getStats = async (language?: string) => {
       if (isShortInterval) {
         return c.dueDate <= nowISO;
       }
-      return true;     })
+      return true;
+    })
     .count();
   const learned = await db.cards
     .where("status")

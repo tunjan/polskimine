@@ -9,7 +9,8 @@ const LemmatizeSchema = z.object({
 const AnalyzeWordSchema = z.object({
   definition: z.string(),
   partOfSpeech: z.string(),
-  contextMeaning: z.string(),
+  exampleSentence: z.string(),
+  exampleSentenceTranslation: z.string(),
 });
 
 const GenerateSentenceSchema = z.object({
@@ -271,6 +272,7 @@ export const aiService = {
     contextSentence: string,
     language: (typeof LanguageId)[keyof typeof LanguageId] = LanguageId.Polish,
     apiKey: string,
+    proficiencyLevel: string = "A1",
   ): Promise<z.infer<typeof AnalyzeWordSchema>> {
     const langName = getLangName(language);
 
@@ -279,9 +281,15 @@ export const aiService = {
       properties: {
         definition: { type: "STRING" },
         partOfSpeech: { type: "STRING" },
-        contextMeaning: { type: "STRING" },
+        exampleSentence: { type: "STRING" },
+        exampleSentenceTranslation: { type: "STRING" },
       },
-      required: ["definition", "partOfSpeech", "contextMeaning"],
+      required: [
+        "definition",
+        "partOfSpeech",
+        "exampleSentence",
+        "exampleSentenceTranslation",
+      ],
     };
 
     const prompt = `
@@ -291,7 +299,8 @@ export const aiService = {
       Requirements:
       - definition: A concise, context-relevant English definition (max 10 words).
       - partOfSpeech: The part of speech (noun, verb, adjective, etc.) AND the specific grammatical form/case used in the sentence if applicable.
-      - contextMeaning: The specific nuance or meaning of the word *exactly* as it is used in this sentence.
+      - exampleSentence: A simple sentence using the word "${word}" to demonstrate usage, appropriate for ${proficiencyLevel} level students.
+      - exampleSentenceTranslation: The English translation of the example sentence.
     `;
 
     const result = await callGemini(prompt, apiKey, responseSchema);
@@ -303,7 +312,8 @@ export const aiService = {
       return {
         definition: "Failed to analyze",
         partOfSpeech: "Unknown",
-        contextMeaning: "Could not retrieve context",
+        exampleSentence: "Could not generate example",
+        exampleSentenceTranslation: "",
       };
     }
   },
@@ -312,6 +322,7 @@ export const aiService = {
     targetWord: string,
     language: (typeof LanguageId)[keyof typeof LanguageId] = LanguageId.Polish,
     apiKey: string,
+    proficiencyLevel: string = "A1",
   ): Promise<z.infer<typeof GenerateSentenceSchema>> {
     const langName = getLangName(language);
 
@@ -344,8 +355,8 @@ export const aiService = {
       Task: Generate a practical, natural ${langName} sentence using the word "${targetWord}".
       
       Guidelines:
-      - The sentence must be colloquially natural but grammatically correct.
-      - Useful for a learner (A2/B1 level).
+      - The sentence must be natural and grammatically correct.
+      - Useful for a learner (${proficiencyLevel} level).
       - Context should make the meaning of "${targetWord}" clear.
       
       Fields:
@@ -664,6 +675,82 @@ export const aiService = {
     } catch (e) {
       console.error("Failed to parse AI batch response", e, "\nRaw:", result);
       throw new Error("Failed to generate valid cards");
+    }
+  },
+
+  async modifyCard(
+    card: {
+      targetWord: string;
+      targetSentence: string;
+      language: (typeof LanguageId)[keyof typeof LanguageId];
+    },
+    modificationType: "easier" | "harder",
+    apiKey: string,
+  ): Promise<z.infer<typeof GenerateCardSchema>> {
+    const langName = getLangName(card.language);
+
+    const responseSchema: GeminiResponseSchema = {
+      type: "OBJECT",
+      properties: {
+        translation: { type: "STRING" },
+        targetWord: { type: "STRING" },
+        targetWordTranslation: { type: "STRING" },
+        targetWordPartOfSpeech: {
+          type: "STRING",
+          enum: ["noun", "verb", "adjective", "adverb", "pronoun"],
+        },
+        notes: { type: "STRING" },
+        formattedSentence: { type: "STRING" },
+        ...(card.language === LanguageId.Japanese
+          ? { furigana: { type: "STRING" } }
+          : {}),
+      },
+      required: [
+        "translation",
+        "targetWord",
+        "targetWordTranslation",
+        "targetWordPartOfSpeech",
+        "notes",
+        "formattedSentence",
+      ],
+    };
+
+    let prompt = `
+      Role: Expert Language Teacher.
+      Task: Modify a flashcard to make the sentence ${modificationType.toUpperCase()}.
+      
+      Original Card Info:
+      - Target Word: "${card.targetWord}" (MUST KEEP THIS WORD)
+      - Current Sentence: "${card.targetSentence}"
+      
+      Modification Goal: ${
+        modificationType === "easier"
+          ? "Create a SLIGHTLY simpler sentence. Use clearer sentence structure while keeping natural flow. Aim for one CEFR level lower if possible."
+          : "Create a SLIGHTLY more advanced sentence. Incorporate more natural/idiomatic phrasing or slightly more complex grammar, but do NOT make it obscure or archaic. Aim for one CEFR level higher."
+      }
+      
+      Fields:
+      - translation: Natural English translation of the NEW sentence.
+      - targetWord: The target word "${card.targetWord}".
+      - targetWordTranslation: English translation of the target word.
+      - targetWordPartOfSpeech: Part of speech for the target word in the new sentence.
+      - notes: Concise grammar note about the new sentence structure.
+      - formattedSentence: The new sentence with the target word wrapped in <b> tags.
+    `;
+
+    if (card.language === LanguageId.Japanese) {
+      prompt += `
+      - furigana: The FULL new sentence with furigana in format "Kanji[reading]" for ALL Kanji.
+      `;
+    }
+
+    const result = await callGemini(prompt, apiKey, responseSchema);
+    try {
+      const parsed = parseAIJSON(result);
+      return GenerateCardSchema.parse(parsed);
+    } catch (e) {
+      console.error("Failed to parse AI modify response", e, "\nRaw:", result);
+      throw new Error("Failed to modify card");
     }
   },
 };

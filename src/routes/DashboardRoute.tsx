@@ -9,15 +9,18 @@ import { getDashboardStats } from "@/db/repositories/statsRepository";
 import { getCardsForDashboard } from "@/db/repositories/cardRepository";
 import { LoadingScreen } from "@/components/ui/loading";
 import { Button } from "@/components/ui/button";
+import { calculateDashboardMetrics } from "@/features/dashboard/logic/dashboardMetrics";
 
 export const DashboardRoute: React.FC = () => {
   const { history, stats } = useDeckStats();
-  const { language, ignoreLearningStepsWhenNoCards } = useSettingsStore(
-    useShallow((s) => ({
-      language: s.language,
-      ignoreLearningStepsWhenNoCards: s.ignoreLearningStepsWhenNoCards,
-    })),
-  );
+  const { language, ignoreLearningStepsWhenNoCards, dailyNewLimits } =
+    useSettingsStore(
+      useShallow((s) => ({
+        language: s.language,
+        ignoreLearningStepsWhenNoCards: s.ignoreLearningStepsWhenNoCards,
+        dailyNewLimits: s.dailyNewLimits,
+      })),
+    );
   const navigate = useNavigate();
 
   const {
@@ -62,28 +65,30 @@ export const DashboardRoute: React.FC = () => {
     return <div>No data found.</div>;
   }
 
-  const metrics = {
-    total:
-      dashboardStats.counts.new +
-      dashboardStats.counts.learning +
-      dashboardStats.counts.relearning +
-      dashboardStats.counts.review +
-      dashboardStats.counts.known,
-    new: dashboardStats.counts.new,
-    learning: dashboardStats.counts.learning,
-    relearning: dashboardStats.counts.relearning,
-    reviewing: dashboardStats.counts.review,
-    known: dashboardStats.counts.known,
-  };
+  const dailyLimit = dailyNewLimits[language] ?? 20;
+  const newCardsStudiedToday = dashboardStats.todayStats?.newCards ?? 0;
+
+  const metrics = calculateDashboardMetrics(
+    dashboardStats.counts,
+    dailyLimit,
+    newCardsStudiedToday,
+  );
 
   const xp = dashboardStats.languageXp;
   const level = Math.floor(Math.sqrt(xp / 100)) + 1;
+
+  const dashboardStatsData = {
+    currentStreak: stats.streak,
+    longestStreak: stats.longestStreak,
+    todayCards: stats.totalReviews,
+    todayTime: 0,
+  };
 
   return (
     <Dashboard
       metrics={metrics}
       languageXp={{ xp, level }}
-      stats={stats}
+      stats={dashboardStatsData}
       history={history}
       onStartSession={() => navigate("/study")}
       cards={cards as any}

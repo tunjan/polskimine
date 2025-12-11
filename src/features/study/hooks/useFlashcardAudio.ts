@@ -45,37 +45,48 @@ export function useFlashcardAudio({
     return segments.map((s) => s.text).join("");
   }, []);
 
-  const speak = useCallback(async () => {
-    const effectiveRate = playSlowRef.current
-      ? Math.max(0.25, tts.rate * 0.6)
-      : tts.rate;
-    const effectiveSettings = { ...tts, rate: effectiveRate };
+  const speak = useCallback(
+    async (options?: { isAutoplay?: boolean }) => {
+      let effectiveRate: number;
 
-    try {
-      if (playTargetWordAudioBeforeSentence && card.targetWord) {
-        const wordText = getPlainTextForTTS(card.targetWord);
-        await ttsService.speak(wordText, language, effectiveSettings);
+      if (options?.isAutoplay) {
+        effectiveRate = tts.rate;
+
+        setPlaySlow(true);
+      } else {
+        effectiveRate = playSlowRef.current
+          ? Math.max(0.25, tts.rate * 0.6)
+          : tts.rate;
+        setPlaySlow((prev) => !prev);
       }
 
-      const plainText = getPlainTextForTTS(card.targetSentence);
-      await ttsService.speak(plainText, language, effectiveSettings);
-    } catch (err) {
-      console.error("TTS speak error:", err);
-    }
+      const effectiveSettings = { ...tts, rate: effectiveRate };
 
-    setPlaySlow((prev) => !prev);
-  }, [
-    card.targetSentence,
-    card.targetWord,
-    language,
-    tts,
-    getPlainTextForTTS,
-    playTargetWordAudioBeforeSentence,
-  ]);
+      try {
+        if (playTargetWordAudioBeforeSentence && card.targetWord) {
+          const wordText = getPlainTextForTTS(card.targetWord);
+          await ttsService.speak(wordText, language, effectiveSettings);
+        }
+
+        const plainText = getPlainTextForTTS(card.targetSentence);
+        await ttsService.speak(plainText, language, effectiveSettings);
+      } catch (err) {
+        console.error("TTS speak error:", err);
+      }
+    },
+    [
+      card.targetSentence,
+      card.targetWord,
+      language,
+      tts,
+      getPlainTextForTTS,
+      playTargetWordAudioBeforeSentence,
+    ],
+  );
 
   useEffect(() => {
     if (autoPlayAudio && isFlipped && lastSpokenCardId.current !== card.id) {
-      speak();
+      speak({ isAutoplay: true });
       lastSpokenCardId.current = card.id;
     }
   }, [card.id, autoPlayAudio, isFlipped, speak]);
