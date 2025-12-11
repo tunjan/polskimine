@@ -420,7 +420,7 @@ export const SettingsContent: React.FC = () => {
             value={localUsername}
             onChange={(e) => setLocalUsername(e.target.value)}
             placeholder="Enter your name"
-            className="w-40 h-8 text-sm"
+            className="w-full sm:w-40 h-8 text-sm"
           />
         </SettingsItem>
 
@@ -440,7 +440,7 @@ export const SettingsContent: React.FC = () => {
               }));
             }}
           >
-            <SelectTrigger className="w-36 md:w-48 h-8 text-sm">
+            <SelectTrigger className="w-full sm:w-[200px] h-8 text-sm">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -479,7 +479,7 @@ export const SettingsContent: React.FC = () => {
               }))
             }
           >
-            <SelectTrigger className="w-36 h-8 text-sm">
+            <SelectTrigger className="w-full sm:w-[200px] h-8 text-sm">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -527,7 +527,7 @@ export const SettingsContent: React.FC = () => {
                 }))
               }
               placeholder="Enter key"
-              className="w-40 h-8 text-sm font-mono"
+              className="w-full sm:w-40 h-8 text-sm font-mono"
             />
           </SettingsItem>
         </SettingsSubSection>
@@ -545,7 +545,7 @@ export const SettingsContent: React.FC = () => {
               updateTts({ provider: value as any, voiceURI: null })
             }
           >
-            <SelectTrigger className="w-40 h-8 text-sm">
+            <SelectTrigger className="w-full sm:w-[200px] h-8 text-sm">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -561,14 +561,14 @@ export const SettingsContent: React.FC = () => {
         </SettingsItem>
 
         <SettingsItem label="Voice">
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 w-full sm:w-auto">
             <Select
               value={settings.tts.voiceURI || "default"}
               onValueChange={(value) =>
                 updateTts({ voiceURI: value === "default" ? null : value })
               }
             >
-              <SelectTrigger className="w-32 h-8 text-sm">
+              <SelectTrigger className="flex-1 sm:w-[200px] h-8 text-sm">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -584,7 +584,7 @@ export const SettingsContent: React.FC = () => {
               variant="ghost"
               size="sm"
               onClick={handleTestAudio}
-              className="h-8 px-2"
+              className="h-8 px-2 shrink-0"
             >
               <Volume2 className="w-4 h-4" />
             </Button>
@@ -641,7 +641,7 @@ export const SettingsContent: React.FC = () => {
                   )
                 }
                 placeholder="Enter key"
-                className="w-40 h-8 text-sm font-mono"
+                className="w-full sm:w-40 h-8 text-sm font-mono"
               />
             </SettingsItem>
             {settings.tts.provider === TTS_PROVIDER.AZURE && (
@@ -650,7 +650,7 @@ export const SettingsContent: React.FC = () => {
                   value={settings.tts.azureRegion}
                   onChange={(e) => updateTts({ azureRegion: e.target.value })}
                   placeholder="e.g., eastus"
-                  className="w-32 h-8 text-sm font-mono"
+                  className="w-full sm:w-32 h-8 text-sm font-mono"
                 />
               </SettingsItem>
             )}
@@ -702,7 +702,7 @@ export const SettingsContent: React.FC = () => {
         title="Study Session"
         description={`Configuration for ${currentLangName}`}
       >
-        <div className="grid grid-cols-2 gap-3 mb-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
           <SettingsLargeInput
             label="New Cards"
             sublabel="Per day"
@@ -742,7 +742,7 @@ export const SettingsContent: React.FC = () => {
             value={stepsInput}
             onChange={(e) => handleStepsChange(e.target.value)}
             placeholder="1 10"
-            className="w-24 h-8 text-sm text-right"
+            className="w-full sm:w-24 h-8 text-sm text-right"
           />
         </SettingsItem>
 
@@ -753,7 +753,7 @@ export const SettingsContent: React.FC = () => {
               setSettings((prev) => ({ ...prev, cardOrder: value as any }))
             }
           >
-            <SelectTrigger className="w-32 h-8 text-sm">
+            <SelectTrigger className="w-full sm:w-[200px] h-8 text-sm">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>

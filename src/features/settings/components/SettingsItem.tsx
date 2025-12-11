@@ -49,7 +49,7 @@ export const SettingsItem: React.FC<SettingsItemProps> = ({
           )}
         </div>
       </div>
-      <div className="flex items-center gap-2 min-w-[120px] justify-end">
+      <div className="flex items-center gap-2 w-full sm:w-auto sm:min-w-[120px] justify-between sm:justify-end mt-2 sm:mt-0">
         {children}
       </div>
     </div>
