@@ -17,7 +17,6 @@ export interface DayActivity {
 export interface StreakDisplayProps {
   currentStreak: number;
   lastSevenDays: DayActivity[];
-  isAtRisk?: boolean;
   className?: string;
 }
 
@@ -26,7 +25,6 @@ const DAY_LABELS = ["S", "M", "T", "W", "T", "F", "S"];
 export function StreakDisplay({
   currentStreak,
   lastSevenDays,
-  isAtRisk = false,
   className,
 }: StreakDisplayProps) {
   const formatDate = (date: Date) => {
@@ -61,13 +59,6 @@ export function StreakDisplay({
           </span>
         </div>
       </div>
-
-      {isAtRisk && (
-        <div className="flex items-center gap-1.5 rounded-full bg-amber-100 px-3 py-1 text-amber-700">
-          <AlertTriangle className="h-3.5 w-3.5" />
-          <span className="text-xs font-medium">At risk</span>
-        </div>
-      )}
 
       <div className="ml-auto flex items-center gap-1">
         <TooltipProvider delayDuration={100}>

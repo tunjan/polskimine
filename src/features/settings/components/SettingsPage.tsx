@@ -20,6 +20,7 @@ import {
   RefreshCw,
   Layers,
   Repeat,
+  Wrench,
 } from "lucide-react";
 
 import { useSettingsStore } from "@/stores/useSettingsStore";
@@ -42,6 +43,7 @@ import {
 import {
   saveAllCards,
   getCardSignatures,
+  repairCorruptedCards,
 } from "@/db/repositories/cardRepository";
 
 import { getAllReviewLogs } from "@/db/repositories/revlogRepository";
@@ -121,6 +123,7 @@ export const SettingsContent: React.FC = () => {
   const [importApiKeys, setImportApiKeys] = useState(false);
 
   const [isOptimizing, setIsOptimizing] = useState(false);
+  const [isRepairing, setIsRepairing] = useState(false);
   const [progress, setProgress] = useState(0);
   const [report, setReport] = useState<{ reviews: number } | null>(null);
   const [manualWeights, setManualWeights] = useState(
@@ -352,6 +355,23 @@ export const SettingsContent: React.FC = () => {
     } catch (e) {
       console.error(e);
       toast.error("Export failed");
+    }
+  };
+
+  const handleRepairCards = async () => {
+    setIsRepairing(true);
+    try {
+      const fixedCount = await repairCorruptedCards();
+      if (fixedCount > 0) {
+        toast.success(`Repaired ${fixedCount} corrupted cards`);
+      } else {
+        toast.info("No corrupted cards found");
+      }
+    } catch (e) {
+      console.error(e);
+      toast.error("Repair failed");
+    } finally {
+      setIsRepairing(false);
     }
   };
 
@@ -1327,6 +1347,28 @@ export const SettingsContent: React.FC = () => {
               </div>
             </div>
           )}
+        </SettingsSubSection>
+
+        <SettingsSubSection title="Maintenance">
+          <div className="flex items-center justify-between p-3 -mx-2 rounded-lg">
+            <div className="flex items-center gap-3">
+              <Wrench className="w-4 h-4 text-muted-foreground" />
+              <div>
+                <span className="text-sm font-medium block">Repair Cards</span>
+                <span className="text-[10px] text-muted-foreground">
+                  Fix corrupted card data (NaN values)
+                </span>
+              </div>
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleRepairCards}
+              disabled={isRepairing}
+            >
+              {isRepairing ? "Repairing..." : "Repair"}
+            </Button>
+          </div>
         </SettingsSubSection>
 
         <SettingsSubSection title="API Key Options">

@@ -66,11 +66,16 @@ const App: React.FC = () => {
       });
     }
 
-    import("@/db/repositories/cardRepository").then(
-      ({ repairCorruptedCards }) => {
-        repairCorruptedCards();
-      },
-    );
+    const hasRepairedCards = localStorage.getItem("repair_corrupted_cards_v1");
+    if (!hasRepairedCards) {
+      import("@/db/repositories/cardRepository").then(
+        ({ repairCorruptedCards }) => {
+          repairCorruptedCards().then(() => {
+            localStorage.setItem("repair_corrupted_cards_v1", "true");
+          });
+        },
+      );
+    }
   }, []);
   return (
     <AppProviders>

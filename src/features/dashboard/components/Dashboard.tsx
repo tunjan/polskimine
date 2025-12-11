@@ -222,7 +222,6 @@ export function Dashboard({
               <StreakDisplay
                 currentStreak={stats.currentStreak}
                 lastSevenDays={lastSevenDays}
-                isAtRisk={stats.currentStreak > 0 && !lastSevenDays[6]?.active}
               />
               <Separator />
               <div className="flex items-center justify-between text-sm">
