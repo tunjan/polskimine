@@ -28,7 +28,7 @@ export const SelectionMenu: React.FC<SelectionMenuProps> = ({
 
   return (
     <div
-      className="fixed z-50 -translate-x-1/2 animate-in fade-in slide-in-from-bottom-2 duration-300 flex gap-1 items-center"
+      className="fixed z-50 -translate-x-1/2 animate-in fade-in slide-in-from-bottom-2 duration-300 flex flex-col md:flex-row gap-1 items-center"
       style={{ top, left }}
       onMouseDown={(e) => e.preventDefault()}
     >
@@ -39,7 +39,7 @@ export const SelectionMenu: React.FC<SelectionMenuProps> = ({
             size="sm"
             onClick={onAnalyze}
             disabled={isAnalyzing || isGeneratingCard || isModifying}
-            className="bg-card shadow-sm gap-2"
+            className="bg-card shadow-sm gap-2 w-full md:w-auto justify-start md:justify-center"
           >
             {isAnalyzing ? (
               <ButtonLoader />
@@ -55,7 +55,7 @@ export const SelectionMenu: React.FC<SelectionMenuProps> = ({
               size="sm"
               onClick={onGenerateCard}
               disabled={isAnalyzing || isGeneratingCard || isModifying}
-              className="bg-card shadow-sm gap-2"
+              className="bg-card shadow-sm gap-2 w-full md:w-auto justify-start md:justify-center"
             >
               {isGeneratingCard ? (
                 <ButtonLoader />
@@ -72,7 +72,7 @@ export const SelectionMenu: React.FC<SelectionMenuProps> = ({
               size="sm"
               onClick={() => setShowModifyOptions(true)}
               disabled={isAnalyzing || isGeneratingCard || isModifying}
-              className="bg-card shadow-sm gap-2"
+              className="bg-card shadow-sm gap-2 w-full md:w-auto justify-start md:justify-center"
             >
               {isModifying ? (
                 <ButtonLoader />
@@ -84,13 +84,13 @@ export const SelectionMenu: React.FC<SelectionMenuProps> = ({
           )}
         </>
       ) : (
-        <div className="flex gap-1 animate-in zoom-in-95 duration-200">
+        <div className="flex flex-col md:flex-row gap-1 animate-in zoom-in-95 duration-200 items-center">
           <Button
             variant="outline"
             size="sm"
             onClick={() => onModifyCard?.("easier")}
             disabled={isModifying}
-            className="bg-card shadow-sm gap-2 hover:bg-green-500/10 hover:text-green-600 hover:border-green-500/20"
+            className="bg-card shadow-sm gap-2 hover:bg-green-500/10 hover:text-green-600 hover:border-green-500/20 w-full md:w-auto justify-start md:justify-center"
           >
             <ArrowDown size={14} />
             <span>Easier</span>
@@ -100,7 +100,7 @@ export const SelectionMenu: React.FC<SelectionMenuProps> = ({
             size="sm"
             onClick={() => onModifyCard?.("harder")}
             disabled={isModifying}
-            className="bg-card shadow-sm gap-2 hover:bg-red-500/10 hover:text-red-600 hover:border-red-500/20"
+            className="bg-card shadow-sm gap-2 hover:bg-red-500/10 hover:text-red-600 hover:border-red-500/20 w-full md:w-auto justify-start md:justify-center"
           >
             <ArrowUp size={14} />
             <span>Harder</span>
@@ -109,7 +109,7 @@ export const SelectionMenu: React.FC<SelectionMenuProps> = ({
             variant="ghost"
             size="sm"
             onClick={() => setShowModifyOptions(false)}
-            className="bg-card shadow-sm px-2 text-muted-foreground"
+            className="bg-card shadow-sm px-2 text-muted-foreground w-full md:w-auto"
           >
              ×
           </Button>
