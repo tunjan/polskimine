@@ -3,7 +3,6 @@ import userEvent from "@testing-library/user-event";
 import { AuthPage } from "./AuthPage";
 import { vi, describe, it, expect, beforeEach } from "vitest";
 
-
 vi.mock("@/contexts/AuthContext", () => ({
   useAuth: vi.fn(() => ({
     register: vi.fn(),
@@ -40,7 +39,6 @@ vi.mock("sonner", () => ({
     success: vi.fn(),
   },
 }));
-
 
 vi.mock("./components/LanguageSelector", () => ({
   LanguageSelector: ({ onContinue, onToggle, selectedLanguages }: any) => (
@@ -85,7 +83,7 @@ describe("AuthPage", () => {
       login: mockLogin,
       getRegisteredUsers: mockGetRegisteredUsers,
     });
-    
+
     mockGetRegisteredUsers.mockResolvedValue([]);
   });
 
@@ -101,12 +99,10 @@ describe("AuthPage", () => {
     mockGetRegisteredUsers.mockResolvedValue([{ username: "testuser" }]);
     await waitFor(() => render(<AuthPage />));
 
-    
     await waitFor(() => {
-      
       const submitButton = screen.getByRole("button", { name: /sign in/i });
       expect(submitButton).toBeInTheDocument();
-      
+
       expect(
         screen.getByPlaceholderText("Enter your username"),
       ).toBeInTheDocument();
@@ -117,12 +113,10 @@ describe("AuthPage", () => {
     const user = userEvent.setup();
     await waitFor(() => render(<AuthPage />));
 
-    
     expect(
       screen.getByRole("button", { name: "Create Account" }),
     ).toBeInTheDocument();
 
-    
     const loginTab = screen.getByRole("tab", { name: "Sign In" });
     await user.click(loginTab);
 
@@ -132,7 +126,6 @@ describe("AuthPage", () => {
       ).toBeInTheDocument();
     });
 
-    
     const registerTab = screen.getByRole("tab", { name: "Register" });
     await user.click(registerTab);
 
@@ -149,20 +142,16 @@ describe("AuthPage", () => {
 
     const submitBtn = screen.getByRole("button", { name: "Create Account" });
 
-    
     await user.click(submitBtn);
 
-    
     await user.type(screen.getByPlaceholderText("Choose a username"), "ab");
     await user.click(submitBtn);
 
-    
     await user.clear(screen.getByPlaceholderText("Choose a username"));
     await user.type(screen.getByPlaceholderText("Choose a username"), "user");
     await user.type(screen.getByPlaceholderText("Enter password"), "123");
     await user.click(submitBtn);
 
-    
     await user.clear(screen.getByPlaceholderText("Enter password"));
     await user.type(screen.getByPlaceholderText("Enter password"), "1234");
     await user.type(screen.getByPlaceholderText("Confirm password"), "12345");
@@ -190,7 +179,6 @@ describe("AuthPage", () => {
       expect(mockRegister).toHaveBeenCalledWith("newuser", "password");
     });
 
-    
     await waitFor(() => {
       expect(screen.getByTestId("language-selector")).toBeInTheDocument();
     });
@@ -201,7 +189,6 @@ describe("AuthPage", () => {
     mockGetRegisteredUsers.mockResolvedValue([{ username: "existing" }]);
     await waitFor(() => render(<AuthPage />));
 
-    
     await waitFor(() =>
       expect(
         screen.getByRole("button", { name: /sign in/i }),
@@ -227,7 +214,6 @@ describe("AuthPage", () => {
     mockRegister.mockResolvedValue({ user: { id: "123" } });
     await waitFor(() => render(<AuthPage />));
 
-    
     await user.type(
       screen.getByPlaceholderText("Choose a username"),
       "flowuser",
@@ -239,20 +225,17 @@ describe("AuthPage", () => {
     );
     await user.click(screen.getByRole("button", { name: "Create Account" }));
 
-    
     await waitFor(() =>
       expect(screen.getByTestId("language-selector")).toBeInTheDocument(),
     );
     await user.click(screen.getByText("Toggle Polish"));
     await user.click(screen.getByText("Continue"));
 
-    
     await waitFor(() =>
       expect(screen.getByTestId("level-selector")).toBeInTheDocument(),
     );
     await user.click(screen.getByText("Beginner"));
 
-    
     await waitFor(() =>
       expect(screen.getByTestId("deck-generation")).toBeInTheDocument(),
     );

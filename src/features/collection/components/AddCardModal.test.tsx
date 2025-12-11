@@ -3,7 +3,6 @@ import userEvent from "@testing-library/user-event";
 import { AddCardModal } from "./AddCardModal";
 import { vi, describe, it, expect, beforeEach } from "vitest";
 
-
 vi.mock("@/stores/useSettingsStore", () => ({
   useSettingsStore: vi.fn(() => ({
     language: "polish",
@@ -24,12 +23,9 @@ vi.mock("sonner", () => ({
   },
 }));
 
-
 vi.mock("@/db/repositories/cardRepository", () => ({
   getCardByTargetWord: vi.fn().mockResolvedValue(null),
 }));
-
-
 
 import { aiService } from "@/lib/ai";
 
@@ -120,8 +116,7 @@ describe("AddCardModal", () => {
 
     await waitFor(() => {
       expect(aiService.generateCardContent).toHaveBeenCalled();
-      
-      
+
       expect(screen.getByPlaceholderText(/Word to highlight/i)).toHaveValue(
         "test",
       );

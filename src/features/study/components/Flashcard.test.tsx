@@ -6,7 +6,6 @@ import { useSettingsStore } from "@/stores/useSettingsStore";
 import { useTextSelection } from "@/features/study/hooks/useTextSelection";
 import { useAIAnalysis } from "@/features/study/hooks/useAIAnalysis";
 
-
 vi.mock("@/stores/useSettingsStore", () => ({
   useSettingsStore: vi.fn(() => ({
     geminiApiKey: "test-key",
@@ -98,20 +97,13 @@ describe("Flashcard", () => {
 
   it("renders front by default", () => {
     render(<Flashcard card={mockCard} isFlipped={false} />);
-    
+
     expect(screen.getByText("TargetWord")).toBeInTheDocument();
-    
+
     expect(screen.queryByText("Target Sentence")).not.toBeInTheDocument();
   });
 
   it("renders back when flipped", () => {
-    
-    
-    
-    
-    
-
-    
     (useCardInteraction as any).mockReturnValue({
       isRevealed: true,
       handleReveal: vi.fn(),
@@ -119,7 +111,7 @@ describe("Flashcard", () => {
     });
 
     render(<Flashcard card={mockCard} isFlipped={true} />);
-    
+
     expect(screen.getByText("Target Sentence")).toBeInTheDocument();
     expect(screen.getByText("Native Translation")).toBeInTheDocument();
   });
@@ -141,7 +133,6 @@ describe("Flashcard", () => {
   });
 
   it("shows full sentence on front when card is new and showFullSentenceOnNew is true", () => {
-    
     vi.mocked(useSettingsStore).mockImplementation(
       () =>
         ({
@@ -195,14 +186,12 @@ describe("Flashcard", () => {
   });
 
   it("passes handleModifyCard to SelectionMenu when selection exists", () => {
-    
     (useTextSelection as any).mockReturnValue({
       selection: { top: 0, left: 0, text: "selected" },
       handleMouseUp: vi.fn(),
       clearSelection: vi.fn(),
     });
 
-    
     const handleModifyCardOfHook = vi.fn();
     (useAIAnalysis as any).mockReturnValue({
       isAnalyzing: false,
@@ -216,11 +205,10 @@ describe("Flashcard", () => {
       isModifying: false,
     });
 
-    render(<Flashcard card={mockCard} isFlipped={false} onUpdateCard={vi.fn()} />);
+    render(
+      <Flashcard card={mockCard} isFlipped={false} onUpdateCard={vi.fn()} />,
+    );
 
-    
-    
-    
     expect(screen.getByText("Modify")).toBeInTheDocument();
   });
 });

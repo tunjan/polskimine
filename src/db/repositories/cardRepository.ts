@@ -185,9 +185,9 @@ export const getDashboardCounts = async (
 ): Promise<{
   total: number;
   new: number;
-  learning: number; 
-  relearning: number; 
-  review: number; 
+  learning: number;
+  relearning: number;
+  review: number;
   known: number;
   hueDue: number;
   reviewDue: number;
@@ -224,24 +224,23 @@ export const getDashboardCounts = async (
         .where("[user_id+language+status]")
         .equals([userId, language, "known"])
         .count(),
-      
+
       db.cards
         .where("[user_id+language+status]")
         .equals([userId, language, "learning"])
         .toArray(),
-      
+
       db.cards
         .where("[user_id+language+status]")
         .equals([userId, language, "review"])
         .count(),
-      
+
       db.cards
         .where("[user_id+language]")
         .equals([userId, language])
         .filter((c) => {
           if (c.status === "known" || c.status === "suspended") return false;
 
-          
           if (
             ignoreLearningSteps &&
             (c.status === "learning" ||
@@ -259,7 +258,7 @@ export const getDashboardCounts = async (
           return c.dueDate <= cutoffISO;
         })
         .count(),
-      
+
       db.cards
         .where("[user_id+language+status]")
         .equals([userId, language, "review"])
@@ -274,12 +273,10 @@ export const getDashboardCounts = async (
         .count(),
     ]);
 
-  
   let learningCount = 0;
   let relearningCount = 0;
 
   learningRaw.forEach((c) => {
-    
     if ((c.lapses || 0) > 0) {
       relearningCount++;
     } else {
@@ -413,7 +410,6 @@ export const getDueCards = async (
     .filter((card) => {
       if (card.status === "known" || card.status === "suspended") return false;
 
-      
       if (
         ignoreLearningSteps &&
         (card.status === "learning" ||

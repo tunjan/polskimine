@@ -111,7 +111,7 @@ export const SelectionMenu: React.FC<SelectionMenuProps> = ({
             onClick={() => setShowModifyOptions(false)}
             className="bg-card shadow-sm px-2 text-muted-foreground w-full md:w-auto"
           >
-             ×
+            ×
           </Button>
         </div>
       )}

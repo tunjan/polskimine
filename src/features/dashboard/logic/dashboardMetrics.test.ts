@@ -24,8 +24,6 @@ describe("calculateDashboardMetrics", () => {
     const limit = 10;
     const studiedToday = 5;
 
-    
-    
     const metrics = calculateDashboardMetrics(counts, limit, studiedToday);
     expect(metrics.new).toBe(5);
   });
@@ -42,7 +40,7 @@ describe("calculateDashboardMetrics", () => {
   it("should show 0 new cards if limit is exceeded", () => {
     const counts = { ...baseCounts, new: 10 };
     const limit = 10;
-    const studiedToday = 15; 
+    const studiedToday = 15;
 
     const metrics = calculateDashboardMetrics(counts, limit, studiedToday);
     expect(metrics.new).toBe(0);

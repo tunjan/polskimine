@@ -24,7 +24,6 @@ export const incrementStat = async (
 
   const id = `${userId}:${language}:${metric}`;
 
-  
   const updated = await db.aggregated_stats
     .where("id")
     .equals(id)
@@ -45,7 +44,6 @@ export const incrementStat = async (
       });
     } catch (e: any) {
       if (e.name === "ConstraintError") {
-        
         await db.aggregated_stats
           .where("id")
           .equals(id)

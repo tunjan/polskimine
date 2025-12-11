@@ -103,7 +103,6 @@ const handleLearningPhase = (
     shouldStayInLearning = true;
   } else if (grade === "Good") {
     if (card.status === "new" || (card.reps === 0 && card.state !== 2)) {
-      
       nextStep = 0;
     } else {
       nextStep = currentStep + 1;
@@ -268,7 +267,9 @@ export const calculateNextReview = (
   const leechAction = lapsesSettings?.leechAction;
 
   // Sanitize input card to ensure invariants
-  card.difficulty = card.difficulty ? Math.max(1, Math.min(10, card.difficulty)) : undefined;
+  card.difficulty = card.difficulty
+    ? Math.max(1, Math.min(10, card.difficulty))
+    : undefined;
   card.stability = card.stability ? Math.max(0.1, card.stability) : undefined;
 
   const rawStep = card.learningStep ?? 0;
@@ -283,23 +284,15 @@ export const calculateNextReview = (
     (card.learningStep !== undefined || card.status === CardStatus.NEW) &&
     (card.learningStep ?? 0) < learningStepsMinutes.length;
 
-  
-  
-  
   if (
     (card.status === CardStatus.LEARNING || card.status === CardStatus.NEW) &&
     card.learningStep === undefined &&
     card.state !== State.Relearning
   ) {
-    
     const minuteInterval = Math.round(card.interval * 24 * 60);
 
-    
     if (minuteInterval <= 0) {
-      
-      
     } else {
-      
       let recoveredStep = 0;
       let minDiff = Infinity;
 
@@ -311,14 +304,7 @@ export const calculateNextReview = (
         }
       }
 
-      
-      
       if (recoveredStep < learningStepsMinutes.length) {
-        
-        
-        
-
-        
         if (recoveredStep < learningStepsMinutes.length) {
           const learningResult = handleLearningPhase(
             card,

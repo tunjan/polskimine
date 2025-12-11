@@ -700,7 +700,7 @@ describe("scheduler - Leech Edge Cases", () => {
         "Again",
         undefined,
         [1, 10],
-        lapsesSettings
+        lapsesSettings,
       );
       expect(result.isLeech).toBe(true);
     });
@@ -716,7 +716,7 @@ describe("scheduler - Leech Edge Cases", () => {
         "Again",
         undefined,
         [1, 10],
-        lapsesSettings
+        lapsesSettings,
       );
       // With threshold 0, any lapses should trigger leech
       expect(result.isLeech).toBe(true);
@@ -733,7 +733,7 @@ describe("scheduler - Leech Edge Cases", () => {
         "Again",
         undefined,
         [1, 10],
-        lapsesSettings
+        lapsesSettings,
       );
       expect(result.isLeech).toBe(true);
       expect(result.lapses).toBe(100);
@@ -759,7 +759,7 @@ describe("scheduler - Leech Edge Cases", () => {
         "Again",
         undefined,
         [1, 10],
-        lapsesSettings
+        lapsesSettings,
       );
       expect(result.status).toBe(CardStatus.SUSPENDED);
     });
@@ -775,7 +775,7 @@ describe("scheduler - Leech Edge Cases", () => {
         "Again",
         undefined,
         [1, 10],
-        lapsesSettings
+        lapsesSettings,
       );
       expect(result.isLeech).toBe(true);
       expect(result.status).not.toBe(CardStatus.SUSPENDED);
@@ -791,7 +791,7 @@ describe("scheduler - Learning Steps Edge Cases", () => {
       // First Good on a new card goes to learningStep 0, then next Good graduates
       expect(result.status).toBe(CardStatus.LEARNING);
       expect(result.learningStep).toBe(0);
-      
+
       // Second Good should graduate
       const result2 = calculateNextReview(result, "Good", undefined, [1]);
       expect(result2.status).toBe(CardStatus.REVIEW);
@@ -811,7 +811,7 @@ describe("scheduler - Learning Steps Edge Cases", () => {
       card = calculateNextReview(card, "Good", undefined, steps);
       expect(card.status).toBe(CardStatus.LEARNING);
       expect(card.learningStep).toBe(0);
-      
+
       // Subsequent Goods advance through steps
       for (let i = 0; i < 5; i++) {
         card = calculateNextReview(card, "Good", undefined, steps);
@@ -835,7 +835,7 @@ describe("scheduler - Learning Steps Edge Cases", () => {
         card,
         "Good",
         undefined,
-        [10080] // 1 week in minutes
+        [10080], // 1 week in minutes
       );
       expect(result.interval).toBeCloseTo(7, 0.5);
     });
@@ -859,7 +859,7 @@ describe("scheduler - Learning Steps Edge Cases", () => {
         "Again",
         undefined,
         [1, 10],
-        lapsesSettings
+        lapsesSettings,
       );
       // Without relearn steps, should go to FSRS directly
       expect(result.lapses).toBeGreaterThan(0);
@@ -876,7 +876,7 @@ describe("scheduler - Learning Steps Edge Cases", () => {
         "Again",
         undefined,
         [1, 10],
-        lapsesSettings
+        lapsesSettings,
       );
       expect(result.state).toBe(State.Relearning);
       expect(result.learningStep).toBe(0);
@@ -895,7 +895,7 @@ describe("scheduler - Learning Steps Edge Cases", () => {
         "Again",
         undefined,
         [1, 10],
-        lapsesSettings
+        lapsesSettings,
       );
       expect(card.state).toBe(State.Relearning);
 
@@ -906,7 +906,7 @@ describe("scheduler - Learning Steps Edge Cases", () => {
           "Good",
           undefined,
           [1, 10],
-          lapsesSettings
+          lapsesSettings,
         );
       }
       // Should exit after completing all steps

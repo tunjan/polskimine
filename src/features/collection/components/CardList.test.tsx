@@ -5,7 +5,6 @@ import { vi, describe, it, expect } from "vitest";
 import { Card, CardStatus } from "@/types";
 import { ColumnDef } from "@tanstack/react-table";
 
-
 vi.mock("./CardTableColumns", () => ({
   getCardColumns: ({
     onEditCard,
@@ -86,7 +85,6 @@ vi.mock("./CardTableColumns", () => ({
   ],
 }));
 
-
 vi.mock("@/components/ui/data-table", () => ({
   DataTable: ({
     data,
@@ -157,7 +155,6 @@ vi.mock("@/components/ui/data-table", () => ({
     </div>
   ),
 }));
-
 
 const flexRenderMock = (Comp: any, props: any) => {
   if (typeof Comp === "function") {
@@ -243,7 +240,7 @@ describe("CardList", () => {
   it("renders HTML in sentence column", () => {
     render(<CardList {...defaultProps} />);
     const sentenceCell = screen.getByTestId("sentence-1");
-    
+
     expect(sentenceCell.innerHTML).toContain("<b>1</b>");
   });
 
@@ -273,19 +270,15 @@ describe("CardList", () => {
     const user = userEvent.setup();
     render(<CardList {...defaultProps} />);
 
-    
     await user.click(screen.getByTestId("edit-1"));
     expect(defaultProps.onEditCard).toHaveBeenCalledWith(mockCards[0]);
 
-    
     await user.click(screen.getByTestId("delete-1"));
     expect(defaultProps.onDeleteCard).toHaveBeenCalledWith("1");
 
-    
     await user.click(screen.getByTestId("history-1"));
-    expect(defaultProps.onViewHistory).toHaveBeenCalledTimes(1); 
+    expect(defaultProps.onViewHistory).toHaveBeenCalledTimes(1);
 
-    
     await user.click(screen.getByTestId("prioritize-1"));
     expect(defaultProps.onPrioritizeCard).toHaveBeenCalledWith("1");
   });
@@ -294,14 +287,6 @@ describe("CardList", () => {
     const user = userEvent.setup();
     render(<CardList {...defaultProps} />);
 
-    
-    
-    
     await user.click(screen.getByTestId("select-1"));
-
-    
-    
-    
-    
   });
 });

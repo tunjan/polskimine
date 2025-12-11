@@ -284,7 +284,12 @@ export const aiService = {
         exampleSentence: { type: "STRING" },
         exampleSentenceTranslation: { type: "STRING" },
       },
-      required: ["definition", "partOfSpeech", "exampleSentence", "exampleSentenceTranslation"],
+      required: [
+        "definition",
+        "partOfSpeech",
+        "exampleSentence",
+        "exampleSentenceTranslation",
+      ],
     };
 
     const prompt = `
@@ -683,8 +688,7 @@ export const aiService = {
     apiKey: string,
   ): Promise<z.infer<typeof GenerateCardSchema>> {
     const langName = getLangName(card.language);
-    
-    
+
     const responseSchema: GeminiResponseSchema = {
       type: "OBJECT",
       properties: {
@@ -720,10 +724,10 @@ export const aiService = {
       - Current Sentence: "${card.targetSentence}"
       
       Modification Goal: ${
-      modificationType === "easier"
-        ? "Create a SLIGHTLY simpler sentence. Use clearer sentence structure while keeping natural flow. Aim for one CEFR level lower if possible."
-        : "Create a SLIGHTLY more advanced sentence. Incorporate more natural/idiomatic phrasing or slightly more complex grammar, but do NOT make it obscure or archaic. Aim for one CEFR level higher."
-    }
+        modificationType === "easier"
+          ? "Create a SLIGHTLY simpler sentence. Use clearer sentence structure while keeping natural flow. Aim for one CEFR level lower if possible."
+          : "Create a SLIGHTLY more advanced sentence. Incorporate more natural/idiomatic phrasing or slightly more complex grammar, but do NOT make it obscure or archaic. Aim for one CEFR level higher."
+      }
       
       Fields:
       - translation: Natural English translation of the NEW sentence.

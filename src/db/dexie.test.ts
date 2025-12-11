@@ -3,7 +3,6 @@ import { db } from "./dexie";
 import { generateId } from "@/utils/ids";
 import { hashPassword } from "@/utils/security";
 
-
 if (!globalThis.crypto) {
   Object.defineProperty(globalThis, "crypto", {
     value: {
@@ -29,19 +28,14 @@ describe("Dexie Refactor Verification", () => {
   });
 
   it("should have correct version 8 schema", () => {
-    
-    
-    
-    expect(db.verno).toBeGreaterThanOrEqual(8 / 10); 
-    
-    
+    expect(db.verno).toBeGreaterThanOrEqual(8 / 10);
   });
 
   it("should generate valid IDs", () => {
     const id = generateId();
     expect(typeof id).toBe("string");
     expect(id.length).toBeGreaterThan(0);
-    
+
     expect(id).toMatch(
       /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i,
     );
@@ -54,6 +48,6 @@ describe("Dexie Refactor Verification", () => {
     expect(hash.length).toBeGreaterThan(0);
 
     const hash2 = await hashPassword(password);
-    expect(hash).toBe(hash2); 
+    expect(hash).toBe(hash2);
   });
 });

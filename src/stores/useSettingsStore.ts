@@ -151,35 +151,13 @@ export const useSettingsStore = create<SettingsState>((set, get) => ({
         learningSteps: newSettings.learningSteps || state.learningSteps,
       };
 
-      
-      
-      
-      
-      
-
-      
       if (newSettings.language && newSettings.language !== state.language) {
-        
-        
-        
-        
-
-        
-        
-
-        
         const savedVoice = updatedState.languageVoices?.[newSettings.language];
         updatedState.tts = {
           ...updatedState.tts,
           voiceURI: savedVoice || null,
         };
       } else if (newSettings.tts?.voiceURI !== undefined) {
-        
-        
-        
-        
-
-        
         if (updatedState.language) {
           const currentVoices =
             updatedState.languageVoices || DEFAULT_SETTINGS.languageVoices;

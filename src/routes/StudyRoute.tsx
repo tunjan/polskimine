@@ -72,8 +72,6 @@ const StudyRoute: React.FC = () => {
             setTimeout(() => reject(new Error("Request timed out")), 15000),
           );
 
-          
-          
           const now = new Date();
 
           const [due, reviewsToday] = (await Promise.race([
@@ -110,9 +108,6 @@ const StudyRoute: React.FC = () => {
                 hasLimit(dailyReviewLimit) &&
                 reviewCount >= dailyReviewLimit
               ) {
-                
-                
-                
                 reserve.push(card);
               } else {
                 active.push(card);

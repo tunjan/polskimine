@@ -24,14 +24,12 @@ export function ActivityHeatmap({
   year = new Date().getFullYear(),
   className,
 }: ActivityHeatmapProps) {
-  
   const days = useMemo(() => {
     const start = startOfYear(new Date(year, 0, 1));
     const end = endOfYear(new Date(year, 0, 1));
     return eachDayOfInterval({ start, end });
   }, [year]);
 
-  
   const dataMap = useMemo(() => {
     const map = new Map<string, number>();
     data.forEach((item) => {
@@ -40,17 +38,15 @@ export function ActivityHeatmap({
     return map;
   }, [data]);
 
-  
   const weeks = useMemo(() => {
     const weeksArray: Date[][] = [];
     let currentWeek: Date[] = [];
 
-    
     const firstDay = days[0];
-    const startDayOfWeek = getDay(firstDay); 
+    const startDayOfWeek = getDay(firstDay);
 
     for (let i = 0; i < startDayOfWeek; i++) {
-      currentWeek.push(new Date(0)); 
+      currentWeek.push(new Date(0));
     }
 
     days.forEach((day) => {
@@ -61,7 +57,6 @@ export function ActivityHeatmap({
       }
     });
 
-    
     if (currentWeek.length > 0) {
       while (currentWeek.length < 7) {
         currentWeek.push(new Date(0));
@@ -72,7 +67,6 @@ export function ActivityHeatmap({
     return weeksArray;
   }, [days]);
 
-  
   const getColor = (count: number) => {
     if (count === 0) return "bg-heatmap-empty";
     if (count < 5) return "bg-heatmap-level-1";
@@ -116,7 +110,6 @@ export function ActivityHeatmap({
               {weeks.map((week, weekIndex) => (
                 <div key={weekIndex} className="flex-1 flex flex-col gap-1">
                   {week.map((day, dayIndex) => {
-                    
                     if (day.getTime() === new Date(0).getTime()) {
                       return (
                         <div key={dayIndex} className="w-full aspect-square" />

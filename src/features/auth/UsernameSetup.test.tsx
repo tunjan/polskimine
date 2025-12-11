@@ -39,16 +39,10 @@ describe("UsernameSetup", () => {
     const input = screen.getByPlaceholderText("Type name...");
     const button = screen.getByText("Confirm");
 
-    
     expect(button.closest("button")).toBeDisabled();
 
     fireEvent.change(input, { target: { value: "ab" } });
     fireEvent.click(button);
-    
-    
-
-    
-    
 
     fireEvent.submit(
       screen.getByRole("button", { name: "Confirm" }).closest("form")!,

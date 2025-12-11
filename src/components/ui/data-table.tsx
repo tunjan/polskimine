@@ -104,12 +104,13 @@ export function DataTable<TData, TValue>({
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
     onColumnVisibilityChange: (updater) => {
-       const newState = typeof updater === 'function' ? updater(columnVisibility) : updater;
-       if (onColumnVisibilityChange) {
-         onColumnVisibilityChange(newState);
-       } else {
-         setInternalColumnVisibility(newState);
-       }
+      const newState =
+        typeof updater === "function" ? updater(columnVisibility) : updater;
+      if (onColumnVisibilityChange) {
+        onColumnVisibilityChange(newState);
+      } else {
+        setInternalColumnVisibility(newState);
+      }
     },
     onRowSelectionChange: (updater) => {
       const newState =
@@ -216,7 +217,6 @@ export function DataTable<TData, TValue>({
         </div>
 
         <div className="flex items-center gap-6">
-
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
             <span>Page</span>
             <span className="text-foreground font-medium tabular-nums">

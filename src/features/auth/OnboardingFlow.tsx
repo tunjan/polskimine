@@ -35,8 +35,6 @@ export const OnboardingFlow: React.FC = () => {
 
   const handleLanguageContinue = () => {
     if (selectedLanguages.length > 0) {
-      
-      
       setStep("level");
     }
   };
@@ -49,14 +47,11 @@ export const OnboardingFlow: React.FC = () => {
   };
 
   const handleLevelsContinue = () => {
-    
     const allSelected = selectedLanguages.every(
       (lang) => selectedLevels[lang] !== undefined,
     );
 
     if (allSelected) {
-      
-      
       updateSettings({
         language: selectedLanguages[0],
         proficiency: selectedLevels,

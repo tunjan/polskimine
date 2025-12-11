@@ -35,7 +35,6 @@ export const incrementHistory = async (
   const userId = getCurrentUserId();
   if (!userId) return;
 
-  
   const updated = await db.history
     .where("[user_id+date+language]")
     .equals([userId, date, language])
@@ -53,7 +52,6 @@ export const incrementHistory = async (
       });
     } catch (e: any) {
       if (e.name === "ConstraintError") {
-        
         await db.history
           .where("[user_id+date+language]")
           .equals([userId, date, language])

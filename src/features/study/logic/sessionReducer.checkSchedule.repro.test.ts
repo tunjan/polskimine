@@ -16,7 +16,7 @@ describe("sessionReducer checkSchedule - Skip Learning Wait", () => {
     easeFactor: 0,
     notes: "",
     language: "pl",
-    reps: 1, 
+    reps: 1,
   };
 
   const reviewCard: Card = {
@@ -29,7 +29,7 @@ describe("sessionReducer checkSchedule - Skip Learning Wait", () => {
     easeFactor: 2.5,
     notes: "",
     language: "pl",
-    reps: 5, 
+    reps: 5,
   };
 
   it("should wait for learning card when ignoreLearningSteps is false", () => {
@@ -59,12 +59,9 @@ describe("sessionReducer checkSchedule - Skip Learning Wait", () => {
   });
 
   it("should NOT skip wait for review card even if ignoreLearningSteps is true", () => {
-    
-    
-    
     const notDueReviewCard = {
       ...reviewCard,
-      dueDate: addMinutes(now, 24 * 60 * 2).toISOString(), 
+      dueDate: addMinutes(now, 24 * 60 * 2).toISOString(),
     };
 
     const state: SessionState = {
@@ -80,18 +77,11 @@ describe("sessionReducer checkSchedule - Skip Learning Wait", () => {
   });
 
   it("should find and show waiting learning card if head is waiting review card", () => {
-    
-    
-    
-    
-
     const reviewCardFuture = {
       ...reviewCard,
       id: "rev1",
-      dueDate: addMinutes(now, 24 * 60 + 10).toISOString(), 
+      dueDate: addMinutes(now, 24 * 60 + 10).toISOString(),
     };
-
-    
 
     const learningCardFuture = { ...learningCard, id: "learn1" };
 

@@ -3,7 +3,6 @@ import { useFlashcardAudio } from "./useFlashcardAudio";
 import { ttsService } from "@/lib/tts";
 import { vi, describe, it, expect, beforeEach } from "vitest";
 
-
 vi.mock("@/lib/tts", () => ({
   ttsService: {
     speak: vi.fn().mockResolvedValue(undefined),
@@ -40,19 +39,16 @@ describe("useFlashcardAudio", () => {
       },
     });
 
-    
     expect(ttsService.speak).toHaveBeenCalledWith(
       expect.stringContaining("Sentence 1"),
       "spanish",
       expect.objectContaining({ rate: 1.0 }),
     );
 
-    
     await waitFor(() => {
       expect(result.current.playSlow).toBe(true);
     });
 
-    
     await act(async () => {
       await result.current.speak();
     });
@@ -83,19 +79,14 @@ describe("useFlashcardAudio", () => {
       },
     });
 
-    
-    
-
     await waitFor(() => {
       expect(ttsService.speak).toHaveBeenCalledTimes(2);
     });
 
     const calls = (ttsService.speak as any).mock.calls;
 
-    
     expect(calls[0][0]).toContain("Word 1");
 
-    
     expect(calls[1][0]).toContain("Sentence 1");
   });
 });

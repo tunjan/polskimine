@@ -50,9 +50,9 @@ describe("scheduler - invariant tests (fuzzing)", () => {
 
       try {
         const result = calculateNextReview(card, grade, {
-           request_retention: 0.9,
-           maximum_interval: 36500,
-           enable_fuzzing: false 
+          request_retention: 0.9,
+          maximum_interval: 36500,
+          enable_fuzzing: false,
         });
 
         // Invariant 1: Interval should always be non-negative
@@ -139,8 +139,14 @@ describe("scheduler - invariant tests (fuzzing)", () => {
         last_review: new Date(Date.now() - 86400000).toISOString(),
       };
 
-      const settings = { request_retention: 0.9, maximum_interval: 36500, enable_fuzzing: false };
-      calculateNextReview(baseCard, "Again", settings, [1, 10], { relearnSteps: [] });
+      const settings = {
+        request_retention: 0.9,
+        maximum_interval: 36500,
+        enable_fuzzing: false,
+      };
+      calculateNextReview(baseCard, "Again", settings, [1, 10], {
+        relearnSteps: [],
+      });
       const hardResult = calculateNextReview(baseCard, "Hard", settings);
       const goodResult = calculateNextReview(baseCard, "Good", settings);
       const easyResult = calculateNextReview(baseCard, "Easy", settings);
@@ -161,16 +167,20 @@ describe("scheduler - invariant tests (fuzzing)", () => {
 
       // Simulate 10 reviews
       for (let j = 0; j < 10; j++) {
-        const grade = ["Again", "Hard", "Good", "Easy"][j % 4] as "Again" | "Hard" | "Good" | "Easy";
+        const grade = ["Again", "Hard", "Good", "Easy"][j % 4] as
+          | "Again"
+          | "Hard"
+          | "Good"
+          | "Easy";
         card = calculateNextReview(card, grade, undefined, [1, 10]);
 
         // After any review, the card should have a valid state
         expect(
           card.status === CardStatus.NEW ||
-          card.status === CardStatus.LEARNING ||
-          card.status === CardStatus.REVIEW ||
-          card.status === CardStatus.SUSPENDED ||
-          card.status === CardStatus.KNOWN
+            card.status === CardStatus.LEARNING ||
+            card.status === CardStatus.REVIEW ||
+            card.status === CardStatus.SUSPENDED ||
+            card.status === CardStatus.KNOWN,
         ).toBe(true);
 
         expect(new Date(card.dueDate).getTime()).not.toBeNaN();
@@ -261,4 +271,3 @@ describe("scheduler - invariant tests (fuzzing)", () => {
     }
   });
 });
-

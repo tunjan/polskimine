@@ -54,9 +54,9 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
         </DialogHeader>
 
         <div className="flex-1 min-h-0 relative overflow-y-auto">
-           <div className="p-4 sm:p-6">
-              <SettingsContent />
-           </div>
+          <div className="p-4 sm:p-6">
+            <SettingsContent />
+          </div>
         </div>
       </DialogContent>
     </Dialog>

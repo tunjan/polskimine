@@ -103,7 +103,6 @@ export class LinguaFlowDB extends Dexie {
         }
       });
 
-    
     this.version(8).stores({
       cards:
         "id, status, language, dueDate, isBookmarked, user_id, created_at, [user_id+language], [user_id+status+language], [user_id+language+status], [user_id+language+dueDate], [user_id+language+status+dueDate], [user_id+language+isBookmarked+dueDate], [user_id+language+isLeech+dueDate]",
@@ -117,7 +116,7 @@ export class LinguaFlowDB extends Dexie {
         "id, [language+metric], [user_id+language+metric], updated_at",
       users: "id, &username",
     });
-    
+
     this.version(9).stores({
       cards:
         "id, status, language, dueDate, isBookmarked, user_id, created_at, first_review, [user_id+language], [user_id+status+language], [user_id+language+status], [user_id+language+dueDate], [user_id+language+status+dueDate], [user_id+language+isBookmarked+dueDate], [user_id+language+isLeech+dueDate]",

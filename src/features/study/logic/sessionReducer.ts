@@ -80,13 +80,10 @@ export const checkSchedule = (
   }
 
   if (ignoreLearningSteps) {
-    
     if (current.status === CardStatus.LEARNING) {
       return { ...state, status: "IDLE" };
     }
 
-    
-    
     const nextLearningIndex = state.cards.findIndex(
       (c, i) => i > state.currentIndex && c.status === CardStatus.LEARNING,
     );

@@ -17,13 +17,10 @@ const createBaseCard = (overrides: Partial<Card> = {}): Card => ({
 
 describe("scheduler bug reproduction", () => {
   it("should graduate after the last learning step", () => {
-    
     const steps = [1, 10];
 
-    
     let card = createBaseCard({ status: CardStatus.NEW, learningStep: 0 });
 
-    
     console.log("Step 1: New -> Good");
     card = calculateNextReview(card, "Good", undefined, steps);
     console.log(
@@ -34,7 +31,6 @@ describe("scheduler bug reproduction", () => {
     expect(card.interval * 24 * 60).toBeCloseTo(1, 0.1);
     expect(card.learningStep).toBe(0);
 
-    
     console.log("Step 2: Learning(0) -> Good");
     card = calculateNextReview(card, "Good", undefined, steps);
     console.log(
@@ -45,17 +41,14 @@ describe("scheduler bug reproduction", () => {
     expect(card.interval * 24 * 60).toBeCloseTo(10, 0.1);
     expect(card.learningStep).toBe(1);
 
-    
     console.log("Step 3: Learning(1) -> Good");
     card = calculateNextReview(card, "Good", undefined, steps);
     console.log(
       `Status: ${card.status}, Interval: ${card.interval} days, Step: ${card.learningStep}`,
     );
 
-    
-    
     expect(card.status).not.toBe(CardStatus.LEARNING);
-    expect(card.interval).toBeGreaterThan(10 / (24 * 60)); 
+    expect(card.interval).toBeGreaterThan(10 / (24 * 60));
   });
 });
 
@@ -112,7 +105,7 @@ describe("persistence check", () => {
       interval: 0,
       easeFactor: 2.5,
       dueDate: new Date().toISOString(),
-      
+
       notes: "",
       isLeech: false,
       isBookmarked: false,

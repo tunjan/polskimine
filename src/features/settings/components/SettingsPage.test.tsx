@@ -4,13 +4,11 @@ import { SettingsContent } from "./SettingsPage";
 import { vi, describe, it, expect, beforeEach } from "vitest";
 import { TTS_PROVIDER } from "@/constants/settings";
 
-
 global.ResizeObserver = class ResizeObserver {
   observe() {}
   unobserve() {}
   disconnect() {}
 };
-
 
 const mockSetSettings = vi.fn();
 const mockUpdateUsername = vi.fn();
@@ -25,7 +23,7 @@ vi.mock("@/stores/useSettingsStore", () => ({
       tts: { provider: TTS_PROVIDER.BROWSER, volume: 1, rate: 1 },
       fsrs: { request_retention: 0.9, w: [] },
       setFullSettings: mockSetSettings,
-      setSettings: mockSetSettings, 
+      setSettings: mockSetSettings,
       learningSteps: [1, 10],
       dailyNewLimits: { polish: 20 },
       dailyReviewLimits: { polish: 100 },
@@ -112,7 +110,6 @@ describe("SettingsContent", () => {
     await user.clear(nameInput);
     await user.type(nameInput, "New Name");
 
-    
     await waitFor(
       () => {
         expect(mockUpdateUsername).toHaveBeenCalledWith("New Name");
@@ -121,17 +118,9 @@ describe("SettingsContent", () => {
     );
   });
 
-  
-  
-
   it("rendering passes without crash", () => {
     render(<SettingsContent />);
-    
-    
-    
-    
-    
-    
+
     expect(screen.getByText("Profile")).toBeInTheDocument();
   });
 });

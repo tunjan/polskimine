@@ -54,7 +54,6 @@ describe("Card Sorting & Priority System", () => {
       const cardB = createCard("noun", CardStatus.NEW, past, 0, "noun");
       const cardC = createCard("adj", CardStatus.NEW, past, 0, "adjective");
 
-      
       const result = sortCards([cardA, cardB, cardC], "newFirst", {
         newCardSortOrder: "cardType",
       });
@@ -63,9 +62,6 @@ describe("Card Sorting & Priority System", () => {
     });
 
     it("should shuffle new cards when gatherOrder is 'random'", () => {
-      
-      
-      
       const cards = Array.from({ length: 10 }, (_, i) =>
         createCard(`new-${i}`, CardStatus.NEW, past),
       );
@@ -82,7 +78,7 @@ describe("Card Sorting & Priority System", () => {
   describe("Display Order Settings - Review Cards", () => {
     it("should sort reviews by 'overdueness'", () => {
       const now = new Date();
-      
+
       const cardA = createCard(
         "A",
         CardStatus.REVIEW,
@@ -90,7 +86,6 @@ describe("Card Sorting & Priority System", () => {
         100,
       );
 
-      
       const cardB = createCard(
         "B",
         CardStatus.REVIEW,
@@ -98,19 +93,16 @@ describe("Card Sorting & Priority System", () => {
         1,
       );
 
-      
       const cardC = createCard("C", CardStatus.REVIEW, now.toISOString(), 10);
 
       const result = sortCards([cardA, cardB, cardC], "reviewFirst", {
         reviewSortOrder: "overdueness",
       });
 
-      
       expect(result.map((c) => c.id)).toEqual(["B", "A", "C"]);
     });
 
     it("should group by day when 'dueRandom' is used", () => {
-      
       const day1 = "2023-01-01T10:00:00.000Z";
       const day1Later = "2023-01-01T20:00:00.000Z";
       const day2 = "2023-01-02T10:00:00.000Z";
@@ -123,8 +115,6 @@ describe("Card Sorting & Priority System", () => {
         reviewSortOrder: "dueRandom",
       });
 
-      
-      
       const firstTimeout = result[0].dueDate?.split("T")[0];
       const secondTimeout = result[1].dueDate?.split("T")[0];
       const thirdTimeout = result[2].dueDate?.split("T")[0];
@@ -137,14 +127,6 @@ describe("Card Sorting & Priority System", () => {
 
   describe("Interleaving & Mixed Mode", () => {
     it("should interleave new cards into reviews in 'mixed' new/review order", () => {
-      
-      
-      
-      
-      
-      
-      
-
       const n1 = createCard("n1", CardStatus.NEW, past);
       const n2 = createCard("n2", CardStatus.NEW, past);
 
@@ -157,13 +139,11 @@ describe("Card Sorting & Priority System", () => {
         newReviewOrder: "mixed",
       });
 
-      
       const ids = result.map((c) => c.id);
       const newIndices = ids
         .map((id, i) => (id.startsWith("n") ? i : -1))
         .filter((i) => i !== -1);
 
-      
       const allAtStart = newIndices.every((i) => i < 2);
       const allAtEnd = newIndices.every((i) => i >= 4);
 
@@ -172,9 +152,6 @@ describe("Card Sorting & Priority System", () => {
     });
 
     it("should place learning cards 'before' reviews", () => {
-      
-      
-      
       const learningCard = {
         ...createCard("learn", CardStatus.LEARNING, past),
         state: State.Learning,
@@ -208,15 +185,10 @@ describe("Card Sorting & Priority System", () => {
       const normalCard = createCard("normal", CardStatus.REVIEW, past);
       const priorityCard = createCard("priority", CardStatus.NEW, epoch);
 
-      
       const result = sortCards([normalCard, priorityCard], "newFirst", {
         newCardSortOrder: "due",
       });
 
-      
-      
-      
-      
       expect(result[0].id).toBe("priority");
     });
 
@@ -228,7 +200,6 @@ describe("Card Sorting & Priority System", () => {
       const c1 = createCard("c1", CardStatus.REVIEW, "2023-01-02");
       const c2 = createCard("c2", CardStatus.REVIEW, "2023-01-01");
 
-      
       const result = sortCards([c1, c2], "reviewFirst");
       expect(result.map((c) => c.id)).toEqual(["c2", "c1"]);
     });

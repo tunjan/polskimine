@@ -406,7 +406,6 @@ export const SettingsContent: React.FC = () => {
 
   return (
     <div className="space-y-6 animate-in fade-in duration-500">
-
       <SettingsSection
         icon={User}
         title="Profile"

@@ -3,7 +3,6 @@ import { OnboardingFlow } from "./OnboardingFlow";
 import { vi, describe, it, expect, beforeEach } from "vitest";
 import { useAuth } from "@/contexts/AuthContext";
 
-
 vi.mock("@/contexts/AuthContext", () => ({
   useAuth: vi.fn(),
 }));
@@ -44,7 +43,9 @@ vi.mock("./components/LanguageSelector", () => ({
 vi.mock("./components/LanguageLevelSelector", () => ({
   LanguageLevelSelector: ({ onSelectLevel }: any) => (
     <div data-testid="level-selector">
-      <button onClick={() => onSelectLevel("polish", "beginner")}>Beginner</button>
+      <button onClick={() => onSelectLevel("polish", "beginner")}>
+        Beginner
+      </button>
     </div>
   ),
 }));
@@ -69,9 +70,6 @@ describe("OnboardingFlow", () => {
       user: { id: "123" },
       signOut: mockSignOut,
     });
-
-    
-    
   });
 
   it("renders language step initially", () => {
@@ -83,32 +81,25 @@ describe("OnboardingFlow", () => {
   it("progresses through steps", async () => {
     render(<OnboardingFlow />);
 
-    
     fireEvent.click(screen.getByText("Toggle Polish"));
-    
+
     const continueBtn = screen.getByText("Continue");
     await waitFor(() => expect(continueBtn).not.toBeDisabled());
     fireEvent.click(continueBtn);
 
-    
-    await waitFor(() =>
-      expect(screen.getByTestId("level-selector")).toBeInTheDocument(),
-      { timeout: 3000 }
+    await waitFor(
+      () => expect(screen.getByTestId("level-selector")).toBeInTheDocument(),
+      { timeout: 3000 },
     );
     fireEvent.click(screen.getByText("Beginner"));
 
     fireEvent.click(screen.getByText("Continue"));
-    
-    await waitFor(() =>
-      expect(screen.getByTestId("deck-generation")).toBeInTheDocument(),
-      { timeout: 3000 }
+
+    await waitFor(
+      () => expect(screen.getByTestId("deck-generation")).toBeInTheDocument(),
+      { timeout: 3000 },
     );
     fireEvent.click(screen.getByText("Generate Deck"));
-
-    
-    
-    
-    
   });
 
   it("allows sign out", () => {

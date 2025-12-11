@@ -28,7 +28,7 @@ export const CardHistoryModal: React.FC<CardHistoryModalProps> = ({
 
   React.useEffect(() => {
     if (isOpen && card?.id) {
-       getReviewLogsForCard(card.id).then(setLogs);
+      getReviewLogsForCard(card.id).then(setLogs);
     }
   }, [isOpen, card?.id]);
 
@@ -44,7 +44,13 @@ export const CardHistoryModal: React.FC<CardHistoryModalProps> = ({
     return "Unknown";
   };
 
-  const StatItem = ({ label, value }: { label: string; value: React.ReactNode }) => (
+  const StatItem = ({
+    label,
+    value,
+  }: {
+    label: string;
+    value: React.ReactNode;
+  }) => (
     <div className="flex flex-col gap-1">
       <span className="text-xs uppercase text-muted-foreground font-medium tracking-wider">
         {label}
@@ -53,72 +59,88 @@ export const CardHistoryModal: React.FC<CardHistoryModalProps> = ({
     </div>
   );
 
-  const TimelineItem = ({ label, dateStr }: { label: string; dateStr?: string }) => {
-     if (!dateStr || !isValid(parseISO(dateStr))) return null;
-     const date = parseISO(dateStr);
-     return (
-       <div className="flex justify-between items-baseline text-sm">
-         <span className="text-muted-foreground">{label}</span>
-         <div className="text-right">
-           <span className="font-medium block">{format(date, "PPP")}</span>
-           <span className="text-xs text-muted-foreground">{formatDistanceToNow(date, { addSuffix: true })}</span>
-         </div>
-       </div>
-     )
-  }
+  const TimelineItem = ({
+    label,
+    dateStr,
+  }: {
+    label: string;
+    dateStr?: string;
+  }) => {
+    if (!dateStr || !isValid(parseISO(dateStr))) return null;
+    const date = parseISO(dateStr);
+    return (
+      <div className="flex justify-between items-baseline text-sm">
+        <span className="text-muted-foreground">{label}</span>
+        <div className="text-right">
+          <span className="font-medium block">{format(date, "PPP")}</span>
+          <span className="text-xs text-muted-foreground">
+            {formatDistanceToNow(date, { addSuffix: true })}
+          </span>
+        </div>
+      </div>
+    );
+  };
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-md md:max-w-3xl gap-6 max-h-[90vh] overflow-y-auto">
         <DialogHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <DialogTitle className="text-lg font-medium">Card History</DialogTitle>
+          <DialogTitle className="text-lg font-medium">
+            Card History
+          </DialogTitle>
           <Badge variant="outline" className="font-normal">
-             {getFsrsLabel(card.state)}
+            {getFsrsLabel(card.state)}
           </Badge>
         </DialogHeader>
-        
+
         <div className="space-y-6">
-            
-            <div className="space-y-1">
-                <div 
-                    className="text-xl font-semibold leading-relaxed"
-                    dangerouslySetInnerHTML={{ __html: card.targetSentence }} 
-                />
-                 <div className="text-sm text-muted-foreground">
-                    {card.nativeTranslation}
-                 </div>
+          <div className="space-y-1">
+            <div
+              className="text-xl font-semibold leading-relaxed"
+              dangerouslySetInnerHTML={{ __html: card.targetSentence }}
+            />
+            <div className="text-sm text-muted-foreground">
+              {card.nativeTranslation}
             </div>
+          </div>
 
-            <Separator />
+          <Separator />
 
-            
-            <div className="grid grid-cols-4 gap-4">
-                 <StatItem label="Reviews" value={card.reps || 0} />
-                 <StatItem label="Lapses" value={card.lapses || 0} />
-                 <StatItem label="Stability" value={`${stability}d`} />
-                 <StatItem label="Difficulty" value={(card.difficulty || 0).toFixed(1)} />
-            </div>
+          <div className="grid grid-cols-4 gap-4">
+            <StatItem label="Reviews" value={card.reps || 0} />
+            <StatItem label="Lapses" value={card.lapses || 0} />
+            <StatItem label="Stability" value={`${stability}d`} />
+            <StatItem
+              label="Difficulty"
+              value={(card.difficulty || 0).toFixed(1)}
+            />
+          </div>
 
-            <Separator />
-            
-            
+          <Separator />
+
+          <div className="space-y-3">
+            <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+              Forgetting Curve
+            </h4>
+            <ForgettingCurveChart
+              logs={logs}
+              firstReviewDate={card.first_review}
+            />
+          </div>
+
+          <Separator />
+
+          <div className="space-y-3">
+            <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+              Timeline
+            </h4>
             <div className="space-y-3">
-               <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Forgetting Curve</h4>
-               <ForgettingCurveChart logs={logs} firstReviewDate={card.first_review} />
+              <TimelineItem label="Created" dateStr={card.created_at} />
+              <TimelineItem label="First Review" dateStr={card.first_review} />
+              <TimelineItem label="Last Review" dateStr={card.last_review} />
+              <TimelineItem label="Next Due" dateStr={card.dueDate} />
             </div>
-
-            <Separator />
-
-            
-             <div className="space-y-3">
-                 <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Timeline</h4>
-                 <div className="space-y-3">
-                     <TimelineItem label="Created" dateStr={card.created_at} />
-                     <TimelineItem label="First Review" dateStr={card.first_review} />
-                     <TimelineItem label="Last Review" dateStr={card.last_review} />
-                     <TimelineItem label="Next Due" dateStr={card.dueDate} />
-                 </div>
-             </div>
+          </div>
         </div>
       </DialogContent>
     </Dialog>

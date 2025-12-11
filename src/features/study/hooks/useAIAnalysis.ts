@@ -191,14 +191,16 @@ export function useAIAnalysis({
 
       const updatedCard: Card = {
         ...card,
-        targetSentence: result.formattedSentence || result.targetWord || card.targetSentence,
+        targetSentence:
+          result.formattedSentence || result.targetWord || card.targetSentence,
         targetWord: result.targetWord || card.targetWord,
-        targetWordTranslation: result.targetWordTranslation || card.targetWordTranslation,
-        targetWordPartOfSpeech: result.targetWordPartOfSpeech || card.targetWordPartOfSpeech,
+        targetWordTranslation:
+          result.targetWordTranslation || card.targetWordTranslation,
+        targetWordPartOfSpeech:
+          result.targetWordPartOfSpeech || card.targetWordPartOfSpeech,
         nativeTranslation: result.translation || card.nativeTranslation,
         notes: result.notes || card.notes,
         furigana: result.furigana || card.furigana,
-        
       };
 
       onUpdateCard(updatedCard);

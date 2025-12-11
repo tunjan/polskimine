@@ -9,7 +9,6 @@ import {
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
 
-
 interface SettingsItemProps {
   label: string;
   description?: string;
