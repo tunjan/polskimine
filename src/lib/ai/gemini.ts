@@ -719,10 +719,10 @@ export const aiService = {
       - Current Sentence: "${card.targetSentence}"
       
       Modification Goal: ${
-        modificationType === "easier"
-          ? "Create a SIMPLER, shorter sentence using more common vocabulary. Focus on basic usage."
-          : "Create a MORE COMPLEX, nuanced sentence. Use advanced grammar or more sophisticated context."
-      }
+      modificationType === "easier"
+        ? "Create a SLIGHTLY simpler sentence. Use clearer sentence structure while keeping natural flow. Aim for one CEFR level lower if possible."
+        : "Create a SLIGHTLY more advanced sentence. Incorporate more natural/idiomatic phrasing or slightly more complex grammar, but do NOT make it obscure or archaic. Aim for one CEFR level higher."
+    }
       
       Fields:
       - translation: Natural English translation of the NEW sentence.
