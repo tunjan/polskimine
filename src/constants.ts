@@ -1,4 +1,4 @@
-import { Card, ReviewHistory } from "./types";
+import { Card, ReviewHistory, CardStatus, LanguageId } from "./types";
 import { format } from "date-fns";
 
 export const MOCK_CARDS: Card[] = [
@@ -8,7 +8,8 @@ export const MOCK_CARDS: Card[] = [
     targetWord: "Cześć",
     nativeTranslation: "Hi, how are you?",
     notes: "Informal greeting. Also means 'Bye' depending on context.",
-    status: "new",
+    language: LanguageId.Polish,
+    status: CardStatus.NEW,
     interval: 0,
     easeFactor: 2.5,
     dueDate: new Date().toISOString(),
@@ -19,7 +20,8 @@ export const MOCK_CARDS: Card[] = [
     targetWord: "Dziękuję",
     nativeTranslation: "Thank you for the help.",
     notes: "First person singular of dziękować.",
-    status: "learning",
+    language: LanguageId.Polish,
+    status: CardStatus.LEARNING,
     interval: 1,
     easeFactor: 2.5,
     dueDate: new Date(Date.now() - 86400000).toISOString(),
@@ -30,7 +32,8 @@ export const MOCK_CARDS: Card[] = [
     targetWord: "mężczyzna",
     nativeTranslation: "That man is tall.",
     notes: "Noun, Masculine Personal.",
-    status: "new",
+    language: LanguageId.Polish,
+    status: CardStatus.NEW,
     interval: 0,
     easeFactor: 2.5,
     dueDate: new Date().toISOString(),
@@ -41,7 +44,8 @@ export const MOCK_CARDS: Card[] = [
     targetWord: "kawę",
     nativeTranslation: "I like to drink coffee in the morning.",
     notes: "Accusative case of 'kawa'.",
-    status: "graduated",
+    language: LanguageId.Polish,
+    status: CardStatus.REVIEW,
     interval: 10,
     easeFactor: 2.7,
     dueDate: new Date(Date.now() + 86400000 * 5).toISOString(),
@@ -53,7 +57,8 @@ export const MOCK_CARDS: Card[] = [
     nativeTranslation: "Is everything okay?",
     notes:
       "Common phrase used to ask if someone is fine or if a situation is resolved.",
-    status: "new",
+    language: LanguageId.Polish,
+    status: CardStatus.NEW,
     interval: 0,
     easeFactor: 2.5,
     dueDate: new Date().toISOString(),

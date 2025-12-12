@@ -4,6 +4,7 @@ export enum CardStatus {
   NEW = "new",
   LEARNING = "learning",
   REVIEW = "review",
+  RELEARNING = "relearning",
   KNOWN = "known",
   SUSPENDED = "suspended",
 }
@@ -15,7 +16,7 @@ export const mapFsrsStateToStatus = (state: FsrsState): CardStatus => {
     case FsrsState.Learning:
       return CardStatus.LEARNING;
     case FsrsState.Relearning:
-      return CardStatus.LEARNING;
+      return CardStatus.RELEARNING;
     case FsrsState.Review:
       return CardStatus.REVIEW;
     default:
@@ -29,6 +30,8 @@ export const mapStatusToFsrsState = (status: CardStatus): FsrsState => {
       return FsrsState.New;
     case CardStatus.LEARNING:
       return FsrsState.Learning;
+    case CardStatus.RELEARNING:
+      return FsrsState.Relearning;
     case CardStatus.REVIEW:
       return FsrsState.Review;
     case CardStatus.KNOWN:

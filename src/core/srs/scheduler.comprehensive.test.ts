@@ -206,7 +206,7 @@ describe("calculateNextReview - Comprehensive Edge Cases", () => {
         lapsesSettings,
       );
 
-      expect(result.learningStep).toBe(0);
+      expect(result.learningStep).toBe(-1);
       expect(result.state).toBe(State.Relearning);
     });
 
@@ -267,7 +267,7 @@ describe("calculateNextReview - Comprehensive Edge Cases", () => {
       );
 
       expect(result.state).toBe(State.Relearning);
-      expect(result.learningStep).toBe(0);
+      expect(result.learningStep).toBe(-1);
       expect(result.lapses).toBeGreaterThan(card.lapses || 0);
     });
 
@@ -899,7 +899,7 @@ describe("Scheduling Simulation", () => {
 
     expect(card.lapses).toBeGreaterThan(0);
     expect(
-      card.status === CardStatus.REVIEW || card.status === CardStatus.LEARNING,
+      card.status === CardStatus.REVIEW || card.status === CardStatus.LEARNING || card.status === CardStatus.RELEARNING,
     ).toBe(true);
   });
 

@@ -41,6 +41,11 @@ const StatusBadge = ({ status }: { status: CardStatus }) => {
       icon: <BookOpen className="w-3 h-3" strokeWidth={1.5} />,
       className: "text-blue-400 bg-blue-500/10 border-blue-500/30",
     },
+    [CardStatus.RELEARNING]: {
+      label: "Relearning",
+      icon: <History className="w-3 h-3" strokeWidth={1.5} />,
+      className: "text-orange-500 bg-orange-500/10 border-orange-500/30",
+    },
     [CardStatus.REVIEW]: {
       label: "Review",
       icon: <Clock className="w-3 h-3" strokeWidth={1.5} />,
@@ -50,6 +55,11 @@ const StatusBadge = ({ status }: { status: CardStatus }) => {
       label: "Mastered",
       icon: <CheckCircle2 className="w-3 h-3" strokeWidth={1.5} />,
       className: "text-primary bg-primary/10 border-primary/30",
+    },
+    [CardStatus.SUSPENDED]: {
+      label: "Suspended",
+      icon: <Clock className="w-3 h-3" strokeWidth={1.5} />,
+      className: "text-muted-foreground bg-muted/50 border-muted-foreground/30",
     },
   };
 

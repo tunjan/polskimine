@@ -355,7 +355,6 @@ export const CardsRoute: React.FC = () => {
 
             <Button
               variant="outline"
-              variant="outline"
               size="icon"
               onClick={() => setIsGenerateModalOpen(true)}
               title="Generate Cards"

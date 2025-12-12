@@ -879,7 +879,7 @@ describe("scheduler - Learning Steps Edge Cases", () => {
         lapsesSettings,
       );
       expect(result.state).toBe(State.Relearning);
-      expect(result.learningStep).toBe(0);
+      expect(result.learningStep).toBe(-1);
     });
 
     it("should handle 5 relearn steps", () => {
@@ -899,8 +899,9 @@ describe("scheduler - Learning Steps Edge Cases", () => {
       );
       expect(card.state).toBe(State.Relearning);
 
-      // Progress through all 5 relearning steps
-      for (let i = 0; i < 5; i++) {
+      // Progress through all 5 relearning steps (6 Good ratings total:
+      // 1st Good completes initial step 0, then 5 more Goods advance through steps 0-4)
+      for (let i = 0; i < 6; i++) {
         card = calculateNextReview(
           card,
           "Good",

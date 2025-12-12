@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { db } from "@/db/dexie";
-import { Card } from "@/types";
+import { Card, CardStatus } from "@/types";
 
 export const TestStatsRoute: React.FC = () => {
   const [cards, setCards] = useState<Card[]>([]);
@@ -30,7 +30,8 @@ export const TestStatsRoute: React.FC = () => {
 
   const masteredCandidates = cards.filter(
     (c) =>
-      c.status === "known" || (c.status === "graduated" && c.interval >= 180),
+      c.status === CardStatus.KNOWN ||
+      (c.status === CardStatus.REVIEW && c.interval >= 180),
   );
 
   return (

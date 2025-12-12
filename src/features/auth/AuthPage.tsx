@@ -46,7 +46,9 @@ export const AuthPage: React.FC = () => {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [existingUsers, setExistingUsers] = useState<LocalUser[]>([]);
   const [setupStep, setSetupStep] = useState<SetupStep>("auth");
-  const [selectedLevel, setSelectedLevel] = useState<Difficulty | null>(null);
+  const [selectedLevels, setSelectedLevels] = useState<
+    Record<Language, Difficulty>
+  >({} as Record<Language, Difficulty>);
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
   const [selectedLanguages, setSelectedLanguages] = useState<Language[]>([]);
 
@@ -125,9 +127,22 @@ export const AuthPage: React.FC = () => {
     }
   };
 
-  const handleLevelSelected = (level: Difficulty) => {
-    setSelectedLevel(level);
-    setSetupStep("deck");
+  const handleLevelSelected = (language: Language, level: Difficulty) => {
+    setSelectedLevels((prev) => ({
+      ...prev,
+      [language]: level,
+    }));
+  };
+
+  const handleLevelContinue = () => {
+    const allSelected = selectedLanguages.every(
+      (lang) => selectedLevels[lang],
+    );
+    if (allSelected) {
+      setSetupStep("deck");
+    } else {
+      toast.error("Please select a proficiency level for all languages");
+    }
   };
 
   const handleDeckSetup = async (
@@ -135,7 +150,7 @@ export const AuthPage: React.FC = () => {
     useAI: boolean,
     apiKey?: string,
   ) => {
-    if (!selectedLevel || !currentUserId) return;
+    if (!currentUserId) return;
     setLoading(true);
 
     try {
@@ -149,7 +164,7 @@ export const AuthPage: React.FC = () => {
         for (const language of languages) {
           const languageCards = await generateInitialDeck({
             language,
-            proficiencyLevel: selectedLevel,
+            proficiencyLevel: selectedLevels[language],
             apiKey,
           });
           allCards = [...allCards, ...languageCards];
@@ -164,7 +179,7 @@ export const AuthPage: React.FC = () => {
             ...c,
             id: uuidv4(),
             dueDate: new Date().toISOString(),
-            tags: [...(c.tags || []), selectedLevel],
+            tags: [...(c.tags || []), selectedLevels[language]],
             user_id: currentUserId,
           })) as CardType[];
           allCards = [...allCards, ...languageCards];
@@ -369,9 +384,18 @@ export const AuthPage: React.FC = () => {
             <h2 className="text-xl font-bold">Select Proficiency</h2>
           </div>
           <LanguageLevelSelector
-            selectedLevel={selectedLevel}
+            selectedLanguages={selectedLanguages}
+            selectedLevels={selectedLevels}
             onSelectLevel={handleLevelSelected}
           />
+          <div className="mt-6 flex justify-end">
+            <Button
+              onClick={handleLevelContinue}
+              disabled={!selectedLanguages.every((l) => selectedLevels[l])}
+            >
+              Continue <ArrowRight size={16} className="ml-2" />
+            </Button>
+          </div>
         </Card>
       </AuthLayout>
     );
@@ -393,7 +417,7 @@ export const AuthPage: React.FC = () => {
           </div>
           <DeckGenerationStep
             languages={selectedLanguages}
-            proficiencyLevel={selectedLevel!}
+            selectedLevels={selectedLevels}
             onComplete={handleDeckSetup}
           />
         </Card>

@@ -25,8 +25,8 @@ export const useChartColors = () => {
   const { theme } = useTheme();
   const { language, languageColors } = useSettingsStore(
     useShallow((s) => ({
-      language: s.settings.language,
-      languageColors: s.settings.languageColors,
+      language: s.language,
+      languageColors: s.languageColors,
     })),
   );
 

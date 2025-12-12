@@ -91,12 +91,25 @@ describe("scheduler - lifecycle simulations", () => {
       lapsesSettings,
     );
 
-    expect(card.status).toBe(CardStatus.LEARNING);
+    expect(card.status).toBe(CardStatus.RELEARNING);
     expect(card.state).toBe(State.Relearning);
-    expect(card.learningStep).toBe(0);
+    expect(card.learningStep).toBe(-1);
     expect(card.lapses).toBe(1);
     expect(card.stability).toBeLessThan(preLapseStability || 100);
 
+    // First Good completes step 0, stays in relearning
+    card = calculateNextReview(
+      card,
+      "Good",
+      undefined,
+      learningSteps,
+      lapsesSettings,
+    );
+    expect(card.status).toBe(CardStatus.RELEARNING);
+    expect(card.state).toBe(State.Relearning);
+    expect(card.learningStep).toBe(0);
+
+    // Second Good advances past all steps, graduates to Review
     card = calculateNextReview(
       card,
       "Good",

@@ -7,6 +7,7 @@ const generateRandomCard = (seed: number): Card => {
   const statuses = [
     CardStatus.NEW,
     CardStatus.LEARNING,
+    CardStatus.RELEARNING,
     CardStatus.REVIEW,
     CardStatus.KNOWN,
   ];
@@ -178,6 +179,7 @@ describe("scheduler - invariant tests (fuzzing)", () => {
         expect(
           card.status === CardStatus.NEW ||
             card.status === CardStatus.LEARNING ||
+            card.status === CardStatus.RELEARNING ||
             card.status === CardStatus.REVIEW ||
             card.status === CardStatus.SUSPENDED ||
             card.status === CardStatus.KNOWN,

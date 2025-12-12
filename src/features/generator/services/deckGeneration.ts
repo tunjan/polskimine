@@ -1,5 +1,5 @@
 import { aiService } from "@/lib/ai";
-import { Card, Difficulty, Language } from "@/types";
+import { Card, CardStatus, Difficulty, Language } from "@/types";
 
 export interface GenerateInitialDeckOptions {
   language: Language;
@@ -23,7 +23,6 @@ export async function generateInitialDeck(
       "Ordering Coffee, Pastries & Restaurant Basics",
       "Navigating the City & Public Transport Survival",
       "Talking about Hobbies, Movies & Weekend Plans",
-      "Essential Health & Emergency Phrases (Safety First)",
     ];
 
     const promises = topics.map((topic) =>
@@ -55,7 +54,7 @@ export async function generateInitialDeck(
       notes: card.notes,
       furigana: card.furigana,
       language: options.language,
-      status: "new" as const,
+      status: CardStatus.NEW,
       interval: 0,
       easeFactor: 2.5,
       dueDate: new Date(now + index * 1000).toISOString(),

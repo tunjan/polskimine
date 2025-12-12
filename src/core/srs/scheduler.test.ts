@@ -106,8 +106,8 @@ describe("scheduler", () => {
         );
 
         expect(result.state).toBe(State.Relearning);
-        expect(result.learningStep).toBe(0);
-        expect(result.status).toBe(CardStatus.LEARNING);
+        expect(result.learningStep).toBe(-1);
+        expect(result.status).toBe(CardStatus.RELEARNING);
       });
 
       it("should progress through relearning steps on Good", () => {
@@ -129,6 +129,7 @@ describe("scheduler", () => {
 
         expect(result.learningStep).toBe(1);
         expect(result.state).toBe(State.Relearning);
+        expect(result.status).toBe(CardStatus.RELEARNING);
       });
 
       it("should exit relearning to Review on completing all steps", () => {
@@ -156,7 +157,7 @@ describe("scheduler", () => {
 
       it("should stay at current step on Hard during relearning", () => {
         const card = createBaseCard({
-          status: CardStatus.LEARNING,
+          status: CardStatus.RELEARNING,
           state: State.Relearning,
           learningStep: 1,
           lapses: 1,
@@ -173,7 +174,7 @@ describe("scheduler", () => {
 
         expect(result.learningStep).toBe(1);
         expect(result.state).toBe(State.Relearning);
-        expect(result.status).toBe(CardStatus.LEARNING);
+        expect(result.status).toBe(CardStatus.RELEARNING);
       });
 
       it("should exit relearning immediately on Easy", () => {
@@ -216,8 +217,9 @@ describe("scheduler", () => {
           lapsesSettings,
         );
 
-        expect(result.learningStep).toBe(0);
+        expect(result.learningStep).toBe(-1);
         expect(result.state).toBe(State.Relearning);
+        expect(result.status).toBe(CardStatus.RELEARNING);
       });
     });
 
@@ -405,7 +407,7 @@ describe("scheduler", () => {
         );
 
         expect(result.state).toBe(State.Relearning);
-        expect(result.learningStep).toBe(0);
+        expect(result.learningStep).toBe(-1);
         expect(result.isLeech).toBe(true);
         expect(result.status).toBe(CardStatus.SUSPENDED);
       });
