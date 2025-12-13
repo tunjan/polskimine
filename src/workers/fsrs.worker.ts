@@ -1,5 +1,5 @@
-import { ReviewLog } from "@/types";
-import { OPTIMIZER_CONFIG, runOptimizerIteration } from "@/lib/fsrsShared";
+import { ReviewLog } from "../types";
+import { OPTIMIZER_CONFIG, runOptimizerIteration } from "../lib/fsrsShared";
 
 const optimizeFSRS = async (
   allLogs: ReviewLog[],

@@ -9,16 +9,12 @@ import type {
   LeechActionValue,
 } from "@/constants/settings";
 export type { CardOrderValue } from "@/constants/settings";
-import { Card as FSRSCard, State as FSRSState } from "ts-fsrs";
+import { Card as FSRSCard, State as FSRSState, State } from "ts-fsrs";
+export { State as CardStatus } from "ts-fsrs";
 
 export type Difficulty = "A1" | "A2" | "B1" | "B2" | "C1" | "C2";
 
-import { CardStatus } from "./cardStatus";
-export {
-  CardStatus,
-  mapFsrsStateToStatus,
-  mapStatusToFsrsState,
-} from "./cardStatus";
+
 
 export interface Card extends Omit<Partial<FSRSCard>, "due" | "last_review"> {
   id: string;
@@ -33,11 +29,19 @@ export interface Card extends Omit<Partial<FSRSCard>, "due" | "last_review"> {
   notes: string;
 
   language: Language;
-  status: CardStatus;
+
+    type: number;
+
+    queue: number;
+
+    due: number;
+
+    last_modified: number;
+
+    left: number;
 
   interval: number;
   easeFactor: number;
-  dueDate: string;
 
   stability?: number;
   difficulty?: number;
@@ -46,16 +50,16 @@ export interface Card extends Omit<Partial<FSRSCard>, "due" | "last_review"> {
   reps?: number;
   lapses?: number;
   state?: FSRSState;
-  due?: string;
-  last_review?: string;
-  first_review?: string;
+  
+  last_review?: number;
+  first_review?: number;
   learningStep?: number;
   leechCount?: number;
   isLeech?: boolean;
   isBookmarked?: boolean;
   precise_interval?: number;
   user_id?: string;
-  created_at?: string;
+  created_at?: number;
   tags?: string[];
 }
 

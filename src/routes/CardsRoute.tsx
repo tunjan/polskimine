@@ -23,7 +23,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 import { useDeckStats } from "@/features/collection/hooks/useDeckStats";
-import { Card, CardStatus } from "@/types";
+import { Card } from "@/types";
 import { AddCardModal } from "@/features/collection/components/AddCardModal";
 import { GenerateCardsModal } from "@/features/generator/components/GenerateCardsModal";
 import { CardHistoryModal } from "@/features/collection/components/CardHistoryModal";
@@ -35,6 +35,13 @@ import {
 } from "@/features/collection/hooks/useCardsQuery";
 
 import { cn } from "@/lib/utils";
+
+const CARD_TYPES = [
+  { value: 0, label: "New" },
+  { value: 1, label: "Learning" },
+  { value: 2, label: "Review" },
+  { value: 3, label: "Relearning" },
+];
 
 export const CardsRoute: React.FC = () => {
   const { stats } = useDeckStats();
@@ -66,7 +73,7 @@ export const CardsRoute: React.FC = () => {
   const totalCount = data?.count || 0;
 
   const activeFilterCount =
-    (filters.status && filters.status !== "all" ? 1 : 0) +
+    (filters.type !== undefined && filters.type !== "all" ? 1 : 0) +
     (filters.bookmarked ? 1 : 0) +
     (filters.leech ? 1 : 0);
 
@@ -113,9 +120,9 @@ export const CardsRoute: React.FC = () => {
         if (isShift && lastSelectedIndex !== null) {
           const start = Math.min(lastSelectedIndex, index);
           const end = Math.max(lastSelectedIndex, index);
-          const idsInRange = cards.slice(start, end + 1).map((c) => c.id);
+          const idsInRange = cards.slice(start, end + 1).map((c: Card) => c.id);
           const shouldSelect = !prev.has(id);
-          idsInRange.forEach((rangeId) =>
+          idsInRange.forEach((rangeId: string) =>
             shouldSelect ? next.add(rangeId) : next.delete(rangeId),
           );
         } else {
@@ -149,19 +156,19 @@ export const CardsRoute: React.FC = () => {
   };
 
   const handleSelectAll = useCallback(() => {
-    const allCurrentPageIds = cards.map((c) => c.id);
-    const allSelected = allCurrentPageIds.every((id) => selectedIds.has(id));
+    const allCurrentPageIds = cards.map((c: Card) => c.id);
+    const allSelected = allCurrentPageIds.every((id: string) => selectedIds.has(id));
 
     if (allSelected) {
       setSelectedIds((prev) => {
         const next = new Set(prev);
-        allCurrentPageIds.forEach((id) => next.delete(id));
+        allCurrentPageIds.forEach((id: string) => next.delete(id));
         return next;
       });
     } else {
       setSelectedIds((prev) => {
         const next = new Set(prev);
-        allCurrentPageIds.forEach((id) => next.add(id));
+        allCurrentPageIds.forEach((id: string) => next.add(id));
         return next;
       });
     }
@@ -237,23 +244,22 @@ export const CardsRoute: React.FC = () => {
 
                     <div className="space-y-2">
                       <label className="text-xs font-medium text-muted-foreground">
-                        Status
+                        Status (Type)
                       </label>
                       <div className="grid grid-cols-2 gap-2">
-                        {(
-                          [
-                            "all",
-                            CardStatus.NEW,
-                            CardStatus.LEARNING,
-                            CardStatus.REVIEW,
-                            CardStatus.KNOWN,
-                          ] as const
-                        ).map((status) => (
+                        <Button
+                           variant={!filters.type && filters.type !== 0 ? "default" : "outline"}
+                           size="sm"
+                           onClick={() => setFilters(f => ({ ...f, type: undefined }))}
+                           className="capitalize h-8 text-xs font-normal"
+                        >
+                          All
+                        </Button>
+                        {CARD_TYPES.map((type) => (
                           <Button
-                            key={status}
+                            key={type.value}
                             variant={
-                              filters.status === status ||
-                              (!filters.status && status === "all")
+                              filters.type === type.value
                                 ? "default"
                                 : "outline"
                             }
@@ -261,14 +267,12 @@ export const CardsRoute: React.FC = () => {
                             onClick={() =>
                               setFilters((f) => ({
                                 ...f,
-                                status: status === "all" ? undefined : status,
+                                type: type.value,
                               }))
                             }
                             className="capitalize h-8 text-xs font-normal"
                           >
-                            {status === CardStatus.REVIEW
-                              ? "graduated"
-                              : status}
+                            {type.label}
                           </Button>
                         ))}
                       </div>
@@ -335,6 +339,11 @@ export const CardsRoute: React.FC = () => {
                   { id: "nativeTranslation", label: "Translation" },
                   { id: "dueDate", label: "Due" },
                   { id: "created_at", label: "Created" },
+                  { id: "left", label: "Steps Left" },
+                  { id: "type", label: "Type" },
+                  { id: "queue", label: "Queue" },
+                  { id: "due", label: "Anki Due" },
+                  { id: "last_modified", label: "Last Modified" },
                 ].map((column) => (
                   <DropdownMenuCheckboxItem
                     key={column.id}

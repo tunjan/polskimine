@@ -80,12 +80,7 @@ export function ActivityHeatmap({
       <div className="w-full overflow-x-auto pb-2">
         <div className="min-w-[600px] px-6">
           <div className="flex gap-1 text-xs text-muted-foreground mb-2">
-            {/* We'll simplify month labels to just be distributed, or we can try to align them better. 
-                For now, distributing them evenly with flex-1 is a decent approximation if weeks are even. 
-                However, months have different lengths. 
-                Let's keep the existing distribution but make it w-full. 
-            */}
-            {[
+                        {[
               "Jan",
               "Feb",
               "Mar",

@@ -1,4 +1,4 @@
-import { Card, CardStatus } from "@/types";
+import { Card } from "@/types";
 import { State } from "ts-fsrs";
 
 export const inferCardState = (
@@ -17,19 +17,23 @@ export const inferCardState = (
     return card.state;
   }
 
-  if (card.status === CardStatus.NEW) {
+  if (card.type === 0) {
     return State.New;
   }
 
-  if (card.status === CardStatus.LEARNING) {
+  if (card.type === 1) {
     if ((card.reps || 0) === 0) {
       return State.Learning;
     }
     return card.lapses && card.lapses > 0 ? State.Relearning : State.Learning;
   }
 
-  if (card.status === CardStatus.REVIEW || card.status === CardStatus.KNOWN) {
+  if (card.type === 2) {
     return State.Review;
+  }
+  
+  if (card.type === 3) {
+    return State.Relearning;
   }
 
   if ((card.reps || 0) === 0) {
@@ -45,7 +49,7 @@ export const isInLearningPhase = (
 ): boolean => {
   const rawStep = card.learningStep ?? 0;
   const isNewOrLearning =
-    card.status === CardStatus.NEW || card.status === CardStatus.LEARNING;
+    card.type === 0 || card.type === 1;
 
   return isNewOrLearning && rawStep < learningSteps.length;
 };
@@ -61,7 +65,8 @@ export const isInRelearningPhase = (
   const hasLapsed = (card.lapses || 0) > 0;
   const isRelearningState =
     card.state === State.Relearning ||
-    (card.status === CardStatus.LEARNING && hasLapsed);
+    (card.type === 1 && hasLapsed) ||     card.type === 3;
+    
   const hasRelearningStep = card.learningStep !== undefined;
 
   return isRelearningState && hasRelearningStep;

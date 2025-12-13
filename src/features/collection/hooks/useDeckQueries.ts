@@ -18,6 +18,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useGamification } from "@/contexts/GamificationContext";
 import { toast } from "sonner";
 import { CardXpPayload } from "@/core/gamification/xp";
+import { State } from "ts-fsrs";
 
 export const useDeckStatsQuery = () => {
   const language = useSettingsStore((s) => s.language);
@@ -89,7 +90,7 @@ export const useRecordReviewMutation = () => {
 
       await db.transaction(
         "rw",
-        [db.cards, db.revlog, db.aggregated_stats, db.history],
+        [db.cards, db.notes, db.revlog, db.aggregated_stats, db.history],
         async () => {
           await saveCard(newCard);
           await addReviewLog(card, grade, elapsedDays, scheduledDays);
@@ -131,9 +132,9 @@ export const useRecordReviewMutation = () => {
       queryClient.setQueryData(["reviewsToday", language], (old: any) => {
         if (!old) return { newCards: 0, reviewCards: 0 };
         return {
-          newCards: card.status === "new" ? old.newCards + 1 : old.newCards,
+          newCards: card.state === State.New ? old.newCards + 1 : old.newCards,
           reviewCards:
-            card.status !== "new" ? old.reviewCards + 1 : old.reviewCards,
+            card.state !== State.New ? old.reviewCards + 1 : old.reviewCards,
         };
       });
 
@@ -241,16 +242,19 @@ export const useUndoReviewMutation = () => {
     }) => {
       await db.transaction(
         "rw",
-        [db.cards, db.history, db.revlog],
+        [db.cards, db.notes, db.history, db.revlog],
         async () => {
           await saveCard(card);
           await incrementHistory(date, -1, card.language || language);
 
-          const latestLog = await db.revlog
-            .where("card_id")
-            .equals(card.id)
-            .reverse()
-            .first();
+          const cid = parseInt(card.id);
+          const latestLog = !isNaN(cid) 
+            ? await db.revlog
+                .where("cid")
+                .equals(cid)
+                .reverse()
+                .first()
+            : undefined;
           if (latestLog) {
             await db.revlog.delete(latestLog.id);
           }

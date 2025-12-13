@@ -9,7 +9,7 @@ import { useSettingsStore } from "@/stores/useSettingsStore";
 import { useShallow } from "zustand/react/shallow";
 import { useCardOperations } from "@/features/collection/hooks/useCardOperations";
 import { isNewCard } from "@/services/studyLimits";
-import { getCramCards, getDueCards } from "@/db/repositories/cardRepository";
+import { getCramCards, getDueCards, getNewCards } from "@/db/repositories/cardRepository";
 import { getTodayReviewStats } from "@/db/repositories/statsRepository";
 import { useClaimDailyBonusMutation } from "@/features/collection/hooks/useDeckQueries";
 import { CardXpPayload } from "@/core/gamification/xp";
@@ -74,17 +74,21 @@ const StudyRoute: React.FC = () => {
 
           const now = new Date();
 
-          const [due, reviewsToday] = (await Promise.race([
+          const dailyNewLimit = dailyNewLimits?.[language] ?? 20;
+          const [due, newCards, reviewsToday] = (await Promise.race([
             Promise.all([
               getDueCards(now, language, ignoreLearningStepsWhenNoCards),
-              getTodayReviewStats(language),
+              getNewCards(language, dailyNewLimit),               getTodayReviewStats(language),
             ]),
             timeoutPromise,
-          ])) as [Card[], { newCards: number; reviewCards: number }];
+          ])) as [Card[], Card[], { newCards: number; reviewCards: number }];
+
+          const allPotentialCards = [...due, ...newCards];
 
           if (!isMounted) return;
 
-          const dailyNewLimit = dailyNewLimits?.[language] ?? 20;
+          if (!isMounted) return;
+
           const dailyReviewLimit = dailyReviewLimits?.[language] ?? 100;
 
           const active: Card[] = [];
@@ -95,7 +99,7 @@ const StudyRoute: React.FC = () => {
 
           const hasLimit = (val: number) => val > 0;
 
-          for (const card of due) {
+          for (const card of allPotentialCards) {
             if (isNewCard(card)) {
               if (hasLimit(dailyNewLimit) && newCount >= dailyNewLimit) {
                 reserve.push(card);
@@ -153,7 +157,7 @@ const StudyRoute: React.FC = () => {
 
   const handleUpdateCard = (card: Card) => {
     if (isCramMode) {
-      if (card.status === "known") {
+      if (card.type === 2) {
         updateCard(card, { silent: true });
       }
       return;

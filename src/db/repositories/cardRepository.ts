@@ -1,149 +1,73 @@
 import {
   Card,
-  CardStatus,
-  mapFsrsStateToStatus,
   Language,
   LanguageId,
 } from "@/types";
+import Dexie from "dexie";
 import { State as FSRSState } from "ts-fsrs";
-import { getSRSDate } from "@/core/srs";
 import { db } from "@/db/dexie";
 import { generateId } from "@/utils/ids";
-import { SRS_CONFIG } from "@/constants";
-import { toast } from "sonner";
-import { z } from "zod";
+import { AnkiCard, Note } from "@/db/types";
+import { joinFields, DEFAULT_MODEL_ID, DEFAULT_DECK_ID } from "@/db/models";
 
 const SESSION_KEY = "linguaflow_current_user";
+
+let lastGeneratedId = 0;
+
+const generateUniqueTimestampId = (): number => {
+    let id = Date.now();
+    if (id <= lastGeneratedId) {
+        id = lastGeneratedId + 1;
+    }
+    lastGeneratedId = id;
+    return id;
+};
 
 export const getCurrentUserId = (): string | null => {
   return localStorage.getItem(SESSION_KEY);
 };
 
-let hasWarnedAboutCorruption = false;
-
-const SafeNumber = (fieldName: string) =>
-  z.preprocess((val) => {
-    if (typeof val === "number" && isNaN(val)) {
-      console.warn(
-        `[CardRepository] Found NaN value in field '${fieldName}', resetting to 0. corrupted_val:`,
-        val,
-      );
-
-      if (!hasWarnedAboutCorruption) {
-        hasWarnedAboutCorruption = true;
-        setTimeout(() => {
-          toast.warning("Repaired corrupted card data", {
-            description:
-              "Found invalid numbers (NaN) and reset them to 0. Check console for details.",
-            duration: 5000,
-          });
-        }, 0);
-      }
-      return 0;
-    }
-    return val;
-  }, z.number());
-
-const DBRawCardSchema = z.object({
-  id: z.string(),
-  targetSentence: z.string(),
-  targetWord: z.string().optional().nullable(),
-  targetWordTranslation: z.string().optional().nullable(),
-  targetWordPartOfSpeech: z.string().optional().nullable(),
-  nativeTranslation: z.string(),
-  furigana: z.string().optional().nullable(),
-  gender: z.string().optional().nullable(),
-  grammaticalCase: z.string().optional().nullable(),
-  notes: z.string().optional().nullable().default(""),
-
-  language: z.string().default("polish"),
-  status: z
-    .union([z.nativeEnum(CardStatus), z.string()])
-    .transform((val) => val as CardStatus),
-
-  interval: SafeNumber("interval").default(0),
-  easeFactor: SafeNumber("easeFactor").default(2.5),
-  dueDate: z.string(),
-
-  stability: SafeNumber("stability").optional().nullable(),
-  difficulty: SafeNumber("difficulty").optional().nullable(),
-  elapsed_days: SafeNumber("elapsed_days").optional().nullable(),
-  scheduled_days: SafeNumber("scheduled_days").optional().nullable(),
-  reps: SafeNumber("reps").optional().nullable(),
-  lapses: SafeNumber("lapses").optional().nullable(),
-  state: SafeNumber("state").optional().nullable(),
-  due: z.string().optional().nullable(),
-  last_review: z.string().optional().nullable(),
-  first_review: z.string().optional().nullable(),
-
-  learningStep: SafeNumber("learningStep").optional().nullable(),
-  leechCount: SafeNumber("leechCount").optional().nullable(),
-  isLeech: z.boolean().optional().default(false),
-  isBookmarked: z.boolean().optional().default(false),
-  precise_interval: SafeNumber("precise_interval").optional().nullable(),
-
-  user_id: z.string().optional().nullable(),
-  created_at: z.string().optional().nullable(),
-});
-
-export type DBRawCard = z.infer<typeof DBRawCardSchema>;
-
-export const mapToCard = (data: unknown): Card => {
-  const result = DBRawCardSchema.safeParse(data);
-
-  if (!result.success) {
-    console.error("Card validation failed:", result.error, data);
-    throw new Error(`Card validation failed: ${result.error.message}`);
-  }
-
-  const validData = result.data;
-
+const mapToAppCard = (card: AnkiCard): Card => {
   return {
-    id: validData.id,
-    targetSentence: validData.targetSentence,
-    targetWord: validData.targetWord || undefined,
-    targetWordTranslation: validData.targetWordTranslation || undefined,
-    targetWordPartOfSpeech: validData.targetWordPartOfSpeech || undefined,
-    nativeTranslation: validData.nativeTranslation,
-    furigana: validData.furigana || undefined,
-    gender: validData.gender || undefined,
-    grammaticalCase: validData.grammaticalCase || undefined,
-    notes: validData.notes || "",
+    id: card.id.toString(),
+    targetSentence: card.target_sentence || "",
+    nativeTranslation: card.native_translation || "",
+    targetWord: card.target_word || "",
+    notes: card.notes || "",
+    
+    language: (card.language as Language) || LanguageId.Polish,
+    
+    type: card.type,
+    queue: card.queue,
+    due: card.due,        
+    last_modified: card.mod,
+    left: card.left,
 
-    language: validData.language as Language,
-    status: validData.status,
-    interval: validData.interval,
-    easeFactor: validData.easeFactor,
-    dueDate: validData.dueDate,
+    interval: card.ivl,
+    easeFactor: card.factor,
 
-    stability: validData.stability ?? undefined,
-    difficulty: validData.difficulty ?? undefined,
-    elapsed_days: validData.elapsed_days ?? undefined,
-    scheduled_days: validData.scheduled_days ?? undefined,
-    reps: validData.reps ?? undefined,
-    lapses: validData.lapses ?? undefined,
-    state: validData.state ?? undefined,
-    due: validData.due ?? undefined,
-    last_review: validData.last_review ?? undefined,
-    first_review: validData.first_review ?? undefined,
-
-    learningStep: validData.learningStep ?? undefined,
-    leechCount: validData.leechCount ?? undefined,
-    isLeech: validData.isLeech,
-    isBookmarked: validData.isBookmarked,
-    precise_interval: validData.precise_interval ?? undefined,
-
-    user_id: validData.user_id ?? undefined,
-    created_at: validData.created_at ?? undefined,
-  } as Card;
+    stability: card.stability,
+    difficulty: card.difficulty,
+    elapsed_days: card.elapsed_days,
+    scheduled_days: card.scheduled_days,
+    reps: card.reps,
+    lapses: card.lapses,
+    state: card.state as FSRSState,
+    
+    isLeech: card.isLeech,
+    isBookmarked: card.isBookmarked,
+    
+    user_id: card.user_id,
+    created_at: card.created_at || card.id, // Fallback to ID if created_at missing
+  };
 };
 
 export const getCards = async (): Promise<Card[]> => {
   const userId = getCurrentUserId();
   if (!userId) return [];
 
-  const rawCards = await db.cards.where("user_id").equals(userId).toArray();
-  return rawCards.map(mapToCard);
+  const ankiCards = await db.cards.where("user_id").equals(userId).toArray();
+  return ankiCards.map(mapToAppCard);
 };
 
 export const getAllCardsByLanguage = async (
@@ -152,32 +76,257 @@ export const getAllCardsByLanguage = async (
   const userId = getCurrentUserId();
   if (!userId) return [];
 
-  const rawCards = await db.cards
+  const ankiCards = await db.cards
     .where("[user_id+language]")
     .equals([userId, language])
     .toArray();
-  return rawCards.map(mapToCard);
+
+  return ankiCards.map(mapToAppCard);
 };
 
-export const getCardsForRetention = async (
+
+export const getCardsForDashboard = async (
   language: Language,
-): Promise<Partial<Card>[]> => {
+): Promise<
+  Array<{
+    id: string;
+    type: number;
+    queue: number;
+    due: number;
+    stability: number | null;
+    state: number | null;
+  }>
+> => {
+  const userId = getCurrentUserId();
+  if (!userId) return [];
+
+  const ankiCards = await db.cards
+    .where("[user_id+language]")
+    .equals([userId, language])
+    .toArray();
+
+  return ankiCards.map((card) => ({
+    id: card.id.toString(),
+    type: card.type,
+    queue: card.queue,
+    due: card.due,
+    stability: card.stability ?? null,
+    state: card.state ?? null,
+  }));
+};
+
+export const saveCard = async (card: Card) => {
+  const userId = getCurrentUserId();
+  
+  const last_modified = Math.floor(Date.now() / 1000);   
+            
+  let cid: number;
+  let nid: number;
+
+  const existingId = parseInt(card.id);
+  if (!isNaN(existingId)) {
+      cid = existingId;
+      const existingCard = await db.cards.get(cid);
+      if (existingCard) {
+          nid = existingCard.nid;
+      } else {
+          cid = generateUniqueTimestampId();
+          nid = cid; 
+      }
+  } else {
+      cid = generateUniqueTimestampId();
+      nid = cid;
+  }
+  
+    const flds = joinFields([
+      card.targetSentence,
+      card.nativeTranslation,
+      card.notes,
+      "", 
+      ""
+  ]);
+  
+  // Note: We still save the note for backward compatibility/backup
+  const note: Note = {
+      id: nid,
+      guid: generateId().slice(0, 10),
+      mid: DEFAULT_MODEL_ID,
+      mod: last_modified,
+      usn: -1,
+      tags: (card.tags || []).join(" "),
+      flds,
+      sfld: card.targetSentence,
+      csum: 0,
+      language: card.language,
+      user_id: card.user_id || userId || "local_user",
+  };
+  
+  const ankiCard: AnkiCard = {
+      id: cid,
+      nid: nid,
+      did: DEFAULT_DECK_ID,
+      ord: 0,
+      mod: last_modified,
+      usn: -1,
+      type: card.type,
+      queue: card.queue,
+      due: card.due,
+      ivl: card.interval,
+      factor: card.easeFactor,
+      reps: card.reps || 0,
+      lapses: card.lapses || 0,
+      left: card.left,
+      odue: 0,
+      odid: 0,
+      
+      stability: card.stability,
+      difficulty: card.difficulty,
+      elapsed_days: card.elapsed_days,
+      scheduled_days: card.scheduled_days,
+      state: card.state as number,
+      
+      language: card.language,
+      isBookmarked: card.isBookmarked,
+      isLeech: card.isLeech,
+      user_id: card.user_id || userId || "local_user",
+      
+      // New Fields
+      target_sentence: card.targetSentence,
+      native_translation: card.nativeTranslation,
+      notes: card.notes,
+      target_word: card.targetWord, 
+      tags: (card.tags || []).join(" "),
+      created_at: nid,
+  };
+
+  await db.transaction("rw", [db.notes, db.cards], async () => {
+      await db.notes.put(note);
+      await db.cards.put(ankiCard);
+  });
+};
+
+
+export const deleteCard = async (id: string) => {
+    const cid = parseInt(id);
+    if (isNaN(cid)) return; 
+    await db.transaction("rw", [db.cards, db.revlog, db.notes], async () => {
+        const card = await db.cards.get(cid);
+        if (card) {
+            const otherCards = await db.cards.where("nid").equals(card.nid).count();
+             if (otherCards <= 1) {
+                 await db.notes.delete(card.nid);
+             }
+             await db.cards.delete(cid);
+        }
+    });
+};
+
+export const deleteCardsBatch = async (ids: string[]) => {
+  if (!ids.length) return;
+  const cids = ids.map(id => parseInt(id)).filter(id => !isNaN(id));
+  
+  await db.transaction("rw", [db.cards, db.revlog, db.notes], async () => {
+      for (const cid of cids) {
+          const card = await db.cards.get(cid);
+          if (card) {
+             const otherCards = await db.cards.where("nid").equals(card.nid).count();
+             if (otherCards <= 1) {
+                 await db.notes.delete(card.nid);
+             }
+             await db.cards.delete(cid);
+          }
+      }
+  });
+};
+
+export const saveAllCards = async (cards: Card[]) => {
+    for (const card of cards) {
+      await saveCard(card);
+  }
+};
+
+export const clearAllCards = async () => {
+  const userId = getCurrentUserId();
+  if (!userId) return;
+
+  await db.transaction("rw", [db.cards, db.notes], async () => {
+      await db.cards.where("user_id").equals(userId).delete();
+      await db.notes.where("user_id").equals(userId).delete(); 
+  });
+};
+
+export const getDueCards = async (
+  now: Date,
+  language: Language,
+  ignoreLearningSteps: boolean = false,
+): Promise<Card[]> => {
+  const userId = getCurrentUserId();
+  if (!userId) return [];
+
+  const nowSeconds = Math.floor(now.getTime() / 1000);
+  const nowDays = Math.floor(now.getTime() / (24 * 60 * 60 * 1000));
+
+  const learningDueLimit = ignoreLearningSteps ? Dexie.maxKey : nowSeconds;
+
+  const [learningCards, reviewCards, dayLearnCards] = await Promise.all([
+      db.cards
+      .where("[user_id+language+queue+due]")
+      .between(
+        [userId, language, 1, 0],
+        [userId, language, 1, learningDueLimit],
+        true,
+        true
+      )
+      .limit(200) // Limit Intraday
+      .toArray(),
+
+        db.cards
+      .where("[user_id+language+queue+due]")
+      .between(
+        [userId, language, 2, 0],
+        [userId, language, 2, nowDays],
+        true,
+        true
+      )
+      .limit(500) // Limit Reviews to prevent OOM
+      .toArray(),
+
+        db.cards
+      .where("[user_id+language+queue+due]")
+      .between(
+        [userId, language, 3, 0],
+        [userId, language, 3, nowDays],
+        true,
+        true
+      )
+      .limit(200) // Limit Interday
+      .toArray(),
+  ]);
+
+  const allDueAnkiCards = [...learningCards, ...reviewCards, ...dayLearnCards];
+  return allDueAnkiCards.map(mapToAppCard);
+};
+
+export const getNewCards = async (
+  language: Language,
+  limit: number = 20,
+): Promise<Card[]> => {
   const userId = getCurrentUserId();
   if (!userId) return [];
 
   const rawCards = await db.cards
-    .where("[user_id+language]")
-    .equals([userId, language])
+    .where("[user_id+language+queue+due]")     .between(
+      [userId, language, 0, Dexie.minKey],
+      [userId, language, 0, Dexie.maxKey],
+      true,
+      true,
+    )
+    .limit(limit)
     .toArray();
-
-  return rawCards.map(mapToCard).map((c) => ({
-    id: c.id,
-    dueDate: c.dueDate,
-    status: c.status,
-    stability: c.stability,
-    state: c.state,
-  }));
+    
+  return rawCards.map(mapToAppCard);
 };
+
 
 export const getDashboardCounts = async (
   language: Language,
@@ -206,250 +355,79 @@ export const getDashboardCounts = async (
     };
 
   const now = new Date();
-  const srsToday = getSRSDate(now);
-  const cutoffDate = new Date(srsToday);
-  cutoffDate.setDate(cutoffDate.getDate() + 1);
-  cutoffDate.setHours(4);
-  const cutoffISO = cutoffDate.toISOString();
-  const nowISO = now.toISOString();
+  const nowSeconds = Math.floor(now.getTime() / 1000);
+  const nowDays = Math.floor(now.getTime() / (24 * 60 * 60 * 1000));
 
-  const [total, newCards, known, learningRaw, reviewRaw, due, reviewDue] =
-    await Promise.all([
-      db.cards.where("[user_id+language]").equals([userId, language]).count(),
-      db.cards
-        .where("[user_id+language+status]")
-        .equals([userId, language, "new"])
-        .count(),
-      db.cards
-        .where("[user_id+language+status]")
-        .equals([userId, language, "known"])
-        .count(),
+  const checkLearningDue = (due: number) => {
+      if (ignoreLearningSteps) return true;
+      return due <= nowSeconds;
+  };
 
-      db.cards
-        .where("[user_id+language+status]")
-        .equals([userId, language, "learning"])
-        .toArray(),
-
-      db.cards
-        .where("[user_id+language+status]")
-        .equals([userId, language, "review"])
-        .count(),
-
-      db.cards
-        .where("[user_id+language]")
-        .equals([userId, language])
-        .filter((c) => {
-          if (c.status === "known" || c.status === "suspended") return false;
-
-          if (
-            ignoreLearningSteps &&
-            (c.status === "learning" ||
-              c.state === Object(FSRSState).Learning ||
-              c.state === Object(FSRSState).Relearning)
-          ) {
-            return true;
-          }
-
-          const ONE_HOUR_IN_DAYS = 1 / 24;
-          const isShortInterval = (c.interval || 0) < ONE_HOUR_IN_DAYS;
-          if (isShortInterval) {
-            return c.dueDate <= nowISO;
-          }
-          return c.dueDate <= cutoffISO;
-        })
-        .count(),
-
-      db.cards
-        .where("[user_id+language+status]")
-        .equals([userId, language, "review"])
-        .filter((c) => {
-          const ONE_HOUR_IN_DAYS = 1 / 24;
-          const isShortInterval = (c.interval || 0) < ONE_HOUR_IN_DAYS;
-          if (isShortInterval) {
-            return c.dueDate <= nowISO;
-          }
-          return c.dueDate <= cutoffISO;
-        })
-        .count(),
-    ]);
-
+  let total = 0;
+  let newCount = 0;
   let learningCount = 0;
   let relearningCount = 0;
+  let reviewCount = 0;
+  let knownCount = 0;
+  let learnDue = 0;
+  let reviewDue = 0;
+  let dayLearnDue = 0;
 
-  learningRaw.forEach((c) => {
-    if ((c.lapses || 0) > 0) {
-      relearningCount++;
-    } else {
-      learningCount++;
-    }
-  });
+  // Single-pass aggregation
+  // We iterate over all cards for this user/language.
+  await db.cards
+    .where("[user_id+language]")
+    .equals([userId, language])
+    .each((card) => {
+        total++;
+        
+        // Type Counts
+        if (card.type === 0) newCount++;
+        else if (card.type === 1) learningCount++;
+        else if (card.type === 2) {
+            reviewCount++;
+            if ((card.ivl || 0) > 21) knownCount++;
+        }
+        else if (card.type === 3) relearningCount++;
+        
+        // Due Counts
+        if (card.queue === 1 && checkLearningDue(card.due)) {
+            learnDue++;
+        } else if (card.queue === 2 && card.due <= nowDays) {
+            reviewDue++;
+        } else if (card.queue === 3 && card.due <= nowDays) {
+            dayLearnDue++;
+        }
+    });
 
   return {
     total,
-    new: newCards,
+    new: newCount,
     learning: learningCount,
     relearning: relearningCount,
-    review: reviewRaw,
-    reviewDue,
-    known,
-    hueDue: due,
+    review: reviewCount,
+    reviewDue: reviewDue,
+    known: knownCount,
+    hueDue: learnDue + reviewDue + dayLearnDue,
   };
-};
-
-export const getCardsForDashboard = async (
-  language: Language,
-): Promise<
-  Array<{
-    id: string;
-    dueDate: string | null;
-    status: string;
-    stability: number | null;
-    state: number | null;
-  }>
-> => {
-  const userId = getCurrentUserId();
-  if (!userId) return [];
-
-  const rawCards = await db.cards
-    .where("[user_id+language]")
-    .equals([userId, language])
-    .toArray();
-
-  return rawCards.map(mapToCard).map((card) => ({
-    id: card.id,
-    dueDate: card.dueDate,
-    status: card.status,
-    stability: card.stability ?? null,
-    state: card.state ?? null,
-  }));
-};
-
-export const saveCard = async (card: Card) => {
-  const userId = getCurrentUserId();
-
-  const normalizedCard: Card = {
-    ...card,
-    id: card.id || generateId(),
-    user_id: card.user_id || userId || undefined,
-    reps: card.reps ?? 0,
-    lapses: card.lapses ?? 0,
-    state: card.state ?? FSRSState.New,
-    notes: card.notes ?? "",
-    isLeech: card.isLeech ?? false,
-    isBookmarked: card.isBookmarked ?? false,
-    created_at: card.created_at ?? new Date().toISOString(),
-  };
-
-  if (
-    normalizedCard.status !== CardStatus.KNOWN &&
-    normalizedCard.status !== CardStatus.SUSPENDED
-  ) {
-    if (normalizedCard.state !== undefined) {
-      normalizedCard.status = mapFsrsStateToStatus(normalizedCard.state);
-    }
-  }
-
-  const validatedCard = DBRawCardSchema.parse(normalizedCard);
-
-  await db.cards.put(validatedCard as Card);
-};
-
-export const deleteCard = async (id: string) => {
-  await db.transaction("rw", [db.cards, db.revlog], async () => {
-    await db.cards.delete(id);
-  });
-};
-
-export const deleteCardsBatch = async (ids: string[]) => {
-  if (!ids.length) return;
-  await db.transaction("rw", [db.cards, db.revlog], async () => {
-    await db.cards.bulkDelete(ids);
-  });
-};
-
-export const saveAllCards = async (cards: Card[]) => {
-  if (!cards.length) return;
-  const userId = getCurrentUserId();
-
-  const cardsWithIds = cards.map((card) => ({
-    ...card,
-    id: card.id || generateId(),
-    user_id: card.user_id || userId || undefined,
-  }));
-
-  await db.cards.bulkPut(cardsWithIds);
-};
-
-export const clearAllCards = async () => {
-  const userId = getCurrentUserId();
-  if (!userId) return;
-
-  await db.cards.where("user_id").equals(userId).delete();
-};
-
-export const getDueCards = async (
-  now: Date,
-  language: Language,
-  ignoreLearningSteps: boolean = false,
-): Promise<Card[]> => {
-  const userId = getCurrentUserId();
-  if (!userId) return [];
-
-  const srsToday = getSRSDate(now);
-  const cutoffDate = new Date(srsToday);
-  cutoffDate.setDate(cutoffDate.getDate() + 1);
-  cutoffDate.setHours(SRS_CONFIG.CUTOFF_HOUR);
-
-  const cutoffISO = cutoffDate.toISOString();
-  const nowISO = now.toISOString();
-  const ONE_HOUR_IN_DAYS = 1 / 24;
-
-  const rawCards = await db.cards
-    .where("[user_id+language]")
-    .equals([userId, language])
-    .filter((card) => {
-      if (card.status === "known" || card.status === "suspended") return false;
-
-      if (
-        ignoreLearningSteps &&
-        (card.status === "learning" ||
-          card.state === FSRSState.Learning ||
-          card.state === FSRSState.Relearning)
-      ) {
-        return true;
-      }
-
-      const isShortInterval = (card.interval || 0) < ONE_HOUR_IN_DAYS;
-      if (isShortInterval) {
-        return card.dueDate <= nowISO;
-      }
-      return card.dueDate <= cutoffISO;
-    })
-    .toArray();
-
-  return rawCards
-    .map(mapToCard)
-    .sort((a, b) => a.dueDate.localeCompare(b.dueDate));
 };
 
 export const getCramCards = async (
   limit: number,
-
   language?: Language,
 ): Promise<Card[]> => {
   const userId = getCurrentUserId();
   if (!userId) return [];
 
-  let rawCards = await db.cards
+  let ankiCards = await db.cards
     .where("[user_id+language]")
     .equals([userId, language || LanguageId.Polish])
     .toArray();
 
-  let cards = rawCards.map(mapToCard);
-
-  const shuffled = cards.sort(() => Math.random() - 0.5);
-  return shuffled.slice(0, limit);
+  const shuffled = ankiCards.sort(() => Math.random() - 0.5).slice(0, limit);
+  return shuffled.map(mapToAppCard);
 };
+
 
 export const deleteCardsByLanguage = async (language: Language) => {
   const userId = getCurrentUserId();
@@ -461,26 +439,12 @@ export const deleteCardsByLanguage = async (language: Language) => {
     .toArray();
 
   const ids = cardsToDelete.map((c) => c.id);
-  if (ids.length > 0) {
-    await db.cards.bulkDelete(ids);
-  }
-};
-
-export const getCardSignatures = async (
-  language: Language,
-): Promise<Array<{ target_sentence: string; language: string }>> => {
-  const userId = getCurrentUserId();
-  if (!userId) return [];
-
-  const rawCards = await db.cards
-    .where("[user_id+language]")
-    .equals([userId, language])
-    .toArray();
-
-  return rawCards.map(mapToCard).map((c) => ({
-    target_sentence: c.targetSentence,
-    language: c.language as string,
-  }));
+  const nids = [...new Set(cardsToDelete.map(c => c.nid))];
+  
+  await db.transaction("rw", [db.cards, db.notes], async () => {
+       if (ids.length > 0) await db.cards.bulkDelete(ids);
+       if (nids.length > 0) await db.notes.bulkDelete(nids); 
+  });
 };
 
 export const getLearnedWords = async (
@@ -489,18 +453,30 @@ export const getLearnedWords = async (
   const userId = getCurrentUserId();
   if (!userId) return [];
 
-  const rawCards = await db.cards
+  const learnedCards = await db.cards
+     .where("[user_id+language]")
+     .equals([userId, language])
+     .filter(c => c.type !== 0)
+     .toArray();
+
+  return learnedCards.map(c => c.target_word || c.target_sentence || "");
+};
+
+export const getCardSignatures = async (
+  language: Language,
+): Promise<Array<{ target_sentence: string; language: string }>> => {
+  const userId = getCurrentUserId();
+  if (!userId) return [];
+
+  const ankiCards = await db.cards
     .where("[user_id+language]")
     .equals([userId, language])
-    .filter((card) => card.status !== "new" && card.targetWord != null)
     .toArray();
-
-  const words = rawCards
-    .map(mapToCard)
-    .map((card) => card.targetWord)
-    .filter((word): word is string => word !== null && word !== undefined);
-
-  return [...new Set(words)];
+    
+  return ankiCards.map(c => ({
+      target_sentence: c.target_sentence || "",
+      language: c.language as string,
+  }));
 };
 
 export const getAllTargetWords = async (
@@ -508,18 +484,9 @@ export const getAllTargetWords = async (
 ): Promise<string[]> => {
   const userId = getCurrentUserId();
   if (!userId) return [];
-
-  const words: string[] = [];
-
-  await db.cards
-    .where("[user_id+language]")
-    .equals([userId, language])
-    .filter((card) => card.targetWord != null)
-    .each((card) => {
-      if (card.targetWord) words.push(card.targetWord);
-    });
-
-  return [...new Set(words)];
+  
+  const cards = await db.cards.where("[user_id+language]").equals([userId, language]).toArray();
+  return cards.map(c => c.target_word || c.target_sentence || "");
 };
 
 export const getCardByTargetWord = async (
@@ -530,76 +497,130 @@ export const getCardByTargetWord = async (
   if (!userId) return undefined;
 
   const lowerWord = targetWord.toLowerCase();
-  const rawCards = await db.cards
-    .where("[user_id+language]")
-    .equals([userId, language])
-    .filter((card) => card.targetWord?.toLowerCase() === lowerWord)
+  
+  // Note: This is still a scan without an index on target_word, but it avoids joins.
+  // Optimization: Add index on target_word in future if frequent.
+  const cards = await db.cards
+      .where("[user_id+language]")
+      .equals([userId, language])
+      .filter(c => (c.target_word || c.target_sentence || "").toLowerCase() === lowerWord)
+      .toArray();
+      
+  if (cards.length === 0) return undefined;
+  return mapToAppCard(cards[0]);
+};
+
+export const searchCards = async (
+  language: Language,
+  page: number = 0,
+  pageSize: number = 50,
+  searchTerm: string = "",
+  filters: { type?: number; bookmarked?: boolean; leech?: boolean } = {},
+): Promise<{ data: Card[]; count: number }> => {
+  const userId = getCurrentUserId();
+  if (!userId) return { data: [], count: 0 };
+
+    if (searchTerm) {
+    const term = searchTerm.toLowerCase();
+    
+    // 1. Scan Cards directly (Denormalized)
+    let collection = db.cards
+      .where("[user_id+language]")
+      .equals([userId, language])
+      .filter(c => {
+           const content = (c.target_sentence || "") + (c.native_translation || "") + (c.notes || "");
+           return content.toLowerCase().includes(term);
+      });
+      
+    // Apply filters
+    if (filters.type !== undefined) {
+        collection = collection.filter(c => c.type === filters.type);
+    }
+    if (filters.bookmarked) {
+        collection = collection.filter(c => c.isBookmarked ?? false);
+    }
+    if (filters.leech) {
+        collection = collection.filter(c => c.isLeech ?? false);
+    }
+    
+    // Count and Paginating a filtered collection in Dexie requires iterating or getting keys.
+    // For now, let's just fetch all matches (assuming reasonable result set size < 1000) or limit.
+    // Ideally we limit.
+    const LIMIT = 200;
+    const matches = await collection.limit(LIMIT).toArray();
+    
+    const count = matches.length; 
+    
+    // Sort by ID desc (newest first)
+    matches.sort((a, b) => b.id - a.id);
+    
+    const paginated = matches.slice(page * pageSize, (page + 1) * pageSize);
+    const data = paginated.map(mapToAppCard);
+    
+    return { data, count };
+  }
+
+  // No search term
+    let collection: Dexie.Collection<AnkiCard, number>;
+
+    if (filters.type !== undefined) {
+       collection = db.cards
+         .where("[user_id+language+type+due]")
+         .between(
+           [userId, language, filters.type, Dexie.minKey],
+           [userId, language, filters.type, Dexie.maxKey],
+           true, true
+         );
+  } else {
+       collection = db.cards
+         .where("[user_id+language]")
+         .equals([userId, language]);
+  }
+  
+  if ((filters.bookmarked ?? false) || (filters.leech ?? false)) {
+      collection = collection.filter(c => {
+          if ((filters.bookmarked ?? false) && !c.isBookmarked) return false;
+          if ((filters.leech ?? false) && !c.isLeech) return false;
+          return true;
+      });
+  }
+  
+  const count = await collection.count();
+  
+  const paginatedAnkiCards = await collection
+    .reverse()
+    .offset(page * pageSize)
+    .limit(pageSize)
     .toArray();
+    
+  return { data: paginatedAnkiCards.map(mapToAppCard), count };
+};
 
-  if (rawCards.length === 0) return undefined;
+export const unburyCards = async (): Promise<void> => {
+  const userId = getCurrentUserId();
+  if (!userId) return;
 
-  return mapToCard(rawCards[0]);
+  await db.transaction("rw", [db.cards], async () => {
+    // Find all buried cards (queue < -1) for the current user
+    const buriedCards = await db.cards
+      .where("user_id")
+      .equals(userId)
+      .filter((c) => c.queue < -1)
+      .toArray();
+
+    if (buriedCards.length === 0) return;
+
+    // Reset queue to type
+    for (const card of buriedCards) {
+      await db.cards.update(card.id, {
+        queue: card.type,
+        mod: Math.floor(Date.now() / 1000),
+        usn: -1,
+      });
+    }
+  });
 };
 
 export const repairCorruptedCards = async (): Promise<number> => {
-  const userId = getCurrentUserId();
-  if (!userId) return 0;
-
-  let fixedCount = 0;
-
-  await db.transaction("rw", db.cards, async () => {
-    const cardsToFix: Card[] = [];
-
-    await db.cards
-      .where("user_id")
-      .equals(userId)
-      .each((rawCard) => {
-        let needsFix = false;
-        const fixedCard = { ...rawCard };
-
-        const numericFields = [
-          "interval",
-          "easeFactor",
-          "stability",
-          "difficulty",
-          "elapsed_days",
-          "scheduled_days",
-          "reps",
-          "lapses",
-          "learningStep",
-          "leechCount",
-          "precise_interval",
-        ];
-
-        for (const field of numericFields) {
-          const val = (rawCard as any)[field];
-          if (typeof val === "number" && isNaN(val)) {
-            (fixedCard as any)[field] = 0;
-            needsFix = true;
-          }
-        }
-
-        if (needsFix) {
-          try {
-            const result = DBRawCardSchema.safeParse(fixedCard);
-            if (result.success) {
-              cardsToFix.push(mapToCard(fixedCard));
-              fixedCount++;
-            }
-          } catch (e) {
-            console.error("Failed to repair card:", rawCard, e);
-          }
-        }
-      });
-
-    if (cardsToFix.length > 0) {
-      await db.cards.bulkPut(cardsToFix);
-      console.log(
-        `[CardRepository] Repaired ${cardsToFix.length} corrupted cards.`,
-      );
-      toast.success(`Repaired ${cardsToFix.length} corrupted cards`);
-    }
-  });
-
-  return fixedCount;
+        return 0; 
 };

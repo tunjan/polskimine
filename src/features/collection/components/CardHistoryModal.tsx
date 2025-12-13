@@ -6,7 +6,7 @@ import {
   DialogHeader,
 } from "@/components/ui/dialog";
 import { Card } from "@/types";
-import { format, formatDistanceToNow, parseISO, isValid } from "date-fns";
+import { format, formatDistanceToNow, isValid } from "date-fns";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { ForgettingCurveChart } from "./ForgettingCurveChart";
@@ -61,13 +61,14 @@ export const CardHistoryModal: React.FC<CardHistoryModalProps> = ({
 
   const TimelineItem = ({
     label,
-    dateStr,
+    timestamp,
   }: {
     label: string;
-    dateStr?: string;
+    timestamp?: number;
   }) => {
-    if (!dateStr || !isValid(parseISO(dateStr))) return null;
-    const date = parseISO(dateStr);
+    if (!timestamp) return null;
+    const date = new Date(timestamp);
+    if (!isValid(date)) return null;
     return (
       <div className="flex justify-between items-baseline text-sm">
         <span className="text-muted-foreground">{label}</span>
@@ -135,10 +136,10 @@ export const CardHistoryModal: React.FC<CardHistoryModalProps> = ({
               Timeline
             </h4>
             <div className="space-y-3">
-              <TimelineItem label="Created" dateStr={card.created_at} />
-              <TimelineItem label="First Review" dateStr={card.first_review} />
-              <TimelineItem label="Last Review" dateStr={card.last_review} />
-              <TimelineItem label="Next Due" dateStr={card.dueDate} />
+              <TimelineItem label="Created" timestamp={card.created_at} />
+              <TimelineItem label="First Review" timestamp={card.first_review} />
+              <TimelineItem label="Last Review" timestamp={card.last_review} />
+              <TimelineItem label="Next Due" timestamp={card.due} />
             </div>
           </div>
         </div>

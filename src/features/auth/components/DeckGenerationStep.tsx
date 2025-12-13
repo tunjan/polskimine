@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { Sparkles, BookOpen } from "lucide-react";
-import { motion } from "framer-motion";
-import { Difficulty, Language, LanguageId, LANGUAGE_LABELS } from "@/types";
+import { Language, Difficulty, LANGUAGE_LABELS } from "@/types";
 import { cn } from "@/lib/utils";
 import { ButtonLoader } from "@/components/ui/loading";
 import { Button } from "@/components/ui/button";
@@ -66,7 +65,7 @@ export const DeckGenerationStep: React.FC<DeckGenerationStepProps> = ({
   return (
     <div className="space-y-6">
       <div className="space-y-2">
-        <p className="text-xs  text-muted-foreground uppercase tracking-wider">
+        <p className="text-xs text-muted-foreground uppercase tracking-wider">
           Choose how to start learning{" "}
           {languageCount > 1 ? `${languageCount} languages` : languageNames} at{" "}
           {getLevelDisplay()}.

@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { migrateCardStatuses } from "@/db/migrations/standardizeStatus";
+
 import { Button } from "@/components/ui/button";
 import { LoadingScreen } from "@/components/ui/loading";
 import { AppProviders } from "@/app/AppProviders";
@@ -59,12 +59,14 @@ const AppContent: React.FC = () => {
 
 const App: React.FC = () => {
   useEffect(() => {
-    const hasMigrated = localStorage.getItem("migration_v1_status");
-    if (!hasMigrated) {
-      migrateCardStatuses().then(() => {
-        localStorage.setItem("migration_v1_status", "true");
-      });
-    }
+    // We do NOT unbury cards on startup automatically anymore.
+    // Buried cards should remain buried until the next day (handled by scheduler date checks usually)
+    // or until manually unburied.
+    /*
+    import("@/db/repositories/cardRepository").then(({ unburyCards }) => {
+      unburyCards();
+    });
+    */
 
     const hasRepairedCards = localStorage.getItem("repair_corrupted_cards_v1");
     if (!hasRepairedCards) {

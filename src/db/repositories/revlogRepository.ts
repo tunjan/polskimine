@@ -30,13 +30,13 @@ const mapEaseToGrade = (ease: number): number => {
 
 const mapStateToReviewType = (state: State): number => {
     switch (state) {
-        case State.New: return 0;         case State.Learning: return 0;         case State.Review: return 1;         case State.Relearning: return 2;         default: return 3;     }
+        case State.New: return 0;         case State.Learning: return 1;         case State.Review: return 2;         case State.Relearning: return 3;         default: return 0;     }
 };
 
 export const addReviewLog = async (
   card: Card,
   grade: Grade,
-  elapsedDays: number,
+  _elapsedDays: number,
   scheduledDays: number,
 ) => {
   const userId = getCurrentUserId();

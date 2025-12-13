@@ -1,4 +1,4 @@
-import { Card, CardStatus, Language, LanguageId } from "@/types";
+import { Card, Language, LanguageId } from "@/types";
 import { State as FSRSState } from "ts-fsrs";
 import { v4 as uuidv4 } from "uuid";
 import { escapeRegExp, findInflectedWordInSentence } from "@/lib/utils";
@@ -79,19 +79,22 @@ export const createNewCard = (params: CreateCardParams): Card => {
     gender,
     grammaticalCase,
 
-    status: CardStatus.NEW,
+    type: 0,
+    queue: 0,
+    due: 0,
+    last_modified: Math.floor(Date.now() / 1000),
+    left: 0,
     state: FSRSState.New,
 
     interval: 0,
     easeFactor: 2.5,
-    dueDate: new Date().toISOString(),
 
     reps: 0,
     lapses: 0,
 
     isLeech: false,
     isBookmarked: false,
-    created_at: new Date().toISOString(),
+    created_at: Date.now(),
   };
 };
 
@@ -100,8 +103,7 @@ export const createNewCardWithOffset = (
   offsetMs: number,
 ): Card => {
   const card = createNewCard(params);
-  card.dueDate = new Date(Date.now() + offsetMs).toISOString();
-  return card;
+  card.created_at = Date.now() + offsetMs;     return card;
 };
 
 export const createPolishCard = (

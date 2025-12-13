@@ -17,11 +17,11 @@ export const getHistory = async (
       .equals([userId, language])
       .toArray();
     const cardIds = new Set(cards.map((c) => c.id));
-    logs = logs.filter((log) => cardIds.has(log.card_id));
+    logs = logs.filter((log) => cardIds.has(log.cid));
   }
 
   return logs.reduce<ReviewHistory>((acc, entry) => {
-    const dateKey = format(new Date(entry.created_at), "yyyy-MM-dd");
+        const dateKey = format(new Date(entry.id), "yyyy-MM-dd");
     acc[dateKey] = (acc[dateKey] || 0) + 1;
     return acc;
   }, {});

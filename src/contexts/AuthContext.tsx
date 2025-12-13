@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { db } from "@/db/dexie";
-import { hashPassword } from "@/utils/security";
+import { hashPassword, verifyPassword } from "@/utils/security";
 import { generateId } from "@/utils/ids";
 import { LocalUser } from "@/db/types";
 import { toast } from "sonner";
@@ -104,8 +104,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       throw new Error("User not found");
     }
 
-    const passwordHash = await hashPassword(password);
-    if (existingUser.passwordHash !== passwordHash) {
+    const isValid = await verifyPassword(password, existingUser.passwordHash);
+    if (!isValid) {
       throw new Error("Invalid password");
     }
 

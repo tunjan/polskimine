@@ -1,0 +1,201 @@
+
+[1m[46m RUN [49m[22m [36mv4.0.10 [39m[90m/Users/albertotrigo/Documents/polskimine[39m
+
+[90mstdout[2m | src/db/repositories/dashboard.verification.test.ts[2m > [22m[2mDashboard Counts Verification[2m > [22m[2mshould correctly aggregate counts in single pass
+[22m[39mStats: {
+  total: [33m7[39m,
+  new: [33m1[39m,
+  learning: [33m2[39m,
+  relearning: [33m1[39m,
+  review: [33m3[39m,
+  reviewDue: [33m1[39m,
+  known: [33m1[39m,
+  hueDue: [33m3[39m
+}
+
+ [32m✓[39m src/db/repositories/dashboard.verification.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 96[2mms[22m[39m
+ [32m✓[39m src/db/repositories/cardRepository.collision.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 280[2mms[22m[39m
+ [32m✓[39m src/features/auth/LoginScreen.test.tsx [2m([22m[2m3 tests[22m[2m)[22m[32m 189[2mms[22m[39m
+ [32m✓[39m src/features/dashboard/components/Dashboard.test.tsx [2m([22m[2m5 tests[22m[2m)[22m[33m 307[2mms[22m[39m
+ [32m✓[39m src/features/auth/components/LanguageSelector.test.tsx [2m([22m[2m4 tests[22m[2m)[22m[33m 377[2mms[22m[39m
+ [31m❯[39m src/features/auth/components/DeckGenerationStep.test.tsx [2m([22m[2m3 tests[22m[2m | [22m[31m1 failed[39m[2m)[22m[33m 543[2mms[22m[39m
+     [32m✓[39m should render options[32m 104[2mms[22m[39m
+     [33m[2m✓[22m[39m should select default and generate [33m 340[2mms[22m[39m
+[31m     [31m×[31m should require API key for AI[39m[32m 97[2mms[22m[39m
+ [32m✓[39m src/features/auth/components/LanguageLevelSelector.test.tsx [2m([22m[2m1 test[22m[2m)[22m[32m 137[2mms[22m[39m
+ [32m✓[39m src/features/profile/hooks/useProfile.test.tsx [2m([22m[2m3 tests[22m[2m)[22m[32m 210[2mms[22m[39m
+ [32m✓[39m src/utils/security.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 141[2mms[22m[39m
+ [32m✓[39m src/db/repositories/search.verification.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 72[2mms[22m[39m
+[90mstderr[2m | src/features/auth/AuthPage.test.tsx[2m > [22m[2mAuthPage[2m > [22m[2mshould render registration form by default
+[22m[39mAn update to AuthPage inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+ [32m✓[39m src/features/auth/AuthPage.test.tsx [2m([22m[2m2 tests[22m[2m)[22m[32m 180[2mms[22m[39m
+[90mstdout[2m | src/features/auth/OnboardingFlow.test.tsx[2m > [22m[2mOnboardingFlow[2m > [22m[2mshould navigate through onboarding steps
+[22m[39m[OnboardingFlow] Saving [33m5[39m cards across [33m1[39m languages...
+
+[90mstdout[2m | src/features/auth/OnboardingFlow.test.tsx[2m > [22m[2mOnboardingFlow[2m > [22m[2mshould navigate through onboarding steps
+[22m[39m[OnboardingFlow] Cards saved.
+[OnboardingFlow] Marking initial deck as generated...
+
+ [32m✓[39m src/features/auth/OnboardingFlow.test.tsx [2m([22m[2m1 test[22m[2m)[22m[32m 102[2mms[22m[39m
+ [32m✓[39m src/contexts/UserProfileContext.test.tsx [2m([22m[2m2 tests[22m[2m)[22m[32m 134[2mms[22m[39m
+ [32m✓[39m src/components/common/ErrorBoundary.test.tsx [2m([22m[2m2 tests[22m[2m)[22m[32m 78[2mms[22m[39m
+[90mstderr[2m | src/features/settings/components/SettingsPage.test.tsx[2m > [22m[2mSettingsPage[2m > [22m[2mshould render profile settings
+[22m[39mAn update to SettingsContent inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+ [32m✓[39m src/App.test.tsx [2m([22m[2m6 tests[22m[2m)[22m[32m 77[2mms[22m[39m
+[90mstderr[2m | src/features/settings/components/SettingsPage.test.tsx[2m > [22m[2mSettingsPage[2m > [22m[2mshould render language settings
+[22m[39mAn update to SettingsContent inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+ [32m✓[39m src/components/layout/Layout.test.tsx [2m([22m[2m3 tests[22m[2m)[22m[32m 111[2mms[22m[39m
+[90mstderr[2m | src/features/settings/components/SettingsPage.test.tsx[2m > [22m[2mSettingsPage[2m > [22m[2mshould render TTS settings
+[22m[39mAn update to SettingsContent inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+ [32m✓[39m src/contexts/AuthContext.test.tsx [2m([22m[2m4 tests[22m[2m)[22m[32m 49[2mms[22m[39m
+ [32m✓[39m src/features/settings/components/SettingsPage.test.tsx [2m([22m[2m3 tests[22m[2m)[22m[33m 1158[2mms[22m[39m
+     [33m[2m✓[22m[39m should render profile settings [33m 504[2mms[22m[39m
+     [33m[2m✓[22m[39m should render language settings [33m 382[2mms[22m[39m
+ [32m✓[39m src/features/auth/UsernameSetup.test.tsx [2m([22m[2m2 tests[22m[2m)[22m[32m 56[2mms[22m[39m
+[90mstdout[2m | src/db/migrations/v13_to_v14.test.ts[2m > [22m[2mDatabase Migration v13 -> v14[2m > [22m[2mshould migrate split cards/notes to denormalized cards
+[22m[39mSeeded V13 Data
+
+[90mstdout[2m | src/db/migrations/v13_to_v14.test.ts[2m > [22m[2mDatabase Migration v13 -> v14[2m > [22m[2mshould migrate split cards/notes to denormalized cards
+[22m[39mMigration Success: {
+  id: [33m200[39m,
+  nid: [33m100[39m,
+  did: [33m1[39m,
+  ord: [33m0[39m,
+  mod: [33m123[39m,
+  usn: [33m-1[39m,
+  type: [33m0[39m,
+  queue: [33m0[39m,
+  due: [33m0[39m,
+  ivl: [33m0[39m,
+  factor: [33m0[39m,
+  reps: [33m0[39m,
+  lapses: [33m0[39m,
+  left: [33m0[39m,
+  odue: [33m0[39m,
+  odid: [33m0[39m,
+  language: [32m'pol'[39m,
+  user_id: [32m'user1'[39m,
+  target_sentence: [32m'Target Sentence'[39m,
+  native_translation: [32m'Translation'[39m,
+  notes: [32m'Note Content'[39m,
+  target_word: [32m'Target'[39m,
+  tags: [32m'tag1'[39m
+}
+
+ [32m✓[39m src/db/migrations/v13_to_v14.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 98[2mms[22m[39m
+ [32m✓[39m src/hooks/useChartColors.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 222[2mms[22m[39m
+ [32m✓[39m src/db/repositories/cardRepository.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 43[2mms[22m[39m
+ [32m✓[39m src/features/study/hooks/useStudyQueue.test.tsx [2m([22m[2m4 tests[22m[2m)[22m[32m 23[2mms[22m[39m
+ [32m✓[39m src/db/repositories/cardRepository.mapping.verification.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 47[2mms[22m[39m
+ [32m✓[39m src/contexts/MusicContext.test.tsx [2m([22m[2m3 tests[22m[2m)[22m[32m 45[2mms[22m[39m
+ [32m✓[39m src/hooks/usePlatformSetup.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 31[2mms[22m[39m
+ [32m✓[39m src/components/common/LanguageThemeManager.test.tsx [2m([22m[2m3 tests[22m[2m)[22m[32m 37[2mms[22m[39m
+ [32m✓[39m src/hooks/use-mobile.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 29[2mms[22m[39m
+ [32m✓[39m src/hooks/useDeckActions.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 28[2mms[22m[39m
+ [32m✓[39m src/features/collection/hooks/useCardOperations.test.tsx [2m([22m[2m3 tests[22m[2m)[22m[32m 26[2mms[22m[39m
+ [32m✓[39m src/contexts/ThemeContext.test.tsx [2m([22m[2m2 tests[22m[2m)[22m[32m 19[2mms[22m[39m
+ [32m✓[39m src/features/collection/utils/cardFactory.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 9[2mms[22m[39m
+ [32m✓[39m src/contexts/GamificationContext.test.tsx [2m([22m[2m2 tests[22m[2m)[22m[32m 18[2mms[22m[39m
+[90mstderr[2m | src/features/generator/services/deckGeneration.test.ts[2m > [22m[2mgenerateInitialDeck[2m > [22m[2mshould handle AI service failure
+[22m[39mFailed to generate initial deck: Error: AI Error
+    at [90m/Users/albertotrigo/Documents/polskimine/[39msrc/features/generator/services/deckGeneration.test.ts:34:65
+    at [90mfile:///Users/albertotrigo/Documents/polskimine/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:157:11
+    at [90mfile:///Users/albertotrigo/Documents/polskimine/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:753:26
+    at [90mfile:///Users/albertotrigo/Documents/polskimine/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:1636:20
+    at new Promise (<anonymous>)
+    at runWithTimeout [90m(file:///Users/albertotrigo/Documents/polskimine/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:1602:10[90m)[39m
+    at runTest [90m(file:///Users/albertotrigo/Documents/polskimine/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:1309:12[90m)[39m
+[90m    at processTicksAndRejections (node:internal/process/task_queues:105:5)[39m
+    at runSuite [90m(file:///Users/albertotrigo/Documents/polskimine/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:1468:8[90m)[39m
+    at runSuite [90m(file:///Users/albertotrigo/Documents/polskimine/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:1468:8[90m)[39m
+
+ [32m✓[39m src/features/generator/services/deckGeneration.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 9[2mms[22m[39m
+ [32m✓[39m src/features/settings/hooks/useAccountManagement.test.tsx [2m([22m[2m2 tests[22m[2m)[22m[32m 30[2mms[22m[39m
+ [32m✓[39m src/features/study/hooks/useAIAnalysis.test.tsx [2m([22m[2m3 tests[22m[2m)[22m[32m 31[2mms[22m[39m
+ [32m✓[39m src/services/studyLimits.test.ts [2m([22m[2m9 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+ [32m✓[39m src/utils/jsonParser.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 8[2mms[22m[39m
+ [32m✓[39m src/features/settings/hooks/useSyncthingSync.test.tsx [2m([22m[2m2 tests[22m[2m)[22m[32m 26[2mms[22m[39m
+ [32m✓[39m src/features/dashboard/logic/dashboardMetrics.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 5[2mms[22m[39m
+ [32m✓[39m src/stores/useDeckStore.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m src/utils/ids.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 6[2mms[22m[39m
+ [32m✓[39m src/utils/formatInterval.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m src/constants.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+ [32m✓[39m src/stores/useSettingsStore.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 5[2mms[22m[39m
+ [32m✓[39m src/features/study/logic/sessionReducer.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+
+[31m⎯⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Tests 1 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[41m[1m FAIL [22m[49m src/features/auth/components/DeckGenerationStep.test.tsx[2m > [22mDeckGenerationStep[2m > [22mshould require API key for AI
+[31m[1mAssertionError[22m: expected "vi.fn()" to not be called at all, but actually been called 1 times[90m
+
+Received: 
+
+[1m  1st vi.fn() call:
+
+[22m    Array [
+      Array [
+        "polish",
+      ],
+      false,
+      undefined,
+    ]
+[31m[90m
+
+Number of calls: [1m1[22m
+[31m[39m
+[36m [2m❯[22m src/features/auth/components/DeckGenerationStep.test.tsx:[2m64:28[22m[39m
+    [90m 62| [39m    [90m// Should show error[39m
+    [90m 63| [39m    expect(screen.getByText("Please enter your Gemini API key")).toBeI…
+    [90m 64| [39m    [34mexpect[39m(onComplete)[33m.[39mnot[33m.[39m[34mtoHaveBeenCalled[39m()[33m;[39m
+    [90m   | [39m                           [31m^[39m
+    [90m 65| [39m
+    [90m 66| [39m    [90m// Enter key[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯[22m[39m
+
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[2m | [22m[1m[32m45 passed[39m[22m[90m (46)[39m
+[2m      Tests [22m [1m[31m1 failed[39m[22m[2m | [22m[1m[32m143 passed[39m[22m[90m (144)[39m
+[2m   Start at [22m 00:43:35
+[2m   Duration [22m 10.77s[2m (transform 2.48s, setup 4.40s, collect 28.25s, tests 5.11s, environment 24.37s, prepare 529ms)[22m
+

@@ -177,6 +177,7 @@ export const useCardOperations = (): CardOperations => {
         if (!options?.silent) {
           toast.success("Card updated successfully");
         }
+        queryClient.invalidateQueries({ queryKey: ["dashboardStats", language] });
       } catch (error) {
         console.error(error);
 
@@ -312,16 +313,35 @@ export const useCardOperations = (): CardOperations => {
 
   const prioritizeCards = useCallback(
     async (ids: string[]) => {
+      const previousQueries = new Map();
+      
       try {
+        // Snapshot
+        queryClient.getQueryCache().findAll({ queryKey: ["cards", language] }).forEach(q => {
+            previousQueries.set(JSON.stringify(q.queryKey), q.state.data);
+        });
+
+        // Optimistic Update
+        queryClient.setQueriesData({ queryKey: ["cards", language] }, (old: any) => {
+            if (!old) return old;
+             const updateFn = (c: Card) => ids.includes(c.id) ? { ...c, due: 0 } : c; // simplified due
+             
+             if (old.data && Array.isArray(old.data)) {
+                 return { ...old, data: old.data.map(updateFn) };
+             }
+             if (Array.isArray(old)) {
+                 return old.map(updateFn);
+             }
+             return old;
+        });
+
         await db.cards
           .where("id")
           .anyOf(ids)
-          .modify({ dueDate: new Date(0).toISOString() });
+          .modify({ due: 0, mod: Math.floor(Date.now() / 1000) }); // Use 'due' (number) not dueDate (ISO string)
 
-        await queryClient.invalidateQueries({ queryKey: ["cards", language] });
-        await queryClient.invalidateQueries({
-          queryKey: ["dueCards", language],
-        });
+        await queryClient.invalidateQueries({ queryKey: ["dueCards", language] });
+        await queryClient.invalidateQueries({ queryKey: ["dashboardStats", language] });
         refreshDeckData();
 
         toast.success(
@@ -329,6 +349,10 @@ export const useCardOperations = (): CardOperations => {
         );
       } catch (error) {
         console.error(error);
+        // Rollback
+         previousQueries.forEach((data, key) => {
+          queryClient.setQueryData(JSON.parse(key), data);
+        });
         toast.error("Failed to prioritize cards");
       }
     },

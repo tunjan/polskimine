@@ -1,4 +1,4 @@
-import { Card, CardOrderValue, CardStatus } from "@/types";
+import { Card, CardOrderValue } from "@/types";
 import { isCardDue } from "@/core/srs/scheduler";
 
 export type SessionStatus =
@@ -80,12 +80,12 @@ export const checkSchedule = (
   }
 
   if (ignoreLearningSteps) {
-    if (current.status === CardStatus.LEARNING) {
+    if (current.type === 1 || current.type === 3) {
       return { ...state, status: "IDLE" };
     }
 
     const nextLearningIndex = state.cards.findIndex(
-      (c, i) => i > state.currentIndex && c.status === CardStatus.LEARNING,
+      (c, i) => i > state.currentIndex && (c.type === 1 || c.type === 3),
     );
 
     if (nextLearningIndex !== -1) {
@@ -135,7 +135,7 @@ export const reducer = (state: SessionState, action: Action): SessionState => {
       ];
 
       if (updatedCard) {
-        if (updatedCard.status === "learning") {
+        if (updatedCard.type === 1) {
           if (isLast) {
             newCards[state.currentIndex] = updatedCard;
             const newState = {
@@ -245,7 +245,7 @@ export const reducer = (state: SessionState, action: Action): SessionState => {
         } else {
           for (let i = newCards.length - 1; i >= newIndex; i--) {
             const c = newCards[i];
-            if (c.status === "new" || c.status === "learning") {
+            if (c.type === 0 || c.type === 1) {
               insertIndex = i + 1;
               break;
             }

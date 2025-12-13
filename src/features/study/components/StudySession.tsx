@@ -155,13 +155,13 @@ export const StudySession: React.FC<StudySessionProps> = React.memo(
 
       const s = currentCard.state;
 
-      if (s === 0 || (s === undefined && currentCard.status === "new")) {
+      if (s === 0 || s === undefined) {
         return {
           label: "NEW",
           className: "text-chart-1 border-chart-1/20 bg-chart-1/10",
         };
       }
-      if (s === 1 || (s === undefined && currentCard.status === "learning")) {
+      if (s === 1) {
         return {
           label: "LRN",
           className: "text-chart-2 border-chart-2/20 bg-chart-2/10",

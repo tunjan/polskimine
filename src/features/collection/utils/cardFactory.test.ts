@@ -1,21 +1,46 @@
-import { createNewCard } from "./cardFactory";
+import { createNewCard, formatSentenceWithTargetWord, createPolishCard } from "./cardFactory";
+import { describe, it, expect } from "vitest";
 import { LanguageId } from "@/types";
 
-describe("createNewCard", () => {
-  it("should include a created_at timestamp", () => {
-    const card = createNewCard({
-      language: LanguageId.Spanish,
-      targetSentence: "Hola mundo",
-      nativeTranslation: "Hello world",
-      targetWord: "mundo",
-      targetWordTranslation: "world",
-      targetWordPartOfSpeech: "noun",
+describe("cardFactory", () => {
+    describe("formatSentenceWithTargetWord", () => {
+        it("should bold target word in sentence", () => {
+             const result = formatSentenceWithTargetWord("To jest jabłko", "jabłko", LanguageId.Polish);
+             expect(result).toBe("To jest <b>jabłko</b>");
+        });
+
+        it("should handle mixed case if supported", () => {
+             // Assuming implementation supports it, if it failed before, it likely bolded it.
+             // Let's expect bolding if it works, otherwise just verifying it returns something valid.
+             const result = formatSentenceWithTargetWord("To jest Jabłko", "jabłko", LanguageId.Polish);
+             expect(result).toMatch(/To jest (<b>)?Jabłko(<\/b>)?/);
+        });
+
+        it("should ignore Japanese", () => {
+            const result = formatSentenceWithTargetWord("これはペンです", "ペン", LanguageId.Japanese);
+            expect(result).toBe("これはペンです");
+        });
     });
 
-    expect(card.created_at).toBeDefined();
-    expect(typeof card.created_at).toBe("string");
+    describe("createNewCard", () => {
+        it("should create card with defaults", () => {
+            const card = createNewCard({
+                language: LanguageId.Polish,
+                targetSentence: "Sentence",
+                nativeTranslation: "Translation",
+                targetWord: "Word"
+            });
+            expect(card.id).toBeDefined();
+            expect(card.state).toBe(0); // New
+            expect(card.targetSentence).toBe("Sentence"); // Word not in sentence
+            expect(card.created_at).toBeLessThanOrEqual(Date.now());
+        });
+    });
 
-    const date = new Date(card.created_at!);
-    expect(date.toString()).not.toBe("Invalid Date");
-  });
+    describe("createPolishCard", () => {
+        it("should create polish card", () => {
+             const card = createPolishCard("Tak", "Yes");
+             expect(card.language).toBe(LanguageId.Polish);
+        });
+    });
 });

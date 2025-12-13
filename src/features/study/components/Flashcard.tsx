@@ -1,4 +1,5 @@
 import React, { useMemo, useEffect } from "react";
+import DOMPurify from "dompurify";
 import { Badge } from "@/components/ui/badge";
 import { Card, Language, LanguageId } from "@/types";
 import { cn } from "@/lib/utils";
@@ -96,7 +97,8 @@ export const Flashcard = React.memo<FlashcardProps>(
     });
 
     const displayedSentence = processText(card.targetSentence);
-    const cleanSentence = displayedSentence.replace(/<\/?b>/g, "");
+    // Sanitize the HTML content to prevent XSS
+    const cleanSentence = DOMPurify.sanitize(displayedSentence).replace(/<\/?b>/g, "");
 
     const fontSizeClass = useMemo(() => {
       const len = cleanSentence.length;
@@ -150,7 +152,7 @@ export const Flashcard = React.memo<FlashcardProps>(
                 >
                   {card.targetWord &&
                   !showWholeSentenceOnFront &&
-                  !(showFullSentenceOnNew && card.status === "new")
+                  !(showFullSentenceOnNew && card.state === 0)
                     ? processText(card.targetWord)
                     : cleanSentence}
                 </p>
@@ -159,7 +161,7 @@ export const Flashcard = React.memo<FlashcardProps>(
               <p className={baseClasses}>
                 {card.targetWord &&
                 !showWholeSentenceOnFront &&
-                !(showFullSentenceOnNew && card.status === "new")
+                !(showFullSentenceOnNew && card.state === 0)
                   ? processText(card.targetWord)
                   : displayedSentence}
               </p>
@@ -172,7 +174,7 @@ export const Flashcard = React.memo<FlashcardProps>(
         !isFlipped &&
         card.targetWord &&
         !showWholeSentenceOnFront &&
-        !(showFullSentenceOnNew && card.status === "new")
+        !(showFullSentenceOnNew && card.state === 0)
       ) {
         if (language === LanguageId.Japanese) {
           return (

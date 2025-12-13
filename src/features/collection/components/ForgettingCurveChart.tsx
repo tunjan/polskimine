@@ -138,7 +138,7 @@ interface ForgettingCurveChartProps {
   logs: ReviewLog[];
   className?: string;
   desiredRetention?: number;
-  firstReviewDate?: string | null;
+  firstReviewDate?: number | null;
 }
 
 export const ForgettingCurveChart: React.FC<ForgettingCurveChartProps> = ({
@@ -152,7 +152,7 @@ export const ForgettingCurveChart: React.FC<ForgettingCurveChartProps> = ({
 
   const firstReviewTimestamp = useMemo(() => {
     return firstReviewDate
-      ? new Date(firstReviewDate).getTime() / 1000
+      ? firstReviewDate / 1000
       : undefined;
   }, [firstReviewDate]);
 
@@ -263,8 +263,7 @@ export const ForgettingCurveChart: React.FC<ForgettingCurveChartProps> = ({
     const desiredRetentionY = desiredRetention * 100;
     const defs = svg.append("defs");
 
-    // Add clipPath
-    defs
+        defs
       .append("clipPath")
       .attr("id", "chart-clip")
       .append("rect")
@@ -300,8 +299,7 @@ export const ForgettingCurveChart: React.FC<ForgettingCurveChartProps> = ({
     const pastData = chartData.filter((d) => d.date <= today);
     const futureData = chartData.filter((d) => d.date >= today);
 
-    // Draw paths with clip-path
-    svg
+        svg
       .append("path")
       .datum(pastData)
       .attr("fill", "none")

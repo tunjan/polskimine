@@ -1,5 +1,5 @@
 import { v4 as uuidv4 } from "uuid";
-import { Card, CardStatus, Language, LanguageId } from "@/types";
+import { Card, Language, LanguageId } from "@/types";
 import Papa from "papaparse";
 
 type CsvRow = Record<string, string>;
@@ -63,10 +63,13 @@ const rowToCard = (row: CsvRow, fallbackLanguage: Language): Card | null => {
 
     furigana: furigana || undefined,
     language,
-    status: CardStatus.NEW,
     interval: 0,
     easeFactor: 2.5,
-    dueDate: new Date().toISOString(),
+    type: 0,
+    queue: 0,
+    due: 0,
+    last_modified: 0,
+    left: 0,
     reps: 0,
     lapses: 0,
   };

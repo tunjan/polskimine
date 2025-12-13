@@ -113,20 +113,21 @@ export function findInflectedWordInSentence(
 
     let sharedLength = 0;
 
-    for (let i = 0; i < targetLower.length; i++) {
-      for (let j = 0; j < wordLower.length; j++) {
-        let k = 0;
-        while (
-          i + k < targetLower.length &&
-          j + k < wordLower.length &&
-          targetLower[i + k] === wordLower[j + k]
-        ) {
-          k++;
+    // Dynamic Programming LCS (O(N*M))
+    const n = targetLower.length;
+    const m = wordLower.length;
+    const dp = Array(n + 1).fill(0).map(() => Array(m + 1).fill(0));
+    sharedLength = 0;
+
+    for (let i = 1; i <= n; i++) {
+        for (let j = 1; j <= m; j++) {
+            if (targetLower[i - 1] === wordLower[j - 1]) {
+                dp[i][j] = dp[i - 1][j - 1] + 1;
+                if (dp[i][j] > sharedLength) {
+                    sharedLength = dp[i][j];
+                }
+            }
         }
-        if (k > sharedLength) {
-          sharedLength = k;
-        }
-      }
     }
 
     if (sharedLength >= minStemLength) {

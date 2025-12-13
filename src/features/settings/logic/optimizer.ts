@@ -16,10 +16,10 @@ export const exportRevlogToCSV = async (db: LinguaFlowDB): Promise<void> => {
     const duration = 0;
 
     return [
-      log.card_id,
-      new Date(log.created_at).getTime(),
-      log.grade,
-      log.state,
+      log.cid,
+      log.id,
+      log.ease,
+      log.type,
       duration,
     ].join(",");
   });

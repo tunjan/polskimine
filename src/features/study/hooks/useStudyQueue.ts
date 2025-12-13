@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useReducer, useRef } from "react";
-import { Card, CardStatus, Grade, UserSettings } from "@/types";
+import { Card, Grade, UserSettings } from "@/types";
 import { calculateNextReview, LapsesSettings } from "@/core/srs/scheduler";
 import { isNewCard } from "@/services/studyLimits";
 import { sortCards, DisplayOrderSettings } from "@/core/srs/cardSorter";
@@ -47,17 +47,14 @@ const mapGradeToRating = (grade: Grade): CardRating => gradeToRatingMap[grade];
 const getQueueCounts = (cards: Card[]) => {
   return cards.reduce(
     (acc, card) => {
-      const state = card.state;
-      if (state === State.New || (state === undefined && card.status === "new"))
+      const state = card.state;       if (state === State.New)
         acc.unseen++;
-      else if (
-        state === State.Learning ||
-        (state === undefined && card.status === "learning")
-      )
+      else if (state === State.Learning)
         acc.learning++;
-      else if (state === State.Relearning) acc.lapse++;
-      else acc.mature++;
-      return acc;
+      else if (state === State.Relearning) 
+        acc.lapse++;
+      else 
+        acc.mature++;       return acc;
     },
     { unseen: 0, learning: 0, lapse: 0, mature: 0 },
   );
@@ -186,7 +183,9 @@ export const useStudyQueue = ({
 
         const isLast = state.currentIndex === state.cards.length - 1;
         const addedCardId =
-          updatedCard.status === "learning" && !isLast ? updatedCard.id : null;
+          (updatedCard.state === State.Learning || updatedCard.state === State.Relearning) && !isLast
+            ? updatedCard.id
+            : null;
 
         dispatch({
           type: "GRADE_SUCCESS",
@@ -237,7 +236,13 @@ export const useStudyQueue = ({
 
     try {
       const wasNew = isNewCard(currentCard);
-      const updatedCard: Card = { ...currentCard, status: CardStatus.KNOWN };
+      const updatedCard: Card = { 
+        ...currentCard, 
+        type: 2, 
+        queue: 2, 
+        state: State.Review, 
+        due: Math.floor(Date.now() / (24 * 60 * 60 * 1000)) + 21,         interval: 21
+      };
 
       await onUpdateCard(updatedCard);
 

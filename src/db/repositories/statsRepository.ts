@@ -2,8 +2,6 @@ import { getSRSDate } from "@/core/srs";
 import { SRS_CONFIG } from "@/constants";
 import { db } from "@/db/dexie";
 import {
-  differenceInCalendarDays,
-  parseISO,
   addDays,
   format,
   subDays,
@@ -11,7 +9,9 @@ import {
   parse,
 } from "date-fns";
 import { getDashboardCounts, getCurrentUserId } from "./cardRepository";
-import { CardStatus } from "@/types/cardStatus";
+
+
+
 
 export const getDashboardStats = async (
   language?: string,
@@ -38,65 +38,51 @@ export const getDashboardStats = async (
     );
     languageXp = xpStat?.value ?? 0;
   } else if (language) {
-    const [newCount, knownCount, learningCount] = await Promise.all([
-      db.cards
-        .where("[language+status]")
-        .equals([language, CardStatus.NEW])
-        .count(),
-      db.cards
-        .where("[language+status]")
-        .equals([language, CardStatus.KNOWN])
-        .count(),
-      db.cards
-        .where("[language+status]")
-        .equals([language, CardStatus.LEARNING])
-        .count(),
-    ]);
+        const [newCount, reviewCount, learningCount, relearningCount] = await Promise.all([
+      db.cards.where("[language+type]").equals([language, 0]).count(),       db.cards.where("[language+type]").equals([language, 2]).count(),       db.cards.where("[language+type]").equals([language, 1]).count(),       db.cards.where("[language+type]").equals([language, 3]).count(),     ]);
 
-    let review = 0;
-    let implicitKnown = 0;
-
-    await db.cards
-      .where("[language+status]")
-      .equals([language, CardStatus.REVIEW])
-      .each((c) => {
-        const interval = c.interval || 0;
-        if (interval < 180) review++;
-        else implicitKnown++;
-      });
-
-    counts.new = newCount;
+                    
+        counts.new = newCount;
     counts.learning = learningCount;
-    counts.review = review;
-    counts.known = knownCount + implicitKnown;
+    counts.relearning = relearningCount;
+    counts.review = reviewCount;             
+                
+    let young = 0;
+    let mature = 0;
+    await db.cards
+       .where("[language+type]")
+       .equals([language, 2])
+       .each(c => {
+          if ((c.interval || 0) < 21) young++;           else mature++;
+       });
 
+    counts.review = young; 
+    counts.known = mature;
+    
+        
     const xpStat = await db.aggregated_stats
       .where({ language, metric: "total_xp" })
       .first();
     languageXp = xpStat?.value ?? 0;
   } else {
-    const [newCount, knownCountByStatus, learningCount] = await Promise.all([
-      db.cards.where("status").equals(CardStatus.NEW).count(),
-      db.cards.where("status").equals(CardStatus.KNOWN).count(),
-      db.cards.where("status").equals(CardStatus.LEARNING).count(),
+        const [newCount, learningCount, relearningCount] = await Promise.all([
+      db.cards.where("type").equals(0).count(),
+      db.cards.where("type").equals(1).count(),
+      db.cards.where("type").equals(3).count(),
     ]);
-
-    let review = 0;
-    let implicitKnown = 0;
-
-    await db.cards
-      .where("status")
-      .equals(CardStatus.REVIEW)
-      .each((c) => {
-        const interval = c.interval || 0;
-        if (interval < 180) review++;
-        else implicitKnown++;
-      });
+    
+    let young = 0;
+    let mature = 0;
+    await db.cards.where("type").equals(2).each(c => {
+       if ((c.interval || 0) < 21) young++;
+       else mature++;
+    });
 
     counts.new = newCount;
-    counts.known = knownCountByStatus + implicitKnown;
     counts.learning = learningCount;
-    counts.review = review;
+    counts.relearning = relearningCount;
+    counts.review = young;
+    counts.known = mature;
 
     const globalXpStat = await db.aggregated_stats.get("global:total_xp");
     languageXp = globalXpStat?.value ?? 0;
@@ -111,30 +97,64 @@ export const getDashboardStats = async (
   }));
 
   const endDate = addDays(today, daysToShow);
+        
+  const todayDays = Math.floor(today.getTime() / (24 * 60 * 60 * 1000));
+  const endDays = todayDays + daysToShow;
+  
+      
+  const userIdFiltered = getCurrentUserId();
+  
+  if (language && userIdFiltered) {
+          await db.cards
+       .where("[user_id+language+queue+due]")
+       .between(
+         [userIdFiltered, language, 2, todayDays], 
+         [userIdFiltered, language, 2, endDays], 
+         true, false
+       )
+       .each(c => {
+           const diff = c.due - todayDays;
+           if (diff >= 0 && diff < daysToShow) forecast[diff].count++;
+       });
+       
+          await db.cards
+       .where("[user_id+language+queue+due]")
+       .between(
+         [userIdFiltered, language, 3, todayDays], 
+         [userIdFiltered, language, 3, endDays], 
+         true, false
+       )
+       .each(c => {
+           const diff = c.due - todayDays;
+           if (diff >= 0 && diff < daysToShow) forecast[diff].count++;
+       });
+  } else {
+      const ranges = [
+          { queue: 2, start: todayDays, end: endDays },
+          { queue: 3, start: todayDays, end: endDays }
+      ];
 
-  let query = db.cards
-    .where("dueDate")
-    .between(today.toISOString(), endDate.toISOString(), true, false);
-
-  if (language) {
-    query = query.filter((c) => c.language === language);
+      for (const range of ranges) {
+          // Iterate over the queue+due index (or construct a range query if index exists, assuming [queue+due] is not strictly available globally without language/user but we can try [did+queue+due] if deck is constant, or just filter on a smaller subset if possible).
+          // Since we don't have a global [queue+due] index, we can iterate over cards with queue 2/3.
+          // Is there a better index?
+          // We have [did+queue+due]. did is usually 1.
+          
+          await db.cards
+            .where("[did+queue+due]")
+            .between(
+                [1, range.queue, range.start],
+                [1, range.queue, range.end],
+                true,
+                false
+            )
+            .each(c => {
+                 if (language && c.language !== language) return;
+                 const diff = c.due - todayDays;
+                 if (diff >= 0 && diff < daysToShow) forecast[diff].count++;
+            });
+      }
   }
-
-  query = query.filter(
-    (c) =>
-      c.status !== CardStatus.NEW &&
-      c.status !== CardStatus.KNOWN &&
-      c.status !== CardStatus.SUSPENDED,
-  );
-
-  await query.each((card) => {
-    if (!card.dueDate) return;
-    const due = parseISO(card.dueDate);
-    const diff = differenceInCalendarDays(due, today);
-    if (diff >= 0 && diff < daysToShow) {
-      forecast[diff].count++;
-    }
-  });
 
   const todayStats = await getTodayReviewStats(language);
 
@@ -147,36 +167,24 @@ export const getStats = async (language?: string) => {
     return {
       total: counts.total,
       due: counts.hueDue,
-      learned: counts.review + counts.known,
-    };
+      learned: counts.review + counts.known,     };
   }
 
   const now = new Date();
-  const srsToday = getSRSDate(now);
-  const cutoffDate = new Date(srsToday);
-  cutoffDate.setDate(cutoffDate.getDate() + 1);
-  cutoffDate.setHours(SRS_CONFIG.CUTOFF_HOUR);
-  const cutoffIso = cutoffDate.toISOString();
-  const nowISO = now.toISOString();
-  const ONE_HOUR_IN_DAYS = 1 / 24;
+    const total = await db.cards.count();
+  
+        const nowSeconds = Math.floor(now.getTime() / 1000);
+  const nowDays = Math.floor(now.getTime() / (24 * 60 * 60 * 1000));
+  
+  const due = await db.cards.filter(c => {
+     if (c.queue < 0) return false;      if (c.queue === 1 && c.due <= nowSeconds) return true;
+     if ((c.queue === 2 || c.queue === 3) && c.due <= nowDays) return true;
+     return false;
+  }).count();
 
-  const total = await db.cards.count();
-  const due = await db.cards
-    .where("dueDate")
-    .below(cutoffIso)
-    .filter((c) => {
-      if (c.status === CardStatus.KNOWN || c.status === CardStatus.SUSPENDED)
-        return false;
-      const isShortInterval = (c.interval || 0) < ONE_HOUR_IN_DAYS;
-      if (isShortInterval) {
-        return c.dueDate <= nowISO;
-      }
-      return true;
-    })
-    .count();
-  const learned = await db.cards
-    .where("status")
-    .anyOf(CardStatus.REVIEW, CardStatus.KNOWN)
+        const learned = await db.cards
+    .where("type")
+    .equals(2) 
     .count();
 
   return { total, due, learned };
@@ -191,12 +199,15 @@ export const getTodayReviewStats = async (language?: string) => {
   rangeStart.setHours(rangeStart.getHours() + SRS_CONFIG.CUTOFF_HOUR);
   const rangeEnd = new Date(rangeStart);
   rangeEnd.setDate(rangeEnd.getDate() + 1);
+  
+  const startMs = rangeStart.getTime();
+  const endMs = rangeEnd.getTime();
 
-  const logs = await db.revlog
-    .where("[user_id+created_at]")
+        const logs = await db.revlog
+    .where("[user_id+id]")
     .between(
-      [userId, rangeStart.toISOString()],
-      [userId, rangeEnd.toISOString()],
+      [userId, startMs],
+      [userId, endMs],
       true,
       false,
     )
@@ -213,14 +224,13 @@ export const getTodayReviewStats = async (language?: string) => {
     const cardIdSet = new Set(cardIds);
 
     logs.forEach((entry) => {
-      if (cardIdSet.has(entry.card_id)) {
-        if (entry.state === 0) newCards++;
-        else reviewCards++;
+      if (cardIdSet.has(entry.cid)) {
+        if (entry.type === 0) newCards++;         else reviewCards++;
       }
     });
   } else {
     logs.forEach((entry) => {
-      if (entry.state === 0) newCards++;
+      if (entry.type === 0) newCards++;
       else reviewCards++;
     });
   }
@@ -233,7 +243,7 @@ export const getRevlogStats = async (language: string, days = 30) => {
   if (!userId) return { activity: [], grades: [], retention: [] };
 
   const startDate = startOfDay(subDays(new Date(), days - 1));
-  const startDateIso = startDate.toISOString();
+  const startMs = startDate.getTime();
 
   const cardIds = await db.cards
     .where("[user_id+language]")
@@ -242,9 +252,9 @@ export const getRevlogStats = async (language: string, days = 30) => {
   const cardIdSet = new Set(cardIds);
 
   const logs = await db.revlog
-    .where("[user_id+created_at]")
-    .between([userId, startDateIso], [userId, "\uffff"], true, true)
-    .filter((log) => cardIdSet.has(log.card_id))
+    .where("[user_id+id]")
+    .between([userId, startMs], [userId, Number.MAX_SAFE_INTEGER], true, true)
+    .filter((log) => cardIdSet.has(log.cid))
     .toArray();
 
   const activityMap = new Map<
@@ -259,19 +269,17 @@ export const getRevlogStats = async (language: string, days = 30) => {
   }
 
   logs.forEach((log) => {
-    if (!log.created_at) return;
-
-    const dateObj = new Date(log.created_at);
-    if (isNaN(dateObj.getTime())) return;
-
+        const dateObj = new Date(log.id);
     const dateKey = format(dateObj, "yyyy-MM-dd");
     const dayData = activityMap.get(dateKey);
+    
+                
     if (dayData) {
       dayData.count++;
-      if (log.grade >= 2) dayData.pass++;
+      if (log.ease >= 2) dayData.pass++;
     }
 
-    switch (log.grade) {
+    switch (log.ease) {
       case 1:
         gradeCounts.Again++;
         break;

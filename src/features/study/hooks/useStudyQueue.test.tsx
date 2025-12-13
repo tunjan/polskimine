@@ -1,150 +1,75 @@
-import { renderHook, act } from "@testing-library/react";
+import { renderHook, act, waitFor } from "@testing-library/react";
 import { useStudyQueue } from "./useStudyQueue";
-import { describe, it, expect, vi } from "vitest";
-import { Card, CardStatus } from "@/types";
-import { State } from "ts-fsrs";
+import { describe, it, expect, vi, beforeEach } from "vitest";
+import { useXpSession } from "./useXpSession";
 
-vi.mock("./useXpSession", () => ({
-  useXpSession: () => ({
-    sessionXp: 0,
-    sessionStreak: 0,
-    multiplierInfo: { label: "1x", multiplier: 1 },
-    processCardResult: () => ({ totalXp: 10, baseXp: 10, bonusXp: 0 }),
-    subtractXp: vi.fn(),
-  }),
+vi.mock("./useXpSession");
+vi.mock("@/core/srs/scheduler", () => ({ 
+    calculateNextReview: vi.fn().mockReturnValue({ due: 100, state: 1 }), 
+    isCardDue: vi.fn().mockReturnValue(true) 
 }));
 
-const mockCard: Card = {
-  id: "1",
-  targetSentence: "Sentence 1",
-  nativeTranslation: "Translation 1",
-  notes: "",
-  language: "polish",
-  status: CardStatus.LEARNING,
-  state: State.Learning,
-  due: new Date().toISOString(),
-  dueDate: new Date().toISOString(),
-  last_review: new Date().toISOString(),
-  stability: 1,
-  difficulty: 1,
-  elapsed_days: 0,
-  scheduled_days: 0,
-  reps: 0,
-  lapses: 0,
-  interval: 1,
-  easeFactor: 2.5,
-  created_at: new Date().toISOString(),
-};
-
-const mockCard2: Card = { ...mockCard, id: "2", targetSentence: "Sentence 2" };
-
 describe("useStudyQueue", () => {
-  const defaultProps = {
-    dueCards: [mockCard, mockCard2],
-    reserveCards: [],
-    cardOrder: "newFirst" as const,
-    ignoreLearningStepsWhenNoCards: false,
-    fsrs: {
-      request_retention: 0.9,
-      maximum_interval: 365,
-      w: [],
-    } as any,
-    learningSteps: [1, 10],
-    onUpdateCard: vi.fn(),
-    onRecordReview: vi.fn(),
-    canUndo: true,
-    onUndo: vi.fn(),
-    dailyStreak: 0,
-    isCramMode: false,
-  };
-
-  it("should NOT reset session progress when dueCards prop updates", async () => {
-    const { result, rerender } = renderHook((props) => useStudyQueue(props), {
-      initialProps: defaultProps,
-    });
-
-    expect(result.current.stats.currentIndex).toBe(0);
-    expect(result.current.currentCard.id).toBe("1");
-
-    act(() => {
-      result.current.uiState.setIsFlipped(true);
-    });
-
-    await act(async () => {
-      await result.current.actions.gradeCard("Good");
-    });
-
-    expect(result.current.stats.currentIndex).toBe(1);
-    expect(result.current.currentCard.id).toBe("2");
-
-    const newDueCards = [mockCard, mockCard2];
-    rerender({
-      ...defaultProps,
-      dueCards: newDueCards,
-    });
-
-    expect(result.current.stats.currentIndex).toBe(1);
-    expect(result.current.currentCard.id).toBe("2");
-  });
-
-  it("should revert card state on undo (single card scenario)", async () => {
-    const newCard: Card = {
-      ...mockCard,
-      id: "new-1",
-      status: CardStatus.NEW,
-      state: State.New,
-      learningStep: 0,
+    const mockCard: any = { id: "1", state: 0, type: 0, due: 0 };
+    const defaultProps = {
+        dueCards: [mockCard],
+        cardOrder: "newFirst" as const,
+        ignoreLearningStepsWhenNoCards: false,
+        fsrs: { w: [] } as any,
+        learningSteps: [],
+        onUpdateCard: vi.fn(),
+        onRecordReview: vi.fn(),
+        dailyStreak: 1,
     };
 
-    const propsSingleCard = {
-      ...defaultProps,
-      dueCards: [newCard],
-    };
-
-    const { result } = renderHook((props) => useStudyQueue(props), {
-      initialProps: propsSingleCard,
+    beforeEach(() => {
+        vi.clearAllMocks();
+        (useXpSession as any).mockReturnValue({
+            sessionXp: 0, sessionStreak: 0, multiplierInfo: {},
+            processCardResult: vi.fn().mockReturnValue({ totalXp: 10 }),
+            subtractXp: vi.fn(),
+        });
     });
 
-    expect(result.current.stats.currentIndex).toBe(0);
-    const initialCard = result.current.currentCard;
-    expect(initialCard.status).toBe(CardStatus.NEW);
-
-    act(() => {
-      result.current.uiState.setIsFlipped(true);
+    it("should initialize with cards", () => {
+        const { result } = renderHook(() => useStudyQueue(defaultProps));
+        expect(result.current.stats.totalCards).toBe(1);
+        expect(result.current.currentCard).toEqual(mockCard);
+        expect(result.current.stats.isFinished).toBe(false);
     });
 
-    await act(async () => {
-      await result.current.actions.gradeCard("Good");
+    it("should flip card", () => {
+        const { result } = renderHook(() => useStudyQueue(defaultProps));
+        
+        act(() => {
+            result.current.uiState.setIsFlipped(true);
+        });
+
+        expect(result.current.uiState.isFlipped).toBe(true);
     });
 
-    expect(result.current.currentCard.status).not.toBe(CardStatus.NEW);
+    it("should grade card and record review", async () => {
+        const { result } = renderHook(() => useStudyQueue(defaultProps));
+        
+        act(() => {
+            result.current.uiState.setIsFlipped(true);
+        });
 
-    act(() => {
-      result.current.actions.undo();
+        await act(async () => {
+            await result.current.actions.gradeCard("Good");
+        });
+
+        expect(defaultProps.onRecordReview).toHaveBeenCalled();
+        expect(useXpSession(1, false).processCardResult).toHaveBeenCalled();
     });
 
-    expect(result.current.stats.currentIndex).toBe(0);
+    it("should mark known", async () => {
+         const { result } = renderHook(() => useStudyQueue(defaultProps));
+        
+         await act(async () => {
+             await result.current.actions.markKnown();
+         });
 
-    const currentCardAfterUndo = result.current.currentCard;
-
-    expect(currentCardAfterUndo.status).toBe(CardStatus.NEW);
-    expect(currentCardAfterUndo.state).toBe(State.New);
-  });
-
-  it("should update current card when updateAction is called", () => {
-    const { result } = renderHook((props) => useStudyQueue(props), {
-      initialProps: defaultProps,
+         expect(defaultProps.onUpdateCard).toHaveBeenCalledWith(expect.objectContaining({ state: 2 })); // Review state
     });
-
-    const newData: Card = {
-      ...mockCard,
-      targetSentence: "Updated Sentence",
-    };
-
-    act(() => {
-      result.current.actions.updateCard(newData);
-    });
-
-    expect(result.current.currentCard.targetSentence).toBe("Updated Sentence");
-  });
 });

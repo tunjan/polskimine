@@ -1,5 +1,5 @@
 import { aiService } from "@/lib/ai";
-import { Card, CardStatus, Difficulty, Language } from "@/types";
+import { Card, Difficulty, Language } from "@/types";
 
 export interface GenerateInitialDeckOptions {
   language: Language;
@@ -15,7 +15,6 @@ export async function generateInitialDeck(
   }
 
   try {
-    const totalCards = 50;
     const batchSize = 10;
 
     const topics = [
@@ -41,8 +40,7 @@ export async function generateInitialDeck(
       throw new Error("Invalid response format from AI service");
     }
 
-    const now = Date.now();
-    const cards: Card[] = generatedData.map((card: any, index: number) => ({
+    const cards: Card[] = generatedData.map((card: any) => ({
       id: crypto.randomUUID(),
       targetSentence: card.targetSentence,
       nativeTranslation: card.nativeTranslation,
@@ -54,11 +52,16 @@ export async function generateInitialDeck(
       notes: card.notes,
       furigana: card.furigana,
       language: options.language,
-      status: CardStatus.NEW,
-      interval: 0,
-      easeFactor: 2.5,
-      dueDate: new Date(now + index * 1000).toISOString(),
       tags: [options.proficiencyLevel, "Starter", "AI-Gen"],
+      
+      // Initialize required card properties
+      type: 0,
+      queue: 0,
+      due: 0,
+      last_modified: Math.floor(Date.now() / 1000),
+      left: 0,
+      interval: 0,
+      easeFactor: 0,
     }));
 
     return cards;

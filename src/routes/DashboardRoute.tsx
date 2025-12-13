@@ -13,12 +13,13 @@ import { calculateDashboardMetrics } from "@/features/dashboard/logic/dashboardM
 
 export const DashboardRoute: React.FC = () => {
   const { history, stats } = useDeckStats();
-  const { language, ignoreLearningStepsWhenNoCards, dailyNewLimits } =
+  const { language, ignoreLearningStepsWhenNoCards, dailyNewLimits, dailyReviewLimits } =
     useSettingsStore(
       useShallow((s) => ({
         language: s.language,
         ignoreLearningStepsWhenNoCards: s.ignoreLearningStepsWhenNoCards,
         dailyNewLimits: s.dailyNewLimits,
+        dailyReviewLimits: s.dailyReviewLimits,
       })),
     );
   const navigate = useNavigate();
@@ -68,10 +69,15 @@ export const DashboardRoute: React.FC = () => {
   const dailyLimit = dailyNewLimits[language] ?? 20;
   const newCardsStudiedToday = dashboardStats.todayStats?.newCards ?? 0;
 
+  const dailyReviewLimit = dailyReviewLimits[language] ?? 100;
+  const reviewsStudiedToday = dashboardStats.todayStats?.reviewCards ?? 0;
+
   const metrics = calculateDashboardMetrics(
     dashboardStats.counts,
     dailyLimit,
     newCardsStudiedToday,
+    dailyReviewLimit,
+    reviewsStudiedToday,
   );
 
   const xp = dashboardStats.languageXp;

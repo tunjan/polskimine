@@ -94,7 +94,7 @@ export const recalculateAllStats = async (language?: string): Promise<void> => {
 
   const logs = await db.revlog.where("user_id").equals(userId).toArray();
   logs.forEach((log) => {
-    if (!language || cardIds.has(log.card_id)) {
+    if (!language || cardIds.has(log.cid)) {
       totalXp += 10;
       totalReviews++;
     }

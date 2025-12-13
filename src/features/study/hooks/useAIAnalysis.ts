@@ -5,7 +5,7 @@ import { aiService } from "@/lib/ai";
 import { getCardByTargetWord } from "@/db/repositories/cardRepository";
 import { db } from "@/db/dexie";
 import { parseFurigana } from "@/lib/utils";
-import { Card, Language, LanguageId, CardStatus } from "@/types";
+import { Card, Language, LanguageId } from "@/types";
 import { useSettingsStore } from "@/stores/useSettingsStore";
 
 interface UseAIAnalysisProps {
@@ -94,7 +94,7 @@ export function useAIAnalysis({
 
       const existingCard = await getCardByTargetWord(lemma, language);
       if (existingCard) {
-        const isPrioritizable = existingCard.status === "new";
+        const isPrioritizable = existingCard.type === 0;
         toast.error(`Card already exists for "${lemma}"`, {
           action: isPrioritizable
             ? {
@@ -104,8 +104,7 @@ export function useAIAnalysis({
                     await db.cards
                       .where("id")
                       .equals(existingCard.id)
-                      .modify({ dueDate: new Date(0).toISOString() });
-                    toast.success(`"${lemma}" moved to top of queue`);
+                      .modify({ due: 0, queue: 0 });                     toast.success(`"${lemma}" moved to top of queue`);
                   } catch (e) {
                     toast.error("Failed to prioritize card");
                   }
@@ -149,11 +148,13 @@ export function useAIAnalysis({
         notes: result.notes,
         furigana: result.furigana,
         language,
-        status: CardStatus.NEW,
+        type: 0,         queue: 0,
+        due: 0,         last_modified: 0,
+        left: 0,
+        
         interval: 0,
         easeFactor: 2.5,
-        dueDate: tomorrow.toISOString(),
-        reps: 0,
+                reps: 0,
         lapses: 0,
       };
 

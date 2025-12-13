@@ -1,130 +1,56 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, fireEvent } from "@testing-library/react";
+import { Dashboard } from "./Dashboard";
 import { describe, it, expect, vi } from "vitest";
-import { Dashboard, DashboardProps } from "./Dashboard";
 
-vi.mock("@/components/ui/level-badge", () => ({
-  LevelBadge: () => <div data-testid="level-badge" />,
-  getRankForLevel: () => ({ title: "Rank 1" }),
+// Mock Child Components to avoid deep rendering issues and focus on Dashboard logic
+vi.mock("@/components/ui/activity-heatmap", () => ({ ActivityHeatmap: () => <div data-testid="heatmap" /> }));
+vi.mock("@/components/ui/level-badge", () => ({ 
+    LevelBadge: ({ level }: any) => <div>Level {level} Badge</div>,
+    getRankForLevel: () => ({ title: "RankTitle" }) 
 }));
-vi.mock("@/components/ui/streak-display", () => ({
-  StreakDisplay: () => <div data-testid="streak-display" />,
-}));
-vi.mock("@/components/ui/activity-heatmap", () => ({
-  ActivityHeatmap: () => <div data-testid="activity-heatmap" />,
-}));
+vi.mock("@/components/ui/streak-display", () => ({ StreakDisplay: () => <div>StreakDisplay</div> }));
 
 describe("Dashboard", () => {
-  const defaultProps: DashboardProps = {
-    metrics: {
-      total: 0,
-      new: 0,
-      learning: 0,
-      relearning: 0,
-      reviewing: 0,
-      known: 0,
-    },
-    languageXp: {
-      xp: 0,
-      level: 1,
-    },
-    stats: {
-      currentStreak: 0,
-      longestStreak: 0,
-      todayCards: 0,
-      todayTime: 0,
-    },
-    history: {},
-    cards: [],
-    onStartSession: vi.fn(),
-  };
-
-  it("displays 'caught up' message when no cards are due or new", () => {
-    render(<Dashboard {...defaultProps} />);
-    expect(screen.getByText(/You're all caught up!/i)).toBeInTheDocument();
-  });
-
-  it("displays correct breakdown for mixed states", () => {
-    const props = {
-      ...defaultProps,
-      metrics: {
-        ...defaultProps.metrics,
-        new: 2,
-        learning: 1,
-        relearning: 0,
-        reviewing: 1,
-        total: 4,
-      },
+    const defaultProps = {
+        metrics: { total: 100, new: 10, learning: 5, relearning: 2, reviewing: 20, known: 63 },
+        languageXp: { xp: 500, level: 3 },
+        stats: { currentStreak: 5, longestStreak: 10, todayCards: 20, todayTime: 1200 },
+        history: { "2023-01-01": 5 },
+        cards: [],
+        onStartSession: vi.fn(),
     };
-    render(<Dashboard {...props} />);
 
-    expect(screen.getByText("4 cards")).toBeInTheDocument();
+    it("should render greeting and summary", () => {
+        render(<Dashboard {...defaultProps} />);
+        expect(screen.getByText("Ready to study?")).toBeInTheDocument();
+        // due = 5+2+20 + 10 = 37 cards.
+        expect(screen.getByText(/37 cards/)).toBeInTheDocument();
+    });
 
-    const breakdown = screen.getByTestId("dashboard-hero-breakdown");
-    expect(breakdown).toHaveTextContent("2 new");
-    expect(breakdown).toHaveTextContent("1 learning");
-    expect(breakdown).toHaveTextContent("1 review");
-  });
+    it("should check 'You're all caught up' if no due cards", () => {
+        const props = { ...defaultProps, metrics: { ...defaultProps.metrics, new: 0, learning: 0, relearning: 0, reviewing: 0 } };
+        render(<Dashboard {...props} />);
+        expect(screen.getByText("You're all caught up!")).toBeInTheDocument();
+        expect(screen.getByText("Great job! You've completed all your reviews for now.")).toBeInTheDocument();
+    });
 
-  it("groups learning and relearning (lapses) together as 'learning'", () => {
-    const props = {
-      ...defaultProps,
-      metrics: {
-        ...defaultProps.metrics,
-        new: 0,
-        learning: 1,
-        relearning: 2,
-        reviewing: 0,
-        total: 3,
-      },
-    };
-    render(<Dashboard {...props} />);
+    it("should render breakdown badges", () => {
+        render(<Dashboard {...defaultProps} />);
+        expect(screen.getByText("10 new")).toBeInTheDocument();
+        expect(screen.getByText("7 learning")).toBeInTheDocument(); // 5 + 2
+        expect(screen.getByText("20 review")).toBeInTheDocument();
+    });
 
-    expect(screen.getByText("3 cards")).toBeInTheDocument();
+    it("should call onStartSession when clicked", () => {
+        render(<Dashboard {...defaultProps} />);
+        fireEvent.click(screen.getByText("Start Session"));
+        expect(defaultProps.onStartSession).toHaveBeenCalled();
+    });
 
-    const breakdown = screen.getByTestId("dashboard-hero-breakdown");
-    expect(breakdown).toHaveTextContent("3 learning");
-    expect(breakdown).not.toHaveTextContent("new");
-    expect(breakdown).not.toHaveTextContent("review");
-  });
-
-  it("displays only new cards correctly", () => {
-    const props = {
-      ...defaultProps,
-      metrics: {
-        ...defaultProps.metrics,
-        new: 5,
-        learning: 0,
-        relearning: 0,
-        reviewing: 0,
-        total: 5,
-      },
-    };
-    render(<Dashboard {...props} />);
-
-    expect(screen.getByText("5 cards")).toBeInTheDocument();
-
-    const breakdown = screen.getByTestId("dashboard-hero-breakdown");
-    expect(breakdown).toHaveTextContent("5 new");
-    expect(breakdown).not.toHaveTextContent("learning");
-    expect(breakdown).not.toHaveTextContent("review");
-  });
-
-  it("disables 'Start Session' button when caught up", () => {
-    render(<Dashboard {...defaultProps} />);
-    const button = screen.getByRole("button", { name: /start session/i });
-    expect(button).toBeDisabled();
-  });
-
-  it("enables 'Start Session' button when there are cards to review", () => {
-    const props = {
-      ...defaultProps,
-      metrics: {
-        ...defaultProps.metrics,
-        new: 1,
-      },
-    };
-    render(<Dashboard {...props} />);
-    const button = screen.getByRole("button", { name: /start session/i });
-    expect(button).toBeEnabled();
-  });
+    it("should disable button if no cards", () => {
+        const props = { ...defaultProps, metrics: { ...defaultProps.metrics, new: 0, learning: 0, relearning: 0, reviewing: 0 } };
+        render(<Dashboard {...props} />);
+        const btn = screen.getByRole("button", { name: /Start Session/i });
+        expect(btn).toBeDisabled();
+    });
 });

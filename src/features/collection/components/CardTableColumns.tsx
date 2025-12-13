@@ -1,5 +1,5 @@
 import { ColumnDef } from "@tanstack/react-table";
-import { Card, CardStatus } from "@/types";
+import { Card } from "@/types";
 import {
   MoreHorizontal,
   Zap,
@@ -8,7 +8,6 @@ import {
   Trash2,
   Star,
   Clock,
-  CheckCircle2,
   BookOpen,
   Sparkles,
   ArrowUpDown,
@@ -25,45 +24,45 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Checkbox } from "@/components/ui/checkbox";
 import { cn } from "@/lib/utils";
-import { formatDistanceToNow, parseISO, isValid, format } from "date-fns";
+import { formatDistanceToNow, isValid, format } from "date-fns";
 import { formatInterval } from "@/utils/formatInterval";
 import { Button } from "@/components/ui/button";
 
-const StatusBadge = ({ status }: { status: CardStatus }) => {
-  const statusConfig = {
-    [CardStatus.NEW]: {
+const StatusBadge = ({ type, queue }: { type: number; queue: number }) => {
+      
+  if (queue === -1) {
+    return (
+      <span className="relative inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium transition-all border rounded-sm text-muted-foreground bg-muted/50 border-muted-foreground/30">
+        <Clock className="w-3 h-3" strokeWidth={1.5} />
+        Suspended
+      </span>
+    );
+  }
+
+  const statusConfig: Record<number, { label: string; icon: React.ReactNode; className: string }> = {
+    0: {
       label: "New",
       icon: <Star className="w-3 h-3" strokeWidth={1.5} fill="currentColor" />,
       className: "text-primary bg-primary/10 border-primary/30",
     },
-    [CardStatus.LEARNING]: {
+    1: {
       label: "Learning",
       icon: <BookOpen className="w-3 h-3" strokeWidth={1.5} />,
       className: "text-blue-400 bg-blue-500/10 border-blue-500/30",
     },
-    [CardStatus.RELEARNING]: {
-      label: "Relearning",
-      icon: <History className="w-3 h-3" strokeWidth={1.5} />,
-      className: "text-orange-500 bg-orange-500/10 border-orange-500/30",
-    },
-    [CardStatus.REVIEW]: {
+    2: {
       label: "Review",
       icon: <Clock className="w-3 h-3" strokeWidth={1.5} />,
       className: "text-emerald-600 bg-emerald-600/10 border-emerald-600/30",
     },
-    [CardStatus.KNOWN]: {
-      label: "Mastered",
-      icon: <CheckCircle2 className="w-3 h-3" strokeWidth={1.5} />,
-      className: "text-primary bg-primary/10 border-primary/30",
-    },
-    [CardStatus.SUSPENDED]: {
-      label: "Suspended",
-      icon: <Clock className="w-3 h-3" strokeWidth={1.5} />,
-      className: "text-muted-foreground bg-muted/50 border-muted-foreground/30",
+    3: {
+      label: "Relearning",
+      icon: <History className="w-3 h-3" strokeWidth={1.5} />,
+      className: "text-orange-500 bg-orange-500/10 border-orange-500/30",
     },
   };
 
-  const config = statusConfig[status] || statusConfig[CardStatus.NEW];
+  const config = statusConfig[type] || statusConfig[0];
 
   return (
     <span
@@ -79,16 +78,15 @@ const StatusBadge = ({ status }: { status: CardStatus }) => {
 };
 
 const ScheduleCell = ({
-  dateStr,
-  status,
+  due,
+  queue,
   interval,
 }: {
-  dateStr: string;
-  status: CardStatus;
+  due: number;
+  queue: number;
   interval: number;
 }) => {
-  if (status === CardStatus.NEW) {
-    return (
+  if (queue === 0) {     return (
       <div className="flex items-center gap-2 text-muted-foreground">
         <Sparkles className="w-3 h-3" strokeWidth={1.5} />
         <span className="text-xs font-medium">Awaiting</span>
@@ -96,18 +94,19 @@ const ScheduleCell = ({
     );
   }
 
-  const date = parseISO(dateStr);
+                
+  let date: Date;
+  if (queue === 1) {
+     date = new Date(due * 1000);
+  } else {
+                                                  date = new Date(due * 24 * 60 * 60 * 1000);
+  }
+  
   if (!isValid(date))
     return <span className="text-muted-foreground/40 text-xs">—</span>;
 
-  if (date.getFullYear() === 1970) {
-    return (
-      <div className="inline-flex items-center gap-1.5 px-2 py-1 bg-primary/10 border border-primary/50 text-primary rounded-sm">
-        <Zap className="w-3 h-3" strokeWidth={2} fill="currentColor" />
-        <span className="text-xs font-bold">Priority</span>
-      </div>
-    );
-  }
+    if (date.getFullYear() === 1970 && queue !== 1) {
+         }
 
   const isPast = date < new Date();
 
@@ -239,11 +238,11 @@ export function getCardColumns(actions: ColumnActions): ColumnDef<Card>[] {
     },
 
     {
-      accessorKey: "status",
+      accessorKey: "type",       id: "status",
       header: ({ column }) => (
         <SortableHeader column={column}>Status</SortableHeader>
       ),
-      cell: ({ row }) => <StatusBadge status={row.getValue("status")} />,
+      cell: ({ row }) => <StatusBadge type={row.original.type} queue={row.original.queue} />,
       size: 120,
     },
 
@@ -297,14 +296,14 @@ export function getCardColumns(actions: ColumnActions): ColumnDef<Card>[] {
     },
 
     {
-      accessorKey: "dueDate",
+      accessorKey: "due",       id: "dueDate",
       header: ({ column }) => (
         <SortableHeader column={column}>Due</SortableHeader>
       ),
       cell: ({ row }) => (
         <ScheduleCell
-          dateStr={row.getValue("dueDate")}
-          status={row.original.status}
+          due={row.original.due}
+          queue={row.original.queue}
           interval={row.original.interval}
         />
       ),
@@ -321,7 +320,7 @@ export function getCardColumns(actions: ColumnActions): ColumnDef<Card>[] {
         if (!createdAt) {
           return <span className="text-muted-foreground/40 text-xs">—</span>;
         }
-        const date = parseISO(createdAt);
+        const date = new Date(createdAt);
         if (!isValid(date)) {
           return <span className="text-muted-foreground/40 text-xs">—</span>;
         }
@@ -334,6 +333,57 @@ export function getCardColumns(actions: ColumnActions): ColumnDef<Card>[] {
               {formatDistanceToNow(date, { addSuffix: true })}
             </p>
           </div>
+        );
+      },
+      size: 120,
+    },
+
+    {
+      accessorKey: "type",
+      header: ({ column }) => (
+        <SortableHeader column={column}>Type</SortableHeader>
+      ),
+      cell: ({ row }) => <div className="text-center">{row.getValue("type")}</div>,
+      size: 60,
+    },
+    {
+      accessorKey: "queue",
+      header: ({ column }) => (
+        <SortableHeader column={column}>Queue</SortableHeader>
+      ),
+      cell: ({ row }) => <div className="text-center">{row.getValue("queue")}</div>,
+      size: 60,
+    },
+    {
+      accessorKey: "due",
+      header: ({ column }) => (
+        <SortableHeader column={column}>Anki Due</SortableHeader>
+      ),
+      cell: ({ row }) => (
+        <div className="font-mono text-xs">{row.getValue("due")}</div>
+      ),
+      size: 100,
+    },
+    {
+      accessorKey: "left",
+      header: ({ column }) => (
+        <SortableHeader column={column}>Steps Left</SortableHeader>
+      ),
+      cell: ({ row }) => <div className="text-center">{row.getValue("left")}</div>,
+      size: 80,
+    },
+    {
+      accessorKey: "last_modified",
+      header: ({ column }) => (
+        <SortableHeader column={column}>Last Mod</SortableHeader>
+      ),
+      cell: ({ row }) => {
+        const val = row.getValue("last_modified") as number;
+        if (!val) return <span className="text-muted-foreground/40">—</span>;
+        return (
+          <span className="text-xs text-muted-foreground">
+            {format(new Date(val), "MMM d HH:mm")}
+          </span>
         );
       },
       size: 120,

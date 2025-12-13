@@ -1,4 +1,4 @@
-import { Card, ReviewHistory, CardStatus, LanguageId } from "./types";
+import { Card, ReviewHistory, LanguageId } from "./types";
 import { format } from "date-fns";
 
 export const MOCK_CARDS: Card[] = [
@@ -9,10 +9,13 @@ export const MOCK_CARDS: Card[] = [
     nativeTranslation: "Hi, how are you?",
     notes: "Informal greeting. Also means 'Bye' depending on context.",
     language: LanguageId.Polish,
-    status: CardStatus.NEW,
+    type: 0,
+    queue: 0,
+    due: 0,
+    last_modified: 0,
+    left: 0,
     interval: 0,
     easeFactor: 2.5,
-    dueDate: new Date().toISOString(),
   },
   {
     id: "2",
@@ -21,22 +24,25 @@ export const MOCK_CARDS: Card[] = [
     nativeTranslation: "Thank you for the help.",
     notes: "First person singular of dziękować.",
     language: LanguageId.Polish,
-    status: CardStatus.LEARNING,
-    interval: 1,
+    type: 1,
+    queue: 1,
+    due: Math.floor(Date.now() / 1000),     last_modified: 0,
+    left: 2,     interval: 0,
     easeFactor: 2.5,
-    dueDate: new Date(Date.now() - 86400000).toISOString(),
   },
   {
     id: "3",
-    targetSentence: "Ten mężczyzna jest wysoki.",
+    targetSentence: "Tamten mężczyzna jest wysoki.",
     targetWord: "mężczyzna",
     nativeTranslation: "That man is tall.",
     notes: "Noun, Masculine Personal.",
     language: LanguageId.Polish,
-    status: CardStatus.NEW,
+    type: 0,
+    queue: 0,
+    due: 1,     last_modified: 0,
+    left: 0,
     interval: 0,
     easeFactor: 2.5,
-    dueDate: new Date().toISOString(),
   },
   {
     id: "4",
@@ -45,23 +51,26 @@ export const MOCK_CARDS: Card[] = [
     nativeTranslation: "I like to drink coffee in the morning.",
     notes: "Accusative case of 'kawa'.",
     language: LanguageId.Polish,
-    status: CardStatus.REVIEW,
+    type: 2,
+    queue: 2,
+    due: Math.floor(Date.now() / (24 * 60 * 60 * 1000)) + 5,     last_modified: 0,
+    left: 0,
     interval: 10,
     easeFactor: 2.7,
-    dueDate: new Date(Date.now() + 86400000 * 5).toISOString(),
   },
   {
     id: "5",
     targetSentence: "Wszystko w porządku?",
-
     nativeTranslation: "Is everything okay?",
     notes:
       "Common phrase used to ask if someone is fine or if a situation is resolved.",
     language: LanguageId.Polish,
-    status: CardStatus.NEW,
+    type: 0,
+    queue: 0,
+    due: 2,     last_modified: 0,
+    left: 0,
     interval: 0,
     easeFactor: 2.5,
-    dueDate: new Date().toISOString(),
   },
 ];
 

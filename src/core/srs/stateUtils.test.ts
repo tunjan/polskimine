@@ -1,436 +1,252 @@
 import { describe, it, expect } from "vitest";
+import { State } from "ts-fsrs";
+import { Card, LanguageId } from "@/types";
 import {
   inferCardState,
   isInLearningPhase,
   isInRelearningPhase,
   getClampedStep,
 } from "./stateUtils";
-import { Card, CardStatus } from "@/types";
-import { State } from "ts-fsrs";
 
 const createCard = (overrides: Partial<Card> = {}): Card => ({
-  id: "test-card",
-  targetSentence: "Test",
-  nativeTranslation: "Test",
+  id: "test-card-1",
+  targetSentence: "Test sentence",
+  targetWord: "test",
+  nativeTranslation: "Test translation",
+  language: LanguageId.Polish,
   notes: "",
-  status: CardStatus.NEW,
+  type: 0,
+  queue: 0,
+  due: 0,
+  last_modified: 0,
+  left: 0,
   interval: 0,
   easeFactor: 2.5,
-  dueDate: new Date().toISOString(),
-  language: "polish" as any,
   ...overrides,
 });
 
-describe("inferCardState", () => {
-  describe("When card.state is defined", () => {
-    it("should return card.state directly for State.New", () => {
-      const card = createCard({ state: State.New });
-      expect(inferCardState(card)).toBe(State.New);
+describe("stateUtils", () => {
+  describe("inferCardState", () => {
+    describe("when card.state is defined", () => {
+      it("should return State.New if state is Review but no last_review", () => {
+        const card = createCard({ state: State.Review, last_review: undefined });
+        expect(inferCardState(card, false)).toBe(State.New);
+      });
+
+      it("should return State.New if state is Learning but no last_review", () => {
+        const card = createCard({ state: State.Learning, last_review: undefined });
+        expect(inferCardState(card, false)).toBe(State.New);
+      });
+
+      it("should return State.New if state is Relearning but no last_review", () => {
+        const card = createCard({ state: State.Relearning, last_review: undefined });
+        expect(inferCardState(card, false)).toBe(State.New);
+      });
+
+      it("should return the card state if state is Review and has last_review", () => {
+        const card = createCard({ state: State.Review, last_review: Date.now() });
+        expect(inferCardState(card, true)).toBe(State.Review);
+      });
+
+      it("should return the card state if state is Learning and has last_review", () => {
+        const card = createCard({ state: State.Learning, last_review: Date.now() });
+        expect(inferCardState(card, true)).toBe(State.Learning);
+      });
+
+      it("should return State.New if state is explicitly New", () => {
+        const card = createCard({ state: State.New });
+        expect(inferCardState(card)).toBe(State.New);
+      });
     });
 
-    it("should return card.state directly for State.Review with last_review", () => {
-      const card = createCard({
-        state: State.Review,
-        last_review: new Date().toISOString(),
+    describe("when card.state is undefined (infer from type)", () => {
+      it("should return State.New for type 0 (new card)", () => {
+        const card = createCard({ type: 0, state: undefined });
+        expect(inferCardState(card)).toBe(State.New);
       });
-      expect(inferCardState(card)).toBe(State.Review);
+
+      it("should return State.Learning for type 1 with 0 reps", () => {
+        const card = createCard({ type: 1, reps: 0, state: undefined });
+        expect(inferCardState(card)).toBe(State.Learning);
+      });
+
+      it("should return State.Relearning for type 1 with lapses > 0", () => {
+        const card = createCard({ type: 1, reps: 3, lapses: 2, state: undefined });
+        expect(inferCardState(card)).toBe(State.Relearning);
+      });
+
+      it("should return State.Learning for type 1 with no lapses", () => {
+        const card = createCard({ type: 1, reps: 1, lapses: 0, state: undefined });
+        expect(inferCardState(card)).toBe(State.Learning);
+      });
+
+      it("should return State.Review for type 2", () => {
+        const card = createCard({ type: 2, state: undefined });
+        expect(inferCardState(card)).toBe(State.Review);
+      });
+
+      it("should return State.Relearning for type 3", () => {
+        const card = createCard({ type: 3, state: undefined });
+        expect(inferCardState(card)).toBe(State.Relearning);
+      });
+
+      it("should return State.New for unknown type with 0 reps", () => {
+        const card = createCard({ type: 99 as any, reps: 0, state: undefined });
+        expect(inferCardState(card)).toBe(State.New);
+      });
+
+      it("should return State.Review for unknown type with reps > 0", () => {
+        const card = createCard({ type: 99 as any, reps: 5, state: undefined });
+        expect(inferCardState(card)).toBe(State.Review);
+      });
     });
 
-    it("should return card.state directly for State.Learning", () => {
-      const card = createCard({
-        state: State.Learning,
-        last_review: new Date().toISOString(),
+    describe("edge cases", () => {
+      it("should handle undefined reps as 0", () => {
+        const card = createCard({ type: 99 as any, reps: undefined, state: undefined });
+        expect(inferCardState(card)).toBe(State.New);
       });
-      expect(inferCardState(card)).toBe(State.Learning);
-    });
 
-    it("should return card.state directly for State.Relearning", () => {
-      const card = createCard({
-        state: State.Relearning,
-        last_review: new Date().toISOString(),
+      it("should use default hasLastReview from card.last_review", () => {
+        const card = createCard({ state: State.Review, last_review: Date.now() });
+        expect(inferCardState(card)).toBe(State.Review);
       });
-      expect(inferCardState(card)).toBe(State.Relearning);
-    });
-  });
-
-  describe("State correction when hasLastReview is false", () => {
-    it("should return State.New if state is Review but no last_review", () => {
-      const card = createCard({
-        state: State.Review,
-        last_review: undefined,
-      });
-      expect(inferCardState(card, false)).toBe(State.New);
-    });
-
-    it("should return State.New if state is Learning but no last_review", () => {
-      const card = createCard({
-        state: State.Learning,
-        last_review: undefined,
-      });
-      expect(inferCardState(card, false)).toBe(State.New);
-    });
-
-    it("should return State.New if state is Relearning but no last_review", () => {
-      const card = createCard({
-        state: State.Relearning,
-        last_review: undefined,
-      });
-      expect(inferCardState(card, false)).toBe(State.New);
-    });
-
-    it("should keep State.New even without last_review", () => {
-      const card = createCard({
-        state: State.New,
-        last_review: undefined,
-      });
-      expect(inferCardState(card, false)).toBe(State.New);
-    });
-  });
-
-  describe("Inference from CardStatus when state is undefined", () => {
-    it("should infer State.New from CardStatus.NEW", () => {
-      const card = createCard({
-        state: undefined,
-        status: CardStatus.NEW,
-      });
-      expect(inferCardState(card)).toBe(State.New);
-    });
-
-    it("should infer State.Learning from CardStatus.LEARNING with 0 reps", () => {
-      const card = createCard({
-        state: undefined,
-        status: CardStatus.LEARNING,
-        reps: 0,
-      });
-      expect(inferCardState(card)).toBe(State.Learning);
-    });
-
-    it("should infer State.Learning from CardStatus.LEARNING with 0 lapses", () => {
-      const card = createCard({
-        state: undefined,
-        status: CardStatus.LEARNING,
-        reps: 5,
-        lapses: 0,
-      });
-      expect(inferCardState(card)).toBe(State.Learning);
-    });
-
-    it("should infer State.Relearning from CardStatus.LEARNING with lapses > 0", () => {
-      const card = createCard({
-        state: undefined,
-        status: CardStatus.LEARNING,
-        reps: 5,
-        lapses: 1,
-      });
-      expect(inferCardState(card)).toBe(State.Relearning);
-    });
-
-    it("should infer State.Review from CardStatus.REVIEW", () => {
-      const card = createCard({
-        state: undefined,
-        status: CardStatus.REVIEW,
-      });
-      expect(inferCardState(card)).toBe(State.Review);
-    });
-
-    it("should infer State.Review from CardStatus.KNOWN", () => {
-      const card = createCard({
-        state: undefined,
-        status: CardStatus.KNOWN,
-      });
-      expect(inferCardState(card)).toBe(State.Review);
     });
   });
 
-  describe("Fallback inference when no status/state", () => {
-    it("should return State.New for 0 reps", () => {
-      const card = createCard({
-        state: undefined,
-        status: undefined as any,
-        reps: 0,
-      });
-      expect(inferCardState(card)).toBe(State.New);
-    });
+  describe("isInLearningPhase", () => {
+    const learningSteps = [1, 10, 60];
 
-    it("should return State.Review for reps > 0 with no status", () => {
-      const card = createCard({
-        state: undefined,
-        status: undefined as any,
-        reps: 5,
-      });
-      expect(inferCardState(card)).toBe(State.Review);
-    });
-
-    it("should default to State.New for undefined reps", () => {
-      const card = createCard({
-        state: undefined,
-        status: undefined as any,
-        reps: undefined,
-      });
-      expect(inferCardState(card)).toBe(State.New);
-    });
-  });
-
-  describe("hasLastReview parameter handling", () => {
-    it("should use card.last_review when hasLastReview not provided", () => {
-      const card = createCard({
-        state: State.Review,
-        last_review: new Date().toISOString(),
-      });
-      expect(inferCardState(card)).toBe(State.Review);
-    });
-
-    it("should respect explicit hasLastReview = true", () => {
-      const card = createCard({
-        state: State.Review,
-        last_review: undefined,
-      });
-      expect(inferCardState(card, true)).toBe(State.Review);
-    });
-
-    it("should respect explicit hasLastReview = false", () => {
-      const card = createCard({
-        state: State.Review,
-        last_review: new Date().toISOString(),
-      });
-      expect(inferCardState(card, false)).toBe(State.New);
-    });
-  });
-});
-
-describe("isInLearningPhase", () => {
-  const learningSteps = [1, 10, 60];
-
-  describe("Positive cases", () => {
-    it("should return true for NEW card at step 0", () => {
-      const card = createCard({
-        status: CardStatus.NEW,
-        learningStep: 0,
-      });
+    it("should return true for new card (type 0) with step < steps.length", () => {
+      const card = createCard({ type: 0, learningStep: 0 });
       expect(isInLearningPhase(card, learningSteps)).toBe(true);
     });
 
-    it("should return true for LEARNING card at step 1", () => {
-      const card = createCard({
-        status: CardStatus.LEARNING,
-        learningStep: 1,
-      });
+    it("should return true for learning card (type 1) with step < steps.length", () => {
+      const card = createCard({ type: 1, learningStep: 1 });
       expect(isInLearningPhase(card, learningSteps)).toBe(true);
     });
 
-    it("should return true for LEARNING card at last step", () => {
-      const card = createCard({
-        status: CardStatus.LEARNING,
-        learningStep: 2,
-      });
-      expect(isInLearningPhase(card, learningSteps)).toBe(true);
-    });
-  });
-
-  describe("Negative cases", () => {
-    it("should return false for REVIEW card", () => {
-      const card = createCard({
-        status: CardStatus.REVIEW,
-        learningStep: 0,
-      });
+    it("should return false for learning card at last step", () => {
+      const card = createCard({ type: 1, learningStep: 3 });
       expect(isInLearningPhase(card, learningSteps)).toBe(false);
     });
 
-    it("should return false for KNOWN card", () => {
-      const card = createCard({
-        status: CardStatus.KNOWN,
-        learningStep: 0,
-      });
+    it("should return false for review card (type 2)", () => {
+      const card = createCard({ type: 2, learningStep: 0 });
       expect(isInLearningPhase(card, learningSteps)).toBe(false);
     });
 
-    it("should return false when step exceeds config length", () => {
-      const card = createCard({
-        status: CardStatus.LEARNING,
-        learningStep: 5,
-      });
+    it("should return false for relearning card (type 3)", () => {
+      const card = createCard({ type: 3, learningStep: 0 });
       expect(isInLearningPhase(card, learningSteps)).toBe(false);
     });
 
-    it("should return false when step equals config length", () => {
-      const card = createCard({
-        status: CardStatus.LEARNING,
-        learningStep: 3,
-      });
-      expect(isInLearningPhase(card, learningSteps)).toBe(false);
-    });
-  });
-
-  describe("Edge cases", () => {
-    it("should handle undefined learningStep as 0", () => {
-      const card = createCard({
-        status: CardStatus.NEW,
-        learningStep: undefined,
-      });
+    it("should handle missing learningStep as 0", () => {
+      const card = createCard({ type: 0, learningStep: undefined });
       expect(isInLearningPhase(card, learningSteps)).toBe(true);
     });
 
-    it("should handle empty learning steps array", () => {
-      const card = createCard({
-        status: CardStatus.NEW,
-        learningStep: 0,
-      });
+    it("should return false with empty learning steps array", () => {
+      const card = createCard({ type: 0, learningStep: 0 });
       expect(isInLearningPhase(card, [])).toBe(false);
     });
-
-    it("should handle single-step learning config", () => {
-      const card = createCard({
-        status: CardStatus.LEARNING,
-        learningStep: 0,
-      });
-      expect(isInLearningPhase(card, [10])).toBe(true);
-    });
-  });
-});
-
-describe("isInRelearningPhase", () => {
-  const relearnSteps = [5, 15];
-
-  describe("Positive cases", () => {
-    it("should return true for State.Relearning with learningStep", () => {
-      const card = createCard({
-        state: State.Relearning,
-        learningStep: 0,
-        lapses: 1,
-      });
-      expect(isInRelearningPhase(card, relearnSteps)).toBe(true);
-    });
-
-    it("should return true for LEARNING status with lapses > 0", () => {
-      const card = createCard({
-        status: CardStatus.LEARNING,
-        learningStep: 1,
-        lapses: 2,
-      });
-      expect(isInRelearningPhase(card, relearnSteps)).toBe(true);
-    });
   });
 
-  describe("Negative cases", () => {
-    it("should return false for empty relearnSteps", () => {
+  describe("isInRelearningPhase", () => {
+    const relearnSteps = [10, 20];
+
+    it("should return false if relearnSteps is empty", () => {
       const card = createCard({
         state: State.Relearning,
-        learningStep: 0,
         lapses: 1,
+        learningStep: 0,
       });
       expect(isInRelearningPhase(card, [])).toBe(false);
     });
 
-    it("should return false for undefined relearnSteps", () => {
+    it("should return true for card in Relearning state with learningStep", () => {
       const card = createCard({
         state: State.Relearning,
         learningStep: 0,
-        lapses: 1,
       });
-      expect(isInRelearningPhase(card, undefined as any)).toBe(false);
+      expect(isInRelearningPhase(card, relearnSteps)).toBe(true);
     });
 
-    it("should return false for LEARNING status with 0 lapses", () => {
+    it("should return true for type 1 card with lapses > 0 and learningStep", () => {
       const card = createCard({
-        status: CardStatus.LEARNING,
-        learningStep: 0,
-        lapses: 0,
-      });
-      expect(isInRelearningPhase(card, relearnSteps)).toBe(false);
-    });
-
-    it("should return false without learningStep defined", () => {
-      const card = createCard({
-        state: State.Relearning,
-        learningStep: undefined,
-        lapses: 1,
-      });
-      expect(isInRelearningPhase(card, relearnSteps)).toBe(false);
-    });
-
-    it("should return false for NEW card", () => {
-      const card = createCard({
-        status: CardStatus.NEW,
-        learningStep: 0,
-        lapses: 0,
-      });
-      expect(isInRelearningPhase(card, relearnSteps)).toBe(false);
-    });
-
-    it("should return false for REVIEW card", () => {
-      const card = createCard({
-        status: CardStatus.REVIEW,
-        state: State.Review,
-        learningStep: undefined,
+        type: 1,
         lapses: 2,
+        learningStep: 1,
       });
-      expect(isInRelearningPhase(card, relearnSteps)).toBe(false);
+      expect(isInRelearningPhase(card, relearnSteps)).toBe(true);
     });
-  });
 
-  describe("Edge cases", () => {
-    it("should handle learningStep = 0", () => {
+    it("should return true for type 3 card with learningStep", () => {
+      const card = createCard({
+        type: 3,
+        learningStep: 0,
+      });
+      expect(isInRelearningPhase(card, relearnSteps)).toBe(true);
+    });
+
+    it("should return false if learningStep is undefined", () => {
       const card = createCard({
         state: State.Relearning,
-        learningStep: 0,
-        lapses: 1,
+        learningStep: undefined,
       });
-      expect(isInRelearningPhase(card, [5])).toBe(true);
+      expect(isInRelearningPhase(card, relearnSteps)).toBe(false);
     });
 
-    it("should handle undefined lapses as 0", () => {
+    it("should return false for new card", () => {
       const card = createCard({
-        status: CardStatus.LEARNING,
+        type: 0,
+        state: State.New,
         learningStep: 0,
-        lapses: undefined,
+      });
+      expect(isInRelearningPhase(card, relearnSteps)).toBe(false);
+    });
+
+    it("should return false for review card", () => {
+      const card = createCard({
+        type: 2,
+        state: State.Review,
+        learningStep: 0,
       });
       expect(isInRelearningPhase(card, relearnSteps)).toBe(false);
     });
   });
-});
 
-describe("getClampedStep", () => {
-  describe("Normal clamping", () => {
-    it("should return step when within bounds", () => {
+  describe("getClampedStep", () => {
+    it("should return 0 for undefined learningStep", () => {
+      const card = createCard({ learningStep: undefined });
+      expect(getClampedStep(card, [1, 10, 60])).toBe(0);
+    });
+
+    it("should return the step if within bounds", () => {
       const card = createCard({ learningStep: 1 });
       expect(getClampedStep(card, [1, 10, 60])).toBe(1);
     });
 
-    it("should return 0 for step 0", () => {
-      const card = createCard({ learningStep: 0 });
-      expect(getClampedStep(card, [1, 10])).toBe(0);
-    });
-
-    it("should clamp to max index when step exceeds length", () => {
+    it("should clamp to max index if step exceeds array length", () => {
       const card = createCard({ learningStep: 10 });
       expect(getClampedStep(card, [1, 10, 60])).toBe(2);
     });
 
-    it("should clamp to 0 for negative step", () => {
+    it("should return 0 for negative step", () => {
       const card = createCard({ learningStep: -5 });
-      expect(getClampedStep(card, [1, 10])).toBe(0);
-    });
-  });
-
-  describe("Edge cases", () => {
-    it("should handle undefined learningStep as 0", () => {
-      const card = createCard({ learningStep: undefined });
-      expect(getClampedStep(card, [1, 10])).toBe(0);
+      expect(getClampedStep(card, [1, 10, 60])).toBe(0);
     });
 
     it("should handle single-element array", () => {
-      const card = createCard({ learningStep: 5 });
+      const card = createCard({ learningStep: 2 });
       expect(getClampedStep(card, [10])).toBe(0);
     });
 
-    it("should handle empty array (clamps to 0 via Math.max)", () => {
-      const card = createCard({ learningStep: 0 });
-      expect(getClampedStep(card, [])).toBe(0);
-    });
-
-    it("should return exact last index for step at boundary", () => {
+    it("should handle empty array by returning 0", () => {
       const card = createCard({ learningStep: 2 });
-      expect(getClampedStep(card, [1, 10, 60])).toBe(2);
+      // Note: Math.min(2, -1) = -1, then Math.max(0, -1) = 0
+      expect(getClampedStep(card, [])).toBe(0);
     });
   });
 });

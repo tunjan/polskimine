@@ -1,69 +1,42 @@
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { UsernameSetup } from "./UsernameSetup";
-import { vi, describe, it, expect } from "vitest";
+import { describe, it, expect, vi } from "vitest";
+import { useAuth } from "@/contexts/AuthContext";
 
 vi.mock("@/contexts/AuthContext", () => ({
   useAuth: vi.fn(),
 }));
-
-vi.mock("sonner", () => ({
-  toast: {
-    error: vi.fn(),
-    success: vi.fn(),
-  },
+const { mockToast } = vi.hoisted(() => ({
+  mockToast: { error: vi.fn(), success: vi.fn() },
 }));
-
-import { useAuth } from "@/contexts/AuthContext";
-import { toast } from "sonner";
+vi.mock("sonner", () => ({ toast: mockToast }));
 
 describe("UsernameSetup", () => {
-  const mockUpdateUsername = vi.fn();
-  const mockUser = { email: "test@example.com" };
-
-  beforeEach(() => {
-    vi.clearAllMocks();
-    (useAuth as any).mockReturnValue({
-      updateUsername: mockUpdateUsername,
-      user: mockUser,
-    });
+  it("should render input", () => {
+    (useAuth as any).mockReturnValue({ updateUsername: vi.fn(), user: { email: "test@example.com" } });
+    render(<UsernameSetup />);
+    expect(screen.getByPlaceholderText("Type name...")).toBeInTheDocument();
+    expect(screen.getByText(/how should we/i)).toBeInTheDocument();
   });
 
-  it("renders input and user email", () => {
+  it("should validate length and submit", async () => {
+    const updateUsername = vi.fn().mockResolvedValue(undefined);
+    (useAuth as any).mockReturnValue({ updateUsername, user: { email: "test@example.com" } });
     render(<UsernameSetup />);
-    expect(screen.getByText(/How should we/i)).toBeInTheDocument();
-    expect(screen.getByText(/ID: test@example.com/i)).toBeInTheDocument();
-  });
 
-  it("validates input length", () => {
-    render(<UsernameSetup />);
     const input = screen.getByPlaceholderText("Type name...");
-    const button = screen.getByText("Confirm");
-
-    expect(button.closest("button")).toBeDisabled();
-
-    fireEvent.change(input, { target: { value: "ab" } });
-    fireEvent.click(button);
-
-    fireEvent.submit(
-      screen.getByRole("button", { name: "Confirm" }).closest("form")!,
-    );
-
-    expect(toast.error).toHaveBeenCalledWith("Minimum 3 characters required.");
-    expect(mockUpdateUsername).not.toHaveBeenCalled();
-  });
-
-  it("calls updateUsername on valid submit", async () => {
-    render(<UsernameSetup />);
-    const input = screen.getByPlaceholderText("Type name...");
+    const btn = screen.getByText("Confirm"); // Button text initially "Confirm" if disabled? 
+    // Wait, button might be disabled if !username.
+    
+    fireEvent.change(input, { target: { value: "ab" } }); // Too short
+    fireEvent.click(btn); // Should trigger handleSubmit but return early with toast
+    expect(mockToast.error).toHaveBeenCalledWith("Minimum 3 characters required.");
+    expect(updateUsername).not.toHaveBeenCalled();
 
     fireEvent.change(input, { target: { value: "validUser" } });
-    fireEvent.submit(
-      screen.getByRole("button", { name: "Confirm" }).closest("form")!,
-    );
+    fireEvent.click(btn);
 
-    await waitFor(() => {
-      expect(mockUpdateUsername).toHaveBeenCalledWith("validUser");
-      expect(toast.success).toHaveBeenCalled();
-    });
+    await waitFor(() => expect(updateUsername).toHaveBeenCalledWith("validUser"));
+    expect(mockToast.success).toHaveBeenCalled();
   });
 });

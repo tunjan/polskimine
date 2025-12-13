@@ -61,6 +61,7 @@ import {
   importSyncData,
   SyncData,
 } from "@/lib/sync/syncService";
+import { migrateCardsToAnkiMetadata } from "@/features/settings/utils/migration";
 
 import { SettingsSection } from "./SettingsSection";
 import {
@@ -372,6 +373,16 @@ export const SettingsContent: React.FC = () => {
       toast.error("Repair failed");
     } finally {
       setIsRepairing(false);
+    }
+  };
+
+  const handleMigrateCards = async () => {
+    try {
+      if (!confirm("This will recalculate metadata for all cards. Continue?")) return;
+      await migrateCardsToAnkiMetadata();
+      refreshDeckData();
+    } catch (e) {
+      console.error(e);
     }
   };
 
@@ -1391,6 +1402,47 @@ export const SettingsContent: React.FC = () => {
             />
           </SettingsItem>
         </SettingsSubSection>
+      </SettingsSection>
+
+      <SettingsSection
+        icon={Database}
+        title="Data Management"
+        description="Maintenance and backups"
+      >
+        <SettingsItem
+          label="Migrate Metadata"
+          description="Update cards to the latest Anki-compatible format"
+        >
+          <Button onClick={handleMigrateCards} variant="outline" size="sm">
+            <RefreshCw className="mr-2 h-4 w-4" />
+            Migrate Cards
+          </Button>
+        </SettingsItem>
+
+        <SettingsItem
+          label="Repair Database"
+          description="Fix corrupted card data"
+        >
+          <Button
+            onClick={handleRepairCards}
+            variant="outline"
+            size="sm"
+            disabled={isRepairing}
+          >
+            <Wrench className="mr-2 h-4 w-4" />
+            {isRepairing ? "Repairing..." : "Repair Cards"}
+          </Button>
+        </SettingsItem>
+
+        <SettingsItem
+            label="Export RevLog"
+            description="Download review history as CSV"
+          >
+            <Button onClick={handleExportRevlog} variant="outline" size="sm">
+              <Download className="mr-2 h-4 w-4" />
+              Export CSV
+            </Button>
+        </SettingsItem>
       </SettingsSection>
 
       <SettingsSection
