@@ -79,12 +79,35 @@ export const useSyncthingSync = () => {
         return false;
       }
 
+      const getSyncDetails = (data: any) => {
+        if (data.formatName === "dexie" && data.data && Array.isArray(data.data.data)) {
+           // Dexie format
+           const rows = data.data.data.find((t: any) => t.tableName === "cards")?.rows || [];
+           const deviceId = data.data.data.find((t: any) => t.tableName === "settings")?.rows?.[0]?.deviceId || "Unknown";
+           // Last synced not explicitly standard in Dexie export, assume now or look for metadata if available
+           return {
+             count: rows.length,
+             lastSynced: "Unknown (Import)",
+             deviceId,
+           }
+        } else {
+           // Legacy Format
+           return {
+             count: data.cards?.length || 0,
+             lastSynced: data.lastSynced ? new Date(data.lastSynced).toLocaleString() : "Unknown",
+             deviceId: data.deviceId,
+           }
+        }
+      }
+
       const syncData = result.data;
+      const details = getSyncDetails(syncData);
+
       const confirmed = window.confirm(
         `Load data from sync file?\n\n` +
-          `Last synced: ${new Date(syncData.lastSynced).toLocaleString()}\n` +
-          `Device: ${syncData.deviceId?.slice(0, 8)}...\n` +
-          `Cards: ${syncData.cards.length}\n\n` +
+          `Last synced: ${details.lastSynced}\n` +
+          `Device: ${details.deviceId?.slice(0, 8)}...\n` +
+          `Cards: ${details.count}\n\n` +
           `This will replace your current data. Continue?`,
       );
 

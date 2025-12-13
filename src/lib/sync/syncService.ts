@@ -1,4 +1,5 @@
 import { db } from "@/db/dexie";
+import { Revlog } from "@/db/types";
 import {
   getCards,
   saveAllCards,
@@ -22,18 +23,8 @@ export interface SyncData {
   lastSynced: string;
   deviceId: string;
   cards: Card[];
-  history: Record<string, number>;
-  revlog: Array<{
-    id: string;
-    card_id: string;
-    grade: number;
-    state: number;
-    elapsed_days: number;
-    scheduled_days: number;
-    stability: number;
-    difficulty: number;
-    created_at: string;
-  }>;
+  history: Record<string, number> | Array<{ date: string; language: string; count: number }>;
+  revlog: Revlog[];
   settings: Partial<UserSettings>;
   profile: {
     id: string;
@@ -291,14 +282,97 @@ export interface ImportOptions {
   importApiKeys?: boolean;
 }
 
+export interface DexieExportData {
+  formatName: "dexie";
+  formatVersion: number;
+  data: {
+    databaseName: string;
+    databaseVersion: number;
+    tables: any[];
+    data: Array<{
+      tableName: string;
+      inbound: boolean;
+      rows: any[];
+    }>;
+  };
+}
+
 export const importSyncData = async (
-  data: SyncData,
+  data: SyncData | DexieExportData,
   updateSettings: (settings: Partial<UserSettings>) => void,
   options: ImportOptions = {},
 ): Promise<{ success: boolean; error?: string }> => {
   try {
-    if (!data.cards || !Array.isArray(data.cards)) {
-      return { success: false, error: "Invalid sync data: missing cards" };
+    let cards: Card[] = [];
+    let history: any = {};
+    let revlog: Revlog[] = [];
+    let aggregatedStats: any[] = [];
+    let profile: any = null;
+    let settings: any = null;
+
+    const isDexieFormat = (d: any): d is DexieExportData =>
+      d && d.formatName === "dexie" && d.data && Array.isArray(d.data.data);
+
+    if (isDexieFormat(data)) {
+      // Handle Dexie format
+      const tables = data.data.data;
+      
+      const getTableRows = (name: string) => 
+        tables.find(t => t.tableName === name)?.rows || [];
+
+      const rawCards = getTableRows("cards");
+      cards = rawCards.map((c: any) => ({
+        id: c.id.toString(),
+        targetSentence: c.target_sentence,
+        nativeTranslation: c.native_translation,
+        targetWord: c.target_word,
+        notes: c.notes,
+        
+        language: c.language,
+        
+        type: c.type,
+        queue: c.queue,
+        due: (c.queue === 2 || c.queue === 3) && c.due > 200000 
+            ? Math.floor(c.due / 86400) 
+            : c.due,
+        last_modified: c.mod,
+        left: c.left,
+        
+        interval: c.ivl,
+        easeFactor: c.factor,
+        
+        stability: c.stability,
+        difficulty: c.difficulty,
+        elapsed_days: c.elapsed_days,
+        scheduled_days: c.scheduled_days,
+        reps: c.reps,
+        lapses: c.lapses,
+        state: c.state,
+        
+        isLeech: c.isLeech,
+        isBookmarked: c.isBookmarked,
+        
+        user_id: c.user_id,
+        created_at: c.created_at || c.id,
+      }));
+      revlog = getTableRows("revlog");
+      history = getTableRows("history"); // Likely row array
+      aggregatedStats = getTableRows("aggregated_stats");
+      profile = getTableRows("profile")[0] || null;
+      settings = getTableRows("settings")[0] || null;
+
+    } else {
+      // Handle Legacy format
+      const legacyData = data as SyncData;
+      if (!legacyData.cards || !Array.isArray(legacyData.cards)) {
+        return { success: false, error: "Invalid sync data: missing cards" };
+      }
+      cards = legacyData.cards;
+      history = legacyData.history || {};
+      revlog = legacyData.revlog || [];
+      aggregatedStats = legacyData.aggregatedStats || [];
+      profile = legacyData.profile || null;
+      settings = legacyData.settings || null;
     }
 
     const currentUserId = getCurrentUserId();
@@ -311,46 +385,61 @@ export const importSyncData = async (
     await db.revlog.clear();
     await db.aggregated_stats.clear();
 
-    if (data.cards.length > 0) {
-      await saveAllCards(data.cards);
+    if (cards.length > 0) {
+        const currentUserId = getCurrentUserId();
+        const cardsWithUser = cards.map(c => ({
+            ...c,
+            user_id: currentUserId || undefined
+        }));
+      await saveAllCards(cardsWithUser);
     }
 
-    if (data.history && typeof data.history === "object") {
-      const languages = new Set(
-        data.cards.map((c) => c.language).filter(Boolean),
-      );
-      const primaryLanguage = languages.size > 0 ? [...languages][0] : "polish";
-      await saveFullHistory(data.history, primaryLanguage);
+    if (history) {
+      if (Array.isArray(history)) {
+         const currentUserId = getCurrentUserId();
+         const historyWithUser = history.map((h: any) => ({
+             ...h,
+             user_id: currentUserId || undefined
+         }));
+         await db.history.bulkPut(historyWithUser);
+      } else if (typeof history === "object" && Object.keys(history).length > 0) {
+        // Legacy object format conversion
+        const languages = new Set(
+          cards.map((c) => c.language).filter(Boolean),
+        );
+        const primaryLanguage = languages.size > 0 ? [...languages][0] : "polish";
+        await saveFullHistory(history, primaryLanguage);
+      }
     }
 
-    if (data.revlog && Array.isArray(data.revlog) && data.revlog.length > 0) {
+    if (revlog.length > 0) {
       const currentUserId = getCurrentUserId();
-      const revlogWithUser = data.revlog.map((r) => ({
+      const revlogWithUser = revlog.map((r) => ({
         ...r,
         user_id: currentUserId || undefined,
       }));
       await db.revlog.bulkPut(revlogWithUser);
     }
 
-    if (data.profile && existingProfile) {
+    if (profile && existingProfile) {
       const mergedProfile = {
-        ...data.profile,
+        ...profile,
         id: existingProfile.id,
         username: existingProfile.username,
       };
       await db.profile.put(mergedProfile);
-    } else if (data.profile && !existingProfile) {
+    } else if (profile && !existingProfile) {
       const profileToRestore = {
-        ...data.profile,
-        id: currentUserId || data.profile.id,
-        username: data.profile.username || "User",
+        ...profile,
+        id: currentUserId || profile.id,
+        username: profile.username || "User",
       };
       await db.profile.put(profileToRestore);
     }
 
-    if (data.aggregatedStats && Array.isArray(data.aggregatedStats)) {
+    if (aggregatedStats.length > 0) {
       const currentUserId = getCurrentUserId();
-      const statsWithUser = data.aggregatedStats.map((s) => ({
+      const statsWithUser = aggregatedStats.map((s) => ({
         ...s,
         id: currentUserId ? `${currentUserId}:${s.language}:${s.metric}` : s.id,
         user_id: currentUserId || undefined,
@@ -358,8 +447,8 @@ export const importSyncData = async (
       await db.aggregated_stats.bulkPut(statsWithUser);
     }
 
-    if (data.settings) {
-      const restoredProfile = data.profile;
+    if (settings) {
+      const restoredProfile = profile;
       let preservedKeys: Partial<UserSettings> | UserSettings["tts"] = {};
 
       const targetSettingsId =
@@ -384,20 +473,20 @@ export const importSyncData = async (
       }
 
       const restoredSettings: Partial<UserSettings> = {
-        ...data.settings,
+        ...settings,
         geminiApiKey:
-          options.importApiKeys && data.settings.geminiApiKey
-            ? data.settings.geminiApiKey
+          options.importApiKeys && settings.geminiApiKey
+            ? settings.geminiApiKey
             : preservedKeys.geminiApiKey || "",
         tts: {
-          ...(data.settings.tts || {}),
+          ...(settings.tts || {}),
           googleApiKey:
-            options.importApiKeys && data.settings.tts?.googleApiKey
-              ? data.settings.tts.googleApiKey
+            options.importApiKeys && settings.tts?.googleApiKey
+              ? settings.tts.googleApiKey
               : (preservedKeys.tts as any)?.googleApiKey || "",
           azureApiKey:
-            options.importApiKeys && data.settings.tts?.azureApiKey
-              ? data.settings.tts.azureApiKey
+            options.importApiKeys && settings.tts?.azureApiKey
+              ? settings.tts.azureApiKey
               : (preservedKeys.tts as any)?.azureApiKey || "",
         } as UserSettings["tts"],
       };

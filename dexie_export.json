@@ -1,0 +1,115 @@
+{
+  "cards": [
+    {
+      "id": 1765440026881,
+      "nid": 1765440026881,
+      "did": 1,
+      "ord": 0,
+      "mod": 1765440026881,
+      "usn": -1,
+      "type": 0,
+      "queue": 0,
+      "due": 1766822426873,
+      "ivl": 16,
+      "factor": 2500,
+      "reps": 4,
+      "lapses": 0,
+      "left": 0,
+      "odue": 0,
+      "odid": 0,
+      "stability": 13.82690327,
+      "difficulty": 2.11121424,
+      "elapsed_days": 3,
+      "scheduled_days": 16,
+      "state": 2,
+      "language": "german",
+      "isBookmarked": false,
+      "isLeech": false,
+      "created_at": 1765440026881,
+      "target_sentence": "Ich sehe dich.",
+      "native_translation": "I see you.",
+      "notes": "",
+      "target_word": "sehe",
+      "target_word_translation": "see",
+      "target_word_part_of_speech": "verb"
+    },
+    {
+      "id": 1765440206981,
+      "nid": 1765440206981,
+      "did": 1,
+      "ord": 0,
+      "mod": 1765440206981,
+      "usn": -1,
+      "type": 0,
+      "queue": 0,
+      "due": 1766563406960,
+      "ivl": 13,
+      "factor": 2500,
+      "reps": 6,
+      "lapses": 2,
+      "left": 0,
+      "odue": 0,
+      "odid": 0,
+      "stability": 13.82690327,
+      "difficulty": 2.11121424,
+      "elapsed_days": 3,
+      "scheduled_days": 13,
+      "state": 2,
+      "language": "german",
+      "isBookmarked": false,
+      "isLeech": false,
+      "created_at": 1765440206981,
+      "target_sentence": "Nimm das.",
+      "native_translation": "Take this.",
+      "notes": "Imperative.",
+      "target_word": "Nimm",
+      "target_word_translation": "take",
+      "target_word_part_of_speech": "verb"
+    }
+  ],
+  "revlog": [
+    {
+      "id": 1765539847040,
+      "cid": 1765440026881,
+      "usn": -1,
+      "ease": 3,
+      "ivl": 0,
+      "lastIvl": 0,
+      "factor": 0,
+      "time": 0,
+      "type": 1,
+      "created_at": 1765539847040,
+      "grade": 3,
+      "state": 1,
+      "elapsed_days": 0.8743055555555556,
+      "scheduled_days": 0,
+      "stability": 0,
+      "difficulty": 0
+    }
+  ],
+  "history": [
+    {
+      "date": "2025-12-12",
+      "language": "german",
+      "count": 1
+    }
+  ],
+  "users": [],
+  "profile": [
+    {
+      "id": "6400c01a-2ad2-4171-8a40-d7d430fcc3ab",
+      "username": "User",
+      "xp": 5211,
+      "points": 0,
+      "level": 1,
+      "created_at": "2025-12-13T09:59:18.340870",
+      "updated_at": "2025-12-13T09:59:18.340873"
+    }
+  ],
+  "settings": [
+    {
+      "id": "global",
+      "language": "german"
+    }
+  ]
+}

@@ -9,20 +9,22 @@ export const getHistory = async (
   const userId = getCurrentUserId();
   if (!userId) return {};
 
-  let logs = await db.revlog.where("user_id").equals(userId).toArray();
-
+  let entries;
   if (language) {
-    const cards = await db.cards
+    entries = await db.history
       .where("[user_id+language]")
       .equals([userId, language])
       .toArray();
-    const cardIds = new Set(cards.map((c) => c.id));
-    logs = logs.filter((log) => cardIds.has(log.cid));
+  } else {
+    // If no language specified, we need to aggregate counts per date across all languages?
+    // Or just return all entries?
+    // ReviewHistory is Record<string, count>.
+    // If we have multiple languages for same date, we sum them.
+    entries = await db.history.where("user_id").equals(userId).toArray();
   }
 
-  return logs.reduce<ReviewHistory>((acc, entry) => {
-        const dateKey = format(new Date(entry.id), "yyyy-MM-dd");
-    acc[dateKey] = (acc[dateKey] || 0) + 1;
+  return entries.reduce<ReviewHistory>((acc, entry) => {
+    acc[entry.date] = (acc[entry.date] || 0) + entry.count;
     return acc;
   }, {});
 };
