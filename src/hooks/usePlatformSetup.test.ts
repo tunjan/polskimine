@@ -5,6 +5,6 @@ import { describe, it } from "vitest";
 describe("usePlatformSetup", () => {
   it("should fail safe (no-op)", () => {
     renderHook(() => usePlatformSetup());
-    // No output to check, just ensuring it renders without crashing
+    
   });
 });

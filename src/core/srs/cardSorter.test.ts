@@ -57,7 +57,7 @@ describe("cardSorter", () => {
 
       const result = sortCards([reviewCard, newCard], "newFirst");
 
-      // New cards should come first
+      
       expect(result[0].id).toBe("new");
     });
 
@@ -76,7 +76,7 @@ describe("cardSorter", () => {
 
       const result = sortCards([learningCard, newCard], "newFirst");
 
-      // Both cards should be present
+      
       expect(result).toHaveLength(2);
     });
 
@@ -135,7 +135,7 @@ describe("cardSorter", () => {
 
       const result = sortCards(newCards, "newFirst");
 
-      // All should be present but order depends on sorting within new cards
+      
       expect(result).toHaveLength(3);
       expect(result.map((c) => c.id)).toContain("new1");
     });
@@ -158,7 +158,7 @@ describe("cardSorter", () => {
 
       const result = sortCards([newCard, reviewCard], "reviewFirst");
 
-      // Learning/review cards should come before new cards
+      
       const reviewIndex = result.findIndex((c) => c.id === "review");
       const newIndex = result.findIndex((c) => c.id === "new");
       expect(reviewIndex).toBeLessThan(newIndex);
@@ -171,14 +171,14 @@ describe("cardSorter", () => {
         createCard({ id: `card-${i}`, state: State.New, reps: 0 })
       );
 
-      // Run multiple times to verify randomization
+      
       const results = new Set<string>();
       for (let i = 0; i < 5; i++) {
         const result = sortCards(cards, "mixed");
         results.add(result.map((c) => c.id).join(","));
       }
 
-      // Should have at least some variation (though not guaranteed)
+      
       expect(results.size).toBeGreaterThanOrEqual(1);
     });
   });
@@ -286,7 +286,7 @@ describe("cardSorter", () => {
 
         const result = sortCards(cards, "newFirst", settings);
 
-        // Should be sorted alphabetically by part of speech
+        
         expect(result[0].targetWordPartOfSpeech).toBe("adjective");
       });
     });
@@ -332,8 +332,8 @@ describe("cardSorter", () => {
         const now = new Date();
         const dayMs = 24 * 60 * 60 * 1000;
 
-        // Card A: due yesterday, interval 1 day -> overdueness = 1/1 = 1
-        // Card B: due 2 days ago, interval 10 days -> overdueness = 2/10 = 0.2
+        
+        
         const cards = [
           createCard({
             id: "less-overdue",
@@ -359,7 +359,7 @@ describe("cardSorter", () => {
 
         const result = sortCards(cards, "reviewFirst", settings);
 
-        // More overdue should come first
+        
         expect(result[0].id).toBe("more-overdue");
 
         vi.useRealTimers();
@@ -410,7 +410,7 @@ describe("cardSorter", () => {
 
         const result = sortCards([newCard, reviewCard], "reviewFirst", settings);
 
-        // Review should come before new
+        
         const reviewIndex = result.findIndex((c) => c.id === "review");
         const newIndex = result.findIndex((c) => c.id === "new");
         expect(reviewIndex).toBeLessThan(newIndex);
@@ -439,7 +439,7 @@ describe("cardSorter", () => {
           settings
         );
 
-        // All cards should be present
+        
         expect(result).toHaveLength(10);
       });
     });
@@ -543,7 +543,7 @@ describe("cardSorter", () => {
 
       const result = sortCards([suspended, active], "reviewFirst");
 
-      // Suspended cards are categorized as "other" but still included
+      
       expect(result).toHaveLength(2);
     });
   });
@@ -598,7 +598,7 @@ describe("cardSorter", () => {
       const result1 = sortCards(cards, "newFirst", settings);
       const result2 = sortCards(cards, "newFirst", settings);
 
-      // Should produce same order for stable sort
+      
       expect(result1.map((c) => c.id)).toEqual(result2.map((c) => c.id));
     });
 
@@ -624,7 +624,7 @@ describe("cardSorter", () => {
 
       const result = sortCards(cards, "reviewFirst", settings);
 
-      // When due is same, should sort by id for stability
+      
       expect(result[0].id).toBe("a");
       expect(result[1].id).toBe("m");
       expect(result[2].id).toBe("z");
@@ -636,9 +636,9 @@ describe("cardSorter", () => {
       vi.useFakeTimers();
       vi.setSystemTime(new Date("2024-03-15T12:00:00"));
 
-      // Use day counts that will format to different date keys
-      const day1Count = 19800; // Some day count
-      const day2Count = 19801; // Next day
+      
+      const day1Count = 19800; 
+      const day2Count = 19801; 
 
       const cards = [
         createCard({ id: "1a", state: State.Review, queue: 2, reps: 1, due: day1Count }),
@@ -654,10 +654,10 @@ describe("cardSorter", () => {
 
       const result = sortCards(cards, "reviewFirst", settings);
 
-      // All cards should be present
+      
       expect(result).toHaveLength(5);
 
-      // Cards from day1 should come before cards from day2 (sorted by date key)
+      
       const day1Ids = result.filter((c) => c.id.startsWith("1")).map((c) => c.id);
       const day2Ids = result.filter((c) => c.id.startsWith("2")).map((c) => c.id);
       
@@ -708,19 +708,19 @@ describe("cardSorter", () => {
           id: "later",
           state: State.Learning,
           queue: 1,
-          due: Math.floor((now + 60000) / 1000), // 1 min from now
+          due: Math.floor((now + 60000) / 1000), 
         }),
         createCard({
           id: "earlier",
           state: State.Learning,
           queue: 1,
-          due: Math.floor((now - 60000) / 1000), // 1 min ago
+          due: Math.floor((now - 60000) / 1000), 
         }),
       ];
 
       const result = sortCards(cards, "newFirst");
 
-      // Earlier due should come first
+      
       expect(result[0].id).toBe("earlier");
       expect(result[1].id).toBe("later");
 
@@ -737,14 +737,14 @@ describe("cardSorter", () => {
           state: State.Review,
           queue: 2,
           reps: 1,
-          due: 20000, // Day 20000
+          due: 20000, 
         }),
         createCard({
           id: "earlier",
           state: State.Review,
           queue: 2,
           reps: 1,
-          due: 19000, // Day 19000
+          due: 19000, 
         }),
       ];
 
@@ -783,7 +783,7 @@ describe("cardSorter", () => {
 
       const result = sortCards(cards, "reviewFirst");
 
-      // Should not crash
+      
       expect(result).toHaveLength(2);
     });
   });
@@ -803,7 +803,7 @@ describe("cardSorter", () => {
         id: "interday",
         state: State.Learning,
         queue: 3,
-        due: 19800, // Day count
+        due: 19800, 
       });
       const reviewCard = createCard({
         id: "review",
@@ -851,7 +851,7 @@ describe("cardSorter", () => {
 
       const result = sortCards([reviewCard, interdayCard], "reviewFirst", settings);
 
-      // Interday should come before review since it has earlier due
+      
       expect(result[0].id).toBe("interday");
 
       vi.useRealTimers();
@@ -951,7 +951,7 @@ describe("cardSorter", () => {
       const end = performance.now();
 
       expect(result).toHaveLength(500);
-      // Should complete in reasonable time (< 100ms)
+      
       expect(end - start).toBeLessThan(100);
     });
 
@@ -973,7 +973,7 @@ describe("cardSorter", () => {
 
       const result = sortCards(cards, "mixed", settings);
 
-      // All cards should be present with data intact
+      
       expect(result).toHaveLength(100);
       result.forEach(card => {
         expect(card.targetWord).toBeDefined();
@@ -988,27 +988,27 @@ describe("cardSorter", () => {
       vi.setSystemTime(new Date("2024-03-15T12:00:00"));
 
       const cards = [
-        // New cards
+        
         createCard({ id: "new-1", state: State.New, queue: 0, reps: 0, due: 1 }),
         createCard({ id: "new-2", state: State.New, queue: 0, reps: 0, due: 2 }),
-        // Intraday learning
+        
         createCard({
           id: "learning-intraday",
           state: State.Learning,
           queue: 1,
           due: Math.floor(Date.now() / 1000) - 100,
         }),
-        // Interday learning
+        
         createCard({
           id: "learning-interday",
           state: State.Learning,
           queue: 3,
           due: 19800,
         }),
-        // Review
+        
         createCard({ id: "review-1", state: State.Review, queue: 2, reps: 5, due: 19799 }),
         createCard({ id: "review-2", state: State.Review, queue: 2, reps: 5, due: 19800 }),
-        // Relearning
+        
         createCard({
           id: "relearning",
           state: State.Relearning,
@@ -1027,10 +1027,10 @@ describe("cardSorter", () => {
 
       const result = sortCards(cards, "newFirst", settings);
 
-      // All 7 cards should be present
+      
       expect(result).toHaveLength(7);
 
-      // New cards should come first (newFirst order)
+      
       expect(result[0].id).toBe("new-1");
       expect(result[1].id).toBe("new-2");
 
@@ -1053,7 +1053,7 @@ describe("cardSorter", () => {
           queue: 2,
           reps: 1,
           due: Math.floor((now.getTime() - dayMs) / dayMs),
-          interval: 0.001, // Very small interval
+          interval: 0.001, 
         }),
         createCard({
           id: "normal-interval",
@@ -1071,7 +1071,7 @@ describe("cardSorter", () => {
 
       const result = sortCards(cards, "reviewFirst", settings);
 
-      // Card with smaller interval should be more "overdue"
+      
       expect(result[0].id).toBe("small-interval");
 
       vi.useRealTimers();
@@ -1104,7 +1104,7 @@ describe("cardSorter", () => {
         reviewSortOrder: "overdueness",
       };
 
-      // Should not crash with zero interval
+      
       const result = sortCards(cards, "reviewFirst", settings);
       expect(result).toHaveLength(2);
 
@@ -1131,7 +1131,7 @@ describe("cardSorter", () => {
       ];
 
       const settings: DisplayOrderSettings = {
-        // Only newCardSortOrder specified
+        
         newCardSortOrder: "due",
       };
 

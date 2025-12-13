@@ -316,15 +316,15 @@ export const useCardOperations = (): CardOperations => {
       const previousQueries = new Map();
       
       try {
-        // Snapshot
+        
         queryClient.getQueryCache().findAll({ queryKey: ["cards", language] }).forEach(q => {
             previousQueries.set(JSON.stringify(q.queryKey), q.state.data);
         });
 
-        // Optimistic Update
+        
         queryClient.setQueriesData({ queryKey: ["cards", language] }, (old: any) => {
             if (!old) return old;
-             const updateFn = (c: Card) => ids.includes(c.id) ? { ...c, due: 0 } : c; // simplified due
+             const updateFn = (c: Card) => ids.includes(c.id) ? { ...c, due: 0 } : c; 
              
              if (old.data && Array.isArray(old.data)) {
                  return { ...old, data: old.data.map(updateFn) };
@@ -338,7 +338,7 @@ export const useCardOperations = (): CardOperations => {
         await db.cards
           .where("id")
           .anyOf(ids)
-          .modify({ due: 0, mod: Math.floor(Date.now() / 1000) }); // Use 'due' (number) not dueDate (ISO string)
+          .modify({ due: 0, mod: Math.floor(Date.now() / 1000) }); 
 
         await queryClient.invalidateQueries({ queryKey: ["dueCards", language] });
         await queryClient.invalidateQueries({ queryKey: ["dashboardStats", language] });
@@ -349,7 +349,7 @@ export const useCardOperations = (): CardOperations => {
         );
       } catch (error) {
         console.error(error);
-        // Rollback
+        
          previousQueries.forEach((data, key) => {
           queryClient.setQueryData(JSON.parse(key), data);
         });

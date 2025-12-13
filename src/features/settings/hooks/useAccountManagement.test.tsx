@@ -24,21 +24,21 @@ describe("useAccountManagement", () => {
     beforeEach(() => {
         vi.clearAllMocks();
         (useAuth as any).mockReturnValue({ user: { id: "user1" }, deleteAccount: vi.fn() });
-        (useSettingsStore as any).mockReturnValue("polish"); // Default mock for language
+        (useSettingsStore as any).mockReturnValue("polish"); 
         (useSettingsStore as any).mockImplementation((selector: any) => selector({ language: "polish", proficiency: {}, updateSettings: vi.fn() }));
     });
 
     it("should handle deck reset confirmation flow", async () => {
         const { result } = renderHook(() => useAccountManagement());
 
-        // First click triggers warning
+        
         act(() => {
             result.current.handleResetDeck();
         });
         expect(mockToast.warning).toHaveBeenCalled();
         expect(result.current.confirmResetDeck).toBe(true);
 
-        // Second click triggers reset
+        
         await act(async () => {
              await result.current.handleResetDeck();
         });

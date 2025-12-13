@@ -4,7 +4,7 @@ import Dexie from "dexie";
 import { AnkiCard, Note } from "@/db/types";
 import { DEFAULT_MODEL_ID, joinFields } from "@/db/models";
 
-// Mock Data
+
 const MOCK_NOTE: Note = {
     id: 100,
     guid: "abc",
@@ -51,7 +51,7 @@ describe("Database Migration v13 -> v14", () => {
     });
 
     it("should migrate split cards/notes to denormalized cards", async () => {
-        // 1. Setup V13 DB
+        
         const dbName = "TestDB_Migration_v13_v14";
         await Dexie.delete(dbName);
         
@@ -69,26 +69,26 @@ describe("Database Migration v13 -> v14", () => {
         console.log("Seeded V13 Data");
         db.close();
 
-        // 2. Open as V14 (Trigger Migration)
+        
         db = new Dexie(dbName);
         
-        // Define V14 Schema (Proposed)
+        
         db.version(14).stores({
             col: "id",
-            // Notes kept but deprecated for reads if desired, or just used for export
+            
             notes: "id", 
-            // Cards denormalized. Removed 'did'. Added content fields.
+            
             cards: "id, nid, ord, mod, usn, type, queue, due, ivl, factor, reps, lapses, left, odue, odid, user_id, language, created_at, [user_id+language+queue+due], [user_id+language+type], [user_id+language+created_at]",
             revlog: "id, cid, usn, ease, ivl, lastIvl, factor, time, type, user_id, [cid+id], [user_id+id]"
         }).upgrade(async (tx: any) => {
             const cardsTable = tx.table("cards");
             const notesTable = tx.table("notes");
             
-            // We need to fetch all cards and join with notes
-            // Since we can't do complex joins in upgrade easily across tables if they are not loaded, 
-            // but Dexie upgrade transaction allows accessing existing data.
             
-            // Note: In a real upgrade, we iterate cards.
+            
+            
+            
+            
             const allCards = await cardsTable.toArray();
             const corrections = [];
             
@@ -102,15 +102,15 @@ describe("Database Migration v13 -> v14", () => {
                            target_sentence: flds[0] || "",
                            native_translation: flds[1] || "",
                            notes: flds[2] || "",
-                           target_word: flds[0].split(" ")[0], // Simple heuristic for test
+                           target_word: flds[0].split(" ")[0], 
                            tags: note.tags,
-                           // Remove did logic if implicit
+                           
                        }
                    });
                 }
             }
             
-            // Apply bulk updates
+            
             for (const correction of corrections) {
                 await cardsTable.update(correction.key, correction.changes);
             }
@@ -118,13 +118,13 @@ describe("Database Migration v13 -> v14", () => {
 
         await db.open();
 
-        // 3. Verify
+        
         const migratedCard = await db.cards.get(200);
         expect(migratedCard).toBeDefined();
         expect(migratedCard.target_sentence).toBe("Target Sentence");
         expect(migratedCard.native_translation).toBe("Translation");
         expect(migratedCard.notes).toBe("Note Content");
-        expect(migratedCard).toHaveProperty("did"); // It still exists on the object unless deleted, but indexes changed.
+        expect(migratedCard).toHaveProperty("did"); 
         
         console.log("Migration Success:", migratedCard);
     });

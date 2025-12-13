@@ -4,7 +4,7 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { useSettingsStore } from "@/stores/useSettingsStore";
 import { LanguageId } from "@/types";
 
-// Mock useTheme
+
 const mockUseTheme = vi.fn();
 vi.mock("@/contexts/ThemeContext", () => ({
   useTheme: () => mockUseTheme(),

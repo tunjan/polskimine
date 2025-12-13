@@ -8,18 +8,18 @@ export const TestStatsRoute: React.FC = () => {
 
   useEffect(() => {
     const fetchCards = async () => {
-      // Fetch AnkiCards with German language
+      
       const ankiCards = await db.cards
         .where("language")
         .equals("German")
         .toArray();
       
-      // Fetch associated notes
+      
       const nids = ankiCards.map(c => c.nid);
       const notes = await db.notes.where("id").anyOf(nids).toArray();
       const noteMap = new Map(notes.map(n => [n.id, n]));
       
-      // Combine AnkiCard + Note => Card
+      
       const fullCards: Card[] = ankiCards.map(ac => {
         const note = noteMap.get(ac.nid);
         const fields = note?.flds.split('\x1f') || ['', '', ''];

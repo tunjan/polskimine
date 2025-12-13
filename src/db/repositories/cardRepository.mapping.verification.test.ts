@@ -7,7 +7,7 @@ import { db } from "@/db/dexie";
 
 describe("cardRepository - Mapping Verification", () => {
     beforeEach(async () => {
-        // Mock localStorage
+        
         const userId = "test_user_mapping";
         global.localStorage = {
             getItem: vi.fn((key) => key === "linguaflow_current_user" ? userId : null),
@@ -18,14 +18,14 @@ describe("cardRepository - Mapping Verification", () => {
             length: 1,
         } as any;
 
-        // Still spy on it just in case, but localStorage is the real dependency
-        // vi.spyOn(cardRepo, 'getCurrentUserId').mockReturnValue(userId); 
+        
+        
         await clearAllCards();
     });
 
     afterEach(() => {
         vi.restoreAllMocks();
-        // @ts-ignore
+        
         global.localStorage = undefined;
     });
 
@@ -51,10 +51,10 @@ describe("cardRepository - Mapping Verification", () => {
 
         await saveCard(card);
 
-        // Check DB directly first
-        const savedAnkiCard = await (db as any).cards.get(parseInt(card.id as string) || 0); // card.id is UUID, saveCard generates timestamp ID.
-        // Wait, saveCard generates a NEW ID. We don't know it easily.
-        // Query by target_sentence
+        
+        const savedAnkiCard = await (db as any).cards.get(parseInt(card.id as string) || 0); 
+        
+        
         const savedAnkiCards = await (db as any).cards.toArray();
         const targetCard = savedAnkiCards.find((c: any) => c.target_sentence === "To jest jabłko");
         
@@ -63,7 +63,7 @@ describe("cardRepository - Mapping Verification", () => {
         expect(targetCard).toBeDefined();
         expect(targetCard.target_word).toBe("jabłko");
 
-        // Verify getCards
+        
         const loadedCards = await getCards();
         
         const loadedCard = loadedCards.find(c => c.targetSentence === card.targetSentence);

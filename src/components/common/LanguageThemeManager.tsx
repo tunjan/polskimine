@@ -58,7 +58,7 @@ export const LanguageThemeManager: React.FC = () => {
         normalizedL < 50
           ? Math.min(normalizedL + 30, 90)
           : Math.max(normalizedL - 10, 60);
-      const hslString = `${normalizedH} ${normalizedS}% ${normalizedL}%`; // Construct HSL string for CSS variable
+      const hslString = `${normalizedH} ${normalizedS}% ${normalizedL}%`; 
       const darkColor = `${normalizedH} ${normalizedS}% ${darkL}%`;
 
       styleTag.innerHTML = `

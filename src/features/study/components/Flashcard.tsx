@@ -97,7 +97,7 @@ export const Flashcard = React.memo<FlashcardProps>(
     });
 
     const displayedSentence = processText(card.targetSentence);
-    // Sanitize the HTML content to prevent XSS
+    
     const cleanSentence = DOMPurify.sanitize(displayedSentence).replace(/<\/?b>/g, "");
 
     const fontSizeClass = useMemo(() => {

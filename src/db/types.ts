@@ -85,12 +85,13 @@ export interface AnkiCard {
   isLeech?: boolean;
   user_id?: string;
 
-  // Denormalized Fields (v14+)
+  
   target_sentence?: string;
   native_translation?: string;
   notes?: string; 
   target_word?: string;
   target_word_translation?: string;
+  target_word_part_of_speech?: string;
   tags?: string;
   created_at?: number;
 }

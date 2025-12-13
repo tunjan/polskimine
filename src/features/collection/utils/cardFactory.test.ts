@@ -10,8 +10,8 @@ describe("cardFactory", () => {
         });
 
         it("should handle mixed case if supported", () => {
-             // Assuming implementation supports it, if it failed before, it likely bolded it.
-             // Let's expect bolding if it works, otherwise just verifying it returns something valid.
+             
+             
              const result = formatSentenceWithTargetWord("To jest Jabłko", "jabłko", LanguageId.Polish);
              expect(result).toMatch(/To jest (<b>)?Jabłko(<\/b>)?/);
         });
@@ -31,8 +31,8 @@ describe("cardFactory", () => {
                 targetWord: "Word"
             });
             expect(card.id).toBeDefined();
-            expect(card.state).toBe(0); // New
-            expect(card.targetSentence).toBe("Sentence"); // Word not in sentence
+            expect(card.state).toBe(0); 
+            expect(card.targetSentence).toBe("Sentence"); 
             expect(card.created_at).toBeLessThanOrEqual(Date.now());
         });
     });

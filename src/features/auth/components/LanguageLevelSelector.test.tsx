@@ -19,6 +19,6 @@ describe("LanguageLevelSelector", () => {
     expect(screen.getByText("A1")).toBeInTheDocument();
   });
 
-  // Interacting with Shadecn select in pure jsdom might be tricky if it uses portals or complex focus logic.
-  // We verified it renders.
+  
+  
 });

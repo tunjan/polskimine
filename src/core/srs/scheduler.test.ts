@@ -54,7 +54,7 @@ describe("scheduler", () => {
       const date = new Date("2024-03-15T02:00:00");
       vi.setSystemTime(date);
       const result = getSRSDate(date);
-      // 2 AM should be counted as previous day
+      
       expect(result.getDate()).toBe(14);
     });
 
@@ -102,7 +102,7 @@ describe("scheduler", () => {
 
       const result = calculateNextReview(card, "Good", defaultFsrsSettings);
 
-      // first_review is set when going through FSRS scheduling
+      
       expect(result.first_review).toBeDefined();
     });
   });
@@ -163,7 +163,7 @@ describe("scheduler", () => {
 
       const result = calculateNextReview(card, "Good", defaultFsrsSettings, learningSteps);
 
-      // First Good should set step to 0 and stay in learning
+      
       expect(result.state).toBe(State.Learning);
     });
 
@@ -179,7 +179,7 @@ describe("scheduler", () => {
 
       const result = calculateNextReview(card, "Good", defaultFsrsSettings, learningSteps);
 
-      // Should graduate to review state
+      
       expect(result.learningStep).toBeUndefined();
     });
 
@@ -193,7 +193,7 @@ describe("scheduler", () => {
 
       const result = calculateNextReview(card, "Good", defaultFsrsSettings, learningSteps);
 
-      // left = totalSteps - currentStep
+      
       expect(result.left).toBeDefined();
     });
 
@@ -207,8 +207,8 @@ describe("scheduler", () => {
       const result = calculateNextReview(card, "Again", defaultFsrsSettings, [1, 10]);
 
       expect(result.queue).toBe(1);
-      // Due should be Unix timestamp for queue 1
-      expect(result.due).toBeGreaterThan(1000000000); // After year 2001
+      
+      expect(result.due).toBeGreaterThan(1000000000); 
     });
   });
 
@@ -284,7 +284,7 @@ describe("scheduler", () => {
         lapsesSettings
       );
 
-      // Should advance in relearning or graduate
+      
       expect(result.reps).toBeGreaterThan(card.reps || 0);
     });
   });
@@ -354,8 +354,8 @@ describe("scheduler", () => {
       const result = calculateNextReview(card, "Good", defaultFsrsSettings);
 
       expect(result.queue).toBe(2);
-      // Due should be day count for queue 2
-      expect(result.due).toBeLessThan(1000000); // Day count, not timestamp
+      
+      expect(result.due).toBeLessThan(1000000); 
     });
 
     it("should increment reps on each review", () => {
@@ -531,7 +531,7 @@ describe("scheduler", () => {
 
       const result = calculateNextReview(card, "Good", defaultFsrsSettings, []);
 
-      // Should use default [1, 10] when empty
+      
       expect(result).toBeDefined();
     });
 
@@ -613,7 +613,7 @@ describe("scheduler", () => {
     it("should return true for intraday learning due cards (queue 1)", () => {
       vi.setSystemTime(new Date("2024-03-15T12:00:00"));
       const now = new Date();
-      const pastDue = Math.floor(now.getTime() / 1000) - 60; // 1 minute ago
+      const pastDue = Math.floor(now.getTime() / 1000) - 60; 
       const card = createCard({ queue: 1, due: pastDue });
       expect(isCardDue(card, now)).toBe(true);
     });
@@ -621,7 +621,7 @@ describe("scheduler", () => {
     it("should return false for intraday learning future cards (queue 1)", () => {
       vi.setSystemTime(new Date("2024-03-15T12:00:00"));
       const now = new Date();
-      const futureDue = Math.floor(now.getTime() / 1000) + 3600; // 1 hour from now
+      const futureDue = Math.floor(now.getTime() / 1000) + 3600; 
       const card = createCard({ queue: 1, due: futureDue });
       expect(isCardDue(card, now)).toBe(false);
     });
@@ -629,7 +629,7 @@ describe("scheduler", () => {
     it("should return true for review due cards (queue 2)", () => {
       vi.setSystemTime(new Date("2024-03-15T12:00:00"));
       const now = new Date();
-      // Day count calculation 
+      
       const pastDueDay = Math.floor(now.getTime() / (24 * 60 * 60 * 1000)) - 1;
       const card = createCard({ queue: 2, due: pastDueDay });
       expect(isCardDue(card, now)).toBe(true);
@@ -679,7 +679,7 @@ describe("scheduler", () => {
         maximum_interval: 36500,
       });
 
-      // Higher retention should result in shorter intervals
+      
       expect(highRetention.interval).toBeLessThan(lowRetention.interval!);
     });
 
@@ -698,7 +698,7 @@ describe("scheduler", () => {
         maximum_interval: 30,
       });
 
-      // Maximum interval might have slight rounding differences
+      
       expect(result.scheduled_days).toBeLessThanOrEqual(31);
     });
   });
@@ -708,7 +708,7 @@ describe("scheduler", () => {
       const midnight = new Date("2024-03-15T00:00:00");
       vi.setSystemTime(midnight);
       const result = getSRSDate(midnight);
-      // At midnight, before cutoff (4 AM), should count as previous day
+      
       expect(result.getDate()).toBe(14);
     });
 
@@ -810,7 +810,7 @@ describe("scheduler", () => {
 
       const result = calculateNextReview(card, "Good", defaultFsrsSettings, [1, 10]);
 
-      // After first review, should be in learning phase
+      
       expect(result.type).toBe(1);
       expect(result.queue).toBe(1);
     });
@@ -828,7 +828,7 @@ describe("scheduler", () => {
       const result = calculateNextReview(card, "Good", defaultFsrsSettings, [1, 60]);
 
       expect(result.queue).toBe(1);
-      expect(result.due).toBeGreaterThan(1000000000); // Unix timestamp
+      expect(result.due).toBeGreaterThan(1000000000); 
     });
 
     it("should set correct metadata for interday learning", () => {
@@ -841,10 +841,10 @@ describe("scheduler", () => {
         last_review: Date.now() - 60000,
       });
 
-      // With very long learning step (1 day = 1440 minutes)
+      
       const result = calculateNextReview(card, "Good", defaultFsrsSettings, [1, 1440]);
 
-      // After graduating from step 0 to step 1 with 1440 min step
+      
       expect(result.learningStep).toBe(1);
     });
 
@@ -863,7 +863,7 @@ describe("scheduler", () => {
 
       expect(result.type).toBe(2);
       expect(result.queue).toBe(2);
-      expect(result.due).toBeLessThan(100000); // Day count, not timestamp
+      expect(result.due).toBeLessThan(100000); 
     });
 
     it("should set correct metadata for relearning card", () => {
@@ -924,7 +924,7 @@ describe("scheduler", () => {
 
       const result = calculateNextReview(card, "Good", defaultFsrsSettings, [10]);
 
-      // Should graduate after completing single step
+      
       expect(result.learningStep).toBeUndefined();
     });
 
@@ -961,7 +961,7 @@ describe("scheduler", () => {
       vi.setSystemTime(new Date("2024-03-15T12:00:00"));
       const learningSteps = [1, 10, 60];
 
-      // Start at step 0
+      
       let card = createCard({
         type: 1,
         state: State.Learning,
@@ -970,16 +970,16 @@ describe("scheduler", () => {
         last_review: Date.now() - 60000,
       });
 
-      // Good -> step 1
+      
       let result = calculateNextReview(card, "Good", defaultFsrsSettings, learningSteps);
       expect(result.learningStep).toBe(1);
 
-      // Good -> step 2
+      
       card = { ...result, last_review: Date.now() };
       result = calculateNextReview(card, "Good", defaultFsrsSettings, learningSteps);
       expect(result.learningStep).toBe(2);
 
-      // Good -> graduate
+      
       card = { ...result, last_review: Date.now() };
       result = calculateNextReview(card, "Good", defaultFsrsSettings, learningSteps);
       expect(result.learningStep).toBeUndefined();
@@ -1011,7 +1011,7 @@ describe("scheduler", () => {
         lapsesSettings
       );
 
-      // Without relearn steps, should go directly to FSRS scheduling
+      
       expect(result).toBeDefined();
     });
 
@@ -1040,7 +1040,7 @@ describe("scheduler", () => {
         lapsesSettings
       );
 
-      // Should graduate from relearning
+      
       expect(result.learningStep).toBeUndefined();
     });
 
@@ -1225,7 +1225,7 @@ describe("scheduler", () => {
         leechThreshold: 8,
       };
 
-      // Start: New card
+      
       let card = createCard({
         type: 0,
         state: State.New,
@@ -1235,42 +1235,42 @@ describe("scheduler", () => {
 
       expect(card.state).toBe(State.New);
 
-      // Review 1: New -> Learning (step 0)
+      
       let result = calculateNextReview(card, "Good", defaultFsrsSettings, learningSteps, lapsesSettings);
       expect(result.state).toBe(State.Learning);
       expect(result.learningStep).toBe(0);
       expect(result.reps).toBe(1);
 
-      // Review 2: Learning (step 0) -> Learning (step 1)
+      
       card = { ...result, last_review: Date.now() };
       result = calculateNextReview(card, "Good", defaultFsrsSettings, learningSteps, lapsesSettings);
       expect(result.state).toBe(State.Learning);
       expect(result.learningStep).toBe(1);
 
-      // Review 3: Learning (step 1) -> Review (graduated)
+      
       card = { ...result, last_review: Date.now() };
       result = calculateNextReview(card, "Good", defaultFsrsSettings, learningSteps, lapsesSettings);
       expect(result.state).toBe(State.Review);
       expect(result.learningStep).toBeUndefined();
       expect(result.lapses).toBe(0);
 
-      // Review 4: Review -> Relearning (lapse)
+      
       card = { ...result, last_review: Date.now() };
       result = calculateNextReview(card, "Again", defaultFsrsSettings, learningSteps, lapsesSettings);
       expect(result.state).toBe(State.Relearning);
       expect(result.lapses).toBe(1);
 
-      // Review 5: Relearning -> Review (re-graduated)
-      // Note: Card enters relearning at step -1, first Good moves to step 0
+      
+      
       card = { ...result, last_review: Date.now() };
       result = calculateNextReview(card, "Good", defaultFsrsSettings, learningSteps, lapsesSettings);
-      // First Good in relearning (from step -1) moves to step 0
+      
       expect(result.learningStep).toBe(0);
 
-      // Review 6: Complete relearning graduation
+      
       card = { ...result, last_review: Date.now() };
       result = calculateNextReview(card, "Good", defaultFsrsSettings, learningSteps, lapsesSettings);
-      // After completing single relearn step, should graduate
+      
       expect(result.learningStep).toBeUndefined();
     });
 
@@ -1292,26 +1292,26 @@ describe("scheduler", () => {
         last_review: Date.now() - 86400000,
       });
 
-      // Lapse 1
+      
       let result = calculateNextReview(card, "Again", defaultFsrsSettings, [1, 10], lapsesSettings);
       expect(result.lapses).toBe(1);
       expect(result.isLeech).toBe(false);
 
-      // Graduate from relearning
+      
       card = { ...result, last_review: Date.now() };
       result = calculateNextReview(card, "Good", defaultFsrsSettings, [1, 10], lapsesSettings);
 
-      // Lapse 2
+      
       card = { ...result, last_review: Date.now(), state: State.Review, type: 2 };
       result = calculateNextReview(card, "Again", defaultFsrsSettings, [1, 10], lapsesSettings);
       expect(result.lapses).toBe(2);
       expect(result.isLeech).toBe(false);
 
-      // Graduate again
+      
       card = { ...result, last_review: Date.now() };
       result = calculateNextReview(card, "Good", defaultFsrsSettings, [1, 10], lapsesSettings);
 
-      // Lapse 3 - should become leech
+      
       card = { ...result, last_review: Date.now(), state: State.Review, type: 2 };
       result = calculateNextReview(card, "Again", defaultFsrsSettings, [1, 10], lapsesSettings);
       expect(result.lapses).toBe(3);
@@ -1451,7 +1451,7 @@ describe("scheduler", () => {
       const result = calculateNextReview(card, "Good", {
         request_retention: 0.9,
         maximum_interval: 36500,
-        // w is undefined
+        
       });
 
       expect(result).toBeDefined();
@@ -1465,7 +1465,7 @@ describe("scheduler", () => {
         type: 1,
         state: State.Learning,
         learningStep: undefined,
-        interval: 0.007, // About 10 minutes
+        interval: 0.007, 
         last_review: Date.now() - 60000,
       });
 
@@ -1479,7 +1479,7 @@ describe("scheduler", () => {
       const card = createCard({
         type: 0,
         state: State.New,
-        interval: 1, // Unusual for new card but should handle
+        interval: 1, 
       });
 
       const result = calculateNextReview(card, "Good", defaultFsrsSettings);
@@ -1517,7 +1517,7 @@ describe("scheduler", () => {
     it("should handle exactly due intraday card", () => {
       vi.setSystemTime(new Date("2024-03-15T12:00:00"));
       const now = new Date();
-      const exactlyDue = Math.floor(now.getTime() / 1000); // Exact current time
+      const exactlyDue = Math.floor(now.getTime() / 1000); 
       const card = createCard({ queue: 1, due: exactlyDue });
       expect(isCardDue(card, now)).toBe(true);
     });

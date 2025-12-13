@@ -314,7 +314,7 @@ export const importSyncData = async (
       d && d.formatName === "dexie" && d.data && Array.isArray(d.data.data);
 
     if (isDexieFormat(data)) {
-      // Handle Dexie format
+      
       const tables = data.data.data;
       
       const getTableRows = (name: string) => 
@@ -327,6 +327,7 @@ export const importSyncData = async (
         nativeTranslation: c.native_translation,
         targetWord: c.target_word,
         targetWordTranslation: c.target_word_translation,
+        targetWordPartOfSpeech: c.target_word_part_of_speech,
         notes: c.notes,
         
         language: c.language,
@@ -357,13 +358,13 @@ export const importSyncData = async (
         created_at: c.created_at || c.id,
       }));
       revlog = getTableRows("revlog");
-      history = getTableRows("history"); // Likely row array
+      history = getTableRows("history"); 
       aggregatedStats = getTableRows("aggregated_stats");
       profile = getTableRows("profile")[0] || null;
       settings = getTableRows("settings")[0] || null;
 
     } else {
-      // Handle Legacy format
+      
       const legacyData = data as SyncData;
       if (!legacyData.cards || !Array.isArray(legacyData.cards)) {
         return { success: false, error: "Invalid sync data: missing cards" };
@@ -404,7 +405,7 @@ export const importSyncData = async (
          }));
          await db.history.bulkPut(historyWithUser);
       } else if (typeof history === "object" && Object.keys(history).length > 0) {
-        // Legacy object format conversion
+        
         const languages = new Set(
           cards.map((c) => c.language).filter(Boolean),
         );

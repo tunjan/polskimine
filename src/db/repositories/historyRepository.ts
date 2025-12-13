@@ -16,10 +16,10 @@ export const getHistory = async (
       .equals([userId, language])
       .toArray();
   } else {
-    // If no language specified, we need to aggregate counts per date across all languages?
-    // Or just return all entries?
-    // ReviewHistory is Record<string, count>.
-    // If we have multiple languages for same date, we sum them.
+    
+    
+    
+    
     entries = await db.history.where("user_id").equals(userId).toArray();
   }
 

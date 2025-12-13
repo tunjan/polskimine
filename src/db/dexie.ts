@@ -30,12 +30,12 @@ export class LinguaFlowDB extends Dexie {
     super("linguaflow-dexie");
 
     this.version(1).stores({
-      // Core Tables (consolidated from v14)
+      
       notes: "id, guid, mid, mod, usn, tags, flds, sfld, csum, language, user_id, [mid+id], [user_id+language]",
       cards: "id, nid, ord, mod, usn, type, queue, due, ivl, factor, reps, lapses, left, odue, odid, user_id, language, created_at, [user_id+language+queue+due], [user_id+language+type], [user_id+language+created_at], [user_id+language]",
       revlog: "id, cid, usn, ease, ivl, lastIvl, factor, time, type, user_id, [cid+id], [user_id+id]",
       
-      // Auxiliary Tables (from prev versions)
+      
       col: "id", 
       history: "[date+language], [user_id+date+language], [user_id+language], date, language, user_id",
       profile: "id",
@@ -47,7 +47,7 @@ export class LinguaFlowDB extends Dexie {
     this.on("populate", () => this.initializeCol());
     
     this.cards.hook("deleting", (primKey) => {
-      // primKey is now number
+      
       return this.revlog.where("cid").equals(primKey).delete();
     });
   }
@@ -55,7 +55,7 @@ export class LinguaFlowDB extends Dexie {
   async initializeCol() {
     const colTable = this.col;
     try {
-      // Check if already exists (paranoid check)
+      
       const existing = await colTable.get(1);
       if (existing) return;
 

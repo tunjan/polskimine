@@ -6,7 +6,7 @@ import { useProfile } from "@/features/profile/hooks/useProfile";
 import * as cardRepo from "@/db/repositories/cardRepository";
 import { LanguageId } from "@/types";
 
-// Mock dependencies
+
 vi.mock("@/contexts/AuthContext", () => ({
   useAuth: vi.fn(),
 }));
@@ -16,7 +16,7 @@ vi.mock("@/features/profile/hooks/useProfile", () => ({
 const mockUpdateSettings = vi.fn();
 vi.mock("@/stores/useSettingsStore", () => ({
   useSettingsStore: (selector: any) => {
-      // Mock s.updateSettings
+      
       return selector({ updateSettings: mockUpdateSettings });
   }
 }));
@@ -33,7 +33,7 @@ vi.mock("sonner", () => ({
     toast: { success: vi.fn(), error: vi.fn() }
 }));
 
-// Mock Components provided by index.ts in components
+
 vi.mock("./components/LanguageSelector", () => ({
     LanguageSelector: ({ onContinue, onToggle }: any) => (
         <div>
@@ -73,7 +73,7 @@ describe("AuthPage", () => {
         (useProfile as any).mockReturnValue({
             markInitialDeckGenerated: markInitialDeckGeneratedMock,
         });
-        // Override mock implementation for window.location.reload
+        
         Object.defineProperty(window, 'location', {
             writable: true,
             value: { reload: vi.fn() }
@@ -99,27 +99,27 @@ describe("AuthPage", () => {
 
         await waitFor(() => expect(registerMock).toHaveBeenCalledWith("newuser", "password"));
         
-        // Should transition to Language Step (mocked)
+        
         expect(await screen.findByText("Continue Lang")).toBeInTheDocument();
         
-        // Select Language
+        
         fireEvent.click(screen.getByText("Toggle PL"));
         fireEvent.click(screen.getByText("Continue Lang"));
 
-        // Should transition to Level Step (mocked)
+        
         expect(await screen.findByText("Select A1")).toBeInTheDocument();
         fireEvent.click(screen.getByText("Select A1"));
         
-        // Wait for Continue button in parent? 
-        // In AuthPage, switching steps renders new component.
-        // My mock for Level Selector doesn't include the Continue button of the page.
-        // The Page renders the "Continue" button for Level Step.
-        // Wait, look at AuthPage.tsx:392: <Button onClick={handleLevelContinue}>
-        // So I need to find that button.
+        
+        
+        
+        
+        
+        
         const continueLevelBtn = screen.getByText("Continue");
         fireEvent.click(continueLevelBtn);
 
-        // Should transition to Deck Step (mocked)
+        
         expect(await screen.findByText("Complete Deck")).toBeInTheDocument();
         fireEvent.click(screen.getByText("Complete Deck"));
 

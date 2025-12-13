@@ -24,7 +24,7 @@ describe("LanguageSelector", () => {
         onContinue={vi.fn()}
       />
     );
-    // Visual check hard in unit test, but checked attribute on Checkbox
+    
     const polishCheckbox = screen.getByLabelText(/Polish/i);
     expect(polishCheckbox).toBeChecked();
   });

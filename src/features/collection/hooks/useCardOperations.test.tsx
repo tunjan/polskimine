@@ -8,7 +8,7 @@ import { useSettingsStore } from "@/stores/useSettingsStore";
 vi.mock("@/db/repositories/cardRepository");
 vi.mock("@/hooks/useDeckActions", () => ({ useDeckActions: () => ({ refreshDeckData: vi.fn() }) }));
 vi.mock("@/stores/useSettingsStore");
-// Mock Dexie
+
 vi.mock("@/db/dexie", () => ({
     db: {
         transaction: vi.fn(),
@@ -40,8 +40,8 @@ describe("useCardOperations", () => {
         });
 
         expect(cardRepo.saveCard).toHaveBeenCalledWith(card);
-        // We can't easily check query invalidation without spying on queryClient, 
-        // but checking repo call confirms main logic.
+        
+        
     });
 
     it("should delete card and update cache", async () => {
@@ -62,7 +62,7 @@ describe("useCardOperations", () => {
             await result.current.prioritizeCards(["1"]);
         });
         
-        // It calls db.cards...modify directly
-        // I mocked it in factory.
+        
+        
     });
 });

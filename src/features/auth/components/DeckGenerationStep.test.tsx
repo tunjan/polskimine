@@ -54,20 +54,20 @@ describe("DeckGenerationStep", () => {
     );
 
     const aiBtn = screen.getByRole("button", { name: /AI-Generated Decks/i });
-    fireEvent.click(aiBtn); // Select AI
+    fireEvent.click(aiBtn); 
     
-    // API key input appears
+    
     const input = screen.getByPlaceholderText("Enter your API key");
     expect(input).toBeInTheDocument();
 
     const generateBtn = screen.getByText(/Generate 1 Deck/i);
     fireEvent.click(generateBtn);
 
-    // Should show error
+    
     expect(screen.getByText("Please enter your Gemini API key")).toBeInTheDocument();
     expect(onComplete).not.toHaveBeenCalled();
 
-    // Enter key
+    
     fireEvent.change(input, { target: { value: "test-key" } });
     fireEvent.click(generateBtn);
     expect(onComplete).toHaveBeenCalledWith(languages, true, "test-key");

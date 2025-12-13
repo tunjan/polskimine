@@ -135,10 +135,10 @@ export const getDashboardStats = async (
       ];
 
       for (const range of ranges) {
-          // Iterate over the queue+due index (or construct a range query if index exists, assuming [queue+due] is not strictly available globally without language/user but we can try [did+queue+due] if deck is constant, or just filter on a smaller subset if possible).
-          // Since we don't have a global [queue+due] index, we can iterate over cards with queue 2/3.
-          // Is there a better index?
-          // We have [did+queue+due]. did is usually 1.
+          
+          
+          
+          
           
           await db.cards
             .where("[did+queue+due]")

@@ -1,12 +1,12 @@
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
-import { SettingsContent } from "./SettingsPage"; // Exported component
+import { SettingsContent } from "./SettingsPage"; 
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { useSettingsStore } from "@/stores/useSettingsStore";
 import { useAuth } from "@/contexts/AuthContext";
 import { useProfile } from "@/features/profile/hooks/useProfile";
 import { TTS_PROVIDER } from "@/constants/settings";
 
-// Mock dependencies
+
 vi.mock("@/stores/useSettingsStore");
 vi.mock("@/contexts/AuthContext", () => ({ useAuth: vi.fn() }));
 vi.mock("@/features/profile/hooks/useProfile", () => ({ useProfile: vi.fn() }));
@@ -23,7 +23,7 @@ vi.mock("@/features/settings/hooks/useAccountManagement", () => ({
 }));
 vi.mock("@/lib/tts", () => ({ ttsService: { getAvailableVoices: vi.fn().mockResolvedValue([]), speak: vi.fn() } }));
 
-// Polyfill ResizeObserver
+
 global.ResizeObserver = class ResizeObserver {
   observe() {}
   unobserve() {}
@@ -36,10 +36,10 @@ describe("SettingsPage", () => {
 
     beforeEach(() => {
         vi.clearAllMocks();
-        // Setup default settings store mock
+        
         (useSettingsStore as any).mockImplementation((selector: any) => {
-            if (!selector) return { language: "polish", tts: { provider: TTS_PROVIDER.BROWSER, rate: 1, volume: 1 }, fsrs: { w: [] } }; // for useSettingsStore()
-            return selector({ setFullSettings: setSettings }); // for actions
+            if (!selector) return { language: "polish", tts: { provider: TTS_PROVIDER.BROWSER, rate: 1, volume: 1 }, fsrs: { w: [] } }; 
+            return selector({ setFullSettings: setSettings }); 
         });
         (useAuth as any).mockReturnValue({ user: { id: "user1" } });
         (useProfile as any).mockReturnValue({ profile: { username: "TestUser" }, updateUsername });
@@ -63,5 +63,5 @@ describe("SettingsPage", () => {
         expect(screen.getByText("Browser Native")).toBeInTheDocument();
     });
 
-    // Note: This test covers rendering. More granular interaction tests for sliders/switchs could be added but are often covered by e2e or unit tests of those components.
+    
 });

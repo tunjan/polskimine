@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { useSettingsStore, DEFAULT_SETTINGS } from "./useSettingsStore";
 import { LanguageId } from "@/types";
 
-// Mock dependencies
+
 vi.mock("@/db/repositories/settingsRepository", () => ({
   updateUserSettings: vi.fn().mockResolvedValue(undefined),
 }));
@@ -43,17 +43,17 @@ describe("useSettingsStore", () => {
     });
     const state = useSettingsStore.getState();
     expect(state.fsrs.request_retention).toBe(0.85);
-    // Should preserve other fields
+    
     expect(state.fsrs.maximum_interval).toBe(DEFAULT_SETTINGS.fsrs.maximum_interval);
   });
 
   it("should trigger persistence on update", () => {
-    // We are mocking updateUserSettings. 
-    // Note: implementation uses debounce(1000). To test this properly we should use fake timers.
+    
+    
     vi.useFakeTimers();
     useSettingsStore.getState().updateSettings({ autoPlayAudio: true });
     
-    // Fast-forward time
+    
     vi.advanceTimersByTime(1001);
     
     expect(updateUserSettings).toHaveBeenCalledWith("test-user-id", expect.objectContaining({

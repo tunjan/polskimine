@@ -9,7 +9,7 @@ export const hashPassword = async (password: string): Promise<string> => {
     ["deriveBits", "deriveKey"]
   );
   
-  // To keep it simple and standard:
+  
   const derivedBits = await crypto.subtle.deriveBits(
     {
       name: "PBKDF2",
@@ -28,9 +28,9 @@ export const hashPassword = async (password: string): Promise<string> => {
 };
 
 export const verifyPassword = async (password: string, storedHash: string): Promise<boolean> => {
-    // Handle legacy SHA-256 hashes (if any, though we break them, this is a path to migration)
+    
     if (!storedHash.includes(":")) {
-        // Assume old SHA-256
+        
         const encoder = new TextEncoder();
         const data = encoder.encode(password);
         const hashBuffer = await crypto.subtle.digest("SHA-256", data);
@@ -67,8 +67,8 @@ export const verifyPassword = async (password: string, storedHash: string): Prom
     return derivedHex === hashHex;
 };
 
-// Encryption Utilities for Sensitive Data (AES-GCM)
-// Key should be derived from user password in memory, not stored.
+
+
 export const deriveEncryptionKey = async (password: string, salt: Uint8Array): Promise<CryptoKey> => {
     const enc = new TextEncoder();
     const keyMaterial = await crypto.subtle.importKey(

@@ -7,8 +7,8 @@ import {
   decryptData,
 } from "./security";
 
-// Ensure we have a crypto implementation if not globally available (Node < 19 without flags)
-// But typically vitest jsdom/node maps this. If it fails, we know env issue.
+
+
 describe("security", () => {
   describe("Password Hashing", () => {
     it("should hash a password and return a salt:hash string", async () => {
@@ -33,7 +33,7 @@ describe("security", () => {
     });
     
     it("should handle legacy SHA-256 hashes (no colon)", async () => {
-      // Simulate legacy hash: just sha256 hex of text
+      
       const enc = new TextEncoder();
       const hashBuf = await crypto.subtle.digest("SHA-256", enc.encode("legacyPass"));
       const hashHex = Array.from(new Uint8Array(hashBuf)).map(b => b.toString(16).padStart(2, "0")).join("");

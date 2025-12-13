@@ -24,15 +24,15 @@ export const getSRSDate = (date: Date = new Date()): Date => {
   return startOfDay(subHours(date, SRS_CONFIG.CUTOFF_HOUR));
 };
 
-// Helper to convert timestamp to "Scheduler Days" respecting cutoff and local time
+
 const toSchedulerDays = (date: Date): number => {
   const cutoffHour = SRS_CONFIG.CUTOFF_HOUR || 4;
   const adjustedDate = new Date(date);
-  // Shift time so that the cutoff hour becomes the new "midnight"
+  
   adjustedDate.setHours(adjustedDate.getHours() - cutoffHour);
   
   const oneDay = 24 * 60 * 60 * 1000;
-  // Use timezone offset to align with local days
+  
   const timezoneOffset = adjustedDate.getTimezoneOffset() * 60 * 1000;
   return Math.floor((adjustedDate.getTime() - timezoneOffset) / oneDay);
 };
@@ -105,22 +105,22 @@ const calculateAnkiMetadata = (
   if (state === State.New) {
     type = 0;
     queue = 0;
-    due = currentDue; // Preserve the sort order
+    due = currentDue; 
   } else if (state === State.Learning) {
     type = 1;
-    // Intraday Learning
+    
     if (intervalDays < 1) {
       queue = 1;
-      due = Math.floor(dueTimestamp / 1000); // Unix Timestamp
+      due = Math.floor(dueTimestamp / 1000); 
     } else {
-      // Interday Learning
+      
       queue = 3;
-      due = toSchedulerDays(dueDate); // Day Count
+      due = toSchedulerDays(dueDate); 
     }
   } else if (state === State.Review) {
     type = 2;
     queue = 2;
-    due = toSchedulerDays(dueDate); // Day Count
+    due = toSchedulerDays(dueDate); 
   } else if (state === State.Relearning) {
     type = 3;
     if (intervalDays < 1) {
@@ -448,32 +448,32 @@ export const calculateNextReview = (
     : undefined;
       let currentState = inferCardState(card, !!lastReviewDate);
 
-  // Fix for "Graduating from Learning"
-  // If we fell through to here, it means we graduated from Learning/Relearning (or were never in it).
-  // If the card was previously Learning/Relearning, we must treat it as a fresh Review candidate for FSRS
-  // or State.New if it was the very first graduation.
+  
+  
+  
+  
   if (!isLearningPhase && !isRelearningPhase) {
     if (card.type === 1 || card.type === 0) {
       if (lastReviewDate) {
-        // Was Learning, now Graduating -> Transition to Review
-        // We set currentState to Learning so FSRS knows it's a graduation event if handled that way,
-        // BUT ts-fsrs `repeat` typically expects the *current* state.
-        // If we pass State.Learning to `f.repeat`, it treats it as a short-term learning step which is NOT what we want for graduation.
-        // We want to initialize Stability/Difficulty.
-        // Actually, FSRS ignores `state` in the input Card object for `repeat`? No, it uses it.
-        // If input state is Learning, FSRS might try to apply learning steps again?
-        // Let's look at `inferCardState`.
         
-        // Correct FSRS usage:
-        // If transferring from Learning -> Review, we should probably provide the best guess params.
-        // However, standard ts-fsrs usage for "First Review" (New -> Review) expects State.New.
-        // For Learning -> Review (Graduation), if we want FSRS to schedule the first long interval,
-        // we might treat it as State.Learning (if supported) or State.New?
-        // Most FSRS implementations treat the graduation as the "First Review".
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
         currentState = State.New; 
         
-        // NOTE: If we want to preserve history of learning, that's what 'reps' captures.
-        // Setting to State.New triggers the 'first review' logic in FSRS (calculating initial S/D).
+        
+        
       } else {
          currentState = State.New;
       }

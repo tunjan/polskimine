@@ -81,17 +81,17 @@ export const useSyncthingSync = () => {
 
       const getSyncDetails = (data: any) => {
         if (data.formatName === "dexie" && data.data && Array.isArray(data.data.data)) {
-           // Dexie format
+           
            const rows = data.data.data.find((t: any) => t.tableName === "cards")?.rows || [];
            const deviceId = data.data.data.find((t: any) => t.tableName === "settings")?.rows?.[0]?.deviceId || "Unknown";
-           // Last synced not explicitly standard in Dexie export, assume now or look for metadata if available
+           
            return {
              count: rows.length,
              lastSynced: "Unknown (Import)",
              deviceId,
            }
         } else {
-           // Legacy Format
+           
            return {
              count: data.cards?.length || 0,
              lastSynced: data.lastSynced ? new Date(data.lastSynced).toLocaleString() : "Unknown",

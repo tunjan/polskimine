@@ -15,7 +15,7 @@ vi.mock("@/db/dexie", () => ({
     }
 }));
 
-// Setup QueryClient for testing
+
 const createWrapper = () => {
     const queryClient = new QueryClient({
         defaultOptions: { queries: { retry: false } }
@@ -58,7 +58,7 @@ describe("useProfile", () => {
 
         await result.current.updateUsername("NewName");
 
-        // Should update cache optimistically/onSuccess
+        
         expect(db.profile.update).toHaveBeenCalledWith("user1", expect.objectContaining({ username: "NewName" }));
         await waitFor(() => expect(result.current.profile?.username).toBe("NewName"));
     });

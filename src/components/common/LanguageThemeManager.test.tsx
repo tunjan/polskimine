@@ -10,7 +10,7 @@ describe("LanguageThemeManager", () => {
       language: LanguageId.Polish,
       languageColors: { [LanguageId.Polish]: "#ff0000" } as any,
     });
-    // Clear head
+    
     document.head.innerHTML = "";
     document.documentElement.removeAttribute("data-language");
   });
@@ -24,7 +24,7 @@ describe("LanguageThemeManager", () => {
     render(<LanguageThemeManager />);
     const styleTag = document.getElementById("custom-language-theme");
     expect(styleTag).toBeInTheDocument();
-    expect(styleTag?.innerHTML).toContain("--primary: hsl(0 100% 50%)"); // #ff0000 -> 0 100 50
+    expect(styleTag?.innerHTML).toContain("--primary: hsl(0 100% 50%)"); 
   });
 
   it("should remove attribute on unmount", () => {

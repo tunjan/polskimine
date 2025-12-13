@@ -13,7 +13,7 @@ import {
   OPTIMIZER_CONFIG,
 } from "./fsrsShared";
 
-// Default FSRS-5 weights for testing
+
 const DEFAULT_W = [
   0.4072, 1.1829, 3.1262, 15.4722, 7.2102, 0.5316, 1.0651, 0.0234, 1.616,
   0.1544, 1.0824, 1.9813, 0.0953, 0.2975, 2.2042, 0.2407, 2.9466, 0.5034,
@@ -72,7 +72,7 @@ describe("fsrsShared", () => {
 
     it("should return ~0.9 when elapsed days equals stability", () => {
       const result = getRetrievability(10, 10);
-      // Formula: (1 + FACTOR * 1)^DECAY = 0.9^1 = 0.9
+      
       expect(result).toBeCloseTo(0.9, 2);
     });
 
@@ -94,15 +94,15 @@ describe("fsrsShared", () => {
   describe("nextStability", () => {
     it("should calculate stability for Again rating (1)", () => {
       const result = nextStability(10, 5, 0.9, 1, DEFAULT_W);
-      // For rating 1: w[11] * d^(-w[12]) * ((s+1)^w[13] - 1) * exp(w[14] * (1-r))
+      
       expect(result).toBeGreaterThan(0);
-      expect(result).toBeLessThan(10); // Should decrease stability for lapse
+      expect(result).toBeLessThan(10); 
     });
 
     it("should apply hard penalty for rating 2", () => {
       const resultGood = nextStability(10, 5, 0.9, 3, DEFAULT_W);
       const resultHard = nextStability(10, 5, 0.9, 2, DEFAULT_W);
-      // Hard should have a penalty applied
+      
       expect(resultHard).toBeLessThan(resultGood);
     });
 
@@ -114,7 +114,7 @@ describe("fsrsShared", () => {
 
     it("should clamp minimum stability to 0.1", () => {
       const result = nextStability(0, 5, 0.9, 3, DEFAULT_W);
-      // Input stability is clamped to 0.1
+      
       expect(result).toBeGreaterThan(0);
     });
 
@@ -126,7 +126,7 @@ describe("fsrsShared", () => {
     it("should be affected by difficulty", () => {
       const lowDiff = nextStability(10, 2, 0.9, 3, DEFAULT_W);
       const highDiff = nextStability(10, 9, 0.9, 3, DEFAULT_W);
-      // Lower difficulty should result in higher stability gain
+      
       expect(lowDiff).toBeGreaterThan(highDiff);
     });
   });
@@ -144,7 +144,7 @@ describe("fsrsShared", () => {
 
     it("should keep difficulty stable for rating = 3", () => {
       const result = nextDifficulty(5, 3, DEFAULT_W);
-      // Should only apply mean reversion, not directional change
+      
       expect(result).toBeCloseTo(5, 0);
     });
 
@@ -159,9 +159,9 @@ describe("fsrsShared", () => {
     });
 
     it("should apply mean reversion toward w[4]", () => {
-      // Mean reversion: nextD * (1 - w[7]) + w[4] * w[7]
+      
       const result = nextDifficulty(2, 3, DEFAULT_W);
-      // Should move slightly toward w[4] (7.2102)
+      
       expect(result).toBeGreaterThan(2);
     });
   });
@@ -184,7 +184,7 @@ describe("fsrsShared", () => {
     it("should skip loss calculation for learning states (0, 1)", () => {
       const logs = [createReviewLog({ grade: 3, state: 0, elapsed_days: 0 })];
       const result = computeCardLoss(logs, DEFAULT_W);
-      expect(result).toBe(0); // No loss for first step
+      expect(result).toBe(0); 
     });
 
     it("should calculate loss for review states", () => {
@@ -193,7 +193,7 @@ describe("fsrsShared", () => {
         createReviewLog({ grade: 3, state: 2, elapsed_days: 1 }),
       ];
       const result = computeCardLoss(logs, DEFAULT_W);
-      // Should have some loss from review
+      
       expect(result).toBeGreaterThan(0);
     });
 
@@ -273,7 +273,7 @@ describe("fsrsShared", () => {
         0.0001
       );
 
-      // Non-target indices should be unchanged
+      
       for (let i = 0; i < DEFAULT_W.length; i++) {
         if (!targetIndices.includes(i)) {
           expect(result[i]).toBe(DEFAULT_W[i]);
@@ -287,7 +287,7 @@ describe("fsrsShared", () => {
         DEFAULT_W,
         batch,
         [0, 1, 2, 3],
-        10, // Very high learning rate
+        10, 
         0.0001
       );
 
@@ -311,7 +311,7 @@ describe("fsrsShared", () => {
         OPTIMIZER_CONFIG.finiteDiffH
       );
 
-      // Result should be different from input (gradients should be non-zero)
+      
       let anyDifferent = false;
       for (let i = 0; i < result.length; i++) {
         if (Math.abs(result[i] - DEFAULT_W[i]) > 1e-10) {

@@ -7,7 +7,7 @@ import { useSettingsStore } from "@/stores/useSettingsStore";
 import { LanguageId } from "@/types";
 import * as cardRepo from "@/db/repositories/cardRepository";
 
-// Mock dependencies (Similar to AuthPage but slightly different context usage)
+
 vi.mock("@/contexts/AuthContext", () => ({
   useAuth: vi.fn(),
 }));
@@ -33,7 +33,7 @@ vi.mock("sonner", () => ({
     toast: { success: vi.fn(), error: vi.fn() }
 }));
 
-// Mock Components
+
 vi.mock("./components/LanguageSelector", () => ({
     LanguageSelector: ({ onContinue, onToggle }: any) => (
         <div>
@@ -79,23 +79,23 @@ describe("OnboardingFlow", () => {
     it("should navigate through onboarding steps", async () => {
         render(<OnboardingFlow />);
         
-        // Language Step
+        
         expect(screen.getByText("Step 1 of 3")).toBeInTheDocument();
         fireEvent.click(screen.getByText("Toggle PL"));
         fireEvent.click(screen.getByText("Continue Lang"));
 
-        // Level Step
+        
         expect(await screen.findByText("Step 2 of 3")).toBeInTheDocument();
         fireEvent.click(screen.getByText("Select A1"));
         fireEvent.click(screen.getByText("Continue"));
 
-        // Deck Step
+        
         expect(await screen.findByText("Step 3 of 3")).toBeInTheDocument();
         fireEvent.click(screen.getByText("Complete Deck"));
 
         await waitFor(() => expect(cardRepo.saveAllCards).toHaveBeenCalled());
         expect(markInitialDeckGeneratedMock).toHaveBeenCalled();
-        // window.location.reload is valid here? It is used in OnboardingFlow but inside setTimeout(..., 2000).
-        // I won't wait 2 seconds in test. I can enable fake timers.
+        
+        
     });
 });

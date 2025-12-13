@@ -2,7 +2,7 @@ import { renderHook, act, waitFor } from "@testing-library/react";
 import { AuthProvider, useAuth } from "./AuthContext";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 
-// Mock dependencies
+
 vi.mock("@/utils/security", () => ({
   hashPassword: vi.fn().mockResolvedValue("hashed"),
   verifyPassword: vi.fn().mockResolvedValue(true),
@@ -44,11 +44,11 @@ vi.mock("sonner", () => ({
   toast: { success: vi.fn(), error: vi.fn() },
 }));
 
-// Import db to assert on it
+
 import { db } from "@/db/dexie";
-// We need to cast it to any or unknown to access mock methods if TS complains, 
-// but since we mocked it, it effectively HAS those mock methods at runtime.
-// For TS, we can just use it as is or cast.
+
+
+
 const mockDb = db as any;
 
 
@@ -64,7 +64,7 @@ describe("AuthContext", () => {
 
   it("should start with loading true and no user", async () => {
     const { result } = renderHook(() => useAuth(), { wrapper });
-    // expect(result.current.loading).toBe(true); // Flaky if effect runs setImmediately
+    
     await waitFor(() => expect(result.current.loading).toBe(false));
     expect(result.current.user).toBeNull();
   });
@@ -104,15 +104,15 @@ describe("AuthContext", () => {
   });
 
   it("should sign out", async () => {
-    // Setup login state via mock
+    
     const { result } = renderHook(() => useAuth(), { wrapper });
     await waitFor(() => expect(result.current.loading).toBe(false));
     
-    // Simulate login first (implied by previous tests, but here we just manually state change if possible? 
-    // No, we must use exposed methods. So let's login first or mock initial useEffect)
-    // Easier: Mock localStorage before render to simulate session restore
     
-    // reset for this test
+    
+    
+    
+    
     vi.clearAllMocks();
   });
 });

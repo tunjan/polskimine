@@ -3,7 +3,7 @@ import { useDeckActions } from "./useDeckActions";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { useDeckStore } from "@/stores/useDeckStore";
 
-// Mock dependencies
+
 const mockRecordReviewMutation = { mutateAsync: vi.fn() };
 const mockUndoReviewMutation = { mutateAsync: vi.fn() };
 const mockInvalidateQueries = vi.fn();
@@ -47,7 +47,7 @@ describe("useDeckActions", () => {
       grade: "Good"
     }));
     
-    // Check if last review was set in store
+    
     const lastReview = useDeckStore.getState().lastReview;
     expect(lastReview).not.toBeNull();
     expect(lastReview?.card).toEqual(oldCard);
@@ -56,7 +56,7 @@ describe("useDeckActions", () => {
   it("should undo review", async () => {
     const { result } = renderHook(() => useDeckActions());
     
-    // Setup state
+    
     useDeckStore.getState().setLastReview({
       card: { id: "1" } as any,
       date: "2023-01-01",
@@ -82,6 +82,6 @@ describe("useDeckActions", () => {
   it("should refresh deck data", () => {
     const { result } = renderHook(() => useDeckActions());
     result.current.refreshDeckData();
-    expect(mockInvalidateQueries).toHaveBeenCalledTimes(7); // invalidating 7 keys
+    expect(mockInvalidateQueries).toHaveBeenCalledTimes(7); 
   });
 });

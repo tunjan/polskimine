@@ -245,7 +245,7 @@ describe("stateUtils", () => {
 
     it("should handle empty array by returning 0", () => {
       const card = createCard({ learningStep: 2 });
-      // Note: Math.min(2, -1) = -1, then Math.max(0, -1) = 0
+      
       expect(getClampedStep(card, [])).toBe(0);
     });
   });
@@ -257,7 +257,7 @@ describe("stateUtils", () => {
     });
 
     it("should prioritize explicit state over type inference", () => {
-      // Card has type 0 (new) but state is explicitly Review
+      
       const card = createCard({ type: 0, state: State.Review, last_review: Date.now() });
       expect(inferCardState(card)).toBe(State.Review);
     });
@@ -392,7 +392,7 @@ describe("stateUtils", () => {
         state: State.Review,
         last_review: Date.now(),
       });
-      // Explicitly pass false to override the card's last_review
+      
       expect(inferCardState(card, false)).toBe(State.New);
     });
 

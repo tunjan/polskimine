@@ -2,7 +2,7 @@ import { render, screen, fireEvent } from "@testing-library/react";
 import { Dashboard } from "./Dashboard";
 import { describe, it, expect, vi } from "vitest";
 
-// Mock Child Components to avoid deep rendering issues and focus on Dashboard logic
+
 vi.mock("@/components/ui/activity-heatmap", () => ({ ActivityHeatmap: () => <div data-testid="heatmap" /> }));
 vi.mock("@/components/ui/level-badge", () => ({ 
     LevelBadge: ({ level }: any) => <div>Level {level} Badge</div>,
@@ -23,7 +23,7 @@ describe("Dashboard", () => {
     it("should render greeting and summary", () => {
         render(<Dashboard {...defaultProps} />);
         expect(screen.getByText("Ready to study?")).toBeInTheDocument();
-        // due = 5+2+20 + 10 = 37 cards.
+        
         expect(screen.getByText(/37 cards/)).toBeInTheDocument();
     });
 
@@ -37,7 +37,7 @@ describe("Dashboard", () => {
     it("should render breakdown badges", () => {
         render(<Dashboard {...defaultProps} />);
         expect(screen.getByText("10 new")).toBeInTheDocument();
-        expect(screen.getByText("7 learning")).toBeInTheDocument(); // 5 + 2
+        expect(screen.getByText("7 learning")).toBeInTheDocument(); 
         expect(screen.getByText("20 review")).toBeInTheDocument();
     });
 

@@ -70,6 +70,6 @@ describe("useStudyQueue", () => {
              await result.current.actions.markKnown();
          });
 
-         expect(defaultProps.onUpdateCard).toHaveBeenCalledWith(expect.objectContaining({ state: 2 })); // Review state
+         expect(defaultProps.onUpdateCard).toHaveBeenCalledWith(expect.objectContaining({ state: 2 })); 
     });
 });

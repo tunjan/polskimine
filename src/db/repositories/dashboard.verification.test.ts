@@ -10,7 +10,7 @@ describe("Dashboard Counts Verification", () => {
   const language = LanguageId.Polish;
 
   beforeEach(async () => {
-    // Setup Auth
+    
     localStorage.setItem("linguaflow_current_user", userId);
     
     await db.cards.clear();
@@ -51,28 +51,28 @@ describe("Dashboard Counts Verification", () => {
         await saveCard(card);
     };
 
-    // 1. New Card (Type 0)
+    
     await createCard(0, 0, 0);
 
-    // 2. Learning Card (Type 1, Queue 1, Due Now)
+    
     await createCard(1, 1, nowSeconds - 100);
 
-    // 3. Learning Card (Type 1, Queue 1, Due Later)
+    
     await createCard(1, 1, nowSeconds + 10000);
 
-    // 4. Review Card (Type 2, Queue 2, Due Now)
+    
     await createCard(2, 2, nowDays - 1);
 
-    // 5. Review Card (Type 2, Queue 2, Due Later)
+    
     await createCard(2, 2, nowDays + 5);
 
-    // 6. Review Card Known (Type 2, ivl > 21)
+    
     await createCard(2, 2, nowDays + 10, 25);
 
-    // 7. Relearning Card (Type 3)
+    
     await createCard(3, 3, nowDays - 1);
     
-    // 8. Card in another language (should be ignored)
+    
     const otherLangCard: Card = {
        id: `other_lang_card`,
        user_id: userId,
@@ -99,10 +99,10 @@ describe("Dashboard Counts Verification", () => {
     };
     await saveCard(otherLangCard);
 
-    // Run Aggregation
+    
     const stats = await getDashboardCounts(language);
     
-    // Debug
+    
     console.log("Stats:", stats);
 
     /* 

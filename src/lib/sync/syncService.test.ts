@@ -3,7 +3,7 @@ import { exportSyncData, importSyncData, SyncData } from "./syncService";
 import { Card, LanguageId, UserSettings } from "@/types";
 import { State as FSRSState } from "ts-fsrs";
 
-// Mock all external dependencies
+
 vi.mock("@/db/dexie", () => ({
   db: {
     revlog: {
@@ -24,21 +24,21 @@ vi.mock("@/db/dexie", () => ({
   },
 }));
 
-// Mock history repository
+
 vi.mock("@/db/repositories/historyRepository", () => ({
   getHistory: vi.fn().mockResolvedValue({}),
   saveFullHistory: vi.fn().mockResolvedValue(undefined),
   clearHistory: vi.fn().mockResolvedValue(undefined),
 }));
 
-// Mock settings repository
+
 vi.mock("@/db/repositories/settingsRepository", () => ({
   getFullSettings: vi.fn().mockResolvedValue(null),
   getSystemSetting: vi.fn().mockResolvedValue("test-device-id"),
   setSystemSetting: vi.fn().mockResolvedValue(undefined),
 }));
 
-// Mock card repository
+
 const mockCards: Card[] = [];
 vi.mock("@/db/repositories/cardRepository", () => ({
   getCards: vi.fn(() => Promise.resolve([...mockCards])),
@@ -118,7 +118,7 @@ describe("syncService Unit Tests", () => {
     });
 
     it("should export cards from the database", async () => {
-      // Add test cards to mock
+      
       mockCards.push(
         createTestCard({
           targetSentence: "Cześć, jak się masz?",
@@ -272,7 +272,7 @@ describe("syncService Unit Tests", () => {
         version: 3,
         lastSynced: new Date().toISOString(),
         deviceId: "test",
-        // Missing cards array
+        
       } as SyncData;
 
       const updateSettingsMock = vi.fn();
@@ -321,7 +321,7 @@ describe("syncService Unit Tests", () => {
         revlog: [],
         settings: {
           language: LanguageId.Polish,
-          geminiApiKey: "", // Empty in import
+          geminiApiKey: "", 
         },
         profile: null,
         aggregatedStats: [],
@@ -332,14 +332,14 @@ describe("syncService Unit Tests", () => {
       await importSyncData(syncData, updateSettingsMock, { importApiKeys: false });
 
       expect(updateSettingsMock).toHaveBeenCalled();
-      // API key should be empty string (preserved from existing)
+      
       expect(updateSettingsMock.mock.calls[0][0].geminiApiKey).toBe("");
     });
   });
 
   describe("Round Trip Export/Import", () => {
     it("should preserve all card data through export and import", async () => {
-      // Setup: Add cards to export
+      
       const originalCard = createTestCard({
         targetSentence: "Round trip test",
         targetWord: "trip",
@@ -354,10 +354,10 @@ describe("syncService Unit Tests", () => {
 
       const settings = createTestSettings();
 
-      // Export
+      
       const exportedData = await exportSyncData(settings, { includeApiKeys: true });
 
-      // Verify export has the card
+      
       expect(exportedData.cards).toHaveLength(1);
       expect(exportedData.cards[0].targetSentence).toBe("Round trip test");
       expect(exportedData.cards[0].targetWord).toBe("trip");

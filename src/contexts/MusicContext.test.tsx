@@ -13,7 +13,7 @@ describe("MusicContext", () => {
       volume: 1,
     };
     
-    // Mock global Audio
+    
     vi.stubGlobal('Audio', vi.fn(function() { return audioMock; }));
   });
 
@@ -56,7 +56,7 @@ describe("MusicContext", () => {
     });
     
     expect(result.current.volume).toBe(0.5);
-    // audioRef effect runs on mount and volume change
+    
     expect(audioMock.volume).toBe(0.5);
   });
 });

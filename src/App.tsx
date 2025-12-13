@@ -59,9 +59,9 @@ const AppContent: React.FC = () => {
 
 const App: React.FC = () => {
   useEffect(() => {
-    // We do NOT unbury cards on startup automatically anymore.
-    // Buried cards should remain buried until the next day (handled by scheduler date checks usually)
-    // or until manually unburied.
+    
+    
+    
     /*
     import("@/db/repositories/cardRepository").then(({ unburyCards }) => {
       unburyCards();

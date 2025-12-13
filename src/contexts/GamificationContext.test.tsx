@@ -2,7 +2,7 @@ import { renderHook, act } from "@testing-library/react";
 import { GamificationProvider, useGamification } from "./GamificationContext";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 
-// Mock dependencies
+
 vi.mock("@/db/dexie", () => ({
   db: {
     profile: {
@@ -15,7 +15,7 @@ import { db } from "@/db/dexie";
 const mockDb = db as any;
 
 
-// Mock useAuth and useProfile
+
 const mockUseAuth = vi.fn();
 const mockUseProfile = vi.fn();
 
@@ -48,8 +48,8 @@ describe("GamificationContext", () => {
       result.current.incrementXP(10);
     });
 
-    // 100 + 10 = 110 xp
-    // level = sqrt(110/100) + 1 = floor(1.04) + 1 = 2
+    
+    
     expect(mockDb.profile.update).toHaveBeenCalledWith("u1", expect.objectContaining({
       xp: 110,
       points: 60,

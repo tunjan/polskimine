@@ -16,7 +16,7 @@ describe("getDueCards - Skip Learning Wait Reproduction", () => {
   it("should return future learning cards when ignoreLearningSteps is true", async () => {
     const now = new Date();
     const nowSeconds = Math.floor(now.getTime() / 1000);
-    const futureDue = nowSeconds + 600; // Due in 10 minutes
+    const futureDue = nowSeconds + 600; 
 
     const card: Card = {
       id: "1",
@@ -24,8 +24,8 @@ describe("getDueCards - Skip Learning Wait Reproduction", () => {
       nativeTranslation: "Good morning",
       notes: "",
       language,
-      type: 0, // New
-      queue: 1, // Learning
+      type: 0, 
+      queue: 1, 
       due: futureDue,
       last_modified: nowSeconds,
       left: 0,
@@ -37,26 +37,26 @@ describe("getDueCards - Skip Learning Wait Reproduction", () => {
       scheduled_days: 0,
       reps: 0,
       lapses: 0,
-      state: 1 as any, // Learning
+      state: 1 as any, 
       isLeech: false,
       isBookmarked: false,
       user_id: userId,
       created_at: nowSeconds,
     };
 
-    // Save the card
+    
     await saveCard(card);
 
-    // Case 1: ignoreLearningSteps = false (Default)
-    // Should NOT find the card because it is due in the future
+    
+    
     const cardsDefault = await getDueCards(now, language, false);
     expect(cardsDefault).toHaveLength(0);
 
-    // Case 2: ignoreLearningSteps = true
-    // Should find the card even though it is due in the future
+    
+    
     const cardsIgnored = await getDueCards(now, language, true);
-    // This Expectation fails currently because of the bug
+    
     expect(cardsIgnored).toHaveLength(1);
-    // expect(cardsIgnored[0].id).toBe("1"); // ID is overwritten by saveCard logic
+    
   });
 });

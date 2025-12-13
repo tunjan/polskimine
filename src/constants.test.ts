@@ -34,7 +34,7 @@ describe("constants", () => {
     it("should be an object with date keys", () => {
       expect(typeof MOCK_HISTORY).toBe("object");
       const keys = Object.keys(MOCK_HISTORY);
-      // It might be empty if random generation fails or logic changes, but current logic ensures 100 iterations
+      
       expect(keys.length).toBeGreaterThan(0);
       expect(keys[0]).toMatch(/^\d{4}-\d{2}-\d{2}$/);
     });

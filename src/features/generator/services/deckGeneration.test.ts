@@ -23,11 +23,11 @@ describe("generateInitialDeck", () => {
 
         const result = await generateInitialDeck({ language: LanguageId.Polish, proficiencyLevel: "A1", apiKey: "key" });
         
-        expect(aiService.generateBatchCards).toHaveBeenCalledTimes(4); // 4 topics
-        expect(result.length).toBe(4); // 1 card per batch * 4 batches
+        expect(aiService.generateBatchCards).toHaveBeenCalledTimes(4); 
+        expect(result.length).toBe(4); 
         expect(result[0].targetSentence).toBe("S1");
         expect(result[0].tags).toContain("AI-Gen");
-        expect(result[0].type).toBe(0); // New
+        expect(result[0].type).toBe(0); 
     });
 
     it("should handle AI service failure", async () => {

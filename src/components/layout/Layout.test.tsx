@@ -5,7 +5,7 @@ import { MemoryRouter } from "react-router-dom";
 import { useSettingsStore } from "@/stores/useSettingsStore";
 import { LanguageId } from "@/types";
 
-// Mock Components and Hooks
+
 vi.mock("@/components/ui/sidebar", () => ({
   Sidebar: ({ children }: any) => <div data-testid="sidebar">{children}</div>,
   SidebarHeader: ({ children }: any) => <div>{children}</div>,
@@ -48,7 +48,7 @@ vi.mock("@/components/ui/flags", () => ({
   GermanFlag: () => <span>DE</span>,
 }));
 
-// Mock Hooks
+
 vi.mock("@/contexts/AuthContext", () => ({
   useAuth: () => ({ signOut: vi.fn() }),
 }));
@@ -85,7 +85,7 @@ describe("Layout", () => {
     );
 
     expect(screen.getByText("Main Content")).toBeInTheDocument();
-    expect(screen.getByText("LinguaFlow")).toBeInTheDocument(); // Sidebar Header
+    expect(screen.getByText("LinguaFlow")).toBeInTheDocument(); 
     expect(screen.getByText("Overview")).toBeInTheDocument();
   });
 
@@ -112,9 +112,9 @@ describe("Layout", () => {
     );
 
     expect(screen.getByText("Study Content")).toBeInTheDocument();
-    // In study mode, sidebar provider/inset might not be rendered or sidebar hidden
-    // The component implementation returns early if isStudyMode:
-    // if (isStudyMode) return ... (no SidebarProvider)
+    
+    
+    
     expect(screen.queryByText("LinguaFlow")).not.toBeInTheDocument();
   });
 });

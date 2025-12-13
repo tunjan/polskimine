@@ -34,6 +34,7 @@ const mapToAppCard = (card: AnkiCard): Card => {
     nativeTranslation: card.native_translation || "",
     targetWord: card.target_word || "",
     targetWordTranslation: card.target_word_translation || "",
+    targetWordPartOfSpeech: card.target_word_part_of_speech || "",
     notes: card.notes || "",
     
     language: (card.language as Language) || LanguageId.Polish,
@@ -59,7 +60,7 @@ const mapToAppCard = (card: AnkiCard): Card => {
     isBookmarked: card.isBookmarked,
     
     user_id: card.user_id,
-    created_at: card.created_at || card.id, // Fallback to ID if created_at missing
+    created_at: card.created_at || card.id, 
   };
 };
 
@@ -147,7 +148,7 @@ export const saveCard = async (card: Card) => {
       ""
   ]);
   
-  // Note: We still save the note for backward compatibility/backup
+  
   const note: Note = {
       id: nid,
       guid: generateId().slice(0, 10),
@@ -191,12 +192,13 @@ export const saveCard = async (card: Card) => {
       isLeech: card.isLeech,
       user_id: card.user_id || userId || "local_user",
       
-      // New Fields
+      
       target_sentence: card.targetSentence,
       native_translation: card.nativeTranslation,
       notes: card.notes,
       target_word: card.targetWord, 
       target_word_translation: card.targetWordTranslation,
+      target_word_part_of_speech: card.targetWordPartOfSpeech,
       tags: (card.tags || []).join(" "),
       created_at: nid,
   };
@@ -279,7 +281,7 @@ export const getDueCards = async (
         true,
         true
       )
-      .limit(200) // Limit Intraday
+      .limit(200) 
       .toArray(),
 
         db.cards
@@ -290,7 +292,7 @@ export const getDueCards = async (
         true,
         true
       )
-      .limit(500) // Limit Reviews to prevent OOM
+      .limit(500) 
       .toArray(),
 
         db.cards
@@ -301,7 +303,7 @@ export const getDueCards = async (
         true,
         true
       )
-      .limit(200) // Limit Interday
+      .limit(200) 
       .toArray(),
   ]);
 
@@ -375,15 +377,15 @@ export const getDashboardCounts = async (
   let reviewDue = 0;
   let dayLearnDue = 0;
 
-  // Single-pass aggregation
-  // We iterate over all cards for this user/language.
+  
+  
   await db.cards
     .where("[user_id+language]")
     .equals([userId, language])
     .each((card) => {
         total++;
         
-        // Type Counts
+        
         if (card.type === 0) newCount++;
         else if (card.type === 1) learningCount++;
         else if (card.type === 2) {
@@ -392,7 +394,7 @@ export const getDashboardCounts = async (
         }
         else if (card.type === 3) relearningCount++;
         
-        // Due Counts
+        
         if (card.queue === 1 && checkLearningDue(card.due)) {
             learnDue++;
         } else if (card.queue === 2 && card.due <= nowDays) {
@@ -500,8 +502,8 @@ export const getCardByTargetWord = async (
 
   const lowerWord = targetWord.toLowerCase();
   
-  // Note: This is still a scan without an index on target_word, but it avoids joins.
-  // Optimization: Add index on target_word in future if frequent.
+  
+  
   const cards = await db.cards
       .where("[user_id+language]")
       .equals([userId, language])
@@ -525,7 +527,7 @@ export const searchCards = async (
     if (searchTerm) {
     const term = searchTerm.toLowerCase();
     
-    // 1. Scan Cards directly (Denormalized)
+    
     let collection = db.cards
       .where("[user_id+language]")
       .equals([userId, language])
@@ -534,7 +536,7 @@ export const searchCards = async (
            return content.toLowerCase().includes(term);
       });
       
-    // Apply filters
+    
     if (filters.type !== undefined) {
         collection = collection.filter(c => c.type === filters.type);
     }
@@ -545,15 +547,15 @@ export const searchCards = async (
         collection = collection.filter(c => c.isLeech ?? false);
     }
     
-    // Count and Paginating a filtered collection in Dexie requires iterating or getting keys.
-    // For now, let's just fetch all matches (assuming reasonable result set size < 1000) or limit.
-    // Ideally we limit.
+    
+    
+    
     const LIMIT = 200;
     const matches = await collection.limit(LIMIT).toArray();
     
     const count = matches.length; 
     
-    // Sort by ID desc (newest first)
+    
     matches.sort((a, b) => b.id - a.id);
     
     const paginated = matches.slice(page * pageSize, (page + 1) * pageSize);
@@ -562,7 +564,7 @@ export const searchCards = async (
     return { data, count };
   }
 
-  // No search term
+  
     let collection: Dexie.Collection<AnkiCard, number>;
 
     if (filters.type !== undefined) {
@@ -603,7 +605,7 @@ export const unburyCards = async (): Promise<void> => {
   if (!userId) return;
 
   await db.transaction("rw", [db.cards], async () => {
-    // Find all buried cards (queue < -1) for the current user
+    
     const buriedCards = await db.cards
       .where("user_id")
       .equals(userId)
@@ -612,7 +614,7 @@ export const unburyCards = async (): Promise<void> => {
 
     if (buriedCards.length === 0) return;
 
-    // Reset queue to type
+    
     for (const card of buriedCards) {
       await db.cards.update(card.id, {
         queue: card.type,

@@ -60,7 +60,7 @@ describe("studyLimits", () => {
     it("should account for cards already reviewed today", () => {
       const cards = [newCard, newCard, newCard];
       const limits = { dailyNewLimit: 3, reviewsToday: { newCards: 2, reviewCards: 0 } };
-      // 3 allowed total, 2 done, so 1 more allowed
+      
       const result = applyStudyLimits(cards, limits);
       expect(result.length).toBe(1);
     });

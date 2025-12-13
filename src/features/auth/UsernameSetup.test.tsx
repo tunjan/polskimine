@@ -25,11 +25,11 @@ describe("UsernameSetup", () => {
     render(<UsernameSetup />);
 
     const input = screen.getByPlaceholderText("Type name...");
-    const btn = screen.getByText("Confirm"); // Button text initially "Confirm" if disabled? 
-    // Wait, button might be disabled if !username.
+    const btn = screen.getByText("Confirm"); 
     
-    fireEvent.change(input, { target: { value: "ab" } }); // Too short
-    fireEvent.click(btn); // Should trigger handleSubmit but return early with toast
+    
+    fireEvent.change(input, { target: { value: "ab" } }); 
+    fireEvent.click(btn); 
     expect(mockToast.error).toHaveBeenCalledWith("Minimum 3 characters required.");
     expect(updateUsername).not.toHaveBeenCalled();
 

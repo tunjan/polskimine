@@ -54,7 +54,7 @@ export async function generateInitialDeck(
       language: options.language,
       tags: [options.proficiencyLevel, "Starter", "AI-Gen"],
       
-      // Initialize required card properties
+      
       type: 0,
       queue: 0,
       due: 0,

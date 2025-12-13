@@ -44,11 +44,11 @@ const sortByDue = (a: Card, b: Card): number => {
 
 const getDueTimestamp = (card: Card): number => {
   if (card.queue === 1) {
-    return card.due * 1000; // Seconds to ms
+    return card.due * 1000; 
   } else if (card.queue === 2 || card.queue === 3) {
-    return card.due * 24 * 60 * 60 * 1000; // Days to ms
+    return card.due * 24 * 60 * 60 * 1000; 
   }
-  return card.due || 0; // Fallback or New cards
+  return card.due || 0; 
 };
 
 const sortByOverdueness = (a: Card, b: Card, now: Date): number => {
@@ -163,11 +163,11 @@ export const sortCards = (
 
   const newCards = cards.filter((c) => isNewCard(c));
 
-  // Queue 1: Intraday Learning (Due = Timestamp)
-  // Queue 3: Interday Learning (Due = Day Count) - Acts like Review
-  // Note: We check queue explicitly. Fallback to standard isLearningCard if queue is missing but state is Learning.
+  
+  
+  
   const intradayLearning = cards.filter(
-    (c) => isLearningCard(c) && (c.queue === 1 || c.queue === 0 || c.queue === undefined), // Treat 0/undefined as potential intraday for safety, mostly 1
+    (c) => isLearningCard(c) && (c.queue === 1 || c.queue === 0 || c.queue === undefined), 
   );
   
   const interdayLearning = cards.filter(
@@ -181,35 +181,35 @@ export const sortCards = (
   );
 
   if (!displaySettings) {
-    // Legacy behavior: Sort everything by due.
-    // WARNING: This is flawed for mixed queues (Day vs Timestamp) but keeping for consistent legacy behavior unless we want to fix it there too.
-    // If we want to fix legacy too:
-    // Sort reviews+interday by due (day). Sort intraday by due (timestamp). Put intraday first?
-    // For now, preserving exact previous behavior for "no settings" might be safer, or apply the same fix.
-    // Let's apply the fix because the logic violation is fundamental.
     
-    // Combined "Day based" cards
+    
+    
+    
+    
+    
+    
+    
     const combinedReviews = [...reviewCards, ...interdayLearning, ...otherCards].sort(sortByDue);
     
-    // Intraday (Timestamp)
+    
     const sortedIntraday = [...intradayLearning].sort(sortByDue);
 
     if (order === "mixed") {
       return shuffle(cards);
     }
 
-    const legacyNew = [...newCards].sort(sortByDue); // New cards rank
+    const legacyNew = [...newCards].sort(sortByDue); 
 
     if (order === "reviewFirst") {
-       // Intraday (urgent) -> Reviews (including Interday) -> New
-       // Or Reviews -> New?
-       // Legacy code: return [...legacyReview, ...legacyNew];
-       // Simply placing sorted Intraday at start or merge with reviews?
-       // Let's put Intraday first as it's most urgent.
+       
+       
+       
+       
+       
        return [...sortedIntraday, ...combinedReviews, ...legacyNew];
     }
 
-    // newFirst
+    
     return [...sortedIntraday, ...legacyNew, ...combinedReviews];
   }
 
@@ -219,7 +219,7 @@ export const sortCards = (
     displaySettings.newCardSortOrder,
   );
 
-  // Treat Interday cards as Reviews for sorting (Day Count)
+  
   const sortedReviews = sortReviewCards(
     [...reviewCards, ...interdayLearning, ...otherCards],
     displaySettings.reviewSortOrder,
@@ -241,20 +241,20 @@ export const sortCards = (
         const insertAt = Math.min((i + 1) * step, combined.length);
         combined.splice(insertAt, 0, card);
       });
-      // Interleave Intraday cards into the combined Review+New stream
+      
       result = interleaveLearningCards(
         [],
         sortedIntraday,
         combined,
-        displaySettings.interdayLearningOrder, // Applies to how "Learning" (now Intraday) is mixed
+        displaySettings.interdayLearningOrder, 
       );
       break;
     }
     case "reviewFirst": {
-       // Reviews (including Interday) first
-       // But where do Intraday go?
-       // interleaveLearningCards(new, learn, review, ...) 
-       // If we treat Intraday as the "Learning" input:
+       
+       
+       
+       
       const reviewWithLearning = interleaveLearningCards(
         [],
         sortedIntraday,

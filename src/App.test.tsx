@@ -4,7 +4,7 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { useAuth } from "@/contexts/AuthContext";
 import { useProfile } from "@/features/profile/hooks/useProfile";
 
-// Mock dependencies
+
 vi.mock("@/components/ui/loading", () => ({ LoadingScreen: () => <div data-testid="loading">Loading...</div> }));
 vi.mock("@/features/auth/AuthPage", () => ({ AuthPage: () => <div data-testid="auth-page">Auth Page</div> }));
 vi.mock("@/features/auth/UsernameSetup", () => ({ UsernameSetup: () => <div data-testid="username-setup">Username Setup</div> }));
@@ -44,7 +44,7 @@ describe("App Integration", () => {
 
     it("should show UsernameSetup if no username", () => {
         (useAuth as any).mockReturnValue({ loading: false, user: { id: "1" } });
-        (useProfile as any).mockReturnValue({ loading: false, profile: { id: "1" } }); // No username
+        (useProfile as any).mockReturnValue({ loading: false, profile: { id: "1" } }); 
         render(<App />);
         expect(screen.getByTestId("username-setup")).toBeInTheDocument();
     });
