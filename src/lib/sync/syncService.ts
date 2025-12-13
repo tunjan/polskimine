@@ -326,6 +326,7 @@ export const importSyncData = async (
         targetSentence: c.target_sentence,
         nativeTranslation: c.native_translation,
         targetWord: c.target_word,
+        targetWordTranslation: c.target_word_translation,
         notes: c.notes,
         
         language: c.language,

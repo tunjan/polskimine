@@ -90,6 +90,7 @@ export interface AnkiCard {
   native_translation?: string;
   notes?: string; 
   target_word?: string;
+  target_word_translation?: string;
   tags?: string;
   created_at?: number;
 }

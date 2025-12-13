@@ -33,6 +33,7 @@ const mapToAppCard = (card: AnkiCard): Card => {
     targetSentence: card.target_sentence || "",
     nativeTranslation: card.native_translation || "",
     targetWord: card.target_word || "",
+    targetWordTranslation: card.target_word_translation || "",
     notes: card.notes || "",
     
     language: (card.language as Language) || LanguageId.Polish,
@@ -195,6 +196,7 @@ export const saveCard = async (card: Card) => {
       native_translation: card.nativeTranslation,
       notes: card.notes,
       target_word: card.targetWord, 
+      target_word_translation: card.targetWordTranslation,
       tags: (card.tags || []).join(" "),
       created_at: nid,
   };
