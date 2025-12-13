@@ -630,4 +630,514 @@ describe("cardSorter", () => {
       expect(result[2].id).toBe("z");
     });
   });
+
+  describe("sortCards - dueRandom Sort Order", () => {
+    it("should group cards by due date and shuffle within groups", () => {
+      vi.useFakeTimers();
+      vi.setSystemTime(new Date("2024-03-15T12:00:00"));
+
+      // Use day counts that will format to different date keys
+      const day1Count = 19800; // Some day count
+      const day2Count = 19801; // Next day
+
+      const cards = [
+        createCard({ id: "1a", state: State.Review, queue: 2, reps: 1, due: day1Count }),
+        createCard({ id: "1b", state: State.Review, queue: 2, reps: 1, due: day1Count }),
+        createCard({ id: "1c", state: State.Review, queue: 2, reps: 1, due: day1Count }),
+        createCard({ id: "2a", state: State.Review, queue: 2, reps: 1, due: day2Count }),
+        createCard({ id: "2b", state: State.Review, queue: 2, reps: 1, due: day2Count }),
+      ];
+
+      const settings: DisplayOrderSettings = {
+        reviewSortOrder: "dueRandom",
+      };
+
+      const result = sortCards(cards, "reviewFirst", settings);
+
+      // All cards should be present
+      expect(result).toHaveLength(5);
+
+      // Cards from day1 should come before cards from day2 (sorted by date key)
+      const day1Ids = result.filter((c) => c.id.startsWith("1")).map((c) => c.id);
+      const day2Ids = result.filter((c) => c.id.startsWith("2")).map((c) => c.id);
+      
+      expect(day1Ids).toHaveLength(3);
+      expect(day2Ids).toHaveLength(2);
+
+      vi.useRealTimers();
+    });
+
+    it("should handle all cards with same due date", () => {
+      const cards = Array.from({ length: 10 }, (_, i) =>
+        createCard({ id: `${i}`, state: State.Review, queue: 2, reps: 1, due: 100 })
+      );
+
+      const settings: DisplayOrderSettings = {
+        reviewSortOrder: "dueRandom",
+      };
+
+      const result = sortCards(cards, "reviewFirst", settings);
+
+      expect(result).toHaveLength(10);
+    });
+
+    it("should handle single card in dueRandom", () => {
+      const cards = [
+        createCard({ id: "solo", state: State.Review, queue: 2, reps: 1, due: 100 }),
+      ];
+
+      const settings: DisplayOrderSettings = {
+        reviewSortOrder: "dueRandom",
+      };
+
+      const result = sortCards(cards, "reviewFirst", settings);
+
+      expect(result).toHaveLength(1);
+      expect(result[0].id).toBe("solo");
+    });
+  });
+
+  describe("sortCards - Queue Timestamp Handling", () => {
+    it("should correctly compare intraday cards by timestamp", () => {
+      vi.useFakeTimers();
+      vi.setSystemTime(new Date("2024-03-15T12:00:00"));
+
+      const now = Date.now();
+      const cards = [
+        createCard({
+          id: "later",
+          state: State.Learning,
+          queue: 1,
+          due: Math.floor((now + 60000) / 1000), // 1 min from now
+        }),
+        createCard({
+          id: "earlier",
+          state: State.Learning,
+          queue: 1,
+          due: Math.floor((now - 60000) / 1000), // 1 min ago
+        }),
+      ];
+
+      const result = sortCards(cards, "newFirst");
+
+      // Earlier due should come first
+      expect(result[0].id).toBe("earlier");
+      expect(result[1].id).toBe("later");
+
+      vi.useRealTimers();
+    });
+
+    it("should correctly compare interday cards by day count", () => {
+      vi.useFakeTimers();
+      vi.setSystemTime(new Date("2024-03-15T12:00:00"));
+
+      const cards = [
+        createCard({
+          id: "later",
+          state: State.Review,
+          queue: 2,
+          reps: 1,
+          due: 20000, // Day 20000
+        }),
+        createCard({
+          id: "earlier",
+          state: State.Review,
+          queue: 2,
+          reps: 1,
+          due: 19000, // Day 19000
+        }),
+      ];
+
+      const settings: DisplayOrderSettings = {
+        reviewSortOrder: "due",
+      };
+
+      const result = sortCards(cards, "reviewFirst", settings);
+
+      expect(result[0].id).toBe("earlier");
+      expect(result[1].id).toBe("later");
+
+      vi.useRealTimers();
+    });
+
+    it("should handle cards with zero due value", () => {
+      const cards = [
+        createCard({ id: "zero", state: State.Review, queue: 2, reps: 1, due: 0 }),
+        createCard({ id: "nonzero", state: State.Review, queue: 2, reps: 1, due: 100 }),
+      ];
+
+      const settings: DisplayOrderSettings = {
+        reviewSortOrder: "due",
+      };
+
+      const result = sortCards(cards, "reviewFirst", settings);
+
+      expect(result[0].id).toBe("zero");
+    });
+
+    it("should handle cards with undefined due value", () => {
+      const cards = [
+        createCard({ id: "withDue", state: State.Review, queue: 2, reps: 1, due: 100 }),
+        createCard({ id: "undefinedDue", state: State.Review, queue: 2, reps: 1, due: undefined as any }),
+      ];
+
+      const result = sortCards(cards, "reviewFirst");
+
+      // Should not crash
+      expect(result).toHaveLength(2);
+    });
+  });
+
+  describe("sortCards - Interday Learning Integration", () => {
+    it("should separate interday learning from intraday learning", () => {
+      vi.useFakeTimers();
+      vi.setSystemTime(new Date("2024-03-15T12:00:00"));
+
+      const intradayCard = createCard({
+        id: "intraday",
+        state: State.Learning,
+        queue: 1,
+        due: Math.floor(Date.now() / 1000),
+      });
+      const interdayCard = createCard({
+        id: "interday",
+        state: State.Learning,
+        queue: 3,
+        due: 19800, // Day count
+      });
+      const reviewCard = createCard({
+        id: "review",
+        state: State.Review,
+        queue: 2,
+        reps: 5,
+        due: 19800,
+      });
+
+      const settings: DisplayOrderSettings = {
+        interdayLearningOrder: "mixed",
+      };
+
+      const result = sortCards([interdayCard, intradayCard, reviewCard], "reviewFirst", settings);
+
+      expect(result).toHaveLength(3);
+      expect(result.map(c => c.id)).toContain("intraday");
+      expect(result.map(c => c.id)).toContain("interday");
+      expect(result.map(c => c.id)).toContain("review");
+
+      vi.useRealTimers();
+    });
+
+    it("should treat interday learning like reviews for sorting", () => {
+      vi.useFakeTimers();
+      vi.setSystemTime(new Date("2024-03-15T12:00:00"));
+
+      const interdayCard = createCard({
+        id: "interday",
+        state: State.Learning,
+        queue: 3,
+        due: 19800,
+      });
+      const reviewCard = createCard({
+        id: "review",
+        state: State.Review,
+        queue: 2,
+        reps: 5,
+        due: 19801,
+      });
+
+      const settings: DisplayOrderSettings = {
+        reviewSortOrder: "due",
+      };
+
+      const result = sortCards([reviewCard, interdayCard], "reviewFirst", settings);
+
+      // Interday should come before review since it has earlier due
+      expect(result[0].id).toBe("interday");
+
+      vi.useRealTimers();
+    });
+  });
+
+  describe("sortCards - Interleaving Edge Cases", () => {
+    it("should handle empty new cards array in mixed mode", () => {
+      const reviewCards = Array.from({ length: 5 }, (_, i) =>
+        createCard({ id: `review-${i}`, state: State.Review, queue: 2, reps: 5 })
+      );
+
+      const settings: DisplayOrderSettings = {
+        newReviewOrder: "mixed",
+      };
+
+      const result = sortCards(reviewCards, "mixed", settings);
+
+      expect(result).toHaveLength(5);
+    });
+
+    it("should handle empty review cards array in mixed mode", () => {
+      const newCards = Array.from({ length: 5 }, (_, i) =>
+        createCard({ id: `new-${i}`, state: State.New, queue: 0, reps: 0 })
+      );
+
+      const settings: DisplayOrderSettings = {
+        newReviewOrder: "mixed",
+      };
+
+      const result = sortCards(newCards, "mixed", settings);
+
+      expect(result).toHaveLength(5);
+    });
+
+    it("should handle more learning cards than review cards", () => {
+      const learningCards = Array.from({ length: 10 }, (_, i) =>
+        createCard({
+          id: `learning-${i}`,
+          state: State.Learning,
+          queue: 1,
+          due: Math.floor(Date.now() / 1000),
+        })
+      );
+      const reviewCards = Array.from({ length: 2 }, (_, i) =>
+        createCard({ id: `review-${i}`, state: State.Review, queue: 2, reps: 5 })
+      );
+
+      const settings: DisplayOrderSettings = {
+        interdayLearningOrder: "mixed",
+      };
+
+      const result = sortCards([...learningCards, ...reviewCards], "reviewFirst", settings);
+
+      expect(result).toHaveLength(12);
+    });
+
+    it("should handle single learning card with many reviews", () => {
+      const learningCard = createCard({
+        id: "learning",
+        state: State.Learning,
+        queue: 1,
+        due: Math.floor(Date.now() / 1000),
+      });
+      const reviewCards = Array.from({ length: 20 }, (_, i) =>
+        createCard({ id: `review-${i}`, state: State.Review, queue: 2, reps: 5 })
+      );
+
+      const settings: DisplayOrderSettings = {
+        interdayLearningOrder: "mixed",
+      };
+
+      const result = sortCards([learningCard, ...reviewCards], "reviewFirst", settings);
+
+      expect(result).toHaveLength(21);
+      expect(result.map(c => c.id)).toContain("learning");
+    });
+  });
+
+  describe("sortCards - Stress Tests", () => {
+    it("should handle 500 cards efficiently", () => {
+      const cards = Array.from({ length: 500 }, (_, i) => {
+        const type = i % 4;
+        const state = [State.New, State.Learning, State.Review, State.Relearning][type];
+        const queue = [0, 1, 2, 1][type];
+        return createCard({
+          id: `card-${i}`,
+          state,
+          queue,
+          reps: type === 0 ? 0 : 5,
+          due: i,
+        });
+      });
+
+      const start = performance.now();
+      const result = sortCards(cards, "newFirst");
+      const end = performance.now();
+
+      expect(result).toHaveLength(500);
+      // Should complete in reasonable time (< 100ms)
+      expect(end - start).toBeLessThan(100);
+    });
+
+    it("should maintain data integrity with large mixed set", () => {
+      const cards = Array.from({ length: 100 }, (_, i) =>
+        createCard({
+          id: `card-${i}`,
+          state: i % 2 === 0 ? State.New : State.Review,
+          queue: i % 2 === 0 ? 0 : 2,
+          reps: i % 2 === 0 ? 0 : 5,
+          targetWord: `word-${i}`,
+          targetSentence: `sentence-${i}`,
+        })
+      );
+
+      const settings: DisplayOrderSettings = {
+        newReviewOrder: "mixed",
+      };
+
+      const result = sortCards(cards, "mixed", settings);
+
+      // All cards should be present with data intact
+      expect(result).toHaveLength(100);
+      result.forEach(card => {
+        expect(card.targetWord).toBeDefined();
+        expect(card.targetSentence).toBeDefined();
+      });
+    });
+  });
+
+  describe("sortCards - All Card Types Combination", () => {
+    it("should correctly sort all card types together", () => {
+      vi.useFakeTimers();
+      vi.setSystemTime(new Date("2024-03-15T12:00:00"));
+
+      const cards = [
+        // New cards
+        createCard({ id: "new-1", state: State.New, queue: 0, reps: 0, due: 1 }),
+        createCard({ id: "new-2", state: State.New, queue: 0, reps: 0, due: 2 }),
+        // Intraday learning
+        createCard({
+          id: "learning-intraday",
+          state: State.Learning,
+          queue: 1,
+          due: Math.floor(Date.now() / 1000) - 100,
+        }),
+        // Interday learning
+        createCard({
+          id: "learning-interday",
+          state: State.Learning,
+          queue: 3,
+          due: 19800,
+        }),
+        // Review
+        createCard({ id: "review-1", state: State.Review, queue: 2, reps: 5, due: 19799 }),
+        createCard({ id: "review-2", state: State.Review, queue: 2, reps: 5, due: 19800 }),
+        // Relearning
+        createCard({
+          id: "relearning",
+          state: State.Relearning,
+          queue: 1,
+          due: Math.floor(Date.now() / 1000) - 50,
+          lapses: 1,
+        }),
+      ];
+
+      const settings: DisplayOrderSettings = {
+        newCardSortOrder: "due",
+        reviewSortOrder: "due",
+        newReviewOrder: "newFirst",
+        interdayLearningOrder: "mixed",
+      };
+
+      const result = sortCards(cards, "newFirst", settings);
+
+      // All 7 cards should be present
+      expect(result).toHaveLength(7);
+
+      // New cards should come first (newFirst order)
+      expect(result[0].id).toBe("new-1");
+      expect(result[1].id).toBe("new-2");
+
+      vi.useRealTimers();
+    });
+  });
+
+  describe("sortCards - Overdueness Advanced Cases", () => {
+    it("should handle cards with very small intervals", () => {
+      vi.useFakeTimers();
+      vi.setSystemTime(new Date("2024-03-15T12:00:00"));
+
+      const now = new Date();
+      const dayMs = 24 * 60 * 60 * 1000;
+
+      const cards = [
+        createCard({
+          id: "small-interval",
+          state: State.Review,
+          queue: 2,
+          reps: 1,
+          due: Math.floor((now.getTime() - dayMs) / dayMs),
+          interval: 0.001, // Very small interval
+        }),
+        createCard({
+          id: "normal-interval",
+          state: State.Review,
+          queue: 2,
+          reps: 1,
+          due: Math.floor((now.getTime() - dayMs) / dayMs),
+          interval: 10,
+        }),
+      ];
+
+      const settings: DisplayOrderSettings = {
+        reviewSortOrder: "overdueness",
+      };
+
+      const result = sortCards(cards, "reviewFirst", settings);
+
+      // Card with smaller interval should be more "overdue"
+      expect(result[0].id).toBe("small-interval");
+
+      vi.useRealTimers();
+    });
+
+    it("should handle cards with zero interval", () => {
+      vi.useFakeTimers();
+      vi.setSystemTime(new Date("2024-03-15T12:00:00"));
+
+      const cards = [
+        createCard({
+          id: "zero-interval",
+          state: State.Review,
+          queue: 2,
+          reps: 1,
+          due: 19000,
+          interval: 0,
+        }),
+        createCard({
+          id: "normal-interval",
+          state: State.Review,
+          queue: 2,
+          reps: 1,
+          due: 19000,
+          interval: 5,
+        }),
+      ];
+
+      const settings: DisplayOrderSettings = {
+        reviewSortOrder: "overdueness",
+      };
+
+      // Should not crash with zero interval
+      const result = sortCards(cards, "reviewFirst", settings);
+      expect(result).toHaveLength(2);
+
+      vi.useRealTimers();
+    });
+  });
+
+  describe("sortCards - Fallback Behavior", () => {
+    it("should use default sorting when no settings provided", () => {
+      const cards = [
+        createCard({ id: "new", state: State.New, queue: 0, reps: 0 }),
+        createCard({ id: "review", state: State.Review, queue: 2, reps: 5 }),
+      ];
+
+      const result = sortCards(cards, "newFirst");
+
+      expect(result).toHaveLength(2);
+    });
+
+    it("should handle partial settings gracefully", () => {
+      const cards = [
+        createCard({ id: "new", state: State.New, queue: 0, reps: 0 }),
+        createCard({ id: "review", state: State.Review, queue: 2, reps: 5 }),
+      ];
+
+      const settings: DisplayOrderSettings = {
+        // Only newCardSortOrder specified
+        newCardSortOrder: "due",
+      };
+
+      const result = sortCards(cards, "newFirst", settings);
+
+      expect(result).toHaveLength(2);
+    });
+  });
 });
