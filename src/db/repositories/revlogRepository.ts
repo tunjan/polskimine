@@ -1,12 +1,11 @@
 import { db } from "@/db/dexie";
-import { generateId } from "@/utils/ids";
-import { RevlogEntry } from "@/db/types";
+import { Revlog } from "@/db/types";
 import { ReviewLog, Card, Grade } from "@/types";
 import { State } from "ts-fsrs";
 import { incrementStat } from "./aggregatedStatsRepository";
 import { getCurrentUserId } from "./cardRepository";
 
-const mapGradeToNumber = (grade: Grade): number => {
+const mapGradeToEase = (grade: Grade): number => {
   switch (grade) {
     case "Again":
       return 1;
@@ -19,6 +18,21 @@ const mapGradeToNumber = (grade: Grade): number => {
   }
 };
 
+const mapEaseToGrade = (ease: number): number => {
+    switch (ease) {
+        case 1: return 1;
+        case 2: return 2;
+        case 3: return 3;
+        case 4: return 4;
+        default: return 3;
+    }
+}
+
+const mapStateToReviewType = (state: State): number => {
+    switch (state) {
+        case State.New: return 0;         case State.Learning: return 0;         case State.Review: return 1;         case State.Relearning: return 2;         default: return 3;     }
+};
+
 export const addReviewLog = async (
   card: Card,
   grade: Grade,
@@ -26,18 +40,19 @@ export const addReviewLog = async (
   scheduledDays: number,
 ) => {
   const userId = getCurrentUserId();
-
-  const entry: RevlogEntry = {
-    id: generateId(),
-    card_id: card.id,
+  const cid = parseInt(card.id);
+  if (isNaN(cid)) return; 
+  const now = Date.now();
+  
+        
+  const entry: Revlog = {
+    id: now,
+    cid: cid,
+    usn: -1,
+    ease: mapGradeToEase(grade),
+    ivl: scheduledDays,                 lastIvl: 0,     factor: card.easeFactor,
+    time: 0,     type: mapStateToReviewType(card.state || State.New),
     user_id: userId || undefined,
-    grade: mapGradeToNumber(grade),
-    state: card.state ?? State.New,
-    elapsed_days: elapsedDays,
-    scheduled_days: scheduledDays,
-    stability: card.stability ?? 0,
-    difficulty: card.difficulty ?? 0,
-    created_at: new Date().toISOString(),
   };
 
   await db.revlog.add(entry);
@@ -58,27 +73,24 @@ export const getAllReviewLogs = async (
   let logs = await db.revlog.where("user_id").equals(userId).toArray();
 
   if (language) {
-    const cards = await db.cards
-      .where("language")
-      .equals(language)
-      .filter((c) => c.user_id === userId)
-      .toArray();
-    const cardIds = new Set(cards.map((c) => c.id));
-    logs = logs.filter((log) => cardIds.has(log.card_id));
+                const cards = await db.cards
+       .where("[user_id+language]")
+       .equals([userId, language])
+       .toArray();
+       
+    const cardIdSet = new Set(cards.map(c => c.id));
+    logs = logs.filter(log => cardIdSet.has(log.cid));
   }
-
-  logs.sort((a, b) => a.created_at.localeCompare(b.created_at));
+  
+    logs.sort((a, b) => a.id - b.id);
 
   return logs.map((log) => ({
-    id: log.id,
-    card_id: log.card_id,
-    grade: log.grade,
-    state: typeof log.state === "number" ? log.state : log.state,
-    elapsed_days: log.elapsed_days,
-    scheduled_days: log.scheduled_days,
-    stability: log.stability,
-    difficulty: log.difficulty,
-    created_at: log.created_at,
+    id: log.id.toString(),     card_id: log.cid.toString(),
+    grade: mapEaseToGrade(log.ease),
+    state: log.type === 1 ? State.Review : (log.type === 2 ? State.Relearning : State.Learning),     elapsed_days: 0,     scheduled_days: log.ivl,
+    stability: 0,
+    difficulty: 0,
+    created_at: new Date(log.id).toISOString(),
   }));
 };
 
@@ -88,23 +100,24 @@ export const getReviewLogsForCard = async (
   const userId = getCurrentUserId();
   if (!userId) return [];
 
-  const logs = await db.revlog
-    .where("card_id")
-    .equals(cardId)
-    .filter((log) => log.user_id === userId)
-    .toArray();
+  const cid = parseInt(cardId);
+  if (isNaN(cid)) return [];
 
-  logs.sort((a, b) => a.created_at.localeCompare(b.created_at));
+  const logs = await db.revlog
+    .where("cid")     .equals(cid)
+        .toArray();
+
+  logs.sort((a, b) => a.id - b.id);
 
   return logs.map((log) => ({
-    id: log.id,
-    card_id: log.card_id,
-    grade: log.grade,
-    state: typeof log.state === "number" ? log.state : log.state,
-    elapsed_days: log.elapsed_days,
-    scheduled_days: log.scheduled_days,
-    stability: log.stability,
-    difficulty: log.difficulty,
-    created_at: log.created_at,
+    id: log.id.toString(),
+    card_id: log.cid.toString(),
+    grade: mapEaseToGrade(log.ease),
+    state: log.type === 1 ? State.Review : (log.type === 2 ? State.Relearning : State.Learning),
+    elapsed_days: 0,
+    scheduled_days: log.ivl,
+    stability: 0,
+    difficulty: 0,
+    created_at: new Date(log.id).toISOString(),
   }));
 };
